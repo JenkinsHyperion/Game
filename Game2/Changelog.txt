@@ -1,0 +1,8 @@
+7/5/16
+Added alive flag for Entity base class, isAlive() getter, and destruct().
+Board update now checks for and removes non-alive entities.
+Particle entity self destructs at bottom of screen.
+-Matt
+
+7/6/16
+Added core collision engine.

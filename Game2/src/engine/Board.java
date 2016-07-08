@@ -16,11 +16,9 @@ import java.util.ArrayList;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import entities.Entity;
-import entities.EntityDynamic;
-import entities.EntityStatic;
+import entities.*;
 import entities.Player;
-import physics.Collision;
+import physics.*;
 import testEntities.*;
 
 
@@ -35,7 +33,7 @@ public class Board extends JPanel implements ActionListener {
     private Player player;
     private ArrayList<EntityStatic> staticEntitiesList; 
     private static ArrayList<EntityDynamic> dynamicEntitiesList; 
-    private ArrayList<Collision> collisionsList = new ArrayList<Collision>(); 
+    private ArrayList<Collision> collisionsList = new ArrayList<>(); 
     private boolean ingame = true;
     private final int ICRAFT_X = 300;
     private final int ICRAFT_Y = 200;
@@ -82,7 +80,7 @@ public class Board extends JPanel implements ActionListener {
         staticEntitiesList.add(new Ground(150,290,"ground01"));
         staticEntitiesList.add(new Platform(150,230,"platform"));
         staticEntitiesList.add(new Platform(50,260,"platform"));
-        staticEntitiesList.add(new StaticSprite(350,274, "grass01"));
+        staticEntitiesList.add(new StaticSprite(150,274, "grass01"));
         dynamicEntitiesList.add(new Bullet(100,100,1,1));
         
         initBullets();
@@ -202,7 +200,7 @@ public class Board extends JPanel implements ActionListener {
         inGame();
 
         //RUN POSITION AND DRAW UPDATES
-        updatePlayer();    
+        updateCraft();    
         updateDynamicObjects();
         //updateStaticObjects();
       
@@ -249,7 +247,7 @@ public class Board extends JPanel implements ActionListener {
     } 
     
     // Update position and Graphic of Player
-    private void updatePlayer() { 
+    private void updateCraft() { 
 
         if (player.getObjectGraphic().isVisible()) { //obsolete
 
@@ -322,7 +320,7 @@ public class Board extends JPanel implements ActionListener {
             	//TESTING COLLISION CLASS
             	
             	if (!hasActiveCollision(player,staticEntity)) { //check to see if collision isn't already occurring
-            		collisionsList.add(new Collision(player,staticEntity)); // if not, add new collision event
+            		collisionsList.add(new CollisionGenericTest(player,staticEntity)); // if not, add new collision event
             	}
             }      
         }
@@ -340,7 +338,7 @@ public class Board extends JPanel implements ActionListener {
 	            if (r1.intersects(r2)) {
 	            	
 	            	if (!hasActiveCollision(dynamicEntity,staticEntity)) { 
-	            		collisionsList.add(new Collision(dynamicEntity,staticEntity)); 
+	            		collisionsList.add(new CollisionGenericTest(dynamicEntity,staticEntity)); 
 	            	}
 	            }  
 	            
@@ -374,7 +372,7 @@ public class Board extends JPanel implements ActionListener {
     	return B_HEIGHT;
     }
     
-    private void drawDebug(Graphics g) { // DEBUG GUI
+    private void drawDebug(Graphics g){ // DEBUG GUI
         g.setColor(Color.GRAY);
 	    g.drawString("DeltaX: " + player.getDX(),5,15);
 	    g.drawString("DeltaY: " + player.getDY(),5,30);
@@ -383,17 +381,10 @@ public class Board extends JPanel implements ActionListener {
 	    g.drawString("Player State: " + player.getPlayerState(),5,75);
 	    
 	    //DEBUG - DISPLAY LIST OF COLLISIONS
-	    if (!collisionsList.isEmpty())
-	    {
-		    g.drawString("Collisions: ",5,90);
-		   
-		    for (int i = 0 ; i < collisionsList.size() ; i++){
-		    	//g.drawString("i: " + String.format("%d",i), 100, 90);
-		    	g.drawString(""+collisionsList.get(i),5,105+(10*i));
-		    }
+	    g.drawString("Collisions: ",5,90);
+	    for (int i = 0 ; i < collisionsList.size() ; i++){
+	    	g.drawString(""+collisionsList.get(i),5,105+(10*i));
 	    }
     }
-
-
-}
     
+}

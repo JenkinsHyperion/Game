@@ -48,7 +48,7 @@ public class Player extends EntityDynamic {
 
     private void initPlayer() {
         
-        setBoundingBox(8,16,12,16);
+        setBoundingBox(8,0,12,32);
         loadAnimatedSprite(IDLE_LEFT);
         setAccY((float) 0.1); // Force initialize gravity (temporary)
     }
@@ -86,14 +86,10 @@ public class Player extends EntityDynamic {
 
         if (key == KeyEvent.VK_LEFT && !keypressA) {
         	keypressA = true;
-            setState(runningLeft);
-            setStateBuffer(idlingLeft);
         }
 
         if (key == KeyEvent.VK_RIGHT && !keypressD) {
         	keypressD = true;
-            setState(runningRight);
-            setStateBuffer(idlingRight);
             
         }
 
@@ -126,7 +122,6 @@ public class Player extends EntityDynamic {
 
         if (key == KeyEvent.VK_LEFT && keypressA) {
         	keypressA = false;
-        	setState(playerStateBuffer);
         	
         	//test dust particles. Can go in own method if we enjoy every collision having particles/sparks.
         	if (getDY()==0 && getDX()==-2){ //Check to see if on ground. Should check state once states are stable, not DY.
@@ -139,7 +134,6 @@ public class Player extends EntityDynamic {
 
         if (key == KeyEvent.VK_RIGHT && keypressD) {
         	keypressD = false;
-        	setState(playerStateBuffer);
         	
         	//test making dust particles
         	if (getDY()==0 && getDX()==2){ //Check to see if on ground
@@ -187,6 +181,17 @@ public class Player extends EntityDynamic {
 		else if (dx<-2){
 			dx=-2;
 		}
+		
+		if (keypressA){
+			setState(runningLeft);
+			setStateBuffer(idlingLeft);
+		}
+		else if (keypressD){
+			setState(runningRight);
+			setStateBuffer(idlingRight);
+		}
+		else
+			setState(playerStateBuffer);
 		
 
     }

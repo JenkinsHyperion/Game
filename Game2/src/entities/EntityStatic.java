@@ -12,6 +12,7 @@ import sprites.Sprite;
  */
 public class EntityStatic extends Entity{
 
+	public String name;
 	private Sprite graphic; //might want to put into super class unless Entity without image is useful
 	protected Rectangle boundingBox = new Rectangle(0,0); //Should be moved to intermediate class for only collidables
 	
@@ -20,6 +21,7 @@ public class EntityStatic extends Entity{
         //this.x = x;
         //this.y = y;
         //visibility = true;
+    	
     }
     
     protected void loadSprite(String path){ // needs handling if failed. Also needs to be moved out of object class into sprites
@@ -51,6 +53,11 @@ public class EntityStatic extends Entity{
 	public void selfDestruct(){
 		setBoundingBox(0,0,0,0); // This is almost exclusively so the Collision Detector closes collisions with dead entities
 		alive = false;
+	}
+	
+	public String toString()
+	{
+		return String.format("%s", this);
 	}
 	
 }

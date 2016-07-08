@@ -11,7 +11,6 @@ public class Ground extends EntityStatic{
 			
 			initPlatform(x,y,path);
 			setBoundingBox(0,0,303,10);
-			name = "Ground";
 	}
 
 	
@@ -19,8 +18,6 @@ public class Ground extends EntityStatic{
     	loadSprite(path);		
 	}
 	
-	public String toString() {
-		return String.format(name);
-	}
+
 	
 }

@@ -78,7 +78,7 @@ public class Board extends JPanel implements ActionListener {
         //## TESTING ##
         //Manually add test objects here
         staticEntitiesList.add(new Ground(150,290,"ground01"));
-        staticEntitiesList.add(new Platform(150,230,"platform"));
+        staticEntitiesList.add(new Platform(150,240,"platform"));
         staticEntitiesList.add(new Platform(50,260,"platform"));
         staticEntitiesList.add(new StaticSprite(150,274, "grass01"));
         dynamicEntitiesList.add(new Bullet(100,100,1,1));

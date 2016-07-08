@@ -7,11 +7,13 @@ public class Collision {
 	
 	private EntityDynamic entityPrimary;
 	private EntityStatic entitySecondary;
+	public String collisionName;
 	
 	public Collision(EntityDynamic entity1, EntityStatic entity2){
-		
+
 		entityPrimary = entity1;
 		entitySecondary = entity2;
+		collisionName = entity2.name;
 		
 		//THIS TEST COLLISION IS A NORMAL SURFACE SUCH AS A FLAT PLATFORM
 		
@@ -77,5 +79,9 @@ public class Collision {
 		else{
 			return false;
 		}
+	}
+	
+	public String toString(){
+		return String.format("%s",collisionName);
 	}
 }

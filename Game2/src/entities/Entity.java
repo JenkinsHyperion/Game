@@ -5,10 +5,13 @@ package entities;
  */
 
 public class Entity { 
+	public static int count;
 	
 	public Entity(int x, int y){
     	setX(x);
-    	setY(y);		
+    	setY(y);	
+    	count++;
+    	
 	}
 	
 	protected boolean alive = true;

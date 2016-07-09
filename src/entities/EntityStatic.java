@@ -44,7 +44,7 @@ public class EntityStatic extends Entity{
         boundingBox = new Rectangle(x_offset, y_offset, width , height);
     }
 	
-	public Rectangle getBoundingBox(){ 
+	public Rectangle getBoundingBox(){ //move position to override in dynamic entity since static doesnt need position calc.
 		return new Rectangle (getX() + boundingBox.x , getY() + boundingBox.y , boundingBox.width , boundingBox.height);
 	}
 

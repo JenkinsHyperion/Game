@@ -7,6 +7,9 @@ import entities.EntityStatic;
 
 public class CollisionGenericTest extends Collision {
 	
+	private boolean xequilibrium = false;
+	private boolean yequilibrium = false;
+	
 	public CollisionGenericTest(EntityDynamic entity1, EntityStatic entity2){
 		
 		super(entity1, entity2);
@@ -34,60 +37,79 @@ public class CollisionGenericTest extends Collision {
 		Rectangle box1 = entityPrimary.getBoundingBox();
 		Rectangle box2 = entitySecondary.getBoundingBox();
 		
+		if ( sideIsAllignedX(box1, box2) ) {
 		
-			if (box1.getCenterY() < box2.getCenterY() ) { 
+			if ( box1.getCenterY() < box2.getCenterY() ) { 
 				
-				if (box1.getMaxY() == box2.getMinY() + 1 ) {
+				if ( box1.getMaxY() == box2.getMinY()  ) {
+					
+					yequilibrium = true;
 							
 					entityPrimary.setAccY(0);
 					entityPrimary.setDY(0);
 					entityPrimary.setDampeningX();
 					
 				}
-				else {				
-					entityPrimary.setDY(-1);		
+				else  {
+					entityPrimary.setAccY(0);	
+					entityPrimary.setDY(0);	
+					entityPrimary.setY(entityPrimary.getY()-1);	
+					
+					yequilibrium = false;
 				}
 			
 			}
 			else { 
 				
-				if (box1.getMinY() == box2.getMaxY()  ) {
-					entityPrimary.setDY(0.5f);
+				if ( box1.getMinY() == box2.getMaxY() + 1  ) {
+					entityPrimary.setDY(0);	// equilibrium with ceiling, for hanging mechanic perhaps?
 				}
 				else {				
-					entityPrimary.setDY(0.5f);		
+					entityPrimary.setDY(0);	
+					entityPrimary.setY(entityPrimary.getY()+1);		
 				}
 			
 			}
+			
+		}
 
 			
-		
+		//SIDE COLLISION
+		if (sideIsAllignedY(box1, box2)) { // make sure primary entity's side is contacting 
 			
-			/*if (box1.getCenterX() < box2.getCenterX() ) { 
+			if (box1.getCenterX() > box2.getCenterX() ) { 
 				
-				if (box1.getMaxY() == box2.getMinY() + 1 ) {
-							
-					entityPrimary.setAccX(0);
-					entityPrimary.setDX(0);
+				if (box1.getMinX() == box2.getMaxX() ) {
+					
+					xequilibrium = true;
 					
 				}
-				else {				
-					entityPrimary.setDX(-1);		
+				else {		
+					entityPrimary.setAccX(0);
+					entityPrimary.setDX(0);
+					entityPrimary.setX(entityPrimary.getX()+1);	
+					
+					xequilibrium = false;
 				} 
 			
 			}
 			else { 
 				
-				if (box1.getMinY() == box2.getMaxY()  ) {
-					entityPrimary.setAccX(0);
-					entityPrimary.setDX(0);
+				if ( box1.getMinX() == box2.getMaxX() ) {
+
+					xequilibrium = true;
+
 				}
 				else {				
-					entityPrimary.setDX(1);		
+					entityPrimary.setAccX(0);
+					entityPrimary.setDX(0);
+					entityPrimary.setX(entityPrimary.getX()-1);	
+					
+					xequilibrium = false;
 				}
 			
-			}*/
-		
+			}
+		}
 		
 	}
 	
@@ -100,7 +122,25 @@ public class CollisionGenericTest extends Collision {
 	}
 	
 	public String toString(){
-		return String.format("%s",collisionName);
+		return String.format("%s",collisionName + " x: " + xequilibrium + " y: " + yequilibrium);
+	}
+	
+	public boolean sideIsAllignedX(Rectangle box1, Rectangle box2){
+		if ( box1.getMinX() > box2.getMaxX() - 2 || box1.getMaxX() < box2.getMinX() + 2){
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+	
+	public boolean sideIsAllignedY(Rectangle box1, Rectangle box2){
+		if ( box1.getMinY() > box2.getMaxY() - 2 || box1.getMaxY() < box2.getMinY() + 2 ){
+			return false;
+		}
+		else {
+			return true;
+		}
 	}
 
 }

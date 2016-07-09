@@ -1,5 +1,7 @@
 package physics;
 
+import java.awt.Rectangle;
+
 import entities.EntityDynamic;
 import entities.EntityStatic;
 
@@ -40,7 +42,11 @@ public class Collision {
 	//INTERNAL METHODS - DON'T ALTER BELOW THIS
 	public boolean isComplete(){ // Check if entities are no longer colliding
 		
-		if (entityPrimary.getBoundingBox().intersects(entitySecondary.getBoundingBox()) ){
+		Rectangle r1 = entityPrimary.getBoundingBox();
+				
+		r1 = new Rectangle(r1.x - 1 , r1.y - 1, r1.width + 2, r1.height + 2 );
+		
+		if (r1.intersects(entitySecondary.getBoundingBox()) ){
 			return false;
 		}
 		else { // entities are no longer colliding

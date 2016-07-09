@@ -77,9 +77,9 @@ public class Board extends JPanel implements ActionListener {
         
         //## TESTING ##
         //Manually add test objects here
-        staticEntitiesList.add(new Ground(150,290,"ground01"));
-        staticEntitiesList.add(new Platform(150,240,"platform"));
-        staticEntitiesList.add(new Platform(50,260,"platform"));
+        staticEntitiesList.add(new Ground(100,290,"ground01"));
+        staticEntitiesList.add(new Platform(200,270,"platform"));
+        staticEntitiesList.add(new Platform(300,240,"platform"));
         staticEntitiesList.add(new StaticSprite(150,274, "grass01"));
         dynamicEntitiesList.add(new Bullet(100,100,1,1));
         
@@ -301,13 +301,16 @@ public class Board extends JPanel implements ActionListener {
 
     	updateCollisions(); // calculate and remove old collisions
     	
-        Rectangle r3 = player.getBoundingBox(); // get bounding box of player first
+        Rectangle r0 = player.getBoundingBox(); // get bounding box of player first
+        
+        Rectangle r3 = new Rectangle(r0.x - 1 , r0.y - 1, r0.width + 2, r0.height + 2); 
+        //make larger box to represent distance at which a new collision will be opened 
+        
         
         //TEMPORARY override collision with bottom of screen
-        if (r3.getMaxY() > B_HEIGHT) {   		
-            player.setDY(0);
-            player.setDampeningX();   	
-        }//
+        //if (r3.getMaxY() > B_HEIGHT) {   		
+        //    player.setDY(0);	
+        //}//
         
         
         // Check collisions between player and static objects

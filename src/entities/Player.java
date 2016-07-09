@@ -53,14 +53,6 @@ public class Player extends EntityDynamic {
         setAccY((float) 0.1); // Force initialize gravity (temporary)
     }
 
-    
-    public void setDY(int s){
-    	dy = s;
-    }
-    
-	public void setDX(int s) {
-		dx = s;		
-	}
 
 	
     //INPUT CONTROL
@@ -169,11 +161,13 @@ public class Player extends EntityDynamic {
     		
     	}
     	
-    	x = Math.round(x+dx);
-    	y = Math.round(y+dy);
     	
     	dx += accX;
     	dy += accY;
+    	
+    	x = Math.round(x+dx);
+    	y = Math.round(y+dy);
+
     	
 		if (dx>2){
 			dx=2;
@@ -194,17 +188,7 @@ public class Player extends EntityDynamic {
 			setState(playerStateBuffer);
 		
 
-    }
-    
-    public double getDX() {
-        return dx;
-    }
-    
-    
-    public double getDY() {
-        return dy;
-    }
-    
+    }   
     
     public String getPlayerState() {
         return playerState.getName();

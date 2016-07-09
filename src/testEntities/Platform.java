@@ -7,7 +7,7 @@ public class Platform extends EntityStatic{
 	public Platform(int x, int y, String path) {
 		super(x, y);
 		initPlatform(x,y,path);
-		setBoundingBox(0,0,32,4);
+		setBoundingBox(0,0,41,6);
 		name = "Platform"+count;
 	}
 

@@ -15,7 +15,7 @@ public class AnimationState {
 		stateName = name;
 	}
 
-	public Animation getAnimaion() {
+	public Animation getAnimation() {
 		return stateAnimation;
 	}
 

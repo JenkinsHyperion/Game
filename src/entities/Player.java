@@ -23,14 +23,19 @@ public class Player extends EntityDynamic {
 	private boolean keypressA = false;
 	private boolean keypressD = false;
 	private boolean keypressUP = false;
+	
+	private boolean climbing = false;
     
     private AnimationEnhanced RUN_RIGHT = new AnimationEnhanced(LoadAnimation.getAnimation(8, 1, 32, "player_sheet") , 2 ); 	
     private Animation RUN_LEFT = new Animation(LoadAnimation.getAnimation(8, 0, 32, "player_sheet") , 2 ); 
     private Animation IDLE_RIGHT = new Animation(LoadAnimation.getAnimation(2, 2, 32, "player_sheet") , 18 ); 
     private Animation IDLE_LEFT = new Animation(LoadAnimation.getAnimation(2, 3, 32, "player_sheet") , 18 );
     
-    private Animation JUMP_LEFT = new Animation(LoadAnimation.getAnimation(2, 5, 32, "player_sheet") , 18 ); 
+    private Animation CLIMB_LEFT = new Animation(LoadAnimation.getAnimation(21, 0, 40,64 , "spritesFramesFinal") , 3 );
     
+    private Animation JUMP_LEFT = new Animation(LoadAnimation.getAnimation(2, 5, 32, "player_sheet") , 18 ); 
+
+    private AnimationState climbingLeft= new AnimationState("climbing_left",CLIMB_LEFT);
     private AnimationState runningRight= new AnimationState("running_right",RUN_RIGHT);
     private AnimationState runningLeft= new AnimationState("running_left",RUN_LEFT);
     private AnimationState idlingRight= new AnimationState("idle_right",IDLE_RIGHT);
@@ -176,34 +181,63 @@ public class Player extends EntityDynamic {
 			dx=-2;
 		}
 		
-		if (keypressA){
-			setState(runningLeft);
-			setStateBuffer(idlingLeft);
+		
+		if (!climbing){
+			if (keypressA){
+				setState(runningLeft);
+				setStateBuffer(idlingLeft);
+			}
+			else if (keypressD){
+				setState(runningRight);
+				setStateBuffer(idlingRight);
+			}
+			else
+				setState(playerStateBuffer);
 		}
-		else if (keypressD){
-			setState(runningRight);
-			setStateBuffer(idlingRight);
+		else {
+			setDX(0);
 		}
-		else
-			setState(playerStateBuffer);
 		
 
     }   
     
-    public String getPlayerState() {
+    public String getPlayerStateName() {
         return playerState.getName();
     }
     
+    public AnimationState getPlayerState() {
+        return playerState;
+    }
 
     public void setState( AnimationState state){
     	playerState = state;
-    	getObjectGraphic().setSprite(state.getAnimaion());
-    	playerState.getAnimaion().start(); //Check for redundant calls to Animation.start() method
+    	getObjectGraphic().setSprite(state.getAnimation());
+    	playerState.getAnimation().start(); //Check for redundant calls to Animation.start() method
     }
     
     
     private void setStateBuffer( AnimationState state){
     	playerStateBuffer = state;
+    }
+    
+
+    public void setClimb(int frame){
+    	playerState = climbingLeft;
+    	getObjectGraphic().setSprite(climbingLeft.getAnimation());
+    	playerState.getAnimation().reset();
+    	playerState.getAnimation().start(frame);
+
+    	climbing = true;
+    }
+    
+    public void finishClimb(){
+    	playerState = idlingLeft;
+    	climbing = false;
+    }
+    
+    public boolean isClimbing(){
+
+    	return climbing;
     }
     
     

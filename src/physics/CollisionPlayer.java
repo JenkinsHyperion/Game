@@ -4,13 +4,16 @@ import java.awt.Rectangle;
 
 import entities.EntityDynamic;
 import entities.EntityStatic;
+import entities.Player;
 
-public class CollisionGenericTest extends Collision {
+public class CollisionPlayer extends Collision {
 	
 	private boolean xequilibrium = false;
 	private boolean yequilibrium = false;
 	
-	public CollisionGenericTest(EntityDynamic entity1, EntityStatic entity2){
+	private int distance = 0;
+	
+	public CollisionPlayer(EntityDynamic entity1, EntityStatic entity2){
 		
 		super(entity1, entity2);
 		
@@ -80,10 +83,32 @@ public class CollisionGenericTest extends Collision {
 				
 				if (box1.getMinX() == box2.getMaxX() ) {
 					
-					xequilibrium = true;
+					xequilibrium = true;		
+					
+					
+					//CLIMBING TEST 
+					boolean temp = ((Player) entityPrimary).isClimbing();
+					if (  !temp  ) {
+						
+						distance = (int) ( box2.getMinY() - entityPrimary.getY() ) ;
+						if (distance > 21){distance = 21;}
+						if (distance < 0){distance = 0;}
+						
+						entityPrimary.setY( (int) box2.getMinY() - 31);
+						entityPrimary.setX( (int) box2.getMaxX() - 26);
+						
+						entityPrimary.setDX(0); // lock player in place while climbing
+						
+						((Player) entityPrimary).setClimb( distance / 2 );
+						
+						
+					}// 
+													
+					entityPrimary.setDY(0);
+					entityPrimary.setAccY(0);
 					
 				}
-				else {		
+				else {	// Inside block
 					entityPrimary.setAccX(0);
 					entityPrimary.setDX(0);
 					entityPrimary.setX(entityPrimary.getX()+1);	
@@ -110,6 +135,18 @@ public class CollisionGenericTest extends Collision {
 			}
 		}
 		
+		
+		if (  ((Player) entityPrimary).isClimbing()  ) {
+
+			if (  ( (Player) entityPrimary ).getPlayerState().getAnimation().getFrameNumber()  == 20 ) {
+
+				((Player) entityPrimary).finishClimb();
+				
+			}	
+														
+		}
+		
+		
 	}
 	
 	//FINAL COLLISION COMMANDS - Last commands before this collision object self destructs
@@ -118,10 +155,13 @@ public class CollisionGenericTest extends Collision {
 		entityPrimary.setColliding(false); // unset entity collision flag. 
 		entityPrimary.setAccY(0.1f); //turn gravity back on
 		entityPrimary.setAccX(0); //remove friction
+		((Player) entityPrimary).finishClimb();
 	}
 	
 	public String toString(){
-		return String.format("%s",collisionName + " x: " + xequilibrium + " y: " + yequilibrium);
+		return String.format("%s",collisionName + " x: " + xequilibrium + " y: " + yequilibrium + "distance "+distance + " " +
+				((Player) entityPrimary).getPlayerState().getAnimation().getFrameNumber() + " "+ 
+				((Player) entityPrimary).isClimbing());
 	}
 	
 	public boolean sideIsAllignedX(Rectangle box1, Rectangle box2){
@@ -141,5 +181,7 @@ public class CollisionGenericTest extends Collision {
 			return true;
 		}
 	}
+	
+	
 
 }

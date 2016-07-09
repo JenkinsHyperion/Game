@@ -31,24 +31,24 @@ public class AnimationEnhanced extends Animation {
 			dependent = maxValue;
 		} else if (linkedVariable < minValue) {
 			dependent = minValue;
-		} else { // for clarity assume linkedVariable = player running speed dx
+		} else { 
 
 			frameDelay = maxDelay - ((linkedVariable - minValue) / maxValue) * (maxDelay - minDelay);
 			/*
-			 * |dx, zeroed at minimum value| |animation speed range|
+			 * (linkedVariable - minValue) = linked variable value, zeroed at minimum value
 			 * 
-			 * |dx as a percentage of the input value range| * by animation
-			 * speed range
+			 * (linkedVariable - minValue) / maxValue = percentage of Value range that linked Variable has covered
 			 * 
-			 * gives animation speed % within set range, based on input variable
-			 * % within set input range.
+			 * percentage x (maxDelay - minDelay) = percentage of Delay range
 			 * 
-			 * The (maxDelay - ...) just inverts the range, since maximum fame
-			 * delay is actually minimum animation playback speed
+			 * (maxDelay - ...) inverts the range, since maximum fame delay -> minimum animation playback speed
 			 */
 
 		}
+		
 
 	}
+	
+	
 
 }

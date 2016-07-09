@@ -78,8 +78,9 @@ public class Board extends JPanel implements ActionListener {
         //## TESTING ##
         //Manually add test objects here
         staticEntitiesList.add(new Ground(100,290,"ground01"));
-        staticEntitiesList.add(new Platform(200,270,"platform"));
-        staticEntitiesList.add(new Platform(300,240,"platform"));
+        staticEntitiesList.add(new Platform(210,180,"platform02"));
+        staticEntitiesList.add(new Platform(250,240,"platform"));
+        staticEntitiesList.add(new Platform(50,180,"platform02"));
         staticEntitiesList.add(new StaticSprite(150,274, "grass01"));
         dynamicEntitiesList.add(new Bullet(100,100,1,1));
         
@@ -307,10 +308,10 @@ public class Board extends JPanel implements ActionListener {
         //make larger box to represent distance at which a new collision will be opened 
         
         
-        //TEMPORARY override collision with bottom of screen
-        //if (r3.getMaxY() > B_HEIGHT) {   		
-        //    player.setDY(0);	
-        //}//
+        //KILL PLAYER AT BOTTOM OF SCREEN
+        if (r3.getMinY() > B_HEIGHT) {   		
+            player = new Player(ICRAFT_X, ICRAFT_Y);	
+        }
         
         
         // Check collisions between player and static objects
@@ -318,12 +319,14 @@ public class Board extends JPanel implements ActionListener {
         	
             Rectangle r4 = staticEntity.getBoundingBox();
             
+            r4 = new Rectangle(r4.x - 1 , r4.y - 1, r4.width + 2, r4.height + 2); 
+            
             if (r3.intersects(r4)) {
             		
             	//TESTING COLLISION CLASS
             	
             	if (!hasActiveCollision(player,staticEntity)) { //check to see if collision isn't already occurring
-            		collisionsList.add(new CollisionGenericTest(player,staticEntity)); // if not, add new collision event
+            		collisionsList.add(new CollisionPlayer(player,staticEntity)); // if not, add new collision event
             	}
             }      
         }
@@ -381,7 +384,7 @@ public class Board extends JPanel implements ActionListener {
 	    g.drawString("DeltaY: " + player.getDY(),5,30);
 	    g.drawString("AccX: " + player.getAccX(),5,45);
 	    g.drawString("AccY: " + player.getAccY(),5,60);
-	    g.drawString("Player State: " + player.getPlayerState(),5,75);
+	    g.drawString("Player State: " + player.getPlayerStateName(),5,75);
 	    
 	    //DEBUG - DISPLAY LIST OF COLLISIONS
 	    g.drawString("Collisions: ",5,90);

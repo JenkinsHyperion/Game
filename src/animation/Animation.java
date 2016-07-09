@@ -46,6 +46,24 @@ public class Animation {
 
 		stopped = false;
 	}
+	
+	//possibly move to enhanced animation
+	public void start(int startFrame) {
+		if (!stopped) {
+			return;
+		}
+
+		if (frames.size() == 0) {
+			return;
+		}
+
+		currentFrame = startFrame;
+		stopped = false;
+	}
+	
+	public int getFrameNumber(){
+		return currentFrame;
+	}
 
 	public void stop() {
 		if (frames.size() == 0) {

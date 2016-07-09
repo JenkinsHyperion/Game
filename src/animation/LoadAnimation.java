@@ -31,13 +31,13 @@ public class LoadAnimation {
 	}
 
 	// Cuts each animation frame out of the sprite sheet
-	public static BufferedImage getFrame(int xGrid, int yGrid, String file, int tileSize) {
+	public static BufferedImage getFrame(int xGrid, int yGrid, String file, int tileWidth, int tileHeight) {
 
 		// if (spriteSheet == null) {
 		spriteSheet = loadSpriteSheet(file);
 		// }
 
-		return spriteSheet.getSubimage(xGrid * tileSize, yGrid * tileSize, tileSize, tileSize);
+		return spriteSheet.getSubimage(xGrid * tileWidth, yGrid * tileHeight, tileWidth, tileHeight);
 	}
 
 	// Compile individual frames into array of buffered images
@@ -59,7 +59,18 @@ public class LoadAnimation {
 		BufferedImage[] b = new BufferedImage[length];
 
 		for (int i = 0; i < length; i++) {
-			b[i] = getFrame(i, row, file, tileSize);
+			b[i] = getFrame(i, row, file, tileSize, tileSize);
+		}
+
+		return b;
+	}
+	
+	public static BufferedImage[] getAnimation(int length, int row, int tileWidth, int tileHeight , String file) {
+
+		BufferedImage[] b = new BufferedImage[length];
+
+		for (int i = 0; i < length; i++) {
+			b[i] = getFrame(i, row, file, tileWidth, tileHeight);
 		}
 
 		return b;

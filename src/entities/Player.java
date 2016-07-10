@@ -56,9 +56,9 @@ public class Player extends EntityDynamic {
 
     private void initPlayer() {
         
-        setBoundingBox(8,0,12,32);
+        setBoundingBox(8,0,10,32);
         loadAnimatedSprite(IDLE_LEFT);
-        setAccY((float) 0.1); // Force initialize gravity (temporary)
+        setAccY( 0.1f ); // Force initialize gravity (temporary)
     }
 
 
@@ -95,19 +95,6 @@ public class Player extends EntityDynamic {
 
         if (key == KeyEvent.VK_SPACE && !keypressUP) { //JUMP
         	keypressUP = true;
-        	
-    		if (keypressUP){
-    			if (dy == 0){
-    				dy = -2.5f;
-    			}
-        	
-    			//Zero all x acceleration when leaving ground. Should be handled in its own collision class.
-    			//accX = 0;
-        	
-    			//setState(jumpingLeft);
-    			//setStateBuffer(idlingRight);
-    		}
-
             
         }
 
@@ -157,24 +144,31 @@ public class Player extends EntityDynamic {
     	
         //TESTING update enhanced run animation
         RUN_RIGHT.updateSpeed((int) getDX(), 0, 2, 2, 10);
+        //
     	
-    	if (keypressA && dy==0 ){
+    	if (keypressA && dy==0 && !climbing ){
     		//dx = -2;
-    		accX = (float) -0.2;
+    		accX = -0.1f ;
     				
     	}
-    	if (keypressD && dy==0){
+    	if (keypressD && dy==0 && !climbing){
     		//dx = 2;
-    		accX = (float) 0.2;
+    		accX = 0.1f ;
     		
     	}
+    	
+		if (keypressUP && accY == 0 && !climbing){
+			if (dy == 0){
+				dy = -2.5f;
+			}
+		}
     	
     	
     	dx += accX;
     	dy += accY;
     	
-    	x = Math.round(x+dx);
-    	y = Math.round(y+dy);
+    	x = x+dx;
+    	y = y+dy;
 
     	
 		if (dx>2){
@@ -196,9 +190,15 @@ public class Player extends EntityDynamic {
 			}
 			else
 				setState(playerStateBuffer);
+			
 		}
-		else {
+		else { //climbing
 			setDX(0);
+			
+			if (keypressA || keypressD){
+				playerState.getAnimation().start(); //climb when holding jump
+			}
+			
 		}
 		
 
@@ -236,7 +236,7 @@ public class Player extends EntityDynamic {
     	}
     	
     	playerState.getAnimation().reset();
-    	playerState.getAnimation().start(frame);
+    	playerState.getAnimation().setFrame(frame); 
     	climbing = true;
     }
     

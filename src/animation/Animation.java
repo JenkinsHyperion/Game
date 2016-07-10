@@ -71,7 +71,7 @@ public class Animation {
 	}
 	
 	//possibly move to enhanced animation
-	public void start(int startFrame) {
+	public void setFrame(int startFrame) {
 		if (!stopped) {
 			return;
 		}
@@ -81,7 +81,6 @@ public class Animation {
 		}
 
 		currentFrame = startFrame;
-		stopped = false;
 	}
 	
 	public int getFrameNumber(){

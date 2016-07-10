@@ -44,15 +44,19 @@ public class CollisionPlayer extends Collision {
 		//COLLISION FROM TOP
 		if ( sideIsAllignedX(box1, box2) ) {
 		
-			if ( box1.getCenterY() < box2.getCenterY() ) { 
+			if ( (int) box1.getCenterY() < (int) box2.getCenterY() ) { 
 				
-				if ( box1.getMaxY() == box2.getMinY()  ) {
+				if ( (int) box1.getMaxY() == (int) box2.getMinY()  ) {
 					
 					yequilibrium = true;
 							
 					entityPrimary.setAccY(0);
 					entityPrimary.setDY(0);
-					entityPrimary.setDampeningX();
+					
+					//find better way to read if object is running or has traction
+					//if ( ((Player) entityPrimary).getAccX() != 0){
+						entityPrimary.setDampeningX();
+					//}
 					
 				}
 				else  {
@@ -65,7 +69,7 @@ public class CollisionPlayer extends Collision {
 			}
 			else { //COLLISION FROM BOTTOM
 				
-				if ( box1.getMinY() == box2.getMaxY() + 1  ) {
+				if ( (int) box1.getMinY() == (int) box2.getMaxY() + 1  ) {
 					entityPrimary.setDY(0);	// equilibrium with ceiling, for hanging mechanic perhaps?
 				}
 				else {				
@@ -81,25 +85,30 @@ public class CollisionPlayer extends Collision {
 		//SIDE COLLISION
 		if (sideIsAllignedY(box1, box2)) { // make sure primary entity's side is contacting 
 			
-			if (box1.getCenterX() > box2.getCenterX() ) { 
+			if ((int) box1.getCenterX() > (int) box2.getCenterX() ) { 
 				
-				if (box1.getMinX() == box2.getMaxX() ) {
+				if ((int) box1.getMinX() == (int) box2.getMaxX()) {
 					
-					xequilibrium = true;		
-					
+					xequilibrium = true;	
+								
 					
 					//CLIMBING TEST 
 					boolean temp = ((Player) entityPrimary).isClimbing();
 					if (  !temp  ) {
 						
 						distance = (int) ( box2.getMinY() - entityPrimary.getY() ) ;
-						if (distance > 21){distance = 21;}
+						if (distance > 20){distance = 20;}
 						if (distance < 0){distance = 0;}
 						
-						entityPrimary.setY( (int) box2.getMinY() - 31);
+						// lock player in place while climbing
+						entityPrimary.setAccX(0);
+						entityPrimary.setDX(0); 
+						entityPrimary.setAccY(0);
+						entityPrimary.setDY(0); 
+						// move player to top while climb animation is playing
+						entityPrimary.setY( (int) box2.getMinY() - 30);
 						entityPrimary.setX( (int) box2.getMaxX() - 26);
-						
-						entityPrimary.setDX(0); // lock player in place while climbing
+
 						
 						((Player) entityPrimary).setClimb( distance / 2 , false);	
 						
@@ -120,7 +129,7 @@ public class CollisionPlayer extends Collision {
 			}
 			else { 
 				
-				if ( box1.getMaxX() == box2.getMinX() ) {
+				if ( (int) box1.getMaxX() == (int) box2.getMinX() ) {
 
 					xequilibrium = true;
 
@@ -129,13 +138,18 @@ public class CollisionPlayer extends Collision {
 					if (  !temp  ) {
 						
 						distance = (int) ( box2.getMinY() - entityPrimary.getY() ) ;
-						if (distance > 21){distance = 21;}
+						if (distance > 20){distance = 20;}
 						if (distance < 0){distance = 0;}
+
+						entityPrimary.setAccX(0);
+						entityPrimary.setDX(0); // lock player in place while climbing
+						entityPrimary.setAccY(0);
+						entityPrimary.setDY(0); 
 						
-						entityPrimary.setY( (int) box2.getMinY() - 31);
+						entityPrimary.setY( (int) box2.getMinY() - 30);
 						entityPrimary.setX( (int) box2.getMinX() - 6);
 						
-						entityPrimary.setDX(0); // lock player in place while climbing
+
 						
 						((Player) entityPrimary).setClimb( distance / 2 , true);	
 						

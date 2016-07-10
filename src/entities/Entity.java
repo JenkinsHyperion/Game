@@ -7,15 +7,15 @@ package entities;
 public class Entity { 
 	public static int count;
 	
+	protected boolean alive = true;
+	protected float x;
+    protected float y;
+    
 	public Entity(int x, int y){
     	setX(x);
     	setY(y);	
     	count++;
 	}
-	
-	protected boolean alive = true;
-	protected int x;
-    protected int y;
     
     
     public void selfDestruct(){
@@ -27,11 +27,11 @@ public class Entity {
     }
     
     public int getX() {
-        return x;
+        return (int) x;
     }
 
     public int getY() {
-        return y;
+        return (int) y;
     }
     
     public void setX(int setx) {

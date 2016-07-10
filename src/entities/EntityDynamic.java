@@ -71,11 +71,11 @@ public class EntityDynamic extends EntityStatic{
     public void setDampeningX() { 
     	if (dx > 0.1)
     	{
-    		accX = (float) -0.1;
+    		accX = -0.1f;
     	}
     	else if (dx < -0.1)
     	{
-    		accX = (float) 0.1;
+    		accX = 0.1f;
     	}
     	else
     	{

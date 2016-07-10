@@ -77,13 +77,15 @@ public class Board extends JPanel implements ActionListener {
         
         //## TESTING ##
         //Manually add test objects here
-        staticEntitiesList.add(new Ground(100,290,"ground01"));
+
         staticEntitiesList.add(new Platform(210,180,"platform02"));
         staticEntitiesList.add(new Platform(170,180,"platform"));
-        staticEntitiesList.add(new Platform(250,240,"platform"));
+        staticEntitiesList.add(new Platform(250,240,"platform02"));
+        staticEntitiesList.add(new Platform(210,240,"platform02"));
         staticEntitiesList.add(new Platform(50,180,"platform02"));
         staticEntitiesList.add(new Platform(60,270,"platform02"));
         staticEntitiesList.add(new StaticSprite(150,274, "grass01"));
+        staticEntitiesList.add(new Ground(100,290,"ground01"));
         dynamicEntitiesList.add(new Bullet(100,100,1,1));
         
         initBullets();
@@ -279,6 +281,7 @@ public class Board extends JPanel implements ActionListener {
 			if ( activeCollision.isActive(entity1, entity2) ) {
 				return true;
 			}
+			
 		}
 		
 		return false;
@@ -309,10 +312,9 @@ public class Board extends JPanel implements ActionListener {
     	updateCollisions(); // calculate and remove old collisions
     	
         Rectangle r0 = player.getBoundingBox(); // get bounding box of player first
-        
-        Rectangle r3 = new Rectangle(r0.x - 1 , r0.y - 1, r0.width + 2, r0.height + 2); 
+ 
         //make larger box to represent distance at which a new collision will be opened 
-        
+        Rectangle r3 = new Rectangle(r0.x - 1 , r0.y - 1, r0.width + 2, r0.height + 2); 
         
         //KILL PLAYER AT BOTTOM OF SCREEN
         if (r3.getMinY() > B_HEIGHT) {  
@@ -329,7 +331,7 @@ public class Board extends JPanel implements ActionListener {
         	player.setAccX(0);
         	player.setAccY(0.1f);
         	
-        }
+        }//
         
         
         // Check collisions between player and static objects
@@ -339,14 +341,14 @@ public class Board extends JPanel implements ActionListener {
             
             r4 = new Rectangle(r4.x - 1 , r4.y - 1, r4.width + 2, r4.height + 2); 
             
-            if (r3.intersects(r4)) {
-            		
-            	//TESTING COLLISION CLASS
-            	
-            	if (!hasActiveCollision(player,staticEntity)) { //check to see if collision isn't already occurring
-            		collisionsList.add(new CollisionPlayer(player,staticEntity)); // if not, add new collision event
-            	}
-            }      
+	            if (r3.intersects(r4) ) {
+	            		
+	            	//TESTING COLLISION CLASS
+	            	
+	            	if (!hasActiveCollision(player,staticEntity)) { //check to see if collision isn't already occurring
+	            		collisionsList.add(new CollisionPlayer(player,staticEntity)); // if not, add new collision event
+	            	}
+            }
         }
         
 
@@ -398,8 +400,8 @@ public class Board extends JPanel implements ActionListener {
     
     private void drawDebug(Graphics g){ // DEBUG GUI
         g.setColor(Color.GRAY);
-	    g.drawString("DeltaX: " + player.getDX(),5,15);
-	    g.drawString("DeltaY: " + player.getDY(),5,30);
+	    g.drawString("DeltaX: " + player.getX(),5,15);
+	    g.drawString("DeltaY: " + player.getY(),5,30);
 	    g.drawString("AccX: " + player.getAccX(),5,45);
 	    g.drawString("AccY: " + player.getAccY(),5,60);
 	    g.drawString("Player State: " + player.getPlayerStateName(),5,75);

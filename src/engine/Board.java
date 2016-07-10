@@ -79,8 +79,10 @@ public class Board extends JPanel implements ActionListener {
         //Manually add test objects here
         staticEntitiesList.add(new Ground(100,290,"ground01"));
         staticEntitiesList.add(new Platform(210,180,"platform02"));
+        staticEntitiesList.add(new Platform(170,180,"platform"));
         staticEntitiesList.add(new Platform(250,240,"platform"));
         staticEntitiesList.add(new Platform(50,180,"platform02"));
+        staticEntitiesList.add(new Platform(60,270,"platform02"));
         staticEntitiesList.add(new StaticSprite(150,274, "grass01"));
         dynamicEntitiesList.add(new Bullet(100,100,1,1));
         
@@ -155,7 +157,9 @@ public class Board extends JPanel implements ActionListener {
     	//Draw all static objects from list (ex. platforms)
         for (EntityStatic stat : staticEntitiesList) {
             if (stat.getObjectGraphic().isVisible()) {
-                g.drawImage(stat.getObjectGraphic().getImage(), stat.getX(), stat.getY(), this);
+                g.drawImage(stat.getObjectGraphic().getImage(), 
+                		stat.getObjectGraphic().getOffsetX() + stat.getX(), 
+                		stat.getObjectGraphic().getOffsetY() + stat.getY(), this);
             }
         }
         
@@ -168,7 +172,9 @@ public class Board extends JPanel implements ActionListener {
 
 		//Draw player
         if (player.getObjectGraphic().isVisible()) {
-            g.drawImage(player.getObjectGraphic().getImage(), player.getX(), player.getY(), this);
+            g.drawImage(player.getObjectGraphic().getImage(), 
+            		player.getX() + player.getObjectGraphic().getOffsetX(), 
+            		player.getY() + player.getObjectGraphic().getOffsetY(), this);
         }
 
     //DRAW GUI - might be extended into debug console
@@ -309,8 +315,20 @@ public class Board extends JPanel implements ActionListener {
         
         
         //KILL PLAYER AT BOTTOM OF SCREEN
-        if (r3.getMinY() > B_HEIGHT) {   		
-            player = new Player(ICRAFT_X, ICRAFT_Y);	
+        if (r3.getMinY() > B_HEIGHT) {  
+        	
+            //player = new Player(ICRAFT_X, ICRAFT_Y);	
+        		//replacing new entities should be done only when necessary, since initializing entity reloads every sprite
+        		// causing slight lag
+        	
+        	//could be teleport(x,y) or reposition(x,y) method in either player or parent entity classes
+        	player.setX(ICRAFT_X);
+        	player.setY(ICRAFT_Y);
+        	player.setDX(0);
+        	player.setDY(0);
+        	player.setAccX(0);
+        	player.setAccY(0.1f);
+        	
         }
         
         

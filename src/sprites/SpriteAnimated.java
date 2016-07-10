@@ -11,8 +11,12 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
     public SpriteAnimated(Animation animation) {
 
     	spriteAnimation = animation;
+    	//spriteOffsetX = animation.getAnimationOffsetX();
+    	//spriteOffsetY = animation.getAnimationOffsetY();
+    	
         setVisible(true);
     }
+    
     
     //Implemented from Sprite Interface (not overridden)
     public void loadImage(String path){}
@@ -38,7 +42,11 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
     @Override
     public void setSprite(Animation a) {
     	spriteAnimation = a;
+    	spriteOffsetX = a.getAnimationOffsetX();
+    	spriteOffsetY = a.getAnimationOffsetY();
     }
+    
+    
 
     
 }

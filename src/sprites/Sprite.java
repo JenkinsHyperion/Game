@@ -10,6 +10,8 @@ import animation.Animation;
 public abstract class Sprite {
 	
     protected boolean visibility;
+    protected int spriteOffsetX = 0;
+    protected int spriteOffsetY = 0;
 
 //ABSTRACT FUNCTIONS 
 	//This is a getImage() that works for both still and animated sprites, so draw functions in Board 
@@ -32,6 +34,14 @@ public abstract class Sprite {
         visibility = visible;
     }
 
+    public int getOffsetX(){
+    	return spriteOffsetX;
+    }
     
-	
+    public int getOffsetY(){
+    	return spriteOffsetY;
+    }
+    
+    
+    
 }

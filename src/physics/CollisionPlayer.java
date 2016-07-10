@@ -40,6 +40,8 @@ public class CollisionPlayer extends Collision {
 		Rectangle box1 = entityPrimary.getBoundingBox();
 		Rectangle box2 = entitySecondary.getBoundingBox();
 		
+		
+		//COLLISION FROM TOP
 		if ( sideIsAllignedX(box1, box2) ) {
 		
 			if ( box1.getCenterY() < box2.getCenterY() ) { 
@@ -61,7 +63,7 @@ public class CollisionPlayer extends Collision {
 				}
 			
 			}
-			else { 
+			else { //COLLISION FROM BOTTOM
 				
 				if ( box1.getMinY() == box2.getMaxY() + 1  ) {
 					entityPrimary.setDY(0);	// equilibrium with ceiling, for hanging mechanic perhaps?
@@ -99,8 +101,7 @@ public class CollisionPlayer extends Collision {
 						
 						entityPrimary.setDX(0); // lock player in place while climbing
 						
-						((Player) entityPrimary).setClimb( distance / 2 );
-						
+						((Player) entityPrimary).setClimb( distance / 2 , false);	
 						
 					}// 
 													
@@ -123,6 +124,24 @@ public class CollisionPlayer extends Collision {
 
 					xequilibrium = true;
 
+					//CLIMBING TEST 
+					boolean temp = ((Player) entityPrimary).isClimbing(); // deal with this better, move temp outside more
+					if (  !temp  ) {
+						
+						distance = (int) ( box2.getMinY() - entityPrimary.getY() ) ;
+						if (distance > 21){distance = 21;}
+						if (distance < 0){distance = 0;}
+						
+						entityPrimary.setY( (int) box2.getMinY() - 31);
+						entityPrimary.setX( (int) box2.getMinX() - 6);
+						
+						entityPrimary.setDX(0); // lock player in place while climbing
+						
+						((Player) entityPrimary).setClimb( distance / 2 , true);	
+						
+					}// 
+					
+					
 				}
 				else {				
 					entityPrimary.setAccX(0);
@@ -137,9 +156,9 @@ public class CollisionPlayer extends Collision {
 		
 		
 		if (  ((Player) entityPrimary).isClimbing()  ) {
-
+			
 			if (  ( (Player) entityPrimary ).getPlayerState().getAnimation().getFrameNumber()  == 20 ) {
-
+				
 				((Player) entityPrimary).finishClimb();
 				
 			}	
@@ -155,7 +174,6 @@ public class CollisionPlayer extends Collision {
 		entityPrimary.setColliding(false); // unset entity collision flag. 
 		entityPrimary.setAccY(0.1f); //turn gravity back on
 		entityPrimary.setAccX(0); //remove friction
-		((Player) entityPrimary).finishClimb();
 	}
 	
 	public String toString(){

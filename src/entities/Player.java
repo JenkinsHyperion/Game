@@ -32,10 +32,13 @@ public class Player extends EntityDynamic {
     private Animation IDLE_LEFT = new Animation(LoadAnimation.getAnimation(2, 3, 32, "player_sheet") , 18 );
     
     private Animation CLIMB_LEFT = new Animation(LoadAnimation.getAnimation(21, 0, 40,64 , "spritesFramesFinal") , 3 );
+    private Animation CLIMB_RIGHT = new Animation(LoadAnimation.getAnimation(21, 1, 40,64 , "spritesFramesFinal") , 3 , -9, 0);
     
     private Animation JUMP_LEFT = new Animation(LoadAnimation.getAnimation(2, 5, 32, "player_sheet") , 18 ); 
 
+    private AnimationState climbingRight= new AnimationState("climbing_left",CLIMB_RIGHT);
     private AnimationState climbingLeft= new AnimationState("climbing_left",CLIMB_LEFT);
+    
     private AnimationState runningRight= new AnimationState("running_right",RUN_RIGHT);
     private AnimationState runningLeft= new AnimationState("running_left",RUN_LEFT);
     private AnimationState idlingRight= new AnimationState("idle_right",IDLE_RIGHT);
@@ -66,7 +69,7 @@ public class Player extends EntityDynamic {
 
         int key = e.getKeyCode();
 
-        if (key == KeyEvent.VK_SPACE) {
+        if (key == KeyEvent.VK_SHIFT) {
 
         	//Generate particle and add to current Board's object list
         	
@@ -81,16 +84,16 @@ public class Player extends EntityDynamic {
         	
         }
 
-        if (key == KeyEvent.VK_LEFT && !keypressA) {
-        	keypressA = true;
+        if (key == KeyEvent.VK_A && !keypressA) {
+        	keypressA = true; 
         }
 
-        if (key == KeyEvent.VK_RIGHT && !keypressD) {
+        if (key == KeyEvent.VK_D && !keypressD) {
         	keypressD = true;
             
         }
 
-        if (key == KeyEvent.VK_UP && !keypressUP) { //JUMP
+        if (key == KeyEvent.VK_SPACE && !keypressUP) { //JUMP
         	keypressUP = true;
         	
     		if (keypressUP){
@@ -108,7 +111,7 @@ public class Player extends EntityDynamic {
             
         }
 
-        if (key == KeyEvent.VK_DOWN) {
+        if (key == KeyEvent.VK_S) {
             //dy = 1;
         }
     }
@@ -117,7 +120,7 @@ public class Player extends EntityDynamic {
 
         int key = e.getKeyCode();
 
-        if (key == KeyEvent.VK_LEFT && keypressA) {
+        if (key == KeyEvent.VK_A && keypressA) {
         	keypressA = false;
         	
         	//test dust particles. Can go in own method if we enjoy every collision having particles/sparks.
@@ -129,7 +132,7 @@ public class Player extends EntityDynamic {
         	
         }
 
-        if (key == KeyEvent.VK_RIGHT && keypressD) {
+        if (key == KeyEvent.VK_D && keypressD) {
         	keypressD = false;
         	
         	//test making dust particles
@@ -140,11 +143,11 @@ public class Player extends EntityDynamic {
         	}
         }
 
-        if (key == KeyEvent.VK_UP && keypressUP) { 
+        if (key == KeyEvent.VK_SPACE && keypressUP) { 
         	keypressUP = false;
         }
 
-        if (key == KeyEvent.VK_DOWN) {
+        if (key == KeyEvent.VK_S) {
         	
         }
     }
@@ -221,12 +224,19 @@ public class Player extends EntityDynamic {
     }
     
 
-    public void setClimb(int frame){
-    	playerState = climbingLeft;
-    	getObjectGraphic().setSprite(climbingLeft.getAnimation());
+    public void setClimb(int frame, boolean right){
+    	if (right){
+        	playerState = climbingRight;
+        	getObjectGraphic().setSprite(climbingRight.getAnimation());
+    	}
+    	else 
+    	{
+	    	playerState = climbingLeft;
+	    	getObjectGraphic().setSprite(climbingLeft.getAnimation());
+    	}
+    	
     	playerState.getAnimation().reset();
     	playerState.getAnimation().start(frame);
-
     	climbing = true;
     }
     

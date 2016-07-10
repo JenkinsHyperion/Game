@@ -6,6 +6,9 @@ import java.util.List;
 
 //Animation class holds array of individual frames as well as playback functionality
 public class Animation {
+	
+	private int animationOffsetX = 0;
+	private int animationOffsetY = 0;
 
 	private int frameCount; // Counts ticks for change
 	protected int frameDelay; // frame delay 1-12 (You will have to play around
@@ -26,6 +29,26 @@ public class Animation {
 		for (int i = 0; i < frames.length; i++) {
 			addFrame(frames[i], frameDelay);
 		}
+		
+		this.frameCount = 0;
+		this.frameDelay = frameDelay;
+		this.currentFrame = 0;
+		this.animationDirection = 1;
+		this.totalFrames = this.frames.size();
+
+	}
+	
+	//OPTIONAL ARGUMENT FOR OFFSET
+	public Animation(BufferedImage[] frames, int frameDelay, int xOffset, int yOffset) {
+		this.frameDelay = frameDelay;
+		this.stopped = true;
+
+		for (int i = 0; i < frames.length; i++) {
+			addFrame(frames[i], frameDelay);
+		}
+		
+		animationOffsetX = xOffset;
+		animationOffsetY = yOffset;
 
 		this.frameCount = 0;
 		this.frameDelay = frameDelay;
@@ -118,6 +141,14 @@ public class Animation {
 			}
 		}
 
+	}
+	
+	public int getAnimationOffsetX(){
+		return animationOffsetX;
+	}
+	
+	public int getAnimationOffsetY(){
+		return animationOffsetY;
 	}
 
 }

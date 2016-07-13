@@ -339,15 +339,30 @@ public class Board extends JPanel implements ActionListener {
         	
             Rectangle r4 = staticEntity.getBoundingBox();
             
-            r4 = new Rectangle(r4.x - 1 , r4.y - 1, r4.width + 2, r4.height + 2); 
+            r4 = new Rectangle(r4.x - 4 , r4.y - 4, r4.width + 8, r4.height + 8); 
             
-	            if (r3.intersects(r4) ) {
-	            		
-	            	//TESTING COLLISION CLASS
+            //r3 = new Rectangle( r0.x /*+ (int) player.getDX()*/ , 20 + r0.y + (int) player.getDY() , r0.width , r0.height );
+            
+            Rectangle r5 = new Rectangle( r3.x /*+ (int) player.getDX()*/ , r3.y + (int) player.getDY() , r3.width , r3.height );
+            
+	            
+
+            
+            
+	            if (r5.intersects(r4) ) {
 	            	
+					//if (  r4.getMinY() < ( r0.getMaxY() + player.getDY() - 4) ) {
+					//	player.setY( (int) Math.round( r4.getMinY() - r0.height ) +1 ) ;
+					//}
+	            		
+	            	//OPEN COLLISION
+
 	            	if (!hasActiveCollision(player,staticEntity)) { //check to see if collision isn't already occurring
 	            		collisionsList.add(new CollisionPlayer(player,staticEntity)); // if not, add new collision event
-	            	}
+
+	            	} 
+
+	            	
             }
         }
         
@@ -400,8 +415,8 @@ public class Board extends JPanel implements ActionListener {
     
     private void drawDebug(Graphics g){ // DEBUG GUI
         g.setColor(Color.GRAY);
-	    g.drawString("DeltaX: " + player.getX(),5,15);
-	    g.drawString("DeltaY: " + player.getY(),5,30);
+	    g.drawString("DeltaX: " + player.getDX(),5,15);
+	    g.drawString("DeltaY: " + player.getDY(),5,30);
 	    g.drawString("AccX: " + player.getAccX(),5,45);
 	    g.drawString("AccY: " + player.getAccY(),5,60);
 	    g.drawString("Player State: " + player.getPlayerStateName(),5,75);

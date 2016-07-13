@@ -43,8 +43,13 @@ public class CollisionPlayer extends Collision {
 		
 		//COLLISION FROM TOP
 		if ( sideIsAllignedX(box1, box2) ) {
-		
-			if ( (int) box1.getCenterY() < (int) box2.getCenterY() ) { 
+			
+			
+			if ( (int) box1.getCenterY() < (int) box2.getCenterY() ) {  
+				
+				if (  box2.getMinY() < ( box1.getMaxY() + entityPrimary.getDY() - 4) ) {
+					entityPrimary.setY( (int) Math.round( box2.getMinY() - box1.height )  ) ;
+				}
 				
 				if ( (int) box1.getMaxY() == (int) box2.getMinY()  ) {
 					
@@ -59,9 +64,9 @@ public class CollisionPlayer extends Collision {
 					//}
 					
 				}
-				else  {
+				else {
 					entityPrimary.setDY(0);	
-					entityPrimary.setY(entityPrimary.getY()-1);	
+					entityPrimary.setY(entityPrimary.getY()-1);
 					
 					yequilibrium = false;
 				}
@@ -192,8 +197,7 @@ public class CollisionPlayer extends Collision {
 	
 	public String toString(){
 		return String.format("%s",collisionName + " x: " + xequilibrium + " y: " + yequilibrium + "distance "+distance + " " +
-				((Player) entityPrimary).getPlayerState().getAnimation().getFrameNumber() + " "+ 
-				((Player) entityPrimary).isClimbing());
+				((Player) entityPrimary).getPlayerState().getAnimation().getFrameNumber());
 	}
 	
 	public boolean sideIsAllignedX(Rectangle box1, Rectangle box2){

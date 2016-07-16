@@ -33,6 +33,7 @@ public class Board extends JPanel implements ActionListener {
     private Player player;
     private ArrayList<EntityStatic> staticEntitiesList; 
     private static ArrayList<EntityDynamic> dynamicEntitiesList; 
+    private static ArrayList<EntityDynamic> physicsEntitiesList; 
     private ArrayList<Collision> collisionsList = new ArrayList<Collision>(); 
     private boolean ingame = true;
     private final int ICRAFT_X = 300;
@@ -69,6 +70,7 @@ public class Board extends JPanel implements ActionListener {
         // initialize object lists
         staticEntitiesList = new ArrayList<>();
         dynamicEntitiesList = new ArrayList<>();
+        physicsEntitiesList = new ArrayList<>();
 
         // initialize player
         player = new Player(ICRAFT_X, ICRAFT_Y);
@@ -86,6 +88,8 @@ public class Board extends JPanel implements ActionListener {
         staticEntitiesList.add(new Platform(60,270,"platform02"));
         staticEntitiesList.add(new StaticSprite(150,274, "grass01"));
         staticEntitiesList.add(new Ground(100,290,"ground01"));
+        
+      	physicsEntitiesList.add(new EntityPhysics(50,10,"box"));
         dynamicEntitiesList.add(new Bullet(100,100,1,1));
         
         initBullets();
@@ -156,7 +160,7 @@ public class Board extends JPanel implements ActionListener {
 
     	drawDebug(g);
     	
-    	//Draw all static objects from list (ex. platforms)
+    	//Draw all static entities from list (ex. platforms)
         for (EntityStatic stat : staticEntitiesList) {
             if (stat.getObjectGraphic().isVisible()) {
                 g.drawImage(stat.getObjectGraphic().getImage(), 
@@ -165,10 +169,17 @@ public class Board extends JPanel implements ActionListener {
             }
         }
         
-        //Draw all dynamic (moving) objects from list (ex. bullets)
+        //Draw all dynamic (moving) entities from list (ex. bullets)
         for (EntityDynamic dynamic : dynamicEntitiesList) {
             if (dynamic.getObjectGraphic().isVisible()) {
                 g.drawImage(dynamic.getObjectGraphic().getImage(), dynamic.getX(), dynamic.getY(), this);
+            }
+        }
+        
+        //Draw physics entities
+        for (EntityDynamic physics : physicsEntitiesList) {
+            if (physics.getObjectGraphic().isVisible()) {
+                g.drawImage(physics.getObjectGraphic().getImage(), physics.getX(), physics.getY(), this);
             }
         }
 
@@ -209,9 +220,10 @@ public class Board extends JPanel implements ActionListener {
         inGame();
 
         //RUN POSITION AND DRAW UPDATES
-        updateCraft();    
-        updateDynamicObjects();
+        updatePlayer();    
+        updateDynamicEntities();
         //updateStaticObjects();
+        updatePhysicsEntities();
       
         //RUN COLLISION DETECTION
         checkCollisions();
@@ -233,7 +245,7 @@ public class Board extends JPanel implements ActionListener {
     */
     
     // Update position and Graphic of dynamic objects
-    private void updateDynamicObjects() {
+    private void updateDynamicEntities() {
     	//for (EntityDynamic dynamicEntity : dynamicObjects) {     	
     	for (int i = 0 ; i < dynamicEntitiesList.size() ; i++){
     		EntityDynamic dynamicEntity = dynamicEntitiesList.get(i);
@@ -256,7 +268,7 @@ public class Board extends JPanel implements ActionListener {
     } 
     
     // Update position and Graphic of Player
-    private void updateCraft() { 
+    private void updatePlayer() { 
 
         if (player.getObjectGraphic().isVisible()) { //obsolete
 
@@ -265,6 +277,28 @@ public class Board extends JPanel implements ActionListener {
         }
         
 		player.getObjectGraphic().getAnimatedSprite().update();
+    }
+    
+    private void updatePhysicsEntities() {
+    	//for (EntityDynamic dynamicEntity : dynamicObjects) {     	
+    	for (int i = 0 ; i < physicsEntitiesList.size() ; i++){
+    		EntityDynamic physicsEntity = physicsEntitiesList.get(i);
+    		physicsEntity.updatePosition();
+    		physicsEntity.getObjectGraphic().updateSprite();
+    		
+    		//wrap objects around screen
+    		//if ( physicsEntity.getY() > 300){
+    		//	physicsEntity.setY(0);
+    		//}
+    		//if ( physicsEntity.getX() < 0){
+    		//	physicsEntity.setX(400);
+    		//}
+    		
+    		//CHECK IF ALIVE. IF NOT, REMOVE. 
+    		//if ( !physicsEntity.isAlive()){
+    		//	dynamicEntitiesList.remove(i);
+    		//}
+        }
     }
 
 
@@ -340,31 +374,40 @@ public class Board extends JPanel implements ActionListener {
             Rectangle r4 = staticEntity.getBoundingBox();
             
             r4 = new Rectangle(r4.x - 4 , r4.y - 4, r4.width + 8, r4.height + 8); 
-            
-            //r3 = new Rectangle( r0.x /*+ (int) player.getDX()*/ , 20 + r0.y + (int) player.getDY() , r0.width , r0.height );
-            
+  
             Rectangle r5 = new Rectangle( r3.x /*+ (int) player.getDX()*/ , r3.y + (int) player.getDY() , r3.width , r3.height );
-            
-	            
-
-            
-            
+                      
 	            if (r5.intersects(r4) ) {
 	            	
-					//if (  r4.getMinY() < ( r0.getMaxY() + player.getDY() - 4) ) {
-					//	player.setY( (int) Math.round( r4.getMinY() - r0.height ) +1 ) ;
-					//}
-	            		
 	            	//OPEN COLLISION
 
 	            	if (!hasActiveCollision(player,staticEntity)) { //check to see if collision isn't already occurring
-	            		collisionsList.add(new CollisionPlayer(player,staticEntity)); // if not, add new collision event
+	            		collisionsList.add(new CollisionPlayerStatic(player,staticEntity)); // if not, add new collision event
 
-	            	} 
-
-	            	
-            }
+	            	} 	
+	            }
         }
+        
+        // TEST Check collision between player and physics
+        for (EntityStatic physicsEntity : physicsEntitiesList) { 
+        	
+            Rectangle r4 = physicsEntity.getBoundingBox();
+            
+            r4 = new Rectangle(r4.x - 4 , r4.y - 4, r4.width + 8, r4.height + 8); 
+  
+            Rectangle r5 = new Rectangle( r3.x /*+ (int) player.getDX()*/ , r3.y + (int) player.getDY() , r3.width , r3.height );
+                      
+	            if (r5.intersects(r4) ) {
+	            	
+	            	//OPEN COLLISION
+
+	            	if (!hasActiveCollision(player,physicsEntity)) { //check to see if collision isn't already occurring
+	            		collisionsList.add(new CollisionPlayerDynamic(player,physicsEntity)); // if not, add new collision event
+
+	            	} 	
+	            }
+        }
+        
         
 
         // Check collisions between dynamic Entities and static Entities
@@ -380,6 +423,26 @@ public class Board extends JPanel implements ActionListener {
 	            	
 	            	if (!hasActiveCollision(dynamicEntity,staticEntity)) { 
 	            		collisionsList.add(new CollisionGenericTest(dynamicEntity,staticEntity)); 
+	            	}
+	            }  
+	            
+            }
+            
+        }
+        
+        //Check collisions between phsyics entities and static entities
+        for (EntityDynamic physicsEntity : physicsEntitiesList) { //index through dynamic entities
+        	
+            Rectangle r1 = physicsEntity.getBoundingBox();
+            
+            for (EntityStatic staticEntity : staticEntitiesList){ // index through static entities
+            	
+            	Rectangle r2 = staticEntity.getBoundingBox();
+            
+	            if (r1.intersects(r2)) {
+	            	
+	            	if (!hasActiveCollision(physicsEntity,staticEntity)) { 
+	            		collisionsList.add(new CollisionGenericTest(physicsEntity,staticEntity)); 
 	            	}
 	            }  
 	            

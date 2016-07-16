@@ -17,6 +17,7 @@ public class Particle extends EntityDynamic{
         setDX(dx);
         setAccY(0.1f);
         setBoundingBox(0,0,2,2);
+		name = "Particle"+count;
 	}
     
     private void initBulletTest(){

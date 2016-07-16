@@ -56,8 +56,8 @@ public class Player extends EntityDynamic {
 
     private void initPlayer() {
         
-        setBoundingBox(8,0,10,32);
-        loadAnimatedSprite(IDLE_LEFT);
+        setBoundingBox(14,0,4,32);
+        loadAnimatedSprite(IDLE_LEFT); 
         setAccY( 0.1f ); // Force initialize gravity (temporary)
     }
 

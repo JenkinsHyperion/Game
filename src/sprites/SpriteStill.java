@@ -9,7 +9,6 @@ public class SpriteStill extends Sprite {  // Object with still image
 
     protected int width;
     protected int height;
-    protected boolean visibility;
     protected Image image;
 
     public SpriteStill(String path) {
@@ -40,14 +39,5 @@ public class SpriteStill extends Sprite {  // Object with still image
     }
     
     public void updateSprite(){} //Need to figure out a better way of avoiding this redundancy
-
-    
-    public boolean isVisible() {
-        return visibility;
-    }
-
-    public void setVisible(Boolean visible) {
-        visibility = visible;
-    }
     
 }

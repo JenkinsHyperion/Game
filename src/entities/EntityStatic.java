@@ -12,7 +12,7 @@ import sprites.Sprite;
  */
 public class EntityStatic extends Entity{
 
-	public String name;
+	public String name = "default_entity";
 	private Sprite graphic; //might want to put into super class unless Entity without image is useful
 	protected Rectangle boundingBox = new Rectangle(0,0); //Should be moved to intermediate class for only collidables
 	

@@ -6,14 +6,14 @@ import entities.EntityDynamic;
 import entities.EntityStatic;
 import entities.Player;
 
-public class CollisionPlayer extends Collision {
+public class CollisionPlayerDynamic extends Collision {
 	
 	private boolean xequilibrium = false;
 	private boolean yequilibrium = false;
 	
 	private int distance = 0;
 	
-	public CollisionPlayer(EntityDynamic entity1, EntityStatic entity2){
+	public CollisionPlayerDynamic(EntityDynamic entity1, EntityStatic entity2){ 
 		
 		super(entity1, entity2);
 		

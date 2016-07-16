@@ -15,7 +15,7 @@ public class Collision {
 		
 		entityPrimary = entity1;
 		entitySecondary = entity2;
-		collisionName = entity2.name;
+		collisionName = entity1.name + " + " + entity2.name;
 		
 		//THIS TEST COLLISION IS A NORMAL SURFACE SUCH AS A FLAT PLATFORM
 		

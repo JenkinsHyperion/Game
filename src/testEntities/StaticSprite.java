@@ -12,6 +12,7 @@ public class StaticSprite extends EntityStatic{
 			
     		loadSprite(path);		
 			setBoundingBox(0,0,0,0);
+			name = "Grass"+count;
 	}
 
 	

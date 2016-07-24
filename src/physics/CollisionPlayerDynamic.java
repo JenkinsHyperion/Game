@@ -8,14 +8,20 @@ import entities.Player;
 
 public class CollisionPlayerDynamic extends Collision {
 	
+	private EntityDynamic entityPrimary;
+	private EntityDynamic entitySecondary;
+	
 	private boolean xequilibrium = false;
 	private boolean yequilibrium = false;
 	
 	private int distance = 0;
 	
-	public CollisionPlayerDynamic(EntityDynamic entity1, EntityStatic entity2){ 
+	public CollisionPlayerDynamic(EntityDynamic entity1, EntityDynamic entity2){ 
 		
 		super(entity1, entity2);
+		
+		entityPrimary = entity1;
+		entitySecondary = entity2;
 		
 		//GENERIC COLLISION
 		
@@ -27,7 +33,6 @@ public class CollisionPlayerDynamic extends Collision {
 	@Override
 	public void initCollision(){
 		
-
 		
 	}
 	
@@ -35,10 +40,17 @@ public class CollisionPlayerDynamic extends Collision {
 	@Override
 	public void updateCollision(){ 
 		
-		//There might be a better pure mathematical way to do this
 		
 		Rectangle box1 = entityPrimary.getBoundingBox();
 		Rectangle box2 = entitySecondary.getBoundingBox();
+		
+		
+		
+		entityPrimary.setDY( (entityPrimary.getDY() + entitySecondary.getDY()) / 2 );
+		entitySecondary.setDY( (entityPrimary.getDY() + entitySecondary.getDY()) / 2 );
+		
+		//entityPrimary.setDX((entityPrimary.getDX() + entitySecondary.getDX()) / 2 );
+		//entitySecondary.setDX((entityPrimary.getDX() + entitySecondary.getDX()) / 2 );
 		
 		
 		//COLLISION FROM TOP
@@ -50,22 +62,17 @@ public class CollisionPlayerDynamic extends Collision {
 				if (  box2.getMinY() < ( box1.getMaxY() + entityPrimary.getDY() - 4) ) {
 					entityPrimary.setY( (int) Math.round( box2.getMinY() - box1.height )  ) ;
 				}
-				
+							
 				if ( (int) box1.getMaxY() == (int) box2.getMinY()  ) {
 					
 					yequilibrium = true;
-							
-					entityPrimary.setAccY(0);
-					entityPrimary.setDY(0);
-					
-					//find better way to read if object is running or has traction
-					//if ( ((Player) entityPrimary).getAccX() != 0){
-						entityPrimary.setDampeningX();
-					//}
+					entityPrimary.setColliding(true);
+
+						entityPrimary.setDampeningX(entitySecondary.getDX()); 
 					
 				}
 				else {
-					entityPrimary.setDY(0);	
+					//entityPrimary.setDY(0);	
 					entityPrimary.setY(entityPrimary.getY()-1);
 					
 					yequilibrium = false;
@@ -146,10 +153,10 @@ public class CollisionPlayerDynamic extends Collision {
 						if (distance > 20){distance = 20;}
 						if (distance < 0){distance = 0;}
 
-						entityPrimary.setAccX(0);
-						entityPrimary.setDX(0); // lock player in place while climbing
-						entityPrimary.setAccY(0);
-						entityPrimary.setDY(0); 
+						//entityPrimary.setAccX(0);
+						//entityPrimary.setDX(0); // lock player in place while climbing
+						//entityPrimary.setAccY(0);
+						//entityPrimary.setDY(0); 
 						
 						entityPrimary.setY( (int) box2.getMinY() - 30);
 						entityPrimary.setX( (int) box2.getMinX() - 6);
@@ -191,7 +198,6 @@ public class CollisionPlayerDynamic extends Collision {
 	@Override
 	public void completeCollision(){
 		entityPrimary.setColliding(false); // unset entity collision flag. 
-		entityPrimary.setAccY(0.1f); //turn gravity back on
 		entityPrimary.setAccX(0); //remove friction
 	}
 	
@@ -217,7 +223,6 @@ public class CollisionPlayerDynamic extends Collision {
 			return true;
 		}
 	}
-	
 	
 
 }

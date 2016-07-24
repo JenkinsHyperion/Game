@@ -51,6 +51,8 @@ public class Player extends EntityDynamic {
     public Player(int x, int y) {
         super(x, y);
 
+		name = "Player"+count;
+        
         initPlayer();
     }
 
@@ -146,21 +148,23 @@ public class Player extends EntityDynamic {
         RUN_RIGHT.updateSpeed((int) getDX(), 0, 2, 2, 10);
         //
     	
-    	if (keypressA && dy==0 && !climbing ){
-    		//dx = -2;
-    		accX = -0.1f ;
+    	if (keypressA && !climbing ){
+    		if (isColliding) {
+    			accX = -0.1f ; 
+    		}
+
     				
     	}
-    	if (keypressD && dy==0 && !climbing){
-    		//dx = 2;
-    		accX = 0.1f ;
+    	if (keypressD && !climbing){ 
+    		if (isColliding) {
+    			accX = 0.1f ; 
+    		}
+
     		
     	}
     	
-		if (keypressUP && accY == 0 && !climbing){
-			if (dy == 0){
-				dy = -2.5f;
-			}
+		if (keypressUP && isColliding && !climbing){
+				dy -= 2.5f;
 		}
     	
     	

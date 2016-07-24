@@ -8,6 +8,9 @@ import entities.Player;
 
 public class CollisionPlayerStatic extends Collision {
 	
+	private EntityDynamic entityPrimary;
+	private EntityStatic entitySecondary;
+	
 	private boolean xequilibrium = false;
 	private boolean yequilibrium = false;
 	
@@ -16,6 +19,10 @@ public class CollisionPlayerStatic extends Collision {
 	public CollisionPlayerStatic(EntityDynamic entity1, EntityStatic entity2){
 		
 		super(entity1, entity2);
+		
+		entityPrimary = entity1;
+		entitySecondary = entity2;
+		collisionName = entity1.name + " + " + entity2.name;
 		
 		//GENERIC COLLISION
 		
@@ -27,7 +34,7 @@ public class CollisionPlayerStatic extends Collision {
 	@Override
 	public void initCollision(){
 		
-
+		
 		
 	}
 	
@@ -54,13 +61,14 @@ public class CollisionPlayerStatic extends Collision {
 				if ( (int) box1.getMaxY() == (int) box2.getMinY()  ) {
 					
 					yequilibrium = true;
+					entityPrimary.setColliding(true);
 							
 					entityPrimary.setAccY(0);
 					entityPrimary.setDY(0);
 					
 					//find better way to read if object is running or has traction
 					//if ( ((Player) entityPrimary).getAccX() != 0){
-						entityPrimary.setDampeningX();
+						entityPrimary.setDampeningX(0);
 					//}
 					
 				}

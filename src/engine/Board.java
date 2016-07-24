@@ -17,7 +17,6 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 
 import entities.*;
-import entities.Player;
 import physics.*;
 import testEntities.*;
 
@@ -89,7 +88,7 @@ public class Board extends JPanel implements ActionListener {
         staticEntitiesList.add(new StaticSprite(150,274, "grass01"));
         staticEntitiesList.add(new Ground(100,290,"ground01"));
         
-      	physicsEntitiesList.add(new EntityPhysics(50,10,"box"));
+      	physicsEntitiesList.add(new EntityPhysics(320,150,"box"));
         dynamicEntitiesList.add(new Bullet(100,100,1,1));
         
         initBullets();
@@ -388,10 +387,10 @@ public class Board extends JPanel implements ActionListener {
 	            }
         }
         
-        // TEST Check collision between player and physics
-        for (EntityStatic physicsEntity : physicsEntitiesList) { 
+        // TEST Check collision between player and physics entities
+        for (EntityStatic dynamicEntity : physicsEntitiesList) { 
         	
-            Rectangle r4 = physicsEntity.getBoundingBox();
+            Rectangle r4 = dynamicEntity.getBoundingBox();
             
             r4 = new Rectangle(r4.x - 4 , r4.y - 4, r4.width + 8, r4.height + 8); 
   
@@ -401,54 +400,36 @@ public class Board extends JPanel implements ActionListener {
 	            	
 	            	//OPEN COLLISION
 
-	            	if (!hasActiveCollision(player,physicsEntity)) { //check to see if collision isn't already occurring
-	            		collisionsList.add(new CollisionPlayerDynamic(player,physicsEntity)); // if not, add new collision event
+	            	if (!hasActiveCollision(player,dynamicEntity)) { //check to see if collision isn't already occurring
+	            		collisionsList.add(new CollisionPlayerDynamic(player,(EntityDynamic) dynamicEntity)); // if not, add new collision event
 
 	            	} 	
 	            }
         }
         
         
-
-        // Check collisions between dynamic Entities and static Entities
-        for (EntityDynamic dynamicEntity : dynamicEntitiesList) { //index through dynamic entities
-        	
-            Rectangle r1 = dynamicEntity.getBoundingBox();
-            
-            for (EntityStatic staticEntity : staticEntitiesList){ // index through static entities
-            	
-            	Rectangle r2 = staticEntity.getBoundingBox();
-            
-	            if (r1.intersects(r2)) {
-	            	
-	            	if (!hasActiveCollision(dynamicEntity,staticEntity)) { 
-	            		collisionsList.add(new CollisionGenericTest(dynamicEntity,staticEntity)); 
-	            	}
-	            }  
-	            
-            }
-            
-        }
         
-        //Check collisions between phsyics entities and static entities
-        for (EntityDynamic physicsEntity : physicsEntitiesList) { //index through dynamic entities
+        /*Check collisions between phsyics entities and static entities
+        for (EntityDynamic physEntity : physicsEntitiesList) { //index through physics entities
+        
+        //EntityDynamic physEntity = physicsEntitiesList.get(0);
         	
-            Rectangle r1 = physicsEntity.getBoundingBox();
+            Rectangle r1 = physEntity.getBoundingBox();
             
-            for (EntityStatic staticEntity : staticEntitiesList){ // index through static entities
+            for (EntityStatic statEntity : staticEntitiesList){ // index through static entities
             	
-            	Rectangle r2 = staticEntity.getBoundingBox();
+            	Rectangle r2 = statEntity.getBoundingBox();
             
 	            if (r1.intersects(r2)) {
 	            	
-	            	if (!hasActiveCollision(physicsEntity,staticEntity)) { 
-	            		collisionsList.add(new CollisionGenericTest(physicsEntity,staticEntity)); 
+	            	if (!hasActiveCollision(physEntity,statEntity)) { 
+	            		collisionsList.add(new CollisionBasic(physEntity,statEntity)); 
 	            	}
 	            }  
 	            
             }
             
-        }
+        }*/
         
         
         

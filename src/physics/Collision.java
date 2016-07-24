@@ -7,19 +7,19 @@ import entities.EntityStatic;
 
 public class Collision {
 	
-	protected EntityDynamic entityPrimary;
+	protected EntityStatic entityPrimary;
 	protected EntityStatic entitySecondary;
 	public String collisionName;
 	
-	public Collision(EntityDynamic entity1, EntityStatic entity2){
+	public Collision(EntityStatic e1, EntityStatic e2){
 		
-		entityPrimary = entity1;
-		entitySecondary = entity2;
-		collisionName = entity1.name + " + " + entity2.name;
+		entityPrimary = e1;
+		entitySecondary = e2;
+		collisionName = e1.name + " + " + e2.name;
 		
 		//THIS TEST COLLISION IS A NORMAL SURFACE SUCH AS A FLAT PLATFORM
 		
-		initCollision();
+		//initCollision();
 		
 	}
 	

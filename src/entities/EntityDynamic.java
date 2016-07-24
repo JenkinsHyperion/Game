@@ -36,11 +36,11 @@ public class EntityDynamic extends EntityStatic{
         }
     }
 
-    public double getDX() {
+    public float getDX() {
     	return dx;
     }
     
-    public double getDY() {
+    public float getDY() {
     	return dy;
     }
     
@@ -68,18 +68,18 @@ public class EntityDynamic extends EntityStatic{
     	return accX;
     }
     
-    public void setDampeningX() { 
-    	if (dx > 0.1)
+    public void setDampeningX(float offsetDX) { 
+    	if (dx > (0.1))
     	{
     		accX = -0.1f;
     	}
-    	else if (dx < -0.1)
+    	else if (dx < (-0.1))
     	{
     		accX = 0.1f;
     	}
     	else
     	{
-    		dx = 0;
+    		dx = offsetDX;
     		accX = 0;
     	}
     }

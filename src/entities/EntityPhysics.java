@@ -15,20 +15,43 @@ public class EntityPhysics extends EntityDynamic{
     	
     	loadSprite(path);
     	
-    	accY = 0.1f;
+    	//accY = 0.1f;
+    	
+    	//dy = -3;
     	
     }
     
     @Override
-    public void updatePosition(){
+    public void updatePosition(){ 	
     	
-    	dx=0.075f;
+    	
+    	
     	
     	x += dx;
     	y += dy;
     	
     	dx += accX;
     	dy += accY;
+    	
+    	//accY = -(y-210)/100  ; 
+    	
+    	dy = dy - (y-150)/50 ;
+    	dx = dx - (x-320)/50 ;
+    	
+    	if (dy>0){
+    		dy = dy - 0.02f;
+    	} 
+    	else if (dy<0) {
+    		dy = dy + 0.02f;
+    	}
+    	
+    	if (dx>0){
+    		dx = dx - 0.02f;
+    	} 
+    	else if (dx<0) {
+    		dx = dx + 0.02f;
+    	}
+
     }
 	
 }

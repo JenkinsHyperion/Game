@@ -197,7 +197,6 @@ public class Player extends EntityDynamic {
 			
 		}
 		else { //climbing
-			setDX(0);
 			
 			if (keypressA || keypressD){
 				playerState.getAnimation().start(); //climb when holding jump
@@ -229,6 +228,8 @@ public class Player extends EntityDynamic {
     
 
     public void setClimb(int frame, boolean right){
+
+    	
     	if (right){
         	playerState = climbingRight;
         	getObjectGraphic().setSprite(climbingRight.getAnimation());

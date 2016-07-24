@@ -88,7 +88,7 @@ public class Board extends JPanel implements ActionListener {
         staticEntitiesList.add(new StaticSprite(150,274, "grass01"));
         staticEntitiesList.add(new Ground(100,290,"ground01"));
         
-      	physicsEntitiesList.add(new EntityPhysics(320,150,"box"));
+      	physicsEntitiesList.add(new EntityPhysics(120,250,"box"));
         dynamicEntitiesList.add(new Bullet(100,100,1,1));
         
         initBullets();

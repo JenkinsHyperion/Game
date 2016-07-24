@@ -35,8 +35,8 @@ public class EntityPhysics extends EntityDynamic{
     	
     	//accY = -(y-210)/100  ; 
     	
-    	dy = dy - (y-150)/50 ;
-    	dx = dx - (x-320)/50 ;
+    	dy = dy - (y-250)/50 ;
+    	dx = dx - (x-120)/50 ;
     	
     	if (dy>0){
     		dy = dy - 0.02f;

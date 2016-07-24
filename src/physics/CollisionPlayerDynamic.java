@@ -43,15 +43,12 @@ public class CollisionPlayerDynamic extends Collision {
 		
 		Rectangle box1 = entityPrimary.getBoundingBox();
 		Rectangle box2 = entitySecondary.getBoundingBox();
-		
-		
-		
-		entityPrimary.setDY( (entityPrimary.getDY() + entitySecondary.getDY()) / 2 );
-		entitySecondary.setDY( (entityPrimary.getDY() + entitySecondary.getDY()) / 2 );
-		
-		//entityPrimary.setDX((entityPrimary.getDX() + entitySecondary.getDX()) / 2 );
-		//entitySecondary.setDX((entityPrimary.getDX() + entitySecondary.getDX()) / 2 );
-		
+				
+		// Initial Momentum = mass_1 * velocity_1 + mass_2 + velocity_2      Final Momentum = (mass_1+mass_2)velocity_both
+		// Initial Momentum = Final Momentum            Velocty_both = (Initial Momentum)/(mass_1 + mass_2)
+			entityPrimary.setDY( (entityPrimary.getDY()*2 + entitySecondary.getDY()) /3 );
+			entitySecondary.setDY( (entityPrimary.getDY()*2 + entitySecondary.getDY()) /3 );
+
 		
 		//COLLISION FROM TOP
 		if ( sideIsAllignedX(box1, box2) ) {
@@ -115,7 +112,7 @@ public class CollisionPlayerDynamic extends Collision {
 						// lock player in place while climbing
 						entityPrimary.setAccX(0);
 						entityPrimary.setDX(0); 
-						entityPrimary.setAccY(0);
+						//entityPrimary.setAccY(0);
 						entityPrimary.setDY(0); 
 						// move player to top while climb animation is playing
 						entityPrimary.setY( (int) box2.getMinY() - 30);
@@ -127,7 +124,7 @@ public class CollisionPlayerDynamic extends Collision {
 					}// 
 													
 					entityPrimary.setDY(0);
-					entityPrimary.setAccY(0);
+					//entityPrimary.setAccY(0);
 					
 				}
 				else {	// Inside block
@@ -153,10 +150,10 @@ public class CollisionPlayerDynamic extends Collision {
 						if (distance > 20){distance = 20;}
 						if (distance < 0){distance = 0;}
 
-						//entityPrimary.setAccX(0);
-						//entityPrimary.setDX(0); // lock player in place while climbing
+						entityPrimary.setAccX(0);
+						entityPrimary.setDX(0); // lock player in place while climbing
 						//entityPrimary.setAccY(0);
-						//entityPrimary.setDY(0); 
+						entityPrimary.setDY(0); 
 						
 						entityPrimary.setY( (int) box2.getMinY() - 30);
 						entityPrimary.setX( (int) box2.getMinX() - 6);

@@ -1,6 +1,7 @@
-/engine/
-/physics/
-/testEntities/
-/entities/
-/sprites/
 /animation/
+/engine/
+/entities/
+/misc/
+/physics/
+/sprites/
+/testEntities/

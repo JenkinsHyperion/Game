@@ -207,8 +207,7 @@ public class CollisionPlayerStatic extends Collision {
 	}
 	
 	public String toString(){
-		return String.format("%s",collisionName + " x: " + xequilibrium + " y: " + yequilibrium + "distance "+distance + " " +
-				((Player) entityPrimary).getPlayerState().getAnimation().getFrameNumber());
+		return String.format("%s",collisionName + " " + yequilibrium);
 	}
 	
 	public boolean sideIsAllignedX(Rectangle box1, Rectangle box2){

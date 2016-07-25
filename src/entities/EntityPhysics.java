@@ -18,7 +18,7 @@ public class EntityPhysics extends EntityDynamic{
     	//accY = 0.1f;
     	
     	//dy = -3;
-    	
+
     }
     
     @Override
@@ -35,8 +35,11 @@ public class EntityPhysics extends EntityDynamic{
     	
     	//accY = -(y-210)/100  ; 
     	
+    	
+    	
+
     	dy = dy - (y-250)/50 ;
-    	dx = dx - (x-120)/50 ;
+    	//dx = dx - (x-120)/50 ;
     	
     	if (dy>0){
     		dy = dy - 0.02f;
@@ -45,12 +48,12 @@ public class EntityPhysics extends EntityDynamic{
     		dy = dy + 0.02f;
     	}
     	
-    	if (dx>0){
+    	/*if (dx>0){
     		dx = dx - 0.02f;
     	} 
     	else if (dx<0) {
     		dx = dx + 0.02f;
-    	}
+    	}*/
 
     }
 	

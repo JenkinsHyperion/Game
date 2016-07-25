@@ -388,9 +388,9 @@ public class Board extends JPanel implements ActionListener {
         }
         
         // TEST Check collision between player and physics entities
-        for (EntityStatic dynamicEntity : physicsEntitiesList) { 
+        for (EntityStatic physicsEntity : physicsEntitiesList) { 
         	
-            Rectangle r4 = dynamicEntity.getBoundingBox();
+            Rectangle r4 = physicsEntity.getBoundingBox();
             
             r4 = new Rectangle(r4.x - 4 , r4.y - 4, r4.width + 8, r4.height + 8); 
   
@@ -400,8 +400,8 @@ public class Board extends JPanel implements ActionListener {
 	            	
 	            	//OPEN COLLISION
 
-	            	if (!hasActiveCollision(player,dynamicEntity)) { //check to see if collision isn't already occurring
-	            		collisionsList.add(new CollisionPlayerDynamic(player,(EntityDynamic) dynamicEntity)); // if not, add new collision event
+	            	if (!hasActiveCollision(player,physicsEntity)) { //check to see if collision isn't already occurring
+	            		collisionsList.add(new CollisionPlayerDynamic(player,(EntityDynamic) physicsEntity)); // if not, add new collision event
 
 	            	} 	
 	            }
@@ -409,12 +409,12 @@ public class Board extends JPanel implements ActionListener {
         
         
         
-        /*Check collisions between phsyics entities and static entities
-        for (EntityDynamic physEntity : physicsEntitiesList) { //index through physics entities
+        //Check collisions between dynamics entities and static entities
+        for (EntityDynamic dynamicEntity : dynamicEntitiesList) { //index through physics entities
         
         //EntityDynamic physEntity = physicsEntitiesList.get(0);
         	
-            Rectangle r1 = physEntity.getBoundingBox();
+            Rectangle r1 = dynamicEntity.getBoundingBox();
             
             for (EntityStatic statEntity : staticEntitiesList){ // index through static entities
             	
@@ -422,14 +422,14 @@ public class Board extends JPanel implements ActionListener {
             
 	            if (r1.intersects(r2)) {
 	            	
-	            	if (!hasActiveCollision(physEntity,statEntity)) { 
-	            		collisionsList.add(new CollisionBasic(physEntity,statEntity)); 
+	            	if (!hasActiveCollision(dynamicEntity,statEntity)) { 
+	            		collisionsList.add(new CollisionBasic(dynamicEntity,statEntity)); 
 	            	}
 	            }  
 	            
             }
             
-        }*/
+        }
         
         
         

@@ -1,3 +1,23 @@
+#################
+## Eclipse
+#################
+
+*.pydevproject
+.project
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.class
+.settings/
+.loadpath
+
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
@@ -17,7 +37,6 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-*.class
 
 # =========================
 # Operating System Files
@@ -47,5 +66,3 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
-*.class
-*.class

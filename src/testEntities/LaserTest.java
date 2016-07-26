@@ -7,10 +7,8 @@ import entities.*;
 import java.awt.geom.Line2D;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.Graphics;
 import java.awt.Color;
-
 
 /* just a simple class to test out drawing a laser to the screen and having it persist. */
 
@@ -48,12 +46,6 @@ public class LaserTest extends EntityDynamic{ // Can extend either EntityStatic 
 	private int yEndPoint;
 	//graphics2D objects allow more sophisticated options for drawing shapes, such as a line in this case
 	private Graphics2D g2;
-	private Graphics2D dbb; //dbb: "debugbox" graphics object that will be drawn around laser beam
-	
-	private Rectangle debugBox; // the data of the bounding box to be drawn; might be unecessessary could maybe just
-								// directly draw "boundingBox" defined in EntityStatic
-	//the actual Shape object for the laser that has the ability to draw itself
-	private Line2D.Double beam;
 	/**
 	 * <code>
 	 * @param x the x-origin point for the laser
@@ -68,8 +60,6 @@ public class LaserTest extends EntityDynamic{ // Can extend either EntityStatic 
 		setyEndPoint(yEnd);
 		
         initialize();
-        debugBox = new Rectangle();
-        beam = new Line2D.Double();
         
 	}
     
@@ -80,10 +70,7 @@ public class LaserTest extends EntityDynamic{ // Can extend either EntityStatic 
     	//second argument y-position will start a bit above the y-point set so that the bounding box can extend in a range above and below it
     	
     	//NOTE: for now, don't angle the laser. Has potential to create a hit box that covers the entire screen
-    //setBoundingBox( getX(), getY()-10, Math.abs(getX()-xEndPoint), Math.abs(getY()-yEndPoint) ); 
-    	// ^^^ this one works, revert if the following code below doesn't work
-    	
-    	setBoundingBox(null);
+    	setBoundingBox( getX(), getY()-10, Math.abs(getX()-xEndPoint), Math.abs(getY()-yEndPoint) ); 
     	
     }
     /**
@@ -92,19 +79,10 @@ public class LaserTest extends EntityDynamic{ // Can extend either EntityStatic 
      */
     public void pewpew(Graphics g){
     	g2 = (Graphics2D) g;
-    	//dbb = (Graphics2D) g;
     	g2.setColor(Color.RED);
-    	//dbb.setColor(Color.CYAN);
-    	//setting point variables for the laser
     	Point originPoint = new Point(getX(),getY());
     	Point endPoint = new Point(xEndPoint,yEndPoint);
-    	
-    	//creating the laser, getting its bounds, and drawing it
     	Line2D.Double beam = new Line2D.Double(originPoint,endPoint);
-       	setBoundingBox(beam.getBounds());
-       	boundingBox.setRect( (int)boundingBox.getX(), (int)boundingBox.getMinY()-5, (int)boundingBox.getWidth(), (int) boundingBox.getHeight()+10);
-       	
-    	g2.draw(boundingBox);
     	g2.draw(beam);
     }
 

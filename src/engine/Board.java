@@ -222,7 +222,10 @@ public class Board extends JPanel implements ActionListener {
         //calling upon physicsEntitiesList.get(0) is awkward, perhaps good reason to try out HashMaps
         laser.setX(physicsEntitiesList.get(0).getX()+25);
         laser.setY(physicsEntitiesList.get(0).getY()+10);
-        laser.setxEndPoint(B_WIDTH);
+
+        laser.setxEndPoint(player.getX());
+        laser.setyEndPoint(player.getY());
+        //laser.setxEndPoint(B_WIDTH);
        // laser.setyEndPoint(physicsEntitiesList.get(0).getY()+10);
         laser.pewpew(g);
     }

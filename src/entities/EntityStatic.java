@@ -43,10 +43,25 @@ public class EntityStatic extends Entity{
     public Sprite getObjectGraphic(){ // gets the Object's sprite, still image or animation
     	return graphic;
     }
-    
+    /**
+     * 
+     * @param x_offset
+     * @param y_offset
+     * @param width
+     * @param height
+     * <b /> Sets the x and y coordinates and width and height for this object's bounding box
+     */
     public void setBoundingBox(int x_offset, int y_offset , int width , int height) {
     	
         boundingBox = new Rectangle(x_offset, y_offset, width , height);
+    }
+    //overloaded function to accept Rectangle that getBounds() will return.
+    /**
+     * 
+     * @param getBounds The rectangle that will be passed any time getBounds() is called [or maybe getBounds2D, gotta try it]
+     */
+    public void setBoundingBox(Rectangle getBounds){
+    	boundingBox = getBounds;
     }
 	
 	public Rectangle getBoundingBox(){ //move position to override in dynamic entity since static doesnt need position calc.

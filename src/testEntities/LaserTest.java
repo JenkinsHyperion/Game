@@ -103,9 +103,10 @@ public class LaserTest extends EntityDynamic{ // Can extend either EntityStatic 
     	Line2D.Double beam = new Line2D.Double(originPoint,endPoint);
        	setBoundingBox(beam.getBounds());
        	boundingBox.setRect( (int)boundingBox.getX(), (int)boundingBox.getMinY()-5, (int)boundingBox.getWidth(), (int) boundingBox.getHeight()+10);
-       	
-    	g2.draw(boundingBox);
     	g2.draw(beam);
+    	g2.setColor(Color.CYAN);
+    	g2.draw(boundingBox);
+
     }
 
     /**

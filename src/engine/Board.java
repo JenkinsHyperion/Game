@@ -42,7 +42,7 @@ public class Board extends JPanel implements ActionListener {
     private final int ICRAFT_Y = 200;
     public static final int B_WIDTH = 400;
     public static final int B_HEIGHT = 300;
-    private final int DELAY = 15;
+    private final int DELAY = 10;
     LaserTest laser;
 
     private final int[][] pos = {

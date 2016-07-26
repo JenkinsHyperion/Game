@@ -223,8 +223,8 @@ public class Board extends JPanel implements ActionListener {
         laser.setX(physicsEntitiesList.get(0).getX()+25);
         laser.setY(physicsEntitiesList.get(0).getY()+10);
 
-        laser.setxEndPoint(player.getX());
-        laser.setyEndPoint(player.getY());
+        laser.setxEndPoint((int)player.getBoundingBox().getCenterX());
+        laser.setyEndPoint((int)player.getBoundingBox().getCenterY());
         //laser.setxEndPoint(B_WIDTH);
        // laser.setyEndPoint(physicsEntitiesList.get(0).getY()+10);
         laser.pewpew(g);

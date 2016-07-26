@@ -12,6 +12,7 @@ public class PaintOverlay {
 	private int width;
 	private int height;
 	
+	//test comment
 
 	public PaintOverlay(int x, int y, int w, int h){
 		border = new Rectangle();

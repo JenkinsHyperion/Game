@@ -11,6 +11,7 @@ public class ObjectTemplate extends EntityStatic{ // Can extend either EntitySta
 	//See getAnimation() documentation.
     //private Animation defaultAnimation = new Animation(LoadAnimation.getAnimation(4, 0, 14, "bullet") , 4 ); 
 	
+	
     public ObjectTemplate(int x, int y) { // Can add more construction arguments for spawn 
 		super(x, y);
 		

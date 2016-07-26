@@ -3,6 +3,8 @@ package testEntities;
 import animation.*;
 import entities.*;
 
+//NOTE: somewhat outdated
+
 //When complete, go to Board, initBoard() and add your object to either staticObjects or dynamicObjects array.
 
 public class ObjectTemplate extends EntityStatic{ // Can extend either EntityStatic or EntityDynamic

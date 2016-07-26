@@ -13,6 +13,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
@@ -27,7 +29,8 @@ public class Board extends JPanel implements ActionListener {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+	private long currentDuration;
+	private long prevDuration;
 	private Timer timer;
     private Player player;
     private ArrayList<EntityStatic> staticEntitiesList; 
@@ -37,9 +40,10 @@ public class Board extends JPanel implements ActionListener {
     private boolean ingame = true;
     private final int ICRAFT_X = 300;
     private final int ICRAFT_Y = 200;
-    static final int B_WIDTH = 400;
-    static final int B_HEIGHT = 300;
+    public static final int B_WIDTH = 400;
+    public static final int B_HEIGHT = 300;
     private final int DELAY = 15;
+    LaserTest laser;
 
     private final int[][] pos = {
         {2380, 29}, {2500, 59}, {1380, 89},
@@ -55,10 +59,13 @@ public class Board extends JPanel implements ActionListener {
 
     public Board() {
     	initBoard();
+    	
     }
 
     private void initBoard() {
-
+    	currentDuration = System.currentTimeMillis();
+    	prevDuration = currentDuration;
+    	
         addKeyListener(new TAdapter());
         setFocusable(true);
         setBackground(Color.BLACK);
@@ -91,11 +98,17 @@ public class Board extends JPanel implements ActionListener {
       	physicsEntitiesList.add(new EntityPhysics(120,250,"box"));
         dynamicEntitiesList.add(new Bullet(100,100,1,1));
         
+        //test for LaserTest entity
+        laser = new LaserTest(143,260, B_WIDTH, 260);
+        //dynamicEntitiesList.add(new LaserTest(400,60));  <-- can't add as long as I don't have a sprite for it
+        //		--- for now will just draw in the drawObjects() method
+        
         initBullets();
         //###########
         //
 
-        
+        //sets the frame rate. Every 15 milliseconds, an action event is sent and performed by the 
+        //actionPerformed() method overridden below.
         timer = new Timer(DELAY, this);
         timer.start();
     }
@@ -108,7 +121,7 @@ public class Board extends JPanel implements ActionListener {
         }
         
     }
-    
+   
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -122,6 +135,7 @@ public class Board extends JPanel implements ActionListener {
         }*/
 
         Toolkit.getDefaultToolkit().sync();
+        
     }
     
     
@@ -179,6 +193,18 @@ public class Board extends JPanel implements ActionListener {
         for (EntityDynamic physics : physicsEntitiesList) {
             if (physics.getObjectGraphic().isVisible()) {
                 g.drawImage(physics.getObjectGraphic().getImage(), physics.getX(), physics.getY(), this);
+ 
+                /*
+                laser.setX(physics.getX()+20);
+                laser.setY(physics.getY()+20);
+                laser.setxEndPoint(B_WIDTH);
+                laser.setyEndPoint(physics.getY()+20);
+                laser.pewpew(g);
+                //code shouldn't be inside this for loop. Moved it down
+                */     
+             //Try messing around with this code here, it just occured to me we can use this line drawing functionality
+             //to use for wire-frame type debugging
+             
             }
         }
 
@@ -191,7 +217,14 @@ public class Board extends JPanel implements ActionListener {
 
     //DRAW GUI - might be extended into debug console
 
-
+ //**      //DRAW LASER  
+        
+        //calling upon physicsEntitiesList.get(0) is awkward, perhaps good reason to try out HashMaps
+        laser.setX(physicsEntitiesList.get(0).getX()+25);
+        laser.setY(physicsEntitiesList.get(0).getY()+10);
+        laser.setxEndPoint(B_WIDTH);
+        laser.setyEndPoint(physicsEntitiesList.get(0).getY()+10);
+        laser.pewpew(g);
     }
 
     // Game Over screen - might be extended to own class of menu screens

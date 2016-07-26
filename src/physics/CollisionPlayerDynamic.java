@@ -28,7 +28,6 @@ public class CollisionPlayerDynamic extends Collision {
 		initCollision();
 		
 	}
-	
 	//INITAL COLLISION COMMANDS - Run once, the first time collision occurs
 	@Override
 	public void initCollision(){
@@ -65,7 +64,7 @@ public class CollisionPlayerDynamic extends Collision {
 					yequilibrium = true;
 					entityPrimary.setColliding(true);
 
-						entityPrimary.setDampeningX(entitySecondary.getDX()); 
+					entityPrimary.setDampeningX(entitySecondary.getDX()); 
 					
 				}
 				else {

@@ -6,3 +6,6 @@ Particle entity self destructs at bottom of screen.
 
 7/6/16
 Added core collision engine.
+
+7/26/16
+Added test for persistantly-updating red laser to be drawn onto the screen, which incidentally would work quite well for rendering wire-frame type debugging shapes around objects and/or showing trajectories.

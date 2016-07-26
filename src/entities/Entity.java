@@ -8,6 +8,7 @@ public class Entity {
 	public static int count;
 	
 	protected boolean alive = true;
+	protected boolean collidable = false;
 	protected float x;
     protected float y;
     

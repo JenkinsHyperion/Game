@@ -31,8 +31,8 @@ public class Player extends EntityDynamic {
     private Animation IDLE_RIGHT = new Animation(LoadAnimation.getAnimation(2, 2, 32, "player_sheet") , 18 ); 
     private Animation IDLE_LEFT = new Animation(LoadAnimation.getAnimation(2, 3, 32, "player_sheet") , 18 );
     
-    private Animation CLIMB_LEFT = new Animation(LoadAnimation.getAnimation(21, 0, 40,64 , "spritesFramesFinal") , 3 );
-    private Animation CLIMB_RIGHT = new Animation(LoadAnimation.getAnimation(21, 1, 40,64 , "spritesFramesFinal") , 3 , -9, 0);
+    private Animation CLIMB_LEFT = new Animation(LoadAnimation.getAnimation(21, 0, 40,64 , "spritesFramesFinal") , 1 );
+    private Animation CLIMB_RIGHT = new Animation(LoadAnimation.getAnimation(21, 1, 40,64 , "spritesFramesFinal") , 1 , -9, 0);
     
     private Animation JUMP_LEFT = new Animation(LoadAnimation.getAnimation(2, 5, 32, "player_sheet") , 18 ); 
 

@@ -65,6 +65,15 @@ public class LoadAnimation {
 		return b;
 	}
 	
+	/**
+	 * 
+	 * @param length
+	 * @param row
+	 * @param tileWidth
+	 * @param tileHeight
+	 * @param file
+	 * @return
+	 */
 	public static BufferedImage[] getAnimation(int length, int row, int tileWidth, int tileHeight , String file) {
 
 		BufferedImage[] b = new BufferedImage[length];

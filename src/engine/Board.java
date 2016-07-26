@@ -21,6 +21,7 @@ import javax.swing.Timer;
 import entities.*;
 import physics.*;
 import testEntities.*;
+import misc.*;
 
 
 public class Board extends JPanel implements ActionListener {
@@ -33,6 +34,8 @@ public class Board extends JPanel implements ActionListener {
 	private long prevDuration;
 	private Timer timer;
     private Player player;
+    private  PaintOverlay p;
+    private LaserTest laser;
     private ArrayList<EntityStatic> staticEntitiesList; 
     private static ArrayList<EntityDynamic> dynamicEntitiesList; 
     private static ArrayList<EntityDynamic> physicsEntitiesList; 
@@ -43,7 +46,7 @@ public class Board extends JPanel implements ActionListener {
     public static final int B_WIDTH = 400;
     public static final int B_HEIGHT = 300;
     private final int DELAY = 10;
-    LaserTest laser;
+
 
     private final int[][] pos = {
         {2380, 29}, {2500, 59}, {1380, 89},
@@ -103,6 +106,7 @@ public class Board extends JPanel implements ActionListener {
         //dynamicEntitiesList.add(new LaserTest(400,60));  <-- can't add as long as I don't have a sprite for it
         //		--- for now will just draw in the drawObjects() method
         
+        p = new PaintOverlay(200,0,150,60);
         initBullets();
         //###########
         //
@@ -129,6 +133,8 @@ public class Board extends JPanel implements ActionListener {
         //if (ingame) {
         
             drawObjects(g);
+            //Temporary Overlay Screen
+            p.drawBorder(g);
             
         /*} else {
             drawGameOver(g);
@@ -228,6 +234,9 @@ public class Board extends JPanel implements ActionListener {
         //laser.setxEndPoint(B_WIDTH);
        // laser.setyEndPoint(physicsEntitiesList.get(0).getY()+10);
         laser.pewpew(g);
+        
+        
+
     }
 
     // Game Over screen - might be extended to own class of menu screens
@@ -242,7 +251,9 @@ public class Board extends JPanel implements ActionListener {
         g.drawString(msg, (B_WIDTH - fm.stringWidth(msg)) / 2,
                 B_HEIGHT / 2);
     }
-
+    
+   
+    
     
   /* ##################
    * ## UPDATE BOARD ##    (non-Javadoc)

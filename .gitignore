@@ -16,7 +16,7 @@ local.properties
 .class
 .settings/
 .loadpath
-
+*.class
 
 # Windows image file caches
 Thumbs.db

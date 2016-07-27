@@ -1,7 +1,5 @@
 package testEntities;
 
-import animation.*;
-import engine.Board;
 import entities.*;
 
 import java.awt.geom.Line2D;
@@ -50,7 +48,7 @@ public class LaserTest extends EntityDynamic{ // Can extend either EntityStatic 
 	private Graphics2D g2;
 	private Graphics2D dbb; //dbb: "debugbox" graphics object that will be drawn around laser beam
 	
-	private Rectangle debugBox; // the data of the bounding box to be drawn; might be unecessessary could maybe just
+	//private Rectangle debugBox; // the data of the bounding box to be drawn; might be unecessessary could maybe just
 								// directly draw "boundingBox" defined in EntityStatic
 	//the actual Shape object for the laser that has the ability to draw itself
 	private Line2D.Double beam;
@@ -68,7 +66,7 @@ public class LaserTest extends EntityDynamic{ // Can extend either EntityStatic 
 		setyEndPoint(yEnd);
 		
         initialize();
-        debugBox = new Rectangle();
+       //debugBox = new Rectangle();
         beam = new Line2D.Double();
         
 	}

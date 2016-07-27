@@ -130,7 +130,7 @@ public class Board extends JPanel implements ActionListener {
      */
       @Override
       public void actionPerformed(ActionEvent e) {
-    	  prevDuration = System.nanoTime();     	  
+    	  //prevDuration = System.nanoTime();     	  
 
           inGame();
 
@@ -145,8 +145,8 @@ public class Board extends JPanel implements ActionListener {
           
           //REDRAW ALL COMPONENTS
           repaint();
-          currentDuration = System.nanoTime();
-          dt = currentDuration - prevDuration;
+         /* currentDuration = System.nanoTime();
+          dt = currentDuration - prevDuration;*/
       }
 
       private void inGame() {
@@ -170,7 +170,7 @@ public class Board extends JPanel implements ActionListener {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-
+        prevDuration = System.nanoTime();
         //if (ingame) {
         
             drawObjects(g);
@@ -182,7 +182,8 @@ public class Board extends JPanel implements ActionListener {
         }*/
 
         Toolkit.getDefaultToolkit().sync();
-        
+        currentDuration = System.nanoTime();
+        dt = currentDuration - prevDuration;
     }
     
     

@@ -1,6 +1,5 @@
 package physics;
 
-import entities.Entity;
 import entities.EntityDynamic;
 import entities.EntityStatic;
 

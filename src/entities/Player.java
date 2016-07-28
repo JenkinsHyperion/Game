@@ -149,14 +149,14 @@ public class Player extends EntityDynamic {
     	
     	if (keypressA && !climbing ){
     		if (isColliding) {
-    			accX = -0.2f ; 
+    			accX = -0.1f ; 
     		}
 
     				
     	}
     	if (keypressD && !climbing){ 
     		if (isColliding) {
-    			accX = 0.2f ; 
+    			accX = 0.1f ; 
     		}
 
     		
@@ -174,11 +174,11 @@ public class Player extends EntityDynamic {
     	y = y+dy;
 
     	
-		if (dx>2.3f){
-			dx=2.3f;
+		if (dx>2){
+			dx=2;
 		}
-		else if (dx<-2.3f){
-			dx=-2.3f;
+		else if (dx<-2){
+			dx=-2;
 		}
 		
 		

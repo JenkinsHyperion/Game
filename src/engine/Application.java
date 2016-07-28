@@ -35,13 +35,14 @@ public class Application extends JFrame {
     }
 
     public static void main(String[] args) {
-        
+    	
         EventQueue.invokeLater(new Runnable() {
             
             @Override
             public void run() {                
                 JFrame ex = new Application();
-                ex.setVisible(true);                
+                ex.setVisible(true);  
+                
             }
         });
     }

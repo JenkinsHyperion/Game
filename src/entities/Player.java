@@ -23,6 +23,7 @@ public class Player extends EntityDynamic {
 	private boolean keypressA = false;
 	private boolean keypressD = false;
 	private boolean keypressUP = false;
+	private boolean keypressS = false;
 	
 	private boolean climbing = false;
     
@@ -101,7 +102,7 @@ public class Player extends EntityDynamic {
         }
 
         if (key == KeyEvent.VK_S) {
-            //dy = 1;
+            keypressS = true;
         }
     }
 
@@ -137,7 +138,7 @@ public class Player extends EntityDynamic {
         }
 
         if (key == KeyEvent.VK_S) {
-        	
+        	keypressS = false;
         }
     }
     
@@ -198,8 +199,16 @@ public class Player extends EntityDynamic {
 		}
 		else { //climbing
 			
-			if (keypressA || keypressD){
+			if (keypressA || keypressD) {
 				playerState.getAnimation().start(); //climb when holding jump
+			}
+			
+			if (keypressS){
+				
+				//abort climb
+				playerState = idlingRight;
+	        	getObjectGraphic().setSprite(idlingRight.getAnimation());
+				
 			}
 			
 		}

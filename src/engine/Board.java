@@ -46,6 +46,9 @@ public class Board extends JPanel implements ActionListener {
     public static final int B_WIDTH = 400;
     public static final int B_HEIGHT = 300;
     private final int DELAY = 10;
+    
+    private double time = 0;
+    private double deltaTime = 0;
 
 
     private final int[][] pos = {
@@ -113,9 +116,76 @@ public class Board extends JPanel implements ActionListener {
 
         //sets the frame rate. Every 15 milliseconds, an action event is sent and performed by the 
         //actionPerformed() method overridden below.
-        timer = new Timer(DELAY, this);
+        
+        timer = new Timer(1, this);
         timer.start();
+        
+        //updateBoard();
     }
+    
+    /* ##################
+     * ## UPDATE BOARD ##    (non-Javadoc)
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     * ##################
+     */
+      @Override
+      public void actionPerformed(ActionEvent e) {
+   	  
+    	  deltaTime = System.currentTimeMillis() - time ; 
+    	  
+    	  		if (deltaTime > 15) {
+    		  
+		        //inGame(); // check if game is running
+		
+		        //RUN POSITION AND DRAW UPDATES
+		        updatePlayer();    
+		        updateDynamicEntities();
+		        updatePhysicsEntities();
+		          
+		        //RUN COLLISION DETECTION
+		        checkCollisions();
+		          
+		        //REDRAW ALL COMPONENTS
+		        repaint();
+	          
+		        time = System.currentTimeMillis();
+          
+    	  } 
+
+      }
+      
+      /*public void updateBoard(){ //TESTING CONSTANT FPS
+    	  
+    	  while ( deltaTime < 15 ) {
+    	  
+    		  time = System.currentTimeMillis();
+	          
+	          if (deltaTime > 15) {
+	        	  
+		          //RUN POSITION AND DRAW UPDATES
+		          updatePlayer();    
+		          updateDynamicEntities();
+		          updatePhysicsEntities();
+		        
+		          //RUN COLLISION DETECTION
+		          checkCollisions();
+		          
+		          //REDRAW ALL COMPONENTS
+		          repaint();
+		          
+	          }
+	          
+	          deltaTime = System.currentTimeMillis() - time ;
+	          
+    	  }
+          
+      }*/
+
+      private void inGame() {
+          if (!ingame) {
+              timer.stop();
+          }
+      }
 
     //spawn bullets (TESTING)
     public void initBullets() {
@@ -255,34 +325,7 @@ public class Board extends JPanel implements ActionListener {
    
     
     
-  /* ##################
-   * ## UPDATE BOARD ##    (non-Javadoc)
-   * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-   * ##################
-   */
-    @Override
-    public void actionPerformed(ActionEvent e) {
 
-        inGame();
-
-        //RUN POSITION AND DRAW UPDATES
-        updatePlayer();    
-        updateDynamicEntities();
-        //updateStaticObjects();
-        updatePhysicsEntities();
-      
-        //RUN COLLISION DETECTION
-        checkCollisions();
-        
-        //REDRAW ALL COMPONENTS
-        repaint();
-    }
-
-    private void inGame() {
-        if (!ingame) {
-            timer.stop();
-        }
-    }
     
     /*
     private void updateStaticObjects() {
@@ -506,8 +549,8 @@ public class Board extends JPanel implements ActionListener {
     
     private void drawDebug(Graphics g){ // DEBUG GUI
         g.setColor(Color.GRAY);
-	    g.drawString("DeltaX: " + player.getDX(),5,15);
-	    g.drawString("DeltaY: " + player.getDY(),5,30);
+	    g.drawString("FPS: " + Math.round(1000/deltaTime),5,15);
+	    g.drawString("DX: "+player.getDX() + " DY: " + player.getDY(),5,30);
 	    g.drawString("AccX: " + player.getAccX(),5,45);
 	    g.drawString("AccY: " + player.getAccY(),5,60);
 	    g.drawString("Player State: " + player.getPlayerStateName(),5,75);

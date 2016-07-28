@@ -126,9 +126,6 @@ public class Board extends JPanel implements ActionListener {
         //sets the frame rate. Every 15 milliseconds, an action event is sent and performed by the 
         //actionPerformed() method overridden below.
         
-        //timer = new Timer(3, this);
-        //timer.start();
-        
         timer2 = new java.util.Timer(); //create timer
         
         TimerTask update = new UpdateBoard(this); // create new task, which uses this current board as parameter
@@ -145,27 +142,23 @@ public class Board extends JPanel implements ActionListener {
      */
       @Override
       public void actionPerformed(ActionEvent e) {
-    	  
-    	  deltaTime = System.currentTimeMillis() - time ; 
-    	  
-    	  if (deltaTime > 15) {
     		  
 		        //inGame(); // check if game is running
 		
 		        //RUN POSITION AND DRAW UPDATES
 		        updatePlayer();    
 		        updateDynamicEntities();
-		        updatePhysicsEntities();
+		        updatePhysicsEntities(); 
 		          
 		        //RUN COLLISION DETECTION
 		        checkCollisions();
 		          
 		        //REDRAW ALL COMPONENTS
-		    	repaint();
-	          
-		        time = System.currentTimeMillis();
+
+		        repaint();
+		        Toolkit.getDefaultToolkit().sync();
           
-		  } 
+		  
 
       }
       
@@ -187,6 +180,8 @@ public class Board extends JPanel implements ActionListener {
 		          repaint();
 		          
 	          //}
+		          
+		          Toolkit.getDefaultToolkit().sync(); // what does this even do
           
       }
       
@@ -209,7 +204,7 @@ public class Board extends JPanel implements ActionListener {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        prevDuration = System.nanoTime();
+       // prevDuration = System.nanoTime();
         //if (ingame) {
         
             drawObjects(g);
@@ -220,9 +215,9 @@ public class Board extends JPanel implements ActionListener {
             drawGameOver(g);
         }*/
 
-        Toolkit.getDefaultToolkit().sync();
-        currentDuration = System.nanoTime();
-        dt = currentDuration - prevDuration;
+       
+      //  currentDuration = System.nanoTime();
+       // dt = currentDuration - prevDuration;
     }
     
     

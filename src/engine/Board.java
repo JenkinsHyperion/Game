@@ -130,7 +130,7 @@ public class Board extends JPanel implements ActionListener {
         
         TimerTask update = new UpdateBoard(this); // create new task, which uses this current board as parameter
         
-        timer2.scheduleAtFixedRate( update , 18 , 18); // fire task every 15 ms
+        timer2.scheduleAtFixedRate( update , 8 , 8); // fire task every 15 ms
         
         //updateBoard();
     }
@@ -166,7 +166,7 @@ public class Board extends JPanel implements ActionListener {
     	      
           deltaTime = System.currentTimeMillis() - time ;
     	  
-	          //if (deltaTime > 15) {
+	          if (deltaTime > 15) {
 	        	  
 		          //RUN POSITION AND DRAW UPDATES
 		          updatePlayer();    
@@ -179,7 +179,9 @@ public class Board extends JPanel implements ActionListener {
 		          //REDRAW ALL COMPONENTS
 		          repaint();
 		          
-	          //}
+		          time = System.currentTimeMillis();
+		          
+	          }
 		          
 		         // Toolkit.getDefaultToolkit().sync(); // what does this even do
           

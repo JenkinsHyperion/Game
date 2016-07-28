@@ -52,13 +52,13 @@ public class CollisionPlayerStatic extends Collision {
 		if ( sideIsAllignedX(box1, box2) ) {
 			
 			
-			//TESTING CLIPPING PREVENTION
+			/*//TESTING CLIPPING PREVENTION
 			if ( ( entityPrimary.getY() + box1.height + entityPrimary.getDY() ) 
 					> entitySecondary.getY() ){
 				
 				entityPrimary.setY(entitySecondary.getY() - box1.height  );
 				
-			}
+			}*/
 			
 			
 			if ( (int) box1.getCenterY() < (int) box2.getCenterY() ) {  

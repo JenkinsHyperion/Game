@@ -1,5 +1,5 @@
 package misc;
-
+/*
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Window;
@@ -49,7 +49,7 @@ public class Keypress {
 
         /**
 		 * 
-		 */
+		 *//*
 		private static final long serialVersionUID = 1L;
 		private Delta xDelta;
         private Delta yDelta;
@@ -113,7 +113,7 @@ public class Keypress {
 
         /**
 		 * 
-		 */
+		 */ /*
 		private static final long serialVersionUID = 1L;
 		private Delta delta;
         private int value;
@@ -135,3 +135,4 @@ public class Keypress {
     }
 
 }
+*/

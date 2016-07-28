@@ -30,8 +30,8 @@ public class Board extends JPanel implements ActionListener {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private long currentDuration;
-	private long prevDuration;
+	private double currentDuration;
+	private double prevDuration;
 	private Timer timer;
     private Player player;
     private  PaintOverlay p;
@@ -45,10 +45,14 @@ public class Board extends JPanel implements ActionListener {
     private final int ICRAFT_Y = 200;
     public static final int B_WIDTH = 400;
     public static final int B_HEIGHT = 300;
+
     private final int DELAY = 10;
     
     private double time = 0;
     private double deltaTime = 0;
+    
+    private double t;
+    private double dt;
 
 
     private final int[][] pos = {
@@ -180,6 +184,7 @@ public class Board extends JPanel implements ActionListener {
     	  }
           
       }*/
+      
 
       private void inGame() {
           if (!ingame) {
@@ -199,7 +204,7 @@ public class Board extends JPanel implements ActionListener {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-
+        prevDuration = System.nanoTime();
         //if (ingame) {
         
             drawObjects(g);
@@ -211,7 +216,8 @@ public class Board extends JPanel implements ActionListener {
         }*/
 
         Toolkit.getDefaultToolkit().sync();
-        
+        currentDuration = System.nanoTime();
+        dt = currentDuration - prevDuration;
     }
     
     
@@ -323,10 +329,7 @@ public class Board extends JPanel implements ActionListener {
     }
     
    
-    
-    
 
-    
     /*
     private void updateStaticObjects() {
     	
@@ -562,10 +565,10 @@ public class Board extends JPanel implements ActionListener {
 		    g.drawString("Collisions: ",5,90);
 		   
 		    for (int i = 0 ; i < collisionsList.size() ; i++){
-		    	//g.drawString("i: " + String.format("%d",i), 100, 90);
 		    	g.drawString(""+collisionsList.get(i),5,105+(10*i));
 		    }
 	    }
+	    g.drawString("Calculation time: " + dt, 55, 45);
     }
     
 }

@@ -1,11 +1,9 @@
 package engine;
 
-import java.awt.Color;
 import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 
-import java.awt.FlowLayout;
 
 public class Application extends JFrame {
 

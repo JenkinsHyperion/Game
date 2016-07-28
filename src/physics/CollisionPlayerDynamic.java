@@ -3,7 +3,7 @@ package physics;
 import java.awt.Rectangle;
 
 import entities.EntityDynamic;
-import entities.EntityStatic;
+
 import entities.Player;
 
 public class CollisionPlayerDynamic extends Collision {

@@ -3,22 +3,20 @@ package entities;
 
 import java.awt.event.KeyEvent;
 
-import javax.swing.Action;
-import javax.swing.Timer;
+//import javax.swing.Action;
+//import javax.swing.Timer;
 
 import animation.*;
-import animation.AnimationState;
-import animation.LoadAnimation;
 import engine.Board;
 import testEntities.Bullet;
 import testEntities.Particle;
 
 public class Player extends EntityDynamic {
 
-	private static Action enterAction;
+	//private static Action enterAction;
 	
 	
-	private Timer keytimer;
+	//private Timer keytimer;
 	
 	private boolean keypressA = false;
 	private boolean keypressD = false;
@@ -151,14 +149,14 @@ public class Player extends EntityDynamic {
     	
     	if (keypressA && !climbing ){
     		if (isColliding) {
-    			accX = -0.1f ; 
+    			accX = -0.2f ; 
     		}
 
     				
     	}
     	if (keypressD && !climbing){ 
     		if (isColliding) {
-    			accX = 0.1f ; 
+    			accX = 0.2f ; 
     		}
 
     		
@@ -176,11 +174,11 @@ public class Player extends EntityDynamic {
     	y = y+dy;
 
     	
-		if (dx>2){
-			dx=2;
+		if (dx>2.3f){
+			dx=2.3f;
 		}
-		else if (dx<-2){
-			dx=-2;
+		else if (dx<-2.3f){
+			dx=-2.3f;
 		}
 		
 		

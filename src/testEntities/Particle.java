@@ -1,7 +1,5 @@
 package testEntities;
 
-import animation.Animation;
-import animation.LoadAnimation;
 import engine.Board.BoardAccess;
 import entities.EntityDynamic;
 

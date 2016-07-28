@@ -130,7 +130,7 @@ public class Board extends JPanel implements ActionListener {
         
         TimerTask update = new UpdateBoard(this); // create new task, which uses this current board as parameter
         
-        timer2.scheduleAtFixedRate( update , 18 , 18); // fire task every 15 ms
+        timer2.scheduleAtFixedRate( update , 1 , 15); // fire task every 15 ms
         
         //updateBoard();
     }

@@ -1,5 +1,6 @@
 package engine;
 
+import java.awt.DisplayMode;
 import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
@@ -21,7 +22,7 @@ public class Application extends JFrame {
     
     private void initUI() {
         add(board);
-
+        //DisplayMode.REFRESH_RATE_UNKNOWN;
         setSize(250, 200);
         setResizable(true);
         //setLayout(new FlowLayout());

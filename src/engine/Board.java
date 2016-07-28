@@ -122,6 +122,7 @@ public class Board extends JPanel implements ActionListener {
         //actionPerformed() method overridden below.
         
         timer = new Timer(1, this);
+        //timer.setCoalesce(false);
         timer.start();
         
         //updateBoard();
@@ -136,22 +137,22 @@ public class Board extends JPanel implements ActionListener {
       public void actionPerformed(ActionEvent e) {
    	  
     	  deltaTime = System.currentTimeMillis() - time ; 
-    	  
-    	  		if (deltaTime > 15) {
+    	  		
+    	  		if (deltaTime > 5) {
     		  
 		        //inGame(); // check if game is running
 		
 		        //RUN POSITION AND DRAW UPDATES
 		        updatePlayer();    
 		        updateDynamicEntities();
-		        updatePhysicsEntities();
+		        updatePhysicsEntities(); 
 		          
 		        //RUN COLLISION DETECTION
 		        checkCollisions();
 		          
 		        //REDRAW ALL COMPONENTS
 		        repaint();
-	          
+		        Toolkit.getDefaultToolkit().sync();
 		        time = System.currentTimeMillis();
           
     	  } 
@@ -204,20 +205,20 @@ public class Board extends JPanel implements ActionListener {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        prevDuration = System.nanoTime();
+       // prevDuration = System.nanoTime();
         //if (ingame) {
         
             drawObjects(g);
             //Temporary Overlay Screen
-            p.drawBorder(g);
+            //p.drawBorder(g);
             
         /*} else {
             drawGameOver(g);
         }*/
 
-        Toolkit.getDefaultToolkit().sync();
-        currentDuration = System.nanoTime();
-        dt = currentDuration - prevDuration;
+       
+      //  currentDuration = System.nanoTime();
+       // dt = currentDuration - prevDuration;
     }
     
     

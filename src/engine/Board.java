@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.TimerTask;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -32,7 +33,11 @@ public class Board extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	private double currentDuration;
 	private double prevDuration;
+	
 	private Timer timer;
+	
+	private java.util.Timer timer2;
+	
     private Player player;
     private  PaintOverlay p;
     private LaserTest laser;
@@ -121,8 +126,14 @@ public class Board extends JPanel implements ActionListener {
         //sets the frame rate. Every 15 milliseconds, an action event is sent and performed by the 
         //actionPerformed() method overridden below.
         
-        timer = new Timer(1, this);
-        timer.start();
+        //timer = new Timer(3, this);
+        //timer.start();
+        
+        timer2 = new java.util.Timer(); //create timer
+        
+        TimerTask update = new UpdateBoard(this); // create new task, which uses this current board as parameter
+        
+        timer2.scheduleAtFixedRate( update , 15 , 15); // fire task every 15 ms
         
         //updateBoard();
     }
@@ -134,10 +145,10 @@ public class Board extends JPanel implements ActionListener {
      */
       @Override
       public void actionPerformed(ActionEvent e) {
-   	  
+    	  
     	  deltaTime = System.currentTimeMillis() - time ; 
     	  
-    	  		if (deltaTime > 15) {
+    	  if (deltaTime > 15) {
     		  
 		        //inGame(); // check if game is running
 		
@@ -150,21 +161,19 @@ public class Board extends JPanel implements ActionListener {
 		        checkCollisions();
 		          
 		        //REDRAW ALL COMPONENTS
-		        repaint();
+		    	repaint();
 	          
 		        time = System.currentTimeMillis();
           
-    	  } 
+		  } 
 
       }
       
-      /*public void updateBoard(){ //TESTING CONSTANT FPS
+      public void updateBoard(){ //TESTING CONSTANT FPS
+    	      
+          deltaTime = System.currentTimeMillis() - time ;
     	  
-    	  while ( deltaTime < 15 ) {
-    	  
-    		  time = System.currentTimeMillis();
-	          
-	          if (deltaTime > 15) {
+	          //if (deltaTime > 15) {
 	        	  
 		          //RUN POSITION AND DRAW UPDATES
 		          updatePlayer();    
@@ -177,13 +186,9 @@ public class Board extends JPanel implements ActionListener {
 		          //REDRAW ALL COMPONENTS
 		          repaint();
 		          
-	          }
-	          
-	          deltaTime = System.currentTimeMillis() - time ;
-	          
-    	  }
+	          //}
           
-      }*/
+      }
       
 
       private void inGame() {
@@ -209,7 +214,7 @@ public class Board extends JPanel implements ActionListener {
         
             drawObjects(g);
             //Temporary Overlay Screen
-            p.drawBorder(g);
+            //p.drawBorder(g);
             
         /*} else {
             drawGameOver(g);

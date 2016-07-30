@@ -42,14 +42,14 @@ public class CollisionPlayerStatic extends Collision {
 	@Override
 	public void updateCollision(){ 
 		
-		if (entityPrimary.getBoundary().boundaryIntersects(entitySecondary.getBoundary())) {
+		/*if (entityPrimary.getBoundary().boundaryIntersects(entitySecondary.getBoundary())) {
 			
 			entityPrimary.setDY(0);
 			entityPrimary.setY(entityPrimary.getY());
 			
 			
 			
-		}
+		}*/
 		
 		
 		

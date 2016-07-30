@@ -1,8 +1,11 @@
 package entities;
 
 import java.awt.Rectangle;
+import java.awt.Shape;
 
 import animation.Animation;
+import physics.Boundary;
+import physics.BoundingBox;
 import sprites.SpriteAnimated;
 import sprites.SpriteStill;
 import sprites.Sprite;
@@ -15,6 +18,8 @@ public class EntityStatic extends Entity{
 	public String name = "default_entity";
 	private Sprite graphic; //might want to put into super class unless Entity without image is useful
 	protected Rectangle boundingBox = new Rectangle(0,0); //Should be moved to intermediate class for only collidables
+	
+	protected Boundary boundary = new BoundingBox(new Rectangle(2,2));
 	
     public EntityStatic(int x, int y) {
     	super(x,y);
@@ -54,18 +59,29 @@ public class EntityStatic extends Entity{
     public void setBoundingBox(int x_offset, int y_offset , int width , int height) {
     	
         boundingBox = new Rectangle(x_offset, y_offset, width , height);
+        boundary = new BoundingBox(boundingBox);
     }
+    
     //overloaded function to accept Rectangle that getBounds() will return.
     /**
      * 
      * @param getBounds The rectangle that will be passed any time getBounds() is called [or maybe getBounds2D, gotta try it]
      */
-    public void setBoundingBox(Rectangle getBounds){
-    	boundingBox = getBounds;
-    }
+    //public void setBoundingBox(Rectangle getBounds){
+    //	boundingBox = getBounds;
+    //	boundary = new BoundingBox(getBounds);
+    //}
 	
 	public Rectangle getBoundingBox(){ //move position to override in dynamic entity since static doesnt need position calc.
 		return new Rectangle (getX() + boundingBox.x , getY() + boundingBox.y , boundingBox.width , boundingBox.height);
+	}
+	
+	public Boundary getLocalBoundary(){
+		return boundary.atPosition(x,y);
+	}
+	
+	public Boundary getBoundary(){
+		return boundary;
 	}
 
 	@Override

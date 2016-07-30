@@ -42,11 +42,11 @@ public class Collision {
 	//INTERNAL METHODS - DON'T ALTER BELOW THIS
 	public boolean isComplete(){ // Check if entities are no longer colliding
 		
-		Rectangle r1 = entityPrimary.getBoundingBox();
+		//Rectangle r1 = entityPrimary.getBoundingBox();
 				
-		r1 = new Rectangle(r1.x - 1 , r1.y - 1, r1.width + 2, r1.height + 2 );
+		//r1 = new Rectangle(r1.x - 1 , r1.y - 1, r1.width + 2, r1.height + 2 );
 		
-		if (r1.intersects(entitySecondary.getBoundingBox()) ){
+		if (entityPrimary.getLocalBoundary().boundaryIntersects(entitySecondary.getLocalBoundary()) ){
 			return false;
 		}
 		else { // entities are no longer colliding
@@ -82,6 +82,7 @@ public class Collision {
 	}
 	
 	public String toString(){
-		return String.format("%s",this);
+		//return String.format("%s",this);
+		return collisionName;
 	}
 }

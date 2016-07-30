@@ -1,6 +1,8 @@
 package testEntities;
 
 import entities.*;
+import physics.Boundary;
+import physics.BoundingLine;
 
 import java.awt.geom.Line2D;
 import java.awt.Graphics2D;
@@ -73,15 +75,15 @@ public class LaserTest extends EntityDynamic{ // Can extend either EntityStatic 
     
     private void initialize(){
     	
-		
+		name = "Laser";
     	//first argument x-position will be at 0 and extend to the right
     	//second argument y-position will start a bit above the y-point set so that the bounding box can extend in a range above and below it
     	
     	//NOTE: for now, don't angle the laser. Has potential to create a hit box that covers the entire screen
     //setBoundingBox( getX(), getY()-10, Math.abs(getX()-xEndPoint), Math.abs(getY()-yEndPoint) ); 
     	// ^^^ this one works, revert if the following code below doesn't work
-    	
-    	setBoundingBox(null);
+    	    	
+    	boundary = new Boundary(new Line2D.Double(1, 1, 100, 100));
     	
     }
     /**
@@ -98,15 +100,21 @@ public class LaserTest extends EntityDynamic{ // Can extend either EntityStatic 
     	Point endPoint = new Point(xEndPoint,yEndPoint);
     	
     	//creating the laser, getting its bounds, and drawing it
-    	Line2D.Double beam = new Line2D.Double(originPoint,endPoint);
-       	setBoundingBox(beam.getBounds());
-       	boundingBox.setRect( (int)boundingBox.getX(), (int)boundingBox.getMinY()-5, (int)boundingBox.getWidth(), (int) boundingBox.getHeight()+10);
-    	g2.draw(beam);
-    	g2.setColor(Color.CYAN);
-    	g2.draw(boundingBox);
+    	beam = new Line2D.Double(originPoint,endPoint);
+       	
+    	//g2.draw(beam);
+    	//g2.setColor(Color.CYAN);
+    	//g2.draw(boundingBox);
+    	
+    	//boundary = new Boundary(beam);
 
     }
-
+    
+    @Override
+    public void updatePosition(){
+       	boundary = new Boundary(beam);
+    }
+    
     /**
 	 * @return the xEndPoint coordinate
 	 */

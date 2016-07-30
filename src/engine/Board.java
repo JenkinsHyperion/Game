@@ -6,18 +6,22 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.TimerTask;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.Timer;
+
+import org.w3c.dom.ls.LSInput;
 
 import entities.*;
 import physics.*;
@@ -46,8 +50,8 @@ public class Board extends JPanel implements ActionListener {
     private static ArrayList<EntityDynamic> physicsEntitiesList; 
     private ArrayList<Collision> collisionsList = new ArrayList<Collision>(); 
     private boolean ingame = true;
-    private final int ICRAFT_X = 300;
-    private final int ICRAFT_Y = 200;
+    private final int ICRAFT_X = 275;
+    private final int ICRAFT_Y = 150;
     public static final int B_WIDTH = 400;
     public static final int B_HEIGHT = 300;
 
@@ -130,7 +134,7 @@ public class Board extends JPanel implements ActionListener {
         
         TimerTask update = new UpdateBoard(this); // create new task, which uses this current board as parameter
         
-        timer2.scheduleAtFixedRate( update , 8 , 8); // fire task every 15 ms
+        timer2.scheduleAtFixedRate( update , 15 , 15); // fire task every 15 ms
 
         //updateBoard();
     }
@@ -140,25 +144,25 @@ public class Board extends JPanel implements ActionListener {
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      * ##################
      */
+    
+    // OLD TIMER
       @Override
       public void actionPerformed(ActionEvent e) {
     		  
 		        //inGame(); // check if game is running
 		
 		        //RUN POSITION AND DRAW UPDATES
-		        updatePlayer();    
-		        updateDynamicEntities();
-		        updatePhysicsEntities(); 
+		        //updatePlayer();    
+		        //updateDynamicEntities();
+		        //updatePhysicsEntities(); 
 		          
 		        //RUN COLLISION DETECTION
-		        checkCollisions();
+		        //checkCollisions();
 		          
 		        //REDRAW ALL COMPONENTS
 
-		        repaint();
-		        Toolkit.getDefaultToolkit().sync();
-          
-		  
+		        //repaint();
+		        //Toolkit.getDefaultToolkit().sync();
 
       }
       
@@ -166,12 +170,14 @@ public class Board extends JPanel implements ActionListener {
     	      
           deltaTime = System.currentTimeMillis() - time ;
     	  
-	          if (deltaTime > 15) {
+	          //if (deltaTime > 15) {
 	        	  
 		          //RUN POSITION AND DRAW UPDATES
 		          updatePlayer();    
 		          updateDynamicEntities();
 		          updatePhysicsEntities();
+		          
+			      laser.updatePosition();
 		        
 		          //RUN COLLISION DETECTION
 		          checkCollisions();
@@ -181,7 +187,7 @@ public class Board extends JPanel implements ActionListener {
 		          
 		          time = System.currentTimeMillis();
 		          
-	          }
+	          //}
 		          
 		         // Toolkit.getDefaultToolkit().sync(); // what does this even do
           
@@ -417,6 +423,7 @@ public class Board extends JPanel implements ActionListener {
     }
     
     //Update status of collisions, run ongoing commands in collision, and destroy collisions that have completed
+    //USE ARRAY LIST ITTERATOR INSTEAD OF FOR LOOP SINCE REMOVING INDEX CHANGES SIZE
     public void updateCollisions(){
     	
     	for ( int i = 0 ; i < collisionsList.size() ; i++ ){
@@ -465,41 +472,35 @@ public class Board extends JPanel implements ActionListener {
         // Check collisions between player and static objects
         for (EntityStatic staticEntity : staticEntitiesList) { 
         	
-            Rectangle r4 = staticEntity.getBoundingBox();
+            //Rectangle r4 = staticEntity.getBoundingBox();
             
-            r4 = new Rectangle(r4.x - 4 , r4.y - 4, r4.width + 8, r4.height + 8); 
+            //r4 = new Rectangle(r4.x - 4 , r4.y - 4, r4.width + 8, r4.height + 8); 
   
-            Rectangle r5 = new Rectangle( r3.x /*+ (int) player.getDX()*/ , r3.y + (int) player.getDY() , r3.width , r3.height );
+            //Rectangle r5 = new Rectangle( r3.x /*+ (int) player.getDX()*/ , r3.y + (int) player.getDY() , r3.width , r3.height );
                       
-	            if (r5.intersects(r4) ) {
+	        //    if (r5.intersects(r4) ) {
+        		if ( player.getLocalBoundary().boundaryIntersects(staticEntity.getLocalBoundary()) ) {
 	            	
 	            	//OPEN COLLISION
 
 	            	if (!hasActiveCollision(player,staticEntity)) { //check to see if collision isn't already occurring
-	            		collisionsList.add(new CollisionPlayerStatic(player,staticEntity)); // if not, add new collision event
+	            		collisionsList.add(new CollisionPlayerStaticOld(player,staticEntity)); // if not, add new collision event
 
 	            	} 	
 	            }
         }
         
-        // TEST Check collision between player and physics entities
-        for (EntityStatic physicsEntity : physicsEntitiesList) { 
-        	
-            Rectangle r4 = physicsEntity.getBoundingBox();
-            
-            r4 = new Rectangle(r4.x - 4 , r4.y - 4, r4.width + 8, r4.height + 8); 
-  
-            Rectangle r5 = new Rectangle( r3.x /*+ (int) player.getDX()*/ , r3.y + (int) player.getDY() , r3.width , r3.height );
-                      
-	            if (r5.intersects(r4) ) {
+        // TEST LASER COLLISION 
+        for (EntityStatic stat : staticEntitiesList) { 
+        
+        	if ( stat.getLocalBoundary().boundaryIntersects(laser.getBoundary()) ) {
 	            	
-	            	//OPEN COLLISION
+	            //OPEN COLLISION
+	            if (!hasActiveCollision(laser,stat)) { //check to see if collision isn't already occurring
+	            	collisionsList.add(new Collision(laser, stat)); // if not, add new collision event
 
-	            	if (!hasActiveCollision(player,physicsEntity)) { //check to see if collision isn't already occurring
-	            		collisionsList.add(new CollisionPlayerDynamic(player,(EntityDynamic) physicsEntity)); // if not, add new collision event
-
-	            	} 	
-	            }
+	            } 	
+	    	}
         }
         
         
@@ -526,6 +527,21 @@ public class Board extends JPanel implements ActionListener {
             
         }
         
+
+        // Check collisions between player and physics objects
+        for (EntityDynamic physics : physicsEntitiesList) { 
+        	        
+        	Rectangle r4 = physics.getBoundingBox();
+        	
+	        if (r3.intersects(r4) ) {  
+	        	
+	            	//OPEN COLLISION
+	            	if (!hasActiveCollision(player,physics)) { //check to see if collision isn't already occurring
+	            		collisionsList.add(new CollisionPlayerDynamic(player,physics)); // if not, add new collision event
+
+	            	} 	
+	        }
+        }
         
         
         
@@ -559,6 +575,25 @@ public class Board extends JPanel implements ActionListener {
 	    g.drawString("AccX: " + player.getAccX(),5,45);
 	    g.drawString("AccY: " + player.getAccY(),5,60);
 	    g.drawString("Player State: " + player.getPlayerStateName(),5,75);
+	    
+	    //Draw player bounding box
+	    Graphics2D g2 = (Graphics2D) g;
+	    g2.setColor(Color.CYAN);
+	    for (Line2D line : player.getLocalBoundary().getSides()){
+	    	g2.draw(line);
+	    }
+	    
+	    g2.draw(laser.getBoundary().getSides()[0]);
+	    
+	    for ( EntityStatic stat : staticEntitiesList) {
+	    	
+	    	for (Line2D line : stat.getLocalBoundary().getSides()){
+		    	g2.draw(line);
+		    }
+	    	
+	    }
+	    
+	    
 	    
 	    //DEBUG - DISPLAY LIST OF COLLISIONS
 	    g.drawString("Collisions: ",5,90);

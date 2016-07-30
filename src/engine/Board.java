@@ -8,7 +8,6 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -17,16 +16,15 @@ import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.TimerTask;
 
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import org.w3c.dom.ls.LSInput;
 
 import entities.*;
 import physics.*;
 import testEntities.*;
 import misc.*;
+
 
 
 public class Board extends JPanel implements ActionListener {
@@ -54,6 +52,7 @@ public class Board extends JPanel implements ActionListener {
     private final int ICRAFT_Y = 150;
     public static final int B_WIDTH = 400;
     public static final int B_HEIGHT = 300;
+    private boolean debugOn = false; 
 
     private final int DELAY = 10;
     
@@ -78,7 +77,7 @@ public class Board extends JPanel implements ActionListener {
 
     public Board() {
     	initBoard();
-    	
+    	//setFocusable(true);
     }
 
     private void initBoard() {
@@ -132,12 +131,19 @@ public class Board extends JPanel implements ActionListener {
         
         timer2 = new java.util.Timer(); //create timer
         
-        TimerTask update = new UpdateBoard(this); // create new task, which uses this current board as parameter
+        TimerTask update = new TimerTask() {
+        	@Override
+        	public void run(){
+        		updateBoard();
+        	}
+        };
         
         timer2.scheduleAtFixedRate( update , 15 , 15); // fire task every 15 ms
 
         //updateBoard();
     }
+    
+    
     
     /* ##################
      * ## UPDATE BOARD ##    (non-Javadoc)
@@ -148,22 +154,7 @@ public class Board extends JPanel implements ActionListener {
     // OLD TIMER
       @Override
       public void actionPerformed(ActionEvent e) {
-    		  
-		        //inGame(); // check if game is running
-		
-		        //RUN POSITION AND DRAW UPDATES
-		        //updatePlayer();    
-		        //updateDynamicEntities();
-		        //updatePhysicsEntities(); 
-		          
-		        //RUN COLLISION DETECTION
-		        //checkCollisions();
-		          
-		        //REDRAW ALL COMPONENTS
-
-		        //repaint();
-		        //Toolkit.getDefaultToolkit().sync();
-
+    	  
       }
       
       public void updateBoard(){ //TESTING CONSTANT FPS
@@ -260,8 +251,6 @@ public class Board extends JPanel implements ActionListener {
  * #################
  */
     private void drawObjects(Graphics g) {
-
-    	drawDebug(g);
     	
     	//Draw all static entities from list (ex. platforms)
         for (EntityStatic stat : staticEntitiesList) {
@@ -320,6 +309,8 @@ public class Board extends JPanel implements ActionListener {
         laser.pewpew(g);
         
         
+        if (debugOn){ drawDebug(g); }
+    
 
     }
 
@@ -557,6 +548,16 @@ public class Board extends JPanel implements ActionListener {
         @Override
         public void keyPressed(KeyEvent e) {
             player.keyPressed(e);
+            
+            int key = e.getKeyCode();
+
+            if (key == KeyEvent.VK_F2) {
+            	if (debugOn){
+            		debugOn = false;
+            	} else {
+            		debugOn = true;
+            	}
+            }
         }
     }
     
@@ -569,6 +570,10 @@ public class Board extends JPanel implements ActionListener {
     }
     
     private void drawDebug(Graphics g){ // DEBUG GUI
+
+    	g.setColor(new Color(0, 0, 0, 100));
+        g.fillRect(0, 0, B_WIDTH, B_HEIGHT);
+        
         g.setColor(Color.GRAY);
 	    g.drawString("FPS: " + Math.round(1000/deltaTime),5,15);
 	    g.drawString("DX: "+player.getDX() + " DY: " + player.getDY(),5,30);

@@ -48,7 +48,7 @@ public class Board extends JPanel implements ActionListener {
     private static ArrayList<EntityDynamic> physicsEntitiesList; 
     private ArrayList<Collision> collisionsList = new ArrayList<Collision>(); 
     private boolean ingame = true;
-    private final int ICRAFT_X = 275;
+    private final int ICRAFT_X = 170;
     private final int ICRAFT_Y = 150;
     public static final int B_WIDTH = 400;
     public static final int B_HEIGHT = 300;
@@ -590,12 +590,22 @@ public class Board extends JPanel implements ActionListener {
 	    
 	    g2.draw(laser.getBoundary().getSides()[0]);
 	    
-	    for ( EntityStatic stat : staticEntitiesList) {
-	    	
+	    for ( EntityStatic stat : staticEntitiesList) {	    	
 	    	for (Line2D line : stat.getLocalBoundary().getSides()){
 		    	g2.draw(line);
-		    }
-	    	
+		    }	
+	    }
+	    
+	    for ( EntityStatic dynamic : dynamicEntitiesList) {	    	
+	    	for (Line2D line : dynamic.getLocalBoundary().getSides()){
+		    	g2.draw(line);
+		    }	
+	    }
+	    
+	    for ( EntityStatic physics : physicsEntitiesList) {	    	
+	    	for (Line2D line : physics.getLocalBoundary().getSides()){
+		    	g2.draw(line);
+		    }	
 	    }
 	    
 	    
@@ -610,7 +620,7 @@ public class Board extends JPanel implements ActionListener {
 		    	g.drawString(""+collisionsList.get(i),5,105+(10*i));
 		    }
 	    }
-	    g.drawString("Calculation time: " + dt, 55, 45);
+	    //g.drawString("Calculation time: " + dt, 55, 45);
     }
     
 }

@@ -1,7 +1,9 @@
-/entities/
+﻿/entities/
 /physics/
 /testEntities/
 /engine/
 /misc/
 /animation/
 /sprites/
+
+*class

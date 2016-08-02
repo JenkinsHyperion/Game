@@ -40,7 +40,7 @@ public class Application extends JFrame {
             @Override
             public void run() {                
                 JFrame ex = new Application();
-                // ex.setVisible(true);  
+                ex.setVisible(true);  
                 
             }
         });

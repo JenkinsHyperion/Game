@@ -1,4 +1,4 @@
-
+﻿
 .metadata
 **bin/
 **tmp/
@@ -6,7 +6,6 @@
 bin/
 tmp/
 *.class
-.class
 *.tmp
 *.bak
 *.swp

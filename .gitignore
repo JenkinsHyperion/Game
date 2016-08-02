@@ -3,8 +3,8 @@
 
 
 .metadata
-bin/
-tmp/
+**bin/
+**tmp/
 *.class
 *.tmp
 *.bak

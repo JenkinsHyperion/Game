@@ -1,7 +1,7 @@
 package engine;
 
 import java.awt.Color;
-
+import java.awt.Toolkit;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -14,6 +14,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.TimerTask;
 
 import javax.swing.JPanel;
@@ -46,14 +47,14 @@ public class Board extends JPanel implements ActionListener {
     private ArrayList<EntityStatic> staticEntitiesList; 
     private static ArrayList<EntityDynamic> dynamicEntitiesList; 
     private static ArrayList<EntityDynamic> physicsEntitiesList; 
-    private ArrayList<Collision> collisionsList = new ArrayList<Collision>(); 
+    private LinkedList<Collision> collisionsList = new LinkedList<Collision>(); 
     private boolean ingame = true;
     private final int ICRAFT_X = 170;
     private final int ICRAFT_Y = 150;
     public static final int B_WIDTH = 400;
     public static final int B_HEIGHT = 300;
     private boolean debugOn = false; 
-
+    
     private final int DELAY = 10;
     
     private double time = 0;
@@ -138,7 +139,7 @@ public class Board extends JPanel implements ActionListener {
         	}
         };
         
-        timer2.scheduleAtFixedRate( update , 15 , 15); // fire task every 15 ms
+        timer2.scheduleAtFixedRate( update , 0 , 16); // fire task every 15 ms
 
         //updateBoard();
     }
@@ -180,7 +181,7 @@ public class Board extends JPanel implements ActionListener {
 		          
 	          //}
 		          
-		         // Toolkit.getDefaultToolkit().sync(); // what does this even do
+		         Toolkit.getDefaultToolkit().sync(); // what does this even do
           
       }
       

@@ -261,6 +261,8 @@ public class Player extends EntityDynamic {
 
     	return climbing;
     }
-    
+    public String toString() {
+		return String.format(name);
+	}
     
 }

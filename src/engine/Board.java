@@ -7,11 +7,15 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -20,7 +24,6 @@ import java.util.TimerTask;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-
 import entities.*;
 import physics.*;
 import testEntities.*;
@@ -28,7 +31,7 @@ import misc.*;
 
 
 
-public class Board extends JPanel implements ActionListener {
+public class Board extends JPanel {
 
     /**
 	 * 
@@ -48,12 +51,15 @@ public class Board extends JPanel implements ActionListener {
     private static ArrayList<EntityDynamic> dynamicEntitiesList; 
     private static ArrayList<EntityDynamic> physicsEntitiesList; 
     private LinkedList<Collision> collisionsList = new LinkedList<Collision>(); 
+    protected Point clickPosition;
+    protected MouseHandlerClass handler;
     private boolean ingame = true;
     private final int ICRAFT_X = 170;
     private final int ICRAFT_Y = 150;
     public static final int B_WIDTH = 400;
     public static final int B_HEIGHT = 300;
     private boolean debugOn = false; 
+    private static EntityStatic currentSelectedEntity;
     
     private final int DELAY = 10;
     
@@ -78,20 +84,26 @@ public class Board extends JPanel implements ActionListener {
 
     public Board() {
     	initBoard();
-    	//setFocusable(true);
+    	setFocusable(true);
     }
 
     private void initBoard() {
+    	currentSelectedEntity = new EntityStatic(0,0);
+    	//or currentSelectedEntity = new Object();
     	currentDuration = System.currentTimeMillis();
     	prevDuration = currentDuration;
     	
         addKeyListener(new TAdapter());
+        handler = new MouseHandlerClass();
+  		addMouseListener(handler);
+  		addMouseMotionListener(handler);
         setFocusable(true);
         setBackground(Color.BLACK);
         ingame = true;
         
         setPreferredSize(new Dimension(B_WIDTH, B_HEIGHT));
-        
+        setMinimumSize(new Dimension(B_WIDTH, B_HEIGHT));
+        // setSize(300,400);
         // initialize object lists
         staticEntitiesList = new ArrayList<>();
         dynamicEntitiesList = new ArrayList<>();
@@ -101,7 +113,7 @@ public class Board extends JPanel implements ActionListener {
         player = new Player(ICRAFT_X, ICRAFT_Y);
         player.getObjectGraphic().setVisible(true);
 
-        
+        clickPosition = new Point(0,0);
         //## TESTING ##
         //Manually add test objects here
 
@@ -152,12 +164,13 @@ public class Board extends JPanel implements ActionListener {
      * ##################
      */
     
+    /*
     // OLD TIMER
       @Override
       public void actionPerformed(ActionEvent e) {
     	  
       }
-      
+      */
       public void updateBoard(){ //TESTING CONSTANT FPS
     	      
           deltaTime = System.currentTimeMillis() - time ;
@@ -302,9 +315,12 @@ public class Board extends JPanel implements ActionListener {
         //calling upon physicsEntitiesList.get(0) is awkward, perhaps good reason to try out HashMaps
         laser.setX(physicsEntitiesList.get(0).getX()+25);
         laser.setY(physicsEntitiesList.get(0).getY()+10);
-
+        /*
         laser.setxEndPoint((int)player.getBoundingBox().getCenterX());
         laser.setyEndPoint((int)player.getBoundingBox().getCenterY());
+        */
+        laser.setxEndPoint((int)clickPosition.getX() );
+        laser.setyEndPoint((int)clickPosition.getY() );
         //laser.setxEndPoint(B_WIDTH);
        // laser.setyEndPoint(physicsEntitiesList.get(0).getY()+10);
         laser.pewpew(g);
@@ -329,7 +345,12 @@ public class Board extends JPanel implements ActionListener {
     }
     
    
-
+    public void setClickPosition(int x, int y){
+		clickPosition.setLocation(x, y);
+	}
+	public Point getClickPosition(){
+		return clickPosition;
+	}
     /*
     private void updateStaticObjects() {
     	
@@ -463,7 +484,7 @@ public class Board extends JPanel implements ActionListener {
         
         // Check collisions between player and static objects
         for (EntityStatic staticEntity : staticEntitiesList) { 
-        	
+        	checkSelectedEntity(staticEntity);
             //Rectangle r4 = staticEntity.getBoundingBox();
             
             //r4 = new Rectangle(r4.x - 4 , r4.y - 4, r4.width + 8, r4.height + 8); 
@@ -485,6 +506,7 @@ public class Board extends JPanel implements ActionListener {
         // TEST LASER COLLISION 
         for (EntityStatic stat : staticEntitiesList) { 
         
+        	
         	if ( stat.getLocalBoundary().boundaryIntersects(laser.getBoundary()) ) {
 	            	
 	            //OPEN COLLISION
@@ -492,7 +514,12 @@ public class Board extends JPanel implements ActionListener {
 	            	collisionsList.add(new Collision(laser, stat)); // if not, add new collision event
 
 	            } 	
-	    	}
+	            
+	            //testing selection of entities with mouse
+	            if (stat.getBoundingBox().contains(clickPosition)) {
+	            	SidePanel.selectedEntityName.setText("Selected: " + stat.name);
+	            }
+	   		}
         }
         
         
@@ -501,7 +528,7 @@ public class Board extends JPanel implements ActionListener {
         for (EntityDynamic dynamicEntity : dynamicEntitiesList) { //index through physics entities
         
         //EntityDynamic physEntity = physicsEntitiesList.get(0);
-        	
+        	checkSelectedEntity(dynamicEntity);
             Rectangle r1 = dynamicEntity.getBoundingBox();
             
             for (EntityStatic statEntity : staticEntitiesList){ // index through static entities
@@ -522,10 +549,12 @@ public class Board extends JPanel implements ActionListener {
 
         // Check collisions between player and physics objects
         for (EntityDynamic physics : physicsEntitiesList) { 
-        	        
+        	checkSelectedEntity(physics);
+        	
         	Rectangle r4 = physics.getBoundingBox();
         	
-	        if (r3.intersects(r4) ) {  
+	        if (r3.intersects(r4) ) { 
+        	 //if (r3.intersects(new Rectangle(clickPosition, new Dimension(10,10))) ) {
 	        	
 	            	//OPEN COLLISION
 	            	if (!hasActiveCollision(player,physics)) { //check to see if collision isn't already occurring
@@ -538,7 +567,91 @@ public class Board extends JPanel implements ActionListener {
         
         
     }
+    //testing selection of entities with mouse
+    //'ent' in this case corresponds to the entities cycled through in the enhanced for loops above
+    public void checkSelectedEntity(EntityStatic ent) {
+    	if (ent.getBoundingBox().contains(clickPosition)) {
+        	SidePanel.selectedEntityName.setText("Selected: " + ent.name);
+        	currentSelectedEntity = ent;
+        }
+    	else if (player.getBoundingBox().contains(clickPosition)){
+    		SidePanel.selectedEntityName.setText("Selected: " + player.name);
+    		currentSelectedEntity = player;
+    		
+    	}
+    	/*
+    	 * gives an error with the timer for some reason
+    	 
+    	else{
+    		SidePanel.selectedEntityName.setText("Nothing Selected.");
+    	}
+    	*/
+    }
+    
+  //mouse handling code here:
+  	protected class MouseHandlerClass implements MouseListener, MouseMotionListener {
+  		public Point p1, p2;
+  		//public Dimension dim;
+  		public MouseHandlerClass(){
+  			p1 = new Point();
+  			p2 = new Point();
+  			//dim = new Dimension(0,0);
+  		}
+  		@Override
+  		public void mouseClicked(MouseEvent e) {
+  			// TODO Auto-generated method stub	
+  			p1.setLocation(e.getX(), e.getY());
+  			SidePanel.label1.setText(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
+  			clickPosition.setLocation(p1);
+  			
+  			//testing to see how clicking current entity can let me manipulate it
+  			//currentSelectedEntity.setY(currentSelectedEntity.getY()+1);
+  		}
 
+  		@Override
+  		public void mousePressed(MouseEvent e) {
+  			// TODO Auto-generated method stub
+  			p1.setLocation(e.getX(), e.getY());
+  			SidePanel.label1.setText(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
+  			//clickPosition.setLocation(p1);
+  		}
+  		@Override
+  		public void mouseReleased(MouseEvent e) {
+  			// TODO Auto-generated method stub	
+  			SidePanel.label1.setText("Mouse Click: 0, 0");
+  			p2.setLocation(e.getX(), e.getY());
+  			clickPosition.setLocation(p2);
+  			currentSelectedEntity = new EntityStatic(0,0);
+  		}
+  		@Override
+  		public void mouseEntered(MouseEvent e) {
+  			// TODO Auto-generated method stub	
+  			
+  		}
+  		@Override
+  		public void mouseExited(MouseEvent e) {
+  			// TODO Auto-generated method stub	
+  		}
+
+  		@Override
+  		public void mouseDragged(MouseEvent e) {
+  			// TODO Auto-generated method stub
+  			p2.setLocation(e.getX(),e.getY());
+  			SidePanel.label1.setText(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
+  			clickPosition.setLocation(p2);
+  			currentSelectedEntity.setX(e.getX());
+  			currentSelectedEntity.setY(e.getY());
+  			
+
+  		}
+
+  		@Override
+  		public void mouseMoved(MouseEvent e) {
+  			// TODO Auto-generated method stub
+  			
+  		}	
+  	}
+  	//Inner class to handle F2 keypress for debug window
     private class TAdapter extends KeyAdapter {
 
         @Override

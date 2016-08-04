@@ -1,0 +1,34 @@
+8/3/2016
+Hey dude I'll try to keep this brief, here are the additions I put into the game today:
+
+
+****NOTE: To test my changes, run ApplicationTest instead of Application
+****I should have created a BoardTest but I forgot. Major functionality of Board hasn't been changed too drastically,
+***I'm pretty sure Application.java still runs it fine. 
+---------------
+>Support for extra panel on the side that can hold basic components like pictures, textfields, buttons, etc.
+	-middle border can be resized but I have it set to stay put for now
+	-both Board and (new class) SidePanel are now both part of SplitPane.java, which is a class of type JSplitPane that
+	 lets you hold multiple panes inside of one. "SplitePane.java" that I made also creates the frame that will hold the game.
+	-ApplicationTest.java is now chiefly for housing the main() function that will start "run()" and start the program's thread.
+
+>Level editing capabilities: 
+	-click an entity's bounding box to select it. Hold and drag after that to move it around the screen.
+	-To deselect it, click anywhere else once.
+	-play with physics box, it's fucking hilarious
+
+
+>Laser now follows mouse drag for testing purposes, but I left the original player-homing code there but commented if we want it back.
+
+>Full mouse support inside of Board. Includes clicking, dragging, mouse press and mouse release. Also has mouse-moving support 
+ (just reacting to the cursor moving) but I'm not currently using that.
+	-All of the MouseListener event definitions inside my MouseHandlerClass can possibly be moved out of Board if
+	we feel like Board.java is getting too colossal.
+
+
+
+
+
+
+
+Really excited about where we can go from here. We'll have to see about saving and loading positions of entities in a .config file

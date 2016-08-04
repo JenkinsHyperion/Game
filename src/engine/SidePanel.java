@@ -5,8 +5,8 @@ import java.awt.*;
 
 
 public class SidePanel extends JPanel {
-	public static JLabel label1;
-	public static JLabel selectedEntityName;
+	private static JLabel label1;
+	private static JLabel selectedEntityName;
 	public JLabel clickedEntity;
 	//public Point clickPosition;
 	private JButton button1;
@@ -17,7 +17,7 @@ public class SidePanel extends JPanel {
 		setPreferredSize(new Dimension(200, 300));
 		setMinimumSize(new Dimension(200,300));
 		label1 = new JLabel("Here's some text");
-		selectedEntityName = new JLabel("Nothing selected");
+		selectedEntityName = new JLabel("Nothing Selected");
 		//item1.setHorizontalAlignment(JLabel.EAST);
 		add(label1, BorderLayout.EAST);
 		add(selectedEntityName, BorderLayout.EAST);
@@ -28,8 +28,11 @@ public class SidePanel extends JPanel {
 		//add(checkBox1, BorderLayout.WEST);
 	}
 	
-	public void setLabel1(String text){
+	public static void setLabel1(String text){
 		label1.setText(text);
+	}
+	public static void setSelectedEntityName(String text){
+		selectedEntityName.setText(text);
 	}
 	
 	

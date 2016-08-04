@@ -315,12 +315,17 @@ public class Board extends JPanel {
         //calling upon physicsEntitiesList.get(0) is awkward, perhaps good reason to try out HashMaps
         laser.setX(physicsEntitiesList.get(0).getX()+25);
         laser.setY(physicsEntitiesList.get(0).getY()+10);
-        /*
+        
         laser.setxEndPoint((int)player.getBoundingBox().getCenterX());
         laser.setyEndPoint((int)player.getBoundingBox().getCenterY());
-        */
+        
+        /*
+         * #####  For having laser track the mouse
+
         laser.setxEndPoint((int)clickPosition.getX() );
         laser.setyEndPoint((int)clickPosition.getY() );
+        */
+        
         //laser.setxEndPoint(B_WIDTH);
        // laser.setyEndPoint(physicsEntitiesList.get(0).getY()+10);
         laser.pewpew(g);
@@ -516,10 +521,6 @@ public class Board extends JPanel {
 
 	            } 	
 	            
-	            //testing selection of entities with mouse
-	            if (stat.getBoundingBox().contains(clickPosition)) {
-	            	SidePanel.selectedEntityName.setText("Selected: " + stat.name);
-	            }
 	   		}
         }
         
@@ -572,11 +573,11 @@ public class Board extends JPanel {
     //'ent' in this case corresponds to the entities cycled through in the enhanced for loops above
     public void checkSelectedEntity(EntityStatic ent) {
     	if (ent.getBoundingBox().contains(clickPosition)) {
-        	SidePanel.selectedEntityName.setText("Selected: " + ent.name);
+        	SidePanel.setSelectedEntityName("Selected: " + ent.name);
         	currentSelectedEntity = ent;
         }
     	else if (player.getBoundingBox().contains(clickPosition)){
-    		SidePanel.selectedEntityName.setText("Selected: " + player.name);
+    		SidePanel.setSelectedEntityName("Selected: " + player.name);
     		currentSelectedEntity = player;
     		
     	}
@@ -591,20 +592,21 @@ public class Board extends JPanel {
     
   //mouse handling code here:
   	protected class MouseHandlerClass implements MouseListener, MouseMotionListener {
-  		public Point p1, p2;
+  		public Point p1, blankPoint;
   		//public Dimension dim;
   		public MouseHandlerClass(){
-  			p1 = new Point();
-  			p2 = new Point();
+  			p1 = new Point(0,0);
+  			blankPoint = new Point(0,0);
   			//dim = new Dimension(0,0);
   		}
   		@Override
   		public void mouseClicked(MouseEvent e) {
-  			// TODO Auto-generated method stub	
+  			// TODO Auto-generated method stub
+  			/*
   			p1.setLocation(e.getX(), e.getY());
   			SidePanel.label1.setText(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
   			clickPosition.setLocation(p1);
-  			
+  			*/
   			//testing to see how clicking current entity can let me manipulate it
   			//currentSelectedEntity.setY(currentSelectedEntity.getY()+1);
   		}
@@ -613,16 +615,17 @@ public class Board extends JPanel {
   		public void mousePressed(MouseEvent e) {
   			// TODO Auto-generated method stub
   			p1.setLocation(e.getX(), e.getY());
-  			SidePanel.label1.setText(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
-  			//clickPosition.setLocation(p1);
+  			SidePanel.setLabel1(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
+  			clickPosition.setLocation(p1);
   		}
   		@Override
   		public void mouseReleased(MouseEvent e) {
   			// TODO Auto-generated method stub	
-  			SidePanel.label1.setText("Mouse Click: 0, 0");
-  			p2.setLocation(e.getX(), e.getY());
-  			clickPosition.setLocation(p2);
-  			currentSelectedEntity = new EntityStatic(0,0);
+  			SidePanel.setLabel1("Mouse Click: 0, 0");
+  			p1.setLocation(e.getX(), e.getY());
+  			clickPosition.setLocation(blankPoint);
+  			currentSelectedEntity = null;
+  			SidePanel.setSelectedEntityName("Nothing Selected");
   		}
   		@Override
   		public void mouseEntered(MouseEvent e) {
@@ -637,12 +640,16 @@ public class Board extends JPanel {
   		@Override
   		public void mouseDragged(MouseEvent e) {
   			// TODO Auto-generated method stub
-  			p2.setLocation(e.getX(),e.getY());
-  			SidePanel.label1.setText(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
-  			clickPosition.setLocation(p2);
-  			currentSelectedEntity.setX(e.getX());
-  			currentSelectedEntity.setY(e.getY());
+ 
+  			p1.setLocation(e.getX(),e.getY());
+  			SidePanel.setLabel1(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
   			
+  			if (currentSelectedEntity != null) {
+	  			currentSelectedEntity.setX(e.getX());
+	  			currentSelectedEntity.setY(e.getY());
+  			}
+  			clickPosition.setLocation(p1);
+  			//currentSelectedEntity = null;
 
   		}
 

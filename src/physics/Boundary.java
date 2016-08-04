@@ -2,7 +2,11 @@ package physics;
 
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
+import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
+import java.util.Iterator;
 
 public class Boundary {
 	
@@ -36,20 +40,85 @@ public class Boundary {
 		return false;
 	}
 	
-	public int[] getSidesColliding(Boundary bounds){ //cycle through all lines of two shapes and check for intersections
 	
+	public boolean sideIsFlush(Boundary bounds){ 
+		
 		for (int i = 0 ; i < sides.length ; i++) {
 			
 			for ( int j = 0 ; j < bounds.getSides().length ; j++ ) {
+
+					if ( Line2D.ptSegDist(sides[i].getX1(), sides[i].getY1(), sides[i].getX2(), sides[i].getY2(), 
+							bounds.getSides()[j].getX1(), bounds.getSides()[j].getY1())  < 1 ) {
+						return true;
+					}
+					if ( Line2D.ptSegDist(sides[i].getX1(), sides[i].getY1(), sides[i].getX2(), sides[i].getY2(), 
+							bounds.getSides()[j].getX2(), bounds.getSides()[j].getY2())  < 1 ) {
+						return true;
+					}
+					if ( Line2D.ptSegDist(bounds.getSides()[j].getX1(), bounds.getSides()[j].getY1(), 
+							bounds.getSides()[j].getX2(), bounds.getSides()[j].getY2(), 
+							sides[i].getX1(), sides[i].getY1())  < 1 ) {
+						return true;
+					}
+					if ( Line2D.ptSegDist(bounds.getSides()[j].getX1(), bounds.getSides()[j].getY1(), 
+							bounds.getSides()[j].getX2(), bounds.getSides()[j].getY2(), 
+							sides[i].getX2(), sides[i].getY2())  < 1 ) {
+						return true;
+					}
+
 				
-				if ( sides[i].intersectsLine( bounds.getSides()[j] ) ) {				
-					
-				}
+				
+			}
+			
+		}
+		return false;
+	}
+	
+	
+public Line2D[] getFlushSides(Boundary bounds){ 
+	
+		Line2D[] flushSides = new Line2D[2];
+		
+		for (int i = 0 ; i < sides.length ; i++) {
+			
+			for ( int j = 0 ; j < bounds.getSides().length ; j++ ) {
+
+
+				
+					if ( pointIsOnLine(bounds.getSides()[j].getP1(), sides[i]) ) { 
+						if ( pointIsOnLine(bounds.getSides()[j].getP2(), sides[i]) ) {
+							
+								flushSides[0] = bounds.getSides()[j];
+								flushSides[1] = sides[i];
+								return flushSides;
+						}
+					}
+
+					else if ( pointIsOnLine(sides[i].getP1(), bounds.getSides()[j]) ) {
+						if ( pointIsOnLine(sides[i].getP2(), bounds.getSides()[j]) ) {
+							
+							
+							flushSides[0] = bounds.getSides()[j];
+							flushSides[1] = sides[i];
+							return flushSides;
+						}
+					}
+
+
 				
 			}
 			
 		}
 		return null;
+	}
+
+	private boolean pointIsOnLine(Point2D point, Line2D line){
+		if (Line2D.ptLineDist(line.getX1(), line.getY1(), line.getX2(), line.getY2(), point.getX(), point.getY())  < 1 ) {	
+			return true;			
+		}
+		else {
+			return false;
+		}
 	}
 	
 	public Line2D[] getSides(){

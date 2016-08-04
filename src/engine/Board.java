@@ -450,6 +450,7 @@ public class Board extends JPanel {
     			collisionsList.get(i).updateCollision(); //Run commands from inside collision object
     			
     		}
+  		
     	}
     	
     }
@@ -497,7 +498,7 @@ public class Board extends JPanel {
 	            	//OPEN COLLISION
 
 	            	if (!hasActiveCollision(player,staticEntity)) { //check to see if collision isn't already occurring
-	            		collisionsList.add(new CollisionPlayerStaticOld(player,staticEntity)); // if not, add new collision event
+	            		collisionsList.add(new CollisionPlayerStatic(player,staticEntity)); // if not, add new collision event
 
 	            	} 	
 	            }
@@ -685,7 +686,7 @@ public class Board extends JPanel {
     
     private void drawDebug(Graphics g){ // DEBUG GUI
 
-    	g.setColor(new Color(0, 0, 0, 100));
+    	g.setColor(new Color(0, 0, 0, 150));
         g.fillRect(0, 0, B_WIDTH, B_HEIGHT);
         
         g.setColor(Color.GRAY);
@@ -697,10 +698,17 @@ public class Board extends JPanel {
 	    
 	    //Draw player bounding box
 	    Graphics2D g2 = (Graphics2D) g;
+	        
 	    g2.setColor(Color.CYAN);
 	    for (Line2D line : player.getLocalBoundary().getSides()){
 	    	g2.draw(line);
 	    }
+	    
+	    for (Line2D lineD : player.getLocalBoundary().getSides()){
+	    	lineD = new Line2D.Double(lineD.getX1(), lineD.getY1(), lineD.getX2(), lineD.getY2());
+	    	g2.draw(lineD);
+	    }
+	    
 	    
 	    g2.draw(laser.getBoundary().getSides()[0]);
 	    
@@ -728,10 +736,20 @@ public class Board extends JPanel {
 	    g.drawString("Collisions: ",5,90);
 	    if (!collisionsList.isEmpty())
 	    {
+	    	g2.setColor(Color.YELLOW);
 		    g.drawString("Collisions: ",5,90);
 		   
 		    for (int i = 0 ; i < collisionsList.size() ; i++){
+		    	//draw list of collisions
 		    	g.drawString(""+collisionsList.get(i),5,105+(10*i));
+		    	
+		    	//draw colliding sides
+		    	if ( collisionsList.get(i).getSidePrimary() != null ) {
+		    		
+			    	g2.draw(collisionsList.get(i).getSidePrimary() );
+			    	g2.draw(collisionsList.get(i).getSideSecondary() );
+		    	}
+		    	
 		    }
 	    }
 	    //g.drawString("Calculation time: " + dt, 55, 45);

@@ -1,7 +1,7 @@
 package physics;
 
 import java.awt.Rectangle;
-
+import java.awt.geom.Line2D;
 
 import entities.EntityStatic;
 
@@ -10,6 +10,9 @@ public class Collision {
 	protected EntityStatic entityPrimary;
 	protected EntityStatic entitySecondary;
 	public String collisionName;
+	
+	protected Line2D contactingSide1;
+	protected Line2D contactingSide2;
 	
 	public Collision(EntityStatic e1, EntityStatic e2){
 		
@@ -85,4 +88,7 @@ public class Collision {
 		//return String.format("%s",this);
 		return collisionName;
 	}
+	
+	public Line2D getSidePrimary(){ return contactingSide1; }
+	public Line2D getSideSecondary(){ return contactingSide2; }
 }

@@ -1,5 +1,7 @@
 package entities;
 
+import physics.Boundary;
+
 public class EntityDynamic extends EntityStatic{
 
 	protected float dx;
@@ -83,6 +85,10 @@ public class EntityDynamic extends EntityStatic{
     		accX = 0;
     	}
     }
+    
+	public Boundary getLocalBoundaryD(){
+		return boundary.atPosition(x+dx,y+dy);
+	}
     
     public boolean isColliding(){ return isColliding; }
     public void setColliding( boolean state ){ isColliding = state;}

@@ -1,6 +1,9 @@
 package physics;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.geom.Line2D;
 
 import entities.EntityDynamic;
 import entities.EntityStatic;
@@ -42,12 +45,40 @@ public class CollisionPlayerStatic extends Collision {
 	@Override
 	public void updateCollision(){ 
 		
-		if (entityPrimary.getBoundary().boundaryIntersects(entitySecondary.getBoundary())) {
+		Line2D[] flushSides = entityPrimary.getLocalBoundary().getFlushSides(entitySecondary.getLocalBoundary());
+		
+		if ( flushSides != null ){
 			
+			contactingSide1 = flushSides[0];
+			contactingSide2 = flushSides[1];
+			
+			yequilibrium = true;
 			entityPrimary.setDY(0);
-			entityPrimary.setY(entityPrimary.getY());
+			entityPrimary.setAccY(0);
+			entityPrimary.setColliding(true);
+			
+			if (entityPrimary.getDX() > (0.1))
+	    	{
+				entityPrimary.setAccX(-0.1f);
+	    	}
+	    	else if (entityPrimary.getDX() < (-0.1))
+	    	{
+	    		entityPrimary.setAccX(0.1f);
+	    	}
+	    	else
+	    	{
+	    		//entityPrimary.setDX(entitySecondary.ge;
+	    		entityPrimary.setDX(0);
+	    		entityPrimary.setAccX(0);
+	    	}
 			
 			
+		}
+		else {
+			
+			yequilibrium = false;
+			entityPrimary.setDY(0);
+			entityPrimary.setY(entityPrimary.getY() - 1 );	
 			
 		}
 		

@@ -72,7 +72,7 @@ public class Player extends EntityDynamic {
 
         if (key == KeyEvent.VK_SHIFT) {
 
-        	//Generate particle and add to current Board's object list
+        	/*//Generate particle and add to current Board's object list
         	
         	if (playerState == idlingLeft){ // Player can only shoot from certain states.
         		// This really should be a method canShoot() that can be set by changing states. Then you'd be able to shoot
@@ -81,7 +81,7 @@ public class Player extends EntityDynamic {
         	}
         	else if (playerState == idlingRight){
         		Board.BoardAccess.spawnDynamicEntity( new Bullet(getX(),getY(),2,0) );
-        	}
+        	}*/
         	
         }
 

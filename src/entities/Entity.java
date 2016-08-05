@@ -1,5 +1,7 @@
 package entities;
 
+import java.awt.Point;
+
 /* This is the base class for all game objects. Contains only position variables. 
  * 
  */
@@ -42,6 +44,10 @@ public class Entity {
     public void setY(int sety) {
         y = sety;
     }
-    
+
+    public void setPos(Point p){
+    	x = (float) p.getX();
+    	y = (float) p.getY();
+    }
     
 }

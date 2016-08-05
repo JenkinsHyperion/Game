@@ -53,7 +53,7 @@ public class Board extends JPanel {
     private LinkedList<Collision> collisionsList = new LinkedList<Collision>(); 
     
     protected Point clickPosition;
-  
+    protected boolean mouseClick = false;
 
     protected MouseHandlerClass handler;
     private boolean ingame = true;
@@ -63,7 +63,6 @@ public class Board extends JPanel {
     public static final int B_HEIGHT = 300;
     private boolean debugOn = false; 
     public static EntityStatic currentSelectedEntity;
-    public static EntityStatic blankEntity;
     
     private final int DELAY = 10;
     
@@ -93,8 +92,6 @@ public class Board extends JPanel {
 
     private void initBoard() {
     	currentSelectedEntity = new EntityStatic(0,0);
-    	blankEntity = new EntityStatic(0,0);
-    	blankEntity.isSelected = false;
     	//or currentSelectedEntity = new Object();
     	currentDuration = System.currentTimeMillis();
     	prevDuration = currentDuration;
@@ -409,20 +406,8 @@ public class Board extends JPanel {
     		EntityDynamic physicsEntity = physicsEntitiesList.get(i);
     		physicsEntity.updatePosition();
     		physicsEntity.getObjectGraphic().updateSprite();
-    		
-    		//wrap objects around screen
-    		//if ( physicsEntity.getY() > 300){
-    		//	physicsEntity.setY(0);
-    		//}
-    		//if ( physicsEntity.getX() < 0){
-    		//	physicsEntity.setX(400);
-    		//}
-    		
-    		//CHECK IF ALIVE. IF NOT, REMOVE. 
-    		//if ( !physicsEntity.isAlive()){
-    		//	dynamicEntitiesList.remove(i);
-    		//}
         }
+    	
     }
 
 
@@ -496,7 +481,8 @@ public class Board extends JPanel {
         
         // Check collisions between player and static objects
         for (EntityStatic staticEntity : staticEntitiesList) { 
-        	checkSelectedEntity(staticEntity);
+        	
+        	//checkSelectedEntity(staticEntity);
 
         		if ( player.getDeltaBoundary().boundaryIntersects(staticEntity.getLocalBoundary()) ) {
 	            	
@@ -529,8 +515,6 @@ public class Board extends JPanel {
         //Check collisions between dynamics entities and static entities
         for (EntityDynamic dynamicEntity : dynamicEntitiesList) { //index through physics entities
         
-        //EntityDynamic physEntity = physicsEntitiesList.get(0);
-        	checkSelectedEntity(dynamicEntity);
             Rectangle r1 = dynamicEntity.getBoundingBox();
             
             for (EntityStatic statEntity : staticEntitiesList){ // index through static entities
@@ -551,7 +535,6 @@ public class Board extends JPanel {
 
         // Check collisions between player and physics objects
         for (EntityDynamic physics : physicsEntitiesList) { 
-        	checkSelectedEntity(physics);
         	
         	Rectangle r4 = physics.getBoundingBox();
         	
@@ -569,6 +552,119 @@ public class Board extends JPanel {
         
         
     }
+
+    
+  //MOUSE INPUT
+  	protected class MouseHandlerClass implements MouseListener, MouseMotionListener  { 		
+  	    public int clickPositionXOffset;
+  	    public int clickPositionYOffset;
+  		//p1 is your clicked position, p2 is the entity's original position that
+  		//	will be used for calculating the offsets
+  		public int entityOriginalXPosition;
+		public int entityOriginalYPosition;
+
+  		@Override
+  		public void mouseClicked(MouseEvent e) {
+  			//clickPosition.setLocation(e.getPoint());
+  		}
+
+  		@Override
+  		public void mousePressed(MouseEvent e)
+  		{  	
+  			if (!mouseClick) {
+  				mouseClick = true;
+	  			clickPosition.setLocation(e.getX(),e.getY());
+	  			
+	  			checkForSelection(clickPosition);
+	  			
+	  			SidePanel.setLabel1(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
+	  			
+	  			if (currentSelectedEntity != null) {
+		  			System.out.println(currentSelectedEntity.name);
+	  	  			SidePanel.setSelectedEntityName("Selected: " + currentSelectedEntity.name);
+		  			SidePanel.setLabel2("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
+		  			//get offsets
+		  			clickPositionXOffset = e.getX() - currentSelectedEntity.getX() ;
+		  			clickPositionYOffset = e.getY() - currentSelectedEntity.getY() ;
+		  			System.out.println("Offset "+ clickPositionXOffset + "," + clickPositionYOffset);
+	  			}
+	  			else { //doesnt need to be redrawn every time
+	  				SidePanel.setSelectedEntityName("Nothing Selected");
+		  			SidePanel.setLabel2("Coords. of selected entity: N/A");
+	  			}
+	
+  			}
+  		}
+
+  		@Override
+  		public void mouseDragged(MouseEvent e) 
+  		{ 		
+	  			SidePanel.setLabel1(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
+	  			
+	  			if (currentSelectedEntity != null) {
+	  				System.out.println("Dragging " + currentSelectedEntity.name);
+	  				currentSelectedEntity.setX(e.getX() - clickPositionXOffset);
+	  				currentSelectedEntity.setY(e.getY() - clickPositionYOffset);
+		  			SidePanel.setLabel2("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
+	  			}
+  			
+  		}
+  		@Override
+  		public void mouseReleased(MouseEvent e) 
+  		{	
+  			System.out.println("Released");
+  			mouseClick = false;
+  			
+  			/*clickPosition.setLocation(e.getPoint());
+  			if (currentSelectedEntity.isSelected == true) {
+	  			//SidePanel.setLabel1("Mouse Click: 0, 0");		 			
+	  			//SidePanel.setSelectedEntityName("Nothing Selected");
+	  			SidePanel.setLabel2("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
+	  			//release the offset variables
+	  			clickPositionXOffset = 0;
+	  			clickPositionYOffset = 0;
+	  			//SidePanel.setLabel3("Offset of x: " + clickPositionXOffset);
+	  			clickPosition.setLocation(e.getPoint());
+	  			currentSelectedEntity = blankEntity;
+	  			//currentSelectedEntity.isSelected = false;
+  			} 		
+  			clickPosition.setLocation(0,0);
+  			SidePanel.setSelectedEntityName("Selected: " + currentSelectedEntity.name);
+  			//currentSelectedEntity = blankEntity;
+  			//currentSelectedEntity.isSelected = false;*/
+  		}
+  		@Override
+  		public void mouseEntered(MouseEvent e) {		 			
+  		}
+  		@Override
+  		public void mouseExited(MouseEvent e) {  			
+  		}
+
+
+  		@Override
+  		public void mouseMoved(MouseEvent e) {
+  			// TODO Auto-generated method stub		
+  		}	
+  	}
+  	
+  	//LEVEL EDITOR METHODS
+
+  	private EntityStatic clickedOnEntity(Point click) {
+  		for (EntityStatic entity : staticEntitiesList) {
+  			if (entity.getBoundingBox().contains(click)) {
+  	  			SidePanel.setSelectedEntityName("Selected: " + entity.name);
+  	  			SidePanel.setLabel2("Coords. of selected entity: " + entity.getX() + ", " + entity.getY());
+  				return entity;
+  			}
+  		}
+  		return null;
+  	}
+  	
+  	private void checkForSelection(Point click) { //redundant
+  			currentSelectedEntity = clickedOnEntity(click);
+  	}
+  	
+  	/*
     //testing selection of entities with mouse
     //'ent' in this case corresponds to the entities cycled through in the enhanced for loops above
     public void checkSelectedEntity(EntityStatic ent) {
@@ -591,109 +687,26 @@ public class Board extends JPanel {
     	else{
     		SidePanel.selectedEntityName.setText("Nothing Selected.");
     	}
-    	*/
-    }
-    
-  //mouse handling code here:
-  	protected class MouseHandlerClass implements MouseListener, MouseMotionListener  { 		
-  	    public int clickPositionXOffset;
-  	    public int clickPositionYOffset;
-  		//p1 is your clicked position, p2 is the entity's original position that
-  		//	will be used for calculating the offsets
-  		public int entityOriginalXPosition;
-		public int entityOriginalYPosition;
-
-  		@Override
-  		public void mouseClicked(MouseEvent e) {
-  			//clickPosition.setLocation(e.getPoint());
-  		}
-
-  		@Override
-  		public void mousePressed(MouseEvent e)
-  		{  	
-  			clickPosition.setLocation(e.getX(),e.getY());
-  			SidePanel.setSelectedEntityName("Selected: " + currentSelectedEntity.name);
-  			//Point p1 = new Point(e.getPoint());
-
-  			//p2 is the original position of the current entity.
-  			SidePanel.setLabel1(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
-	  		if (currentSelectedEntity.isSelected == true) {  			
-	  			//Point p2 = new Point(currentSelectedEntity.getX(), currentSelectedEntity.getY());
-	  			
-	  			//p2.setLocation(currentSelectedEntity.getX(), currentSelectedEntity.getY());
-	  			//clickPositionXOffset = (p1.x - p2.x);
-	  			//clickPositionYOffset = (p1.y - p2.y);
-	  			SidePanel.setLabel2("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY()); 
-	  			SidePanel.setLabel3("(notElse)Offset of x: " + clickPositionXOffset);
-	  			//System.out.println("clickPositionoffsetx: " + clickPositionXOffset);
-	  			//System.out.println(String.format("p2: %s", p2 ));
-	  			//System.out.println(currentSelectedEntity.isSelected);
-	  		}
-	  			/*
-	  		else
-	  		{
-	  			Point p2 = new Point(p1);
-	  			clickPositionXOffset = (p1.x - p2.x);
-	  			clickPositionYOffset = (p1.y - p2.y);
-	  			SidePanel.setLabel3("(else)Offset of x: " + clickPositionXOffset);
-	  		}
-	  		*/
-  		}
-
-  		@Override
-  		public void mouseDragged(MouseEvent e) 
-  		{ 		
-  			
-  		//	if (currentSelectedEntity.isSelected == true) {
-	  			SidePanel.setLabel1(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
-	  			//clickPosition.setLocation(e.getPoint());
-	
-	  			SidePanel.setLabel2("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
-	  			//System.out.println(entityOriginalXPosition);
-	  			currentSelectedEntity.setX(e.getX() - clickPositionXOffset);
-	  			currentSelectedEntity.setY(e.getY() - clickPositionYOffset);
-  					
-  				currentSelectedEntity.setX(e.getX());
-	  			currentSelectedEntity.setY(e.getY());
-  			 
-  			//currentSelectedEntity.setX(clickPosition.x + clickPositionXOffset);
-  			//currentSelectedEntity.setY(clickPosition.y + clickPositionYOffset); 	
-  			//}
-  		}
-  		@Override
-  		public void mouseReleased(MouseEvent e) 
-  		{	
-  			clickPosition.setLocation(e.getPoint());
-  			if (currentSelectedEntity.isSelected == true) {
-	  			//SidePanel.setLabel1("Mouse Click: 0, 0");		 			
-	  			//SidePanel.setSelectedEntityName("Nothing Selected");
-	  			SidePanel.setLabel2("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
-	  			//release the offset variables
-	  			clickPositionXOffset = 0;
-	  			clickPositionYOffset = 0;
-	  			//SidePanel.setLabel3("Offset of x: " + clickPositionXOffset);
-	  			clickPosition.setLocation(e.getPoint());
-	  			currentSelectedEntity = blankEntity;
-	  			//currentSelectedEntity.isSelected = false;
-  			} 		
-  			clickPosition.setLocation(0,0);
-  			SidePanel.setSelectedEntityName("Selected: " + currentSelectedEntity.name);
-  			//currentSelectedEntity = blankEntity;
-  			//currentSelectedEntity.isSelected = false;
-  		}
-  		@Override
-  		public void mouseEntered(MouseEvent e) {		 			
-  		}
-  		@Override
-  		public void mouseExited(MouseEvent e) {  			
-  		}
-
-
-  		@Override
-  		public void mouseMoved(MouseEvent e) {
-  			// TODO Auto-generated method stub		
-  		}	
-  	}
+    	
+    }*/
+  	
+  	
+  	
+  	
+  	
+  	
+  	
+  	
+  	
+  	
+  	
+  	
+  	
+  	
+  	
+  	
+  	
+  	
   	//Inner class to handle F2 keypress for debug window
     private class TAdapter extends KeyAdapter {
 

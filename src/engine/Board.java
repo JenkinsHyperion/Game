@@ -603,7 +603,7 @@ public class Board extends JPanel {
     }
     
   //mouse handling code here:
-  	protected class MouseHandlerClass extends MouseInputAdapter  { 		
+  	protected class MouseHandlerClass implements MouseListener, MouseMotionListener  { 		
   	    public int clickPositionXOffset;
   	    public int clickPositionYOffset;
   		//p1 is your clicked position, p2 is the entity's original position that

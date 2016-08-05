@@ -1,12 +1,7 @@
 package physics;
 
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
-import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
-import java.util.Iterator;
 
 public class Boundary {
 	
@@ -47,29 +42,17 @@ public class Boundary {
 			
 			for ( int j = 0 ; j < bounds.getSides().length ; j++ ) {
 
-					if ( Line2D.ptSegDist(sides[i].getX1(), sides[i].getY1(), sides[i].getX2(), sides[i].getY2(), 
-							bounds.getSides()[j].getX1(), bounds.getSides()[j].getY1())  < 1 ) {
-						return true;
+					if ( pointIsOnLine(bounds.getSides()[j].getP1(), sides[i]) ) {
+						if ( pointIsOnLine(bounds.getSides()[j].getP2(), sides[i]) ) {
+							return true;
+						}
 					}
-					if ( Line2D.ptSegDist(sides[i].getX1(), sides[i].getY1(), sides[i].getX2(), sides[i].getY2(), 
-							bounds.getSides()[j].getX2(), bounds.getSides()[j].getY2())  < 1 ) {
-						return true;
+					if ( pointIsOnLine(sides[i].getP1(), bounds.getSides()[j]) ) {
+						if ( pointIsOnLine(sides[i].getP2(), bounds.getSides()[j]) ) {
+							return true;
+						}
 					}
-					if ( Line2D.ptSegDist(bounds.getSides()[j].getX1(), bounds.getSides()[j].getY1(), 
-							bounds.getSides()[j].getX2(), bounds.getSides()[j].getY2(), 
-							sides[i].getX1(), sides[i].getY1())  < 1 ) {
-						return true;
-					}
-					if ( Line2D.ptSegDist(bounds.getSides()[j].getX1(), bounds.getSides()[j].getY1(), 
-							bounds.getSides()[j].getX2(), bounds.getSides()[j].getY2(), 
-							sides[i].getX2(), sides[i].getY2())  < 1 ) {
-						return true;
-					}
-
-				
-				
 			}
-			
 		}
 		return false;
 	}
@@ -83,11 +66,8 @@ public Line2D[] getFlushSides(Boundary bounds){
 			
 			for ( int j = 0 ; j < bounds.getSides().length ; j++ ) {
 
-
-				
 					if ( pointIsOnLine(bounds.getSides()[j].getP1(), sides[i]) ) { 
 						if ( pointIsOnLine(bounds.getSides()[j].getP2(), sides[i]) ) {
-							
 								flushSides[0] = bounds.getSides()[j];
 								flushSides[1] = sides[i];
 								return flushSides;
@@ -102,10 +82,7 @@ public Line2D[] getFlushSides(Boundary bounds){
 							flushSides[1] = sides[i];
 							return flushSides;
 						}
-					}
-
-
-				
+					}	
 			}
 			
 		}
@@ -113,13 +90,25 @@ public Line2D[] getFlushSides(Boundary bounds){
 	}
 
 	private boolean pointIsOnLine(Point2D point, Line2D line){
-		if (Line2D.ptLineDist(line.getX1(), line.getY1(), line.getX2(), line.getY2(), point.getX(), point.getY())  < 1 ) {	
+		double dist = Line2D.ptLineDist(line.getX1(), line.getY1(), line.getX2(), line.getY2(), point.getX(), point.getY());  	
+		if ( dist > 0.5 && dist < 1.5 ) {
 			return true;			
 		}
 		else {
 			return false;
 		}
 	}
+	
+	private boolean pointIsOnSegment(Point2D point, Line2D line){
+		double dist = line.ptSegDist(point);  	
+		if ( dist > 0.5 && dist < 1.5 ) {
+			return true;			
+		}
+		else {
+			return false;
+		}
+	}
+	
 	
 	public Line2D[] getSides(){
 		return sides;

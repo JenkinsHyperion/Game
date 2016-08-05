@@ -1,8 +1,6 @@
 package entities;
 
 import java.awt.Rectangle;
-import java.awt.Shape;
-
 import animation.Animation;
 import physics.Boundary;
 import physics.BoundingBox;

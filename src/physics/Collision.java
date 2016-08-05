@@ -1,20 +1,23 @@
 package physics;
 
-import java.awt.Rectangle;
 import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 
+import entities.EntityDynamic;
 import entities.EntityStatic;
 
 public class Collision {
 	
-	protected EntityStatic entityPrimary;
+	protected EntityDynamic entityPrimary;
 	protected EntityStatic entitySecondary;
 	public String collisionName;
 	
 	protected Line2D contactingSide1;
 	protected Line2D contactingSide2;
 	
-	public Collision(EntityStatic e1, EntityStatic e2){
+	protected Point2D[] contactPoints = new Point2D[2];
+	
+	public Collision(EntityDynamic e1, EntityStatic e2){
 		
 		entityPrimary = e1;
 		entitySecondary = e2;
@@ -43,13 +46,24 @@ public class Collision {
 	
 	
 	//INTERNAL METHODS - DON'T ALTER BELOW THIS
-	public boolean isComplete(){ // Check if entities are no longer colliding
-		
-		//Rectangle r1 = entityPrimary.getBoundingBox();
-				
-		//r1 = new Rectangle(r1.x - 1 , r1.y - 1, r1.width + 2, r1.height + 2 );
-		
+	
+	/*public boolean isComplete(){ // Check if entities are no longer colliding
+
 		if (entityPrimary.getLocalBoundary().boundaryIntersects(entitySecondary.getLocalBoundary()) ){
+			return false;
+		}
+		else { // entities are no longer colliding
+			completeCollision(); // run final commands
+			return true; // return true for scanning loop in Board to delete this collision
+		}
+	}*/
+	
+	public boolean isComplete(){ // Check if entities are no longer colliding
+
+		if (entityPrimary.getLocalBoundary().boundaryIntersects( entitySecondary.getLocalBoundary() ) ) {
+			return false;
+		}
+		else if (entityPrimary.getLocalBoundary().sideIsFlush( entitySecondary.getLocalBoundary() ) ) {
 			return false;
 		}
 		else { // entities are no longer colliding
@@ -84,6 +98,15 @@ public class Collision {
 		}
 	}
 	
+	protected boolean pointIsOnSegment(Point2D p, Line2D seg) {
+		if ( seg.ptSegDist(p) > 0.5 ) {
+			if ( seg.ptSegDist(p) < 1.5 ) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public String toString(){
 		//return String.format("%s",this);
 		return collisionName;
@@ -91,4 +114,5 @@ public class Collision {
 	
 	public Line2D getSidePrimary(){ return contactingSide1; }
 	public Line2D getSideSecondary(){ return contactingSide2; }
+	public Point2D[] getContactPoints(){ return contactPoints; }
 }

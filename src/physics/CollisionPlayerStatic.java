@@ -1,13 +1,11 @@
 package physics;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 
 import entities.EntityDynamic;
 import entities.EntityStatic;
-import entities.Player;
 
 public class CollisionPlayerStatic extends Collision {
 	
@@ -16,8 +14,6 @@ public class CollisionPlayerStatic extends Collision {
 	
 	private boolean xequilibrium = false;
 	private boolean yequilibrium = false;
-	
-	private int distance = 0;
 	
 	public CollisionPlayerStatic(EntityDynamic entity1, EntityStatic entity2){
 		
@@ -51,6 +47,28 @@ public class CollisionPlayerStatic extends Collision {
 			
 			contactingSide1 = flushSides[0];
 			contactingSide2 = flushSides[1];
+	
+			//MATH TO CALCULATE CONTACT POINTS. TEMPORARY
+			
+			contactPoints[0]=null; contactPoints[1]=null;
+
+			if ( pointIsOnSegment(contactingSide1.getP1(), contactingSide2) ) {
+				if (contactPoints[0]==null)  { contactPoints[0] = contactingSide1.getP1(); } 
+				else  { contactPoints[1] = contactingSide1.getP1(); }
+			}
+			if ( pointIsOnSegment(contactingSide1.getP2(), contactingSide2) ) {
+				if (contactPoints[0]==null)  { contactPoints[0] = contactingSide1.getP2(); } 
+				else  { contactPoints[1] = contactingSide1.getP2(); }
+			}
+			if ( pointIsOnSegment(contactingSide2.getP1(), contactingSide1) ) {
+				if (contactPoints[0]==null)  { contactPoints[0] = contactingSide2.getP1(); } 
+				else  { contactPoints[1] = contactingSide2.getP1(); }
+			}
+			if ( pointIsOnSegment(contactingSide2.getP2(), contactingSide1) ) {
+				if (contactPoints[0]==null)  { contactPoints[0] = contactingSide2.getP2(); } 
+				else  { contactPoints[1] = contactingSide2.getP2(); }
+			}
+			//
 			
 			yequilibrium = true;
 			entityPrimary.setDY(0);
@@ -74,15 +92,13 @@ public class CollisionPlayerStatic extends Collision {
 			
 			
 		}
-		else {
-			
-			yequilibrium = false;
+		
+		if ( entityPrimary.getLocalBoundary().boundaryIntersects(entitySecondary.getLocalBoundary() ) ) {
+			yequilibrium = false; 
 			entityPrimary.setDY(0);
 			entityPrimary.setY(entityPrimary.getY() - 1 );	
 			
 		}
-		
-		
 		
 	}
 	

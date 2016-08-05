@@ -86,7 +86,7 @@ public class EntityDynamic extends EntityStatic{
     	}
     }
     
-	public Boundary getLocalBoundaryD(){
+	public Boundary getDeltaBoundary(){
 		return boundary.atPosition(x+dx,y+dy);
 	}
     

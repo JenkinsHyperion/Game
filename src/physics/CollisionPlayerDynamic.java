@@ -5,8 +5,6 @@ import java.awt.geom.Line2D;
 
 import entities.EntityDynamic;
 
-import entities.Player;
-
 public class CollisionPlayerDynamic extends Collision {
 	
 	private EntityDynamic entityPrimary;

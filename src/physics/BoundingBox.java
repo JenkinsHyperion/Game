@@ -1,7 +1,6 @@
 package physics;
 
 import java.awt.Rectangle;
-import java.awt.Shape;
 import java.awt.geom.Line2D;
 
 public class BoundingBox extends Boundary{

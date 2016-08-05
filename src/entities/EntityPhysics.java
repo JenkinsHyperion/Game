@@ -1,6 +1,8 @@
 package entities;
 
 public class EntityPhysics extends EntityDynamic{
+	
+	int yReturn;
 
     public EntityPhysics(int x, int y, String path) {
     	super(x,y);
@@ -15,10 +17,22 @@ public class EntityPhysics extends EntityDynamic{
     	
     	loadSprite(path);
     	
+    	yReturn = y + 12 ;
     	//accY = 0.1f;
     	
     	//dy = -3;
 
+    }
+    
+    @Override
+    public void setX(int setx) {
+        x = setx;
+    }
+
+    @Override
+    public void setY(int sety) {
+        y = sety;
+        yReturn = sety ;
     }
     
     @Override
@@ -38,7 +52,7 @@ public class EntityPhysics extends EntityDynamic{
     	
     	
 
-    	dy = dy - (y-250)/50 ;
+    	dy = dy - (y-yReturn)/50 ;
     	//dx = dx - (x-120)/50 ;
     	
     	if (dy>0){

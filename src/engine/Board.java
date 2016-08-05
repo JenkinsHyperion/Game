@@ -9,8 +9,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -499,14 +497,8 @@ public class Board extends JPanel {
         // Check collisions between player and static objects
         for (EntityStatic staticEntity : staticEntitiesList) { 
         	checkSelectedEntity(staticEntity);
-            //Rectangle r4 = staticEntity.getBoundingBox();
-            
-            //r4 = new Rectangle(r4.x - 4 , r4.y - 4, r4.width + 8, r4.height + 8); 
-  
-            //Rectangle r5 = new Rectangle( r3.x /*+ (int) player.getDX()*/ , r3.y + (int) player.getDY() , r3.width , r3.height );
-                      
-	        //    if (r5.intersects(r4) ) {
-        		if ( player.getLocalBoundary().boundaryIntersects(staticEntity.getLocalBoundary()) ) {
+
+        		if ( player.getDeltaBoundary().boundaryIntersects(staticEntity.getLocalBoundary()) ) {
 	            	
 	            	//OPEN COLLISION
 
@@ -799,7 +791,17 @@ public class Board extends JPanel {
 			    	g2.draw(collisionsList.get(i).getSidePrimary() );
 			    	g2.draw(collisionsList.get(i).getSideSecondary() );
 		    	}
-		    	
+	
+		    	if ( collisionsList.get(i).getContactPoints()[0] != null ) {
+		    		g2.setColor(Color.RED);
+		    		g2.drawLine( 
+		    				(int) collisionsList.get(i).getContactPoints()[0].getX(), 
+		    				(int) collisionsList.get(i).getContactPoints()[0].getY(), 
+		    				(int) collisionsList.get(i).getContactPoints()[1].getX(), 
+		    				(int) collisionsList.get(i).getContactPoints()[1].getY() 
+		    				);
+		    		g2.setColor(Color.YELLOW);
+		    	}
 		    }
 	    }
 	    //g.drawString("Calculation time: " + dt, 55, 45);

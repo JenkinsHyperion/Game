@@ -1,6 +1,5 @@
 package testEntities;
 
-import animation.*;
 import entities.*;
 
 //NOTE: somewhat outdated

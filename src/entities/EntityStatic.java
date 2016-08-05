@@ -15,7 +15,8 @@ import sprites.Sprite;
  */
 public class EntityStatic extends Entity{
 
-	public String name = "default_entity";
+	public boolean isSelected;
+	public String name = "blank entity";
 	private Sprite graphic; //might want to put into super class unless Entity without image is useful
 	protected Rectangle boundingBox = new Rectangle(0,0); //Should be moved to intermediate class for only collidables
 	
@@ -23,6 +24,7 @@ public class EntityStatic extends Entity{
 	
     public EntityStatic(int x, int y) {
     	super(x,y);
+    	isSelected = false;
         //this.x = x;
         //this.y = y;
         //visibility = true;

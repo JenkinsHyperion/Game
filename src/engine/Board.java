@@ -23,6 +23,8 @@ import java.util.TimerTask;
 
 import javax.swing.JPanel;
 import javax.swing.Timer;
+import javax.swing.event.MouseInputAdapter;
+import javax.swing.event.MouseInputListener;
 
 import entities.*;
 import physics.*;
@@ -51,7 +53,10 @@ public class Board extends JPanel {
     private static ArrayList<EntityDynamic> dynamicEntitiesList; 
     private static ArrayList<EntityDynamic> physicsEntitiesList; 
     private LinkedList<Collision> collisionsList = new LinkedList<Collision>(); 
+    
     protected Point clickPosition;
+  
+
     protected MouseHandlerClass handler;
     private boolean ingame = true;
     private final int ICRAFT_X = 170;
@@ -59,7 +64,8 @@ public class Board extends JPanel {
     public static final int B_WIDTH = 400;
     public static final int B_HEIGHT = 300;
     private boolean debugOn = false; 
-    private static EntityStatic currentSelectedEntity;
+    public static EntityStatic currentSelectedEntity;
+    public static EntityStatic blankEntity;
     
     private final int DELAY = 10;
     
@@ -89,6 +95,8 @@ public class Board extends JPanel {
 
     private void initBoard() {
     	currentSelectedEntity = new EntityStatic(0,0);
+    	blankEntity = new EntityStatic(0,0);
+    	blankEntity.isSelected = false;
     	//or currentSelectedEntity = new Object();
     	currentDuration = System.currentTimeMillis();
     	prevDuration = currentDuration;
@@ -573,13 +581,17 @@ public class Board extends JPanel {
     //'ent' in this case corresponds to the entities cycled through in the enhanced for loops above
     public void checkSelectedEntity(EntityStatic ent) {
     	if (ent.getBoundingBox().contains(clickPosition)) {
-        	SidePanel.setSelectedEntityName("Selected: " + ent.name);
+        	//SidePanel.setSelectedEntityName("Selected: " + ent.name);
         	currentSelectedEntity = ent;
+        	currentSelectedEntity.isSelected = true;
         }
     	else if (player.getBoundingBox().contains(clickPosition)){
-    		SidePanel.setSelectedEntityName("Selected: " + player.name);
+    		//SidePanel.setSelectedEntityName("Selected: " + player.name);
     		currentSelectedEntity = player;
-    		
+    		currentSelectedEntity.isSelected = true;
+    	}
+    	else{
+    		currentSelectedEntity = blankEntity;
     	}
     	/*
     	 * gives an error with the timer for some reason
@@ -591,72 +603,103 @@ public class Board extends JPanel {
     }
     
   //mouse handling code here:
-  	protected class MouseHandlerClass implements MouseListener, MouseMotionListener {
-  		public Point p1, blankPoint;
-  		//public Dimension dim;
-  		public MouseHandlerClass(){
-  			p1 = new Point(0,0);
-  			blankPoint = new Point(0,0);
-  			//dim = new Dimension(0,0);
-  		}
+  	protected class MouseHandlerClass extends MouseInputAdapter  { 		
+  	    public int clickPositionXOffset;
+  	    public int clickPositionYOffset;
+  		//p1 is your clicked position, p2 is the entity's original position that
+  		//	will be used for calculating the offsets
+  		public int entityOriginalXPosition;
+		public int entityOriginalYPosition;
+
   		@Override
   		public void mouseClicked(MouseEvent e) {
-  			// TODO Auto-generated method stub
-  			/*
-  			p1.setLocation(e.getX(), e.getY());
-  			SidePanel.label1.setText(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
-  			clickPosition.setLocation(p1);
-  			*/
-  			//testing to see how clicking current entity can let me manipulate it
-  			//currentSelectedEntity.setY(currentSelectedEntity.getY()+1);
+  			//clickPosition.setLocation(e.getPoint());
   		}
 
   		@Override
-  		public void mousePressed(MouseEvent e) {
-  			// TODO Auto-generated method stub
-  			p1.setLocation(e.getX(), e.getY());
+  		public void mousePressed(MouseEvent e)
+  		{  	
+  			clickPosition.setLocation(e.getX(),e.getY());
+  			SidePanel.setSelectedEntityName("Selected: " + currentSelectedEntity.name);
+  			//Point p1 = new Point(e.getPoint());
+
+  			//p2 is the original position of the current entity.
   			SidePanel.setLabel1(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
-  			clickPosition.setLocation(p1);
-  		}
-  		@Override
-  		public void mouseReleased(MouseEvent e) {
-  			// TODO Auto-generated method stub	
-  			SidePanel.setLabel1("Mouse Click: 0, 0");
-  			p1.setLocation(e.getX(), e.getY());
-  			clickPosition.setLocation(blankPoint);
-  			currentSelectedEntity = null;
-  			SidePanel.setSelectedEntityName("Nothing Selected");
-  		}
-  		@Override
-  		public void mouseEntered(MouseEvent e) {
-  			// TODO Auto-generated method stub	
-  			
-  		}
-  		@Override
-  		public void mouseExited(MouseEvent e) {
-  			// TODO Auto-generated method stub	
+	  		if (currentSelectedEntity.isSelected == true) {  			
+	  			//Point p2 = new Point(currentSelectedEntity.getX(), currentSelectedEntity.getY());
+	  			
+	  			//p2.setLocation(currentSelectedEntity.getX(), currentSelectedEntity.getY());
+	  			//clickPositionXOffset = (p1.x - p2.x);
+	  			//clickPositionYOffset = (p1.y - p2.y);
+	  			SidePanel.setLabel2("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY()); 
+	  			SidePanel.setLabel3("(notElse)Offset of x: " + clickPositionXOffset);
+	  			//System.out.println("clickPositionoffsetx: " + clickPositionXOffset);
+	  			//System.out.println(String.format("p2: %s", p2 ));
+	  			//System.out.println(currentSelectedEntity.isSelected);
+	  		}
+	  			/*
+	  		else
+	  		{
+	  			Point p2 = new Point(p1);
+	  			clickPositionXOffset = (p1.x - p2.x);
+	  			clickPositionYOffset = (p1.y - p2.y);
+	  			SidePanel.setLabel3("(else)Offset of x: " + clickPositionXOffset);
+	  		}
+	  		*/
   		}
 
   		@Override
-  		public void mouseDragged(MouseEvent e) {
-  			// TODO Auto-generated method stub
- 
-  			p1.setLocation(e.getX(),e.getY());
-  			SidePanel.setLabel1(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
+  		public void mouseDragged(MouseEvent e) 
+  		{ 		
   			
-  			if (currentSelectedEntity != null) {
-	  			currentSelectedEntity.setX(e.getX());
+  		//	if (currentSelectedEntity.isSelected == true) {
+	  			SidePanel.setLabel1(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
+	  			//clickPosition.setLocation(e.getPoint());
+	
+	  			SidePanel.setLabel2("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
+	  			//System.out.println(entityOriginalXPosition);
+	  			currentSelectedEntity.setX(e.getX() - clickPositionXOffset);
+	  			currentSelectedEntity.setY(e.getY() - clickPositionYOffset);
+  					
+  				currentSelectedEntity.setX(e.getX());
 	  			currentSelectedEntity.setY(e.getY());
-  			}
-  			clickPosition.setLocation(p1);
-  			//currentSelectedEntity = null;
-
+  			 
+  			//currentSelectedEntity.setX(clickPosition.x + clickPositionXOffset);
+  			//currentSelectedEntity.setY(clickPosition.y + clickPositionYOffset); 	
+  			//}
   		}
+  		@Override
+  		public void mouseReleased(MouseEvent e) 
+  		{	
+  			clickPosition.setLocation(e.getPoint());
+  			if (currentSelectedEntity.isSelected == true) {
+	  			//SidePanel.setLabel1("Mouse Click: 0, 0");		 			
+	  			//SidePanel.setSelectedEntityName("Nothing Selected");
+	  			SidePanel.setLabel2("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
+	  			//release the offset variables
+	  			clickPositionXOffset = 0;
+	  			clickPositionYOffset = 0;
+	  			//SidePanel.setLabel3("Offset of x: " + clickPositionXOffset);
+	  			clickPosition.setLocation(e.getPoint());
+	  			currentSelectedEntity = blankEntity;
+	  			//currentSelectedEntity.isSelected = false;
+  			} 		
+  			clickPosition.setLocation(0,0);
+  			SidePanel.setSelectedEntityName("Selected: " + currentSelectedEntity.name);
+  			//currentSelectedEntity = blankEntity;
+  			//currentSelectedEntity.isSelected = false;
+  		}
+  		@Override
+  		public void mouseEntered(MouseEvent e) {		 			
+  		}
+  		@Override
+  		public void mouseExited(MouseEvent e) {  			
+  		}
+
 
   		@Override
   		public void mouseMoved(MouseEvent e) {
-  			// TODO Auto-generated method stub
-  			
+  			// TODO Auto-generated method stub		
   		}	
   	}
   	//Inner class to handle F2 keypress for debug window

@@ -38,7 +38,6 @@ public class Board extends JPanel {
 	 */
 	private static final long serialVersionUID = 1L;
 	private double currentDuration;
-	private double prevDuration;
 	
 	private Timer timer;
 	
@@ -54,7 +53,8 @@ public class Board extends JPanel {
     
     protected Point clickPosition;
     protected boolean mouseClick = false;
-
+    protected Rectangle selectedBox;
+    
     protected MouseHandlerClass handler;
     private boolean ingame = true;
     private final int ICRAFT_X = 170;
@@ -94,7 +94,7 @@ public class Board extends JPanel {
     	currentSelectedEntity = new EntityStatic(0,0);
     	//or currentSelectedEntity = new Object();
     	currentDuration = System.currentTimeMillis();
-    	prevDuration = currentDuration;
+
     	
         addKeyListener(new TAdapter());
         handler = new MouseHandlerClass();
@@ -116,6 +116,7 @@ public class Board extends JPanel {
         player = new Player(ICRAFT_X, ICRAFT_Y);
         player.getObjectGraphic().setVisible(true);
 
+        selectedBox = new Rectangle();
         clickPosition = new Point(0,0);
         //## TESTING ##
         //Manually add test objects here
@@ -223,7 +224,6 @@ public class Board extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-       // prevDuration = System.nanoTime();
         //if (ingame) {
         
             drawObjects(g);
@@ -234,9 +234,6 @@ public class Board extends JPanel {
             drawGameOver(g);
         }*/
 
-       
-      //  currentDuration = System.nanoTime();
-       // dt = currentDuration - prevDuration;
     }
     
     
@@ -278,6 +275,12 @@ public class Board extends JPanel {
                 g.drawImage(stat.getObjectGraphic().getImage(), 
                 		stat.getObjectGraphic().getOffsetX() + stat.getX(), 
                 		stat.getObjectGraphic().getOffsetY() + stat.getY(), this);
+               //METHOD FOR DRAWING RECTANGLE
+                // 	>it will take EntityStatic, Graphics, width and height as parameters
+                //	>checks if the entity isSelected:
+                //  >>> draws with given width and height, of if not selected doesn't draw
+                //scratch pad:
+                drawSelectedRectangle(stat, g, selectedBox);
             }
         }
         
@@ -335,10 +338,10 @@ public class Board extends JPanel {
         //laser.setxEndPoint(B_WIDTH);
        // laser.setyEndPoint(physicsEntitiesList.get(0).getY()+10);
         laser.pewpew(g);
-        
-        
+                
         if (debugOn){ drawDebug(g); }
-    
+        
+        //if()
 
     }
 
@@ -355,13 +358,28 @@ public class Board extends JPanel {
                 B_HEIGHT / 2);
     }
     
-   
+    public void drawSelectedRectangle(EntityStatic stat, Graphics g, Rectangle r) {
+    	
+    	if (stat.isSelected == true) {
+    		/*
+    		int width = stat.getObjectGraphic().getImage().getWidth(null);
+        	int height = stat.getObjectGraphic().getImage().getHeight(null);
+        	*/
+        	g.setColor(Color.BLUE);
+    		g.drawRect(stat.getX(), stat.getY(), r.width, r.height);
+    	}
+    	
+    }
+    
+   /*
     public void setClickPosition(int x, int y){
 		clickPosition.setLocation(x, y);
 	}
 	public Point getClickPosition(){
 		return clickPosition;
 	}
+	*/
+    
     /*
     private void updateStaticObjects() {
     	
@@ -571,15 +589,28 @@ public class Board extends JPanel {
   		@Override
   		public void mousePressed(MouseEvent e)
   		{  	
+  		//code for getting the entity's sprite's actual area: 
+  		// currentSelectedEntity.getObjectGraphic().getImage().getWidth(null);"
+  			
   			if (!mouseClick) {
+  				deselectAllEntities();
   				mouseClick = true;
 	  			clickPosition.setLocation(e.getX(),e.getY());
-	  			
-	  			checkForSelection(clickPosition);
-	  			
 	  			SidePanel.setLabel1(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
-	  			
-	  			if (currentSelectedEntity != null) {
+	  			  			
+	  			checkForSelection(clickPosition);  			
+	  		
+	  			if (currentSelectedEntity != null) {  	// there is entity under cursor
+	  				if(currentSelectedEntity.isSelected != true) {
+	  					currentSelectedEntity.isSelected = true;
+	  				}
+	  				else{
+	  					currentSelectedEntity.isSelected = false;
+	  				}
+	  				//// Ignore this for now; it's been offloaded to drawSelectedRectangle:
+	  				selectedBox.setSize(currentSelectedEntity.getObjectGraphic().getImage().getWidth(null),
+	  									currentSelectedEntity.getObjectGraphic().getImage().getHeight(null) );
+					
 		  			System.out.println(currentSelectedEntity.name);
 	  	  			SidePanel.setSelectedEntityName("Selected: " + currentSelectedEntity.name);
 		  			SidePanel.setLabel2("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
@@ -602,36 +633,26 @@ public class Board extends JPanel {
 	  			SidePanel.setLabel1(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
 	  			
 	  			if (currentSelectedEntity != null) {
+
 	  				//System.out.println("Dragging " + currentSelectedEntity.name);
+
 	  				currentSelectedEntity.setX(e.getX() - clickPositionXOffset);
 	  				currentSelectedEntity.setY(e.getY() - clickPositionYOffset);
 		  			SidePanel.setLabel2("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
 	  			}
-  			
+
   		}
   		@Override
   		public void mouseReleased(MouseEvent e) 
   		{	
+  			if (currentSelectedEntity != null)
+  				currentSelectedEntity.getObjectGraphic().setVisible(true);
+  			if (clickedOnEntity(e.getPoint()) == null) {
+  				deselectAllEntities();
+  			}
+  			
   			System.out.println("Released");
   			mouseClick = false;
-  			
-  			/*clickPosition.setLocation(e.getPoint());
-  			if (currentSelectedEntity.isSelected == true) {
-	  			//SidePanel.setLabel1("Mouse Click: 0, 0");		 			
-	  			//SidePanel.setSelectedEntityName("Nothing Selected");
-	  			SidePanel.setLabel2("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
-	  			//release the offset variables
-	  			clickPositionXOffset = 0;
-	  			clickPositionYOffset = 0;
-	  			//SidePanel.setLabel3("Offset of x: " + clickPositionXOffset);
-	  			clickPosition.setLocation(e.getPoint());
-	  			currentSelectedEntity = blankEntity;
-	  			//currentSelectedEntity.isSelected = false;
-  			} 		
-  			clickPosition.setLocation(0,0);
-  			SidePanel.setSelectedEntityName("Selected: " + currentSelectedEntity.name);
-  			//currentSelectedEntity = blankEntity;
-  			//currentSelectedEntity.isSelected = false;*/
   		}
   		@Override
   		public void mouseEntered(MouseEvent e) {		 			
@@ -648,21 +669,33 @@ public class Board extends JPanel {
   	}
   	
   	//LEVEL EDITOR METHODS
-
+  	
+  	private void checkForSelection(Point click) { //redundant
+  			currentSelectedEntity = clickedOnEntity(click);
+  			
+  	}
+  	
   	private EntityStatic clickedOnEntity(Point click) {
+  		
   		for (EntityStatic entity : staticEntitiesList) {
-  			if (entity.getBoundingBox().contains(click)) {
+  			if (entity.getBoundingBox().contains(click)) 
+  			{
   	  			SidePanel.setSelectedEntityName("Selected: " + entity.name);
   	  			SidePanel.setLabel2("Coords. of selected entity: " + entity.getX() + ", " + entity.getY());
+  	  			//currentSelectedEntity.isSelected = true;
   				return entity;
   			}
   		}
   		return null;
   	}
   	
-  	private void checkForSelection(Point click) { //redundant
-  			currentSelectedEntity = clickedOnEntity(click);
+  	private void deselectAllEntities() {
+  		for (EntityStatic entity : staticEntitiesList) {
+  			if (entity.isSelected == true)
+  				entity.isSelected = false;
+  		}
   	}
+
   	
   	/*
     //testing selection of entities with mouse
@@ -689,22 +722,6 @@ public class Board extends JPanel {
     	}
     	
     }*/
-  	
-  	
-  	
-  	
-  	
-  	
-  	
-  	
-  	
-  	
-  	
-  	
-  	
-  	
-  	
-  	
   	
   	
   	//Inner class to handle F2 keypress for debug window

@@ -11,7 +11,7 @@ public class SpriteStill extends Sprite {  // Object with still image
     protected int height;
     protected Image image;
 
-    public SpriteStill(String path) {
+    public SpriteStill(String path) { 
 
     	loadImage(path);
         visibility = true;

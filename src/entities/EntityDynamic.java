@@ -87,7 +87,7 @@ public class EntityDynamic extends EntityStatic{
     }
     
 	public Boundary getDeltaBoundary(){
-		return boundary.atPosition(x+dx,y+dy);
+		return boundary.atPosition( (int) (x+dx), (int) (y+dy ));
 	}
     
     public boolean isColliding(){ return isColliding; }

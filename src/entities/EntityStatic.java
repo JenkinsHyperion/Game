@@ -77,7 +77,7 @@ public class EntityStatic extends Entity{
 	}
 	
 	public Boundary getLocalBoundary(){
-		return boundary.atPosition(x,y);
+		return boundary.atPosition((int)x,(int)y);
 	}
 	
 	public Boundary getBoundary(){

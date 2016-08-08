@@ -128,6 +128,7 @@ public class Board extends JPanel {
         staticEntitiesList.add(new Platform(60,270,"platform02"));
         staticEntitiesList.add(new StaticSprite(150,274, "grass01"));
         staticEntitiesList.add(new Ground(100,290,"ground01"));
+        staticEntitiesList.add(new Slope(10,160));
         
       	physicsEntitiesList.add(new EntityPhysics(120,250,"box"));
         dynamicEntitiesList.add(new Bullet(100,100,1,1));
@@ -180,6 +181,9 @@ public class Board extends JPanel {
     	  
 	          //if (deltaTime > 15) {
 	        	  
+		          //RUN COLLISION DETECTION
+		          checkCollisions();
+          
 		          //RUN POSITION AND DRAW UPDATES
 		          updatePlayer();    
 		          updateDynamicEntities();
@@ -187,8 +191,7 @@ public class Board extends JPanel {
 		          
 			      laser.updatePosition();
 		        
-		          //RUN COLLISION DETECTION
-		          checkCollisions();
+
 		          
 		          //REDRAW ALL COMPONENTS
 		          repaint();
@@ -453,8 +456,6 @@ public class Board extends JPanel {
     
     //THIS IS THE MAIN BODY OF THE COLLISION ENGINE
     public void checkCollisions() { 
-
-    	updateCollisions(); // calculate and remove old collisions
     	
         Rectangle r0 = player.getBoundingBox(); // get bounding box of player first
  
@@ -484,14 +485,13 @@ public class Board extends JPanel {
         	
         	//checkSelectedEntity(staticEntity);
 
-        		if ( player.getDeltaBoundary().boundaryIntersects(staticEntity.getLocalBoundary()) ) {
-	            	
-	            	//OPEN COLLISION
-
+        		if ( player.getDeltaBoundary().checkForInteraction( staticEntity.getLocalBoundary()) ) {
+        			
 	            	if (!hasActiveCollision(player,staticEntity)) { //check to see if collision isn't already occurring
 	            		collisionsList.add(new CollisionPlayerStatic(player,staticEntity)); // if not, add new collision event
 
 	            	} 	
+	            	
 	            }
         }
         
@@ -549,7 +549,7 @@ public class Board extends JPanel {
 	        }
         }
         
-        
+    	updateCollisions(); // calculate and remove old collisions    
         
     }
 
@@ -602,7 +602,7 @@ public class Board extends JPanel {
 	  			SidePanel.setLabel1(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
 	  			
 	  			if (currentSelectedEntity != null) {
-	  				System.out.println("Dragging " + currentSelectedEntity.name);
+	  				//System.out.println("Dragging " + currentSelectedEntity.name);
 	  				currentSelectedEntity.setX(e.getX() - clickPositionXOffset);
 	  				currentSelectedEntity.setY(e.getY() - clickPositionYOffset);
 		  			SidePanel.setLabel2("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
@@ -796,7 +796,9 @@ public class Board extends JPanel {
 		   
 		    for (int i = 0 ; i < collisionsList.size() ; i++){
 		    	//draw list of collisions
-		    	g.drawString(""+collisionsList.get(i),5,105+(10*i));
+		    	g.drawString(""+collisionsList.get(i) + " " + 
+		    	collisionsList.get(i).isContacting() + ": " +
+		    	(int)collisionsList.get(i).getContactDist(),5,105+(10*i));
 		    	
 		    	//draw colliding sides
 		    	if ( collisionsList.get(i).getSidePrimary() != null ) {
@@ -805,8 +807,9 @@ public class Board extends JPanel {
 			    	g2.draw(collisionsList.get(i).getSideSecondary() );
 		    	}
 	
-		    	if ( collisionsList.get(i).getContactPoints()[0] != null ) {
-		    		g2.setColor(Color.RED);
+		    	
+		    	if ( collisionsList.get(i).getContactPoints()[1] != null ) {
+		    		g2.setColor(Color.RED);	    		
 		    		g2.drawLine( 
 		    				(int) collisionsList.get(i).getContactPoints()[0].getX(), 
 		    				(int) collisionsList.get(i).getContactPoints()[0].getY(), 
@@ -815,6 +818,10 @@ public class Board extends JPanel {
 		    				);
 		    		g2.setColor(Color.YELLOW);
 		    	}
+		    	else {
+		    		g.drawString("No Contact",300,105+(10*i));
+		    	}
+		    		
 		    }
 	    }
 	    //g.drawString("Calculation time: " + dt, 55, 45);

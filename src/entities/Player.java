@@ -57,7 +57,8 @@ public class Player extends EntityDynamic {
 
     private void initPlayer() {
         
-        setBoundingBox(14,0,4,32);
+        //setBoundingBox(14,0,4,32);
+        setBoundingBox(4,0,24,32);
         loadAnimatedSprite(IDLE_LEFT); 
         setAccY( 0.1f ); // Force initialize gravity (temporary)
     }
@@ -113,9 +114,9 @@ public class Player extends EntityDynamic {
         	
         	//test dust particles. Can go in own method if we enjoy every collision having particles/sparks.
         	if (getDY()==0 && getDX()==-2){ //Check to see if on ground. Should check state once states are stable, not DY.
-        		Board.BoardAccess.spawnDynamicEntity( new Particle( getX()+16,getY()+30,-2, -0.75f) );
-        		Board.BoardAccess.spawnDynamicEntity( new Particle( getX()+16,getY()+30,-0.9f, -0.5f) );
-        		Board.BoardAccess.spawnDynamicEntity( new Particle( getX()+16,getY()+30,-2, -0.25f) );
+        		//Board.BoardAccess.spawnDynamicEntity( new Particle( getX()+16,getY()+30,-2, -0.75f) );
+        		//Board.BoardAccess.spawnDynamicEntity( new Particle( getX()+16,getY()+30,-0.9f, -0.5f) );
+        		//Board.BoardAccess.spawnDynamicEntity( new Particle( getX()+16,getY()+30,-2, -0.25f) );
         	}
         	
         }
@@ -125,9 +126,9 @@ public class Player extends EntityDynamic {
         	
         	//test making dust particles
         	if (getDY()==0 && getDX()==2){ //Check to see if on ground
-        		Board.BoardAccess.spawnDynamicEntity( new Particle( getX()+20,getY()+30,2, -0.5f) );
-        		Board.BoardAccess.spawnDynamicEntity( new Particle( getX()+20,getY()+30,1.5f, -0.5f) );
-        		Board.BoardAccess.spawnDynamicEntity( new Particle( getX()+20,getY()+30,2, -0.25f) );
+        		//Board.BoardAccess.spawnDynamicEntity( new Particle( getX()+20,getY()+30,2, -0.5f) );
+        		//Board.BoardAccess.spawnDynamicEntity( new Particle( getX()+20,getY()+30,1.5f, -0.5f) );
+        		//Board.BoardAccess.spawnDynamicEntity( new Particle( getX()+20,getY()+30,2, -0.25f) );
         	}
         }
 

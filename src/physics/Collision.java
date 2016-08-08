@@ -58,12 +58,13 @@ public class Collision {
 		}
 	}*/
 	
+	
 	public boolean isComplete(){ // Check if entities are no longer colliding
-
+		
 		if (entityPrimary.getLocalBoundary().boundaryIntersects( entitySecondary.getLocalBoundary() ) ) {
 			return false;
 		}
-		else if (entityPrimary.getLocalBoundary().sideIsFlush( entitySecondary.getLocalBoundary() ) ) {
+		else if (entityPrimary.getLocalBoundary().boundsHaveContact( entitySecondary.getLocalBoundary() ) ) {
 			return false;
 		}
 		else { // entities are no longer colliding
@@ -71,6 +72,7 @@ public class Collision {
 			return true; // return true for scanning loop in Board to delete this collision
 		}
 	}
+	
 	
 	//When Board detects collision, check to see if it's already in the list of active collisions
 	public boolean isActive(EntityStatic entity1, EntityStatic entity2){
@@ -107,10 +109,33 @@ public class Collision {
 		return false;
 	}
 	
+	public boolean isContacting(){
+		if (contactPoints[1] == null || contactPoints[0] == null){
+			return false;
+		} else {
+			if ( contactPoints[0].distance(contactPoints[1]) > 2 ) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		
+	}
+	
+	public double getContactDist(){
+		if ( contactPoints[1]!=null && contactPoints[1]!=null ) {
+		return contactPoints[0].distance(contactPoints[1]) ;
+		} else {
+			return 0;
+		}
+			
+	}
+	
 	public String toString(){
 		//return String.format("%s",this);
 		return collisionName;
 	}
+	
 	
 	public Line2D getSidePrimary(){ return contactingSide1; }
 	public Line2D getSideSecondary(){ return contactingSide2; }

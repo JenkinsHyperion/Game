@@ -1,14 +1,12 @@
-package engine;
-
+//package engine;
+/*
 import java.awt.EventQueue;
 import javax.swing.JFrame;
 
 
 public class Application extends JFrame {
 
-    /**
-	 *  
-	 */
+
 	private static final long serialVersionUID = 1L;
 	private Board board;
 	//private SplitPane container;
@@ -32,6 +30,7 @@ public class Application extends JFrame {
         //DisplayMode.REFRESH_RATE_UNKNOWN;
        // setSize(250, 200);
         */
+/*
         setSize(400, 335);
         setResizable(true);
         //setLayout(new FlowLayout());
@@ -55,3 +54,4 @@ public class Application extends JFrame {
         });
     }
 }
+*/

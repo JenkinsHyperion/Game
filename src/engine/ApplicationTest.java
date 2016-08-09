@@ -10,14 +10,10 @@ public class ApplicationTest extends JFrame {
 	//private SplitPane container;
 	public ApplicationTest() 
 	{
-        //initUI();
        
     }
     
     private void initUI() {
-    	
-    	//container = new SplitPane();
-       // setSize(400, 335);
               
     }
 

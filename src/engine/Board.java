@@ -72,7 +72,6 @@ public class Board extends JPanel {
     private double t;
     private double dt;
 
-
     private final int[][] pos = {
         {2380, 29}, {2500, 59}, {1380, 89},
         {780, 109}, {580, 139}, {680, 239},
@@ -94,8 +93,6 @@ public class Board extends JPanel {
     	currentSelectedEntity = new EntityStatic(0,0);
     	//or currentSelectedEntity = new Object();
     	currentDuration = System.currentTimeMillis();
-
-    	
         addKeyListener(new TAdapter());
         handler = new MouseHandlerClass();
   		addMouseListener(handler);
@@ -103,9 +100,9 @@ public class Board extends JPanel {
         setFocusable(true);
         setBackground(Color.BLACK);
         ingame = true;
-        
-        setPreferredSize(new Dimension(B_WIDTH, B_HEIGHT));
-        setMinimumSize(new Dimension(B_WIDTH, B_HEIGHT));
+
+//        setPreferredSize(new Dimension(B_WIDTH, B_HEIGHT));
+//        setMinimumSize(new Dimension(B_WIDTH, B_HEIGHT));
         // setSize(300,400);
         // initialize object lists
         staticEntitiesList = new ArrayList<>();
@@ -498,44 +495,35 @@ public class Board extends JPanel {
         
         
         // Check collisions between player and static objects
-        for (EntityStatic staticEntity : staticEntitiesList) { 
-        	
-        	//checkSelectedEntity(staticEntity);
+        for (EntityStatic staticEntity : staticEntitiesList) {        
 
-        		if ( player.getDeltaBoundary().boundaryIntersects(staticEntity.getLocalBoundary()) ) {
-	            	
+        		if ( player.getDeltaBoundary().boundaryIntersects(staticEntity.getLocalBoundary()) ) {	            	
 	            	//OPEN COLLISION
 
 	            	if (!hasActiveCollision(player,staticEntity)) { //check to see if collision isn't already occurring
 	            		collisionsList.add(new CollisionPlayerStatic(player,staticEntity)); // if not, add new collision event
-
 	            	} 	
 	            }
         }
         
         // TEST LASER COLLISION 
-        for (EntityStatic stat : staticEntitiesList) { 
-        
-        	
+        for (EntityStatic stat : staticEntitiesList) {                	
         	if ( stat.getLocalBoundary().boundaryIntersects(laser.getBoundary()) ) {
 	            	
 	            //OPEN COLLISION
 	            if (!hasActiveCollision(laser,stat)) { //check to see if collision isn't already occurring
 	            	collisionsList.add(new Collision(laser, stat)); // if not, add new collision event
-
-	            } 	
-	            
+	            } 		            
 	   		}
         }
         
         
         
         //Check collisions between dynamics entities and static entities
-        for (EntityDynamic dynamicEntity : dynamicEntitiesList) { //index through physics entities
-        
-            Rectangle r1 = dynamicEntity.getBoundingBox();
+        for (EntityDynamic dynamicEntity : dynamicEntitiesList) { //index through physics entities        
             
-            for (EntityStatic statEntity : staticEntitiesList){ // index through static entities
+        	Rectangle r1 = dynamicEntity.getBoundingBox();            
+            for (EntityStatic statEntity : staticEntitiesList){ // index through static entities	
             	
             	Rectangle r2 = statEntity.getBoundingBox();
             
@@ -573,18 +561,13 @@ public class Board extends JPanel {
 
     
   //MOUSE INPUT
-  	protected class MouseHandlerClass implements MouseListener, MouseMotionListener  { 		
+  	protected class MouseHandlerClass extends MouseInputAdapter  { 		
   	    public int clickPositionXOffset;
   	    public int clickPositionYOffset;
   		//p1 is your clicked position, p2 is the entity's original position that
   		//	will be used for calculating the offsets
   		public int entityOriginalXPosition;
 		public int entityOriginalYPosition;
-
-  		@Override
-  		public void mouseClicked(MouseEvent e) {
-  			//clickPosition.setLocation(e.getPoint());
-  		}
 
   		@Override
   		public void mousePressed(MouseEvent e)
@@ -653,18 +636,6 @@ public class Board extends JPanel {
   			System.out.println("Released");
   			mouseClick = false;
   		}
-  		@Override
-  		public void mouseEntered(MouseEvent e) {		 			
-  		}
-  		@Override
-  		public void mouseExited(MouseEvent e) {  			
-  		}
-
-
-  		@Override
-  		public void mouseMoved(MouseEvent e) {
-  			// TODO Auto-generated method stub		
-  		}	
   	}
   	
   	//LEVEL EDITOR METHODS
@@ -725,7 +696,6 @@ public class Board extends JPanel {
   	
   	//Inner class to handle F2 keypress for debug window
     private class TAdapter extends KeyAdapter {
-
         @Override
         public void keyReleased(KeyEvent e) {
             player.keyReleased(e);
@@ -743,7 +713,7 @@ public class Board extends JPanel {
             	} else {
             		debugOn = true;
             	}
-            }
+            }        
         }
     }
     

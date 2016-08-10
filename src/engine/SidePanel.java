@@ -6,10 +6,10 @@ import java.awt.*;
 
 @SuppressWarnings("serial")
 public class SidePanel extends JPanel {
-	private static JLabel label1;
-	private static JLabel label2;
-	private static JLabel label3;
-	private static JLabel selectedEntityName;
+	private JLabel label1;
+	private JLabel label2;
+	private JLabel label3;
+	private JLabel selectedEntityName;
 	public JLabel clickedEntity;
 	//public Point clickPosition;
 	protected JButton button1;
@@ -48,16 +48,16 @@ public class SidePanel extends JPanel {
 		layout.layoutContainer(this);
 	}
 	
-	public static void setLabel1(String text){
+	public void setLabel1(String text){
 		label1.setText(text);
 	}
-	public static void setLabel2(String text){
+	public void setLabel2(String text){
 		label2.setText(text);
 	}
-	public static void setLabel3(String text){
+	public void setLabel3(String text){
 		label3.setText(text);
 	}
-	public static void setSelectedEntityName(String text){
+	protected void setSelectedEntityName(String text){
 		selectedEntityName.setText(text);
 	}
 

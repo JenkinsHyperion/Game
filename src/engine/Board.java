@@ -31,7 +31,7 @@ import misc.*;
 
 
 
-public class Board extends JPanel {
+public class Board extends JPanel implements Runnable {
 
     /**
 	 * 
@@ -69,8 +69,8 @@ public class Board extends JPanel {
     private double time = 0;
     private double deltaTime = 0;
     
-    private double t;
-    private double dt;
+	private Thread collisionThread;
+	private Thread paintThread;
 
     private final int[][] pos = {
         {2380, 29}, {2500, 59}, {1380, 89},
@@ -86,7 +86,6 @@ public class Board extends JPanel {
 
     public Board() {
     	initBoard();
-    	setFocusable(true);
     }
 
     private void initBoard() {
@@ -153,7 +152,18 @@ public class Board extends JPanel {
         	}
         };
         
-        timer2.scheduleAtFixedRate( update , 0 , 16); // fire task every 15 ms
+        //Going to test this in just a bit
+        /*
+        collisionThread = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				
+			}
+		})
+        */
+        timer2.scheduleAtFixedRate( update , 0 , 16); // fire task every 16 ms
 
         //updateBoard();
     }
@@ -587,7 +597,7 @@ public class Board extends JPanel {
   				deselectAllEntities();
   				mouseClick = true;
 	  			clickPosition.setLocation(e.getX(),e.getY());
-	  			SidePanel.setLabel1(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
+	  			SplitPane.getSidePanel().setLabel2(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
 	  			  			
 	  			checkForSelection(clickPosition);  			
 	  		
@@ -598,21 +608,23 @@ public class Board extends JPanel {
 	  				else{
 	  					currentSelectedEntity.isSelected = false;
 	  				}
-	  				//// Ignore this for now; it's been offloaded to drawSelectedRectangle:
+	  				
 	  				selectedBox.setSize(currentSelectedEntity.getObjectGraphic().getImage().getWidth(null),
 	  									currentSelectedEntity.getObjectGraphic().getImage().getHeight(null) );
 					
 		  			System.out.println(currentSelectedEntity.name);
-	  	  			SidePanel.setSelectedEntityName("Selected: " + currentSelectedEntity.name);
-		  			SidePanel.setLabel2("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
+	  	  			//SidePanel.setSelectedEntityName("Selected: " + currentSelectedEntity.name);
+		  			SplitPane.getSidePanel().setSelectedEntityName("Selected: " + currentSelectedEntity.name);
+		  			SplitPane.getSidePanel().setLabel2("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
 		  			//get offsets
 		  			clickPositionXOffset = e.getX() - currentSelectedEntity.getX() ;
 		  			clickPositionYOffset = e.getY() - currentSelectedEntity.getY() ;
 		  			System.out.println("Offset "+ clickPositionXOffset + "," + clickPositionYOffset);
 	  			}
 	  			else { //doesnt need to be redrawn every time
-	  				SidePanel.setSelectedEntityName("Nothing Selected");
-		  			SidePanel.setLabel2("Coords. of selected entity: N/A");
+	  				
+	  				SplitPane.getSidePanel().setSelectedEntityName("Nothing Selected");
+		  			SplitPane.getSidePanel().setLabel2("Coords. of selected entity: N/A");
 	  			}
 	
   			}
@@ -621,16 +633,16 @@ public class Board extends JPanel {
   		@Override
   		public void mouseDragged(MouseEvent e) 
   		{ 		
-	  			SidePanel.setLabel1(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
-	  			
-	  			if (currentSelectedEntity != null) {
+  			SplitPane.getSidePanel().setLabel1(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
 
-	  				//System.out.println("Dragging " + currentSelectedEntity.name);
+  			if (currentSelectedEntity != null) {
 
-	  				currentSelectedEntity.setX(e.getX() - clickPositionXOffset);
-	  				currentSelectedEntity.setY(e.getY() - clickPositionYOffset);
-		  			SidePanel.setLabel2("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
-	  			}
+  				//System.out.println("Dragging " + currentSelectedEntity.name);
+
+  				currentSelectedEntity.setX(e.getX() - clickPositionXOffset);
+  				currentSelectedEntity.setY(e.getY() - clickPositionYOffset);
+  				SplitPane.getSidePanel().setLabel2("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
+  			}
 
   		}
   		@Override
@@ -641,7 +653,7 @@ public class Board extends JPanel {
   			if (clickedOnEntity(e.getPoint()) == null) {
   				deselectAllEntities();
   			}
-  			
+
   			System.out.println("Released");
   			mouseClick = false;
   		}
@@ -659,8 +671,8 @@ public class Board extends JPanel {
   		for (EntityStatic entity : staticEntitiesList) {
   			if (entity.getBoundingBox().contains(click)) 
   			{
-  	  			SidePanel.setSelectedEntityName("Selected: " + entity.name);
-  	  			SidePanel.setLabel2("Coords. of selected entity: " + entity.getX() + ", " + entity.getY());
+  	  			SplitPane.getSidePanel().setSelectedEntityName("Selected: " + entity.name);
+  	  			SplitPane.getSidePanel().setLabel2("Coords. of selected entity: " + entity.getX() + ", " + entity.getY());
   	  			//currentSelectedEntity.isSelected = true;
   				return entity;
   			}
@@ -821,5 +833,11 @@ public class Board extends JPanel {
 	    }
 	    //g.drawString("Calculation time: " + dt, 55, 45);
     }
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		
+	}
     
 }

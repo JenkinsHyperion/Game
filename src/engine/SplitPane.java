@@ -10,12 +10,15 @@ import java.awt.geom.Line2D;
 
 @SuppressWarnings("serial")
 public class SplitPane extends JPanel {
-	protected static Board board;
-	protected static SidePanel sidePanel;
+	private static Board board;
+	private static SidePanel sidePanel;
 	private JSplitPane splitPane;
     public boolean sidePanelOn = false;
+    private boolean F1pressed = false;
+    private Dimension sidePanelMinSize;
 
 	public SplitPane() {
+		sidePanelMinSize = new Dimension(200,300);
 		board = new Board();
 		board.setPreferredSize(new Dimension(Board.B_WIDTH, Board.B_HEIGHT));
 		board.setMinimumSize(new Dimension(Board.B_WIDTH, Board.B_HEIGHT));
@@ -23,12 +26,12 @@ public class SplitPane extends JPanel {
 		sidePanel = new SidePanel();
 		sidePanel.setSize(new Dimension(200, 300));
 		sidePanel.setPreferredSize(new Dimension(200, 300));
-		sidePanel.setMinimumSize(new Dimension(200,300));
+		sidePanel.setMinimumSize(sidePanelMinSize);
 		
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sidePanel, board);
 		splitPane.setOneTouchExpandable(true);
 		splitPane.setDividerLocation(sidePanel.getWidth());
-
+		board.setFocusable(true);
 		
 		splitPane.setSize(new Dimension(board.getWidth() + sidePanel.getWidth(), 300));
 		splitPane.setMinimumSize(new Dimension(board.getWidth() + sidePanel.getWidth(), 300));
@@ -38,7 +41,12 @@ public class SplitPane extends JPanel {
 		splitPane.addKeyListener(new KeyListener() {
 			@Override
 	        public void keyPressed(KeyEvent e) {
-	        }
+				int key = e.getKeyCode();
+				if (key == KeyEvent.VK_F1){
+					//will never fire until setFocusable is set to true
+					//System.out.println("Stuff");
+				}
+			}
 			@Override
 	        public void keyReleased(KeyEvent e) {
 
@@ -60,6 +68,13 @@ public class SplitPane extends JPanel {
 	}
 	public JSplitPane getSplitPane() {
 		return splitPane;
+	}
+	
+	public static Board getBoard(){
+		return board;
+	}
+	public static SidePanel getSidePanel() {
+		return sidePanel;
 	}
 	
 	public static void createAndShowGUI() {

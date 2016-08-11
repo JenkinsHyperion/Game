@@ -28,7 +28,7 @@ public class SidePanel extends JPanel {
 
 	public SidePanel() {
 		
-		layout = new FlowLayout(FlowLayout.LEADING, 20, 15);
+		layout = new FlowLayout(FlowLayout.LEADING, 5, 15);
 		setLayout(layout);
 		setBackground(Color.GRAY);
 		
@@ -37,10 +37,12 @@ public class SidePanel extends JPanel {
 		populateArrayFromList(entitiesStringList, SplitPane.getBoard().staticEntitiesList);
 		
 		entitiesJList = new JList<String>(entitiesStringList);
+		entitiesJList.setFocusable(false);
 		entitiesJList.setVisibleRowCount(5);
 		entitiesJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
 		JScrollPane entityScrollPane = new JScrollPane(entitiesJList);
+		entityScrollPane.setFocusable(false);
 				
 		label1 = new JLabel("Here's some text");
 		label2 = new JLabel("Coordinates of selected entity: ");

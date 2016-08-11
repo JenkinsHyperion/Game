@@ -95,12 +95,6 @@ public class CollisionPlayerStatic extends Collision {
 	
 					Point2D intersect = getIntersectionPoint(pair[0], pair[1]);
 					
-						//check for and discard intersections ON side - depth 0 
-						//Might be put one method level higher into getIntersectignSides
-					//if ( (int)intersect.distance(pair[1].getP1()) > 0 && (int)intersect.distance(pair[1].getP2()) > 0 ) {
-						
-						//if ( (int)intersect.distance(pair[0].getP1()) > 0 && (int)intersect.distance(pair[0].getP2()) > 0 ) { 
-					
 							//Split the side into two at the intersection point, and get the smaller piece
 							//The smaller piece determines which direction the side is clipping from 
 							if ( intersect.distance(pair[0].getP1()) > intersect.distance(pair[0].getP2()) ) {
@@ -115,10 +109,10 @@ public class CollisionPlayerStatic extends Collision {
 							
 							if (depth > maxDepth) {maxDepth = depth;} 
 							
-						//}
-						
-					//} // BUG - getIntersectingSides() sometimes returns an empty intersection
-					
+							//Get normal force 1/slope  //slope = (y-y2) / (x-x2)  //  rise over run
+							
+
+							
 				}
 				
 				//System.out.println( " Depth" + max );
@@ -127,7 +121,7 @@ public class CollisionPlayerStatic extends Collision {
 				
 				//THIS WILL BE CHANGED from only pushing upwards to pushing whichever direction the clipping is happening in
 					entityPrimary.setY( (entityPrimary.getY() + (int) entityPrimary.getDY() - maxDepth - 1) ); 
-					entityPrimary.setDY( 0 );
+					entityPrimary.setDY( 0 ); 
 				
 			}
 		

@@ -16,8 +16,11 @@ public class SplitPane extends JPanel {
     public boolean sidePanelOn = false;
     private boolean F1pressed = false;
     private Dimension sidePanelMinSize;
+    
+
 
 	public SplitPane() {
+		
 		sidePanelMinSize = new Dimension(200,300);
 		board = new Board();
 		board.setPreferredSize(new Dimension(Board.B_WIDTH, Board.B_HEIGHT));
@@ -35,8 +38,6 @@ public class SplitPane extends JPanel {
 		
 		splitPane.setSize(new Dimension(board.getWidth() + sidePanel.getWidth(), 300));
 		splitPane.setMinimumSize(new Dimension(board.getWidth() + sidePanel.getWidth(), 300));
-		System.out.println("Board.B_WIDTH: " + Board.B_WIDTH);
-		System.out.println("sidePanel.getWidth(): " + sidePanel.getWidth());
 		
 		splitPane.addKeyListener(new KeyListener() {
 			@Override
@@ -56,15 +57,6 @@ public class SplitPane extends JPanel {
 			}
 		});
 		
-		sidePanel.button1.addActionListener(new ActionListener() {
-		
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				System.out.println("Clicked the button");
-			}
-				
-		});
 	}
 	public JSplitPane getSplitPane() {
 		return splitPane;

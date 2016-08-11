@@ -31,24 +31,22 @@ import misc.*;
 
 
 
+@SuppressWarnings("serial")
 public class Board extends JPanel implements Runnable {
 
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private double currentDuration;
 	
 	private Timer timer;
 	
-	private java.util.Timer timer2;
-	
+	private java.util.Timer updateEntitiesTimer;
+	private java.util.Timer collisionTimer;
+	private java.util.Timer repaintTimer;
     private Player player;
     private  PaintOverlay p;
     private LaserTest laser;
-    private ArrayList<EntityStatic> staticEntitiesList; 
-    private static ArrayList<EntityDynamic> dynamicEntitiesList; 
-    private static ArrayList<EntityDynamic> physicsEntitiesList; 
+    protected ArrayList<EntityStatic> staticEntitiesList; 
+    protected static ArrayList<EntityDynamic> dynamicEntitiesList; 
+    protected static ArrayList<EntityDynamic> physicsEntitiesList; 
     private LinkedList<Collision> collisionsList = new LinkedList<Collision>(); 
     
     protected Point clickPosition;
@@ -62,15 +60,15 @@ public class Board extends JPanel implements Runnable {
     public static final int B_WIDTH = 400;
     public static final int B_HEIGHT = 300;
     private boolean debugOn = false; 
-    public static EntityStatic currentSelectedEntity;
+    protected EntityStatic currentSelectedEntity;
     
     private final int DELAY = 10;
     
     private double time = 0;
     private double deltaTime = 0;
     
-	private Thread collisionThread;
-	private Thread paintThread;
+	//private Thread collisionThread;
+	//private Thread paintThread;
 
     private final int[][] pos = {
         {2380, 29}, {2500, 59}, {1380, 89},
@@ -137,34 +135,50 @@ public class Board extends JPanel implements Runnable {
         
         p = new PaintOverlay(200,0,150,60);
         initBullets();
-        //###########
-        //
 
-        //sets the frame rate. Every 15 milliseconds, an action event is sent and performed by the 
-        //actionPerformed() method overridden below.
         
-        timer2 = new java.util.Timer(); //create timer
+        //THREAD AREA
+        //If what I read was correct, timers all have their own threads.
+        //The "tasks" below will fire at each respective timer's "scheduleAtFixedRate", putting them
+        //each on their own threads. There is a thread for updating entity positions, updating collisions, and the rendering.
+        updateEntitiesTimer = new java.util.Timer(); //create timer
+        collisionTimer = new java.util.Timer(); //create timer
+        repaintTimer = new java.util.Timer();
         
-        TimerTask update = new TimerTask() {
+        
+        TimerTask updateEntitiesTask = new TimerTask() {
         	@Override
         	public void run(){
-        		updateBoard();
+        		updateEntities();
         	}
         };
         
-        //Going to test this in just a bit
-        /*
-        collisionThread = new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				
-			}
-		})
-        */
-        timer2.scheduleAtFixedRate( update , 0 , 16); // fire task every 16 ms
+        //will have to experiment how often collisions should be checked.
+        //I get strange anomolies when setting the update rate (below in "scheduleAtFixedRate(collisionUpdateTask)" too
+        // low or too high. We might want to try implementing something that puts the thread to sleep
+        //	 when it can guarantee there are no collisions happening whatsoever. Which wouldn't be often anyway I guess.
+        TimerTask collisionUpdateTask = new TimerTask() {
 
+        	@Override
+        	public void run() {
+
+        		//RUN COLLISION DETECTION
+        		checkCollisions();
+        	}
+        };
+        TimerTask repaintUpdateTask = new TimerTask() {
+        	@Override
+        	public void run() {
+        		repaint();
+        	}
+        };
+        
+        updateEntitiesTimer.scheduleAtFixedRate( updateEntitiesTask , 0 , 16); // fire task every 16 ms
+        collisionTimer.scheduleAtFixedRate( collisionUpdateTask , 0 , 5);
+        repaintTimer.scheduleAtFixedRate( repaintUpdateTask, 0, 16);
+        
+
+        //collisionThread.start();
         //updateBoard();
     }
     
@@ -183,32 +197,25 @@ public class Board extends JPanel implements Runnable {
     	  
       }
       */
-      public void updateBoard(){ //TESTING CONSTANT FPS
+      public void updateEntities(){ //TESTING CONSTANT FPS
     	      
           deltaTime = System.currentTimeMillis() - time ;
     	  
 	          //if (deltaTime > 15) {
-	        	  
-		          //RUN COLLISION DETECTION
-		          checkCollisions();
+	      
           
 		          //RUN POSITION AND DRAW UPDATES
 		          updatePlayer();    
 		          updateDynamicEntities();
 		          updatePhysicsEntities();
 		          
-			      laser.updatePosition();
-		        
-
-		          
-		          //REDRAW ALL COMPONENTS
-		          repaint();
+			      laser.updatePosition();		      
 		          
 		          time = System.currentTimeMillis();
 		          
 	          //}
 		          
-		         Toolkit.getDefaultToolkit().sync(); // what does this even do
+		         //Toolkit.getDefaultToolkit().sync(); // what does this even do
           
       }
       
@@ -680,7 +687,7 @@ public class Board extends JPanel implements Runnable {
   		return null;
   	}
   	
-  	private void deselectAllEntities() {
+  	protected void deselectAllEntities() {
   		for (EntityStatic entity : staticEntitiesList) {
   			if (entity.isSelected == true)
   				entity.isSelected = false;

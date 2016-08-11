@@ -42,7 +42,7 @@ public class SidePanel extends JPanel {
 		entitiesJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		
 		JScrollPane entityScrollPane = new JScrollPane(entitiesJList);
-		entityScrollPane.setFocusable(false);
+		//entityScrollPane.setFocusable(false);
 				
 		label1 = new JLabel("Here's some text");
 		label2 = new JLabel("Coordinates of selected entity: ");
@@ -66,6 +66,7 @@ public class SidePanel extends JPanel {
 			public void valueChanged(ListSelectionEvent event) {
 				infoButton.setEnabled(true);
 				currentIndex = entitiesJList.getSelectedIndex();
+				SplitPane.getBoard().currentSelectedEntity = SplitPane.getBoard().staticEntitiesList.get(0);
 				try{
 					setSelectedEntityName("Selected: " + SplitPane.getBoard().currentSelectedEntity.name);
 					SplitPane.getBoard().deselectAllEntities();

@@ -27,7 +27,7 @@ public class SidePanel extends JPanel {
     private int currentIndex;
 
 	public SidePanel() {
-		
+		SplitPane.getBoard().currentSelectedEntity = SplitPane.getBoard().staticEntitiesList.get(0);
 		layout = new FlowLayout(FlowLayout.LEADING, 5, 15);
 		setLayout(layout);
 		setBackground(Color.GRAY);
@@ -66,13 +66,13 @@ public class SidePanel extends JPanel {
 			public void valueChanged(ListSelectionEvent event) {
 				infoButton.setEnabled(true);
 				currentIndex = entitiesJList.getSelectedIndex();
-				SplitPane.getBoard().currentSelectedEntity = SplitPane.getBoard().staticEntitiesList.get(0);
-				try{
-					setSelectedEntityName("Selected: " + SplitPane.getBoard().currentSelectedEntity.name);
+				
+				try{					
 					SplitPane.getBoard().deselectAllEntities();
 					//sets Board's current entity
 					SplitPane.getBoard().currentSelectedEntity = SplitPane.getBoard().staticEntitiesList.get(currentIndex);
 					SplitPane.getBoard().staticEntitiesList.get(currentIndex).isSelected = true;
+					setSelectedEntityName("Selected: " + SplitPane.getBoard().currentSelectedEntity.name);
 					//sends code from here over to Board to let it draw this entity's selection box
 					SplitPane.getBoard().selectedBox.setSize(SplitPane.getBoard().currentSelectedEntity.getObjectGraphic().getImage().getWidth(null),
 							SplitPane.getBoard().currentSelectedEntity.getObjectGraphic().getImage().getHeight(null) );

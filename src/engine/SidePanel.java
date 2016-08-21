@@ -1,12 +1,14 @@
 package engine;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import javax.swing.event.*;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import entities.*;
+import Editing.*;
 
 
 //TASK LIST:
@@ -17,12 +19,15 @@ import entities.*;
 @SuppressWarnings("serial")
 public class SidePanel extends JPanel {
 	
-	private JLabel label1;
-	private JLabel label2;
-	private JLabel label3;
+	private JLabel mousePosLabel;
+	private JLabel entityCoordsLabel;
 	private JLabel selectedEntityName;
-	public JLabel clickedEntity;
 	private JComboBox<String> allEntitiesComboBox;
+	private ArrayList<PropertiesList> listOfPropLists;
+	private String[] propListAsString; //will be initialized in its own updating/populating function, just like entities list has.
+    private String[] staticEntityStringArr;
+    //private String[] dynamicEntityStringArr;
+    //private String[] physicsEntityStringArr;  will use these later, it won't be hard. use 
 	
 	//actually this should only be instantiated when the property list needs to be populated, when an entity is selected
 	//   private JComboBox<String> entityPropertyBox;
@@ -31,17 +36,31 @@ public class SidePanel extends JPanel {
 
 	public FlowLayout layout;
     //private JList entitiesJList;
-    private String[] entityStringArr;
+
     private int currentIndex;
 
 	public SidePanel() {
-		SplitPane.getBoard().currentSelectedEntity = SplitPane.getBoard().staticEntitiesList.get(0); //set default selected entity so it's not null
-		layout = new FlowLayout(FlowLayout.LEADING, 5, 15);
+		//set default selected entity so it's not null
+		SplitPane.getBoard().currentSelectedEntity = SplitPane.getBoard().staticEntitiesList.get(0); 
+		
+		//set the editor's layout
+		layout = new FlowLayout(FlowLayout.LEADING, 3, 3);
 		setLayout(layout);
 		setBackground(Color.GRAY);
 		
+		//there will be as many property lists as there are entities, and they will directly correspond.
+		//call both of these methods whenever you add or remove entities from this game. They need to be in sync.
 		updateEntityStringArr(); //populates the entity string array representation with elements from Board's static entity arraylist
+		updateListOfPropLists();
 		
+		/* Scratch Pad: for making each little panel based on property type
+		 *  maybe something like:
+		 *  private createTrueFalsePanel(propertyList[i]) 
+		 *  	new JPanel truefalse 
+		 * 	 	
+		 * 
+		 * 
+		 */
 		/*
 		entitiesJList = new JList<String>(entitiesAsString);
 		entitiesJList.setFocusable(false);
@@ -51,26 +70,46 @@ public class SidePanel extends JPanel {
 		JScrollPane entityScrollPane = new JScrollPane(entitiesJList);
 		//entityScrollPane.setFocusable(false);
 		*/		
-		label1 = new JLabel("Here's some text");
-		label2 = new JLabel("Coordinates of selected entity: ");
-		label3 = new JLabel("default text");
+		mousePosLabel = new JLabel("Mouse Click: ");
+		entityCoordsLabel = new JLabel("Coordinates of selected entity: ");
 		selectedEntityName = new JLabel("Nothing Selected");
 		
-		infoButton = new JButton("Info");
+		infoButton = new JButton("Edit Properties");
 		infoButton.setFont(new Font("Serif",Font.PLAIN,10));
 		infoButton.setEnabled(false);
-		infoButton.setPreferredSize(new Dimension(50,30));
 		infoButton.setFocusable(false);
 		
-		allEntitiesComboBox = new JComboBox<String>(entityStringArr);
+		
+		// ## The panel for true/false ##
+		/*
+		 * 
+		 * 
+		 */
+		
+		// ## The panel for Position sliders ##
+		/*
+		 * 
+		 */
+		
+		// ## The panel for Text boxes ##
+		/*
+		 * 
+		 */
+		
+		
+		// ## The drop down box for the list of all entities in board ###	
+		allEntitiesComboBox = new JComboBox<String>(staticEntityStringArr);
+		allEntitiesComboBox.setFocusable(false);
+		
 		allEntitiesComboBox.addItemListener(new ItemListener(){ 
 			public void itemStateChanged(ItemEvent e){
 				if (e.getStateChange() == ItemEvent.SELECTED) 
 				{
-					infoButton.setEnabled(true);
+					
 					currentIndex = allEntitiesComboBox.getSelectedIndex();
 					try{					
 						SplitPane.getBoard().deselectAllEntities();
+						infoButton.setEnabled(true);
 						//sets Board's current entity
 						SplitPane.getBoard().currentSelectedEntity = SplitPane.getBoard().staticEntitiesList.get(currentIndex);
 						SplitPane.getBoard().staticEntitiesList.get(currentIndex).isSelected = true;
@@ -82,53 +121,60 @@ public class SidePanel extends JPanel {
 					catch (NullPointerException exception){System.err.println("nullpointerexception"); }
 				}
 			}
-		});
-		add(label1);
-		add(label2);
-		add(label3);
-		add(selectedEntityName);
-		// add(entityScrollPane);  //I don't want to use scrollpane anymore, want to use JComboBox
-		
-		add(allEntitiesComboBox);
-		add(infoButton, BorderLayout.CENTER);
-		
-		/*
-		entitiesJList.addListSelectionListener(new ListSelectionListener() {
-			
-			@Override
-			public void valueChanged(ListSelectionEvent event) {
-				infoButton.setEnabled(true);
-				currentIndex = entitiesJList.getSelectedIndex();
-				
-				try{					
-					SplitPane.getBoard().deselectAllEntities();
-					//sets Board's current entity
-					SplitPane.getBoard().currentSelectedEntity = SplitPane.getBoard().staticEntitiesList.get(currentIndex);
-					SplitPane.getBoard().staticEntitiesList.get(currentIndex).isSelected = true;
-					setSelectedEntityName("Selected: " + SplitPane.getBoard().currentSelectedEntity.name);
-					//sends code from here over to Board to let it draw this entity's selection box
-					SplitPane.getBoard().selectedBox.setSize(SplitPane.getBoard().currentSelectedEntity.getObjectGraphic().getImage().getWidth(null),
-							SplitPane.getBoard().currentSelectedEntity.getObjectGraphic().getImage().getHeight(null) );
-				}
-				catch (NullPointerException exception){System.err.println("nullpointerexception"); }
-			}
-		});
-		*/
-		infoButton.addActionListener(new ActionListener() {
-			
-			
+		});		
+
+		infoButton.addActionListener(new ActionListener() {		
 			@Override
 			public void actionPerformed(ActionEvent e) {
 		
 				if (infoButton.isEnabled()) {
 					
-					
-					String entityName = entityStringArr[ currentIndex ];
+					//PropertiesList propList = new PropertiesList(SplitPane.getBoard().currentSelectedEntity);
+					String entityName = staticEntityStringArr[ currentIndex ];
 					JPanel infoPanel = new JPanel();
 					FlowLayout layout = new FlowLayout();
-					layout.setAlignment(FlowLayout.LEFT);
+					layout.setAlignment(FlowLayout.RIGHT);
 					infoPanel.setLayout(layout);
 					infoPanel.setPreferredSize(new Dimension(30,90));
+					/* this will now be a class field instead of being local. will be populated in its own method.
+					PropertiesList propertiesList = new PropertiesList(SplitPane.getBoard().currentSelectedEntity);
+					*/
+					
+
+					// * AM GOING TO RETURN TO THIS PART, KEEP IT
+					final JComboBox<String> propertiesListBox = new JComboBox<String>(listOfPropLists.get(currentIndex).getPropertiesAsString());
+					propertiesListBox.addItemListener(new ItemListener() {
+
+						@Override
+						public void itemStateChanged(ItemEvent e) {
+
+							if (e.getStateChange() == ItemEvent.SELECTED) {
+								if (propertiesListBox.getSelectedIndex() == 0){
+									if (listOfPropLists.get(currentIndex).getProperty(0).getPropertyType() == Property.BOOLEAN){
+										System.out.println("Is Property.BOOLEAN");
+									}
+									//need to add all the different types of panels to dispaly different options
+									// (such as radio buttons for true/false, text fields for positions and names, etc
+								}
+							}
+						}						
+					});					 
+					infoPanel.add(propertiesListBox);
+					//if ()
+					infoPanel.add(new JRadioButton("True",true));
+					infoPanel.add(new JRadioButton("False",false));
+
+					
+					//in this part I will add the three possible pre-made JPanels to accomodate: text input, radio buttons, and sliders.
+					// e.g. 
+					// if ( (the current selected property for this entity) == Property.BOOL)
+					//		infoPanel.add(trueFalsePanel) 
+					// and same for the other two.
+					//
+					// for sliders: 
+					//	if ( " " " " == Property.POS )
+					// 		
+					/*
 					infoPanel.add(new JLabel("Entity Name: " + entityName), BorderLayout.WEST);
 					infoPanel.add(new JLabel("Entity X position: "
 									+ SplitPane.getBoard().staticEntitiesList.get(allEntitiesComboBox.getSelectedIndex()).getX()) );
@@ -137,21 +183,34 @@ public class SidePanel extends JPanel {
 					infoPanel.add(new JLabel("Collidable: " 
 							+ SplitPane.getBoard().staticEntitiesList.get(allEntitiesComboBox.getSelectedIndex()).isCollidable()) );
 					JOptionPane.showMessageDialog(null, infoPanel, "test", JOptionPane.INFORMATION_MESSAGE);
+					*/
+					JOptionPane.showMessageDialog(null, infoPanel, "test", JOptionPane.INFORMATION_MESSAGE);
 				}
-			}
-			
+			}			
 		});
-
-			
-		/*
-		button2 = new JButton("Button2");
-		button2.setEnabled(true);
-		button2.setFocusable(false);
-
-		//add(button1);
-		//add(button2);
-		*/
-
+		// ## adding the components to the Editor window
+		
+		//inline panel for text messages
+		JPanel labelsPanel = new JPanel();
+		labelsPanel.setLayout(new FlowLayout());
+		labelsPanel.setPreferredSize(new Dimension(199, 80));
+		labelsPanel.setBackground(Color.GRAY);
+		labelsPanel.setBorder(BorderFactory.createEtchedBorder());
+		labelsPanel.add(mousePosLabel);
+		labelsPanel.add(entityCoordsLabel);
+		labelsPanel.add(selectedEntityName);
+		add(labelsPanel);
+		
+		add(allEntitiesComboBox);
+		
+		// inline panel for button
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new BorderLayout());
+		buttonPanel.setPreferredSize(new Dimension(190, 30));
+		buttonPanel.setBackground(Color.GRAY);
+		buttonPanel.add(infoButton);
+		buttonPanel.setBorder(BorderFactory.createEtchedBorder());
+		add(buttonPanel);
 		layout.layoutContainer(this);
 	}
 	
@@ -169,21 +228,48 @@ public class SidePanel extends JPanel {
 	}
 	
 	private void updateEntityStringArr() {
-		entityStringArr = new String[(SplitPane.getBoard().staticEntitiesList.size())];	
-		populateArrayFromList(entityStringArr, SplitPane.getBoard().staticEntitiesList);
+		staticEntityStringArr = new String[(SplitPane.getBoard().staticEntitiesList.size())];	
+		populateArrayFromList(staticEntityStringArr, SplitPane.getBoard().staticEntitiesList);
 	}
 	
-	public void setLabel1(String text){
-		label1.setText(text);
+	//don't really need this vvvv because I won't be dynamically changing amount of properties an object is able to have.
+	/*
+	private void updatePropListAsString(int propListIndex) {
+		propListAsString = new String[(listOfPropLists.get(propListIndex).getPropertiesList().size())];	
+		listOfPropLists
 	}
-	public void setLabel2(String text){
-		label2.setText(text);
+	*/
+	/*
+	public void populatePropertyBox(Entity ent) {
+		ArrayList<String> propertiesList = new ArrayList<String>();
+		propertiesList.add("X Position");
+		//String[] propertiesAsString
 	}
-	public void setLabel3(String text){
-		label3.setText(text);
+	*/
+
+	public void updateListOfPropLists() {
+		ArrayList<EntityStatic> currentEntListCopy = SplitPane.getBoard().staticEntitiesList;
+		listOfPropLists = new ArrayList<PropertiesList>(currentEntListCopy.size());
+		for (EntityStatic ent : currentEntListCopy){
+			//will create a new propertyList array corresponding to each staticEntity.
+			listOfPropLists.add(new PropertiesList(ent));
+		}
 	}
+	public void setMousePosLabel(String text){
+		mousePosLabel.setText(text);
+	}
+	public void setEntityCoordsLabel(String text){
+		entityCoordsLabel.setText(text);
+	}
+
 	protected void setSelectedEntityName(String text){
 		selectedEntityName.setText(text);
+	}
+	public void enableEditPropertiesButton(boolean choice){
+		if (choice == true)
+			infoButton.setEnabled(true);
+		else if(choice == false)
+			infoButton.setEnabled(false);
 	}
 
 }

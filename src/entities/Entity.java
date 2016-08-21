@@ -8,9 +8,9 @@ import java.awt.Point;
 
 public class Entity { 
 	public static int count;
-	
+	public String name = "blank entity";
 	protected boolean alive = true;
-	protected boolean collidable = false;
+	protected boolean collidable = true; //default to true
 	protected float x;
     protected float y;
     
@@ -54,4 +54,12 @@ public class Entity {
     	y = (float) p.getY();
     }
     
+    public boolean isCollidable() {
+		return collidable;
+	}
+
+	public void setCollidable(boolean collidable) {
+		this.collidable = collidable;
+	}
+
 }

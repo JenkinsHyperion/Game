@@ -18,8 +18,9 @@ public class Boundary {
 		sides[0] = line; 
 	}
 	
-	
-
+	public Boundary(Line2D[] bounds) {
+		sides = bounds;
+	}
 	
 	
 	public boolean checkForInteraction(Boundary bounds){
@@ -318,9 +319,9 @@ public class Boundary {
 		else { // line has defines slope
 			for ( int j = 0 ; j < currentIndex ; j++){
 				if ( ( side.getP1().getY() - side.getP2().getY()  ) / ( side.getP1().getX() - side.getP2().getX() ) 
-					==
+					-
 					(array[j].getP1().getY() - array[j].getP2().getY()  ) / ( array[j].getP1().getX() - array[j].getP2().getX() )
-				){ 
+				< 0.1){ //error
 					return true;
 				}
 			}
@@ -366,7 +367,7 @@ public class Boundary {
 		
 	}
 	
-	public Line2D[] debugSeparatingAxes(int xMax , int yMax){
+	public Line2D[] debugSeparatingAxes(int xMax , int yMax){ 
 		
 		Line2D[] axes = new Line2D[getSeparatingSides().length];
 		
@@ -374,6 +375,58 @@ public class Boundary {
 			axes[i] = debugGetAxis( getSeparatingSides()[i], xMax, yMax);
 		}
 		return axes;
+	}
+	
+	public Point2D[] getCorners(){
+		Point2D[] corners = new Point2D[sides.length];
+		for (int i = 0 ; i < sides.length ; i++){
+			corners[i] = sides[i].getP1();
+		}
+		return corners;
+	}
+	
+	public Point2D[] getFarthestPoints(Boundary bounds , Line2D axis){
+		
+		Point2D[] farthestPoints = new Point2D[]{ getCorners()[0] , bounds.getCorners()[0] }; //store the first pair ahead
+		
+		for ( int i = 0 ; i < getCorners().length ; i++ ){
+			
+			for ( int j = 0 ; j < bounds.getCorners().length ; j++ ){
+				
+				if (getProjectionPoint( getCorners()[i] , axis ).distance( getProjectionPoint( bounds.getCorners()[j] , axis ) ) 
+						> 
+					getProjectionPoint( farthestPoints[0] , axis ).distance( getProjectionPoint( farthestPoints[1] , axis ) ) 
+				){
+					// points i and j are farther apart than whats stored
+					farthestPoints[0] = getCorners()[i];
+					farthestPoints[1] = bounds.getCorners()[j];
+				}
+				
+			}
+		}
+		return farthestPoints;
+	}
+	
+	public Point2D[] getNearestPoints(Boundary bounds , Line2D axis){ //same deal as above just witht he closest points
+		
+		Point2D[] nearestPoints = new Point2D[]{ getCorners()[0] , bounds.getCorners()[0] }; //store the first pair ahead
+		
+		for ( int i = 0 ; i < getCorners().length ; i++ ){
+			
+			for ( int j = 0 ; j < bounds.getCorners().length ; j++ ){
+				
+				if (getProjectionPoint( getCorners()[i] , axis ).distance( getProjectionPoint( bounds.getCorners()[j] , axis ) ) 
+						< 
+					getProjectionPoint( nearestPoints[0] , axis ).distance( getProjectionPoint( nearestPoints[1] , axis ) ) 
+				){
+					// points i and j are farther apart than whats stored
+					nearestPoints[0] = getCorners()[i];
+					nearestPoints[1] = bounds.getCorners()[j];
+				}
+				
+			}
+		}
+		return nearestPoints;
 	}
 	
 	public Line2D getTestSide(){

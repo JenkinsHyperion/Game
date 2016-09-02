@@ -1,6 +1,7 @@
 package entities;
 
 
+import java.awt.Shape;
 import java.awt.event.KeyEvent;
 
 //import javax.swing.Action;
@@ -11,14 +12,12 @@ import engine.Board;
 import testEntities.Bullet;
 import testEntities.Particle;
 
-public class PlayerSquare extends Player {
+public class PlayerShape extends Player {
 
 	//private static Action enterAction;
 	
 	
 	//private Timer keytimer;
-	
-	private int rotation = 0;
 	
 	private boolean keypressA = false;
 	private boolean keypressD = false;
@@ -29,7 +28,7 @@ public class PlayerSquare extends Player {
 
 	private Animation IDLE_LEFT = new Animation(LoadAnimation.getAnimation(4, 0, 14, "bullet") , 4 ); 
 
-    public PlayerSquare(int x, int y) {
+    public PlayerShape(int x, int y) {
         super(x, y);
 
 		name = "Player"+count;
@@ -40,13 +39,11 @@ public class PlayerSquare extends Player {
     private void initPlayer() {
         
         //setBoundingBox(14,0,4,32);
-        setBoundingBox(-12,-16,24,32);
+        setBoundingBox(-12,-40,24,80);
         loadAnimatedSprite(IDLE_LEFT,-7,-7);
         setAccY(0); //override gravity
         IDLE_LEFT.start();
     }
-
-
 	
     //INPUT CONTROL
     
@@ -138,6 +135,19 @@ public class PlayerSquare extends Player {
     	}
     	else {dx=0; dy=0;}
     	
+    	if (keypressQ){
+			angle--;
+        	if (angle>36){angle=-36;} //constrain range from -180 to 180 degrees for convenience
+        	else if (angle<-36){angle=36;}
+    	}	 
+    	else if (keypressE){
+    		angle++;
+    		if (angle>36){angle=-36;}
+        	else if (angle<-36){angle=36;}
+    	}	
+    	
+
+    	setAngle(angle * ((2*Math.PI)/72) );
     	
     	//dx += accX;
     	//dy += accY;

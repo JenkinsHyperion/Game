@@ -110,7 +110,7 @@ public class Board extends JPanel implements Runnable {
         physicsEntitiesList = new ArrayList<>();
 
         // initialize player
-        player = new PlayerSquare(ICRAFT_X, ICRAFT_Y);
+        player = new PlayerShape(ICRAFT_X, ICRAFT_Y);
         player.getObjectGraphic().setVisible(true);
 
         selectedBox = new Rectangle();
@@ -128,7 +128,7 @@ public class Board extends JPanel implements Runnable {
         staticEntitiesList.add(new Ground(100,290,"ground01"));
         staticEntitiesList.add(new Slope(10,160));
         
-      	physicsEntitiesList.add(new EntityPhysics(120,250,"box"));
+      	physicsEntitiesList.add(new EntityPhysics(120,120,"box"));
         dynamicEntitiesList.add(new Bullet(100,100,1,1));
         
         //test for LaserTest entity
@@ -323,7 +323,7 @@ public class Board extends JPanel implements Runnable {
 
 		//Draw player
         if (player.getObjectGraphic().isVisible()) {
-            g.drawImage(player.getObjectGraphic().getImage(), 
+            ((Graphics2D) g).drawImage(player.getObjectGraphic().getImage(), 
             		player.getX() + player.getObjectGraphic().getOffsetX(), 
             		player.getY() + player.getObjectGraphic().getOffsetY(), this);
         }
@@ -733,8 +733,8 @@ public class Board extends JPanel implements Runnable {
         g.setColor(Color.GRAY);
 	    g.drawString("FPS: " + Math.round(1000/deltaTime),5,15);
 	    g.drawString("DX: "+player.getDX() + " DY: " + player.getDY(),5,30);
-	    g.drawString("AccX: " + player.getAccX(),5,45);
-	    g.drawString("AccY: " + player.getAccY(),5,60);
+	    g.drawString("AccX: " + player.getAccX() + "  AccY: " + player.getAccY(),5,45);
+	    g.drawString("Rotation: " + player.getAngle()*5,5,60);
 	    g.drawString("Player State: " + player.getPlayerStateName(),5,75);
 	    
 	    //Draw player bounding box
@@ -742,8 +742,8 @@ public class Board extends JPanel implements Runnable {
 	        
 	    g2.setColor(Color.CYAN);
 	    for (Line2D line : player.getLocalBoundary().getSides()){
-	    	//g2.draw(line);
-	    }
+	    	g2.draw(line);
+	    } 
 	    
 	    for ( Line2D axis : staticEntitiesList.get(2).getLocalBoundary().getSeparatingSides() ){
 	    	g2.draw(axis);
@@ -834,6 +834,10 @@ public class Board extends JPanel implements Runnable {
 	       	g2.draw( separatingSide );
 	    }
 	    
+	    for ( Point2D point : player.getLocalBoundary().getCorners() ){
+	       	//drawPointCross( player.getLocalBoundary().getProjectionPoint(point,axis) , g2 );
+	    }
+	    
 	    for ( EntityStatic stat : staticEntitiesList) {	    	
 	    	
 		    for ( Line2D separatingSide : stat.getLocalBoundary().getSeparatingSides() ){
@@ -844,13 +848,12 @@ public class Board extends JPanel implements Runnable {
 		    
 	    }
 	    
-	    //Line2D MathTest1 = new Line2D.Float(50,200,200,200) ; 
-	    //Line2D MathTest2 = new Line2D.Float(150,150,150,50) ;
-	    Line2D MathTest2 = player.getLocalBoundary().getTestSide() ;
-	    
 	    drawCross( player.getX() , player.getY() , g2);
+	    drawCross( staticEntitiesList.get(1).getX() , staticEntitiesList.get(1).getY() , g2);
 	    
 	    Boundary bounds = staticEntitiesList.get(1).getLocalBoundary() ;
+	    Boundary playerBounds = player.getLocalBoundary();
+	    
 	    Point2D playerCenter = new Point2D.Double(player.getX(), player.getY());
 	    	
 	    
@@ -860,26 +863,40 @@ public class Board extends JPanel implements Runnable {
 	    		Line2D axis = bounds.debugGetAxis(side, B_WIDTH, B_HEIGHT);
 	    		
 		    	g2.setColor(Color.DARK_GRAY);
-		    	g2.draw(axis);
-		    	g2.setColor(Color.YELLOW);
-		    	//g2.draw(side);
 		    	
-		    	//Line2D sideProjection = bounds.getProjectionLine( MathTest2 , axis );
-		    	//g2.draw( sideProjection );
-			    //drawCross( player.getLocalBoundary().getProjectionPoint( MathTest2.getP1() , axis ) , g2);
-			    //drawCross( player.getLocalBoundary().getProjectionPoint( MathTest2.getP2() , axis ) , g2);
-			    
-			    Line2D distance = new Line2D.Float(playerCenter , side.getP2());
-			    Line2D projectedDistance = staticEntitiesList.get(1).getLocalBoundary().getProjectionLine( distance , axis );
+		    		g2.draw(axis);
+		    	
+		    	g2.setColor(Color.LIGHT_GRAY);
+		    	
+			    Line2D FarDistance = new Line2D.Float(
+			    		playerBounds.getFarthestPoints(staticEntitiesList.get(1).getLocalBoundary(),axis)[0],
+			    		playerBounds.getFarthestPoints(staticEntitiesList.get(1).getLocalBoundary(),axis)[1]
+			    		); 
+			    Line2D NearDistance = new Line2D.Float(
+			    		playerBounds.getNearestPoints(staticEntitiesList.get(1).getLocalBoundary(),axis)[0],
+			    		playerBounds.getNearestPoints(staticEntitiesList.get(1).getLocalBoundary(),axis)[1]
+			    		); 
+		    	
+		    		Point2D[] farCorners = playerBounds.getFarthestPoints(staticEntitiesList.get(1).getLocalBoundary(),axis);
+		    		Point2D[] nearCorners = playerBounds.getNearestPoints(staticEntitiesList.get(1).getLocalBoundary(),axis);
+		    	
+			    Line2D FarNormal = new Line2D.Float(
+			    		farCorners[0] , player.getBoundary().getProjectionPoint(farCorners[0], axis)
+			    		);
+			    g2.draw(FarNormal);
+
+			    Line2D NearNormal = new Line2D.Float(
+			    		nearCorners[0] , playerBounds.getProjectionPoint(nearCorners[0], axis)
+			    		);
+			    g2.draw(NearNormal);
 			    
 			    g2.setColor(Color.GREEN);
-			    int dist3 = (int) projectedDistance.getP1().distance(projectedDistance.getP2());
-			    int dist1 = (int) side.getP1().distance(side.getP2());
-			    int dist2 = (int) MathTest2.getP1().distance(MathTest2.getP2());
+			    drawPointCross( playerBounds.getProjectionPoint( farCorners[0] , axis ) , g2);
+			    drawPointCross( playerBounds.getProjectionPoint( nearCorners[0] , axis ) , g2);
 			    
-			    g2.draw(projectedDistance);
-			    g.drawString( ""+ ( dist3 - dist1- dist2)
-			    		, (int) projectedDistance.getX1() +10 , (int) projectedDistance.getY1() +10 );
+			    g2.draw( new Line2D.Float(playerBounds.getProjectionPoint(nearCorners[0],axis),
+			    		playerBounds.getProjectionPoint(farCorners[0],axis) ) );
+
 	    	}
 
     }
@@ -889,7 +906,7 @@ public class Board extends JPanel implements Runnable {
 		g.drawLine( x-3, y+3, x+3, y-3 );
     }
     
-    private void drawCross(Point2D point , Graphics g){
+    private void drawPointCross(Point2D point , Graphics g){
     	g.drawLine((int)point.getX()-3, (int)point.getY()-3, (int)point.getX()+3, (int)point.getY()+3);
 		g.drawLine((int)point.getX()-3, (int)point.getY()+3, (int)point.getX()+3, (int)point.getY()-3);
     }

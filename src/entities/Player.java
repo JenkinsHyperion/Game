@@ -11,7 +11,7 @@ import engine.Board;
 import testEntities.Bullet;
 import testEntities.Particle;
 
-public class Player extends EntityDynamic {
+public class Player extends EntityRotationalDynamic {
 
 	//private static Action enterAction;
 	

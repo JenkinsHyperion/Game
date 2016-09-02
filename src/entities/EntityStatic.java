@@ -32,6 +32,10 @@ public class EntityStatic extends Entity{
     	graphic = new SpriteStill(System.getProperty("user.dir").replace( "\\", "//" ) + "//Assets//" +path + ".png");
     }
     
+    protected void loadSprite(String path, int offset_x , int offset_y){ // needs handling if failed. Also needs to be moved out of object class into sprites
+    	graphic = new SpriteStill(System.getProperty("user.dir").replace( "\\", "//" ) + "//Assets//" +path + ".png",offset_x,offset_y);
+    }
+    
     /*protected void loadAnimatedSprite(String path){ // needs handling if failed. 
     	graphic = new SpriteAnimatedTest(System.getProperty("user.dir").replace( "\\", "//" ) + "//Assets//" +path + ".png");
     }*/

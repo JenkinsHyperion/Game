@@ -9,10 +9,10 @@ public class BoundingBox extends Boundary{
 		
 		sides = new Line2D[4];
 		
-		sides[0] = new Line2D.Float((float)box.getMinX(),(float)box.getMinY(),(float)box.getMaxX(),(float)box.getMinY());
-		sides[1] = new Line2D.Float((float)box.getMaxX(),(float)box.getMinY(),(float)box.getMaxX(),(float)box.getMaxY());
-		sides[2] = new Line2D.Float((float)box.getMinX(),(float)box.getMaxY(),(float)box.getMaxX(),(float)box.getMaxY());
-		sides[3] = new Line2D.Float((float)box.getMinX(),(float)box.getMinY(),(float)box.getMinX(),(float)box.getMaxY());
+		sides[0] = new Line2D.Float((int)box.getMinX(),(int)box.getMinY(),(int)box.getMaxX(),(int)box.getMinY());
+		sides[1] = new Line2D.Float((int)box.getMaxX(),(int)box.getMinY(),(int)box.getMaxX(),(int)box.getMaxY());
+		sides[2] = new Line2D.Float((int)box.getMaxX(),(int)box.getMaxY(),(int)box.getMinX(),(int)box.getMaxY());
+		sides[3] = new Line2D.Float((int)box.getMinX(),(int)box.getMaxY(),(int)box.getMinX(),(int)box.getMinY());
 		
 	}
 	

@@ -43,7 +43,7 @@ public class EntityStatic extends Entity{
     
     //OPTIONAL INIT WITH OFFSET
     protected void loadAnimatedSprite(Animation a, int offsetX, int offsetY){ // needs handling if failed. 
-    	graphic = new SpriteAnimated(a); 
+    	graphic = new SpriteAnimated(a,offsetX,offsetY); 
     }
     
     public Sprite getObjectGraphic(){ // gets the Object's sprite, still image or animation

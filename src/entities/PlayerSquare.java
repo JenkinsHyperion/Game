@@ -18,12 +18,16 @@ public class PlayerSquare extends Player {
 	
 	//private Timer keytimer;
 	
+	private int rotation = 0;
+	
 	private boolean keypressA = false;
 	private boolean keypressD = false;
 	private boolean keypressUP = false;
 	private boolean keypressS = false;
+	private boolean keypressE = false;
+	private boolean keypressQ = false;
 
-	
+	private Animation IDLE_LEFT = new Animation(LoadAnimation.getAnimation(4, 0, 14, "bullet") , 4 ); 
 
     public PlayerSquare(int x, int y) {
         super(x, y);
@@ -36,8 +40,10 @@ public class PlayerSquare extends Player {
     private void initPlayer() {
         
         //setBoundingBox(14,0,4,32);
-        setBoundingBox(4,0,24,32);
-        loadSprite("bullet"); 
+        setBoundingBox(-12,-16,24,32);
+        loadAnimatedSprite(IDLE_LEFT,-7,-7);
+        setAccY(0); //override gravity
+        IDLE_LEFT.start();
     }
 
 
@@ -70,6 +76,14 @@ public class PlayerSquare extends Player {
         if (key == KeyEvent.VK_S) {
             keypressS = true;
         }
+        
+        if (key == KeyEvent.VK_Q && !keypressQ) {
+        	keypressQ = true; 
+        }
+        
+        if (key == KeyEvent.VK_E && !keypressE) {
+        	keypressE = true; 
+        }
     }
 
     public void keyReleased(KeyEvent e) {
@@ -93,6 +107,14 @@ public class PlayerSquare extends Player {
         if (key == KeyEvent.VK_S) {
         	keypressS = false;
         }
+        
+        if (key == KeyEvent.VK_Q) {
+        	keypressQ = false;
+        }
+        
+        if (key == KeyEvent.VK_E) {
+        	keypressE = false;
+        }
     }
     
     @Override
@@ -100,25 +122,25 @@ public class PlayerSquare extends Player {
 
     	
     	if (keypressA ){
-    		if (isColliding) {
-    			dx = -1;
-    		}
+    		dx = -2;
 		
     	}
-    	if (keypressD ){ 
-    		if (isColliding) {
-    			dx = 1; 
-    		}
-	
+    	else if (keypressD ){ 
+    			dx = 2; 
     	}
     	
-		if (keypressUP && isColliding){
-				dy = -1;
+    	else if (keypressUP){
+				dy = -2;
 		}
+		
+    	else if (keypressS){
+			dy = 2;
+    	}
+    	else {dx=0; dy=0;}
     	
     	
-    	dx += accX;
-    	dy += accY;
+    	//dx += accX;
+    	//dy += accY;
     	
     	x = x+dx;
     	y = y+dy;

@@ -2,6 +2,7 @@ package physics;
 
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 
 import entities.EntityDynamic;
 import entities.EntityStatic;
@@ -16,6 +17,7 @@ public class Collision {
 	protected Line2D contactingSide2;
 	
 	protected Point2D[] contactPoints = new Point2D[2];
+	protected ArrayList<Point2D> debugIntersectionPoints = new ArrayList<>();
 	
 	public Collision(EntityDynamic e1, EntityStatic e2){
 		
@@ -26,7 +28,6 @@ public class Collision {
 		//THIS TEST COLLISION IS A NORMAL SURFACE SUCH AS A FLAT PLATFORM
 		
 		//initCollision();
-		
 	}
 	
 	//INITAL COLLISION COMMANDS - Run once, the first time collision occurs
@@ -140,4 +141,5 @@ public class Collision {
 	public Line2D getSidePrimary(){ return contactingSide1; }
 	public Line2D getSideSecondary(){ return contactingSide2; }
 	public Point2D[] getContactPoints(){ return contactPoints; }
+	public ArrayList<Point2D> getIntersections() { return debugIntersectionPoints; }
 }

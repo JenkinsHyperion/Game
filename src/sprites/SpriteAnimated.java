@@ -17,6 +17,14 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
         setVisible(true);
     }
     
+    public SpriteAnimated(Animation animation, int offset_x, int offset_y) {
+    	spriteAnimation = animation;
+    	spriteOffsetX = offset_x;
+    	spriteOffsetY = offset_y;
+    	
+        setVisible(true);
+    }
+    
     
     //Implemented from Sprite Interface (not overridden)
     public void loadImage(String path){}

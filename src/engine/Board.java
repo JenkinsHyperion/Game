@@ -15,7 +15,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.TimerTask;
 
@@ -59,7 +61,8 @@ public class Board extends JPanel implements Runnable {
     private final int ICRAFT_Y = 150;
     public static final int B_WIDTH = 400;
     public static final int B_HEIGHT = 300;
-    private boolean debugOn = false; 
+    private boolean debug1On = false; 
+    private boolean debug2On = false; 
     protected EntityStatic currentSelectedEntity;
     
     private final int DELAY = 10;
@@ -107,7 +110,7 @@ public class Board extends JPanel implements Runnable {
         physicsEntitiesList = new ArrayList<>();
 
         // initialize player
-        player = new Player(ICRAFT_X, ICRAFT_Y);
+        player = new PlayerSquare(ICRAFT_X, ICRAFT_Y);
         player.getObjectGraphic().setVisible(true);
 
         selectedBox = new Rectangle();
@@ -149,7 +152,9 @@ public class Board extends JPanel implements Runnable {
         TimerTask updateEntitiesTask = new TimerTask() {
         	@Override
         	public void run(){
+        		checkCollisions();
         		updateEntities();
+
         	}
         };
         
@@ -157,7 +162,7 @@ public class Board extends JPanel implements Runnable {
         //I get strange anomolies when setting the update rate (below in "scheduleAtFixedRate(collisionUpdateTask)" too
         // low or too high. We might want to try implementing something that puts the thread to sleep
         //	 when it can guarantee there are no collisions happening whatsoever. Which wouldn't be often anyway I guess.
-        TimerTask collisionUpdateTask = new TimerTask() {
+        /*TimerTask collisionUpdateTask = new TimerTask() {
 
         	@Override
         	public void run() {
@@ -165,7 +170,7 @@ public class Board extends JPanel implements Runnable {
         		//RUN COLLISION DETECTION
         		checkCollisions();
         	}
-        };
+        };*/
         TimerTask repaintUpdateTask = new TimerTask() {
         	@Override
         	public void run() {
@@ -174,7 +179,7 @@ public class Board extends JPanel implements Runnable {
         };
         
         updateEntitiesTimer.scheduleAtFixedRate( updateEntitiesTask , 0 , 16); // fire task every 16 ms
-        collisionTimer.scheduleAtFixedRate( collisionUpdateTask , 0 , 5);
+        //collisionTimer.scheduleAtFixedRate( collisionUpdateTask , 0 , 5);
         repaintTimer.scheduleAtFixedRate( repaintUpdateTask, 0, 16);
         
 
@@ -235,25 +240,17 @@ public class Board extends JPanel implements Runnable {
         
     }
    
-    @Override
-    public void paintComponent(Graphics g) {
+    
+    @Override	
+    public void paintComponent(Graphics g) {  
         super.paintComponent(g);
-        //if (ingame) {
-        
             drawObjects(g);
-            //Temporary Overlay Screen
-            //p.drawBorder(g);
-            
-        /*} else {
-            drawGameOver(g);
-        }*/
-
     }
     
     
     /* ####################
      * Nested Static class allowing Board objects access to the Board.
-     * This is interesting. Normally a class object inside Board, like the player, has
+     * This is bad form, instead pass board instance through constructors of objects that need access to board 
      *###################*/
     public static class BoardAccess{   	
     	
@@ -281,7 +278,7 @@ public class Board extends JPanel implements Runnable {
  * ##  RENDERING  ## 
  * #################
  */
-    private void drawObjects(Graphics g) {
+    public void drawObjects(Graphics g) {
     	
     	//Draw all static entities from list (ex. platforms)
         for (EntityStatic stat : staticEntitiesList) {
@@ -294,7 +291,7 @@ public class Board extends JPanel implements Runnable {
                 //	>checks if the entity isSelected:
                 //  >>> draws with given width and height, of if not selected doesn't draw
                 //scratch pad:
-                drawSelectedRectangle(stat, g, selectedBox);
+                drawEditorSelectedRectangle(stat, g, selectedBox);
             }
         }
         
@@ -353,52 +350,22 @@ public class Board extends JPanel implements Runnable {
        // laser.setyEndPoint(physicsEntitiesList.get(0).getY()+10);
         laser.pewpew(g);
                 
-        if (debugOn){ drawDebug(g); }
-        
-        //if()
+        if (debug1On){ drawDebugBoundaries(g); }
+        if (debug2On){ drawDebugCollisions(g); }
 
     }
 
-    // Game Over screen - might be extended to own class of menu screens
-    private void drawGameOver(Graphics g) {
-
-        String msg = "Failure";
-        Font small = new Font("Helvetica", Font.BOLD, 14);
-        FontMetrics fm = getFontMetrics(small);
-
-        g.setColor(Color.white);
-        g.setFont(small);
-        g.drawString(msg, (B_WIDTH - fm.stringWidth(msg)) / 2,
-                B_HEIGHT / 2);
-    }
     
-    public void drawSelectedRectangle(EntityStatic stat, Graphics g, Rectangle r) {
+    public void drawEditorSelectedRectangle(EntityStatic stat, Graphics g, Rectangle r) {
     	
     	if (stat.isSelected == true) {
-    		/*
-    		int width = stat.getObjectGraphic().getImage().getWidth(null);
-        	int height = stat.getObjectGraphic().getImage().getHeight(null);
-        	*/
+    		//int width = stat.getObjectGraphic().getImage().getWidth(null);
+        	//int height = stat.getObjectGraphic().getImage().getHeight(null);
         	g.setColor(Color.BLUE);
     		g.drawRect(stat.getX(), stat.getY(), r.width, r.height);
     	}
-    	
     }
     
-   /*
-    public void setClickPosition(int x, int y){
-		clickPosition.setLocation(x, y);
-	}
-	public Point getClickPosition(){
-		return clickPosition;
-	}
-	*/
-    
-    /*
-    private void updateStaticObjects() {
-    	
-    }
-    */
     
     // Update position and Graphic of dynamic objects
     private void updateDynamicEntities() {
@@ -447,7 +414,7 @@ public class Board extends JPanel implements Runnable {
 
 
 /* #########################
- * ## COLLISION DETECTION ##     
+ * ## COLLISION DETECTION ##     eventually put into CollisionEngine class
  * #########################
  */
 
@@ -513,22 +480,17 @@ public class Board extends JPanel implements Runnable {
         
         
         // Check collisions between player and static objects
-        for (EntityStatic staticEntity : staticEntitiesList) {        
-
-
-        	if ( player.getDeltaBoundary().boundaryIntersects(staticEntity.getLocalBoundary()) ) {	            	
-        		//OPEN COLLISION
-
+        for (EntityStatic staticEntity : staticEntitiesList) {    
+        	
+        		
 
         		if ( player.getDeltaBoundary().checkForInteraction( staticEntity.getLocalBoundary()) ) {
-
 
         			if (!hasActiveCollision(player,staticEntity)) { //check to see if collision isn't already occurring
         				collisionsList.add(new CollisionPlayerStatic(player,staticEntity)); // if not, add new collision event
         			} 	
 
         		}
-        	}
         }
         
         // TEST LASER COLLISION 
@@ -736,12 +698,21 @@ public class Board extends JPanel implements Runnable {
             int key = e.getKeyCode();
 
             if (key == KeyEvent.VK_F2) {
-            	if (debugOn){
-            		debugOn = false;
+            	if (debug1On){
+            		debug1On = false;
             	} else {
-            		debugOn = true;
+            		debug1On = true;
             	}
-            }        
+            }  
+
+            if (key == KeyEvent.VK_F3) {
+            	if (debug2On){
+            		debug2On = false;
+            	} else {
+            		debug2On = true;
+            	}
+            } 
+            
         }
     }
     
@@ -753,7 +724,7 @@ public class Board extends JPanel implements Runnable {
     	return B_HEIGHT;
     }
     
-    private void drawDebug(Graphics g){ // DEBUG GUI
+    private void drawDebugBoundaries(Graphics g){ // DEBUG GUI
 
     	g.setColor(new Color(0, 0, 0, 150));
         g.fillRect(0, 0, B_WIDTH, B_HEIGHT);
@@ -770,12 +741,11 @@ public class Board extends JPanel implements Runnable {
 	        
 	    g2.setColor(Color.CYAN);
 	    for (Line2D line : player.getLocalBoundary().getSides()){
-	    	g2.draw(line);
+	    	//g2.draw(line);
 	    }
 	    
-	    for (Line2D lineD : player.getLocalBoundary().getSides()){
-	    	lineD = new Line2D.Double(lineD.getX1(), lineD.getY1(), lineD.getX2(), lineD.getY2());
-	    	g2.draw(lineD);
+	    for ( Line2D axis : staticEntitiesList.get(2).getLocalBoundary().getSeparatingSides() ){
+	    	g2.draw(axis);
 	    }
 	    
 	    
@@ -835,10 +805,92 @@ public class Board extends JPanel implements Runnable {
 		    	else {
 		    		g.drawString("No Contact",300,105+(10*i));
 		    	}
+		    	
+		    	//draw intersection points
+		    	/*Iterator<Point2D> it = collisionsList.get(i).getIntersections().iterator();
+		    	do { 
+		    		Point2D point = it.next();
+		    		g.drawLine((int)point.getX()-3, (int)point.getY()-3, (int)point.getX()+3, (int)point.getY()+3);
+		    		g.drawLine((int)point.getX()-3, (int)point.getY()+3, (int)point.getX()+3, (int)point.getY()-3);
+		    	}
+		    	while (it.hasNext()); */
 		    		
 		    }
 	    }
 	    //g.drawString("Calculation time: " + dt, 55, 45);
+    }
+    
+    private void drawDebugCollisions(Graphics g){
+    	
+    	g.setColor(new Color(0, 0, 0, 150));
+        g.fillRect(0, 0, B_WIDTH, B_HEIGHT);
+    	
+	    Graphics2D g2 = (Graphics2D) g;
+    	
+	    g2.setColor(Color.RED);
+	    
+	    for ( Line2D separatingSide : player.getLocalBoundary().getSeparatingSides() ){
+	       	g2.draw( separatingSide );
+	    }
+	    
+	    for ( EntityStatic stat : staticEntitiesList) {	    	
+	    	
+		    for ( Line2D separatingSide : stat.getLocalBoundary().getSeparatingSides() ){
+		    	
+		    	g2.draw( separatingSide );
+		    	
+		    }
+		    
+	    }
+	    
+	    //Line2D MathTest1 = new Line2D.Float(50,200,200,200) ; 
+	    //Line2D MathTest2 = new Line2D.Float(150,150,150,50) ;
+	    Line2D MathTest2 = player.getLocalBoundary().getTestSide() ;
+	    
+	    drawCross( player.getX() , player.getY() , g2);
+	    
+	    Boundary bounds = staticEntitiesList.get(1).getLocalBoundary() ;
+	    Point2D playerCenter = new Point2D.Double(player.getX(), player.getY());
+	    	
+	    
+	    	//for ( Line2D axis : bounds.debugSeparatingAxes(B_WIDTH, B_HEIGHT) ){
+	    	for ( Line2D side : bounds.getSeparatingSides() ){
+	    		
+	    		Line2D axis = bounds.debugGetAxis(side, B_WIDTH, B_HEIGHT);
+	    		
+		    	g2.setColor(Color.DARK_GRAY);
+		    	g2.draw(axis);
+		    	g2.setColor(Color.YELLOW);
+		    	//g2.draw(side);
+		    	
+		    	//Line2D sideProjection = bounds.getProjectionLine( MathTest2 , axis );
+		    	//g2.draw( sideProjection );
+			    //drawCross( player.getLocalBoundary().getProjectionPoint( MathTest2.getP1() , axis ) , g2);
+			    //drawCross( player.getLocalBoundary().getProjectionPoint( MathTest2.getP2() , axis ) , g2);
+			    
+			    Line2D distance = new Line2D.Float(playerCenter , side.getP2());
+			    Line2D projectedDistance = staticEntitiesList.get(1).getLocalBoundary().getProjectionLine( distance , axis );
+			    
+			    g2.setColor(Color.GREEN);
+			    int dist3 = (int) projectedDistance.getP1().distance(projectedDistance.getP2());
+			    int dist1 = (int) side.getP1().distance(side.getP2());
+			    int dist2 = (int) MathTest2.getP1().distance(MathTest2.getP2());
+			    
+			    g2.draw(projectedDistance);
+			    g.drawString( ""+ ( dist3 - dist1- dist2)
+			    		, (int) projectedDistance.getX1() +10 , (int) projectedDistance.getY1() +10 );
+	    	}
+
+    }
+    
+    private void drawCross(int x, int y , Graphics g){
+    	g.drawLine( x-3, y-3, x+3, y+3 );
+		g.drawLine( x-3, y+3, x+3, y-3 );
+    }
+    
+    private void drawCross(Point2D point , Graphics g){
+    	g.drawLine((int)point.getX()-3, (int)point.getY()-3, (int)point.getX()+3, (int)point.getY()+3);
+		g.drawLine((int)point.getX()-3, (int)point.getY()+3, (int)point.getX()+3, (int)point.getY()-3);
     }
 
 	@Override

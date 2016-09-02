@@ -147,7 +147,14 @@ public class Player extends EntityDynamic {
         //TESTING update enhanced run animation
         RUN_RIGHT.updateSpeed((int) getDX(), 0, 2, 2, 10);
         //
+        dx += accX;
+    	dy += accY;
     	
+    	x = x+dx;
+    	y = y+dy;
+        
+        
+        
     	if (keypressA && !climbing ){
     		if (isColliding) {
     			accX = -0.1f ; 
@@ -166,13 +173,8 @@ public class Player extends EntityDynamic {
 		if (keypressUP && isColliding && !climbing){
 				dy -= 2.5f;
 		}
+
     	
-    	
-    	dx += accX;
-    	dy += accY;
-    	
-    	x = x+dx;
-    	y = y+dy;
 
     	
 		if (dx>2){

@@ -3,22 +3,24 @@ package physics;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Vector;
 
 public class Boundary {
 	
 	//protected Shape boundaryShape;
 	
 	protected Line2D[] sides = new Line2D[1]; 
-	
-	protected int x;
-	protected int y;
-	
+
 	public Boundary() {
 	}
 	
 	public Boundary(Line2D line){
 		sides[0] = line; 
 	}
+	
+	
+
+	
 	
 	public boolean checkForInteraction(Boundary bounds){
 		if (boundaryIntersects(bounds)){
@@ -250,5 +252,132 @@ public class Boundary {
 		return shifted;
 		
 	};
+	
+	
+	
+	//SEPARATING AXIS THEORM METHODS
+	
+	public double dotProduct(Line2D line1 , Line2D line2){ //Returns the magnitude of the projection vector
+		
+		return (line1.getX1() - line1.getX2()) * (line2.getX1() - line2.getX2()) + 
+				(line1.getY1() - line1.getY2()) * (line2.getY1() - line2.getY2());
+	}
+	
+	public Point2D  getProjectionPoint( Point2D point, Line2D line){ //Returns the point on the line that would be the 
+		//start of a normal that is perpendicular to the input line and also intersects the input point. This is also
+		//always the one point on the line that is closest in distance to the input point 
+		
+		if (line.getX1() == line.getX2()){ //Good ol' undefined slope check
+			return new Point2D.Double( line.getX1() , point.getY() );
+		}
+		if (line.getY1() == line.getY2()){ //Slope of zero saves some calculation
+			return new Point2D.Double( point.getX() , line.getY1() );
+		}
+		
+		double m1 = (line.getY1() -  line.getY2())/(line.getX1() -  line.getX2());
+		double m2 = -1/m1; //normal slope
+		
+		double b1 = line.getP1().getY() - ( m1 * line.getP1().getX() );	//trash intercept variables, they are not useful
+		double b2 = point.getY() - ( m2 * point.getX() );		
+		
+		double intersectX = (b2-b1) / (m1-m2) ; 
+		return new Point2D.Double( intersectX , (m1 * intersectX) + b1 );
+		
+	}
+	
+	public Line2D getProjectionLine( Line2D line1 , Line2D line2 ){
+		
+		double Xproj = ( dotProduct( line1 , line2 ) / (
+							(line2.getX1() - line2.getX2()) * (line2.getX1() - line2.getX2()) + 
+							(line2.getY1() - line2.getY2()) * (line2.getY1() - line2.getY2()) )
+				) * ( line2.getX1() - line2.getX2() ) ;
+		
+		double Yproj = ( dotProduct( line1 , line2 ) / (
+				(line2.getX1() - line2.getX2()) * (line2.getX1() - line2.getX2()) + 
+				(line2.getY1() - line2.getY2()) * (line2.getY1() - line2.getY2()) )
+	) * ( line2.getY1() - line2.getY2() ) ;
+		
+		Point2D projectedPoint = getProjectionPoint( line1.getP1() , line2);
+		
+		return new Line2D.Double(projectedPoint.getX() , projectedPoint.getY() , 
+				projectedPoint.getX()-Xproj , projectedPoint.getY()-Yproj );
+		
+	}
+	
+	private boolean duplicateSideExists( Line2D side , Line2D[] array, int currentIndex ){
+		//checks if axis already exists in previous array indexes before adding a new one
+		
+		if ( side.getP1().getX() - side.getP2().getX() == 0 ) {//line is vertical, slope is undefined
+			for ( int j = 0 ; j < currentIndex ; j++){
+				if (array[j].getP1().getX() - array[j].getP2().getX() == 0){ // other vertical sides exist
+					return true;
+				}
+			}
+			return false;
+		}
+		else { // line has defines slope
+			for ( int j = 0 ; j < currentIndex ; j++){
+				if ( ( side.getP1().getY() - side.getP2().getY()  ) / ( side.getP1().getX() - side.getP2().getX() ) 
+					==
+					(array[j].getP1().getY() - array[j].getP2().getY()  ) / ( array[j].getP1().getX() - array[j].getP2().getX() )
+				){ 
+					return true;
+				}
+			}
+			return false;
+		}
+		
+	}
+	
+	public Line2D[] getSeparatingSides(){ 
+		
+		ArrayList<Line2D> axes = new ArrayList<>();
+		
+		for ( int i = 0 ; i < sides.length ; i++ ){ // gets unique sides to be used for separating axes
+
+				if ( !duplicateSideExists(sides[i], sides, i) ){
+					axes.add(sides[i]);
+				}
+		}
+		
+		Line2D[] lines = new Line2D[axes.size()]; //compile final array
+		for ( int i = 0 ; i < axes.size(); i++){
+			lines[i] = axes.get(i);
+		}
+		return lines;
+		
+	}
+	
+	public Line2D debugGetAxis( Line2D line , int xMax, int yMax ){
+		
+		double m; // break line into slope - intercept forms    y = mx + b
+		
+		if ( line.getP1().getX() == line.getP2().getX() ) { //line is vertical
+				return new Line2D.Double( line.getP1().getX() , 0 , line.getP1().getX() , yMax );
+			}
+		else {// line is not vertical, so it has a defined slope and can be in form y=mx+b
+
+			m = ( line.getP1().getY() - line.getP2().getY()  ) / ( line.getP1().getX() - line.getP2().getX() );
+			double b = line.getP1().getY() - ( m * line.getP1().getX() );	
+
+			return new Line2D.Double( 0 , b , xMax , (xMax*m)+b );
+			
+		}
+		
+	}
+	
+	public Line2D[] debugSeparatingAxes(int xMax , int yMax){
+		
+		Line2D[] axes = new Line2D[getSeparatingSides().length];
+		
+		for ( int i = 0; i < getSeparatingSides().length ; i++){
+			axes[i] = debugGetAxis( getSeparatingSides()[i], xMax, yMax);
+		}
+		return axes;
+	}
+	
+	public Line2D getTestSide(){
+		return sides[3];
+	}
 	
 }

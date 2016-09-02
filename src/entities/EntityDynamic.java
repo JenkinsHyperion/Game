@@ -54,6 +54,22 @@ public class EntityDynamic extends EntityStatic{
     	dy = setdy;
     }
     
+    public void clipDX(float clipdx) {
+    	if (-clipdx < dx)
+    		dx = dx + clipdx;
+    	else {
+    		dx = 0;
+    	}
+    }
+    
+    public void clipDY(float clipdy) {
+    	if (-clipdy < dy)
+    		dy = dy + clipdy;
+    	else {
+    		dy = 0;
+    	}
+    }
+    
     public void setAccX(float setAX) {
     	accX = setAX;
     }

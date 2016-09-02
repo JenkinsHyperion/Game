@@ -566,7 +566,7 @@ public class Board extends JPanel implements Runnable {
   				deselectAllEntities();
   				mouseClick = true;
 	  			clickPosition.setLocation(e.getX(),e.getY());
-	  			SplitPane.getSidePanel().setLabel2(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
+	  			SplitPane.getSidePanel().setEntityCoordsLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
 	  			  			
 	  			checkForSelection(clickPosition);  			
 	  		
@@ -577,14 +577,14 @@ public class Board extends JPanel implements Runnable {
 	  				else{
 	  					currentSelectedEntity.isSelected = false;
 	  				}
-	  				
+
 	  				selectedBox.setSize(currentSelectedEntity.getObjectGraphic().getImage().getWidth(null),
 	  									currentSelectedEntity.getObjectGraphic().getImage().getHeight(null) );
-					
+	  				
 		  			System.out.println(currentSelectedEntity.name);
 	  	  			//SidePanel.setSelectedEntityName("Selected: " + currentSelectedEntity.name);
 		  			SplitPane.getSidePanel().setSelectedEntityName("Selected: " + currentSelectedEntity.name);
-		  			SplitPane.getSidePanel().setLabel2("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
+		  			SplitPane.getSidePanel().setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
 		  			//get offsets
 		  			clickPositionXOffset = e.getX() - currentSelectedEntity.getX() ;
 		  			clickPositionYOffset = e.getY() - currentSelectedEntity.getY() ;
@@ -593,7 +593,7 @@ public class Board extends JPanel implements Runnable {
 	  			else { //doesnt need to be redrawn every time
 	  				
 	  				SplitPane.getSidePanel().setSelectedEntityName("Nothing Selected");
-		  			SplitPane.getSidePanel().setLabel2("Coords. of selected entity: N/A");
+		  			SplitPane.getSidePanel().setEntityCoordsLabel("Coords. of selected entity: N/A");
 	  			}
 	
   			}
@@ -602,7 +602,7 @@ public class Board extends JPanel implements Runnable {
   		@Override
   		public void mouseDragged(MouseEvent e) 
   		{ 		
-  			SplitPane.getSidePanel().setLabel1(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
+  			SplitPane.getSidePanel().setMousePosLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
 
   			if (currentSelectedEntity != null) {
 
@@ -610,7 +610,7 @@ public class Board extends JPanel implements Runnable {
 
   				currentSelectedEntity.setX(e.getX() - clickPositionXOffset);
   				currentSelectedEntity.setY(e.getY() - clickPositionYOffset);
-  				SplitPane.getSidePanel().setLabel2("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
+  				SplitPane.getSidePanel().setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
   			}
 
   		}
@@ -641,7 +641,7 @@ public class Board extends JPanel implements Runnable {
   			if (entity.getBoundingBox().contains(click)) 
   			{
   	  			SplitPane.getSidePanel().setSelectedEntityName("Selected: " + entity.name);
-  	  			SplitPane.getSidePanel().setLabel2("Coords. of selected entity: " + entity.getX() + ", " + entity.getY());
+  	  			SplitPane.getSidePanel().setEntityCoordsLabel("Coords. of selected entity: " + entity.getX() + ", " + entity.getY());
   	  			//currentSelectedEntity.isSelected = true;
   				return entity;
   			}
@@ -650,6 +650,7 @@ public class Board extends JPanel implements Runnable {
   	}
   	
   	protected void deselectAllEntities() {
+  		SplitPane.getSidePanel().enableEditPropertiesButton(false);
   		for (EntityStatic entity : staticEntitiesList) {
   			if (entity.isSelected == true)
   				entity.isSelected = false;

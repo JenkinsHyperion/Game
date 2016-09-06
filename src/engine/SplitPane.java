@@ -21,14 +21,14 @@ public class SplitPane extends JPanel {
 
 	public SplitPane() {
 		
-		sidePanelMinSize = new Dimension(200,300);
+		sidePanelMinSize = new Dimension(220,300);
 		board = new Board();
 		board.setPreferredSize(new Dimension(Board.B_WIDTH, Board.B_HEIGHT));
 		board.setMinimumSize(new Dimension(Board.B_WIDTH, Board.B_HEIGHT));
 		
 		sidePanel = new SidePanel();
-		sidePanel.setSize(new Dimension(200, 300));
-		sidePanel.setPreferredSize(new Dimension(200, 300));
+		sidePanel.setSize(new Dimension(220, 300));
+		sidePanel.setPreferredSize(new Dimension(220, 300));
 		sidePanel.setMinimumSize(sidePanelMinSize);
 		
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sidePanel, board);
@@ -74,8 +74,8 @@ public class SplitPane extends JPanel {
 		JFrame frame = new JFrame(System.getProperty("user.dir").replace( "\\", "//" ));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		SplitPane splitPaneInstance = new SplitPane();
-		frame.setMinimumSize(new Dimension(splitPaneInstance.board.getWidth() + splitPaneInstance.sidePanel.getWidth(), 300));
-		frame.getContentPane().add(splitPaneInstance.getSplitPane());
+		//frame.setMinimumSize(new Dimension(splitPaneInstance.board.getWidth() + splitPaneInstance.sidePanel.getWidth(), 300));
+		frame.add(splitPaneInstance.getSplitPane());
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 		frame.pack();

@@ -11,11 +11,15 @@ public class PropertiesList {
 	private ArrayList<Property> propertiesList;
 	private String[] propertiesAsString;
 	
-	
 	public PropertiesList(Entity ent) {
 		propertiesList = new ArrayList<>();
 		initProperties(ent);
-		propertiesAsString = new String[]{"Collidable","Positioning","Name","Entity Type"};
+//		propertiesAsString = new String[]{"Collidable","XPosition", "Y-Position", "Name","Entity Type"};
+		propertiesAsString = new String[propertiesList.size()];
+		//first element
+		for (int i = 0; i < propertiesList.size(); i++) {
+			propertiesAsString[i] = propertiesList.get(i).getPropertyName();
+		}
 		initStaticProperties();
 		initDynamicProperties();
 		initPhysicsProperties();
@@ -39,10 +43,11 @@ public class PropertiesList {
 */	
 	private void initProperties(Entity ent) {
 		//populate propertiesList with blank properties
-		propertiesList.add(new Property(ent, Property.BOOLEAN));
-		propertiesList.add(new Property(ent, Property.POS));
-		propertiesList.add(new Property(ent, Property.TEXT));
-
+		propertiesList.add(new Property(ent, Property.COL_STATE, "Collidable"));
+		propertiesList.add(new Property(ent, Property.XPOS, "X-Position"));
+		propertiesList.add(new Property(ent, Property.YPOS, "Y-Position"));
+		propertiesList.add(new Property(ent, Property.ENTNAME, "Entity name"));
+		propertiesList.add(new Property(ent, Property.ENTTYPE, "Entity type"));
 	}
 	
 	//will use this entire section later when I can think of
@@ -67,7 +72,7 @@ public class PropertiesList {
 	 * 
 	* @param propType Must choose Property.BOOLEAN, Property.POS, or Property.TEXT
 	*/
-	public Property getProperty(int propType) {
+	public Property getProperty(int index) {
 		/*
 		if (i < 0 || i > propertiesList.size())
 			throw new ArithmeticException("Chose option out of range of array");
@@ -76,7 +81,7 @@ public class PropertiesList {
 		*/
 		//OR, different way of handling this
 		try {
-			return this.propertiesList.get(propType);
+			return propertiesList.get(index);
 		}
 		catch (ArrayIndexOutOfBoundsException e){
 			e.printStackTrace();

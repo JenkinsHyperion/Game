@@ -372,15 +372,15 @@ public class Board extends JPanel implements Runnable {
                 B_HEIGHT / 2);
     }
     
-    public void drawSelectedRectangle(EntityStatic stat, Graphics g, Rectangle r) {
+    public void drawSelectedRectangle(EntityStatic ent, Graphics g, Rectangle r) {
     	
-    	if (stat.isSelected == true) {
+    	if (ent.isSelected == true) {
     		/*
     		int width = stat.getObjectGraphic().getImage().getWidth(null);
         	int height = stat.getObjectGraphic().getImage().getHeight(null);
         	*/
         	g.setColor(Color.BLUE);
-    		g.drawRect(stat.getX(), stat.getY(), r.width, r.height);
+    		g.drawRect(ent.getX(), ent.getY(), r.width, r.height);
     	}
     	
     }
@@ -692,6 +692,17 @@ public class Board extends JPanel implements Runnable {
   		for (EntityStatic entity : staticEntitiesList) {
   			if (entity.isSelected == true)
   				entity.isSelected = false;
+  		}
+  	}
+  	protected void setCurrentSelectedEntity(EntityStatic newSelectedEntity){
+  		try{ 
+  			//checks the previous selected entity and makes it false if its flag was set as selected
+  			if (currentSelectedEntity != null) {
+	  			if (currentSelectedEntity.isSelected == true)
+	  				currentSelectedEntity.isSelected = false; }
+	  		} finally{
+  			currentSelectedEntity = newSelectedEntity;
+  			currentSelectedEntity.isSelected = true;
   		}
   	}
 

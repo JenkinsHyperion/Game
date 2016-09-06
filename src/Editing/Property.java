@@ -13,8 +13,9 @@ public class Property {
 	 */
 	
 	//private String propertyType;
-	private String entityType;
+	private final String entityType;
 	private int propertyType;
+	private String propertyName;
 	private String entityName;
 	private int xpos;
 	private int ypos;
@@ -29,10 +30,13 @@ public class Property {
 	// and populate it by scanning through every entity,
 	// rather than it only being alive while the current entity's window is open.
 	
-	//set some final constants just like Swing components do
-	public final static int BOOLEAN = 0;
-	public final static int POS = 1;
-	public final static int TEXT = 2;
+	//set some final constants just like Swing components do.
+	//these constants indicate what kind of property this instance is.
+	public final static int COL_STATE = 0; //collidable state
+	public final static int XPOS = 1;
+	public final static int YPOS = 2;
+	public final static int ENTNAME = 3;
+	public final static int ENTTYPE = 4;
 	
 	
 
@@ -42,20 +46,27 @@ public class Property {
 	 * @param ent the current selected entity
 	 * @param propType must choose Property.BOOLEAN, Property.POS, or Property.TEXT
 	 */
-	public Property(Entity ent, int propType) {
+	public Property(Entity ent, int propType, String propName) {
 			entityType = ent.getClass().getSimpleName();
-			if (propType == BOOLEAN){
-				this.propertyType = Property.BOOLEAN;
+			this.propertyName = propName;
+			if (propType == COL_STATE){
+				this.propertyType = Property.COL_STATE;
 				this.collidable = ent.isCollidable();
 			}
-			else if (propType == POS){
-				this.propertyType = Property.POS;
+			else if (propType == XPOS){
+				this.propertyType = Property.XPOS;
 				this.xpos = ent.getX();
+			}
+			else if (propType == YPOS){
+				this.propertyType = Property.YPOS;
 				this.ypos = ent.getY();
 			}
-			else if (propType == TEXT) {
-				this.propertyType = Property.TEXT;
+			else if (propType == ENTNAME) {
+				this.propertyType = Property.ENTNAME;
 				this.entityName = ent.name;
+			}
+			else if (propType == ENTTYPE) {
+				this.propertyType = Property.ENTTYPE;
 			}
 			else {
 				throw new ArithmeticException("Did not enter one of the three property type codes");
@@ -78,6 +89,9 @@ public class Property {
 	}
 	public int getPropertyType(){
 		return this.propertyType;
+	}
+	public String getPropertyName(){
+		return this.propertyName;
 	}
 	public String getEntityType(Entity ent) {
 		return ent.getClass().getSimpleName();		
@@ -105,28 +119,28 @@ public class Property {
 	//	 (eg. "pos" for position, will have sliders, "bool" for true/false radio buttons, etc.
 	public void setEntityName(Entity ent, String name) {
 		ent.name = name;
+		this.entityName = name;
 		//propertyType = "text";
 	}
+	/* Propbably won't use this one
+	public void setPropertyName( String name) {
+		this.propertyName = name;
+		//propertyType = "text";
+	} */
 	public void setEntityXpos(Entity ent, int x){
 		ent.setX(x);
-		//propertyType = "pos";	
+		this.xpos = x;	
 	}
-	public void setEntityTpos(Entity ent, int y){
-		
+	public void setEntityYpos(Entity ent, int y){
 		ent.setY(y);
-		//propertyType = "pos";
+		this.ypos = y;
 	}
 	public void setEntityCollidableState(Entity ent, boolean state) {
 		ent.setCollidable(state);
-		//propertyType = "bool";
+		this.collidable = state;
 	}
-/*
-	public String getPropertyName(){
-		return this.propertyName;
-	}
-	
 	public String toString() {
 		return this.propertyName;
 	}
-	*/
+
 }

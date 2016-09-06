@@ -492,15 +492,18 @@ public class Board extends JPanel implements Runnable {
   	}
   	
   	private EntityStatic clickedOnEntity(Point click) {
-  		
+  		int counter = 0;
   		for (EntityStatic entity : staticEntitiesList) {
+  			
   			if (entity.getBoundingBox().contains(click)) 
   			{
+  				SplitPane.getSidePanel().allEntitiesComboBox.setSelectedIndex(counter);
   	  			SplitPane.getSidePanel().setSelectedEntityName("Selected: " + entity.name);
   	  			SplitPane.getSidePanel().setEntityCoordsLabel("Coords. of selected entity: " + entity.getX() + ", " + entity.getY());
   	  			//currentSelectedEntity.isSelected = true;
   				return entity;
   			}
+  			counter++;
   		}
   		return null;
   	}

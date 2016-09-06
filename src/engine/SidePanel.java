@@ -33,7 +33,7 @@ public class SidePanel extends JPanel {
 	private JLabel entityCoordsLabel;
 	private JLabel selectedEntityNameLabel;
 	//private JLabel entTypeLabel;
-	private JComboBox<String> allEntitiesComboBox;
+	protected JComboBox<String> allEntitiesComboBox;
 	//private JComboBox<String> propertiesListComboBox;  for now, moved this to PropertiesFrame
 	protected JButton editPropertiesButton;
 

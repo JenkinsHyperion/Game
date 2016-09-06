@@ -511,7 +511,7 @@ public class Board extends JPanel implements Runnable {
   				entity.isSelected = false;
   		}
   	}
-<<<<<<< HEAD
+//<<<<<<< HEAD
   	protected void setCurrentSelectedEntity(EntityStatic newSelectedEntity){
   		try{ 
   			//checks the previous selected entity and makes it false if its flag was set as selected
@@ -550,8 +550,8 @@ public class Board extends JPanel implements Runnable {
     	}
     	
     }*/
-=======
->>>>>>> origin/master
+//=======
+//>>>>>>> origin/master
   	
   	
   	//Inner class to handle F2 keypress for debug window

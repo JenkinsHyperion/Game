@@ -428,6 +428,7 @@ public class Board extends JPanel implements Runnable {
 	  			if (currentSelectedEntity != null) {  	// there is entity under cursor
 	  				if(currentSelectedEntity.isSelected != true) {
 	  					currentSelectedEntity.isSelected = true;
+	  					SplitPane.getSidePanel().editPropertiesButton.setEnabled(true);
 	  				}
 	  				else{
 	  					currentSelectedEntity.isSelected = false;

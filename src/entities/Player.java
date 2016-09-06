@@ -11,7 +11,7 @@ import engine.Board;
 import testEntities.Bullet;
 import testEntities.Particle;
 
-public class Player extends EntityDynamic {
+public class Player extends EntityRotationalDynamic {
 
 	//private static Action enterAction;
 	
@@ -57,10 +57,10 @@ public class Player extends EntityDynamic {
 
     private void initPlayer() {
         
-        //setBoundingBox(14,0,4,32);
-        setBoundingBox(4,0,24,32);
+        setBoundingBox(-12,-16,24,32);
         loadAnimatedSprite(IDLE_LEFT); 
-        setAccY( 0.1f ); // Force initialize gravity (temporary)
+        //setAngle(0);
+        //setAccY( 0.1f ); // Force initialize gravity (temporary)
     }
 
 
@@ -96,6 +96,7 @@ public class Player extends EntityDynamic {
         }
 
         if (key == KeyEvent.VK_SPACE && !keypressUP) { //JUMP
+        	dy = -2.5f;
         	keypressUP = true;
             
         }
@@ -114,9 +115,6 @@ public class Player extends EntityDynamic {
         	
         	//test dust particles. Can go in own method if we enjoy every collision having particles/sparks.
         	if (getDY()==0 && getDX()==-2){ //Check to see if on ground. Should check state once states are stable, not DY.
-        		//Board.BoardAccess.spawnDynamicEntity( new Particle( getX()+16,getY()+30,-2, -0.75f) );
-        		//Board.BoardAccess.spawnDynamicEntity( new Particle( getX()+16,getY()+30,-0.9f, -0.5f) );
-        		//Board.BoardAccess.spawnDynamicEntity( new Particle( getX()+16,getY()+30,-2, -0.25f) );
         	}
         	
         }
@@ -124,12 +122,7 @@ public class Player extends EntityDynamic {
         if (key == KeyEvent.VK_D && keypressD) {
         	keypressD = false;
         	
-        	//test making dust particles
-        	if (getDY()==0 && getDX()==2){ //Check to see if on ground
-        		//Board.BoardAccess.spawnDynamicEntity( new Particle( getX()+20,getY()+30,2, -0.5f) );
-        		//Board.BoardAccess.spawnDynamicEntity( new Particle( getX()+20,getY()+30,1.5f, -0.5f) );
-        		//Board.BoardAccess.spawnDynamicEntity( new Particle( getX()+20,getY()+30,2, -0.25f) );
-        	}
+
         }
 
         if (key == KeyEvent.VK_SPACE && keypressUP) { 
@@ -147,8 +140,15 @@ public class Player extends EntityDynamic {
         //TESTING update enhanced run animation
         RUN_RIGHT.updateSpeed((int) getDX(), 0, 2, 2, 10);
         //
+        dx += accX;
+    	dy += accY;
     	
-    	if (keypressA && !climbing ){
+    	x = x+dx;
+    	y = y+dy;
+        
+    	//setAngle(0);
+        
+    	/*if (keypressA && !climbing ){
     		if (isColliding) {
     			accX = -0.1f ; 
     		}
@@ -166,13 +166,8 @@ public class Player extends EntityDynamic {
 		if (keypressUP && isColliding && !climbing){
 				dy -= 2.5f;
 		}
+
     	
-    	
-    	dx += accX;
-    	dy += accY;
-    	
-    	x = x+dx;
-    	y = y+dy;
 
     	
 		if (dx>2){
@@ -210,8 +205,27 @@ public class Player extends EntityDynamic {
 				
 			}
 			
+		}*/
+		
+    	if (keypressA ){
+    		//accX = -0.2f ; 
+    		dx = -1;
+		
+    	}
+    	else if (keypressD ){ 
+    		//accX = 0.2f ; 
+    		dx = 1; 
+    	}
+    	
+    	else if (keypressUP){
+    		//dy = -2.5f;
 		}
 		
+    	else if (keypressS){
+			dy = 2;
+    	}
+    	//else {dx=0; dy=0;}
+    	
 
     }   
     

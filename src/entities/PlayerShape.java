@@ -1,6 +1,7 @@
 package entities;
 
 
+import java.awt.Shape;
 import java.awt.event.KeyEvent;
 
 //import javax.swing.Action;
@@ -11,7 +12,7 @@ import engine.Board;
 import testEntities.Bullet;
 import testEntities.Particle;
 
-public class PlayerSquare extends Player {
+public class PlayerShape extends Player {
 
 	//private static Action enterAction;
 	
@@ -22,10 +23,12 @@ public class PlayerSquare extends Player {
 	private boolean keypressD = false;
 	private boolean keypressUP = false;
 	private boolean keypressS = false;
+	private boolean keypressE = false;
+	private boolean keypressQ = false;
 
-	
+	private Animation IDLE_LEFT = new Animation(LoadAnimation.getAnimation(4, 0, 14, "bullet") , 4 ); 
 
-    public PlayerSquare(int x, int y) {
+    public PlayerShape(int x, int y) {
         super(x, y);
 
 		name = "Player"+count;
@@ -36,11 +39,11 @@ public class PlayerSquare extends Player {
     private void initPlayer() {
         
         //setBoundingBox(14,0,4,32);
-        setBoundingBox(4,0,24,32);
-        loadSprite("bullet"); 
+        setBoundingBox(-12,-40,24,80);
+        loadAnimatedSprite(IDLE_LEFT,-7,-7);
+        setAccY(0); //override gravity
+        IDLE_LEFT.start();
     }
-
-
 	
     //INPUT CONTROL
     
@@ -55,20 +58,30 @@ public class PlayerSquare extends Player {
 
         if (key == KeyEvent.VK_A && !keypressA) {
         	keypressA = true; 
+        	//x=x-1;
         }
 
         if (key == KeyEvent.VK_D && !keypressD) {
         	keypressD = true;
-            
+        	//x=x+1;
         }
 
         if (key == KeyEvent.VK_SPACE && !keypressUP) { //JUMP
         	keypressUP = true;
-            
+        	//y=y-1;
         }
 
         if (key == KeyEvent.VK_S) {
             keypressS = true;
+            //y=y+1;
+        }
+        
+        if (key == KeyEvent.VK_Q && !keypressQ) {
+        	keypressQ = true; 
+        }
+        
+        if (key == KeyEvent.VK_E && !keypressE) {
+        	keypressE = true; 
         }
     }
 
@@ -93,43 +106,57 @@ public class PlayerSquare extends Player {
         if (key == KeyEvent.VK_S) {
         	keypressS = false;
         }
+        
+        if (key == KeyEvent.VK_Q) {
+        	keypressQ = false;
+        }
+        
+        if (key == KeyEvent.VK_E) {
+        	keypressE = false;
+        }
     }
     
     @Override
     public void updatePosition() {//Override friction forces while running 
 
-    	
-    	if (keypressA ){
-    		if (isColliding) {
-    			dx = -1;
-    		}
-		
-    	}
-    	if (keypressD ){ 
-    		if (isColliding) {
-    			dx = 1; 
-    		}
-	
-    	}
-    	
-		if (keypressUP && isColliding){
-				dy = -1;
-		}
-    	
-    	
-    	dx += accX;
-    	dy += accY;
-    	
     	x = x+dx;
     	y = y+dy;
-
     	
-		if (dx>2){
-			dx=2;
+    	if (keypressA ){
+    		dx = -2;
+		
+    	}
+    	else if (keypressD ){ 
+    			dx = 2; 
+    	}
+    	
+    	else if (keypressUP){
+				dy = -2;
 		}
-		else if (dx<-2){
-			dx=-2;
-		}		
+		
+    	else if (keypressS){
+			dy = 2;
+    	}
+    	else {dx=0; dy=0;}
+    	
+    	if (keypressQ){
+			angle--;
+        	if (angle>36){angle=-36;} //constrain range from -180 to 180 degrees for convenience
+        	else if (angle<-36){angle=36;}
+    	}	 
+    	else if (keypressE){
+    		angle++;
+    		if (angle>36){angle=-36;}
+        	else if (angle<-36){angle=36;}
+    	}	
+    	
+
+    	setAngle(angle * ((2*Math.PI)/72) );
+    	
+
+
+
+	
 
     }   
     

@@ -16,6 +16,14 @@ public class SpriteStill extends Sprite {  // Object with still image
     	loadImage(path);
         visibility = true;
     }
+    
+    public SpriteStill(String path, int offset_x, int offset_y) { 
+
+    	loadImage(path);
+        visibility = true;
+        spriteOffsetX = offset_x;
+        spriteOffsetY = offset_y;
+    }
 
     protected void getImageDimensions() { 
 

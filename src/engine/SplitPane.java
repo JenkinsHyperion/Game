@@ -80,4 +80,12 @@ public class SplitPane extends JPanel {
 		frame.setVisible(true);
 		frame.pack();
 	}
+	
+    /*@Override //Should go in intermediate "Rendering" class or something 
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        
+            board.drawObjects(g);
+
+    }*/
 }

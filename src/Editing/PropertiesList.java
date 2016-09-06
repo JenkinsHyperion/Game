@@ -1,5 +1,6 @@
 package Editing;
 
+
 import java.util.ArrayList;
 import entities.*;
 public class PropertiesList {

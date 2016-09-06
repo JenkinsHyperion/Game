@@ -58,7 +58,7 @@ public class Board extends JPanel implements Runnable {
     protected MouseHandlerClass handler;
     private boolean ingame = true;
     private final int ICRAFT_X = 170;
-    private final int ICRAFT_Y = 150;
+    private final int ICRAFT_Y = 100;
     public static final int B_WIDTH = 400;
     public static final int B_HEIGHT = 300;
     private boolean debug1On = false; 
@@ -125,10 +125,10 @@ public class Board extends JPanel implements Runnable {
         staticEntitiesList.add(new Platform(50,180,"platform02"));
         staticEntitiesList.add(new Platform(60,270,"platform02"));
         staticEntitiesList.add(new StaticSprite(150,274, "grass01"));
-        staticEntitiesList.add(new Ground(100,290,"ground01"));
-        staticEntitiesList.add(new Slope(10,160));
+        staticEntitiesList.add(new Ground(250,295,"ground01"));
+        staticEntitiesList.add(new Slope(40,160));
         
-      	physicsEntitiesList.add(new EntityPhysics(120,120,"box"));
+      	physicsEntitiesList.add(new EntityPhysics(120,260,"box"));
         dynamicEntitiesList.add(new Bullet(100,100,1,1));
         
         //test for LaserTest entity
@@ -482,19 +482,17 @@ public class Board extends JPanel implements Runnable {
         // Check collisions between player and static objects
         for (EntityStatic staticEntity : staticEntitiesList) {    
         	
-        		
-
         		if ( player.getDeltaBoundary().checkForInteraction( staticEntity.getLocalBoundary()) ) {
 
         			if (!hasActiveCollision(player,staticEntity)) { //check to see if collision isn't already occurring
-        				collisionsList.add(new CollisionPlayerStatic(player,staticEntity)); // if not, add new collision event
+        				collisionsList.add(new CollisionPlayerStaticSAT(player,staticEntity)); // if not, add new collision event
         			} 	
 
         		}
         }
         
         // TEST LASER COLLISION 
-        for (EntityStatic stat : staticEntitiesList) {                	
+        /*for (EntityStatic stat : staticEntitiesList) {                	
         	if ( stat.getLocalBoundary().boundaryIntersects(laser.getBoundary()) ) {
 	            	
 	            //OPEN COLLISION
@@ -502,7 +500,7 @@ public class Board extends JPanel implements Runnable {
 	            	collisionsList.add(new Collision(laser, stat)); // if not, add new collision event
 	            } 		            
 	   		}
-        }
+        }*/
         
         
         
@@ -656,33 +654,6 @@ public class Board extends JPanel implements Runnable {
   				entity.isSelected = false;
   		}
   	}
-
-  	
-  	/*
-    //testing selection of entities with mouse
-    //'ent' in this case corresponds to the entities cycled through in the enhanced for loops above
-    public void checkSelectedEntity(EntityStatic ent) {
-    	if (ent.getBoundingBox().contains(clickPosition)) {
-        	//SidePanel.setSelectedEntityName("Selected: " + ent.name);
-        	currentSelectedEntity = ent;
-        	currentSelectedEntity.isSelected = true;
-        }
-    	else if (player.getBoundingBox().contains(clickPosition)){
-    		//SidePanel.setSelectedEntityName("Selected: " + player.name);
-    		currentSelectedEntity = player;
-    		currentSelectedEntity.isSelected = true;
-    	}
-    	else{
-    		currentSelectedEntity = blankEntity;
-    	}
-    	/*
-    	 * gives an error with the timer for some reason
-    	 
-    	else{
-    		SidePanel.selectedEntityName.setText("Nothing Selected.");
-    	}
-    	
-    }*/
   	
   	
   	//Inner class to handle F2 keypress for debug window
@@ -734,7 +705,7 @@ public class Board extends JPanel implements Runnable {
 	    g.drawString("FPS: " + Math.round(1000/deltaTime),5,15);
 	    g.drawString("DX: "+player.getDX() + " DY: " + player.getDY(),5,30);
 	    g.drawString("AccX: " + player.getAccX() + "  AccY: " + player.getAccY(),5,45);
-	    g.drawString("Rotation: " + player.getAngle()*5,5,60);
+	    g.drawString("Rotation: " + player.getAngle()*5 + " degrees",5,60);
 	    g.drawString("Player State: " + player.getPlayerStateName(),5,75);
 	    
 	    //Draw player bounding box
@@ -744,6 +715,10 @@ public class Board extends JPanel implements Runnable {
 	    for (Line2D line : player.getLocalBoundary().getSides()){
 	    	g2.draw(line);
 	    } 
+	    
+	    //g2.setColor(Color.DARK_GRAY);
+	    //g2.draw(player.getLocalBoundary().getTestSide(3) );
+	    //g2.setColor(Color.CYAN);
 	    
 	    for ( Line2D axis : staticEntitiesList.get(2).getLocalBoundary().getSeparatingSides() ){
 	    	g2.draw(axis);
@@ -804,7 +779,8 @@ public class Board extends JPanel implements Runnable {
 		    		g2.setColor(Color.YELLOW);
 		    	}
 		    	else {
-		    		g.drawString("No Contact",300,105+(10*i));
+		    		g.drawString("Depth "+collisionsList.get(i).getDepth().getX()
+		    				+ " " + collisionsList.get(i).getDepth().getY(),300,105+(10*i));
 		    	}
 		    	
 		    	//draw intersection points
@@ -821,21 +797,12 @@ public class Board extends JPanel implements Runnable {
 	    //g.drawString("Calculation time: " + dt, 55, 45);
     }
     
-    private void drawDebugCollisions(Graphics g){
+    private void drawDebugSAT( EntityStatic entityPrimary , EntityStatic entitySecondary , Graphics2D g2 ){
     	
-    	g.setColor(new Color(0, 0, 0, 150));
-        g.fillRect(0, 0, B_WIDTH, B_HEIGHT);
-    	
-	    Graphics2D g2 = (Graphics2D) g;
-    	
-	    g2.setColor(Color.RED);
+    	/*g2.setColor(Color.RED);
 	    
-	    for ( Line2D separatingSide : player.getLocalBoundary().getSeparatingSides() ){
+	    for ( Line2D separatingSide : entityPrimary.getLocalBoundary().getSeparatingSides() ){
 	       	g2.draw( separatingSide );
-	    }
-	    
-	    for ( Point2D point : player.getLocalBoundary().getCorners() ){
-	       	//drawPointCross( player.getLocalBoundary().getProjectionPoint(point,axis) , g2 );
 	    }
 	    
 	    for ( EntityStatic stat : staticEntitiesList) {	    	
@@ -846,16 +813,22 @@ public class Board extends JPanel implements Runnable {
 		    	
 		    }
 		    
-	    }
+	    }*/
+	    
+	    EntityStatic player = entitySecondary;
+	    EntityStatic stat = entityPrimary;
+	    
+	    //EntityStatic stat = staticEntitiesList.get(1);
+	    //EntityStatic player = this.player;
 	    
 	    drawCross( player.getX() , player.getY() , g2);
-	    drawCross( staticEntitiesList.get(1).getX() , staticEntitiesList.get(1).getY() , g2);
+	    drawCross( stat.getX() , stat.getY() , g2);
 	    
-	    Boundary bounds = staticEntitiesList.get(1).getLocalBoundary() ;
+	    Boundary bounds = stat.getLocalBoundary() ;
 	    Boundary playerBounds = player.getLocalBoundary();
 	    
 	    Point2D playerCenter = new Point2D.Double(player.getX(), player.getY());
-	    	
+	    Point2D statCenter = new Point2D.Double(stat.getX(), stat.getY());
 	    
 	    	//for ( Line2D axis : bounds.debugSeparatingAxes(B_WIDTH, B_HEIGHT) ){
 	    	for ( Line2D side : bounds.getSeparatingSides() ){
@@ -866,38 +839,110 @@ public class Board extends JPanel implements Runnable {
 		    	
 		    		g2.draw(axis);
 		    	
-		    	g2.setColor(Color.LIGHT_GRAY);
-		    	
-			    Line2D FarDistance = new Line2D.Float(
-			    		playerBounds.getFarthestPoints(staticEntitiesList.get(1).getLocalBoundary(),axis)[0],
-			    		playerBounds.getFarthestPoints(staticEntitiesList.get(1).getLocalBoundary(),axis)[1]
-			    		); 
-			    Line2D NearDistance = new Line2D.Float(
-			    		playerBounds.getNearestPoints(staticEntitiesList.get(1).getLocalBoundary(),axis)[0],
-			    		playerBounds.getNearestPoints(staticEntitiesList.get(1).getLocalBoundary(),axis)[1]
-			    		); 
-		    	
-		    		Point2D[] farCorners = playerBounds.getFarthestPoints(staticEntitiesList.get(1).getLocalBoundary(),axis);
-		    		Point2D[] nearCorners = playerBounds.getNearestPoints(staticEntitiesList.get(1).getLocalBoundary(),axis);
-		    	
-			    Line2D FarNormal = new Line2D.Float(
-			    		farCorners[0] , player.getBoundary().getProjectionPoint(farCorners[0], axis)
-			    		);
-			    g2.draw(FarNormal);
+		    	g2.setColor(Color.GRAY);
 
-			    Line2D NearNormal = new Line2D.Float(
-			    		nearCorners[0] , playerBounds.getProjectionPoint(nearCorners[0], axis)
-			    		);
-			    g2.draw(NearNormal);
 			    
-			    g2.setColor(Color.GREEN);
-			    drawPointCross( playerBounds.getProjectionPoint( farCorners[0] , axis ) , g2);
-			    drawPointCross( playerBounds.getProjectionPoint( nearCorners[0] , axis ) , g2);
+			    Line2D centerDistance = new Line2D.Float(player.getX() , player.getY(),
+			    		stat.getX() , stat.getY());
+			    Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
 			    
-			    g2.draw( new Line2D.Float(playerBounds.getProjectionPoint(nearCorners[0],axis),
-			    		playerBounds.getProjectionPoint(farCorners[0],axis) ) );
+			    g2.draw(centerProjection);
+		    	
+		    	g2.setColor(Color.YELLOW);
+			    
+			    Point2D nearStatCorner = bounds.farthestPointFromPoint( bounds.getFarthestPoints(playerBounds,axis)[0] , axis );
+			      
+			    Point2D nearPlayerCorner = playerBounds.farthestPointFromPoint( playerBounds.getFarthestPoints(bounds,axis)[0] , axis );
+			    //drawPointCross( nearCorner , g2);
+
+			    
+			    Line2D playerHalf = new Line2D.Float( 
+						playerBounds.getProjectionPoint(playerCenter,axis) ,
+						playerBounds.getProjectionPoint(nearPlayerCorner,axis)
+								);
+				Line2D statHalf = new Line2D.Float( 
+						bounds.getProjectionPoint(statCenter,axis) ,
+						bounds.getProjectionPoint(nearStatCorner,axis)
+								);
+				
+				g2.draw(playerHalf);
+				g2.setColor(Color.GREEN);
+				g2.draw(statHalf);
+				
+				int centerDistanceX = (int)(centerProjection.getX1() -  centerProjection.getX2()  );
+				int centerDistanceY = (int)(centerProjection.getY1() -  centerProjection.getY2()  );
+				
+				if (centerDistanceX>0){ centerDistanceX -= 1; } 
+				else if (centerDistanceX<0){ centerDistanceX += 1; } //NEEDS HIGHER LEVEL SOLUTION
+				
+				if (centerDistanceY>0){ centerDistanceY -= 1; } 
+				else if (centerDistanceY<0){ centerDistanceY += 1; }
+				
+				int playerProjectionX = (int)(playerHalf.getX1() -  playerHalf.getX2());
+				int playerProjectionY = (int)(playerHalf.getY1() -  playerHalf.getY2());
+				
+				int statProjectionX = (int)(statHalf.getX2() -  statHalf.getX1());
+				int statProjectionY = (int)(statHalf.getY2() -  statHalf.getY1());
+				
+				int penetrationX = 0;
+				int penetrationY = 0;  
+				
+
+				
+				penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
+				penetrationY = playerProjectionY + statProjectionY - centerDistanceY ;
+				
+	
+				//Constrain X
+				if ( Math.signum(penetrationX) != Math.signum(centerDistanceX)  || 
+					Math.signum(penetrationY) != Math.signum(centerDistanceY)  ){
+					penetrationX = 0;
+					penetrationY = 0;
+				}
+				
+				
+				if (centerDistanceX*centerDistanceX + centerDistanceY*centerDistanceY == 0){ //LOOK INTO BETTER CONDITIONALS
+					penetrationX = -(playerProjectionX + statProjectionX) ;
+				}
+				if (centerDistanceX*centerDistanceX + centerDistanceY*centerDistanceY == 0){
+					penetrationY = -(playerProjectionY + statProjectionY) ;
+				}
+				
+				
+				g2.setFont( new Font( Font.DIALOG , Font.PLAIN , 10 ) );
+				
+			    g2.drawString("Center distance X: " + centerDistanceX + " Y: " + centerDistanceY ,
+			    			(int)centerProjection.getX1()+20 , (int)centerProjection.getY1()+20);
+			    /*
+			   g2.drawString("Player projection X: " + playerProjectionX + " Y: " + playerProjectionY ,
+		    			(int)centerProjection.getX1()+20 , (int)centerProjection.getY1()+35);
+			    
+			   g2.drawString("Stat projection X: " + statProjectionX + " Y: " + statProjectionY ,
+		    		(int)centerProjection.getX1()+20 , (int)centerProjection.getY1()+50);
+			    */
+			    g2.drawString("Penetration X: " + penetrationX + " Y: " + penetrationY ,
+	    			(int)centerProjection.getX1()+20 , (int)centerProjection.getY1()+65);
+			    
+			    
+			    //g2.setColor(Color.DARK_GRAY);
+			    
+			    //g2.draw(new Line2D.Float(playerBounds.getProjectionPoint( nearPlayerCorner , axis ), nearPlayerCorner) );
+			    //g2.draw(new Line2D.Float(playerBounds.getProjectionPoint( playerCenter , axis ), playerCenter) );
 
 	    	}
+    	
+    }
+    
+    private void drawDebugCollisions(Graphics g){
+    	
+    	g.setColor(new Color(0, 0, 0, 150));
+        g.fillRect(0, 0, B_WIDTH, B_HEIGHT);
+    	
+	    Graphics2D g2 = (Graphics2D) g;
+    	
+	    drawDebugSAT( currentSelectedEntity , player , g2);
+	    
+	    drawDebugSAT( player , currentSelectedEntity , g2);
 
     }
     
@@ -906,7 +951,7 @@ public class Board extends JPanel implements Runnable {
 		g.drawLine( x-3, y+3, x+3, y-3 );
     }
     
-    private void drawPointCross(Point2D point , Graphics g){
+    private void drawCross(Point2D point , Graphics g){
     	g.drawLine((int)point.getX()-3, (int)point.getY()-3, (int)point.getX()+3, (int)point.getY()+3);
 		g.drawLine((int)point.getX()-3, (int)point.getY()+3, (int)point.getX()+3, (int)point.getY()-3);
     }

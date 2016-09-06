@@ -58,20 +58,22 @@ public class PlayerShape extends Player {
 
         if (key == KeyEvent.VK_A && !keypressA) {
         	keypressA = true; 
+        	//x=x-1;
         }
 
         if (key == KeyEvent.VK_D && !keypressD) {
         	keypressD = true;
-            
+        	//x=x+1;
         }
 
         if (key == KeyEvent.VK_SPACE && !keypressUP) { //JUMP
         	keypressUP = true;
-            
+        	//y=y-1;
         }
 
         if (key == KeyEvent.VK_S) {
             keypressS = true;
+            //y=y+1;
         }
         
         if (key == KeyEvent.VK_Q && !keypressQ) {
@@ -117,6 +119,8 @@ public class PlayerShape extends Player {
     @Override
     public void updatePosition() {//Override friction forces while running 
 
+    	x = x+dx;
+    	y = y+dy;
     	
     	if (keypressA ){
     		dx = -2;
@@ -149,19 +153,10 @@ public class PlayerShape extends Player {
 
     	setAngle(angle * ((2*Math.PI)/72) );
     	
-    	//dx += accX;
-    	//dy += accY;
-    	
-    	x = x+dx;
-    	y = y+dy;
 
-    	
-		if (dx>2){
-			dx=2;
-		}
-		else if (dx<-2){
-			dx=-2;
-		}		
+
+
+	
 
     }   
     

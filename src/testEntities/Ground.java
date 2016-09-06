@@ -10,13 +10,13 @@ public class Ground extends EntityStatic{
 		super(x, y);
 			
 			initPlatform(x,y,path);
-			setBoundingBox(0,0,303,10);
+			setBoundingBox(-152,-5,304,10);
 			name = "Ground";
 	}
 
 	
 	private void initPlatform(int x , int y, String path){
-    	loadSprite(path);		
+    	loadSprite(path,-152,-5);		
 	}
 	
 	public String toString() {

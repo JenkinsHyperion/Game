@@ -12,7 +12,7 @@ public class Slope extends EntityStatic{
 		super(x, y);
 		
 		
-		boundary = new Boundary(new Line2D.Double( new Point2D.Double(0,0), new Point2D.Double(50,20)) );
+		boundary = new Boundary(new Line2D.Double( new Point2D.Double(-25,-10), new Point2D.Double(25,10)) );
 		
 		loadSprite("bullet");
 		

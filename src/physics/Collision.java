@@ -1,5 +1,6 @@
 package physics;
 
+import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -15,6 +16,9 @@ public class Collision {
 	
 	protected Line2D contactingSide1;
 	protected Line2D contactingSide2;
+	
+	protected int depthX = 0;
+	protected int depthY = 0;
 	
 	protected Point2D[] contactPoints = new Point2D[2];
 	protected ArrayList<Point2D> debugIntersectionPoints = new ArrayList<>();
@@ -135,6 +139,10 @@ public class Collision {
 	public String toString(){
 		//return String.format("%s",this);
 		return collisionName;
+	}
+	
+	public Point getDepth(){
+		return new Point( depthX , depthY );
 	}
 	
 	

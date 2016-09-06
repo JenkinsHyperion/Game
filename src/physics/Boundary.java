@@ -1,5 +1,6 @@
 package physics;
 
+import java.awt.Shape;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -318,10 +319,14 @@ public class Boundary {
 		}
 		else { // line has defines slope
 			for ( int j = 0 ; j < currentIndex ; j++){
-				if ( ( side.getP1().getY() - side.getP2().getY()  ) / ( side.getP1().getX() - side.getP2().getX() ) 
-					-
-					(array[j].getP1().getY() - array[j].getP2().getY()  ) / ( array[j].getP1().getX() - array[j].getP2().getX() )
-				< 0.1){ //error
+				
+				if ( 
+					Math.abs(
+						( ( side.getY1() - side.getY2()  ) / ( side.getX1() - side.getX2() ) )
+						-
+						( (array[j].getY1() - array[j].getY2()  ) / ( array[j].getX1() - array[j].getX2() ) )
+					)
+						< 0.1){ //error
 					return true;
 				}
 			}
@@ -385,6 +390,25 @@ public class Boundary {
 		return corners;
 	}
 	
+	
+	public Point2D getOppositePoint( Point2D center , Line2D axis){
+		
+		Point2D oppositePoint = getCorners()[0] ; //store the first pair ahead
+		
+		for ( int i = 0 ; i < getCorners().length ; i++ ){
+				
+				if (getProjectionPoint( getCorners()[i] , axis ).distance( getProjectionPoint( center , axis ) ) 
+						> 
+					getProjectionPoint( oppositePoint , axis ).distance( getProjectionPoint( center , axis ) ) 
+				){
+					// points i and j are farther apart than whats stored
+					oppositePoint = getCorners()[i];
+				}
+		}
+		return oppositePoint;
+	}
+	
+	
 	public Point2D[] getFarthestPoints(Boundary bounds , Line2D axis){
 		
 		Point2D[] farthestPoints = new Point2D[]{ getCorners()[0] , bounds.getCorners()[0] }; //store the first pair ahead
@@ -405,6 +429,22 @@ public class Boundary {
 			}
 		}
 		return farthestPoints;
+	}
+	
+public Point2D farthestPointFromPoint(Point2D origin , Line2D axis){
+		
+		Point2D farthestPoint = getCorners()[0]; //store the first pair ahead
+		
+		for ( int i = 0 ; i < getCorners().length ; i++ ){ //check to start i at 1
+				
+				if (getProjectionPoint( getCorners()[i] , axis ).distance( getProjectionPoint( origin , axis ) ) 
+						> 
+					getProjectionPoint( farthestPoint , axis ).distance( getProjectionPoint( origin , axis ) ) 
+				){
+					farthestPoint = getCorners()[i];
+				}
+		}
+		return farthestPoint;
 	}
 	
 	public Point2D[] getNearestPoints(Boundary bounds , Line2D axis){ //same deal as above just witht he closest points
@@ -429,8 +469,9 @@ public class Boundary {
 		return nearestPoints;
 	}
 	
-	public Line2D getTestSide(){
-		return sides[3];
+	public Line2D getTestSide(int i){
+		return sides[i];
 	}
+
 	
 }

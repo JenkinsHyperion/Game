@@ -16,10 +16,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 	
 	private EntityDynamic entityPrimary;
 	private EntityStatic entitySecondary;
-	
-	private boolean xequilibrium = false;
-	private boolean yequilibrium = false;
-	
+
 	public CollisionPlayerStaticSAT(EntityDynamic entity1, EntityStatic entity2){
 		
 		super(entity1, entity2);
@@ -38,7 +35,11 @@ public class CollisionPlayerStaticSAT extends Collision {
 	@Override
 	public void initCollision(){
 		
-		updateCollision(); //Run math for first time
+		updateCollision(); //Run math for first time 
+		
+		// Things like bullets won't need to go any futher than the initial method
+		
+		// Later on events will go here (damage, triggering, etc)
 	}
 	
 	//CONTINUOUS COLLISION COMMANDS - Ongoing commands during collision like particle effects, sound, etc.
@@ -51,7 +52,6 @@ public class CollisionPlayerStaticSAT extends Collision {
 
 			depthX = 0;
 			depthY = 0;
-			
 			
 			entityPrimary.setColliding(true);
 			//entityPrimary.setDX(0);
@@ -95,9 +95,6 @@ public class CollisionPlayerStaticSAT extends Collision {
 				
 				//entityPrimary.setAccY(0);
 				entityPrimary.clipDY((int) ( -resolution.getY() ) );
-			
-
-
 
 		}
 	    
@@ -112,11 +109,16 @@ public class CollisionPlayerStaticSAT extends Collision {
 		entityPrimary.setAccX(0); //remove friction
 	}
 	
+	/* ######################
+	 * # CORE FUNCTIONALITY #
+	 * ######################
+	 */
 	
 	private Point getClosestResolution() {
 		
 		ArrayList<Point> penetrations = new ArrayList<>();
-    	//for ( Line2D axis : bounds.debugSeparatingAxes(B_WIDTH, B_HEIGHT) ){
+
+		// Get penetration vectors along all separating axes for secondary entity and add to list
     	for (int i = 0 ; i < entitySecondary.getBoundary().getSeparatingSides().length ; i++ ){
     		
     		if (getPenetrationDepth(entitySecondary.getBoundary().getSeparatingSides()[i]) != null){
@@ -126,6 +128,7 @@ public class CollisionPlayerStaticSAT extends Collision {
     		}
     	}
     	
+    	// Get penetration vectors along all separating axes for secondary entity and add to list
     	for (int i = 0 ; i < entityPrimary.getBoundary().getSeparatingSides().length ; i++ ){
     		
     		if (getPenetrationDepth(entityPrimary.getBoundary().getSeparatingSides()[i]) != null){
@@ -138,6 +141,7 @@ public class CollisionPlayerStaticSAT extends Collision {
     	int penetrationX = 0;
     	int penetrationY = 0;
     	
+    	//RESOLUTION LOGIC checks all penetration vectors and finds best resolution (currently lowest)
     	if (penetrations.size() != 0){
     		
     		penetrationX = (int) Math.ceil( penetrations.get(0).getX() );
@@ -159,11 +163,11 @@ public class CollisionPlayerStaticSAT extends Collision {
     	}
     	
     	
-    	if (penetrationX == 0 && penetrationY == 0 ){
+    	if (penetrationX == 0 && penetrationY == 0 ){ //Passed to updateCollision() for collisions where side is flush
     		return null;
     	}
     	else {
-    		return new Point(penetrationX,penetrationY);
+    		return new Point(penetrationX,penetrationY); //return chosen best resolution
     	}
 
 	}
@@ -193,7 +197,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 	    Point2D statCenter = new Point2D.Double(stat.getX(), stat.getY());
 		
 		
-		Line2D axis = bounds.debugGetAxis(separatingSide,300, 300);
+		Line2D axis = bounds.debugGetAxis(separatingSide,300, 300); //OPTIMIZE TO SLOPE ONLY CALCULATIONS
 	    
 	    Line2D centerDistance = new Line2D.Float(deltaX , deltaY,
 	    		stat.getX() , stat.getY() );
@@ -234,16 +238,18 @@ public class CollisionPlayerStaticSAT extends Collision {
 		int penetrationX = 0;
 		int penetrationY = 0;
 		
+		// Get penetration vector
 		penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
 		penetrationY = playerProjectionY + statProjectionY - centerDistanceY ;
 		
-		//Constrain X
+		//Constrain X and Y Distances to penetration depths, 0 at surface, maximum at center
 		if ( Math.signum(penetrationX) != Math.signum(centerDistanceX)  || 
 				Math.signum(penetrationY) != Math.signum(centerDistanceY)  ){
 				penetrationX = 0;
 				penetrationY = 0;
 			}
 		
+		// Handling of exception where centered collisions always have penetration of 0
 		if (centerDistanceX*centerDistanceX + centerDistanceY*centerDistanceY == 0){ //LOOK INTO BETTER CONDITIONALS
 			penetrationX = -(playerProjectionX + statProjectionX) ;
 		}
@@ -251,14 +257,9 @@ public class CollisionPlayerStaticSAT extends Collision {
 			penetrationY = -(playerProjectionY + statProjectionY) ;
 		}
 		
-		//return logic
-		//if (penetrationX == 0 &&penetrationY == 0){
-		//	return null;
-		//}
-		//else {
+
 			return new Point( penetrationX , penetrationY );
-		//}
-		
+
 	}
 	
 

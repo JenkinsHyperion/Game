@@ -367,6 +367,7 @@ public class Boundary {
 			double b = line.getP1().getY() - ( m * line.getP1().getX() );	
 
 			return new Line2D.Double( 0 , b , xMax , (xMax*m)+b );
+			//return new Line2D.Double( 0 , intercept , xMax , (xMax*m)+intercept );
 			
 		}
 		

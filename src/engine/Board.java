@@ -41,15 +41,16 @@ public class Board extends JPanel implements Runnable {
 	private Timer timer;
 	
 	private java.util.Timer updateEntitiesTimer;
-	private java.util.Timer collisionTimer;
 	private java.util.Timer repaintTimer;
+	
+	private CollisionEngine Collisions = new CollisionEngine(this); //Refactor to a better name
+	
     private Player player;
     private  PaintOverlay p;
     private LaserTest laser;
     protected ArrayList<EntityStatic> staticEntitiesList; 
     protected static ArrayList<EntityDynamic> dynamicEntitiesList; 
     protected static ArrayList<EntityDynamic> physicsEntitiesList; 
-    private LinkedList<Collision> collisionsList = new LinkedList<Collision>(); 
     
     protected Point clickPosition;
     protected boolean mouseClick = false;
@@ -145,14 +146,13 @@ public class Board extends JPanel implements Runnable {
         //The "tasks" below will fire at each respective timer's "scheduleAtFixedRate", putting them
         //each on their own threads. There is a thread for updating entity positions, updating collisions, and the rendering.
         updateEntitiesTimer = new java.util.Timer(); //create timer
-        collisionTimer = new java.util.Timer(); //create timer
         repaintTimer = new java.util.Timer();
         
         
         TimerTask updateEntitiesTask = new TimerTask() {
         	@Override
         	public void run(){
-        		checkCollisions();
+        		Collisions.checkCollisions();
         		updateEntities();
 
         	}
@@ -187,7 +187,11 @@ public class Board extends JPanel implements Runnable {
         //updateBoard();
     }
     
-    
+    @Override	
+    public void paintComponent(Graphics g) {  
+        super.paintComponent(g);
+            drawObjects(g);
+    }
     
     /* ##################
      * ## UPDATE BOARD ##    (non-Javadoc)
@@ -195,13 +199,7 @@ public class Board extends JPanel implements Runnable {
      * ##################
      */
     
-    /*
-    // OLD TIMER
-      @Override
-      public void actionPerformed(ActionEvent e) {
-    	  
-      }
-      */
+
       public void updateEntities(){ //TESTING CONSTANT FPS
     	      
           deltaTime = System.currentTimeMillis() - time ;
@@ -223,13 +221,6 @@ public class Board extends JPanel implements Runnable {
 		         //Toolkit.getDefaultToolkit().sync(); // what does this even do
           
       }
-      
-
-      private void inGame() {
-          if (!ingame) {
-              timer.stop();
-          }
-      }
 
     //spawn bullets (TESTING)
     public void initBullets() {
@@ -239,13 +230,8 @@ public class Board extends JPanel implements Runnable {
         }
         
     }
-   
     
-    @Override	
-    public void paintComponent(Graphics g) {  
-        super.paintComponent(g);
-            drawObjects(g);
-    }
+
     
     
     /* ####################
@@ -274,9 +260,11 @@ public class Board extends JPanel implements Runnable {
     }
     
 
-/* #################
- * ##  RENDERING  ## 
- * #################
+/* ########################################################################################################################
+ * 
+ * 		RENDERING
+ * 
+ * ########################################################################################################################
  */
     public void drawObjects(Graphics g) {
     	
@@ -412,137 +400,6 @@ public class Board extends JPanel implements Runnable {
     	
     }
 
-
-/* #########################
- * ## COLLISION DETECTION ##     eventually put into CollisionEngine class
- * #########################
- */
-
-    //check collision list and return true if two entities are already colliding
-    public boolean hasActiveCollision(EntityStatic entity1, EntityStatic entity2){
-    	
-		for ( Collision activeCollision : collisionsList){
-			
-			if ( activeCollision.isActive(entity1, entity2) ) {
-				return true;
-			}
-			
-		}
-		
-		return false;
-		
-    }
-    
-    //Update status of collisions, run ongoing commands in collision, and destroy collisions that have completed
-    //USE ARRAY LIST ITTERATOR INSTEAD OF FOR LOOP SINCE REMOVING INDEX CHANGES SIZE
-    public void updateCollisions(){
-    	
-    	for ( int i = 0 ; i < collisionsList.size() ; i++ ){
-    		
-    		//if collision is complete, remove from active list
-    		if (collisionsList.get(i).isComplete() ) {
-    			collisionsList.remove(i);
-    		}
-    		else {
-    			
-    			collisionsList.get(i).updateCollision(); //Run commands from inside collision object
-    			
-    		}
-  		
-    	}
-    	
-    }
-    
-    //THIS IS THE MAIN BODY OF THE COLLISION ENGINE
-    public void checkCollisions() { 
-    	
-        Rectangle r0 = player.getBoundingBox(); // get bounding box of player first
- 
-        //make larger box to represent distance at which a new collision will be opened 
-        Rectangle r3 = new Rectangle(r0.x - 1 , r0.y - 1, r0.width + 2, r0.height + 2); 
-        
-        //KILL PLAYER AT BOTTOM OF SCREEN
-        if (r3.getMinY() > B_HEIGHT) {  
-        	
-            //player = new Player(ICRAFT_X, ICRAFT_Y);	
-        		//replacing new entities should be done only when necessary, since initializing entity reloads every sprite
-        		// causing slight lag
-        	
-        	//could be teleport(x,y) or reposition(x,y) method in either player or parent entity classes
-        	player.setX(ICRAFT_X);
-        	player.setY(ICRAFT_Y);
-        	player.setDX(0);
-        	player.setDY(0);
-        	player.setAccX(0);
-        	player.setAccY(0.1f);
-        	
-        }//
-        
-        
-        // Check collisions between player and static objects
-        for (EntityStatic staticEntity : staticEntitiesList) {    
-        	
-        		if ( player.getDeltaBoundary().checkForInteraction( staticEntity.getLocalBoundary()) ) {
-
-        			if (!hasActiveCollision(player,staticEntity)) { //check to see if collision isn't already occurring
-        				collisionsList.add(new CollisionPlayerStaticSAT(player,staticEntity)); // if not, add new collision event
-        			} 	
-
-        		}
-        }
-        
-        // TEST LASER COLLISION 
-        /*for (EntityStatic stat : staticEntitiesList) {                	
-        	if ( stat.getLocalBoundary().boundaryIntersects(laser.getBoundary()) ) {
-	            	
-	            //OPEN COLLISION
-	            if (!hasActiveCollision(laser,stat)) { //check to see if collision isn't already occurring
-	            	collisionsList.add(new Collision(laser, stat)); // if not, add new collision event
-	            } 		            
-	   		}
-        }*/
-        
-        
-        
-        //Check collisions between dynamics entities and static entities
-        for (EntityDynamic dynamicEntity : dynamicEntitiesList) { //index through physics entities        
-            
-        	Rectangle r1 = dynamicEntity.getBoundingBox();            
-            for (EntityStatic statEntity : staticEntitiesList){ // index through static entities	
-            	
-            	Rectangle r2 = statEntity.getBoundingBox();
-            
-	            if (r1.intersects(r2)) {
-	            	
-	            	if (!hasActiveCollision(dynamicEntity,statEntity)) { 
-	            		collisionsList.add(new CollisionBasic(dynamicEntity,statEntity)); 
-	            	}
-	            }  
-	            
-            }
-            
-        }
-        
-
-        // Check collisions between player and physics objects
-        for (EntityDynamic physics : physicsEntitiesList) { 
-        	
-        	Rectangle r4 = physics.getBoundingBox();
-        	
-	        if (r3.intersects(r4) ) { 
-        	 //if (r3.intersects(new Rectangle(clickPosition, new Dimension(10,10))) ) {
-	        	
-	            	//OPEN COLLISION
-	            	if (!hasActiveCollision(player,physics)) { //check to see if collision isn't already occurring
-	            		collisionsList.add(new CollisionPlayerDynamic(player,physics)); // if not, add new collision event
-
-	            	} 	
-	        }
-        }
-        
-    	updateCollisions(); // calculate and remove old collisions    
-        
-    }
 
     
   //MOUSE INPUT
@@ -688,13 +545,12 @@ public class Board extends JPanel implements Runnable {
         }
     }
     
-    public static int getBoardWidth() {
-    	return B_WIDTH;
-    }
-    
-    public static int getBoardHeigt() {
-    	return B_HEIGHT;
-    }
+/* ########################################################################################################################
+ * 
+ * 		DEBUG RENDERING - TO BE MOVED TO OVERLAY CLASSES
+ * 
+ * ########################################################################################################################
+ */
     
     private void drawDebugBoundaries(Graphics g){ // DEBUG GUI
 
@@ -706,7 +562,7 @@ public class Board extends JPanel implements Runnable {
 	    g.drawString("DX: "+player.getDX() + " DY: " + player.getDY(),5,30);
 	    g.drawString("AccX: " + player.getAccX() + "  AccY: " + player.getAccY(),5,45);
 	    g.drawString("Rotation: " + player.getAngle()*5 + " degrees",5,60);
-	    g.drawString("Player State: " + player.getPlayerStateName(),5,75);
+	    g.drawString("Colliding: " + player.isColliding(),5,75);
 	    
 	    //Draw player bounding box
 	    Graphics2D g2 = (Graphics2D) g;
@@ -749,26 +605,26 @@ public class Board extends JPanel implements Runnable {
 	    
 	    //DEBUG - DISPLAY LIST OF COLLISIONS
 	    g.drawString("Collisions: ",5,90);
-	    if (!collisionsList.isEmpty())
+	    if (!Collisions.list().isEmpty())
 	    {
 	    	g2.setColor(Color.YELLOW);
 		    g.drawString("Collisions: ",5,90);
 		   
-		    for (int i = 0 ; i < collisionsList.size() ; i++){
+		    for (int i = 0 ; i < Collisions.list().size() ; i++){
 		    	//draw list of collisions
-		    	g.drawString(""+collisionsList.get(i) + " " + 
-		    	collisionsList.get(i).isContacting() + ": " +
-		    	(int)collisionsList.get(i).getContactDist(),5,105+(10*i));
+		    	g.drawString(""+Collisions.list().get(i) + " " + 
+		    			Collisions.list().get(i).isContacting() + ": " +
+		    	(int)Collisions.list().get(i).getContactDist(),5,105+(10*i));
 		    	
 		    	//draw colliding sides
-		    	if ( collisionsList.get(i).getSidePrimary() != null ) {
+		    	if ( Collisions.list().get(i).getSidePrimary() != null ) {
 		    		
-			    	g2.draw(collisionsList.get(i).getSidePrimary() );
-			    	g2.draw(collisionsList.get(i).getSideSecondary() );
+			    	g2.draw(Collisions.list().get(i).getSidePrimary() );
+			    	g2.draw(Collisions.list().get(i).getSideSecondary() );
 		    	}
 	
 		    	
-		    	if ( collisionsList.get(i).getContactPoints()[1] != null ) {
+		    	/*if ( collisionsList.get(i).getContactPoints()[1] != null ) {
 		    		g2.setColor(Color.RED);	    		
 		    		g2.drawLine( 
 		    				(int) collisionsList.get(i).getContactPoints()[0].getX(), 
@@ -777,10 +633,10 @@ public class Board extends JPanel implements Runnable {
 		    				(int) collisionsList.get(i).getContactPoints()[1].getY() 
 		    				);
 		    		g2.setColor(Color.YELLOW);
-		    	}
+		    	}*/
 		    	else {
-		    		g.drawString("Depth "+collisionsList.get(i).getDepth().getX()
-		    				+ " " + collisionsList.get(i).getDepth().getY(),300,105+(10*i));
+		    		g.drawString("Depth "+Collisions.list().get(i).getDepth().getX()
+		    				+ " " + Collisions.list().get(i).getDepth().getY(),300,105+(10*i));
 		    	}
 		    	
 		    	//draw intersection points
@@ -799,21 +655,6 @@ public class Board extends JPanel implements Runnable {
     
     private void drawDebugSAT( EntityStatic entityPrimary , EntityStatic entitySecondary , Graphics2D g2 ){
     	
-    	/*g2.setColor(Color.RED);
-	    
-	    for ( Line2D separatingSide : entityPrimary.getLocalBoundary().getSeparatingSides() ){
-	       	g2.draw( separatingSide );
-	    }
-	    
-	    for ( EntityStatic stat : staticEntitiesList) {	    	
-	    	
-		    for ( Line2D separatingSide : stat.getLocalBoundary().getSeparatingSides() ){
-		    	
-		    	g2.draw( separatingSide );
-		    	
-		    }
-		    
-	    }*/
 	    
 	    EntityStatic player = entitySecondary;
 	    EntityStatic stat = entityPrimary;
@@ -911,8 +752,8 @@ public class Board extends JPanel implements Runnable {
 				
 				g2.setFont( new Font( Font.DIALOG , Font.PLAIN , 10 ) );
 				
-			    g2.drawString("Center distance X: " + centerDistanceX + " Y: " + centerDistanceY ,
-			    			(int)centerProjection.getX1()+20 , (int)centerProjection.getY1()+20);
+			   // g2.drawString("Center distance X: " + centerDistanceX + " Y: " + centerDistanceY ,
+			    			//(int)centerProjection.getX1()+20 , (int)centerProjection.getY1()+20);
 			    /*
 			   g2.drawString("Player projection X: " + playerProjectionX + " Y: " + playerProjectionY ,
 		    			(int)centerProjection.getX1()+20 , (int)centerProjection.getY1()+35);
@@ -961,5 +802,14 @@ public class Board extends JPanel implements Runnable {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	public int getboundaryX(){ return B_WIDTH ;}
+	public int getboundaryY(){ return B_HEIGHT ;}
+	
+	public Player getPlayer(){ return player; }
+	
+	public ArrayList<EntityStatic> getStaticEntities(){ return staticEntitiesList; }
+	public ArrayList<EntityDynamic> getDynamicEntities(){ return dynamicEntitiesList; }
+	public ArrayList<EntityDynamic> getPhysicsEntities(){ return physicsEntitiesList; }
     
 }

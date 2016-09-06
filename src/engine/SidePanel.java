@@ -139,10 +139,10 @@ public class SidePanel extends JPanel {
 		JTextField xPosTextField;
 		JTextField yPosTextField;
 		JTextField entNameTextField;
-		JTextField entTypeTextField;
 		JPanel cardsPanel; // this will be the CardLayout panel holder
 		// this will show the current state of the property, 
 		//and will update whenever the property is changed.
+		JLabel collisionStatusLabelcursed;
 		JLabel collisionStatusLabel;
 		JLabel xPosStatusLabel; //testing out this displaying in the radioPanel
 		JLabel yPosStatusLabel;
@@ -159,7 +159,8 @@ public class SidePanel extends JPanel {
 		
 		public PropertiesFrame() { 		 //constructor 
 			super("Edit Properties");
-			collisionStatusLabel = new JLabel("N/A"); //initializing these so they won't cause null problems
+			collisionStatusLabelcursed = new JLabel("N/A"); //initializing these so they won't cause null problems
+			collisionStatusLabel = new JLabel("cursed?");
 			xPosStatusLabel = new JLabel("N/A");
 			yPosStatusLabel = new JLabel("N/A");
 			entNameStatusLabel = new JLabel("N/A");
@@ -224,8 +225,6 @@ public class SidePanel extends JPanel {
 			if (command.equals("COL_TRUE")) {
 				getThisProperty(Property.COL_STATE).setEntityCollidableState(getSelectedEntity(), true);
 				updateCurrentStatusLabel(Property.COL_STATE);
-				System.out.println("getThisProperty(propType).getEntityCollidableState(getSelectedEntity)): " 
-						+ String.valueOf(getThisProperty(Property.COL_STATE).getEntityCollidableState(getSelectedEntity())));
 			}
 			else if(command.equals("COL_FALSE")) {
 				getThisProperty(Property.COL_STATE).setEntityCollidableState(getSelectedEntity(), false);
@@ -247,19 +246,17 @@ public class SidePanel extends JPanel {
 				/*
 				 * Here, set the name field of the current propertyList's yPos property */
 				getThisProperty(Property.ENTNAME).setEntityName(getSelectedEntity(), command);
-				updateCurrentStatusLabel(Property.YPOS);
+				updateCurrentStatusLabel(Property.ENTNAME);
 			}
+			/*
+			invalidate();
+			validate();
+			repaint(); */
 		}
-		protected void updateCurrentStatusLabel(String status){
-			collisionStatusLabel.setText(status);
-		}
-		//overloaded to accept properties as argument
-		//if it's good enough, can replace the previous updateCurrentStatusLabel()
 		protected void updateCurrentStatusLabel(int propType) {
 			if (propType == Property.COL_STATE) {
+				System.out.println("was able to reach upDateCurrentStatusLabel. Attempting to set collisionStatusLabel again...");
 				collisionStatusLabel.setText(String.valueOf(getThisProperty(propType).getEntityCollidableState(getSelectedEntity())) );
-				System.out.println("was able to reach this. Attempting to set collisionStatusLabel again...");
-				collisionStatusLabel.setText("test");
 			}
 			else if (propType == Property.XPOS)
 				xPosStatusLabel.setText(Integer.toString(getThisProperty(propType).getEntityXpos(getSelectedEntity())) );
@@ -284,56 +281,57 @@ public class SidePanel extends JPanel {
 			//initial check to correctly choose true or false for property
 			if (getThisProperty(Property.COL_STATE).getEntityCollidableState(getSelectedEntity()) == true) {
 				rbTrue.setSelected(true);
-				//updateCurrentStatusLabel(Property.COL_STATE);
+				updateCurrentStatusLabel(Property.COL_STATE);
 			}
 			else {
 				rbFalse.setSelected(true);
-				//updateCurrentStatusLabel(Property.COL_STATE);
+				updateCurrentStatusLabel(Property.COL_STATE);
 			}
 			JPanel labelPanel = new JPanel(new BorderLayout());
-			//labelPanel.add(currentStatusLabel);
 			labelPanel.add(collisionStatusLabel);
-			System.out.println(collisionStatusLabel.getText());
 			radioPanel.add(rbTrue, BorderLayout.WEST);
 			radioPanel.add(rbFalse, BorderLayout.CENTER);
-			radioPanel.add(labelPanel, BorderLayout.SOUTH);
+			radioPanel.add(labelPanel, BorderLayout.PAGE_END);
 			return radioPanel;
 		}
 		protected JPanel createXPosPanel(){
 			updateCurrentStatusLabel(Property.XPOS);
 			JPanel xPosPanel = new JPanel(new BorderLayout());
 			xPosTextField = new JTextField(10);
-			//xPosTextField.setActionCommand("XPOS");
 			xPosTextField.addActionListener(this);
 			JPanel labelPanel = new JPanel();
-			//labelPanel.add(currentStatusLabel);
+			labelPanel.add(xPosStatusLabel);
 			xPosPanel.add(xPosTextField,BorderLayout.NORTH);
 			xPosPanel.add(labelPanel, BorderLayout.PAGE_END);
 			return xPosPanel;
 		}
 		protected JPanel createYPosPanel(){
-			JPanel yPosPanel = new JPanel();
+			updateCurrentStatusLabel(Property.YPOS);
+			JPanel yPosPanel = new JPanel(new BorderLayout());
 			yPosTextField = new JTextField(10);
-			//xPosTextField.setActionCommand("XPOS");
 			yPosTextField.addActionListener(this);
-			yPosPanel.add(yPosTextField);
+			JPanel labelPanel = new JPanel();
+			labelPanel.add(yPosStatusLabel);
+			yPosPanel.add(yPosTextField, BorderLayout.NORTH);
+			yPosPanel.add(labelPanel, BorderLayout.PAGE_END);
 			return yPosPanel;
 		}
 		protected JPanel createEntNamePanel(){
-			JPanel entNamePanel = new JPanel();
+			updateCurrentStatusLabel(Property.ENTNAME);
+			JPanel entNamePanel = new JPanel(new BorderLayout());
 			entNameTextField = new JTextField(15);
-			//xPosTextField.setActionCommand("XPOS");
 			entNameTextField.addActionListener(this);
-			entNamePanel.add(entNameTextField);
+			JPanel labelPanel = new JPanel();
+			labelPanel.add(entNameStatusLabel);
+			entNamePanel.add(entNameTextField, BorderLayout.NORTH);
+			entNamePanel.add(labelPanel, BorderLayout.PAGE_END);
 			return entNamePanel;
 		}
 		protected JPanel createEntTypePanel(){
 			JPanel entTypePanel = new JPanel();
-			collisionStatusLabel = new JLabel();
-			entTypeTextField = new JTextField(15);
-			//xPosTextField.setActionCommand("XPOS");
-			entTypeTextField.addActionListener(this);
-			entTypePanel.add(entTypeTextField);
+			collisionStatusLabelcursed = new JLabel();
+			String entTypeString = getThisProperty(Property.ENTTYPE).getEntityType(getSelectedEntity());
+			entTypePanel.add(new JLabel(entTypeString), BorderLayout.PAGE_END);
 			return entTypePanel;
 		}
 	} // end of PropertiesFrame class
@@ -363,6 +361,7 @@ public class SidePanel extends JPanel {
 		try{
 			return SplitPane.getBoard().currentSelectedEntity;
 		}catch (Exception e) {
+			
 			e.printStackTrace();
 			return null; 
 		}

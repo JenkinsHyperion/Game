@@ -1,0 +1,18 @@
+List of reproducable bugs  (last edit: 9/7/2016, 2:45pm)
+----------------------------
+
+
+9/7/16 - In debugMode(hitting F3 as well as F2) when you click and drag a platform, after holding it long enough
+and pushing it into the "player" (the box) you will always get a nullpointer exception,
+
+Exception in thread "Timer-0" java.lang.NullPointerException
+	at physics.CollisionPlayerStaticSAT.updateCollision(CollisionPlayerStaticSAT.java:79)
+	at physics.CollisionEngine.updateCollisions(CollisionEngine.java:46)
+	at physics.CollisionEngine.checkCollisions(CollisionEngine.java:136)
+
+ah I think I found it, check inside of updateCollision() inside of board:
+From what I can see the null checking for "resolution" variable, Point resolution = getClosestResolution(); isn't properly handled--
+resolution is instantiated, and there is an if statement that checks if it's null, but in the else statement, 
+depthX = (int) resolution.getX();
+depthY = (int) resolution.getY();
+will operate on "resolution" which might actually be null since it was declared outside of the if statement. Maybe move the initialization of "resolution" somewhere else so that it can't be operated on if it's null.

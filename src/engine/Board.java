@@ -65,6 +65,7 @@ public class Board extends JPanel implements Runnable {
     private boolean debug1On = false; 
     private boolean debug2On = false; 
     protected EntityStatic currentSelectedEntity;
+    protected EntityStatic currentDebugEntity;
     
     private final int DELAY = 10;
     
@@ -92,6 +93,7 @@ public class Board extends JPanel implements Runnable {
 
     private void initBoard() {
     	currentSelectedEntity = new EntityStatic(0,0);
+    	currentDebugEntity = new EntityStatic(0,0);
     	//or currentSelectedEntity = new Object();
     	currentDuration = System.currentTimeMillis();
         addKeyListener(new TAdapter());
@@ -489,6 +491,9 @@ public class Board extends JPanel implements Runnable {
   	private void checkForSelection(Point click) { //redundant
   			currentSelectedEntity = clickedOnEntity(click);
   			
+  			if (currentSelectedEntity != null)
+  				currentDebugEntity = clickedOnEntity(click);
+  			
   	}
   	
   	private EntityStatic clickedOnEntity(Point click) {
@@ -826,9 +831,10 @@ public class Board extends JPanel implements Runnable {
     	
 	    Graphics2D g2 = (Graphics2D) g;
     	
-	    drawDebugSAT( currentSelectedEntity , player , g2);
+
+		drawDebugSAT( currentDebugEntity , player , g2);
 	    
-	    drawDebugSAT( player , currentSelectedEntity , g2);
+	    drawDebugSAT( player , currentDebugEntity , g2);
 
     }
     

@@ -48,6 +48,10 @@ public class Entity {
     public void setY(double sety) {
         y = (float) sety;
     }
+    
+    public Point getPos(){
+    	return new Point( (int)x , (int)y );
+    }
 
     public void setPos(Point p){
     	x = (float) p.getX();

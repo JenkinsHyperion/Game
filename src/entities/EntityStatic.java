@@ -86,7 +86,7 @@ public class EntityStatic extends Entity{
 		return new Rectangle (getX() + boundingBox.x , getY() + boundingBox.y , boundingBox.width , boundingBox.height);
 	}
 	
-	public Boundary getLocalBoundary(){
+	public Boundary getBoundaryLocal(){
 		return boundary.atPosition((int)x,(int)y);
 	}
 	
@@ -100,6 +100,18 @@ public class EntityStatic extends Entity{
 		alive = false;
 	}
 	
+	/* #################################################################################
+	 * 
+	 * 		EVENT METHODS - to be overriden in children classes
+	 * 
+	 * #################################################################################
+	 */
+	
+	public void onCollisionEvent(){ //TO BE MOVED TO COLLIDABLE INTERFACE
+	
+		
+
+	}
 	
 	public String toString()
 	{

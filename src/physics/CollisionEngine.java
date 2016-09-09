@@ -78,7 +78,7 @@ public class CollisionEngine {
         // Check collisions between player and static objects
         for ( int i = 0 ; i < currentBoard.getStaticEntities().size() ; i++ ) {    
         	
-        		if ( player.getDeltaBoundary().checkForInteraction( currentBoard.getStaticEntities().get(i).getLocalBoundary()) ) {
+        		if ( player.getBoundaryDelta().checkForInteraction( currentBoard.getStaticEntities().get(i).getBoundaryLocal()) ) {
         			 //check to see if collision isn't already occurring
         			if (!hasActiveCollision(player,currentBoard.getStaticEntities().get(i))) {
         				// if not, add new collision event
@@ -90,15 +90,15 @@ public class CollisionEngine {
         }
 	        
 	        // TEST LASER COLLISION 
-	        /*for (EntityStatic stat : staticEntitiesList) {                	
-	        	if ( stat.getLocalBoundary().boundaryIntersects(laser.getBoundary()) ) {
+	        for (EntityStatic stat : currentBoard.getStaticEntities()) {                	
+	        	if ( currentBoard.laser.getBoundary().boundaryIntersects( stat.getBoundaryLocal() ) ) {
 		            	
 		            //OPEN COLLISION
-		            if (!hasActiveCollision(laser,stat)) { //check to see if collision isn't already occurring
-		            	collisionsList.add(new Collision(laser, stat)); // if not, add new collision event
+		            if (!hasActiveCollision(currentBoard.laser,stat)) { //check to see if collision isn't already occurring
+		            	collisionsList.add(new CollisionPositioning(currentBoard.laser, stat)); // if not, add new collision event
 		            } 		            
 		   		}
-	        }*/
+	        }
 	        
 	        
 	        
@@ -113,7 +113,7 @@ public class CollisionEngine {
 	            if (r1.intersects(r2)) {
 	            	
 	            	if (!hasActiveCollision(dynamicEntity,statEntity)) { 
-	            		collisionsList.add(new CollisionBasic(dynamicEntity,statEntity)); 
+	            		collisionsList.add(new CollisionPositioning(dynamicEntity,statEntity)); 
 	            	}
 	            }  
 	            
@@ -151,7 +151,7 @@ public class CollisionEngine {
 
 	    
 
-    public LinkedList<Collision> list(){ return collisionsList; }
+    public LinkedList<Collision> list(){ return collisionsList; } //OPTIMIZATION reduce visibility of array list
 	    
 }
 	   

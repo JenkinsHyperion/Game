@@ -43,7 +43,7 @@ public class CollisionPlayerDynamic extends Collision {
 			entityPrimary.setDY( (entityPrimary.getDY()*2 + entitySecondary.getDY()) /3 );
 			entitySecondary.setDY( (entityPrimary.getDY()*2 + entitySecondary.getDY()) /3 );
 		
-			Line2D[] flushSides = entityPrimary.getLocalBoundary().getContactingSides(entitySecondary.getLocalBoundary());
+			Line2D[] flushSides = entityPrimary.getBoundaryLocal().getContactingSides(entitySecondary.getBoundaryLocal());
 			
 			if ( flushSides != null ){
 				

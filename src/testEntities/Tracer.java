@@ -1,7 +1,8 @@
 package testEntities;
 
 import entities.*;
-import physics.Boundary;
+import physics.*;
+
 import java.awt.geom.Line2D;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -38,7 +39,7 @@ import java.awt.Color;
  * just a simple class to test out drawing a laser to the screen and having it persist.
  * 
  */
-public class LaserTest extends EntityDynamic{ // Can extend either EntityStatic or EntityDynamic
+public class Tracer extends EntityDynamic{ // Can extend either EntityStatic or EntityDynamic
 
 	//note, the supplied x and y variables will act as the origin point for the line
 	private int xEndPoint;
@@ -50,7 +51,8 @@ public class LaserTest extends EntityDynamic{ // Can extend either EntityStatic 
 	//private Rectangle debugBox; // the data of the bounding box to be drawn; might be unecessessary could maybe just
 								// directly draw "boundingBox" defined in EntityStatic
 	//the actual Shape object for the laser that has the ability to draw itself
-	private Line2D.Double beam;
+	private Line2D.Float beam;
+	private Line2D.Float tracer;
 	/**
 	 * <code>
 	 * @param x the x-origin point for the laser
@@ -59,20 +61,21 @@ public class LaserTest extends EntityDynamic{ // Can extend either EntityStatic 
 	 * @param yEnd the y-end point for the laser
 	 * </code>
 	 */
-    public LaserTest(int x, int y, int xEnd, int yEnd) {  
+    public Tracer(int x, int y, int xEnd, int yEnd) {  
 		super(x, y);
 		setxEndPoint(xEnd);
 		setyEndPoint(yEnd);
 		
         initialize();
        //debugBox = new Rectangle();
-        beam = new Line2D.Double();
+        beam = new Line2D.Float();
+        tracer = new Line2D.Float();
         
 	}
     
     private void initialize(){
     	
-		name = "Laser";
+		name = "Tracer";
     	//first argument x-position will be at 0 and extend to the right
     	//second argument y-position will start a bit above the y-point set so that the bounding box can extend in a range above and below it
     	
@@ -96,8 +99,12 @@ public class LaserTest extends EntityDynamic{ // Can extend either EntityStatic 
     	Point originPoint = new Point(getX(),getY());
     	Point endPoint = new Point(xEndPoint,yEndPoint);
     	
+
+    	
+    	tracer = new Line2D.Float(originPoint,endPoint);
+    	
     	//creating the laser, getting its bounds, and drawing it
-    	beam = new Line2D.Double(originPoint,endPoint);
+    	//beam = new Line2D.Float(originPoint,endPoint);
        	
     	g2.draw(beam);
 
@@ -105,7 +112,15 @@ public class LaserTest extends EntityDynamic{ // Can extend either EntityStatic 
     
     @Override
     public void updatePosition(){
-       	boundary = new Boundary(beam);
+    	
+    	//Rough testing collision blocking
+    	beam = new Line2D.Float(getPos(),new Point(xEndPoint,yEndPoint));
+    	for (Collision collision : this.getCollisions() ){
+    		CollisionPositioning laserBlock = (CollisionPositioning) collision;
+    		beam = new Line2D.Float ( getPos() , laserBlock.getClosestIntersection() );
+    	}
+    	
+       	boundary = new Boundary(tracer);
     }
     
     /**
@@ -135,5 +150,13 @@ public class LaserTest extends EntityDynamic{ // Can extend either EntityStatic 
 	public void setyEndPoint(int yEndPoint) {
 		this.yEndPoint = yEndPoint;
 	}
+	
+	@Override
+		public void onCollisionEvent() {
+		
+			
+		
+			//super.onCollisionEvent();
+		}
 
 }

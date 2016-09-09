@@ -1,11 +1,7 @@
 package entities;
 
-import java.util.ArrayList;
-
-import com.sun.xml.internal.bind.v2.schemagen.xmlschema.List;
 
 import physics.Boundary;
-import physics.Collision;
 
 public class EntityDynamic extends EntityStatic{
 
@@ -117,7 +113,7 @@ public class EntityDynamic extends EntityStatic{
     	}
     }
     
-	public Boundary getDeltaBoundary(){
+	public Boundary getBoundaryDelta(){
 		return boundary.atPosition( (int) (x+dx), (int) (y+dy ));
 	}
     

@@ -1,5 +1,6 @@
 package physics;
 
+import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -74,17 +75,11 @@ public class Boundary {
 		
 		Line2D[][] intersectingSides = new Line2D[intersectingSidesA.size()][2]; // create final regular array
 		
-		if ( intersectingSidesA.size() == 0 ) { //no pairs found
-			intersectingSidesA = null; //or delete from memory
-			return null;
-		}
-		else {
 			for (int j = 0 ; j < intersectingSidesA.size() ; j++) { // compile arrayList pairs into regular array
 				intersectingSides[j] = intersectingSidesA.get(j);
 			}
 			intersectingSidesA = null; //or delete from memory
 			return intersectingSides;
-		}
 	}
 	
 	
@@ -209,7 +204,68 @@ public class Boundary {
 		
 	}
 
+	
+	//Finds point of intersection between two sides. This is important for finding depth of clipping 
+	public Point getIntersectionPoint(Line2D line1, Line2D line2){ 
+		double m1; // break lines into slope - intercept forms    y = mx + b
+		double m2;
+		double b1;
+		double b2;
+		double intersectX; // intersectY is  m*intersectX + b  so is calculated at the end
+		
+		
+		if ( line1.getP1().getX() == line1.getP2().getX() ) { //Line is vertical, slope in undefined
+			
+			if ( line2.getP1().getX() != line2.getP2().getX() ) { 
+				// line 1 is vertical, so x intersect is simply x for a vertical line 
+				intersectX = line1.getP1().getX() ;
+				// get y=mx+b for other line and find y intercept
+				m2 = ( line2.getP1().getY() - line2.getP2().getY()  ) / ( line2.getP1().getX() - line2.getP2().getX() );
+				b2 = line2.getP1().getY() - ( m2 * line2.getP1().getX() );
+				return new Point( (int)intersectX , (int)( (m2 * intersectX) + b2 ) );
+			}
+			else {
+				System.out.println("Identical line"  + line1.getX1());
+				return new Point( (int) line1.getX1() , (int)line1.getY1() );
+			}
+			
+		}
+		else if ( line2.getP1().getX() == line2.getP2().getX() ){
+			
+			if ( line1.getP1().getX() != line1.getP2().getX() ) {
+				//line2 is vertical, same as above
+				intersectX = line2.getP1().getX() ;
+				m1 = ( line1.getP1().getY() - line1.getP2().getY()  ) / ( line1.getP1().getX() - line1.getP2().getX() );
+				b1 = line1.getP1().getY() - ( m1 * line1.getP1().getX() );
+				return new Point( (int)intersectX , (int) ( (m1 * intersectX) + b1 ) );
+			}
+			else {
+				System.out.println("Identical line" + line1.getX1());
+				return new Point( (int) line1.getX1() , (int)line1.getY1() );
+			}
+		}
+		else // Neither line is vertical, so both have defined slopes and can be in form y=mx+b
+		{
+			// m = (y1-y2)/(x1-x2)
+				m1 = ( line1.getP1().getY() - line1.getP2().getY()  ) / ( line1.getP1().getX() - line1.getP2().getX() );
+				m2 = ( line2.getP1().getY() - line2.getP2().getY()  ) / ( line2.getP1().getX() - line2.getP2().getX() );
+			// b = y - mx
+				b1 = line1.getP1().getY() - ( m1 * line2.getP1().getX() );			
+				b2 = line2.getP1().getY() - ( m2 * line2.getP1().getX() );		
+			
+				if (m2*m2 - m1*m1 == 0 ){
+					//System.out.println( "identical line" ); 
+					return new Point( (int)line1.getX1() , (int)line1.getY1() );
+				}
+				else {
+					intersectX = (b2-b1) / (m1-m2) ; // y1=y2 and x1=x2 at intersection, so m1*x + b1 = m2*x + b2  solved for x
+					return new Point( (int) intersectX , (int)( (m1 * intersectX) + b1 )); // intersectY = m*interceptX + b for either line 
+				}
+		}
 
+	}
+	
+	
 	private boolean pointIsAgainstLine(Point2D point, Line2D line){
 		double dist = Math.abs( line.ptLineDist( point ) );  
 		if ( dist > 0 && dist <= 1 ) {

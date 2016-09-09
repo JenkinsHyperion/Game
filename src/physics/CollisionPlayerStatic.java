@@ -47,7 +47,7 @@ public class CollisionPlayerStatic extends Collision {
 	@Override
 	public void updateCollision(){ 
 		
-		Line2D[] contactingSides = entityPrimary.getLocalBoundary().getContactingSides(entitySecondary.getLocalBoundary());
+		Line2D[] contactingSides = entityPrimary.getBoundaryLocal().getContactingSides(entitySecondary.getBoundaryLocal());
 		
 		//CHECK FOR CONTACTING SIDES
 		if ( contactingSides != null ){ 
@@ -88,7 +88,7 @@ public class CollisionPlayerStatic extends Collision {
 
 			//CHECK FOR CLIPPING IN NEXT FRAME 
 			//Note this checks intersections of delta boundary, where boundary WILL BE next frame ( posX + DX , PosY + DY )
-			Line2D[][] intersectingSides = entityPrimary.getDeltaBoundary().getIntersectingSides(entitySecondary.getLocalBoundary());
+			Line2D[][] intersectingSides = entityPrimary.getBoundaryDelta().getIntersectingSides(entitySecondary.getBoundaryLocal());
 			
 			if ( intersectingSides != null ) { // Boundary will clip next frame
 				

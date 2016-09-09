@@ -32,7 +32,8 @@ public class Collision {
 		collisionName = e1.name + " + " + e2.name;
 		
 		//THIS TEST COLLISION IS A NORMAL SURFACE SUCH AS A FLAT PLATFORM
-		
+		entityPairIndex[0] = e1.addCollision(this,true); 
+		entityPairIndex[1] = e2.addCollision(this,false);
 		//initCollision();
 	}
 	
@@ -48,7 +49,8 @@ public class Collision {
 	
 	//FINAL COLLISION COMMANDS - Last commands before this collision object self destructs
 	public void completeCollision(){
-		
+		entityPrimary.removeCollision( entityPairIndex[0] );
+		entitySecondary.removeCollision(entityPairIndex[1] );
 	}
 	
 	public void indexShift( boolean pairIndex ){
@@ -81,10 +83,7 @@ public class Collision {
 	
 	public boolean isComplete(){ // Check if entities are no longer colliding
 		
-		if (entityPrimary.getLocalBoundary().boundaryIntersects( entitySecondary.getLocalBoundary() ) ) {
-			return false;
-		}
-		else if (entityPrimary.getLocalBoundary().boundsHaveContact( entitySecondary.getLocalBoundary() ) ) {
+		if (entityPrimary.getBoundary().boundaryIntersects( entitySecondary.getBoundaryLocal() ) ) {
 			return false;
 		}
 		else { // entities are no longer colliding

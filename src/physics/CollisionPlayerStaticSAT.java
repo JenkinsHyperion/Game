@@ -1,13 +1,9 @@
 package physics;
 
-import java.awt.Color;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-
-import javax.swing.plaf.SliderUI;
 
 import entities.EntityDynamic;
 import entities.EntityStatic;
@@ -26,8 +22,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 		collisionName = entity1.name + " + " + entity2.name;
 		
 		//Put this collision into each entity's list of interactions and receive the index where it was put
-		entityPairIndex[0] = entity1.addCollision(this,true); 
-		entityPairIndex[1] = entity2.addCollision(this,false);
+
 		
 		//System.out.println("Indexed collisions "+ toString() + " " +entityPairIndex[0] +  " " + entityPairIndex[1]);
 		
@@ -104,7 +99,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 	    
 		 
 	}
-	
+		
 	//FINAL COLLISION COMMANDS - Last commands before this collision object self destructs
 	@Override
 	public void completeCollision(){
@@ -122,6 +117,23 @@ public class CollisionPlayerStaticSAT extends Collision {
 	 * ######################
 	 */
 	
+	//Completion Condition
+	@Override
+	public boolean isComplete(){ // Check if entities are no longer colliding
+		
+		if (entityPrimary.getBoundaryLocal().boundaryIntersects( entitySecondary.getBoundaryLocal() ) ) {
+			return false;
+		}
+		else if (entityPrimary.getBoundaryLocal().boundsHaveContact( entitySecondary.getBoundaryLocal() ) ) {
+			return false;
+		}
+		else { // entities are no longer colliding
+			completeCollision(); // run final commands
+			return true; // return true for scanning loop in Board to delete this collision
+		}
+	}
+	
+	//Resolution calculation
 	private Point getClosestResolution() {
 		
 		ArrayList<Point> penetrations = new ArrayList<>();
@@ -142,7 +154,7 @@ public class CollisionPlayerStaticSAT extends Collision {
     		
     		if (getPenetrationDepth(entityPrimary.getBoundary().getSeparatingSides()[i]) != null){
     			
-    			penetrations.add( getPenetrationDepth(entityPrimary.getLocalBoundary().getSeparatingSides()[i]) );
+    			penetrations.add( getPenetrationDepth(entityPrimary.getBoundaryLocal().getSeparatingSides()[i]) );
     			
     		}
     	}
@@ -155,7 +167,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 	    		
 	    		if (getPenetrationDepth(entitySecondary.getBoundary().getSeparatingSides()[i]) != null){
 	    			
-	    			penetrations.add( getPenetrationDepth(entitySecondary.getLocalBoundary().getSeparatingSides()[i]) );
+	    			penetrations.add( getPenetrationDepth(entitySecondary.getBoundaryLocal().getSeparatingSides()[i]) );
 	    			
 	    		}
 	    	}
@@ -169,7 +181,7 @@ public class CollisionPlayerStaticSAT extends Collision {
     		
     		penetrationX = (int) Math.ceil( penetrations.get(0).getX() );
     		penetrationY = (int) Math.ceil( penetrations.get(0).getY() );
-    		System.out.println("Start "+penetrationX+" "+penetrationY + " -- "+entityPrimary.getX() + entitySecondary.getX());		
+    		//System.out.println("Start "+penetrationX+" "+penetrationY + " -- "+entityPrimary.getX() + entitySecondary.getX());		
 	    	for ( Point vector : penetrations ){
 
 	    		
@@ -177,7 +189,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 		    				< ( penetrationX*penetrationX + penetrationY*penetrationY )
 		    			){
 		    			
-		    			System.out.println("Lower " + vector.getX()+" "+vector.getY());
+		    			//System.out.println("Lower " + vector.getX()+" "+vector.getY());
 		    			penetrationX = (int) Math.ceil(vector.getX());
 		    			penetrationY = (int) Math.ceil(vector.getY()); 
 		    		}
@@ -210,8 +222,8 @@ public class CollisionPlayerStaticSAT extends Collision {
 		
 	    EntityStatic stat = entitySecondary;
 	    
-	    Boundary bounds = stat.getLocalBoundary() ;
-	    Boundary playerBounds = entityPrimary.getDeltaBoundary();
+	    Boundary bounds = stat.getBoundaryLocal() ;
+	    Boundary playerBounds = entityPrimary.getBoundaryDelta();
 	    
 	    int deltaX = (int) (entityPrimary.getX() + entityPrimary.getDX() );
 	    int deltaY = (int) (entityPrimary.getY() + entityPrimary.getDY() );
@@ -308,74 +320,6 @@ public class CollisionPlayerStaticSAT extends Collision {
 		if ( pointIsOnSegment(side2.getP2(), side1) ) {
 			if (contactPoints[0]==null)  { contactPoints[0] = side2.getP2(); } 
 			else  { contactPoints[1] = side2.getP2(); return; }
-		}
-
-	}
-	
-	
-	//Finds point of intersection between two sides. This is important for finding depth of clipping 
-	private Point2D getIntersectionPoint(Line2D line1, Line2D line2){ 
-		double m1; // break lines into slope - intercept forms    y = mx + b
-		double m2;
-		double b1;
-		double b2;
-		double intersectX; // intersectY is  m*intersectX + b  so is calculated at the end
-		
-		// Check if either line is vertical, in which case slope m is undefined, y is all real numbers, and y=mx+b fails line test
-		if ( line1.getP1().getX() == line1.getP2().getX() || line2.getP1().getX() == line2.getP2().getX() ) { 
-			
-			if ( line1.getP1().getX() == line1.getP2().getX() && line2.getP1().getX() != line2.getP2().getX() ) { 
-				
-				// line 1 is vertical, so x intersect is simply x for a vertical line 
-				intersectX = line1.getP1().getX() ;
-				// get y=mx+b for other line and find y intercept
-				m2 = ( line2.getP1().getY() - line2.getP2().getY()  ) / ( line2.getP1().getX() - line2.getP2().getX() );
-				b2 = line2.getP1().getY() - ( m2 * line2.getP1().getX() );
-				return new Point2D.Double( intersectX , (m2 * intersectX) + b2 );
-			}
-			else if ( line2.getP1().getX() == line2.getP2().getX() && line1.getP1().getX() != line1.getP2().getX() ) {
-				
-				//line2 is vertical, same as above
-				intersectX = line2.getP1().getX() ;
-				m1 = ( line1.getP1().getY() - line1.getP2().getY()  ) / ( line1.getP1().getX() - line1.getP2().getX() );
-				b1 = line1.getP1().getY() - ( m1 * line1.getP1().getX() );
-				return new Point2D.Double( intersectX , (m1 * intersectX) + b1 );
-			}
-			else{ //BOTH LINES ARE VERITCAL - THIS OCCURS WHEN STANDING DIRECTLY ON EDGE AND IS A VERY IMPORTANT CASE
-				//System.out.println( "identical line" ); 
-			return null;
-				/*
-				// This needs to be handled better
-				if( line1.getP1().distance(line2.getP1()) < 1 ){ return line1.getP1() ; }
-				else if( line1.getP1().distance(line2.getP2()) < 1 ){ return line1.getP1() ; }
-				else if( line1.getP2().distance(line2.getP1()) < 1 ){ return line1.getP2() ; }
-				else if( line1.getP2().distance(line2.getP2()) < 1 ){ return line1.getP2() ; }
-				else {
-					//Lines are not intersecting, but lines are known to be intersecting so this should never occur.
-					//Devise better failsafe anyway
-					System.out.println( "Bad Edge Intersection" ); 
-					return null;
-				}*/
-			}
-			
-		}
-		else // Neither line is vertical, so both have defined slopes and can be in form y=mx+b
-		{
-			// m = (y1-y2)/(x1-x2)
-				m1 = ( line1.getP1().getY() - line1.getP2().getY()  ) / ( line1.getP1().getX() - line1.getP2().getX() );
-				m2 = ( line2.getP1().getY() - line2.getP2().getY()  ) / ( line2.getP1().getX() - line2.getP2().getX() );
-			// b = y - mx
-				b1 = line1.getP1().getY() - ( m1 * line2.getP1().getX() );			
-				b2 = line2.getP1().getY() - ( m2 * line2.getP1().getX() );		
-			
-				if (Math.abs(m2) - Math.abs(m1) < 1 ){
-					//System.out.println( "identical line" ); 
-					return null;
-				}
-				else {
-					intersectX = (b2-b1) / (m1-m2) ; // y1=y2 and x1=x2 at intersection, so m1*x + b1 = m2*x + b2  solved for x
-					return new Point2D.Double( intersectX , (m1 * intersectX) + b1 ); // intersectY = m*interceptX + b for either line 
-				}
 		}
 
 	}

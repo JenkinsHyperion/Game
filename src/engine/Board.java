@@ -47,7 +47,7 @@ public class Board extends JPanel implements Runnable {
 	private SidePanel sidePanel;
     private Player player;
     private  PaintOverlay p;
-    private LaserTest laser;
+    public Tracer laser;
     protected ArrayList<EntityStatic> staticEntitiesList; 
     protected static ArrayList<EntityDynamic> dynamicEntitiesList; 
     protected static ArrayList<EntityDynamic> physicsEntitiesList; 
@@ -127,7 +127,6 @@ public class Board extends JPanel implements Runnable {
         staticEntitiesList.add(new Platform(210,240,"platform02"));
         staticEntitiesList.add(new Platform(50,180,"platform02"));
         staticEntitiesList.add(new Platform(60,270,"platform02"));
-        staticEntitiesList.add(new StaticSprite(150,274, "grass01"));
         staticEntitiesList.add(new Ground(250,295,"ground01"));
         staticEntitiesList.add(new Slope(40,160));
         
@@ -135,7 +134,7 @@ public class Board extends JPanel implements Runnable {
         dynamicEntitiesList.add(new Bullet(100,100,1,1));
         
         //test for LaserTest entity
-        laser = new LaserTest(143,260, B_WIDTH, 260);
+        laser = new Tracer(143,260, B_WIDTH, 260);
         //dynamicEntitiesList.add(new LaserTest(400,60));  <-- can't add as long as I don't have a sprite for it
         //		--- for now will just draw in the drawObjects() method
         
@@ -621,16 +620,18 @@ public class Board extends JPanel implements Runnable {
 	    g.drawString("Rotation: " + player.getAngle()*5 + " degrees",5,60);
 	    g.drawString("Colliding: " + player.isColliding(),5,75);
 	    
-	    for ( int i = 0 ; i < player.getCollisions().length ; i++ ) {
+	    //for ( int i = 0 ; i < player.getCollisions().length ; i++ ) {
 	    	
-	    	g.drawString("Colliding with: " + player.getCollidingPartners()[i].name ,5,105+(10*i));
-	    }
+	    //	g.drawString("Colliding with: " + player.getCollidingPartners()[i].name ,5,105+(10*i));
+	    //}
+	    
+
 	    
 	    //Draw player bounding box
 	    Graphics2D g2 = (Graphics2D) g;
-	        
+
 	    g2.setColor(Color.CYAN);
-	    for (Line2D line : player.getLocalBoundary().getSides()){
+	    for (Line2D line : player.getBoundaryLocal().getSides()){
 	    	g2.draw(line);
 	    } 
 	    
@@ -638,7 +639,14 @@ public class Board extends JPanel implements Runnable {
 	    //g2.draw(player.getLocalBoundary().getTestSide(3) );
 	    //g2.setColor(Color.CYAN);
 	    
-	    for ( Line2D axis : staticEntitiesList.get(2).getLocalBoundary().getSeparatingSides() ){
+	    /*for ( int i = 0 ; i < Collisions.list().size() ; i++ ) {
+	    	
+	    	g.drawString("Collision " + Collisions.list().get(i).collisionName ,5,105+(10*i));
+	    	//for ( Point2D intersect : ((CollisionPositioning) Collisions.list().get(i)).getIntersectionPoints() )
+	    		drawCross( ((CollisionPositioning) Collisions.list().get(i)).getClosestIntersection() , g2);
+	    }*/
+	    
+	    for ( Line2D axis : staticEntitiesList.get(2).getBoundaryLocal().getSeparatingSides() ){
 	    	g2.draw(axis);
 	    }
 	    
@@ -646,19 +654,19 @@ public class Board extends JPanel implements Runnable {
 	    g2.draw(laser.getBoundary().getSides()[0]);
 	    
 	    for ( EntityStatic stat : staticEntitiesList) {	    	
-	    	for (Line2D line : stat.getLocalBoundary().getSides()){
+	    	for (Line2D line : stat.getBoundaryLocal().getSides()){
 		    	g2.draw(line);
 		    }	
 	    }
 	    
 	    for ( EntityStatic dynamic : dynamicEntitiesList) {	    	
-	    	for (Line2D line : dynamic.getLocalBoundary().getSides()){
+	    	for (Line2D line : dynamic.getBoundaryLocal().getSides()){
 		    	g2.draw(line);
 		    }	
 	    }
 	    
 	    for ( EntityStatic physics : physicsEntitiesList) {	    	
-	    	for (Line2D line : physics.getLocalBoundary().getSides()){
+	    	for (Line2D line : physics.getBoundaryLocal().getSides()){
 		    	g2.draw(line);
 		    }	
 	    }
@@ -727,8 +735,8 @@ public class Board extends JPanel implements Runnable {
 	    drawCross( player.getX() , player.getY() , g2);
 	    drawCross( stat.getX() , stat.getY() , g2);
 	    
-	    Boundary bounds = stat.getLocalBoundary() ;
-	    Boundary playerBounds = player.getLocalBoundary();
+	    Boundary bounds = stat.getBoundaryLocal() ;
+	    Boundary playerBounds = player.getBoundaryLocal();
 	    
 	    Point2D playerCenter = new Point2D.Double(player.getX(), player.getY());
 	    Point2D statCenter = new Point2D.Double(stat.getX(), stat.getY());
@@ -867,6 +875,7 @@ public class Board extends JPanel implements Runnable {
  * 
  * ########################################################################################################################
  */
+
     
     
 	@Override

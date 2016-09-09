@@ -76,11 +76,15 @@ public class CollisionEngine {
 	        
 	        
         // Check collisions between player and static objects
-        for (EntityStatic staticEntity : currentBoard.getStaticEntities() ) {    
+        for ( int i = 0 ; i < currentBoard.getStaticEntities().size() ; i++ ) {    
         	
-        		if ( player.getDeltaBoundary().checkForInteraction( staticEntity.getLocalBoundary()) ) {
-        			if (!hasActiveCollision(player,staticEntity)) { //check to see if collision isn't already occurring
-        				collisionsList.add(new CollisionPlayerStaticSAT(player,staticEntity)); // if not, add new collision event
+        		if ( player.getDeltaBoundary().checkForInteraction( currentBoard.getStaticEntities().get(i).getLocalBoundary()) ) {
+        			 //check to see if collision isn't already occurring
+        			if (!hasActiveCollision(player,currentBoard.getStaticEntities().get(i))) {
+        				// if not, add new collision event
+        				int index = currentBoard.getStaticEntities().size() + 1 ;
+        				collisionsList.add(new CollisionPlayerStaticSAT(player,currentBoard.getStaticEntities().get(i)) ); 
+        				
         			} 	
         		}
         }
@@ -136,6 +140,15 @@ public class CollisionEngine {
     	updateCollisions(); // calculate and remove old collisions    
         
     }
+    
+    
+    //#### EDITOR METHODS ###################################
+    
+    //public EntityStatic[] entitiesInRectangle( int x, int y ){
+    		
+    //}
+    
+
 	    
 
     public LinkedList<Collision> list(){ return collisionsList; }

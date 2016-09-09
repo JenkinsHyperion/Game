@@ -1,9 +1,13 @@
 package entities;
 
 import java.awt.Rectangle;
+import java.util.ArrayList;
+
 import animation.Animation;
 import physics.Boundary;
 import physics.BoundingBox;
+import physics.CollidingPair;
+import physics.Collision;
 import sprites.SpriteAnimated;
 import sprites.SpriteStill;
 import sprites.Sprite;
@@ -14,6 +18,8 @@ import sprites.Sprite;
 public class EntityStatic extends Entity{
 
 	public boolean isSelected;
+
+    protected ArrayList<CollidingPair> collisions = new ArrayList<>();
 
 	private Sprite graphic; //might want to put into super class unless Entity without image is useful
 	protected Rectangle boundingBox = new Rectangle(0,0); //Should be moved to intermediate class for only collidables
@@ -100,5 +106,46 @@ public class EntityStatic extends Entity{
 		return String.format("%s", this);
 	}
 	
+	/**
+	 * @param collision
+	 * @return Adds collision to this entity's current collisions and return the index where it was put
+	 */
+    public int addCollision(Collision collision , boolean pairIndex){
+    	collisions.add( new CollidingPair(collision , pairIndex) );
+    	//printCollisions();
+    	return ( collisions.size() - 1 );
+    }
+    
+    public void removeCollision(int index){ //Remove collision 
+    	//System.out.println("Removing " + index + " from "+name );
+    	collisions.remove(index);
+    	//decrement indexes for all following collisions involving this entity
+    	for ( int i = index ; i < collisions.size() ; i++) {
+    		collisions.get(i).collision().indexShift(collisions.get(i).pairID());
+    	} 
+    	//printCollisions();
+    }
+	
+	public Collision[] getCollisions(){
+		Collision[] returnCollisions = new Collision[collisions.size()];
+		for ( int i = 0 ; i < collisions.size() ; i++ ){
+			returnCollisions[i] = collisions.get(i).collision();
+		}
+		return returnCollisions;
+    }
+	
+	public EntityStatic[] getCollidingPartners(){
+		EntityStatic[] partners = new EntityStatic[ collisions.size() ];
+		for (int i = 0 ; i < collisions.size() ; i++){
+			partners[i] = collisions.get(i).collision().getEntityInvolved( collisions.get(i).partnerID() ) ;
+		}
+		return partners;
+	}
+	
+	private void printCollisions() {
+		System.out.println("\nCollisions on "+ name );
+		for ( int i = 0 ; i < collisions.size() ; i++) 
+		System.out.println("---" + i + " " + collisions.get(i).collision().collisionName);
+	}
 	
 }

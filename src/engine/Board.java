@@ -57,7 +57,6 @@ public class Board extends JPanel implements Runnable {
     protected Rectangle selectedBox;
     
     protected MouseHandlerClass handler;
-    private boolean ingame = true;
     private final int ICRAFT_X = 170;
     private final int ICRAFT_Y = 100;
     public static final int B_WIDTH = 400;
@@ -72,8 +71,6 @@ public class Board extends JPanel implements Runnable {
     private double time = 0;
     private double deltaTime = 0;
     
-	//private Thread collisionThread;
-	//private Thread paintThread;
 
     private final int[][] pos = {
         {2380, 29}, {2500, 59}, {1380, 89},
@@ -107,9 +104,7 @@ public class Board extends JPanel implements Runnable {
   		addMouseMotionListener(handler);
         setFocusable(true);
         setBackground(Color.BLACK);
-        ingame = true;
-
-//        setPreferredSize(new Dimension(B_WIDTH, B_HEIGHT));
+        //        setPreferredSize(new Dimension(B_WIDTH, B_HEIGHT));
 //        setMinimumSize(new Dimension(B_WIDTH, B_HEIGHT));
         // setSize(300,400);
         // initialize object lists
@@ -164,6 +159,13 @@ public class Board extends JPanel implements Runnable {
 
         	}
         };
+        
+/* ########################################################################################################################
+ * 
+ * 		TIMER AND PAINT FUNCTIONALITY - LATER MOVED TO RENDERIGN ENGINE
+ * 
+ * ########################################################################################################################
+ */
         
         //will have to experiment how often collisions should be checked.
         //I get strange anomolies when setting the update rate (below in "scheduleAtFixedRate(collisionUpdateTask)" too
@@ -619,6 +621,11 @@ public class Board extends JPanel implements Runnable {
 	    g.drawString("Rotation: " + player.getAngle()*5 + " degrees",5,60);
 	    g.drawString("Colliding: " + player.isColliding(),5,75);
 	    
+	    for ( int i = 0 ; i < player.getCollisions().length ; i++ ) {
+	    	
+	    	g.drawString("Colliding with: " + player.getCollidingPartners()[i].name ,5,105+(10*i));
+	    }
+	    
 	    //Draw player bounding box
 	    Graphics2D g2 = (Graphics2D) g;
 	        
@@ -659,7 +666,7 @@ public class Board extends JPanel implements Runnable {
 	    
 	    
 	    //DEBUG - DISPLAY LIST OF COLLISIONS
-	    g.drawString("Collisions: ",5,90);
+	    /*g.drawString("Collisions: ",5,90);
 	    if (!Collisions.list().isEmpty())
 	    {
 	    	g2.setColor(Color.YELLOW);
@@ -688,7 +695,7 @@ public class Board extends JPanel implements Runnable {
 		    				(int) collisionsList.get(i).getContactPoints()[1].getY() 
 		    				);
 		    		g2.setColor(Color.YELLOW);
-		    	}*/
+		    	}*//*
 		    	else {
 		    		g.drawString("Depth "+Collisions.list().get(i).getDepth().getX()
 		    				+ " " + Collisions.list().get(i).getDepth().getY(),300,105+(10*i));
@@ -701,10 +708,10 @@ public class Board extends JPanel implements Runnable {
 		    		g.drawLine((int)point.getX()-3, (int)point.getY()-3, (int)point.getX()+3, (int)point.getY()+3);
 		    		g.drawLine((int)point.getX()-3, (int)point.getY()+3, (int)point.getX()+3, (int)point.getY()-3);
 		    	}
-		    	while (it.hasNext()); */
+		    	while (it.hasNext()); *//*
 		    		
 		    }
-	    }
+	    }*/
 	    //g.drawString("Calculation time: " + dt, 55, 45);
     }
     
@@ -853,6 +860,15 @@ public class Board extends JPanel implements Runnable {
 		g.drawLine((int)point.getX()-3, (int)point.getY()+3, (int)point.getX()+3, (int)point.getY()-3);
     }
 
+    
+/* ########################################################################################################################
+ * 
+ * 		GET AND SET METHODS AND OTHER MISC STUFF
+ * 
+ * ########################################################################################################################
+ */
+    
+    
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub

@@ -60,7 +60,7 @@ public class Player extends EntityRotationalDynamic {
         setBoundingBox(-12,-16,24,32);
         loadAnimatedSprite(IDLE_LEFT); 
         //setAngle(0);
-        //setAccY( 0.1f ); // Force initialize gravity (temporary)
+        setAccY( 0.1f ); // Force initialize gravity (temporary)
     }
 
 
@@ -88,15 +88,15 @@ public class Player extends EntityRotationalDynamic {
 
         if (key == KeyEvent.VK_A && !keypressA) {
         	keypressA = true; 
+			accX = -0.1f ; 
         }
 
         if (key == KeyEvent.VK_D && !keypressD) {
         	keypressD = true;
-            
+			accX = 0.1f ; 
         }
 
         if (key == KeyEvent.VK_SPACE && !keypressUP) { //JUMP
-        	dy = -2.5f;
         	keypressUP = true;
             
         }
@@ -112,10 +112,6 @@ public class Player extends EntityRotationalDynamic {
 
         if (key == KeyEvent.VK_A && keypressA) {
         	keypressA = false;
-        	
-        	//test dust particles. Can go in own method if we enjoy every collision having particles/sparks.
-        	if (getDY()==0 && getDX()==-2){ //Check to see if on ground. Should check state once states are stable, not DY.
-        	}
         	
         }
 
@@ -138,7 +134,7 @@ public class Player extends EntityRotationalDynamic {
     public void updatePosition() {//Override friction forces while running 
     	
         //TESTING update enhanced run animation
-        RUN_RIGHT.updateSpeed((int) getDX(), 0, 2, 2, 10);
+        RUN_RIGHT.updateSpeed((int) getDX(), 0, 2, 2, 10); //move to rendering
         //
         dx += accX;
     	dy += accY;
@@ -148,26 +144,17 @@ public class Player extends EntityRotationalDynamic {
         
     	//setAngle(0);
         
-    	/*if (keypressA && !climbing ){
-    		if (isColliding) {
-    			accX = -0.1f ; 
-    		}
+    	if (keypressA && isColliding ){
 
-    				
     	}
-    	if (keypressD && !climbing){ 
-    		if (isColliding) {
-    			accX = 0.1f ; 
-    		}
+    	if (keypressD && isColliding){ 
 
-    		
     	}
     	
-		if (keypressUP && isColliding && !climbing){
+		if (keypressUP && isColliding ){
 				dy -= 2.5f;
 		}
 
-    	
 
     	
 		if (dx>2){
@@ -205,9 +192,9 @@ public class Player extends EntityRotationalDynamic {
 				
 			}
 			
-		}*/
+		}
 		
-    	if (keypressA ){
+    	/*if (keypressA ){
     		//accX = -0.2f ; 
     		dx = -1;
 		
@@ -224,7 +211,7 @@ public class Player extends EntityRotationalDynamic {
     	else if (keypressS){
 			dy = 2;
     	}
-    	//else {dx=0; dy=0;}
+    	//else {dx=0; dy=0;}*/
     	
 
     }   

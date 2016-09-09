@@ -1,6 +1,11 @@
 package entities;
 
+import java.util.ArrayList;
+
+import com.sun.xml.internal.bind.v2.schemagen.xmlschema.List;
+
 import physics.Boundary;
+import physics.Collision;
 
 public class EntityDynamic extends EntityStatic{
 
@@ -57,12 +62,12 @@ public class EntityDynamic extends EntityStatic{
     public void clipDX(float clipDX) {
     	if ( dx > 0 ) {
     		
-    		if (clipDX < dx){ dx = (float) Math.floor(dx - clipDX) ; }
+    		if (clipDX < dx){ dx = dx - clipDX ; }
     		else { dx = 0 ; }
     	}
     	else if ( dx < 0 ) {
     		
-    		if (clipDX > dx){ dx =  (float) Math.floor(dx - clipDX) ; }
+    		if (clipDX > dx){ dx =  dx - clipDX ; }
     		else { dx = 0 ; }
     	}
     }
@@ -70,12 +75,12 @@ public class EntityDynamic extends EntityStatic{
     public void clipDY(float clipDY) {
     	if ( dy > 0 ) {
     
-    		if (clipDY < dy){ dy = (float) Math.floor( dy - clipDY ) ; }
+    		if (clipDY < dy){ dy = dy - clipDY  ; }
     		else { dy = 0 ; }
     	}
     	else if ( dy < 0 ) {
     		
-    		if (clipDY > dy){ dy = (float) Math.floor( clipDY - dy ) ; }
+    		if (clipDY > dy){ dy = clipDY - dy  ; }
     		else { dy = 0 ; }
     	}
     }
@@ -118,5 +123,9 @@ public class EntityDynamic extends EntityStatic{
     
     public boolean isColliding(){ return isColliding; }
     public void setColliding( boolean state ){ isColliding = state;}
+    
+
+    
+    
     
 }

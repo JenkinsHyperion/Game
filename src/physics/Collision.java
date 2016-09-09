@@ -14,6 +14,8 @@ public class Collision {
 	protected EntityStatic entitySecondary;
 	public String collisionName;
 	
+	protected int[] entityPairIndex = new int[2];
+	
 	protected Line2D contactingSide1;
 	protected Line2D contactingSide2;
 	
@@ -49,6 +51,19 @@ public class Collision {
 		
 	}
 	
+	public void indexShift( boolean pairIndex ){
+		if (!pairIndex)
+			entityPairIndex[ 1 ] = entityPairIndex[ 1 ] - 1;
+		else
+			entityPairIndex[ 0 ] = entityPairIndex[ 0 ] - 1;
+	}
+	
+	public EntityStatic getEntityInvolved(boolean pairID){
+		if (pairID)
+			return entityPrimary;
+		else
+			return entitySecondary;
+	}
 	
 	//INTERNAL METHODS - DON'T ALTER BELOW THIS
 	

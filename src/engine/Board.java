@@ -44,7 +44,7 @@ public class Board extends JPanel implements Runnable {
 	private java.util.Timer repaintTimer;
 	
 	private CollisionEngine Collisions = new CollisionEngine(this); //Refactor to a better name
-	
+	private SidePanel sidePanel;
     private Player player;
     private  PaintOverlay p;
     private LaserTest laser;
@@ -88,6 +88,11 @@ public class Board extends JPanel implements Runnable {
     };
 
     public Board() {
+    	initBoard();
+    }
+    //over loaded board constructor to accept SidePanel (editor) if editor is to be enabled
+    public Board(SidePanel sidePanel){
+    	this.sidePanel = sidePanel;
     	initBoard();
     }
 

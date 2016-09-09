@@ -10,7 +10,7 @@ import java.awt.geom.Line2D;
 
 @SuppressWarnings("serial")
 public class SplitPane extends JPanel {
-	private static Board board;
+	private Board board;
 	private static SidePanel sidePanel;
 	private JSplitPane splitPane;
     public boolean sidePanelOn = false;
@@ -26,7 +26,7 @@ public class SplitPane extends JPanel {
 		board.setPreferredSize(new Dimension(Board.B_WIDTH, Board.B_HEIGHT));
 		board.setMinimumSize(new Dimension(Board.B_WIDTH, Board.B_HEIGHT));
 		
-		sidePanel = new SidePanel();
+		sidePanel = new SidePanel(board);
 		sidePanel.setSize(new Dimension(220, 300));
 		sidePanel.setPreferredSize(new Dimension(220, 300));
 		sidePanel.setMinimumSize(sidePanelMinSize);
@@ -61,10 +61,11 @@ public class SplitPane extends JPanel {
 	public JSplitPane getSplitPane() {
 		return splitPane;
 	}
-	
-	public static Board getBoard(){
+	@Deprecated
+	public Board getBoard(){
 		return board;
 	}
+	@Deprecated
 	public static SidePanel getSidePanel() {
 		return sidePanel;
 	}

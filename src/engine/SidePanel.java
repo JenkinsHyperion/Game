@@ -9,6 +9,7 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import entities.*;
 import Editing.*;
+import engine.*;
 
 
 //TASK LIST:
@@ -21,7 +22,7 @@ import Editing.*;
  * @author Dave 
  */
 public class SidePanel extends JPanel {
-	
+	private Board board;
 	private ArrayList<PropertiesList> listOfPropLists;
 	private String[] propListAsString; //will be initialized in its own updating/populating function, just like entities list has.
     private String[] staticEntityStringArr;
@@ -42,9 +43,11 @@ public class SidePanel extends JPanel {
 
 	private int currentEntIndex;
 
-	public SidePanel() {
+	public SidePanel( Board boardInstance) {
+	
+		this.board = boardInstance;
 		//set default selected entity so it's not null
-		setSelectedEntityThruEditor(SplitPane.getBoard().staticEntitiesList.get(0)); 
+		setSelectedEntityThruEditor(board.staticEntitiesList.get(0)); 
 		
 		//set the editor's layout
 		layout = new FlowLayout(FlowLayout.LEADING, 3, 3);
@@ -85,18 +88,21 @@ public class SidePanel extends JPanel {
 			public void itemStateChanged(ItemEvent e){
 				if (e.getStateChange() == ItemEvent.SELECTED) 
 				{
+					//String testString = (String)allEntitiesComboBox.getSelectedItem();
+					//System.out.println(testString);
+					//allEntitiesComboBox.addItem
 					currentEntIndex = allEntitiesComboBox.getSelectedIndex();
 					System.out.println(currentEntIndex);
 					try{					
-						SplitPane.getBoard().deselectAllEntities();
+						board.deselectAllEntities();
 						editPropertiesButton.setEnabled(true);
 						//sets Board's current entity
-						setSelectedEntityThruEditor(SplitPane.getBoard().staticEntitiesList.get(currentEntIndex));
-						//SplitPane.getBoard().staticEntitiesList.get(currentEntIndex).isSelected = true;
+						setSelectedEntityThruEditor(board.staticEntitiesList.get(currentEntIndex));
+						//board.staticEntitiesList.get(currentEntIndex).isSelected = true;
 						setSelectedEntityName("Selected: " + getSelectedEntity().name);
 						setEntityCoordsLabel(String.format("Coords of Selected Entity: %s,%s", getSelectedEntity().getX(), getSelectedEntity().getY()));
 						//sends code from here over to Board to let it draw this entity's selection box
-						SplitPane.getBoard().selectedBox.setSize(getSelectedEntity().getObjectGraphic().getImage().getWidth(null),
+						board.selectedBox.setSize(getSelectedEntity().getObjectGraphic().getImage().getWidth(null),
 	  															getSelectedEntity().getObjectGraphic().getImage().getHeight(null) );
 					}
 					catch (NullPointerException exception){
@@ -359,7 +365,7 @@ public class SidePanel extends JPanel {
 	 */
 	private EntityStatic getSelectedEntity(){
 		try{
-			return SplitPane.getBoard().currentSelectedEntity;
+			return board.currentSelectedEntity;
 		}catch (Exception e) {
 			
 			e.printStackTrace();
@@ -371,7 +377,7 @@ public class SidePanel extends JPanel {
 	 * @param newSelectedEntity
 	 */
 	private void setSelectedEntityThruEditor(EntityStatic newSelectedEntity){
-		SplitPane.getBoard().setCurrentSelectedEntity(newSelectedEntity);
+		board.setCurrentSelectedEntity(newSelectedEntity);
 	}
 	//helper function to transfer data from ArrayList into a regular array
 	private void populateArrayFromList(String[] arr, ArrayList<EntityStatic> arrayList)
@@ -389,13 +395,13 @@ public class SidePanel extends JPanel {
 	}
 	
 	private void updateEntityStringArr() {
-		staticEntityStringArr = new String[(SplitPane.getBoard().staticEntitiesList.size())];	
-		populateArrayFromList(staticEntityStringArr, SplitPane.getBoard().staticEntitiesList);
+		staticEntityStringArr = new String[(board.staticEntitiesList.size())];	
+		populateArrayFromList(staticEntityStringArr, board.staticEntitiesList);
 	}
 	
 	
 	public void populateListOfPropLists() {
-		ArrayList<EntityStatic> currentEntListCopy = SplitPane.getBoard().staticEntitiesList;
+		ArrayList<EntityStatic> currentEntListCopy = board.staticEntitiesList;
 		listOfPropLists = new ArrayList<PropertiesList>(currentEntListCopy.size());
 		for (EntityStatic ent : currentEntListCopy){
 			//will create a new propertyList array corresponding to each staticEntity.

@@ -102,8 +102,8 @@ public class SidePanel extends JPanel {
 						setSelectedEntityName("Selected: " + getSelectedEntity().name);
 						setEntityCoordsLabel(String.format("Coords of Selected Entity: %s,%s", getSelectedEntity().getX(), getSelectedEntity().getY()));
 						//sends code from here over to Board to let it draw this entity's selection box
-						board.selectedBox.setSize(getSelectedEntity().getObjectGraphic().getImage().getWidth(null),
-	  															getSelectedEntity().getObjectGraphic().getImage().getHeight(null) );
+						board.selectedBox.setSize(getSelectedEntity().getEntitySprite().getImage().getWidth(null),
+	  															getSelectedEntity().getEntitySprite().getImage().getHeight(null) );
 					}
 					catch (NullPointerException exception){
 						exception.printStackTrace();

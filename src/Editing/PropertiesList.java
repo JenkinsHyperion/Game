@@ -4,10 +4,12 @@ package Editing;
 import java.util.ArrayList;
 import entities.*;
 public class PropertiesList {
-
+	/* WILL USE THESE LATER ON WHEN THERE ARE MORE PROPERTIES TO HANDLE
 	private ArrayList entityStaticPropsList; // make array list
 	private ArrayList entityDynamicPropsList;
 	private ArrayList entityPhysicsPropsList;
+	*/
+	
 	//private Property prop;
 	private ArrayList<Property> propertiesList;
 	private String[] propertiesAsString;
@@ -21,10 +23,9 @@ public class PropertiesList {
 		for (int i = 0; i < propertiesList.size(); i++) {
 			propertiesAsString[i] = propertiesList.get(i).getPropertyName();
 		}
-		initStaticProperties();
+		/*initStaticProperties();
 		initDynamicProperties();
-		initPhysicsProperties();
-		
+		initPhysicsProperties(); */	
 	}
 
 
@@ -53,8 +54,8 @@ public class PropertiesList {
 	
 	//will use this entire section later when I can think of
 	// more type-related properties these entities would share.
+	/*
 	private void initStaticProperties() {
-		//entityStaticPropsList.add
 		entityStaticPropsList = null;
 	}
 	private void initDynamicProperties() {
@@ -64,11 +65,10 @@ public class PropertiesList {
 	private void initPhysicsProperties() {
 		// TODO Auto-generated method stub
 		entityPhysicsPropsList = null;
-	}
-	
+	} */
 	public String[] getPropertiesAsString() {
 		return propertiesAsString;
-	}
+	} 
 	/**
 	 * 
 	* @param propType Must choose Property.BOOLEAN, Property.POS, or Property.TEXT

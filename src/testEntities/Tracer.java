@@ -4,10 +4,7 @@ import entities.*;
 import physics.*;
 
 import java.awt.geom.Line2D;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Graphics;
-import java.awt.Color;
+import java.awt.*;
 
 
 /* just a simple class to test out drawing a laser to the screen and having it persist. */
@@ -92,22 +89,22 @@ public class Tracer extends EntityDynamic{ // Can extend either EntityStatic or 
      */
     public void pewpew(Graphics g){
     	g2 = (Graphics2D) g;
+    	float thickness = 2f;
+    	Stroke oldStroke = g2.getStroke();
+    	g2.setStroke(new BasicStroke(thickness));
     	//dbb = (Graphics2D) g;
     	g2.setColor(Color.RED);
     	//dbb.setColor(Color.CYAN);
     	//setting point variables for the laser
     	Point originPoint = new Point(getX(),getY());
     	Point endPoint = new Point(xEndPoint,yEndPoint);
-    	
-
-    	
     	tracer = new Line2D.Float(originPoint,endPoint);
     	
     	//creating the laser, getting its bounds, and drawing it
     	//beam = new Line2D.Float(originPoint,endPoint);
        	
     	g2.draw(beam);
-
+    	g2.setStroke(oldStroke);
     }
     
     @Override

@@ -65,8 +65,7 @@ public class SplitPane extends JPanel {
 	public Board getBoard(){
 		return board;
 	}
-	@Deprecated
-	public static SidePanel getSidePanel() {
+	protected static SidePanel getSidePanel() {
 		return sidePanel;
 	}
 	

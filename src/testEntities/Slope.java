@@ -17,7 +17,7 @@ public class Slope extends EntityStatic{
 		loadSprite("bullet");
 		
 		
-		name = "Platform"+count;
+		name = "Slope";
 	}
 
 	

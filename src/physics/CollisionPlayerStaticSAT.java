@@ -74,7 +74,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 			
 		}
 		else { //Primary Entity is clipping with closest resolution of vector
-			
+			try {
 			depthX = (int) resolution.getX();
 			depthY = (int) resolution.getY();
 
@@ -94,7 +94,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 				
 				//entityPrimary.setAccY(0);
 				entityPrimary.clipDY((int) ( -resolution.getY() ) );
-
+			} catch(Exception e) { e.printStackTrace();}
 		}
 	    
 		 

@@ -2,6 +2,7 @@ package engine;
 
 import javax.swing.*;
 
+import editing.*;
 import testEntities.Particle;
 
 import java.awt.*;
@@ -9,35 +10,33 @@ import java.awt.event.*;
 import java.awt.geom.Line2D;
 
 @SuppressWarnings("serial")
-public class SplitPane extends JPanel {
+public class MainWindow extends JPanel {
 	private Board board;
-	private static SidePanel sidePanel;
+	private static EditorPanel editorPanel;
 	private JSplitPane splitPane;
-    public boolean sidePanelOn = false;
     private boolean F1pressed = false;
-    private Dimension sidePanelMinSize;
+    private Dimension editorPanelMinSize;
     
 
 
-	public SplitPane() {
-		
-		sidePanelMinSize = new Dimension(220,300);
+	public MainWindow() {
+		editorPanelMinSize = new Dimension(220,300);
 		board = new Board();
 		board.setPreferredSize(new Dimension(Board.B_WIDTH, Board.B_HEIGHT));
 		board.setMinimumSize(new Dimension(Board.B_WIDTH, Board.B_HEIGHT));
 		
-		sidePanel = new SidePanel(board);
-		sidePanel.setSize(new Dimension(220, 300));
-		sidePanel.setPreferredSize(new Dimension(220, 300));
-		sidePanel.setMinimumSize(sidePanelMinSize);
+		editorPanel = new EditorPanel(board);
+		editorPanel.setSize(new Dimension(220, 300));
+		editorPanel.setPreferredSize(new Dimension(220, 300));
+		editorPanel.setMinimumSize(editorPanelMinSize);
 		
-		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sidePanel, board);
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, editorPanel, board);
 		splitPane.setOneTouchExpandable(true);
-		splitPane.setDividerLocation(sidePanel.getWidth());
+		splitPane.setDividerLocation(editorPanel.getWidth());
 		board.setFocusable(true);
 		
-		splitPane.setSize(new Dimension(board.getWidth() + sidePanel.getWidth(), 300));
-		splitPane.setMinimumSize(new Dimension(board.getWidth() + sidePanel.getWidth(), 300));
+		splitPane.setSize(new Dimension(board.getWidth() + editorPanel.getWidth(), 300));
+		splitPane.setMinimumSize(new Dimension(board.getWidth() + editorPanel.getWidth(), 300));
 		
 		splitPane.addKeyListener(new KeyListener() {
 			@Override
@@ -65,22 +64,30 @@ public class SplitPane extends JPanel {
 	public Board getBoard(){
 		return board;
 	}
-	protected static SidePanel getSidePanel() {
-		return sidePanel;
+	public static EditorPanel getEditorPanel() {
+		return editorPanel;
 	}
 	
 	public static void createAndShowGUI() {
 		//Create and set up the window
 		JFrame frame = new JFrame(System.getProperty("user.dir").replace( "\\", "//" ));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		SplitPane splitPaneInstance = new SplitPane();
-		//frame.setMinimumSize(new Dimension(splitPaneInstance.board.getWidth() + splitPaneInstance.sidePanel.getWidth(), 300));
+		MainWindow splitPaneInstance = new MainWindow();
 		frame.add(splitPaneInstance.getSplitPane());
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 		frame.pack();
 	}
 	
+	public static void main(String[] args) {
+
+		EventQueue.invokeLater(new Runnable() { 
+			@Override
+			public void run() {                
+				createAndShowGUI();                
+			}
+		});
+	}
     /*@Override //Should go in intermediate "Rendering" class or something 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);

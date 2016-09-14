@@ -1,6 +1,6 @@
-package Editing;
+package editing;
 
-import engine.SplitPane;
+import engine.MainWindow;
 import entities.*;
 
 public class Property {

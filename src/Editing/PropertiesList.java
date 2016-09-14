@@ -1,4 +1,4 @@
-package Editing;
+package editing;
 
 
 import java.util.ArrayList;

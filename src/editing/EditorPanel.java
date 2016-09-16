@@ -43,9 +43,10 @@ public class EditorPanel extends JPanel {
     //private JList entitiesJList;
 
 	protected int currentEntIndex;
+	public boolean testFlag;
 
 	public EditorPanel( Board boardInstance) {
-	
+		testFlag = true;
 		this.board = boardInstance;
 		//set default selected entity so it's not null
 		setSelectedEntityThruEditor(board.getStaticEntities().get(0)); 
@@ -79,7 +80,15 @@ public class EditorPanel extends JPanel {
 					createAndShowPropertiesFrame();	
 			} 		
 		});
-				
+
+		// inline panel for button
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setBorder(BorderFactory.createTitledBorder("buttonPanel"));
+		buttonPanel.setLayout(new BorderLayout());
+		buttonPanel.setPreferredSize(new Dimension(190, 50));
+		buttonPanel.setBackground(Color.GRAY);
+		buttonPanel.add(editPropertiesButton);
+
 		// ## The drop down box for the list of all entities in board ###	
 		allEntitiesComboBox = new JComboBox<>(staticEntityStringArr);
 		allEntitiesComboBox.setFocusable(false);
@@ -89,11 +98,15 @@ public class EditorPanel extends JPanel {
 			public void itemStateChanged(ItemEvent e){
 				if (e.getStateChange() == ItemEvent.SELECTED) 
 				{
+					//deleteComponent(buttonPanel, editPropertiesButton);
 					//String testString = (String)allEntitiesComboBox.getSelectedItem();
 					//System.out.println(testString);
 					//allEntitiesComboBox.addItem
 					currentEntIndex = allEntitiesComboBox.getSelectedIndex();
 					System.out.println(currentEntIndex);
+					System.out.println("Test area. e.getItem(): " + e.getItem());
+					if (currentEntIndex == 0)
+						buttonPanel.setVisible(true);
 					try{					
 						board.deselectAllEntities();
 						editPropertiesButton.setEnabled(true);
@@ -117,24 +130,16 @@ public class EditorPanel extends JPanel {
 		// ###### adding the components to the Editor window		
 		//inline panel for text messages
 		JPanel labelsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		labelsPanel.setPreferredSize(new Dimension(215, 100));
+		labelsPanel.setPreferredSize(new Dimension(215, 80));
 		labelsPanel.setBackground(Color.GRAY);
 		labelsPanel.setBorder(BorderFactory.createEtchedBorder());
 		labelsPanel.add(mousePosLabel);
 		labelsPanel.add(entityCoordsLabel);
 		labelsPanel.add(selectedEntityNameLabel);
-		add(labelsPanel);
-
-		add(allEntitiesComboBox);
 		
-		// inline panel for button
-		JPanel buttonPanel = new JPanel();
-		buttonPanel.setLayout(new BorderLayout());
-		buttonPanel.setPreferredSize(new Dimension(190, 30));
-		buttonPanel.setBackground(Color.GRAY);
-		buttonPanel.add(editPropertiesButton);
-		buttonPanel.setBorder(BorderFactory.createEtchedBorder());
-		add(buttonPanel);
+		add(allEntitiesComboBox);
+		add(labelsPanel);
+		add(buttonPanel);		
 		layout.layoutContainer(this);
 	} //end of constructor;
 	
@@ -146,6 +151,13 @@ public class EditorPanel extends JPanel {
 		propFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		propFrame.setLocationRelativeTo(null);
 		propFrame.setVisible(true);
+	}
+	public void deleteComponent(Container container, JComponent comp) {
+		container.remove(comp);
+		container.setVisible(false);
+		revalidate();
+		repaint();
+		//comp.setVisible(false);
 	}
 	/**
 	 * <b>Returns the entered property of the current entity's propertyList</b>

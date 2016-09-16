@@ -6,6 +6,10 @@ import javax.swing.*;
 
 import editing.*;
 
+
+//HUGE NOTE:
+//I WILL BE CHANGING THIS INTO A PANEL, MAKING IT EXTEND EDITORPANEL.JAVA TO OBTAIN ALL ITS FIELDS,
+//AND PLACING THIS PANEL AT THE BOTTOM OF EDITORPANEL. IT WILL BE COLLAPSED WHEN NOTHING IS SELECTED.
 public class PropertiesFrame extends JFrame implements ActionListener,ItemListener{
 	//create some components
 	JComboBox<String> propertiesListComboBox;

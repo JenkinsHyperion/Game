@@ -29,6 +29,7 @@ public class MainWindow extends JPanel {
 		editorPanel.setSize(new Dimension(220, 300));
 		editorPanel.setPreferredSize(new Dimension(220, 300));
 		editorPanel.setMinimumSize(editorPanelMinSize);
+		board.transferEditorPanel(editorPanel);
 		
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, editorPanel, board);
 		splitPane.setOneTouchExpandable(true);
@@ -64,6 +65,7 @@ public class MainWindow extends JPanel {
 	public Board getBoard(){
 		return board;
 	}
+	@Deprecated
 	public static EditorPanel getEditorPanel() {
 		return editorPanel;
 	}

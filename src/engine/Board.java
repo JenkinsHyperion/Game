@@ -418,14 +418,14 @@ public class Board extends JPanel implements Runnable {
   				deselectAllEntities();
   				mouseClick = true;
 	  			clickPosition.setLocation(e.getX(),e.getY());
-	  			MainWindow.getEditorPanel().setEntityCoordsLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
-	  			  			
+	  			//MainWindow.getEditorPanel().setEntityCoordsLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
+	  			editorPanel.setEntityCoordsLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));			
 	  			checkForSelection(clickPosition);  			
 	  		
 	  			if (currentSelectedEntity != null) {  	// there is entity under cursor
 	  				if(currentSelectedEntity.isSelected != true) {
 	  					currentSelectedEntity.isSelected = true;
-	  					MainWindow.getEditorPanel().enableEditPropertiesButton(true);
+	  					editorPanel.enableEditPropertiesButton(true);
 	  				}
 	  				else{
 	  					currentSelectedEntity.isSelected = false;
@@ -436,8 +436,8 @@ public class Board extends JPanel implements Runnable {
 	  				
 		  			System.out.println(currentSelectedEntity.name);
 	  	  			//SidePanel.setSelectedEntityName("Selected: " + currentSelectedEntity.name);
-		  			MainWindow.getEditorPanel().setSelectedEntityName("Selected: " + currentSelectedEntity.name);
-		  			MainWindow.getEditorPanel().setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
+		  			editorPanel.setSelectedEntityName("Selected: " + currentSelectedEntity.name);
+		  			editorPanel.setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
 		  			//get offsets
 		  			clickPositionXOffset = e.getX() - currentSelectedEntity.getX() ;
 		  			clickPositionYOffset = e.getY() - currentSelectedEntity.getY() ;
@@ -445,8 +445,8 @@ public class Board extends JPanel implements Runnable {
 	  			}
 	  			else { //doesnt need to be redrawn every time
 	  				
-	  				MainWindow.getEditorPanel().setSelectedEntityName("Nothing Selected");
-		  			MainWindow.getEditorPanel().setEntityCoordsLabel("Coords. of selected entity: N/A");
+	  				editorPanel.setSelectedEntityName("Nothing Selected");
+		  			editorPanel.setEntityCoordsLabel("Coords. of selected entity: N/A");
 	  			}
 	
   			}
@@ -455,12 +455,12 @@ public class Board extends JPanel implements Runnable {
   		@Override
   		public void mouseDragged(MouseEvent e) 
   		{ 		
-  			MainWindow.getEditorPanel().setMousePosLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
+  			editorPanel.setMousePosLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
 
   			if (currentSelectedEntity != null) {
   				currentSelectedEntity.setX(e.getX() - clickPositionXOffset);
   				currentSelectedEntity.setY(e.getY() - clickPositionYOffset);
-  				MainWindow.getEditorPanel().setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
+  				editorPanel.setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
   			}
 
   		}
@@ -497,9 +497,9 @@ public class Board extends JPanel implements Runnable {
   			selectedBox.setSize(entity.getEntitySprite().getImage().getWidth(null), entity.getEntitySprite().getImage().getHeight(null) );
   			if (selectedBox.contains(click)) 
   			{
-  				MainWindow.getEditorPanel().setAllEntitiesComboBoxIndex(counter);
-  	  			MainWindow.getEditorPanel().setSelectedEntityName("Selected: " + entity.name);
-  	  			MainWindow.getEditorPanel().setEntityCoordsLabel("Coords. of selected entity: " + entity.getX() + ", " + entity.getY());
+  				editorPanel.setAllEntitiesComboBoxIndex(counter);
+  	  			editorPanel.setSelectedEntityName("Selected: " + entity.name);
+  	  			editorPanel.setEntityCoordsLabel("Coords. of selected entity: " + entity.getX() + ", " + entity.getY());
   	  			//currentSelectedEntity.isSelected = true;
   				return entity;
   			}
@@ -509,7 +509,7 @@ public class Board extends JPanel implements Runnable {
   	}
   	
   	public void deselectAllEntities() {
-  		MainWindow.getEditorPanel().enableEditPropertiesButton(false);
+  		editorPanel.enableEditPropertiesButton(false);
   		for (EntityStatic entity : staticEntitiesList) {
   			if (entity.isSelected == true)
   				entity.isSelected = false;
@@ -879,5 +879,8 @@ public class Board extends JPanel implements Runnable {
   			currentSelectedEntity.isSelected = true;
   		}
   	}
+	public void transferEditorPanel(EditorPanel instance){
+		this.editorPanel = instance; 
+	}
     
 }

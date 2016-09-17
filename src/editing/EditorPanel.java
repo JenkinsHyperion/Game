@@ -23,6 +23,11 @@ import engine.*;
  * @author Dave 
  */
 public class EditorPanel extends JPanel {
+	// ### important fields ###
+	public final Dimension minimizedSize = new Dimension(200,20);
+	public final Dimension propPanelDefaultSize = new Dimension(215,125);
+	protected int currentEntIndex;
+	public boolean testFlag;
 	private Board board;
 	protected ArrayList<PropertiesList> listOfPropLists;
 	private String[] propListAsString; //will be initialized in its own updating/populating function, just like entities list has.
@@ -38,12 +43,14 @@ public class EditorPanel extends JPanel {
 	protected JComboBox<String> allEntitiesComboBox;
 	//private JComboBox<String> propertiesListComboBox;  for now, moved this to PropertiesFrame
 	protected JButton editPropertiesButton;
+	//Panels
+	private JPanel labelsPanel;
+	private JPanel buttonPanel;
+	private JPanel propertyPanelTest;
 
 	public FlowLayout layout;
     //private JList entitiesJList;
 
-	protected int currentEntIndex;
-	public boolean testFlag;
 
 	public EditorPanel( Board boardInstance) {
 		testFlag = true;
@@ -82,11 +89,11 @@ public class EditorPanel extends JPanel {
 		});
 
 		// inline panel for button
-		JPanel buttonPanel = new JPanel();
-		buttonPanel.setBorder(BorderFactory.createTitledBorder("buttonPanel"));
-		buttonPanel.setLayout(new BorderLayout());
-		buttonPanel.setPreferredSize(new Dimension(190, 50));
+		buttonPanel = new JPanel();
 		buttonPanel.setBackground(Color.GRAY);
+		buttonPanel.setBorder(BorderFactory.createTitledBorder("buttonPanelTest"));
+		buttonPanel.setLayout(new BorderLayout());
+		buttonPanel.setPreferredSize(new Dimension(190, 50));		
 		buttonPanel.add(editPropertiesButton);
 
 		// ## The drop down box for the list of all entities in board ###	
@@ -98,22 +105,22 @@ public class EditorPanel extends JPanel {
 			public void itemStateChanged(ItemEvent e){
 				if (e.getStateChange() == ItemEvent.SELECTED) 
 				{
-					//deleteComponent(buttonPanel, editPropertiesButton);
+					restorePanels();
 					//String testString = (String)allEntitiesComboBox.getSelectedItem();
 					//System.out.println(testString);
 					//allEntitiesComboBox.addItem
 					currentEntIndex = allEntitiesComboBox.getSelectedIndex();
 					System.out.println(currentEntIndex);
 					System.out.println("Test area. e.getItem(): " + e.getItem());
-					if (currentEntIndex == 0)
-						buttonPanel.setVisible(true);
+
 					try{					
 						board.deselectAllEntities();
 						editPropertiesButton.setEnabled(true);
+						
 						//sets Board's current entity
 						setSelectedEntityThruEditor(board.getStaticEntities().get(currentEntIndex));
-						//board.staticEntitiesList.get(currentEntIndex).isSelected = true;
-						setSelectedEntityName("Selected: " + getSelectedEntity().name);
+						createAndShowPropertiesPanel();
+						setSelectedEntityNameLabel("Selected: " + getSelectedEntity().name);
 						setEntityCoordsLabel(String.format("Coords of Selected Entity: %s,%s", getSelectedEntity().getX(), getSelectedEntity().getY()));
 						//sends code from here over to Board to let it draw this entity's selection box
 						board.selectedBox.setSize(getSelectedEntity().getEntitySprite().getImage().getWidth(null),
@@ -129,7 +136,7 @@ public class EditorPanel extends JPanel {
 		
 		// ###### adding the components to the Editor window		
 		//inline panel for text messages
-		JPanel labelsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		labelsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		labelsPanel.setPreferredSize(new Dimension(215, 80));
 		labelsPanel.setBackground(Color.GRAY);
 		labelsPanel.setBorder(BorderFactory.createEtchedBorder());
@@ -137,33 +144,46 @@ public class EditorPanel extends JPanel {
 		labelsPanel.add(entityCoordsLabel);
 		labelsPanel.add(selectedEntityNameLabel);
 		
+		propertyPanelTest = new JPanel();
+		propertyPanelTest.setPreferredSize(minimizedSize);
+		propertyPanelTest.setBackground(Color.GRAY);
+		propertyPanelTest.setBorder(BorderFactory.createTitledBorder("propertyPanelTest"));
+		
+		// #### add everything to the editor
 		add(allEntitiesComboBox);
 		add(labelsPanel);
-		add(buttonPanel);		
-		layout.layoutContainer(this);
+		add(buttonPanel);	
+		add(propertyPanelTest);
+		revalidate();
 	} //end of constructor;
 	
 	//this class will be the stand-in for my current shitty JOptionPane popup.
 	// will be created when createPropertiesFrame() is called.
-		
+	@Deprecated	
 	public void createAndShowPropertiesFrame() {
 		PropertiesFrame propFrame = new PropertiesFrame(this);
 		propFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		propFrame.setLocationRelativeTo(null);
 		propFrame.setVisible(true);
 	}
-	public void deleteComponent(Container container, JComponent comp) {
-		container.remove(comp);
-		container.setVisible(false);
-		revalidate();
-		repaint();
-		//comp.setVisible(false);
+	public void createAndShowPropertiesPanel() {
+		propertyPanelTest.removeAll();
+		propertyPanelTest.add(new PropertiesPanel(this));
+	}
+	public void minimizePanels() {
+		//buttonPanel.setPreferredSize(minimizedSize);
+		propertyPanelTest.setPreferredSize(minimizedSize);
+	}
+	public void restorePanels() {
+		//buttonPanel.setPreferredSize(minimizedSize);
+		//labelsPanel.setPreferredSize(minimizedSize);
+		propertyPanelTest.setPreferredSize(propPanelDefaultSize);
 	}
 	/**
 	 * <b>Returns the entered property of the current entity's propertyList</b>
 	 * <br/> -A helper function to shorten typing listOfProplists.get(currentIndex).getProperty
 	 * @param propType Must be of type Property.COL_STATE, .XPOS, .YPOS, etc.
-	 * @return the given property in the listOfPropLists arraylist.
+	 * @return the given property in the listOfPropLists arraylist of the currently selected entity.
 	 */
 	public Property getThisProperty(int propType){
 		try{
@@ -240,7 +260,7 @@ public class EditorPanel extends JPanel {
 		entityCoordsLabel.setText(text);
 	}
 
-	public void setSelectedEntityName(String text){
+	public void setSelectedEntityNameLabel(String text){
 		selectedEntityNameLabel.setText(text);
 	}
 	public void setAllEntitiesComboBoxIndex(int index) {

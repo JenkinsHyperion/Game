@@ -425,7 +425,7 @@ public class Board extends JPanel implements Runnable {
 	  			if (currentSelectedEntity != null) {  	// there is entity under cursor
 	  				if(currentSelectedEntity.isSelected != true) {
 	  					currentSelectedEntity.isSelected = true;
-	  					editorPanel.enableEditPropertiesButton(true);
+	  					
 	  				}
 	  				else{
 	  					currentSelectedEntity.isSelected = false;
@@ -436,16 +436,17 @@ public class Board extends JPanel implements Runnable {
 	  				
 		  			System.out.println(currentSelectedEntity.name);
 	  	  			//SidePanel.setSelectedEntityName("Selected: " + currentSelectedEntity.name);
-		  			editorPanel.setSelectedEntityName("Selected: " + currentSelectedEntity.name);
+		  			editorPanel.setSelectedEntityNameLabel("Selected: " + currentSelectedEntity.name);
 		  			editorPanel.setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
 		  			//get offsets
 		  			clickPositionXOffset = e.getX() - currentSelectedEntity.getX() ;
 		  			clickPositionYOffset = e.getY() - currentSelectedEntity.getY() ;
-		  			System.out.println("Offset "+ clickPositionXOffset + "," + clickPositionYOffset);
 	  			}
-	  			else { //doesnt need to be redrawn every time
+	  			// WILL TRIGGER DESELECTING THE CURRENT ENTITY
+	  			// CODE FIRES WHEN YOU CLICK AND NOTHING IS UNDER CURSOR
+	  			else { 
 	  				
-	  				editorPanel.setSelectedEntityName("Nothing Selected");
+	  				editorPanel.setSelectedEntityNameLabel("Nothing Selected");
 		  			editorPanel.setEntityCoordsLabel("Coords. of selected entity: N/A");
 	  			}
 	
@@ -481,13 +482,14 @@ public class Board extends JPanel implements Runnable {
   	//LEVEL EDITOR METHODS
   	
   	private void checkForSelection(Point click) { //redundant
-  			currentSelectedEntity = clickedOnEntity(click);
-  			
-  			if (currentSelectedEntity != null)
-  				currentDebugEntity = clickedOnEntity(click);
-  			
+  		setCurrentSelectedEntity(clickedOnEntity(click));
+  		//currentSelectedEntity = clickedOnEntity(click);
+
+  		if (currentSelectedEntity != null)
+  			currentDebugEntity = clickedOnEntity(click);
+
   	}
-  	
+
   	private EntityStatic clickedOnEntity(Point click) {
   		int counter = 0;
   		for (EntityStatic entity : staticEntitiesList) {
@@ -497,19 +499,24 @@ public class Board extends JPanel implements Runnable {
   			selectedBox.setSize(entity.getEntitySprite().getImage().getWidth(null), entity.getEntitySprite().getImage().getHeight(null) );
   			if (selectedBox.contains(click)) 
   			{
+  				entity.isSelected = true;
+  				editorPanel.enableEditPropertiesButton(true);
+  				editorPanel.restorePanels();
   				editorPanel.setAllEntitiesComboBoxIndex(counter);
-  	  			editorPanel.setSelectedEntityName("Selected: " + entity.name);
+  	  			editorPanel.setSelectedEntityNameLabel("Selected: " + entity.name);
   	  			editorPanel.setEntityCoordsLabel("Coords. of selected entity: " + entity.getX() + ", " + entity.getY());
-  	  			//currentSelectedEntity.isSelected = true;
   				return entity;
   			}
   			counter++;
   		}
+  		//nothing was found under cursor: 
+  		editorPanel.enableEditPropertiesButton(false);
+  		editorPanel.minimizePanels();
   		return null;
   	}
   	
   	public void deselectAllEntities() {
-  		editorPanel.enableEditPropertiesButton(false);
+  		
   		for (EntityStatic entity : staticEntitiesList) {
   			if (entity.isSelected == true)
   				entity.isSelected = false;
@@ -869,15 +876,20 @@ public class Board extends JPanel implements Runnable {
 	public ArrayList<EntityDynamic> getPhysicsEntities(){ return physicsEntitiesList; }
 	public EntityStatic getCurrentSelectedEntity() { return currentSelectedEntity; }
 	public void setCurrentSelectedEntity(EntityStatic newSelectedEntity){
-  		try{ 
-  			//checks the previous selected entity and makes it false if its flag was set as selected
-  			if (currentSelectedEntity != null) {
-	  			if (currentSelectedEntity.isSelected == true)
-	  				currentSelectedEntity.isSelected = false; }
-	  		} finally{
-  			currentSelectedEntity = newSelectedEntity;
-  			currentSelectedEntity.isSelected = true;
-  		}
+		try{
+			if (newSelectedEntity != null) {
+			//checks the previous selected entity and makes it false if its flag was set as selected
+				if (currentSelectedEntity != null) {
+					if (currentSelectedEntity.isSelected == true)
+						currentSelectedEntity.isSelected = false;
+				}
+	
+				currentSelectedEntity = newSelectedEntity;
+				currentSelectedEntity.isSelected = true;
+			}
+			else
+				currentSelectedEntity = null;
+		}catch (Exception e) {e.printStackTrace();}
   	}
 	public void transferEditorPanel(EditorPanel instance){
 		this.editorPanel = instance; 

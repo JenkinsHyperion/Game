@@ -8,6 +8,7 @@ import java.awt.event.KeyEvent;
 
 import animation.*;
 import engine.Board;
+import sun.util.resources.cldr.ur.CurrencyNames_ur;
 import testEntities.Bullet;
 import testEntities.Particle;
 
@@ -15,7 +16,7 @@ public class Player extends EntityRotationalDynamic {
 
 	//private static Action enterAction;
 	
-	
+	private Board board;
 	//private Timer keytimer;
 	
 	private boolean keypressA = false;
@@ -47,11 +48,11 @@ public class Player extends EntityRotationalDynamic {
     private AnimationState playerState = idlingLeft;
     private AnimationState playerStateBuffer = idlingLeft;
 
-    public Player(int x, int y) {
+    public Player(int x, int y , Board currentBoard) {
         super(x, y);
 
 		name = "Player"+count;
-        
+        board = currentBoard;
         initPlayer();
     }
 
@@ -61,6 +62,7 @@ public class Player extends EntityRotationalDynamic {
         loadAnimatedSprite(IDLE_LEFT); 
         //setAngle(0);
         setAccY( 0.1f ); // Force initialize gravity (temporary)
+        
     }
 
 
@@ -72,33 +74,25 @@ public class Player extends EntityRotationalDynamic {
         int key = e.getKeyCode();
 
         if (key == KeyEvent.VK_SHIFT) {
-
-        	/*//Generate particle and add to current Board's object list
         	
-        	if (playerState == idlingLeft){ // Player can only shoot from certain states.
-        		// This really should be a method canShoot() that can be set by changing states. Then you'd be able to shoot
-        		//from multiple states.
-        		Board.BoardAccess.spawnDynamicEntity( new Bullet(getX(),getY(),-2,0) );
-        	}
-        	else if (playerState == idlingRight){
-        		Board.BoardAccess.spawnDynamicEntity( new Bullet(getX(),getY(),2,0) );
-        	}*/
+        	//board.player = new PlayerShape(board.ICRAFT_X , board.ICRAFT_Y, board);
+        	
         	
         }
 
         if (key == KeyEvent.VK_A && !keypressA) {
         	keypressA = true; 
-			accX = -0.1f ; 
         }
 
         if (key == KeyEvent.VK_D && !keypressD) {
         	keypressD = true;
-			accX = 0.1f ; 
         }
 
         if (key == KeyEvent.VK_SPACE && !keypressUP) { //JUMP
         	keypressUP = true;
-            
+        	if (isColliding){
+        		dy -= 2.5f;
+        	}
         }
 
         if (key == KeyEvent.VK_S) {
@@ -132,27 +126,24 @@ public class Player extends EntityRotationalDynamic {
     
     @Override
     public void updatePosition() {//Override friction forces while running 
-    	
+    	super.updatePosition();
         //TESTING update enhanced run animation
-        RUN_RIGHT.updateSpeed((int) getDX(), 0, 2, 2, 10); //move to rendering
+        //RUN_RIGHT.updateSpeed((int) getDX(), 0, 2, 2, 10); //move to rendering
         //
-        dx += accX;
-    	dy += accY;
-    	
-    	x = x+dx;
-    	y = y+dy;
         
     	//setAngle(0);
         
     	if (keypressA && isColliding ){
-
+    		//applyAccelerationX( -0.1f );
+    		dx = -2;
     	}
     	if (keypressD && isColliding){ 
-
+    		//applyAccelerationX( 0.1f );
+    		dx = 2;
     	}
     	
 		if (keypressUP && isColliding ){
-				dy -= 2.5f;
+				
 		}
 
 

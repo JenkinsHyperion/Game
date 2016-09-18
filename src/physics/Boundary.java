@@ -25,7 +25,7 @@ public class Boundary {
 	}
 	
 	
-	public boolean checkForInteraction(Boundary bounds){
+	public boolean checkForInteractionOLD(Boundary bounds){
 		if (boundaryIntersects(bounds)){
 			return true;
 		}
@@ -36,6 +36,15 @@ public class Boundary {
 			return false;
 		}
 	}
+	
+	/*public boolean checkForCollision(Boundary bounds) {
+		if (  ){
+			
+		}
+		else {
+			return false;
+		}
+	}*/
 	
 	//Cycle through all sides of two shapes and check for intersections
 	public boolean boundaryIntersects(Boundary bounds){ 
@@ -409,6 +418,32 @@ public class Boundary {
 		return lines;
 		
 	}
+	
+	public Line2D[] getSpearatingSidesBetween(Boundary bounds){
+		ArrayList<Line2D> axes = new ArrayList<>();
+		
+		for ( int i = 0 ; i < sides.length ; i++ ){ // Sides of primary boundary
+
+			if ( !duplicateSideExists(sides[i], sides, i) ){
+				axes.add(sides[i]);
+			}
+		}
+		
+		for ( int i = 0 ; i < bounds.getSides().length ; i++ ){ // Sides of target boundary
+
+			if ( !duplicateSideExists(bounds.getSides()[i], bounds.getSides(), i) ){
+				axes.add(bounds.getSides()[i]);
+			}
+		}
+		
+		Line2D[] lines = new Line2D[axes.size()]; //compile final array
+		for ( int i = 0 ; i < axes.size(); i++){
+			lines[i] = axes.get(i);
+		}
+		return lines;
+		
+	}
+
 	
 	public Line2D debugGetAxis( Line2D line , int xMax, int yMax ){
 		

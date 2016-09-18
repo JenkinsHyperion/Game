@@ -55,14 +55,6 @@ public class EntityDynamic extends EntityStatic{
     	dy = setdy;
     }
     
-    public int getDeltaX(){
-    	return (int)(x + dx + accX);
-    }
-    
-    public int getDeltaY(){
-    	return (int)(y + dy + accY);
-    }
-    
     public void clipDX(float clipDX) {
     	if ( dx > 0 ) {
     		
@@ -105,32 +97,24 @@ public class EntityDynamic extends EntityStatic{
     	return accX;
     }
     
-    public void setDampeningX(float decceleration) { 
+    public void setDampeningX(float offsetDX) { 
     	if (dx > (0.1))
     	{
-    		applyAccelerationX( -decceleration );
+    		accX = -0.1f;
     	}
     	else if (dx < (-0.1))
     	{
-    		applyAccelerationX( decceleration );
+    		accX = 0.1f;
     	}
     	else
     	{
-    		accX=0;
-    		dx=0;
+    		dx = offsetDX;
+    		accX = 0;
     	}
     }
     
-    public void applyAccelerationX(float acX){
-    	accX =+ acX;
-    }
-    
-    public void applyAccelerationY(float acY){
-    	accY =+ acY;
-    }
-    
 	public Boundary getBoundaryDelta(){
-		return boundary.atPosition( (int) (x+dx+accX), (int) (y+dy+accY ));
+		return boundary.atPosition( (int) (x+dx), (int) (y+dy ));
 	}
     
     public boolean isColliding(){ return isColliding; }

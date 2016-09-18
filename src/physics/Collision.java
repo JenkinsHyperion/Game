@@ -10,8 +10,6 @@ import entities.EntityStatic;
 
 public class Collision {
 	
-	protected boolean isComplete = false;
-	
 	protected EntityDynamic entityPrimary;
 	protected EntityStatic entitySecondary;
 	public String collisionName;

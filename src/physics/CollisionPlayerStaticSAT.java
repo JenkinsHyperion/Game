@@ -34,7 +34,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 	@Override
 	public void initCollision(){
 		
-		//updateCollision(); //Run math for first time 
+		updateCollision(); //Run math for first time 
 
 		
 		// Things like bullets won't need to go any futher than the initial method
@@ -48,57 +48,53 @@ public class CollisionPlayerStaticSAT extends Collision {
 		
 		Point resolution = getClosestResolution();
 		
-		if (resolution == null){ //Primary entity is at surface with resolution of 0,0
+		if (getClosestResolution() == null){ //Primary entity is at surface with resolution of 0,0
 
 			depthX = 0;
 			depthY = 0;
 			
-			//System.out.println("euqalized" );
-
-			
 			entityPrimary.setColliding(true);
 			//entityPrimary.setDX(0);
-			//entityPrimary.setAccY(0);
+			entityPrimary.setAccY(0);
 			//entityPrimary.setDY(0);
 			
-			entityPrimary.setDampeningX(0.1f);
+			if (entityPrimary.getDX() > (0.2))
+	    	{
+				entityPrimary.setAccX(-0.05f);
+	    	}
+	    	else if (entityPrimary.getDX() < (-0.2))
+	    	{
+	    		entityPrimary.setAccX(0.05f);
+	    	}
+	    	else
+	    	{
+	    		entityPrimary.setDX(0);
+	    	}
 			
 			
 		}
 		else { //Primary Entity is clipping with closest resolution of vector
 			
-
-			
 			depthX = (int) resolution.getX();
 			depthY = (int) resolution.getY();
-			
-			
-			//System.out.println("Will clip by: "+ depthX + " , " + depthY );
 
-			//if ( entityPrimary.getDX()*entityPrimary.getDX() < depthX*depthX || 
-			//		entityPrimary.getDY()*entityPrimary.getDY() < depthY*depthY ) {
-			//		System.out.println(" Bumped ");
-			//}
-			//else {
 			
-				//System.out.println(" Clip prevented "+  -resolution.getX() + " from " + entityPrimary.getDX() + "  -  " +
-				//			-resolution.getY() + " from " + entityPrimary.getDY()
-				//		);
-				
-				entityPrimary.setX( entityPrimary.getDeltaX() + depthX );
-				entityPrimary.setY( entityPrimary.getDeltaY() + depthY );
-				
-				entityPrimary.setAccX(0);
+				if ( entityPrimary.getDX()*entityPrimary.getDX() < depthX*depthX ){
+					entityPrimary.setX( entityPrimary.getX() + depthX);
+				}
+
+				//entityPrimary.setAccX(0);
 				entityPrimary.clipDX((int) ( -resolution.getX() ) );
-				//System.out.println(" Resultant DX "+  entityPrimary.getDX() );
-        
-				entityPrimary.setAccY(0);
+
+			// Y RESOLUTION
+
+				if ( entityPrimary.getDY()*entityPrimary.getDY() < depthY*depthY ){
+					entityPrimary.setY( entityPrimary.getY() + depthY);
+				}
+				
+				//entityPrimary.setAccY(0);
 				entityPrimary.clipDY((int) ( -resolution.getY() ) );
-				//System.out.println(" Resultant DY "+  entityPrimary.getDY() );
-				
-			//}
-				
-				
+
 		}
 	    
 		 
@@ -109,7 +105,6 @@ public class CollisionPlayerStaticSAT extends Collision {
 	public void completeCollision(){
 		entityPrimary.setColliding(false); // unset entity collision flag. 
 		entityPrimary.setAccY(0.1f); //turn gravity back on
-		//entityPrimary.setDY(2);
 		entityPrimary.setAccX(0); //remove friction
 		
 		//Remove collision from involved entities lists
@@ -124,31 +119,42 @@ public class CollisionPlayerStaticSAT extends Collision {
 	
 	//Completion Condition
 	@Override
-	public boolean isComplete(){ // Check if entities are no longer colliding //OPTIMIZATION - HANDLE AS EVENT RATEHR THAN CHECK
-		//CHECK FOR COLLISIONS IS BEING DOUBLE CHECKED IN COLLISION ENGINE
+	public boolean isComplete(){ // Check if entities are no longer colliding
 		
-		//if (CollisionEngine.checkForCollisionsSAT(entityPrimary, entitySecondary) ) )
-		
-		if ( isComplete ) { // entities are no longer colliding
+		if (entityPrimary.getBoundaryLocal().boundaryIntersects( entitySecondary.getBoundaryLocal() ) ) {
+			return false;
+		}
+		else if (entityPrimary.getBoundaryLocal().boundsHaveContact( entitySecondary.getBoundaryLocal() ) ) {
+			return false;
+		}
+		else { // entities are no longer colliding
 			completeCollision(); // run final commands
 			return true; // return true for scanning loop in Board to delete this collision
 		}
-		else 
-			return false;
 	}
 	
 	//Resolution calculation
 	private Point getClosestResolution() {
-		//System.out.println("Checking best resolution"); 
+		
 		ArrayList<Point> penetrations = new ArrayList<>();
 
+		
+		/*// Get penetration vectors along all separating axes for secondary entity and add to list
+    	for (int i = 0 ; i < entitySecondary.getBoundary().getSeparatingSides().length ; i++ ){
+    		
+    		if (getPenetrationDepth(entitySecondary.getBoundary().getSeparatingSides()[i]) != null){
+    			
+    			penetrations.add( getPenetrationDepth(entitySecondary.getLocalBoundary().getSeparatingSides()[i]) );
+    			
+    		}
+    	}*/
     	
     	// Get penetration vectors along all separating axes for secondary entity and add to list
     	for (int i = 0 ; i < entityPrimary.getBoundary().getSeparatingSides().length ; i++ ){
     		
-    		if (getSeparationDistance(entityPrimary.getBoundary().getSeparatingSides()[i]) != null){
+    		if (getPenetrationDepth(entityPrimary.getBoundary().getSeparatingSides()[i]) != null){
     			
-    			penetrations.add( getSeparationDistance(entityPrimary.getBoundaryLocal().getSeparatingSides()[i]) );
+    			penetrations.add( getPenetrationDepth(entityPrimary.getBoundaryLocal().getSeparatingSides()[i]) );
     			
     		}
     	}
@@ -156,11 +162,12 @@ public class CollisionPlayerStaticSAT extends Collision {
     	// Get penetration vectors along all separating axes for other collision and add to list
     	for ( EntityStatic entitySecondary : entityPrimary.getCollidingPartners()){
     		
+    		
 	    	for (int i = 0 ; i < entitySecondary.getBoundary().getSeparatingSides().length ; i++ ){
 	    		
-	    		if (getSeparationDistance(entitySecondary.getBoundary().getSeparatingSides()[i]) != null){
+	    		if (getPenetrationDepth(entitySecondary.getBoundary().getSeparatingSides()[i]) != null){
 	    			
-	    			penetrations.add( getSeparationDistance(entitySecondary.getBoundaryLocal().getSeparatingSides()[i]) );
+	    			penetrations.add( getPenetrationDepth(entitySecondary.getBoundaryLocal().getSeparatingSides()[i]) );
 	    			
 	    		}
 	    	}
@@ -172,86 +179,45 @@ public class CollisionPlayerStaticSAT extends Collision {
     	//RESOLUTION LOGIC checks all penetration vectors and finds best resolution (currently lowest)
     	if (penetrations.size() != 0){
     		
-    		penetrationX = (int) ( penetrations.get(0).getX() );
-    		penetrationY = (int) ( penetrations.get(0).getY() );
+    		penetrationX = (int) Math.ceil( penetrations.get(0).getX() );
+    		penetrationY = (int) Math.ceil( penetrations.get(0).getY() );
     		//System.out.println("Start "+penetrationX+" "+penetrationY + " -- "+entityPrimary.getX() + entitySecondary.getX());		
 	    	for ( Point vector : penetrations ){
-	    		//System.out.println("Proposed resolution "+ vector.getX() + " , " + vector.getY() );
-	    		if ( vectorOpposesVelocity( vector ) ) {
+
 	    		
-	    			//Keep lowest
 		    		if ( (vector.getX()*vector.getX() + vector.getY()*vector.getY())
 		    				< ( penetrationX*penetrationX + penetrationY*penetrationY )
 		    			){
-		    			//System.out.println("Accepted Lowest");
-		    			penetrationX = (int) (vector.getX());
-		    			penetrationY = (int) (vector.getY()); 
+		    			
+		    			//System.out.println("Lower " + vector.getX()+" "+vector.getY());
+		    			penetrationX = (int) Math.ceil(vector.getX());
+		    			penetrationY = (int) Math.ceil(vector.getY()); 
 		    		}
-		    		else {
-		    			//System.out.println("Rejected Greater");
-		    		}
-	    		}
-	    		else {
-	    			//System.out.println("Violates velocity "+ entityPrimary.getDX() + " , " + entityPrimary.getDY() );
-	    		}
+
 	    	}
     	}
     	
     	
     	if (penetrationX == 0 && penetrationY == 0 ){ //Passed to updateCollision() for collisions where side is flush
-    		//System.out.println(" Null resolution 0,0 ");
     		return null;
     	}
     	else {
-    		//System.out.println(" Accepted lowest resolution "+ penetrationX + " , " + penetrationY);
     		return new Point(penetrationX,penetrationY); //return chosen best resolution
     	}
 
 	}
 	
-
 	
-	private boolean vectorOpposesVelocity(Point vector) {
-		
-		if ( entityPrimary.getDX() > 0 ) {
-			if ( vector.getX() > entityPrimary.getDX() ){
-				return false;
-			}
-		}
-		else if ( entityPrimary.getDX() < 0 ) {
-			if ( vector.getX() < entityPrimary.getDX() ){
-				return false;
-			}
-		}
-		else { // if velocity is zero reject any non 0 vector 
-			//if ( vector.getX() != 0)
-				//return false;
-		}
-		
-		if ( entityPrimary.getDY() > 0 ) {
-			if ( vector.getY() > entityPrimary.getDY() ){
-				return false;
-			}
-		}
-		else if ( entityPrimary.getDY() < 0 ) {
-			if ( vector.getY() < entityPrimary.getDY() ){
-				return false;
-			}
-		}
-		else {
-			//if ( vector.getY() != 0)
-				//return false;
-		}
-		return true;
-	}
-
+	
+	
+	
 	/**
 	 * 
 	 * @param separatingSide
 	 * @return Depth of intersection along given axis of separation.
 	 * 
 	 */
-	private Point getSeparationDistance( Line2D separatingSide ){
+	private Point getPenetrationDepth( Line2D separatingSide ){
 		//This is the ejection algorithm that pushes a clipping boundary out of another boundary
 		
 	    EntityStatic stat = entitySecondary;
@@ -259,8 +225,8 @@ public class CollisionPlayerStaticSAT extends Collision {
 	    Boundary bounds = stat.getBoundaryLocal() ;
 	    Boundary playerBounds = entityPrimary.getBoundaryDelta();
 	    
-	    int deltaX = (int) (entityPrimary.getDeltaX()  );
-	    int deltaY = (int) (entityPrimary.getDeltaY() );
+	    int deltaX = (int) (entityPrimary.getX() + entityPrimary.getDX() );
+	    int deltaY = (int) (entityPrimary.getY() + entityPrimary.getDY() );
 	    
 	    Point2D playerCenter = new Point2D.Double(deltaX, deltaY);
 	    Point2D statCenter = new Point2D.Double(stat.getX(), stat.getY());
@@ -293,7 +259,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 		int centerDistanceY = (int)(centerProjection.getY1() -  centerProjection.getY2()  );
 		
 		if (centerDistanceX>0){ centerDistanceX -= 1; } 
-		else if (centerDistanceX<0){ centerDistanceX += 1; } //NEEDS HIGHER LEVEL SOLUTION merge with later checks
+		else if (centerDistanceX<0){ centerDistanceX += 1; } //NEEDS HIGHER LEVEL SOLUTION
 		
 		if (centerDistanceY>0){ centerDistanceY -= 1; } 
 		else if (centerDistanceY<0){ centerDistanceY += 1; }
@@ -311,35 +277,18 @@ public class CollisionPlayerStaticSAT extends Collision {
 		penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
 		penetrationY = playerProjectionY + statProjectionY - centerDistanceY ;
 		
-
-
-/*
- * ##############################################################################################33
- * 		CUT THIS CHECK AND FOLLOWING CODE INT SEPERATE METHODS FOR DISTANCE AND PENETRATION
- */
-
-		if ( penetrationY * centerDistanceY < 0  ){
-			//System.out.println("isn't contacting");
-			isComplete=true;
-		}
-		else if ( penetrationX * centerDistanceX < 0  ){
-			//System.out.println("isn't contacting");
-			isComplete=true;
-		}
-		
-		if ( penetrationX * centerDistanceX < 0  || penetrationY * centerDistanceY < 0  ) //SIGNS ARE NOT THE SAME
-			{
+		//Constrain X and Y Distances to penetration depths, 0 at surface, maximum at center
+		if ( Math.signum(penetrationX) != Math.signum(centerDistanceX)  || 
+				Math.signum(penetrationY) != Math.signum(centerDistanceY)  ){
 				penetrationX = 0;
 				penetrationY = 0;
-				
 			}
 		
-
 		// Handling of exception where centered collisions always have penetration of 0
 		if (centerDistanceX*centerDistanceX + centerDistanceY*centerDistanceY == 0){ //LOOK INTO BETTER CONDITIONALS
 			penetrationX = -(playerProjectionX + statProjectionX) ;
 		}
-		if (centerDistanceX*centerDistanceX + centerDistanceY*centerDistanceY == 0){ //Merge with above checks
+		if (centerDistanceX*centerDistanceX + centerDistanceY*centerDistanceY == 0){
 			penetrationY = -(playerProjectionY + statProjectionY) ;
 		}
 		
@@ -347,12 +296,6 @@ public class CollisionPlayerStaticSAT extends Collision {
 			return new Point( penetrationX , penetrationY );
 
 	}
-	
-	/*public Vector getPenetrationDepth(){   OPTIMIZATION - SEPARATE DISTANCE INTO PENETRATION AND ABSOLUTE DISTANCE
-
-		return 
-		
-	}*/
 	
 
 	

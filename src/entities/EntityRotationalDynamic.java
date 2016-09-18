@@ -9,12 +9,13 @@ import physics.BoundingBox;
 
 public class EntityRotationalDynamic extends EntityDynamic{
 	
-	protected Boundary storedBounds; //So that rounding errors from rotation don't degrade the vertex locations
-	protected float angle = 0;
-	protected float angularVelocity = 0;
+	protected Boundary storedBounds;
+	protected short angle = 0;
+	protected int angularVelocity = 0;
 
 	public EntityRotationalDynamic(int x, int y) {
 		super(x, y);
+		
 	}
 	
 	@Override
@@ -25,7 +26,7 @@ public class EntityRotationalDynamic extends EntityDynamic{
         storedBounds = boundary;
     }
 	
-	public Boundary getBoundaryAtAngle(double angle){ //OPTIMIZATION TRIG FUNCTIONS ARE NOTORIOUSLY EXPENSIVE Look into performing some trig magic
+	public void setAngle(double angle){ //OPTIMIZATION TRIG FUNCTIONS ARE NOTORIOUSLY EXPENSIVE Look into performing some trig magic
 		// with fast trig approximations
 
 		Line2D[] newSides = new Line2D[storedBounds.getSides().length];
@@ -51,7 +52,8 @@ public class EntityRotationalDynamic extends EntityDynamic{
 			
 		}
 		
-		return new Boundary(newSides);
+		boundary = new Boundary(newSides);
+		
 	}
 	
 	@Override
@@ -65,15 +67,6 @@ public class EntityRotationalDynamic extends EntityDynamic{
     	dx += accX;
     	dy += accY;
     	
-    	if (angularVelocity != 0){
-    		angle += angularVelocity;
-
-        	if ((int)angle>36){angle=-36;} //constrain range from -180 to 180 degrees for convenience
-        	else if ((int)angle<-36){angle=36;}
-
-    	
-        	boundary = getBoundaryAtAngle((int)angle * ((2*Math.PI)/72) ); 
-    	}
     }
 	
 	public void setAngularVelocity(){
@@ -81,12 +74,7 @@ public class EntityRotationalDynamic extends EntityDynamic{
 	}
 	
 	public int getAngle(){
-		return (int)angle;
+		return angle;
 	}
 
-	@Override
-	public Boundary getBoundaryDelta(){
-		return getBoundaryAtAngle((int)(angle+angularVelocity) * ((2*Math.PI)/72)) 
-				.atPosition( (int) (x+dx+accX), (int) (y+dy+accY ));
-	}
 }

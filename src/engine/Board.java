@@ -45,7 +45,7 @@ public class Board extends JPanel implements Runnable {
 	
 	private CollisionEngine Collisions = new CollisionEngine(this); //Refactor to a better name
 	private SidePanel sidePanel;
-	public Player player;
+    private Player player;
     private  PaintOverlay p;
     public Tracer laser;
     protected ArrayList<EntityStatic> staticEntitiesList; 
@@ -57,8 +57,8 @@ public class Board extends JPanel implements Runnable {
     protected Rectangle selectedBox;
     
     protected MouseHandlerClass handler;
-    public final int ICRAFT_X = 174;
-    public final int ICRAFT_Y = 100;
+    private final int ICRAFT_X = 170;
+    private final int ICRAFT_Y = 100;
     public static final int B_WIDTH = 400;
     public static final int B_HEIGHT = 300;
     private boolean debug1On = false; 
@@ -66,10 +66,7 @@ public class Board extends JPanel implements Runnable {
     protected EntityStatic currentSelectedEntity;
     protected EntityStatic currentDebugEntity;
     
-    private double highestDelay = 0;
-    private double timeCurrent = 0; 
-    private double DELAY = 0;
-    private short Count = 0;
+    private final int DELAY = 10;
     
     private double time = 0;
     private double deltaTime = 0;
@@ -116,7 +113,7 @@ public class Board extends JPanel implements Runnable {
         physicsEntitiesList = new ArrayList<>();
 
         // initialize player
-        player = new PlayerShape(ICRAFT_X, ICRAFT_Y,this);
+        player = new PlayerShape(ICRAFT_X, ICRAFT_Y);
         player.getObjectGraphic().setVisible(true);
 
         selectedBox = new Rectangle();
@@ -152,28 +149,10 @@ public class Board extends JPanel implements Runnable {
         updateEntitiesTimer = new java.util.Timer(); //create timer
         repaintTimer = new java.util.Timer();
         
-        timeCurrent = System.currentTimeMillis();
         
-        //## MAIN GAME LOOP
         TimerTask updateEntitiesTask = new TimerTask() {
-        	
         	@Override
         	public void run(){
-        	
-        		/*if (Count > 60){
-        			DELAY = (System.currentTimeMillis() - timeCurrent);
-        			
-        			if (DELAY > highestDelay)
-        				highestDelay = DELAY;
-
-        			timeCurrent = System.currentTimeMillis();
-        			Count = 0;
-        		}
-        		else
-        			Count++ ;*/
-        		
-        		//nanoTimeCurrent = System.currentTimeMillis();
-
         		Collisions.checkCollisions();
         		updateEntities();
 
@@ -635,32 +614,22 @@ public class Board extends JPanel implements Runnable {
         g.fillRect(0, 0, B_WIDTH, B_HEIGHT);
         
         g.setColor(Color.GRAY);
-	    g.drawString("FPS: " + Math.round(1000/deltaTime) + " "+highestDelay,5,15);
+	    g.drawString("FPS: " + Math.round(1000/deltaTime),5,15);
 	    g.drawString("DX: "+player.getDX() + " DY: " + player.getDY(),5,30);
 	    g.drawString("AccX: " + player.getAccX() + "  AccY: " + player.getAccY(),5,45);
 	    g.drawString("Rotation: " + player.getAngle()*5 + " degrees",5,60);
 	    g.drawString("Colliding: " + player.isColliding(),5,75);
 	    
-	    
-	    for ( int i = 0 ; i < player.getCollisions().length ; i++ ) {
+	    //for ( int i = 0 ; i < player.getCollisions().length ; i++ ) {
 	    	
-	    	g.drawString("Colliding with: " + player.getCollidingPartners()[i].name ,5,105+(10*i));
-	    }
+	    //	g.drawString("Colliding with: " + player.getCollidingPartners()[i].name ,5,105+(10*i));
+	    //}
 	    
 
 	    
 	    //Draw player bounding box
 	    Graphics2D g2 = (Graphics2D) g;
-	    
-	    /*g2.setColor(Color.ORANGE);
-	    for (Line2D line : player.getBoundaryDelta().getSides()){
-	    	g2.draw(line);
-	    } */
 
-	   // if (Collisions.getClosestSnap(player, staticEntitiesList ,0) == null){}
-	    
-	    //drawCross( new Point( (int)(snap.getX() + player.getX()) , (int)(snap.getY() + player.getY()) ) , g2 );
-	    
 	    g2.setColor(Color.CYAN);
 	    for (Line2D line : player.getBoundaryLocal().getSides()){
 	    	g2.draw(line);

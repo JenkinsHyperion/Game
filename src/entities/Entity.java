@@ -40,6 +40,10 @@ public class Entity {
     public void setX(int setx) {
         x = setx;
     }
+    
+    public void setX(double setx) {
+        x = (float) setx;
+    }
 
     public void setY(int sety) {
         y = sety;

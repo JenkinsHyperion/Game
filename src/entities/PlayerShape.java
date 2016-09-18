@@ -28,8 +28,8 @@ public class PlayerShape extends Player {
 
 	private Animation IDLE_LEFT = new Animation(LoadAnimation.getAnimation(4, 0, 14, "bullet") , 4 ); 
 
-    public PlayerShape(int x, int y) {
-        super(x, y);
+    public PlayerShape(int x, int y , Board currentBoard) {
+        super(x, y , currentBoard);
 
 		name = "Player"+count;
         
@@ -41,7 +41,7 @@ public class PlayerShape extends Player {
         //setBoundingBox(14,0,4,32);
         setBoundingBox(-12,-40,24,80);
         loadAnimatedSprite(IDLE_LEFT,-7,-7);
-        setAccY(0); //override gravity
+        //setAccY(0.1f); //override gravity
         IDLE_LEFT.start();
     }
 	
@@ -109,18 +109,20 @@ public class PlayerShape extends Player {
         
         if (key == KeyEvent.VK_Q) {
         	keypressQ = false;
+        	angularVelocity=0;
         }
         
         if (key == KeyEvent.VK_E) {
         	keypressE = false;
+        	angularVelocity=0;
         }
     }
     
     @Override
     public void updatePosition() {//Override friction forces while running 
+    	super.updatePosition();
 
-    	x = x+dx;
-    	y = y+dy;
+    	
     	
     	if (keypressA ){
     		dx = -2;
@@ -140,18 +142,13 @@ public class PlayerShape extends Player {
     	else {dx=0; dy=0;}
     	
     	if (keypressQ){
-			angle--;
-        	if (angle>36){angle=-36;} //constrain range from -180 to 180 degrees for convenience
-        	else if (angle<-36){angle=36;}
+			angularVelocity=1f;
     	}	 
     	else if (keypressE){
-    		angle++;
-    		if (angle>36){angle=-36;}
-        	else if (angle<-36){angle=36;}
+    		angularVelocity=-1f;
     	}	
     	
 
-    	setAngle(angle * ((2*Math.PI)/72) );
     	
 
 

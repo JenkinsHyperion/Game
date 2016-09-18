@@ -1,5 +1,6 @@
 package entities;
 
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
@@ -164,6 +165,12 @@ public class EntityStatic extends Entity{
 		System.out.println("\nCollisions on "+ name );
 		for ( int i = 0 ; i < collisions.size() ; i++) 
 		System.out.println("---" + i + " " + collisions.get(i).collision().collisionName);
+	}
+
+	public void move(Point distance) { //MAKE VECTOR LATER
+
+		x=x+(float)distance.getX();
+		y=y+(float)distance.getY();
 	}
 	
 }

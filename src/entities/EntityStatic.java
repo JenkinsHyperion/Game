@@ -22,7 +22,7 @@ public class EntityStatic extends Entity{
 
     protected ArrayList<CollidingPair> collisions = new ArrayList<>();
 
-	private Sprite graphic; //might want to put into super class unless Entity without image is useful
+	private Sprite entitySprite; //might want to put into super class unless Entity without image is useful
 	protected Rectangle boundingBox = new Rectangle(0,0); //Should be moved to intermediate class for only collidables
 	
 	protected Boundary boundary = new BoundingBox(new Rectangle(2,2));
@@ -36,11 +36,11 @@ public class EntityStatic extends Entity{
     }
     
     protected void loadSprite(String path){ // needs handling if failed. Also needs to be moved out of object class into sprites
-    	graphic = new SpriteStill(System.getProperty("user.dir").replace( "\\", "//" ) + "//Assets//" +path + ".png");
+    	entitySprite = new SpriteStill(System.getProperty("user.dir").replace( "\\", "//" ) + "//Assets//" +path + ".png");
     }
     
     protected void loadSprite(String path, int offset_x , int offset_y){ // needs handling if failed. Also needs to be moved out of object class into sprites
-    	graphic = new SpriteStill(System.getProperty("user.dir").replace( "\\", "//" ) + "//Assets//" +path + ".png",offset_x,offset_y);
+    	entitySprite = new SpriteStill(System.getProperty("user.dir").replace( "\\", "//" ) + "//Assets//" +path + ".png",offset_x,offset_y);
     }
     
     /*protected void loadAnimatedSprite(String path){ // needs handling if failed. 
@@ -48,16 +48,22 @@ public class EntityStatic extends Entity{
     }*/
     
     protected void loadAnimatedSprite(Animation a){ // needs handling if failed. 
-    	graphic = new SpriteAnimated(a); 
+    	entitySprite = new SpriteAnimated(a); 
     }
     
     //OPTIONAL INIT WITH OFFSET
     protected void loadAnimatedSprite(Animation a, int offsetX, int offsetY){ // needs handling if failed. 
-    	graphic = new SpriteAnimated(a,offsetX,offsetY); 
+    	entitySprite = new SpriteAnimated(a,offsetX,offsetY); 
     }
     
-    public Sprite getObjectGraphic(){ // gets the Object's sprite, still image or animation
-    	return graphic;
+    public Sprite getEntitySprite(){ // gets the Object's sprite, still image or animation
+    	return entitySprite;
+    }
+    public int getSpriteOffsetX(){
+    	return entitySprite.getOffsetX(); 
+    }
+    public int getSpriteOffsetY() {
+    	return entitySprite.getOffsetY();
     }
     /**
      * 

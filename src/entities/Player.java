@@ -179,7 +179,7 @@ public class Player extends EntityRotationalDynamic {
 				
 				//abort climb
 				playerState = idlingRight;
-	        	getObjectGraphic().setSprite(idlingRight.getAnimation());
+	        	getEntitySprite().setSprite(idlingRight.getAnimation());
 				
 			}
 			
@@ -217,7 +217,7 @@ public class Player extends EntityRotationalDynamic {
 
     public void setState( AnimationState state){
     	playerState = state;
-    	getObjectGraphic().setSprite(state.getAnimation());
+    	getEntitySprite().setSprite(state.getAnimation());
     	playerState.getAnimation().start(); //Check for redundant calls to Animation.start() method
     }
     
@@ -232,12 +232,12 @@ public class Player extends EntityRotationalDynamic {
     	
     	if (right){
         	playerState = climbingRight;
-        	getObjectGraphic().setSprite(climbingRight.getAnimation());
+        	getEntitySprite().setSprite(climbingRight.getAnimation());
     	}
     	else 
     	{
 	    	playerState = climbingLeft;
-	    	getObjectGraphic().setSprite(climbingLeft.getAnimation());
+	    	getEntitySprite().setSprite(climbingLeft.getAnimation());
     	}
     	
     	playerState.getAnimation().reset();

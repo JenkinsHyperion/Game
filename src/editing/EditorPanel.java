@@ -10,13 +10,14 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import entities.*;
+import testEntities.Platform;
 import engine.*;
 
 
 //TASK LIST:
 // 1) need to add a function that can re-assign the list of entities in case they are added/removed from board.
 //		--currently it is only being assigned once in this constructor.
-// 2) create a function that will contain a properties list that is assembled every time the info button is pushed (while an entity is selected)
+// 2) DONE: create a function that will contain a properties list that is assembled every time the info button is pushed (while an entity is selected)
 
 @SuppressWarnings("serial")
 /**
@@ -26,11 +27,12 @@ public class EditorPanel extends JPanel {
 	// ### important fields ###
 	public final Dimension minimizedSize = new Dimension(200,20);
 	public final Dimension propPanelDefaultSize = new Dimension(215,125);
+	public final Dimension allEntitiesComboBoxDefSize = new Dimension(120,20);
 	protected int currentEntIndex;
 	public boolean testFlag;
 	private Board board;
+	
 	protected ArrayList<PropertiesList> listOfPropLists;
-	private String[] propListAsString; //will be initialized in its own updating/populating function, just like entities list has.
     private String[] staticEntityStringArr;
     //private String[] dynamicEntityStringArr;
     //private String[] physicsEntityStringArr;  will use these later, it won't be hard. 
@@ -39,11 +41,12 @@ public class EditorPanel extends JPanel {
 	private JLabel mousePosLabel;
 	private JLabel entityCoordsLabel;
 	private JLabel selectedEntityNameLabel;
-	//private JLabel entTypeLabel;
 	protected JComboBox<String> allEntitiesComboBox;
-	//private JComboBox<String> propertiesListComboBox;  for now, moved this to PropertiesFrame
-	protected JButton editPropertiesButton;
+	
+	protected JButton deleteEntButton;
+	protected JButton addEntButton;
 	//Panels
+	private JPanel entitiesComboBoxPanel;
 	private JPanel labelsPanel;
 	private JPanel buttonPanel;
 	private JPanel propertyPanelTest;
@@ -73,34 +76,42 @@ public class EditorPanel extends JPanel {
 		entityCoordsLabel = new JLabel("Coords of selected entity: ");
 		selectedEntityNameLabel = new JLabel("Nothing Selected");
 		
-		editPropertiesButton = new JButton("Edit Properties");
-		editPropertiesButton.setActionCommand("EDIT_PROPERTIES");
-		editPropertiesButton.setFont(new Font("Serif",Font.PLAIN,10));
-		editPropertiesButton.setEnabled(false);
-		editPropertiesButton.setFocusable(false);
-		// ###### For when the Edit Properties button is clicked		
-		editPropertiesButton.addActionListener(new ActionListener() {			
+		// #### This button is useless as of now, but can possibly be repurposed later.
+		deleteEntButton = new JButton("Delete");
+		deleteEntButton.setFocusable(false);
+		deleteEntButton.setEnabled(false);
+		deleteEntButton.setMnemonic(KeyEvent.VK_DELETE);
+		deleteEntButton.addActionListener(new ActionListener() {	
 			@Override
-			public void actionPerformed(ActionEvent e) {			
-				///*
-				// **all this code should be replaced with a single function, along the lines of createPropertiesWindow(some parameters);	
-					createAndShowPropertiesFrame();	
+			public void actionPerformed(ActionEvent e) {						
+				deleteEntity(allEntitiesComboBox.getSelectedIndex());
 			} 		
 		});
-
+		addEntButton = new JButton("Create");
+		addEntButton.setEnabled(true);
+		addEntButton.setFocusable(false);
+		addEntButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				addEntity(20,20);
+			}
+		});
 		// inline panel for button
-		buttonPanel = new JPanel();
+		buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		buttonPanel.setBackground(Color.GRAY);
-		buttonPanel.setBorder(BorderFactory.createTitledBorder("buttonPanelTest"));
-		buttonPanel.setLayout(new BorderLayout());
+	    buttonPanel.setBorder(BorderFactory.createTitledBorder("buttonPanelTest"));
 		buttonPanel.setPreferredSize(new Dimension(190, 50));		
-		buttonPanel.add(editPropertiesButton);
+		buttonPanel.add(deleteEntButton);
+		buttonPanel.add(addEntButton);
 
 		// ## The drop down box for the list of all entities in board ###	
 		allEntitiesComboBox = new JComboBox<>(staticEntityStringArr);
+		allEntitiesComboBox.setPreferredSize(allEntitiesComboBoxDefSize);
 		allEntitiesComboBox.setFocusable(false);
 		allEntitiesComboBox.setSelectedIndex(0); //give it a default value
+		allEntitiesComboBox.addActionListener(new EntitiesComboBoxActionHandler());
 		// ## Handling when you select an Entity from the drop down box: 
+		/*
 		allEntitiesComboBox.addItemListener(new ItemListener(){ 
 			public void itemStateChanged(ItemEvent e){
 				if (e.getStateChange() == ItemEvent.SELECTED) 
@@ -115,7 +126,7 @@ public class EditorPanel extends JPanel {
 
 					try{					
 						board.deselectAllEntities();
-						editPropertiesButton.setEnabled(true);
+						genericTestButton.setEnabled(true);
 						
 						//sets Board's current entity
 						setSelectedEntityThruEditor(board.getStaticEntities().get(currentEntIndex));
@@ -133,6 +144,12 @@ public class EditorPanel extends JPanel {
 				}
 			}
 		});	
+		*/
+		// Panel to contain allEntitiesComboBox drop down panel
+		entitiesComboBoxPanel = new JPanel(new BorderLayout());
+		entitiesComboBoxPanel.setBackground(Color.GRAY);
+		entitiesComboBoxPanel.setPreferredSize(allEntitiesComboBox.getPreferredSize());
+		entitiesComboBoxPanel.add(allEntitiesComboBox);
 		
 		// ###### adding the components to the Editor window		
 		//inline panel for text messages
@@ -150,13 +167,84 @@ public class EditorPanel extends JPanel {
 		propertyPanelTest.setBorder(BorderFactory.createTitledBorder("propertyPanelTest"));
 		
 		// #### add everything to the editor
-		add(allEntitiesComboBox);
+		
+		add(entitiesComboBoxPanel);
 		add(labelsPanel);
 		add(buttonPanel);	
 		add(propertyPanelTest);
 		revalidate();
 	} //end of constructor;
 	
+	//probably won't use an ItemListener in final product 
+	/*
+	public class EntitiesComboBoxItemHandler implements ItemListener{
+		@Override
+		public void itemStateChanged(ItemEvent e) {
+			// TODO Auto-generated method stub
+			if (e.getStateChange() == ItemEvent.SELECTED) 
+			{
+				restorePanels();
+				//String testString = (String)allEntitiesComboBox.getSelectedItem();
+				//System.out.println(testString);
+				//allEntitiesComboBox.addItem
+				currentEntIndex = allEntitiesComboBox.getSelectedIndex();
+				System.out.println(currentEntIndex);
+				System.out.println("Test area. e.getItem(): " + e.getItem());
+
+				try{					
+					board.deselectAllEntities();
+					genericTestButton.setEnabled(true);
+					
+					//sets Board's current entity
+					setSelectedEntityThruEditor(board.getStaticEntities().get(currentEntIndex));
+					createAndShowPropertiesPanel();
+					setSelectedEntityNameLabel("Selected: " + getSelectedEntity().name);
+					setEntityCoordsLabel(String.format("Coords of Selected Entity: %s,%s", getSelectedEntity().getX(), getSelectedEntity().getY()));
+					//sends code from here over to Board to let it draw this entity's selection box
+					board.selectedBox.setSize(getSelectedEntity().getEntitySprite().getImage().getWidth(null),
+  															getSelectedEntity().getEntitySprite().getImage().getHeight(null) );
+				}
+				catch (NullPointerException exception){
+					exception.printStackTrace();
+					System.err.println("nullpointerexception"); 
+				}
+			}
+		}		
+	}
+	*/
+	
+	//Handler for the allEntitiesComboBox drop down panel
+	public class EntitiesComboBoxActionHandler implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			JComboBox cb = (JComboBox)e.getSource();
+			//cb.getSelectedIndex());
+			restorePanels();
+			//String testString = (String)allEntitiesComboBox.getSelectedItem();
+			//System.out.println(testString);
+			//allEntitiesComboBox.addItem
+			currentEntIndex = allEntitiesComboBox.getSelectedIndex();
+			System.out.println(currentEntIndex);
+			try{					
+				board.deselectAllEntities();
+				deleteEntButton.setEnabled(true);
+				
+				//sets Board's current entity
+				setSelectedEntityThruEditor(board.getStaticEntities().get(currentEntIndex));
+				createAndShowPropertiesPanel();
+				setSelectedEntityNameLabel("Selected: " + getSelectedEntity().name);
+				setEntityCoordsLabel(String.format("Coords of Selected Entity: %s,%s", getSelectedEntity().getX(), getSelectedEntity().getY()));
+				//sends code from here over to Board to let it draw this entity's selection box
+				board.selectedBox.setSize(getSelectedEntity().getEntitySprite().getImage().getWidth(null),
+															getSelectedEntity().getEntitySprite().getImage().getHeight(null) );
+			}
+			catch (NullPointerException exception){
+				exception.printStackTrace();
+				System.err.println("nullpointerexception"); 
+			}
+		}	
+	}
+
 	//this class will be the stand-in for my current shitty JOptionPane popup.
 	// will be created when createPropertiesFrame() is called.
 	@Deprecated	
@@ -169,6 +257,7 @@ public class EditorPanel extends JPanel {
 	public void createAndShowPropertiesPanel() {
 		propertyPanelTest.removeAll();
 		propertyPanelTest.add(new PropertiesPanel(this));
+		revalidate();
 	}
 	public void minimizePanels() {
 		//buttonPanel.setPreferredSize(minimizedSize);
@@ -197,11 +286,7 @@ public class EditorPanel extends JPanel {
 	public EntityStatic getSelectedEntity(){
 		try{
 			return board.getCurrentSelectedEntity();
-		}catch (Exception e) {
-			
-			e.printStackTrace();
-			return null; 
-		}
+		}catch (Exception e) {	e.printStackTrace();  return null; }
 	}
 	/**
 	 * Helper method to set Board's currentSelectedEntity
@@ -211,7 +296,7 @@ public class EditorPanel extends JPanel {
 		board.setCurrentSelectedEntity(newSelectedEntity);
 	}
 	//helper function to transfer data from ArrayList into a regular array
-	private void populateArrayFromList(String[] arr, ArrayList<EntityStatic> arrayList)
+	public void populateArrayFromList(String[] arr, ArrayList<EntityStatic> arrayList)
 	{
 		try {
 			System.out.println("Array size " + arr.length);
@@ -224,35 +309,71 @@ public class EditorPanel extends JPanel {
 		catch(Exception e) {
 		}
 	}
-	
-	private void updateEntityStringArr() {
+	// #### Section for adding or removing actual entities
+	public void updateEntityStringArr() {
 		staticEntityStringArr = new String[(board.getStaticEntities().size())];	
 		populateArrayFromList(staticEntityStringArr, board.getStaticEntities());
 	}
-	
-	
+	public void deleteEntity(int index) {
+		board.deselectAllEntities();
+		board.getStaticEntities().remove(index);
+		removeEntryFromListOfPropLists(index); 	//must remove corresponding property of deleted entity
+		updateAllEntitiesComboBox();
+		board.deselectAllEntities();
+	}
+	//so many ways I can do this. Will start with overloaded methods
+	public void addEntity(int x, int y) {  //default one. Adds test entity
+		EntityStatic newEnt = new Platform(x,y,"platform02");
+		board.deselectAllEntities();
+		board.getStaticEntities().add(newEnt);
+		addEntryToListOfPropLists(new PropertiesList(newEnt));
+		updateAllEntitiesComboBox();
+        allEntitiesComboBox.setSelectedIndex(allEntitiesComboBox.getItemCount()-1);
+	}
+	//will refresh(create a new one of)staticEntityStringArr, remove old comboBox and then create & add a new updated one
+	public void updateAllEntitiesComboBox() {
+		System.out.println("item count: "+ allEntitiesComboBox.getItemCount());
+		int prevIndex = allEntitiesComboBox.getSelectedIndex();
+		int prevMax = allEntitiesComboBox.getItemCount();
+		updateEntityStringArr();
+		entitiesComboBoxPanel.remove(allEntitiesComboBox);
+		allEntitiesComboBox = new JComboBox<>(staticEntityStringArr);
+		allEntitiesComboBox.setFocusable(false);
+		allEntitiesComboBox.addActionListener(new EntitiesComboBoxActionHandler());
+		if (prevMax == allEntitiesComboBox.getItemCount())
+			allEntitiesComboBox.setSelectedIndex(prevIndex);
+		entitiesComboBoxPanel.add(allEntitiesComboBox);
+		revalidate();
+		repaint();
+	}
+	// #############
+	// #### End of entity add/removal section
+	// ----------------------------------------------------------------------------------
+	// ### For updating the propertyLists 
+	 //##################################
 	public void populateListOfPropLists() {
-		ArrayList<EntityStatic> currentEntListCopy = board.getStaticEntities();
-		listOfPropLists = new ArrayList<PropertiesList>(currentEntListCopy.size());
-		for (EntityStatic ent : currentEntListCopy){
+		listOfPropLists = new ArrayList<PropertiesList>(board.getStaticEntities().size());
+		for (EntityStatic ent : board.getStaticEntities() ){
 			//will create a new propertyList array corresponding to each staticEntity.
 			listOfPropLists.add(new PropertiesList(ent));
-		}
-	}
+		}//#####################
+	} //########################
 	public void addEntryToListOfPropLists(PropertiesList pl){
 		//will add to the end the of the listofproplists array, which will work just fine assuming
 		//that when entities are added to their list, it will also be added to the very end.
 		// ( ArrayList<> list.add(object) will append to the end of list.)
 		listOfPropLists.add(pl);
-	}
-	public void removeEntryFromListOfPropLists(PropertiesList pl) {
+	} // ###############
+	public void removeEntryFromListOfPropLists(int index) {
 		try {  //object must exist inside of listOfPropLists, or else returns exception
 			//removes corresponding propertyList object from entity that was removed.
-			listOfPropLists.remove(pl);  
+			listOfPropLists.remove(index);  
 			//can also use listOfPropLists.remove(int index) as a safer option.
 		}
 		catch(Exception e) {e.printStackTrace();}
-	}
+	} // ###############
+	// #### End of section for prop lists
+	
 	public void setMousePosLabel(String text){
 		mousePosLabel.setText(text);
 	}
@@ -275,9 +396,9 @@ public class EditorPanel extends JPanel {
 	 */
 	public void enableEditPropertiesButton(boolean choice){
 		if (choice == true)
-			editPropertiesButton.setEnabled(true);
+			deleteEntButton.setEnabled(true);
 		else if(choice == false)
-			editPropertiesButton.setEnabled(false);
+			deleteEntButton.setEnabled(false);
 	}
 
 }

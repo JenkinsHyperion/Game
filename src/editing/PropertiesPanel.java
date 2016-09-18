@@ -124,6 +124,7 @@ public class PropertiesPanel extends JPanel implements ActionListener,ItemListen
 			 * Here, set the name field of the current propertyList's yPos property */
 			ep.getThisProperty(Property.ENTNAME).setEntityName(ep.getSelectedEntity(), command);
 			updateCurrentStatusLabel(Property.ENTNAME);
+			ep.updateAllEntitiesComboBox();
 		}
 		/*
 		invalidate();

@@ -470,7 +470,7 @@ public class Board extends JPanel implements Runnable {
   		{	
   			if (currentSelectedEntity != null)
   				currentSelectedEntity.getEntitySprite().setVisible(true);
-  			if (clickedOnEntity(e.getPoint()) == null) {
+  			if (clickedOnEntity(e.getPoint() ) == null) {
   				deselectAllEntities();
   			}
 
@@ -516,7 +516,8 @@ public class Board extends JPanel implements Runnable {
   	}
   	
   	public void deselectAllEntities() {
-  		
+  		currentSelectedEntity = null;
+  		editorPanel.enableEditPropertiesButton(false);
   		for (EntityStatic entity : staticEntitiesList) {
   			if (entity.isSelected == true)
   				entity.isSelected = false;

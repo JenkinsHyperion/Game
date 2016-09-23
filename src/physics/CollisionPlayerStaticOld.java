@@ -4,7 +4,7 @@ import java.awt.Rectangle;
 
 import entities.EntityDynamic;
 import entities.EntityStatic;
-import entities.Player;
+import entities.PlayerCharacter;
 
 public class CollisionPlayerStaticOld extends Collision {
 	
@@ -117,7 +117,7 @@ public class CollisionPlayerStaticOld extends Collision {
 								
 					
 					//CLIMBING TEST 
-					boolean temp = ((Player) entityPrimary).isClimbing();
+					boolean temp = ((PlayerCharacter) entityPrimary).isClimbing();
 					if (  !temp  ) {
 						
 						distance = (int) ( box2.getMinY() - entityPrimary.getY() ) ;
@@ -134,7 +134,7 @@ public class CollisionPlayerStaticOld extends Collision {
 						entityPrimary.setX( (int) box2.getMaxX() - 26);
 
 						
-						((Player) entityPrimary).setClimb( distance / 2 , false);	
+						((PlayerCharacter) entityPrimary).setClimb( distance / 2 , false);	
 						
 					}// 
 													
@@ -158,7 +158,7 @@ public class CollisionPlayerStaticOld extends Collision {
 					xequilibrium = true;
 
 					//CLIMBING TEST 
-					boolean temp = ((Player) entityPrimary).isClimbing(); // deal with this better, move temp outside more
+					boolean temp = ((PlayerCharacter) entityPrimary).isClimbing(); // deal with this better, move temp outside more
 					if (  !temp  ) {
 						
 						distance = (int) ( box2.getMinY() - entityPrimary.getY() ) ;
@@ -175,7 +175,7 @@ public class CollisionPlayerStaticOld extends Collision {
 						
 
 						
-						((Player) entityPrimary).setClimb( distance / 2 , true);	
+						((PlayerCharacter) entityPrimary).setClimb( distance / 2 , true);	
 						
 					}// 
 					
@@ -193,11 +193,11 @@ public class CollisionPlayerStaticOld extends Collision {
 		}
 		
 		
-		if (  ((Player) entityPrimary).isClimbing()  ) {
+		if (  ((PlayerCharacter) entityPrimary).isClimbing()  ) {
 			
-			if (  ( (Player) entityPrimary ).getPlayerState().getAnimation().getFrameNumber()  == 20 ) {
+			if (  ( (PlayerCharacter) entityPrimary ).getPlayerState().getAnimation().getFrameNumber()  == 20 ) {
 				
-				((Player) entityPrimary).finishClimb();
+				((PlayerCharacter) entityPrimary).finishClimb();
 				
 			}	
 														

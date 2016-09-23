@@ -167,7 +167,6 @@ public class Boundary {
 		return null;
 	}
 
-
 	public boolean sidesHaveContact(Line2D side1, Line2D side2) { 
 		
 		Point2D p1 = null;
@@ -445,21 +444,48 @@ public class Boundary {
 	}
 
 	
-	public Line2D debugGetAxis( Line2D line , int xMax, int yMax ){
+	public Line2D getSeparatingAxis( Line2D separatingSide ){ //OPTIMIZATION CHANGE TO SLOPE ONLY##DONE
 		
-		double m; // break line into slope - intercept forms    y = mx + b
-		
-		if ( line.getP1().getX() == line.getP2().getX() ) { //line is vertical
-				return new Line2D.Double( line.getP1().getX() , 0 , line.getP1().getX() , yMax );
+		if ( separatingSide.getP1().getX() == separatingSide.getP2().getX() ) { //line is vertical
+			
+				return new Line2D.Double( 0 , 0 , 100 , 0 ); //return normal line which is horizontal with slope 0
 			}
 		else {// line is not vertical, so it has a defined slope and can be in form y=mx+b
 
-			m = ( line.getP1().getY() - line.getP2().getY()  ) / ( line.getP1().getX() - line.getP2().getX() );
-			double b = line.getP1().getY() - ( m * line.getP1().getX() );	
-
-			return new Line2D.Double( 0 , b , xMax , (xMax*m)+b );
-			//return new Line2D.Double( 0 , intercept , xMax , (xMax*m)+intercept );
+			//return normal line, whose slope is inverse reciprocal of line.   -(1/slope)
+			return new Line2D.Double( 0 , 0 , 
+					- (separatingSide.getP1().getY() - separatingSide.getP2().getY() ), 
+						separatingSide.getP1().getX() - separatingSide.getP2().getX() 
+					);
 			
+		}
+		
+	}
+	
+	
+	public Line2D debugGetSeparatingAxis( Line2D separatingSide , int xMax, int yMax ){ //OPTIMIZATION CHANGE TO SLOPE ONLY##DONE
+		
+		if ( separatingSide.getP1().getX() == separatingSide.getP2().getX() ) { //line is vertical
+			
+				return new Line2D.Double( 0 , 20 , xMax , 20 ); //return normal line which is horizontal with slope 0
+			}
+		else {// line is not vertical, so it has a defined slope and can be in form y=mx+b
+
+			//return normal line, whose slope is inverse reciprocal of line.   -(1/slope)
+			double m = ( separatingSide.getY1() - separatingSide.getY2() )/( separatingSide.getX1() - separatingSide.getX2() );
+			int b = (int)( separatingSide.getY1() - ( m*separatingSide.getX1() ) );
+			
+			if (m==0)
+				return new Line2D.Float( 20 , 0 , 20 , yMax );
+	
+			else { // y=mx+b    y = m*(x - Xoffset ) + yOffset    (y-b)/( x-Xoffset )
+				
+				return new Line2D.Double( 0 , 
+						( -(1/m) * (-(xMax/2) ) ) + (yMax/2) ,
+						xMax ,
+						( -(1/m) * (xMax/2) ) + (yMax/2)
+						);
+			}
 		}
 		
 	}
@@ -469,7 +495,7 @@ public class Boundary {
 		Line2D[] axes = new Line2D[getSeparatingSides().length];
 		
 		for ( int i = 0; i < getSeparatingSides().length ; i++){
-			axes[i] = debugGetAxis( getSeparatingSides()[i], xMax, yMax);
+			axes[i] = debugGetSeparatingAxis( getSeparatingSides()[i], xMax, yMax);
 		}
 		return axes;
 	}

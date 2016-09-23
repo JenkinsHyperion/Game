@@ -13,11 +13,6 @@ import testEntities.Bullet;
 import testEntities.Particle;
 
 public class PlayerShape extends Player {
-
-	//private static Action enterAction;
-	
-	
-	//private Timer keytimer;
 	
 	private boolean keypressA = false;
 	private boolean keypressD = false;
@@ -52,7 +47,8 @@ public class PlayerShape extends Player {
         int key = e.getKeyCode();
 
         if (key == KeyEvent.VK_SHIFT) {
-
+            	
+            	board.player = new PlayerCharacter(board.ICRAFT_X , board.ICRAFT_Y, board);
         	
         }
 

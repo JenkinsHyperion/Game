@@ -10,7 +10,7 @@ import physics.BoundingBox;
 import physics.CollidingPair;
 import physics.Collision;
 import sprites.SpriteAnimated;
-import sprites.SpriteStill;
+import sprites.SpriteStillframe;
 import sprites.Sprite;
 
 /*
@@ -36,11 +36,11 @@ public class EntityStatic extends Entity{
     }
     
     protected void loadSprite(String path){ // needs handling if failed. Also needs to be moved out of object class into sprites
-    	entitySprite = new SpriteStill(System.getProperty("user.dir").replace( "\\", "//" ) + "//Assets//" +path + ".png");
+    	entitySprite = new SpriteStillframe(System.getProperty("user.dir").replace( "\\", "//" ) + "//Assets//" +path + ".png");
     }
     
     protected void loadSprite(String path, int offset_x , int offset_y){ // needs handling if failed. Also needs to be moved out of object class into sprites
-    	entitySprite = new SpriteStill(System.getProperty("user.dir").replace( "\\", "//" ) + "//Assets//" +path + ".png",offset_x,offset_y);
+    	entitySprite = new SpriteStillframe(System.getProperty("user.dir").replace( "\\", "//" ) + "//Assets//" +path + ".png",offset_x,offset_y);
     }
     
     /*protected void loadAnimatedSprite(String path){ // needs handling if failed. 

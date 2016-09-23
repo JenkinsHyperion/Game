@@ -85,13 +85,14 @@ public class Collision {
 	
 	public boolean isComplete(){ // Check if entities are no longer colliding
 		
-		if (entityPrimary.getBoundary().boundaryIntersects( entitySecondary.getBoundaryLocal() ) ) {
+		/*if (entityPrimary.getBoundary().boundaryIntersects( entitySecondary.getBoundaryLocal() ) ) {
 			return false;
 		}
 		else { // entities are no longer colliding
 			completeCollision(); // run final commands
 			return true; // return true for scanning loop in Board to delete this collision
-		}
+		}*/
+		return false;
 	}
 	
 	

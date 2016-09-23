@@ -259,14 +259,14 @@ public class CollisionPlayerStaticSAT extends Collision {
 	    Boundary bounds = stat.getBoundaryLocal() ;
 	    Boundary playerBounds = entityPrimary.getBoundaryDelta();
 	    
-	    int deltaX = (int) (entityPrimary.getDeltaX()  );
+	    int deltaX = (int) (entityPrimary.getDeltaX() );
 	    int deltaY = (int) (entityPrimary.getDeltaY() );
 	    
 	    Point2D playerCenter = new Point2D.Double(deltaX, deltaY);
 	    Point2D statCenter = new Point2D.Double(stat.getX(), stat.getY());
 		
 		
-		Line2D axis = bounds.debugGetAxis(separatingSide,300, 300); //OPTIMIZE TO SLOPE ONLY CALCULATIONS
+		Line2D axis = bounds.getSeparatingAxis(separatingSide); //OPTIMIZE TO SLOPE ONLY CALCULATIONS
 	    
 	    Line2D centerDistance = new Line2D.Float(deltaX , deltaY,
 	    		stat.getX() , stat.getY() );

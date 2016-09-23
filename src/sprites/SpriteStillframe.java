@@ -5,19 +5,19 @@ import javax.swing.ImageIcon;
 
 import animation.Animation;
 
-public class SpriteStill extends Sprite {  // Object with still image
+public class SpriteStillframe extends Sprite {  // Object with still image
 
     protected int width;
     protected int height;
     protected Image image;
 
-    public SpriteStill(String path) { 
+    public SpriteStillframe(String path) { 
 
     	loadImage(path);
         visibility = true;
     }
     
-    public SpriteStill(String path, int offset_x, int offset_y) { 
+    public SpriteStillframe(String path, int offset_x, int offset_y) { 
 
     	loadImage(path);
         visibility = true;

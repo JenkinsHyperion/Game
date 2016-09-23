@@ -28,12 +28,12 @@ public class Board extends JPanel implements Runnable {
 	
 	private CollisionEngine Collisions = new CollisionEngine(this); //Refactor to a better name
 	private EditorPanel editorPanel;
-    private Player player;
+    public Player player;
     private  PaintOverlay p;
     public Tracer laser;
     protected ArrayList<EntityStatic> staticEntitiesList; 
     protected static ArrayList<EntityDynamic> dynamicEntitiesList; 
-    protected static ArrayList<EntityDynamic> physicsEntitiesList; 
+    protected static ArrayList<EntityPhysics> physicsEntitiesList; 
     
     protected Point clickPosition;
     protected boolean mouseClick = false;
@@ -96,7 +96,7 @@ public class Board extends JPanel implements Runnable {
         physicsEntitiesList = new ArrayList<>();
 
         // initialize player
-        player = new PlayerShape(ICRAFT_X, ICRAFT_Y,this);
+        player = new PlayerCharacter(ICRAFT_X, ICRAFT_Y,this);
         player.getEntitySprite().setVisible(true);
 
         selectedBox = new Rectangle();
@@ -509,6 +509,11 @@ public class Board extends JPanel implements Runnable {
   			}
   			counter++;
   		}
+  		//TESTING BOX SELECTION
+
+  		
+  		
+  		
   		//nothing was found under cursor: 
   		editorPanel.enableEditPropertiesButton(false);
   		editorPanel.minimizePanels();
@@ -725,9 +730,9 @@ public class Board extends JPanel implements Runnable {
 	    Point2D statCenter = new Point2D.Double(stat.getX(), stat.getY());
 	    
 	    	//for ( Line2D axis : bounds.debugSeparatingAxes(B_WIDTH, B_HEIGHT) ){
-	    	for ( Line2D side : bounds.getSeparatingSides() ){
+	    	for ( Line2D side : bounds.getSpearatingSidesBetween(playerBounds) ){
 	    		
-	    		Line2D axis = bounds.debugGetAxis(side, B_WIDTH, B_HEIGHT);
+	    		Line2D axis = bounds.debugGetSeparatingAxis(side, B_WIDTH, B_HEIGHT);
 	    		
 		    	g2.setColor(Color.DARK_GRAY);
 		    	
@@ -815,7 +820,7 @@ public class Board extends JPanel implements Runnable {
 		    		(int)centerProjection.getX1()+20 , (int)centerProjection.getY1()+50);
 			    */
 			    g2.drawString("Penetration X: " + penetrationX + " Y: " + penetrationY ,
-	    			(int)centerProjection.getX1()+20 , (int)centerProjection.getY1()+65);
+	    			(int)playerHalf.getX1() , (int)playerHalf.getY1()+10);
 			    
 			    
 			    //g2.setColor(Color.DARK_GRAY);
@@ -835,7 +840,6 @@ public class Board extends JPanel implements Runnable {
 	    Graphics2D g2 = (Graphics2D) g;
     	
 
-		drawDebugSAT( currentDebugEntity , player , g2);
 	    
 	    drawDebugSAT( player , currentDebugEntity , g2);
 
@@ -874,7 +878,7 @@ public class Board extends JPanel implements Runnable {
 	
 	public ArrayList<EntityStatic> getStaticEntities(){ return staticEntitiesList; }
 	public ArrayList<EntityDynamic> getDynamicEntities(){ return dynamicEntitiesList; }
-	public ArrayList<EntityDynamic> getPhysicsEntities(){ return physicsEntitiesList; }
+	public ArrayList<EntityPhysics> getPhysicsEntities(){ return physicsEntitiesList; }
 	public EntityStatic getCurrentSelectedEntity() { return currentSelectedEntity; }
 	public void setCurrentSelectedEntity(EntityStatic newSelectedEntity){
 		try{

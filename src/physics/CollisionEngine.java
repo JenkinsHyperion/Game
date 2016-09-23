@@ -131,19 +131,21 @@ public class CollisionEngine {
         // Check collisions between player and physics objects
         for (EntityDynamic physics : currentBoard.getPhysicsEntities() ) { 
         	
-        	Rectangle r4 = physics.getBoundingBox();
-	        	
-		        if (r3.intersects(r4) ) { 
-	        	 //if (r3.intersects(new Rectangle(clickPosition, new Dimension(10,10))) ) {
-		        	
-	            	//OPEN COLLISION
-	            	if (!hasActiveCollision(player,physics)) { //check to see if collision isn't already occurring
-	            		collisionsList.add(new CollisionPlayerDynamic(player,physics)); // if not, add new collision event
-		            	} 	
-	        }
+        	if ( checkForCollisionsSAT(player, physics) ) {
+   			 //check to see if collision isn't already occurring
+   			if (!hasActiveCollision(player,physics)) {
+   				// if not, add new collision event
+   				//int index = currentBoard.getStaticEntities().size() + 1 ;
+   			    System.out.println( "Physics-Dynamic collision detected" );
+   				collisionsList.add(new CollisionPlayerStaticSAT(player,physics) ); 
+   				
+   			} 	
+   		}
+        	
         }
         
-    	updateCollisions(); // calculate and remove old collisions    
+        // END OF CHECKS, update and remove collisions that completed;
+    	updateCollisions();    
         
     }
     
@@ -191,7 +193,7 @@ public class CollisionEngine {
 	    Point2D statCenter = new Point2D.Double(stat.getX(), stat.getY());
 		
 		
-		Line2D axis = bounds.debugGetAxis(separatingSide,300, 300); //OPTIMIZE TO SLOPE ONLY CALCULATIONS
+		Line2D axis = bounds.getSeparatingAxis(separatingSide); //OPTIMIZE TO SLOPE ONLY CALCULATIONS
 	    
 	    Line2D centerDistance = new Line2D.Float(deltaX , deltaY,
 	    		stat.getX() , stat.getY() );
@@ -272,7 +274,7 @@ public class CollisionEngine {
 	    Point2D centerA = new Point2D.Double(entityA.getX(), entityA.getY());
 	    Point2D centerB = new Point2D.Double(entityB.getX(), entityB.getY());
 		
-		Line2D axis = boundsB.debugGetAxis(separatingSide,300, 300); //OPTIMIZE TO SLOPE ONLY CALCULATIONS
+		Line2D axis = boundsB.getSeparatingAxis(separatingSide); //OPTIMIZE TO SLOPE ONLY CALCULATIONS
 	    
 	    Line2D centerDistance = new Line2D.Float(entityA.getPos() , entityB.getPos() );
 	    Line2D centerProjection = boundsA.getProjectionLine(centerDistance, axis);

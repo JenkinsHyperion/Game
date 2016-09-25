@@ -3,12 +3,13 @@ package physics;
 import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import entities.EntityDynamic;
 import entities.EntityStatic;
 
-public class Collision {
+public class Collision implements Serializable{
 	
 	protected boolean isComplete = false;
 	

@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -12,7 +13,7 @@ import entities.EntityDynamic;
 import entities.EntityStatic;
 import entities.Player;
 
-public class CollisionEngine {
+public class CollisionEngine implements Serializable{
 
 	private Board currentBoard;
     private LinkedList<Collision> collisionsList = new LinkedList<Collision>(); 

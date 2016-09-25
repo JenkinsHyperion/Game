@@ -262,20 +262,20 @@ public class Board extends JPanel implements Runnable {
     public void drawObjects(Graphics g) {
     	
     	//Draw all static entities from list (ex. platforms)
-        for (EntityStatic stat : staticEntitiesList) {
-            if (stat.getEntitySprite().isVisible()) {
-                g.drawImage(stat.getEntitySprite().getImage(), 
-                		stat.getSpriteOffsetX() + stat.getX(), 
-                		stat.getSpriteOffsetY() + stat.getY(), this);
-               //METHOD FOR DRAWING RECTANGLE
-                // 	>it will take EntityStatic, Graphics, width and height as parameters
-                //	>checks if the entity isSelected:
-                //  >>> draws with given width and height, of if not selected doesn't draw
-                //scratch pad:
-                drawEditorSelectedRectangle(stat, g, selectedBox);
-            }
-        }
-        
+    	if (staticEntitiesList.size() > 0 && staticEntitiesList != null) {  //must null check in case all items are deleted
+	        for (EntityStatic stat : staticEntitiesList) {
+	        	g.drawImage(stat.getEntitySprite().getImage(), 
+	        			stat.getSpriteOffsetX() + stat.getX(), 
+	        			stat.getSpriteOffsetY() + stat.getY(), this);
+	        	//METHOD FOR DRAWING RECTANGLE
+	        	// 	>it will take EntityStatic, Graphics, width and height as parameters
+	        	//	>checks if the entity isSelected:
+	        	//  >>> draws with given width and height, of if not selected doesn't draw
+	        	//scratch pad:
+	        	drawEditorSelectedRectangle(stat, g, selectedBox);
+
+	        }
+    	}
         //Draw all dynamic (moving) entities from list (ex. bullets)
         for (EntityDynamic dynamic : dynamicEntitiesList) {
             if (dynamic.getEntitySprite().isVisible()) {

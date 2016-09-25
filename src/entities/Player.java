@@ -8,13 +8,12 @@ import java.awt.event.KeyEvent;
 
 import animation.*;
 import engine.Board;
-import sun.util.resources.cldr.ur.CurrencyNames_ur;
 import testEntities.Bullet;
 import testEntities.Particle;
 
 public class Player extends EntityRotationalDynamic {
 
-	protected Board board;
+	protected transient Board board;
 
     public Player(int x, int y , Board currentBoard) {
         super(x, y);

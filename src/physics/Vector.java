@@ -1,6 +1,8 @@
 package physics;
 
-public class Vector {
+import java.io.Serializable;
+
+public class Vector implements Serializable{
 		
 		private int x;
 		private int y;

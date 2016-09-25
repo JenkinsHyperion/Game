@@ -18,23 +18,20 @@ import sprites.Sprite;
  */
 public class EntityStatic extends Entity{
 
-	public boolean isSelected;
+	public transient boolean isSelected;
+    protected transient ArrayList<CollidingPair> collisions = new ArrayList<>();
+	private transient Sprite entitySprite; //might want to put into super class unless Entity without image is useful
+	protected transient Rectangle boundingBox = new Rectangle(0,0); //Should be moved to intermediate class for only collidables
+	protected transient Boundary boundary = new BoundingBox(new Rectangle(2,2));
+   
+	public EntityStatic(int x, int y) {
 
-    protected ArrayList<CollidingPair> collisions = new ArrayList<>();
-
-	protected Sprite entitySprite; //might want to put into super class unless Entity without image is useful
-	protected Rectangle boundingBox = new Rectangle(0,0); //Should be moved to intermediate class for only collidables
-	
-	protected Boundary boundary = new BoundingBox(new Rectangle(2,2));
-	
-    public EntityStatic(int x, int y) {
     	super(x,y);
     	isSelected = false;
         //this.x = x;
         //this.y = y;
         //visibility = true;
-    }
-    
+    }  
     protected void loadSprite(String path){ // needs handling if failed. Also needs to be moved out of object class into sprites
     	entitySprite = new SpriteStillframe(System.getProperty("user.dir").replace( "\\", "//" ) + "//Assets//" +path + ".png");
     }

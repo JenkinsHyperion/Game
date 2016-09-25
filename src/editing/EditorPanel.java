@@ -43,6 +43,8 @@ public class EditorPanel extends JPanel {
 	private JLabel selectedEntityNameLabel;
 	protected JComboBox<String> allEntitiesComboBox;
 	
+	protected JButton loadButton;
+	protected JButton saveButton;
 	protected JButton deleteEntButton;
 	protected JButton addEntButton;
 	//Panels
@@ -54,6 +56,7 @@ public class EditorPanel extends JPanel {
 	public FlowLayout layout;
     //private JList entitiesJList;
 
+	private SavingLoading saveLoad;
 
 	public EditorPanel( Board boardInstance) {
 		testFlag = true;
@@ -76,6 +79,31 @@ public class EditorPanel extends JPanel {
 		entityCoordsLabel = new JLabel("Coords of selected entity: ");
 		selectedEntityNameLabel = new JLabel("Nothing Selected");
 		
+		saveButton = new JButton("Save");
+		saveButton.setPreferredSize(new Dimension(40,22));
+		saveButton.setMargin(new Insets(0,0,0,0));
+		saveButton.setFocusable(false);
+		saveButton.setMnemonic(KeyEvent.VK_S);
+		saveButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String levelName = JOptionPane.showInputDialog("Enter level name");
+				new SavingLoading(board).writeLevel(board.getStaticEntities(), levelName);
+			}
+		});
+		loadButton = new JButton("Load");
+		loadButton.setFocusable(false);
+		loadButton.setPreferredSize(new Dimension(40,22));
+		loadButton.setMargin(new Insets(0,0,0,0));
+		loadButton.setMnemonic(KeyEvent.VK_L);
+		loadButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String levelName = JOptionPane.showInputDialog("Enter level name to load");
+				if (levelName != null)
+					new SavingLoading(board).loadLevel(board.getStaticEntities(), levelName);
+			}
+		});
 		// #### This button is useless as of now, but can possibly be repurposed later.
 		deleteEntButton = new JButton("Delete");
 		deleteEntButton.setFocusable(false);
@@ -169,6 +197,8 @@ public class EditorPanel extends JPanel {
 		// #### add everything to the editor
 		
 		add(entitiesComboBoxPanel);
+		add(saveButton);
+		add(loadButton);
 		add(labelsPanel);
 		add(buttonPanel);	
 		add(propertyPanelTest);

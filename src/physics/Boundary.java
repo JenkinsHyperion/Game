@@ -4,10 +4,11 @@ import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Vector;
 
-public class Boundary {
+public class Boundary implements Serializable {
 	
 	//protected Shape boundaryShape;
 	

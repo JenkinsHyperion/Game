@@ -1,6 +1,8 @@
 package physics;
 
-public class CollidingPair {
+import java.io.Serializable;
+
+public class CollidingPair implements Serializable {
 
 	Collision collision;
 	boolean pairID;

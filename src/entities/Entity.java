@@ -1,12 +1,13 @@
 package entities;
 
 import java.awt.Point;
+import java.io.Serializable;
 
 /* This is the base class for all game objects. Contains only position variables. 
  * 
  */
 
-public class Entity { 
+public class Entity implements Serializable { 
 	public static int count;
 	public String name = "blank entity";
 	protected boolean alive = true;

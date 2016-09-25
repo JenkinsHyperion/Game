@@ -42,6 +42,9 @@ public abstract class Sprite {
     	return spriteOffsetY;
     }
     
-    
+    public void setOffset(int x , int y){
+    	spriteOffsetX = x;
+    	spriteOffsetY = y;
+    }
     
 }

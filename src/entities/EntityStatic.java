@@ -22,7 +22,7 @@ public class EntityStatic extends Entity{
 
     protected ArrayList<CollidingPair> collisions = new ArrayList<>();
 
-	private Sprite entitySprite; //might want to put into super class unless Entity without image is useful
+	protected Sprite entitySprite; //might want to put into super class unless Entity without image is useful
 	protected Rectangle boundingBox = new Rectangle(0,0); //Should be moved to intermediate class for only collidables
 	
 	protected Boundary boundary = new BoundingBox(new Rectangle(2,2));
@@ -54,6 +54,10 @@ public class EntityStatic extends Entity{
     //OPTIONAL INIT WITH OFFSET
     protected void loadAnimatedSprite(Animation a, int offsetX, int offsetY){ // needs handling if failed. 
     	entitySprite = new SpriteAnimated(a,offsetX,offsetY); 
+    }
+    
+    protected void setEntitySpriteOffset(int x , int y){
+    	entitySprite.setOffset(x, y); 
     }
     
     public Sprite getEntitySprite(){ // gets the Object's sprite, still image or animation

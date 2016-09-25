@@ -53,6 +53,8 @@ public class Tracer extends EntityDynamic{ // Can extend either EntityStatic or 
 	//the actual Shape object for the laser that has the ability to draw itself
 	private Line2D.Float beam;
 	private Line2D.Float tracer;
+	private EntityStatic parent;
+	private EntityStatic aim;
 	/**
 	 * <code>
 	 * @param x the x-origin point for the laser
@@ -65,6 +67,21 @@ public class Tracer extends EntityDynamic{ // Can extend either EntityStatic or 
 		super(x, y);
 		setxEndPoint(xEnd);
 		setyEndPoint(yEnd);
+		
+        initialize();
+       //debugBox = new Rectangle();
+        beam = new Line2D.Float();
+        tracer = new Line2D.Float();
+        
+	}
+    
+    public Tracer(int x, int y, EntityStatic parent , EntityStatic aim) {  
+		super(x, y);
+		setxEndPoint(x);
+		setyEndPoint(y);
+		
+		this.parent = parent;
+		this.aim = aim;
 		
         initialize();
        //debugBox = new Rectangle();
@@ -113,14 +130,23 @@ public class Tracer extends EntityDynamic{ // Can extend either EntityStatic or 
     @Override
     public void updatePosition(){
     	
+       	this.setX(parent.getX()+25);
+       	this.setY(parent.getY()+10);
+        
+       	this.setxEndPoint((int)aim.getX()+1);
+       	this.setyEndPoint((int)aim.getY()+1);
+    	
+    	
     	//Rough testing collision blocking
     	beam = new Line2D.Float(getPos(),new Point(xEndPoint,yEndPoint));
+    	
     	for (Collision collision : this.getCollisions() ){
     		CollisionPositioning laserBlock = (CollisionPositioning) collision;
     		beam = new Line2D.Float ( getPos() , laserBlock.getClosestIntersection() );
     	}
     	
        	boundary = new Boundary(tracer);
+       	
     }
     
     /**

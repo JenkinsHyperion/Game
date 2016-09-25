@@ -7,8 +7,8 @@ import java.util.List;
 //Animation class holds array of individual frames as well as playback functionality
 public class Animation {
 	
-	private int animationOffsetX = 0;
-	private int animationOffsetY = 0;
+	protected int animationOffsetX = 0;
+	protected int animationOffsetY = 0;
 
 	private int frameCount; // Counts ticks for change
 	protected int frameDelay; // frame delay 1-12 (You will have to play around

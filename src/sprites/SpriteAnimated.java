@@ -19,8 +19,8 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
     
     public SpriteAnimated(Animation animation, int offset_x, int offset_y) {
     	spriteAnimation = animation;
-    	spriteOffsetX = offset_x;
-    	spriteOffsetY = offset_y;
+    	this.spriteOffsetX = offset_x;
+    	this.spriteOffsetY = offset_y;
     	
         setVisible(true);
     }

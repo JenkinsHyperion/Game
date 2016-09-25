@@ -116,8 +116,10 @@ public class Board extends JPanel implements Runnable {
       	physicsEntitiesList.add(new EntityPhysics(120,260,"box"));
         dynamicEntitiesList.add(new Bullet(100,100,1,1));
         
+        dynamicEntitiesList.add(new Crosshair(100,100,laser,player));
+        
         //test for LaserTest entity
-        laser = new Tracer(143,260, B_WIDTH, 260);
+        laser = new Tracer(143,260, physicsEntitiesList.get(0) , dynamicEntitiesList.get(1) ); //later will be parent system
         //dynamicEntitiesList.add(new LaserTest(400,60));  <-- can't add as long as I don't have a sprite for it
         //		--- for now will just draw in the drawObjects() method
         
@@ -303,27 +305,11 @@ public class Board extends JPanel implements Runnable {
 		//Draw player
         if (player.getEntitySprite().isVisible()) {
             ((Graphics2D) g).drawImage(player.getEntitySprite().getImage(), 
-            		player.getX() + player.getEntitySprite().getOffsetX(), 
-            		player.getY() + player.getEntitySprite().getOffsetY(), this);
+            		player.getX() - player.getEntitySprite().getOffsetX() , 
+            		player.getY() - player.getEntitySprite().getOffsetY(), this);
         }
 
-    //DRAW GUI - might be extended into debug console
 
- //**      //DRAW LASER  
-        
-        //calling upon physicsEntitiesList.get(0) is awkward, perhaps good reason to try out HashMaps
-        laser.setX(physicsEntitiesList.get(0).getX()+25);
-        laser.setY(physicsEntitiesList.get(0).getY()+10);
-        
-        laser.setxEndPoint((int)player.getBoundingBox().getCenterX());
-        laser.setyEndPoint((int)player.getBoundingBox().getCenterY());
-        
-        /*
-         * #####  For having laser track the mouse
-
-        laser.setxEndPoint((int)clickPosition.getX() );
-        laser.setyEndPoint((int)clickPosition.getY() );
-        */
         
         //laser.setxEndPoint(B_WIDTH);
        // laser.setyEndPoint(physicsEntitiesList.get(0).getY()+10);

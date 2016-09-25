@@ -21,8 +21,8 @@ public class SpriteStillframe extends Sprite {  // Object with still image
 
     	loadImage(path);
         visibility = true;
-        spriteOffsetX = offset_x;
-        spriteOffsetY = offset_y;
+        this.spriteOffsetX = offset_x;
+        this.spriteOffsetY = offset_y;
     }
 
     protected void getImageDimensions() { 

@@ -23,12 +23,15 @@ public class PlayerCharacter extends Player {
 	private boolean keypressUP = false;
 	private boolean keypressS = false;
 	
+	private final int spriteOffsetX=16;
+	private final int spriteOffsetY=16;
+	
 	private boolean climbing = false;
     
-    private AnimationEnhanced RUN_RIGHT = new AnimationEnhanced(LoadAnimation.getAnimation(8, 1, 32, "player_sheet") , 2 ); 	
-    private Animation RUN_LEFT = new Animation(LoadAnimation.getAnimation(8, 0, 32, "player_sheet") , 2 ); 
-    private Animation IDLE_RIGHT = new Animation(LoadAnimation.getAnimation(2, 2, 32, "player_sheet") , 18 ); 
-    private Animation IDLE_LEFT = new Animation(LoadAnimation.getAnimation(2, 3, 32, "player_sheet") , 18 );
+    private AnimationEnhanced RUN_RIGHT = new AnimationEnhanced(LoadAnimation.getAnimation(8, 1, 32, "player_sheet") , 2 ,spriteOffsetX,spriteOffsetY ); 	
+    private Animation RUN_LEFT = new Animation(LoadAnimation.getAnimation(8, 0, 32, "player_sheet") , 2 ,spriteOffsetX,spriteOffsetY); 
+    private Animation IDLE_RIGHT = new Animation(LoadAnimation.getAnimation(2, 2, 32, "player_sheet") , 18 ,spriteOffsetX,spriteOffsetY); 
+    private Animation IDLE_LEFT = new Animation(LoadAnimation.getAnimation(2, 3, 32, "player_sheet") , 18 ,spriteOffsetX,spriteOffsetY);
     
     private Animation CLIMB_LEFT = new Animation(LoadAnimation.getAnimation(21, 0, 40,64 , "spritesFramesFinal") , 2 );
     private Animation CLIMB_RIGHT = new Animation(LoadAnimation.getAnimation(21, 1, 40,64 , "spritesFramesFinal") , 2 , -9, 0);
@@ -59,6 +62,7 @@ public class PlayerCharacter extends Player {
         
         setBoundingBox(-12,-16,24,32);
         loadAnimatedSprite(IDLE_LEFT); 
+        //this.entitySprite.setOffset(-100, -100); 
         //setAngle(0);
         setAccY( 0.1f ); // Force initialize gravity (temporary)
         

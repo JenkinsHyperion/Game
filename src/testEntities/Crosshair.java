@@ -1,18 +1,26 @@
 package testEntities;
 
-import entities.EntityDynamic;
-import entities.EntityStatic;
+import entities.*;
+import misc.*;
 
 public class Crosshair extends EntityDynamic{
 	
 	private EntityStatic target;
 	private EntityStatic parent;
+
+	private MovementBehavior idleBehavior; //TO DO make static singleton
+	private MovementBehavior activeBehavior; //AI can also be a static singleton since its a behavior
+	private MovementBehavior behaviorCurrent;
 	
     public Crosshair(int x, int y, EntityStatic parent, EntityStatic target) {
 		super(x, y);
 		
 		this.target = target;
 		this.parent = parent;
+		
+		idleBehavior = new InactiveBehavior(); //TO DO make static singleton
+		activeBehavior = new LinearFollow( this , target ); //AI can also be a static singleton since its a behavior
+		behaviorCurrent = activeBehavior;
 		
         initBulletTest();
         setBoundingBox(-1,-1,2,2);
@@ -28,22 +36,23 @@ public class Crosshair extends EntityDynamic{
         
     }
     
+    public void activate(){ behaviorCurrent = activeBehavior; }
+    
+    public void deactivate(){ 
+    	behaviorCurrent = idleBehavior; 
+    	this.setPos(parent.getPos());
+    	this.setDX(0);
+    	this.setDY(0);
+    }
+    
     @Override 
     public void updatePosition() {
     	
-    	x += dx;
-    	y += dy;
-    	
-    	dx += accX;
-    	dy += accY;
-    	
-    	//MOVE TO AI / BEHAVIOR CLASS ratehr than boilerplating it
-    	
-    	y = y - (y-target.getY())/30 ;
+
+    	super.updatePosition();
+    	behaviorCurrent.updateAIPosition(); 	
 
     	
-    	
-    	x = x - (x-target.getX())/30 ;
     }
     
 

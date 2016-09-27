@@ -1,6 +1,5 @@
 package testEntities;
 
-import engine.Board.BoardAccess;
 import entities.EntityDynamic;
 
 public class Particle extends EntityDynamic{
@@ -32,9 +31,7 @@ public class Particle extends EntityDynamic{
     public void updatePosition() {
     	
     	//Destroy particle if it goes out of bounds
-    	if (y > BoardAccess.getBoardHeight()-3){ 
-    		selfDestruct();
-    	}
+
     	
     	x += dx;
     	y += dy;

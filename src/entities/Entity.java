@@ -63,6 +63,11 @@ public class Entity implements Serializable {
     	y = (float) p.getY();
     }
     
+    public void setPos(int x, int y){
+    	this.x = (float) x;
+    	this.y = (float) y;
+    }
+    
     public boolean isCollidable() {
 		return collidable;
 	}

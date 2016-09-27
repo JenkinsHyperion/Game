@@ -4,6 +4,9 @@ import entities.*;
 import physics.*;
 
 import java.awt.geom.Line2D;
+
+import engine.Board;
+
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Graphics;
@@ -41,6 +44,7 @@ import java.awt.Color;
  */
 public class Tracer extends EntityDynamic{ // Can extend either EntityStatic or EntityDynamic
 
+	Board currentBoard;
 	//note, the supplied x and y variables will act as the origin point for the line
 	private int xEndPoint;
 	private int yEndPoint;
@@ -54,7 +58,7 @@ public class Tracer extends EntityDynamic{ // Can extend either EntityStatic or 
 	private Line2D.Float beam;
 	private Line2D.Float tracer;
 	private EntityStatic parent;
-	private EntityStatic aim;
+	private Crosshair aim;
 	/**
 	 * <code>
 	 * @param x the x-origin point for the laser
@@ -63,10 +67,13 @@ public class Tracer extends EntityDynamic{ // Can extend either EntityStatic or 
 	 * @param yEnd the y-end point for the laser
 	 * </code>
 	 */
-    public Tracer(int x, int y, int xEnd, int yEnd) {  
+    public Tracer(int x, int y, int xEnd, int yEnd, Board board) {  
 		super(x, y);
 		setxEndPoint(xEnd);
 		setyEndPoint(yEnd);
+		
+		currentBoard = board;
+		aim = new Crosshair(xEndPoint, xEndPoint, this , currentBoard.player );
 		
         initialize();
        //debugBox = new Rectangle();
@@ -75,13 +82,13 @@ public class Tracer extends EntityDynamic{ // Can extend either EntityStatic or 
         
 	}
     
-    public Tracer(int x, int y, EntityStatic parent , EntityStatic aim) {  
+    public Tracer(int x, int y, EntityStatic parent , Board board) {  
 		super(x, y);
 		setxEndPoint(x);
 		setyEndPoint(y);
-		
+		currentBoard = board;
+		aim = new Crosshair(xEndPoint, xEndPoint, this , currentBoard.player );
 		this.parent = parent;
-		this.aim = aim;
 		
         initialize();
        //debugBox = new Rectangle();
@@ -123,19 +130,23 @@ public class Tracer extends EntityDynamic{ // Can extend either EntityStatic or 
     	//creating the laser, getting its bounds, and drawing it
     	//beam = new Line2D.Float(originPoint,endPoint);
        	
-    	g2.draw(beam);
+    	g2.draw(beam); 
+    	aim.getEntitySprite().draw(g2); //draw crosshair
 
     }
     
     @Override
     public void updatePosition(){
     	
+    	aim.updatePosition();
+    	
        	this.setX(parent.getX()+25);
        	this.setY(parent.getY()+10);
         
-       	this.setxEndPoint((int)aim.getX()+1);
-       	this.setyEndPoint((int)aim.getY()+1);
-    	
+       	//this.setxEndPoint((int)aim.getX()+1);
+       	//this.setyEndPoint((int)aim.getY()+1);
+        this.setxEndPoint(currentBoard.player.getX());
+       	this.setyEndPoint(currentBoard.player.getY());
     	
     	//Rough testing collision blocking
     	beam = new Line2D.Float(getPos(),new Point(xEndPoint,yEndPoint));
@@ -178,11 +189,16 @@ public class Tracer extends EntityDynamic{ // Can extend either EntityStatic or 
 	}
 	
 	@Override
-		public void onCollisionEvent() {
-		
-			
-		
-			//super.onCollisionEvent();
-		}
+	public void onCollisionEvent() {
+
+			aim.deactivate();
+			System.out.println("deactivate");
+	}
+	
+	@Override
+	public void onCollisionCompletion() {
+			System.out.println("targeting");
+			aim.activate();
+	}
 
 }

@@ -5,11 +5,13 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 
 import animation.Animation;
+import entityComposites.*;
 import physics.Boundary;
 import physics.BoundingBox;
 import physics.CollidingPair;
 import physics.Collision;
 import sprites.SpriteAnimated;
+import sprites.SpriteNull;
 import sprites.SpriteStillframe;
 import sprites.Sprite;
 
@@ -19,25 +21,26 @@ import sprites.Sprite;
 public class EntityStatic extends Entity{
 
 	public transient boolean isSelected;
-    protected transient ArrayList<CollidingPair> collisions = new ArrayList<>();
-	private transient Sprite entitySprite; //might want to put into super class unless Entity without image is useful
-	protected transient Rectangle boundingBox = new Rectangle(0,0); //Should be moved to intermediate class for only collidables
-	protected transient Boundary boundary = new BoundingBox(new Rectangle(2,2));
+    protected transient ArrayList<CollidingPair> collisions = new ArrayList<>(); //moving to composit
+	protected transient Rectangle boundingBox = new Rectangle(0,0); //moving to composite
+	protected transient Boundary boundary = new BoundingBox(new Rectangle(2,2)); //moving to composite
+	
+	//COMPOSITE TESTING
+	private transient Sprite entitySprite = new SpriteNull(); //might want to put into super class unless Entity without image is useful
+	private CollisionType collisionType;
    
 	public EntityStatic(int x, int y) {
 
     	super(x,y);
     	isSelected = false;
-        //this.x = x;
-        //this.y = y;
-        //visibility = true;
     }  
+	
     protected void loadSprite(String path){ // needs handling if failed. Also needs to be moved out of object class into sprites
-    	entitySprite = new SpriteStillframe(System.getProperty("user.dir").replace( "\\", "//" ) + "//Assets//" +path + ".png");
+    	entitySprite = new SpriteStillframe(System.getProperty("user.dir").replace( "\\", "//" ) + "//Assets//" +path + ".png",this);
     }
     
     protected void loadSprite(String path, int offset_x , int offset_y){ // needs handling if failed. Also needs to be moved out of object class into sprites
-    	entitySprite = new SpriteStillframe(System.getProperty("user.dir").replace( "\\", "//" ) + "//Assets//" +path + ".png",offset_x,offset_y);
+    	entitySprite = new SpriteStillframe(System.getProperty("user.dir").replace( "\\", "//" ) + "//Assets//" +path + ".png",offset_x,offset_y,this);
     }
     
     /*protected void loadAnimatedSprite(String path){ // needs handling if failed. 
@@ -45,12 +48,12 @@ public class EntityStatic extends Entity{
     }*/
     
     protected void loadAnimatedSprite(Animation a){ // needs handling if failed. 
-    	entitySprite = new SpriteAnimated(a); 
+    	entitySprite = new SpriteAnimated(a,this); 
     }
     
     //OPTIONAL INIT WITH OFFSET
     protected void loadAnimatedSprite(Animation a, int offsetX, int offsetY){ // needs handling if failed. 
-    	entitySprite = new SpriteAnimated(a,offsetX,offsetY); 
+    	entitySprite = new SpriteAnimated(a,offsetX,offsetY,this); 
     }
     
     protected void setEntitySpriteOffset(int x , int y){
@@ -116,9 +119,11 @@ public class EntityStatic extends Entity{
 	 */
 	
 	public void onCollisionEvent(){ //TO BE MOVED TO COLLIDABLE INTERFACE
-	
 		
-
+	}
+	
+	public void onCollisionCompletion(){ //TO BE MOVED TO COLLIDABLE INTERFACE
+		
 	}
 	
 	public String toString()
@@ -133,6 +138,7 @@ public class EntityStatic extends Entity{
     public int addCollision(Collision collision , boolean pairIndex){
     	collisions.add( new CollidingPair(collision , pairIndex) );
     	//printCollisions();
+    	onCollisionEvent();
     	return ( collisions.size() - 1 );
     }
     
@@ -140,9 +146,10 @@ public class EntityStatic extends Entity{
     	//System.out.println("Removing " + index + " from "+name );
     	collisions.remove(index);
     	//decrement indexes for all following collisions involving this entity
-    	for ( int i = index ; i < collisions.size() ; i++) {
-    		collisions.get(i).collision().indexShift(collisions.get(i).pairID());
-    	} 
+	    for ( int i = index ; i < collisions.size() ; i++) {
+	    	collisions.get(i).collision().indexShift(collisions.get(i).pairID());
+	    } 
+
     	//printCollisions();
     }
 	

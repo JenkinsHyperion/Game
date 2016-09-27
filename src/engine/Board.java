@@ -10,6 +10,8 @@ import javax.swing.event.*;
 
 import editing.EditorPanel;
 import entities.*; //local imports
+import entityComposites.CollisionType;
+import entityComposites.NonCollidable;
 import physics.*;
 import testEntities.*;
 import misc.*;
@@ -77,8 +79,13 @@ public class Board extends JPanel implements Runnable {
     }
 
     private void initBoard() {
-    	currentSelectedEntity = new EntityStatic(0,0);
-    	currentDebugEntity = new EntityStatic(0,0);
+    	
+    	
+    	//EntityStatic test = new EntityStatic.Solid();
+    	
+    	
+    	//currentSelectedEntity = new EntityStatic(0,0 );  
+    	//currentDebugEntity = new EntityStatic(0,0 ); 
     	//or currentSelectedEntity = new Object();
     	currentDuration = System.currentTimeMillis();
         addKeyListener(new TAdapter());
@@ -116,10 +123,8 @@ public class Board extends JPanel implements Runnable {
       	physicsEntitiesList.add(new EntityPhysics(120,260,"box"));
         dynamicEntitiesList.add(new Bullet(100,100,1,1));
         
-        dynamicEntitiesList.add(new Crosshair(100,100,laser,player));
-        
         //test for LaserTest entity
-        laser = new Tracer(143,260, physicsEntitiesList.get(0) , dynamicEntitiesList.get(1) ); //later will be parent system
+        laser = new Tracer(143,260, physicsEntitiesList.get(0) , this ); //later will be parent system
         //dynamicEntitiesList.add(new LaserTest(400,60));  <-- can't add as long as I don't have a sprite for it
         //		--- for now will just draw in the drawObjects() method
         
@@ -231,26 +236,24 @@ public class Board extends JPanel implements Runnable {
      * Nested Static class allowing Board objects access to the Board.
      * This is bad form, instead pass board instance through constructors of objects that need access to board 
      *###################*/
-    public static class BoardAccess{   	
+	
     	
     	//spawn new entities and add to Board
-        public static void spawnDynamicEntity(EntityDynamic spawn) {
+        public void spawnDynamicEntity(EntityDynamic spawn) {
         	
         	dynamicEntitiesList.add(spawn);       	
         }
         
         //check board dimensions
-        public static int getBoardHeight(){
+        public int getBoardHeight(){
         	return B_HEIGHT;
         }
         
-        public static int getBoardWidth(){
+        public int getBoardWidth(){
         	return B_WIDTH;
         }
         
-        
-        //PLACE STATIC METHODS HERE 
-    }
+
     
 
 /* ########################################################################################################################
@@ -264,14 +267,12 @@ public class Board extends JPanel implements Runnable {
     	//Draw all static entities from list (ex. platforms)
     	if (staticEntitiesList.size() > 0 && staticEntitiesList != null) {  //must null check in case all items are deleted
 	        for (EntityStatic stat : staticEntitiesList) {
-	        	g.drawImage(stat.getEntitySprite().getImage(), 
-	        			stat.getSpriteOffsetX() + stat.getX(), 
-	        			stat.getSpriteOffsetY() + stat.getY(), this);
-	        	//METHOD FOR DRAWING RECTANGLE
-	        	// 	>it will take EntityStatic, Graphics, width and height as parameters
-	        	//	>checks if the entity isSelected:
-	        	//  >>> draws with given width and height, of if not selected doesn't draw
-	        	//scratch pad:
+	        	//g.drawImage(stat.getEntitySprite().getImage(), 
+	        	//		stat.getSpriteOffsetX() + stat.getX(), 
+	        	//		stat.getSpriteOffsetY() + stat.getY(), this);
+	        	
+	        	stat.getEntitySprite().draw(g);
+
 	        	drawEditorSelectedRectangle(stat, g, selectedBox);
 
 	        }
@@ -480,26 +481,29 @@ public class Board extends JPanel implements Runnable {
   		int counter = 0;
   		for (EntityStatic entity : staticEntitiesList) {
   			
- 		//if (entity.getBoundingBox().contains(click)) 
-  			selectedBox.setLocation(entity.getX() + entity.getSpriteOffsetX(), entity.getY() + entity.getSpriteOffsetY());
-  			selectedBox.setSize(entity.getEntitySprite().getImage().getWidth(null), entity.getEntitySprite().getImage().getHeight(null) );
-  			if (selectedBox.contains(click)) 
-  			{
-  				entity.isSelected = true;
-  				editorPanel.enableEditPropertiesButton(true);
-  				editorPanel.restorePanels();
-  				editorPanel.setAllEntitiesComboBoxIndex(counter);
-  	  			editorPanel.setSelectedEntityNameLabel("Selected: " + entity.name);
-  	  			editorPanel.setEntityCoordsLabel("Coords. of selected entity: " + entity.getX() + ", " + entity.getY());
-  				return entity;
-  			}
-  			counter++;
+	 		if (entity.getEntitySprite().hasSprite()){ //if entity has sprite, select by using sprite dimensions
+	  			selectedBox.setLocation(entity.getX() + entity.getSpriteOffsetX(), entity.getY() + entity.getSpriteOffsetY());
+	  			selectedBox.setSize(entity.getEntitySprite().getImage().getWidth(null), entity.getEntitySprite().getImage().getHeight(null) );
+	  			if (selectedBox.contains(click)) 
+	  			{
+	  				entity.isSelected = true;
+	  				editorPanel.enableEditPropertiesButton(true);
+	  				editorPanel.restorePanels();
+	  				editorPanel.setAllEntitiesComboBoxIndex(counter);
+	  	  			editorPanel.setSelectedEntityNameLabel("Selected: " + entity.name);
+	  	  			editorPanel.setEntityCoordsLabel("Coords. of selected entity: " + entity.getX() + ", " + entity.getY());
+	  				return entity;
+	  			}
+	  			counter++;
+	  			
+	 		}
+	 		else {
+	 			//Entity has no sprite, so selection needs some other method, like by boundary
+	 		}
+  			
   		}
   		//TESTING BOX SELECTION
 
-  		
-  		
-  		
   		//nothing was found under cursor: 
   		editorPanel.enableEditPropertiesButton(false);
   		editorPanel.minimizePanels();
@@ -594,10 +598,10 @@ public class Board extends JPanel implements Runnable {
 	    g.drawString("Rotation: " + player.getAngle()*5 + " degrees",5,60);
 	    g.drawString("Colliding: " + player.isColliding(),5,75);
 	    
-	    //for ( int i = 0 ; i < player.getCollisions().length ; i++ ) {
+	    for ( int i = 0 ; i < player.getCollisions().length ; i++ ) {
 	    	
-	    //	g.drawString("Colliding with: " + player.getCollidingPartners()[i].name ,5,105+(10*i));
-	    //}
+	    	g.drawString("Colliding with: " + player.getCollidingPartners()[i].name ,5,105+(10*i));
+	    }
 	    
 
 	    
@@ -700,8 +704,8 @@ public class Board extends JPanel implements Runnable {
     private void drawDebugSAT( EntityStatic entityPrimary , EntityStatic entitySecondary , Graphics2D g2 ){
     	
 	    
-	    EntityStatic player = entitySecondary;
-	    EntityStatic stat = entityPrimary;
+	    EntityStatic player = entityPrimary;
+	    EntityStatic stat = entitySecondary;
 	    
 	    //EntityStatic stat = staticEntitiesList.get(1);
 	    //EntityStatic player = this.player;

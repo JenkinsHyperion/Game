@@ -1,44 +1,46 @@
 package sprites;
 
+import java.awt.Graphics;
 import java.awt.Image;
 
 import animation.Animation;
+import entities.EntityStatic;
 
 public class SpriteAnimated extends Sprite {  // Sprite with animation
 
     private Animation spriteAnimation;
 
-    public SpriteAnimated(Animation animation) {
+    public SpriteAnimated(Animation animation , EntityStatic owner) {
 
     	spriteAnimation = animation;
+    	this.owner = owner;
     	//spriteOffsetX = animation.getAnimationOffsetX();
     	//spriteOffsetY = animation.getAnimationOffsetY();
     	
         setVisible(true);
     }
     
-    public SpriteAnimated(Animation animation, int offset_x, int offset_y) {
+    public SpriteAnimated(Animation animation, int offset_x, int offset_y, EntityStatic owner) {
     	spriteAnimation = animation;
     	this.spriteOffsetX = offset_x;
     	this.spriteOffsetY = offset_y;
-    	
+    	this.owner = owner;
         setVisible(true);
     }
     
-    
-    //Implemented from Sprite Interface (not overridden)
-    public void loadImage(String path){}
+    // IMPLEMENTED METHODS
 
-    
-    public Image getSpriteFrame() {
-        return spriteAnimation.getAnimationFrame();
+    @Override
+    public void draw(Graphics g){
+    	//g.drawImage(this.getImage(), x, y, observer)
     }
     
-    // This is "overriding" the abstract getImage() from Sprite class 
+    @Override
     public Image getImage() {
         return spriteAnimation.getAnimationFrame();
     }
-    
+
+    @Override
     public void updateSprite(){
     	spriteAnimation.update();
     }
@@ -54,7 +56,14 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
     	spriteOffsetY = a.getAnimationOffsetY();
     }
     
-    
+    public Image getSpriteFrame() {
+        return spriteAnimation.getAnimationFrame();
+    }
+
+	@Override
+	public boolean hasSprite() {
+		return true;
+	}
 
     
 }

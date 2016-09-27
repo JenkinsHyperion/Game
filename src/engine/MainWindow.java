@@ -72,11 +72,12 @@ public class MainWindow extends JPanel {
 	
 	public static void createAndShowGUI() {
 		//Create and set up the window
-		JFrame frame = new JFrame(System.getProperty("user.dir").replace( "\\", "//" ));
+		JFrame frame = new JFrame(System.getProperty("user.dir"));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		MainWindow splitPaneInstance = new MainWindow();
 		frame.add(splitPaneInstance.getSplitPane());
-		frame.setLocationRelativeTo(null);
+		frame.setPreferredSize(new Dimension(800,600));
+		//frame.setLocationRelativeTo();
 		frame.setVisible(true);
 		frame.pack();
 	}

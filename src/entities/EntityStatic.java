@@ -36,11 +36,13 @@ public class EntityStatic extends Entity{
     }  
 	
     protected void loadSprite(String path){ // needs handling if failed. Also needs to be moved out of object class into sprites
-    	entitySprite = new SpriteStillframe(System.getProperty("user.dir").replace( "\\", "//" ) + "//Assets//" +path + ".png",this);
+
+    	entitySprite = new SpriteStillframe(System.getProperty("user.dir")+ "\\Assets\\" +path + ".png");
     }
     
     protected void loadSprite(String path, int offset_x , int offset_y){ // needs handling if failed. Also needs to be moved out of object class into sprites
-    	entitySprite = new SpriteStillframe(System.getProperty("user.dir").replace( "\\", "//" ) + "//Assets//" +path + ".png",offset_x,offset_y,this);
+    	entitySprite = new SpriteStillframe(System.getProperty("user.dir")+ "\\Assets\\" +path + ".png",offset_x,offset_y);
+
     }
     
     /*protected void loadAnimatedSprite(String path){ // needs handling if failed. 

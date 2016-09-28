@@ -5,9 +5,14 @@ import java.awt.Image;
 
 import animation.Animation;
 
-public final class SpriteNull extends Sprite{
+public class SpriteNull extends Sprite{
 	
-	final static SpriteNull nullSprite = new SpriteNull();
+	private final static SpriteNull nullSprite = new SpriteNull();
+	
+	//constructor
+	private SpriteNull() {
+		
+	}
 	
 	//OPTIMIZATION - Look into better handling, this is a static factory that returns the static singleton nullSprite, which
 	//apparently is difficult to substitute test without breaking everything

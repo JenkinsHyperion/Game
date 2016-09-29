@@ -138,41 +138,7 @@ public class EditorPanel extends JPanel {
 		allEntitiesComboBox.setFocusable(false);
 		allEntitiesComboBox.setSelectedIndex(0); //give it a default value
 		allEntitiesComboBox.addActionListener(new EntitiesComboBoxActionHandler());
-		// ## Handling when you select an Entity from the drop down box: 
-		/*
-		allEntitiesComboBox.addItemListener(new ItemListener(){ 
-			public void itemStateChanged(ItemEvent e){
-				if (e.getStateChange() == ItemEvent.SELECTED) 
-				{
-					restorePanels();
-					//String testString = (String)allEntitiesComboBox.getSelectedItem();
-					//System.out.println(testString);
-					//allEntitiesComboBox.addItem
-					currentEntIndex = allEntitiesComboBox.getSelectedIndex();
-					System.out.println(currentEntIndex);
-					System.out.println("Test area. e.getItem(): " + e.getItem());
 
-					try{					
-						board.deselectAllEntities();
-						genericTestButton.setEnabled(true);
-						
-						//sets Board's current entity
-						setSelectedEntityThruEditor(board.getStaticEntities().get(currentEntIndex));
-						createAndShowPropertiesPanel();
-						setSelectedEntityNameLabel("Selected: " + getSelectedEntity().name);
-						setEntityCoordsLabel(String.format("Coords of Selected Entity: %s,%s", getSelectedEntity().getX(), getSelectedEntity().getY()));
-						//sends code from here over to Board to let it draw this entity's selection box
-						board.selectedBox.setSize(getSelectedEntity().getEntitySprite().getImage().getWidth(null),
-	  															getSelectedEntity().getEntitySprite().getImage().getHeight(null) );
-					}
-					catch (NullPointerException exception){
-						exception.printStackTrace();
-						System.err.println("nullpointerexception"); 
-					}
-				}
-			}
-		});	
-		*/
 		// Panel to contain allEntitiesComboBox drop down panel
 		entitiesComboBoxPanel = new JPanel(new BorderLayout());
 		entitiesComboBoxPanel.setBackground(Color.GRAY);
@@ -206,7 +172,9 @@ public class EditorPanel extends JPanel {
 		JToolBar tb = new JToolBar(JToolBar.VERTICAL);
 		//toolBarContainer.setPreferredSize(new Dimension(200,300));
 		tb.setFloatable(false);
+		tb.setFocusable(false);
 		tb.add(Box.createGlue());
+		/*
 		tb.add(new JButton("test"));
 		tb.add(new JButton("test2"));
 		tb.add(new JButton("test3"));
@@ -222,6 +190,7 @@ public class EditorPanel extends JPanel {
 		tb.add(new JButton("test5"));
 		tb.add(new JButton("test5"));
 		tb.add(new JButton("test5"));
+		*/
 		tb.add(Box.createGlue());
 		JScrollPane toolBarContainer = new JScrollPane(tb);
 		toolBarContainer.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -420,5 +389,7 @@ public class EditorPanel extends JPanel {
 		else if(choice == false)
 			deleteEntButton.setEnabled(false);
 	}
+	
+	//public void drawGhostSprite(Sprite ghost)
 
 }

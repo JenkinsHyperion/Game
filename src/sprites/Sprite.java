@@ -2,6 +2,7 @@ package sprites;
 
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Point;
 
 import animation.Animation;
 import entities.EntityStatic;
@@ -20,6 +21,7 @@ public abstract class Sprite {
 	//This is a getImage() that works for both still and animated sprites, so draw functions in Board 
     //can call a generalized format.
     public abstract void draw(Graphics g);
+    public abstract void editorDraw(Graphics g, Point pos);
     
 	public abstract Image getImage(); 
 	

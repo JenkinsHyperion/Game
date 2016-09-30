@@ -2,6 +2,7 @@ package sprites;
 
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Point;
 
 import animation.Animation;
 
@@ -16,13 +17,17 @@ public class SpriteNull extends Sprite{
 	
 	//OPTIMIZATION - Look into better handling, this is a static factory that returns the static singleton nullSprite, which
 	//apparently is difficult to substitute test without breaking everything
-	public static SpriteNull nullSprite(){ 
+	public static SpriteNull getNullSprite(){ 
 		return nullSprite;
 	}
 	
     @Override
     public void draw(Graphics g){
     	//DO NOTHING 
+    }
+    @Override
+    public void editorDraw(Graphics g, Point pos){
+    	//do nothing
     }
 
 	@Override

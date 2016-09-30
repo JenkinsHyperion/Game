@@ -5,13 +5,17 @@ import javax.swing.border.BevelBorder;
 import javax.swing.event.*;
 
 import editing.*;
+import sprites.*;
+import entities.*;
+import engine.*;
+import testEntities.*;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.util.ArrayList;
-import entities.*;
-import testEntities.Platform;
-import engine.*;
+
+
 
 
 //TASK LIST:
@@ -25,12 +29,20 @@ import engine.*;
  */
 public class EditorPanel extends JPanel {
 	// ### important fields ###
+	public static final String ASSET_PATH = System.getProperty("user.dir")+ File.separator + "Assets" + File.separator;
+	public static final String PF1 = "platform.png";
+	public static final String PF2 = "platform02.png";
+	public static final String GND = "ground01.png";
+	public static final String GRASS1 = "grass01.png";
 	public final Dimension minimizedSize = new Dimension(200,20);
 	public final Dimension propPanelDefaultSize = new Dimension(215,125);
 	public final Dimension allEntitiesComboBoxDefSize = new Dimension(120,20);
 	protected int currentEntIndex;
 	public boolean testFlag;
 	private Board board;
+	private Sprite ghostSprite;
+	private Point editorMousePos;
+	public boolean ESC_ON;
 	
 	protected ArrayList<PropertiesList> listOfPropLists;
     private String[] staticEntityStringArr;
@@ -59,6 +71,9 @@ public class EditorPanel extends JPanel {
 	private SavingLoading saveLoad;
 
 	public EditorPanel( Board boardInstance) {
+		ESC_ON = false;
+		editorMousePos = new Point();
+		ghostSprite = SpriteNull.getNullSprite();
 		testFlag = true;
 		this.board = boardInstance;
 		//set default selected entity so it's not null
@@ -199,6 +214,9 @@ public class EditorPanel extends JPanel {
 		//toolBarContainer.add(tb);
 		//toolBarPanel.add(tb,BorderLayout.PAGE_END);
 		add(toolBarContainer);
+		
+		//testing setting the ghostSprite
+		setGhostSprite(ASSET_PATH + PF1 );
 		revalidate();
 	} //end of constructor;
 	
@@ -389,7 +407,22 @@ public class EditorPanel extends JPanel {
 		else if(choice == false)
 			deleteEntButton.setEnabled(false);
 	}
-	
-	//public void drawGhostSprite(Sprite ghost)
+	//sets the ghostSprite to "null" using null-object pattern
+	public void nullifyGhostSprite(){
+		ghostSprite = SpriteNull.getNullSprite();
+	}
+	public Sprite getGhostSprite(){
+		return ghostSprite;
+	}
+	public void setGhostSprite(String path) {
+		ghostSprite = new SpriteStillframe(path);
+	}
+	public void setEditorMousePos(int x, int y){
+		editorMousePos.x = x;
+		editorMousePos.y = y;
+	}
+	public Point getEditorMousePos(){
+		return editorMousePos;
+	}
 
 }

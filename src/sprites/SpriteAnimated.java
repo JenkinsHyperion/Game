@@ -2,6 +2,7 @@ package sprites;
 
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Point;
 
 import animation.Animation;
 import entities.EntityStatic;
@@ -34,7 +35,10 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
     public void draw(Graphics g){
     	//g.drawImage(this.getImage(), x, y, observer)
     }
-    
+    @Override
+    public void editorDraw(Graphics g, Point pos){
+    	//do nothing
+    }
     @Override
     public Image getImage() {
         return spriteAnimation.getAnimationFrame();

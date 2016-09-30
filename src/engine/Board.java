@@ -13,6 +13,7 @@ import entities.*; //local imports
 import entityComposites.CollisionType;
 import entityComposites.NonCollidable;
 import physics.*;
+import sprites.Sprite;
 import testEntities.*;
 import misc.*;
 
@@ -111,16 +112,16 @@ public class Board extends JPanel implements Runnable {
         //## TESTING ##
         //Manually add test objects here
 
-        staticEntitiesList.add(new Platform(210,180,"platform02"));
-        staticEntitiesList.add(new Platform(170,180,"platform"));
-        staticEntitiesList.add(new Platform(250,240,"platform02"));
-        staticEntitiesList.add(new Platform(210,240,"platform02"));
-        staticEntitiesList.add(new Platform(50,180,"platform02"));
-        staticEntitiesList.add(new Platform(60,270,"platform02"));
-        staticEntitiesList.add(new Ground(250,295,"ground01"));
+        staticEntitiesList.add(new Platform(210,180,Platform.PF2));
+        staticEntitiesList.add(new Platform(170,180,Platform.PF1));
+        staticEntitiesList.add(new Platform(250,240,Platform.PF2));
+        staticEntitiesList.add(new Platform(210,240,Platform.PF2));
+        staticEntitiesList.add(new Platform(50,180,Platform.PF2));
+        staticEntitiesList.add(new Platform(60,270,Platform.PF2));
+        staticEntitiesList.add(new Ground(250,295,"ground01.png"));
         staticEntitiesList.add(new Slope(40,160));
         
-      	physicsEntitiesList.add(new EntityPhysics(120,260,"box"));
+      	physicsEntitiesList.add(new EntityPhysics(120,260,"box.png"));
         dynamicEntitiesList.add(new Bullet(100,100,1,1));
         
         //test for LaserTest entity
@@ -265,6 +266,12 @@ public class Board extends JPanel implements Runnable {
     public void drawObjects(Graphics g) {
     	
     	//Draw all static entities from list (ex. platforms)
+    	
+    	//Draw ghostSprite for editor using null-object pattern
+    	//
+    	if (editorPanel.ESC_ON)
+    		drawGhostSprite(g, editorPanel.getGhostSprite(),editorPanel.getEditorMousePos());
+    	
     	if (staticEntitiesList.size() > 0 && staticEntitiesList != null) {  //must null check in case all items are deleted
 	        for (EntityStatic stat : staticEntitiesList) {
 	        	//g.drawImage(stat.getEntitySprite().getImage(), 
@@ -336,6 +343,9 @@ public class Board extends JPanel implements Runnable {
 	    		g2.setStroke(oldStroke);
 	    	}
 	    }
+    }
+    public void drawGhostSprite(Graphics g, Sprite ghost, Point mousePos) {
+    	ghost.editorDraw(g, mousePos);
     }
     
     
@@ -450,7 +460,13 @@ public class Board extends JPanel implements Runnable {
   				currentSelectedEntity.setY(e.getY() - clickPositionYOffset);
   				editorPanel.setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
   			}
+  			
 
+  		}
+  		@Override
+  		public void mouseMoved(MouseEvent e){
+  			if (editorPanel.ESC_ON)
+  				editorPanel.setEditorMousePos(e.getX(), e.getY());
   		}
   		@Override
   		public void mouseReleased(MouseEvent e) 
@@ -574,7 +590,13 @@ public class Board extends JPanel implements Runnable {
             	} else {
             		debug2On = true;
             	}
-            } 
+            }
+            if (key == KeyEvent.VK_ESCAPE) {
+            	if (editorPanel.ESC_ON)
+            		editorPanel.ESC_ON = false;
+            	else 
+            		editorPanel.ESC_ON = true;	
+            }
             
         }
     }

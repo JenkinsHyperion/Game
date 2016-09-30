@@ -20,7 +20,7 @@ public class Slope extends EntityStatic{
 		
 		boundary = new Boundary( slopeSides );
 		
-		//loadSprite("bullet");
+		//loadSprite("bullet.png");
 		name = "Slope"+count;
 		
 		//obsolete

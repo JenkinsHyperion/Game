@@ -2,6 +2,8 @@ package sprites;
 
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Point;
+
 import javax.swing.ImageIcon;
 
 import animation.Animation;
@@ -19,7 +21,10 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     	loadImage(path);
         visibility = true;
     }
-    
+    //another constructor only for owner-less sprite (such as the ghostSprite in Editor)
+    public SpriteStillframe(String path){
+    	loadImage(path);
+    }
     public SpriteStillframe(String path, int offset_x, int offset_y , EntityStatic owner) { 
 
     	this.owner = owner;
@@ -33,7 +38,10 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     public void draw(Graphics g){
     	g.drawImage(this.getImage(), this.owner.getX() + spriteOffsetX, this.owner.getY() + spriteOffsetY, null); //null is observer
     }
-
+    @Override
+    public void editorDraw(Graphics g, Point pos){
+    	g.drawImage(this.getImage(), pos.x, pos.y, null);
+    }
     protected void getImageDimensions() { 
 
         width = image.getWidth(null);

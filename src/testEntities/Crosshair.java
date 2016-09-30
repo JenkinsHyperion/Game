@@ -32,7 +32,7 @@ public class Crosshair extends EntityDynamic{
         //loadAnimatedSprite(flying);
         //getObjectGraphic().getAnimatedSprite().start();
 
-    	loadSprite("particle_test");
+    	loadSprite("particle_test.png");
         
     }
     

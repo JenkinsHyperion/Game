@@ -10,9 +10,9 @@ public class LoadAnimation {
 
 	private static BufferedImage spriteSheet;
 
-	public static BufferedImage loadSpriteSheet(String name) { // load
+	public static BufferedImage loadSpriteSheet(String path) { // load
 																// spritesheet
-																// to be passed
+																// to be passed 
 																// to frame
 																// getter
 
@@ -21,7 +21,7 @@ public class LoadAnimation {
 		try {
 
 			sprite = ImageIO
-					.read(new File(System.getProperty("user.dir").replace("\\", "//") + "//Assets//" + name + ".png"));
+					.read(new File(System.getProperty("user.dir") + "\\Assets\\" +path));
 
 		} catch (IOException e) {
 			e.printStackTrace();

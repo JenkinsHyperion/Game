@@ -73,20 +73,12 @@ public class CollisionPlayerStaticSAT extends Collision {
 			depthY = (int) resolution.getY();
 			
 			
-			//System.out.println("Will clip by: "+ depthX + " , " + depthY );
-
-			//if ( entityPrimary.getDX()*entityPrimary.getDX() < depthX*depthX || 
-			//		entityPrimary.getDY()*entityPrimary.getDY() < depthY*depthY ) {
-			//		System.out.println(" Bumped ");
-			//}
-			//else {
+			//Resolution will resolve
 			
-				//System.out.println(" Clip prevented "+  -resolution.getX() + " from " + entityPrimary.getDX() + "  -  " +
-				//			-resolution.getY() + " from " + entityPrimary.getDY()
-				//		);
-				
-				entityPrimary.setX( entityPrimary.getDeltaX() + depthX );
-				entityPrimary.setY( entityPrimary.getDeltaY() + depthY );
+			//Resolution wont resolve
+			
+				//entityPrimary.setX( entityPrimary.getDeltaX() + depthX );
+				//entityPrimary.setY( entityPrimary.getDeltaY() + depthY );
 				
 				entityPrimary.setAccX(0);
 				entityPrimary.clipDX((int) ( -resolution.getX() ) );
@@ -143,7 +135,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 		ArrayList<Point> penetrations = new ArrayList<>();
 
     	
-    	// Get penetration vectors along all separating axes for secondary entity and add to list
+    	// Get penetration vectors along all separating axes for primary entity and add to list
     	for (int i = 0 ; i < entityPrimary.getBoundary().getSeparatingSides().length ; i++ ){
     		
     		if (getSeparationDistance(entityPrimary.getBoundary().getSeparatingSides()[i]) != null){
@@ -203,7 +195,7 @@ public class CollisionPlayerStaticSAT extends Collision {
     		return null;
     	}
     	else {
-    		//System.out.println(" Accepted lowest resolution "+ penetrationX + " , " + penetrationY);
+    		System.out.println(" Accepted lowest resolution "+ penetrationX + " , " + penetrationY);
     		return new Point(penetrationX,penetrationY); //return chosen best resolution
     	}
 

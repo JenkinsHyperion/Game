@@ -269,8 +269,7 @@ public class Board extends JPanel implements Runnable {
     	
     	//Draw ghostSprite for editor using null-object pattern
     	//
-    	if (editorPanel.ESC_ON)
-    		drawGhostSprite(g, editorPanel.getGhostSprite(),editorPanel.getEditorMousePos());
+    	drawGhostSprite(g, editorPanel.getGhostSprite(), editorPanel.getEditorMousePos());
     	
     	if (staticEntitiesList.size() > 0 && staticEntitiesList != null) {  //must null check in case all items are deleted
 	        for (EntityStatic stat : staticEntitiesList) {
@@ -465,8 +464,7 @@ public class Board extends JPanel implements Runnable {
   		}
   		@Override
   		public void mouseMoved(MouseEvent e){
-  			if (editorPanel.ESC_ON)
-  				editorPanel.setEditorMousePos(e.getX(), e.getY());
+  			editorPanel.setEditorMousePos(e.getX(), e.getY());
   		}
   		@Override
   		public void mouseReleased(MouseEvent e) 
@@ -592,10 +590,14 @@ public class Board extends JPanel implements Runnable {
             	}
             }
             if (key == KeyEvent.VK_ESCAPE) {
-            	if (editorPanel.ESC_ON)
+            	if (editorPanel.ESC_ON) {
             		editorPanel.ESC_ON = false;
-            	else 
-            		editorPanel.ESC_ON = true;	
+            		editorPanel.nullifyGhostSprite();
+            	}
+            	else {
+            		editorPanel.ESC_ON = true;
+            		editorPanel.setGhostSprite(editorPanel.ASSET_PATH + editorPanel.PF2 );
+            	}
             }
             
         }

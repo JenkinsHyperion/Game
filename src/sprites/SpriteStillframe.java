@@ -1,8 +1,11 @@
 package sprites;
 
+import java.awt.AlphaComposite;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 
 import javax.swing.ImageIcon;
 
@@ -40,7 +43,10 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     }
     @Override
     public void editorDraw(Graphics g, Point pos){
-    	g.drawImage(this.getImage(), pos.x, pos.y, null);
+    	float opacity = 0.5f;
+    	Graphics2D g2 = (Graphics2D) g.create();
+    	g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
+    	g2.drawImage(this.getImage(), pos.x, pos.y, null);
     }
     protected void getImageDimensions() { 
 

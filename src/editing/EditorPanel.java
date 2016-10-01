@@ -216,7 +216,7 @@ public class EditorPanel extends JPanel {
 		add(toolBarContainer);
 		
 		//testing setting the ghostSprite
-		setGhostSprite(ASSET_PATH + PF1 );
+		//setGhostSprite(ASSET_PATH + PF1 );
 		revalidate();
 	} //end of constructor;
 	

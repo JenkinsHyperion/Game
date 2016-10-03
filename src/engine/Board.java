@@ -45,8 +45,8 @@ public class Board extends JPanel implements Runnable {
     protected MouseHandlerClass handler;
     public final int ICRAFT_X = 170;
     public final int ICRAFT_Y = 100;
-    public static final int B_WIDTH = 400;
-    public static final int B_HEIGHT = 300;
+    public static int B_WIDTH;// = 400;
+    public static int B_HEIGHT;// = 300;
     private boolean debug1On = false; 
     private boolean debug2On = false; 
     protected EntityStatic currentSelectedEntity;
@@ -70,7 +70,11 @@ public class Board extends JPanel implements Runnable {
         {820, 128}, {490, 170}, {700, 30}
     };
 
-    public Board() {
+    public Board(int width , int height) {
+    	
+    	B_WIDTH = width ;
+    	B_HEIGHT = height ;
+    	
     	initBoard();
     }
     //over loaded board constructor to accept SidePanel (editor) if editor is to be enabled

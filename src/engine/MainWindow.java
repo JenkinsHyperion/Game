@@ -17,11 +17,19 @@ public class MainWindow extends JPanel {
     private boolean F1pressed = false;
     private Dimension editorPanelMinSize;
     
-
+    private static int width;
+    private static int height;
 
 	public MainWindow() {
+		
+		//TESTING window size
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		width = (int) screenSize.getWidth();
+		height = (int) screenSize.getHeight();
+		System.out.println("Resolution set to "+ width + " by " + height);
+		
 		editorPanelMinSize = new Dimension(220,300);
-		board = new Board();
+		board = new Board(width,height);
 		board.setPreferredSize(new Dimension(Board.B_WIDTH, Board.B_HEIGHT));
 		board.setMinimumSize(new Dimension(Board.B_WIDTH, Board.B_HEIGHT));
 		
@@ -76,9 +84,7 @@ public class MainWindow extends JPanel {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		MainWindow splitPaneInstance = new MainWindow();
 		frame.add(splitPaneInstance.getSplitPane());
-		splitPaneInstance.getInputMap().put(KeyStroke.getKeyStroke("TAB"),
-                null);
-		frame.setPreferredSize(new Dimension(800,600));
+		frame.setPreferredSize(new Dimension(width,height)); //TESTING SCREEN RESOLUTION was 300,600
 		//frame.setLocationRelativeTo();
 		frame.setVisible(true);
 		frame.pack();

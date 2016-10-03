@@ -9,18 +9,24 @@ public class Platform extends EntityStatic{
 	
 	public Platform(int x, int y, String path) {
 		super(x, y);
-		initPlatform(x,y,path);
-		setBoundingBox(-20,-3,40,6);
+	   	this.offsetX = -20;
+    	this.offsetY = -3;		
+		loadSprite(path, offsetX, offsetY);	
+		setBoundingBox(this.offsetX,this.offsetY,40,6);
+		name = "Platform"+count;
+	}
+	/**
+	 * Secondary constructor to handle offsets
+	*/
+	public Platform(int x, int y, int offsetX, int offsetY, String path) {
+		super(x, y);
+		this.offsetX = offsetX;
+		this.offsetY = offsetY;
+		loadSprite(path, offsetX, offsetY);	
+		setBoundingBox(this.offsetX,this.offsetY,40,6);
 		name = "Platform"+count;
 	}
 
-	
-	private void initPlatform(int x , int y, String path){
-    	offsetX = -20;
-    	offsetY = -3;
-		
-		loadSprite(path, offsetX, offsetY);		
-	}
 	
 	public String toString() {
 		return String.format(name);

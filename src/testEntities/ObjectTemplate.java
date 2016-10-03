@@ -15,27 +15,39 @@ public class ObjectTemplate extends EntityStatic{ // Can extend either EntitySta
 	
     public ObjectTemplate(int x, int y) { // Can add more construction arguments for spawn 
 		super(x, y);
-		
-        initialize();
-        
+		this.offsetX = 0;
+		this.offsetY = 0;
+    	loadSprite("box.png");
+    	setBoundingBox(0,0,32,32); 
         //if entity is Dynamic, set initial velocities and accelerations
         //setDX(dx);
         //setDY(dy);
         //setAccX(accX);
         //setAccY(accY);
 	}
-    
+    public ObjectTemplate(int x, int y, int offsetX, int offsetY) { // Can add more construction arguments for spawn 
+		super(x, y);
+		this.offsetX = offsetX;
+		this.offsetY = offsetY;
+    	loadSprite("box.png");
+    	setBoundingBox(0,0,32,32); 
+        //if entity is Dynamic, set initial velocities and accelerations
+        //setDX(dx);
+        //setDY(dy);
+        //setAccX(accX);
+        //setAccY(accY);
+	}
     private void initialize(){
     	
     	//if sprite for this entity is still image, loadSprite(name)
-    	loadSprite("box.png");
+
     	
     	//if sprite for this entity is animated, loadAnimatedSprite(Animation) instead  
         //loadAnimatedSprite(defaultAnimation);	
         //getObjectGraphic().getAnimatedSprite().start();
     	
     	//currently all entities require a bounding box until I separate collidables into their own class
-		setBoundingBox(0,0,32,32); 
+		
     	
     }
     

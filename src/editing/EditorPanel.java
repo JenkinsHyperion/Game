@@ -303,19 +303,19 @@ public class EditorPanel extends JPanel {
 		board.deselectAllEntities();
 	}
 	//so many ways I can do this. Will start with overloaded methods
-	public void addEntity(int x, int y, String path) {  //default one. Adds test entity
+	public void addEntity(int x, int y, int offsetX, int offsetY, String path) {  //default one. Adds test entity
 		EntityStatic newEnt;
 		if (path.toLowerCase().contains("platform")) {
-			newEnt = new Platform(x, y, path);
+			newEnt = new Platform(x, y, offsetX, offsetY, path);
 		}
 		else if (path.toLowerCase().contains("ground")) {
-			newEnt = new Ground(x, y, path);
+			newEnt = new Ground(x, y, offsetX, offsetY, path);
 		}
 		else if (path.toLowerCase().contains("grass")) {
-			newEnt = new Grass(x,y,path);
+			newEnt = new Grass(x, y, offsetX, offsetY, path);
 		}
 		else {
-			newEnt = new ObjectTemplate(x,y);
+			newEnt = new ObjectTemplate(x, y, offsetX, offsetY);
 		}
 		board.deselectAllEntities();
 		board.getStaticEntities().add(newEnt);

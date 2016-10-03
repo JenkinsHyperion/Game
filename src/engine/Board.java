@@ -417,10 +417,11 @@ public class Board extends JPanel implements Runnable {
   			
   			if (!mouseClick) {
 	  			clickPosition.setLocation(e.getX(),e.getY());
+  				mouseClick = true;
   				if (editorPanel.entityPlacementMode == false) 
   				{
 	  				deselectAllEntities();
-	  				mouseClick = true;
+
 
 		  			//MainWindow.getEditorPanel().setEntityCoordsLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
 		  			editorPanel.setEntityCoordsLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));			
@@ -456,24 +457,28 @@ public class Board extends JPanel implements Runnable {
   				}
   				//entity placement mode is ON
   				else {
-  					editorPanel.addEntity(e.getX(), e.getY(), editorPanel.getNewEntityPath());
+  					clickPositionXOffset =( (editorPanel.getGhostSprite().getImage().getWidth(null)) / 2);
+  					clickPositionYOffset =  ( (editorPanel.getGhostSprite().getImage().getHeight(null)) / 2);
+  					editorPanel.addEntity(e.getX(), e.getY(), 0, 0, editorPanel.getNewEntityPath());
   					editorPanel.nullifyGhostSprite();
   					editorPanel.entityPlacementMode = false;
+  					deselectAllEntities();
   				}
   			}
   		}
   		@Override
   		public void mouseDragged(MouseEvent e) 
   		{ 		
-  			editorPanel.setMousePosLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
+  			if (editorPanel.entityPlacementMode == false) {
+  				editorPanel.setMousePosLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
 
-  			if (currentSelectedEntity != null) {
-  				currentSelectedEntity.setX(e.getX() - clickPositionXOffset);
-  				currentSelectedEntity.setY(e.getY() - clickPositionYOffset);
-  				editorPanel.setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
+  				if (currentSelectedEntity != null) {
+  					currentSelectedEntity.setX(e.getX() - clickPositionXOffset);
+  					currentSelectedEntity.setY(e.getY() - clickPositionYOffset);
+  					editorPanel.setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
+  				}
+
   			}
-  			
-
   		}
   		@Override
   		public void mouseMoved(MouseEvent e){

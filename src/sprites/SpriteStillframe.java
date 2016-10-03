@@ -6,35 +6,61 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 import javax.swing.ImageIcon;
 
-import animation.Animation;
-import entities.EntityStatic;
+import animation.*;
+import entities.*;
+import editing.*;
 
 public class SpriteStillframe extends Sprite {  // Object with still image
 
     protected int width;
     protected int height;
-    protected Image image;
+    protected transient Image image;
 
     public SpriteStillframe(String path, EntityStatic owner) { 
-
+    	if (!checkPath(path)) {
+    		fileName = null;
+    		image = new MissingIcon().paintMissingSprite();
+    		System.err.println("Image file not found; using placeHolder");
+    	}
+    	else {
+	    	fileName = path;	    	
+	    	loadImage(fileName);
+    	}
     	this.owner = owner;
-    	loadImage(path);
-        visibility = true;
+    	visibility = true;
     }
     //another constructor only for owner-less sprite (such as the ghostSprite in Editor)
     public SpriteStillframe(String path){
-    	loadImage(path);
+    	if (!checkPath(path)) {
+    		fileName = null;
+    		image = new MissingIcon().paintMissingSprite();
+    		System.err.println("Image file not found; using placeHolder");
+    	}
+    	else {
+	    	fileName = path;	    	
+	    	loadImage(fileName);
+    	}
+    	visibility = true;
     }
     public SpriteStillframe(String path, int offset_x, int offset_y , EntityStatic owner) { 
-
+    	if (!checkPath(path)) {
+    		fileName = null;
+    		image = new MissingIcon().paintMissingSprite();
+    		System.err.println("Image file not found; using placeHolder");
+    	}
+    	else {
+	    	fileName = path;	    	
+	    	loadImage(fileName);
+    	}
     	this.owner = owner;
-    	loadImage(path);
-        visibility = true;
-        this.spriteOffsetX = offset_x;
-        this.spriteOffsetY = offset_y;
+    	visibility = true;
+    	this.spriteOffsetX = offset_x;
+    	this.spriteOffsetY = offset_y;
     }
     
     @Override
@@ -47,17 +73,25 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     	Graphics2D g2 = (Graphics2D) g.create();
     	g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
     	g2.drawImage(this.getImage(), pos.x, pos.y, null);
+    	g2.dispose();
     }
     protected void getImageDimensions() { 
 
         width = image.getWidth(null);
         height = image.getHeight(null); 
     }
-
+    public boolean checkPath(String path) {
+    	boolean exists = false;
+    	exists = new File(path).exists(); 	
+    	return exists;
+    }
     public void loadImage(String imageName) { // 
 
         ImageIcon ii = new ImageIcon(imageName);
         image = ii.getImage();
+    }
+    public void loadImagePlaceHolder(){
+    	image = new MissingIcon().paintMissingSprite();
     }
 
     @Override 
@@ -76,4 +110,7 @@ public class SpriteStillframe extends Sprite {  // Object with still image
 		return true;
 	}
     
+	public void setFileName(String path) {
+		fileName = path;
+	}
 }

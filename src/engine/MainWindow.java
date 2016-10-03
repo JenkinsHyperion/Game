@@ -76,6 +76,8 @@ public class MainWindow extends JPanel {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		MainWindow splitPaneInstance = new MainWindow();
 		frame.add(splitPaneInstance.getSplitPane());
+		splitPaneInstance.getInputMap().put(KeyStroke.getKeyStroke("TAB"),
+                null);
 		frame.setPreferredSize(new Dimension(800,600));
 		//frame.setLocationRelativeTo();
 		frame.setVisible(true);

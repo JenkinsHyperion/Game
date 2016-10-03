@@ -8,12 +8,20 @@ import java.io.Serializable;
  */
 
 public class Entity implements Serializable { 
+	//some static fields to indicate the type of entity
+	//will be heavily fleshed out later when organizing large amounts of entities becomes an issue
+	public static final int PLATFORM = 10;
+	public static final int GROUND = 11;
+	public static final int PLANT = 12;
+	public static final int MISC = 13;
+	public static final int ENEMY = 14;
 	public static int count;
-	public String name = "blank entity";
+	public String name = "blank entity" + count;
 	protected boolean alive = true;
 	protected boolean collidable = true; //default to true
 	protected float x;
     protected float y;
+    protected int entityType;
     
 	public Entity(int x, int y){
     	setX(x);

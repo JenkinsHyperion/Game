@@ -3,6 +3,7 @@ package sprites;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
+import java.io.Serializable;
 
 import animation.Animation;
 import entities.EntityStatic;
@@ -10,12 +11,13 @@ import entities.EntityStatic;
 /*
  * This is the base Sprite class. 
  */
-public abstract class Sprite {
+public abstract class Sprite implements Serializable {
 	
 	protected EntityStatic owner;
     protected boolean visibility;
     protected int spriteOffsetX = 0;
     protected int spriteOffsetY = 0;
+    protected String fileName;
 
 //ABSTRACT FUNCTIONS 
 	//This is a getImage() that works for both still and animated sprites, so draw functions in Board 

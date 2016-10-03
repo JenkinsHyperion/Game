@@ -34,6 +34,8 @@ public class EditorPanel extends JPanel {
 	public static final String PF2 = "platform02.png";
 	public static final String GND = "ground01.png";
 	public static final String GRASS1 = "grass01.png";
+	private String newEntityPath;
+	public boolean entityPlacementMode;
 	public final Dimension minimizedSize = new Dimension(200,20);
 	public final Dimension propPanelDefaultSize = new Dimension(215,125);
 	public final Dimension allEntitiesComboBoxDefSize = new Dimension(120,20);
@@ -42,7 +44,6 @@ public class EditorPanel extends JPanel {
 	private Board board;
 	private Sprite ghostSprite;
 	private Point editorMousePos;
-	public boolean ESC_ON;
 	
 	protected ArrayList<PropertiesList> listOfPropLists;
     private String[] staticEntityStringArr;
@@ -58,12 +59,13 @@ public class EditorPanel extends JPanel {
 	protected JButton loadButton;
 	protected JButton saveButton;
 	protected JButton deleteEntButton;
-	protected JButton addEntButton;
+
 	//Panels
 	private JPanel entitiesComboBoxPanel;
 	private JPanel labelsPanel;
 	private JPanel buttonPanel;
 	private JPanel propertyPanelTest;
+	private JPanel iconBar;
 
 	public FlowLayout layout;
     //private JList entitiesJList;
@@ -71,7 +73,9 @@ public class EditorPanel extends JPanel {
 	private SavingLoading saveLoad;
 
 	public EditorPanel( Board boardInstance) {
-		ESC_ON = false;
+		//initializing some of the fields
+		newEntityPath = "";
+		entityPlacementMode = false;
 		editorMousePos = new Point();
 		ghostSprite = SpriteNull.getNullSprite();
 		testFlag = true;
@@ -130,22 +134,12 @@ public class EditorPanel extends JPanel {
 				deleteEntity(allEntitiesComboBox.getSelectedIndex());
 			} 		
 		});
-		addEntButton = new JButton("Create");
-		addEntButton.setEnabled(true);
-		addEntButton.setFocusable(false);
-		addEntButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				addEntity(20,20);
-			}
-		});
 		// inline panel for button
 		buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		buttonPanel.setBackground(Color.GRAY);
 	    buttonPanel.setBorder(BorderFactory.createTitledBorder("buttonPanelTest"));
 		buttonPanel.setPreferredSize(new Dimension(190, 50));		
 		buttonPanel.add(deleteEntButton);
-		buttonPanel.add(addEntButton);
 
 		// ## The drop down box for the list of all entities in board ###	
 		allEntitiesComboBox = new JComboBox<>(staticEntityStringArr);
@@ -184,40 +178,20 @@ public class EditorPanel extends JPanel {
 		add(buttonPanel);	
 		add(propertyPanelTest);
 		
-		JToolBar tb = new JToolBar(JToolBar.VERTICAL);
-		//toolBarContainer.setPreferredSize(new Dimension(200,300));
-		tb.setFloatable(false);
-		tb.setFocusable(false);
-		tb.add(Box.createGlue());
-		/*
-		tb.add(new JButton("test"));
-		tb.add(new JButton("test2"));
-		tb.add(new JButton("test3"));
-		tb.add(new JButton("test4"));
-		tb.add(new JButton("test4"));
-		tb.add(new JButton("test4"));
-		tb.add(new JButton("test4"));
-		tb.add(new JButton("test4"));
-		tb.add(new JButton("test4"));
-		tb.add(new JButton("test5"));
-		tb.add(new JButton("test5"));
-		tb.add(new JButton("test5"));
-		tb.add(new JButton("test5"));
-		tb.add(new JButton("test5"));
-		tb.add(new JButton("test5"));
-		*/
-		tb.add(Box.createGlue());
-		JScrollPane toolBarContainer = new JScrollPane(tb);
-		toolBarContainer.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+	    iconBar = new JPanel(new FlowLayout(FlowLayout.LEADING)); 
+	    iconBar.setBackground(Color.GRAY);
+	    iconBar.setPreferredSize(new Dimension(195,200));
+	    iconBar.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		IconLoader iconLoader = new IconLoader(this, iconBar);
+
+		
+		JScrollPane toolBarContainer = new JScrollPane(iconBar);
 		toolBarContainer.setVerticalScrollBarPolicy((JScrollPane.VERTICAL_SCROLLBAR_ALWAYS));
-		toolBarContainer.setPreferredSize(new Dimension(80,300));;
-		//toolBarContainer.add(tb);
-		//toolBarPanel.add(tb,BorderLayout.PAGE_END);
-		add(toolBarContainer);
+		add(toolBarContainer, FlowLayout.TRAILING);
 		
 		//testing setting the ghostSprite
 		//setGhostSprite(ASSET_PATH + PF1 );
-		revalidate();
+		//revalidate();
 	} //end of constructor;
 	
 	//Handler for the allEntitiesComboBox drop down panel
@@ -329,8 +303,20 @@ public class EditorPanel extends JPanel {
 		board.deselectAllEntities();
 	}
 	//so many ways I can do this. Will start with overloaded methods
-	public void addEntity(int x, int y) {  //default one. Adds test entity
-		EntityStatic newEnt = new Platform(x,y,"platform02");
+	public void addEntity(int x, int y, String path) {  //default one. Adds test entity
+		EntityStatic newEnt;
+		if (path.toLowerCase().contains("platform")) {
+			newEnt = new Platform(x, y, path);
+		}
+		else if (path.toLowerCase().contains("ground")) {
+			newEnt = new Ground(x, y, path);
+		}
+		else if (path.toLowerCase().contains("grass")) {
+			newEnt = new Grass(x,y,path);
+		}
+		else {
+			newEnt = new ObjectTemplate(x,y);
+		}
 		board.deselectAllEntities();
 		board.getStaticEntities().add(newEnt);
 		addEntryToListOfPropLists(new PropertiesList(newEnt));
@@ -415,7 +401,13 @@ public class EditorPanel extends JPanel {
 		return ghostSprite;
 	}
 	public void setGhostSprite(String path) {
-		ghostSprite = new SpriteStillframe(path);
+		ghostSprite = new SpriteStillframe(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path);
+	}
+	public String getNewEntityPath() {
+		return newEntityPath;
+	}
+	public void setNewEntityPath(String newEntityPath) {
+		this.newEntityPath = newEntityPath;
 	}
 	public void setEditorMousePos(int x, int y){
 		editorMousePos.x = x;

@@ -3,11 +3,11 @@ package testEntities;
 import entities.EntityStatic;
 
 //generic static sprite like a grass
-public class StaticSprite extends EntityStatic{
+public class Grass extends EntityStatic{
 	
 
 
-	public StaticSprite(int x, int y, String path) {
+	public Grass(int x, int y, String path) {
 		super(x, y);
 			collidable = false;
     		loadSprite(path);		
@@ -15,6 +15,9 @@ public class StaticSprite extends EntityStatic{
 			name = "Grass"+count;
 	}
 
+	public String toString() {
+		return String.format(name);
+	}
 	
 
 	

@@ -28,7 +28,7 @@ public class ObjectTemplate extends EntityStatic{ // Can extend either EntitySta
     private void initialize(){
     	
     	//if sprite for this entity is still image, loadSprite(name)
-    	loadSprite("bullet");
+    	loadSprite("box.png");
     	
     	//if sprite for this entity is animated, loadAnimatedSprite(Animation) instead  
         //loadAnimatedSprite(defaultAnimation);	

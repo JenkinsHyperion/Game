@@ -16,7 +16,10 @@ public class Platform extends EntityStatic{
 
 	
 	private void initPlatform(int x , int y, String path){
-    	loadSprite(path,-20,-3);		
+    	offsetX = -20;
+    	offsetY = -3;
+		
+		loadSprite(path, offsetX, offsetY);		
 	}
 	
 	public String toString() {

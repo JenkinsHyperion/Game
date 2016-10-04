@@ -193,7 +193,8 @@ public class Board extends JPanel implements Runnable {
     @Override	
     public void paintComponent(Graphics g) {  
         super.paintComponent(g);
-            drawObjects(g);
+        drawObjects(g);
+        drawGhostSprite(g, editorPanel.getGhostSprite(), editorPanel.getEditorMousePos());
     }
     
     /* ##################
@@ -273,8 +274,7 @@ public class Board extends JPanel implements Runnable {
     	
     	//Draw ghostSprite for editor using null-object pattern
     	//
-    	if (editorPanel.ESC_ON)
-    		drawGhostSprite(g, editorPanel.getGhostSprite(),editorPanel.getEditorMousePos());
+    	
     	
     	if (staticEntitiesList.size() > 0 && staticEntitiesList != null) {  //must null check in case all items are deleted
 	        for (EntityStatic stat : staticEntitiesList) {
@@ -416,61 +416,73 @@ public class Board extends JPanel implements Runnable {
   		// currentSelectedEntity.getObjectGraphic().getImage().getWidth(null);"
   			
   			if (!mouseClick) {
-  				deselectAllEntities();
-  				mouseClick = true;
 	  			clickPosition.setLocation(e.getX(),e.getY());
-	  			//MainWindow.getEditorPanel().setEntityCoordsLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
-	  			editorPanel.setEntityCoordsLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));			
-	  			checkForSelection(clickPosition);  			
-	  		
-	  			if (currentSelectedEntity != null) {  	// there is entity under cursor
-	  				if(currentSelectedEntity.isSelected != true) {
-	  					currentSelectedEntity.isSelected = true;
-	  					
-	  				}
-	  				else{
-	  					currentSelectedEntity.isSelected = false;
-	  				}
-	  				/*
-	  				selectedBox.setSize(currentSelectedEntity.getEntitySprite().getImage().getWidth(null),
-	  									currentSelectedEntity.getEntitySprite().getImage().getHeight(null) ); */
-	  				
-		  			System.out.println(currentSelectedEntity.name);
-	  	  			//SidePanel.setSelectedEntityName("Selected: " + currentSelectedEntity.name);
-		  			editorPanel.setSelectedEntityNameLabel("Selected: " + currentSelectedEntity.name);
-		  			editorPanel.setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
-		  			//get offsets
-		  			clickPositionXOffset = e.getX() - currentSelectedEntity.getX() ;
-		  			clickPositionYOffset = e.getY() - currentSelectedEntity.getY() ;
-	  			}
-	  			// WILL TRIGGER DESELECTING THE CURRENT ENTITY
-	  			// CODE FIRES WHEN YOU CLICK AND NOTHING IS UNDER CURSOR
-	  			else { 
-	  				
-	  				editorPanel.setSelectedEntityNameLabel("Nothing Selected");
-		  			editorPanel.setEntityCoordsLabel("Coords. of selected entity: N/A");
-	  			}
-	
+  				mouseClick = true;
+  				if (editorPanel.entityPlacementMode == false) 
+  				{
+	  				deselectAllEntities();
+
+
+		  			//MainWindow.getEditorPanel().setEntityCoordsLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
+		  			editorPanel.setEntityCoordsLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));			
+		  			checkForSelection(clickPosition);  			
+		  		
+		  			if (currentSelectedEntity != null) {  	// there is entity under cursor
+		  				if(currentSelectedEntity.isSelected != true) {
+		  					currentSelectedEntity.isSelected = true;
+		  					
+		  				}
+		  				else{
+		  					currentSelectedEntity.isSelected = false;
+		  				}
+		  				/*
+		  				selectedBox.setSize(currentSelectedEntity.getEntitySprite().getImage().getWidth(null),
+		  									currentSelectedEntity.getEntitySprite().getImage().getHeight(null) ); */
+		  				
+			  			System.out.println(currentSelectedEntity.name);
+		  	  			//SidePanel.setSelectedEntityName("Selected: " + currentSelectedEntity.name);
+			  			editorPanel.setSelectedEntityNameLabel("Selected: " + currentSelectedEntity.name);
+			  			editorPanel.setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
+			  			//get offsets
+			  			clickPositionXOffset = e.getX() - currentSelectedEntity.getX() ;
+			  			clickPositionYOffset = e.getY() - currentSelectedEntity.getY() ;
+		  			}
+		  			// WILL TRIGGER DESELECTING THE CURRENT ENTITY
+		  			// CODE FIRES WHEN YOU CLICK AND NOTHING IS UNDER CURSOR
+		  			else { 
+		  				
+		  				editorPanel.setSelectedEntityNameLabel("Nothing Selected");
+			  			editorPanel.setEntityCoordsLabel("Coords. of selected entity: N/A");
+		  			}
+  				}
+  				//entity placement mode is ON
+  				else {
+  					clickPositionXOffset =( (editorPanel.getGhostSprite().getImage().getWidth(null)) / 2);
+  					clickPositionYOffset =  ( (editorPanel.getGhostSprite().getImage().getHeight(null)) / 2);
+  					editorPanel.addEntity(e.getX(), e.getY(), 0, 0, editorPanel.getNewEntityPath());
+  					editorPanel.nullifyGhostSprite();
+  					editorPanel.entityPlacementMode = false;
+  					deselectAllEntities();
+  				}
   			}
   		}
-
   		@Override
   		public void mouseDragged(MouseEvent e) 
   		{ 		
-  			editorPanel.setMousePosLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
+  			if (editorPanel.entityPlacementMode == false) {
+  				editorPanel.setMousePosLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
 
-  			if (currentSelectedEntity != null) {
-  				currentSelectedEntity.setX(e.getX() - clickPositionXOffset);
-  				currentSelectedEntity.setY(e.getY() - clickPositionYOffset);
-  				editorPanel.setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
+  				if (currentSelectedEntity != null) {
+  					currentSelectedEntity.setX(e.getX() - clickPositionXOffset);
+  					currentSelectedEntity.setY(e.getY() - clickPositionYOffset);
+  					editorPanel.setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
+  				}
+
   			}
-  			
-
   		}
   		@Override
   		public void mouseMoved(MouseEvent e){
-  			if (editorPanel.ESC_ON)
-  				editorPanel.setEditorMousePos(e.getX(), e.getY());
+  			editorPanel.setEditorMousePos(e.getX(), e.getY());
   		}
   		@Override
   		public void mouseReleased(MouseEvent e) 
@@ -596,12 +608,9 @@ public class Board extends JPanel implements Runnable {
             	}
             }
             if (key == KeyEvent.VK_ESCAPE) {
-            	if (editorPanel.ESC_ON)
-            		editorPanel.ESC_ON = false;
-            	else 
-            		editorPanel.ESC_ON = true;	
-            }
-            
+            	editorPanel.entityPlacementMode = false;
+            	editorPanel.nullifyGhostSprite();
+            }            
         }
     }
     

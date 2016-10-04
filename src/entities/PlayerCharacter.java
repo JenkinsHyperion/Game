@@ -34,8 +34,8 @@ public class PlayerCharacter extends Player {
     private Animation SPRINT_LEFT = new Animation(LoadAnimation.buildAnimation(10, 0, 75, "SprintLeft2.png") , 3 ,spriteOffsetX,spriteOffsetY); 
     private Animation SPRINT_RIGHT = new Animation(LoadAnimation.buildAnimation(10, 0, 75, "SprintRight2.png") , 3 ,spriteOffsetX,spriteOffsetY);  
     
-    private Animation IDLE_RIGHT = new Animation(LoadAnimation.buildAnimation(2, 2, 32, "player_sheet.png") , 18 ,spriteOffsetX,spriteOffsetY); 
-    private Animation IDLE_LEFT = new Animation(LoadAnimation.buildAnimation(2, 0, 75, "IdleLeft.png") , 18 ,spriteOffsetX,spriteOffsetY);
+    private Animation IDLE_RIGHT = new Animation(LoadAnimation.buildAnimation(1, 2, 32, "player_sheet.png") , 18 ,spriteOffsetX,spriteOffsetY); 
+    private Animation IDLE_LEFT = new Animation(LoadAnimation.buildAnimation(1, 0, 75, "IdleLeft.png") , 18 ,spriteOffsetX,spriteOffsetY);
     
     private Animation CLIMB_LEFT = new Animation(LoadAnimation.getAnimation(21, 0, 40,64 , "spritesFramesFinal.png") , 2 );
     private Animation CLIMB_RIGHT = new Animation(LoadAnimation.getAnimation(21, 1, 40,64 , "spritesFramesFinal.png") , 2 , -9, 0);

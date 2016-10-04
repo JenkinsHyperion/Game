@@ -8,16 +8,22 @@ public class Ground extends EntityStatic{
 
 	public Ground(int x, int y, String path) {
 		super(x, y);
-			
-			initPlatform(x,y,path);
-			setBoundingBox(-223,-46,446,100);
-			name = "Ground";
+
+    	offsetX = -223;
+    	offsetY = -48;
+    	loadSprite(path,offsetX,offsetY);	
+		setBoundingBox(this.offsetX,this.offsetY+5,446,100);
+		name = "Ground"+ count;
+	}
+	public Ground(int x, int y, int offsetX, int offsetY, String path) {
+		super(x, y);
+    	this.offsetX = offsetX;
+    	this.offsetY = offsetY;
+    	loadSprite(path,offsetX,offsetY);	
+		setBoundingBox(this.offsetX,this.offsetY+5,446,100);
+		name = "Ground"+ count;
 	}
 
-	
-	private void initPlatform(int x , int y, String path){
-    	loadSprite(path,-223,-50);		
-	}
 	
 	public String toString() {
 		return String.format(name);

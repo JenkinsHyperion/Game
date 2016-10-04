@@ -25,9 +25,10 @@ public class EntityStatic extends Entity{
     protected transient ArrayList<CollidingPair> collisions = new ArrayList<>(); //moving to composit
 	protected transient Rectangle boundingBox = new Rectangle(0,0); //moving to composite
 	protected transient Boundary boundary = new BoundingBox(new Rectangle(2,2)); //moving to composite
-	
+	protected int offsetX;
+	protected int offsetY;
 	//COMPOSITE TESTING
-	private transient Sprite entitySprite = SpriteNull.getNullSprite(); //might want to put into super class unless Entity without image is useful
+	private Sprite entitySprite = SpriteNull.getNullSprite(); //might want to put into super class unless Entity without image is useful
 	private CollisionType collisionType;
    
 	public EntityStatic(int x, int y) {
@@ -36,13 +37,13 @@ public class EntityStatic extends Entity{
     	isSelected = false;
     }  
 	
-    protected void loadSprite(String path){ // needs handling if failed. Also needs to be moved out of object class into sprites
+    public void loadSprite(String path){ // needs handling if failed. Also needs to be moved out of object class into sprites
 
 
     	entitySprite = new SpriteStillframe(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path, this);
     }
     
-    protected void loadSprite(String path, int offset_x , int offset_y){ // needs handling if failed. Also needs to be moved out of object class into sprites
+    public void loadSprite(String path, int offset_x , int offset_y){ // needs handling if failed. Also needs to be moved out of object class into sprites
     	entitySprite = new SpriteStillframe(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path, offset_x,offset_y, this);
 
 

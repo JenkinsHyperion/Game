@@ -2,6 +2,7 @@ package testEntities;
 
 import animation.Animation;
 import animation.LoadAnimation;
+import entities.Entity;
 import entities.EntityDynamic;
 
 public class Bullet extends EntityDynamic{
@@ -10,7 +11,6 @@ public class Bullet extends EntityDynamic{
 	
     public Bullet(int x, int y, int dx, int dy) {
 		super(x, y);
-		
         initBulletTest();
         setDX(dx);
         setDY(dy);

@@ -8,8 +8,6 @@ import java.awt.event.KeyEvent;
 
 import animation.*;
 import engine.Board;
-import testEntities.Bullet;
-import testEntities.Particle;
 
 public class Player extends EntityRotationalDynamic {
 

@@ -3,11 +3,9 @@ package engine;
 import javax.swing.*;
 
 import editing.*;
-import testEntities.Particle;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.Line2D;
 
 @SuppressWarnings("serial")
 public class MainWindow extends JPanel {

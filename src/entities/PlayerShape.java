@@ -21,7 +21,7 @@ public class PlayerShape extends Player {
 	private boolean keypressE = false;
 	private boolean keypressQ = false;
 
-	private Animation IDLE_LEFT = new Animation(LoadAnimation.getAnimation(4, 0, 14, "bullet.png") , 4 ); 
+	private Animation IDLE_LEFT = new Animation(LoadAnimation.buildAnimation(4, 0, 14, "bullet.png") , 4 ); 
 
     public PlayerShape(int x, int y , Board currentBoard) {
         super(x, y , currentBoard);

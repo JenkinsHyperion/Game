@@ -40,22 +40,18 @@ public class LoadAnimation {
 		return spriteSheet.getSubimage(xGrid * tileWidth, yGrid * tileHeight, tileWidth, tileHeight);
 	}
 
-	// Compile individual frames into array of buffered images
 	/**
 	 * 
 	 * @param length
-	 *            - number of frames in row
 	 * @param row
-	 *            - vertical row of sprite sheet to use. Starts at 0 for top row
 	 * @param tileSize
-	 *            - width and length of square for each frame
 	 * @param file
-	 *            - name only of file in Assets folder, minus directory path and
-	 *            extension.
 	 * @return
 	 */
-	public static BufferedImage[] getAnimation(int length, int row, int tileSize, String file) {
+	public static BufferedImage[] buildAnimation(int length, int row, int tileSize, String file) {
 
+		if (length < 1){System.out.println("WARNING");}
+		
 		BufferedImage[] b = new BufferedImage[length];
 
 		for (int i = 0; i < length; i++) {

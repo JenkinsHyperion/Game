@@ -122,7 +122,7 @@ public class Board extends JPanel implements Runnable {
         staticEntitiesList.add(new Platform(210,240,Platform.PF2));
         staticEntitiesList.add(new Platform(50,180,Platform.PF2));
         staticEntitiesList.add(new Platform(60,270,Platform.PF2));
-        staticEntitiesList.add(new Ground(250,295,"ground01.png"));
+        staticEntitiesList.add(new Ground(200,500,"ground_1.png"));
         staticEntitiesList.add(new Slope(40,160));
         
       	physicsEntitiesList.add(new EntityPhysics(120,260,"box.png"));

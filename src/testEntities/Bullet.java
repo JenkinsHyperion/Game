@@ -6,7 +6,7 @@ import entities.EntityDynamic;
 
 public class Bullet extends EntityDynamic{
 	
-    private Animation flying = new Animation(LoadAnimation.getAnimation(4, 0, 14, "bullet.png") , 4 ); 
+    private Animation flying = new Animation(LoadAnimation.buildAnimation(4, 0, 14, "bullet.png") , 4 ); 
 	
     public Bullet(int x, int y, int dx, int dy) {
 		super(x, y);

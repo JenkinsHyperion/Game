@@ -77,8 +77,8 @@ public class CollisionPlayerStaticSAT extends Collision {
 			
 			//Resolution wont resolve
 			
-				//entityPrimary.setX( entityPrimary.getDeltaX() + depthX );
-				//entityPrimary.setY( entityPrimary.getDeltaY() + depthY );
+				entityPrimary.setX( entityPrimary.getDeltaX() + depthX );
+				entityPrimary.setY( entityPrimary.getDeltaY() + depthY );
 				
 				entityPrimary.setAccX(0);
 				entityPrimary.clipDX((int) ( -resolution.getX() ) );
@@ -136,9 +136,9 @@ public class CollisionPlayerStaticSAT extends Collision {
 
     	
     	// Get penetration vectors along all separating axes for primary entity and add to list
-    	for (int i = 0 ; i < entityPrimary.getBoundary().getSeparatingSides().length ; i++ ){
+    	for (int i = 0 ; i < entityPrimary.getBoundaryLocal().getSeparatingSides().length ; i++ ){
     		
-    		if (getSeparationDistance(entityPrimary.getBoundary().getSeparatingSides()[i]) != null){
+    		if (getSeparationDistance(entityPrimary.getBoundaryLocal().getSeparatingSides()[i]) != null){
     			
     			penetrations.add( getSeparationDistance(entityPrimary.getBoundaryLocal().getSeparatingSides()[i]) );
     			
@@ -146,17 +146,19 @@ public class CollisionPlayerStaticSAT extends Collision {
     	}
     	
     	// Get penetration vectors along all separating axes for other collision and add to list
+    	//research if boundarylocal is needed
     	for ( EntityStatic entitySecondary : entityPrimary.getCollidingPartners()){
     		
-	    	for (int i = 0 ; i < entitySecondary.getBoundary().getSeparatingSides().length ; i++ ){
+	    	for (int i = 0 ; i < entitySecondary.getBoundaryLocal().getSeparatingSides().length ; i++ ){
 	    		
-	    		if (getSeparationDistance(entitySecondary.getBoundary().getSeparatingSides()[i]) != null){
+	    		if (getSeparationDistance(entitySecondary.getBoundaryLocal().getSeparatingSides()[i]) != null){
 	    			
 	    			penetrations.add( getSeparationDistance(entitySecondary.getBoundaryLocal().getSeparatingSides()[i]) );
 	    			
 	    		}
 	    	}
 		}
+    	 
     	
     	int penetrationX = 0;
     	int penetrationY = 0;

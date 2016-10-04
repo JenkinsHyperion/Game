@@ -21,27 +21,34 @@ public class PlayerCharacter extends Player {
 	private boolean keypressD = false;
 	private boolean keypressUP = false;
 	private boolean keypressS = false;
+	private boolean keypressSHIFT = false;
 	
-	private final int spriteOffsetX=16;
-	private final int spriteOffsetY=16;
+	private final int spriteOffsetX=38;
+	private final int spriteOffsetY=38;
 	
 	private boolean climbing = false;
     
-    private AnimationEnhanced RUN_RIGHT = new AnimationEnhanced(LoadAnimation.getAnimation(8, 1, 32, "player_sheet.png") , 2 ,spriteOffsetX,spriteOffsetY ); 	
-    private Animation RUN_LEFT = new Animation(LoadAnimation.getAnimation(8, 0, 32, "player_sheet.png") , 2 ,spriteOffsetX,spriteOffsetY); 
-    private Animation IDLE_RIGHT = new Animation(LoadAnimation.getAnimation(2, 2, 32, "player_sheet.png") , 18 ,spriteOffsetX,spriteOffsetY); 
-    private Animation IDLE_LEFT = new Animation(LoadAnimation.getAnimation(2, 3, 32, "player_sheet.png") , 18 ,spriteOffsetX,spriteOffsetY);
+    private AnimationEnhanced RUN_RIGHT = new AnimationEnhanced(LoadAnimation.buildAnimation(16, 0, 75, "RunRight.png") , 2 ,spriteOffsetX,spriteOffsetY ); 	
+    private Animation RUN_LEFT = new Animation(LoadAnimation.buildAnimation(16, 0, 75, "Run_75px.png") , 2 ,spriteOffsetX,spriteOffsetY); 
+    
+    private Animation SPRINT_LEFT = new Animation(LoadAnimation.buildAnimation(10, 0, 75, "SprintLeft2.png") , 3 ,spriteOffsetX,spriteOffsetY); 
+    private Animation SPRINT_RIGHT = new Animation(LoadAnimation.buildAnimation(10, 0, 75, "SprintRight2.png") , 3 ,spriteOffsetX,spriteOffsetY);  
+    
+    private Animation IDLE_RIGHT = new Animation(LoadAnimation.buildAnimation(2, 2, 32, "player_sheet.png") , 18 ,spriteOffsetX,spriteOffsetY); 
+    private Animation IDLE_LEFT = new Animation(LoadAnimation.buildAnimation(2, 0, 75, "IdleLeft.png") , 18 ,spriteOffsetX,spriteOffsetY);
     
     private Animation CLIMB_LEFT = new Animation(LoadAnimation.getAnimation(21, 0, 40,64 , "spritesFramesFinal.png") , 2 );
     private Animation CLIMB_RIGHT = new Animation(LoadAnimation.getAnimation(21, 1, 40,64 , "spritesFramesFinal.png") , 2 , -9, 0);
     
-    private Animation JUMP_LEFT = new Animation(LoadAnimation.getAnimation(2, 5, 32, "player_sheet.png") , 18 ); 
+    private Animation JUMP_LEFT = new Animation(LoadAnimation.buildAnimation(2, 5, 32, "player_sheet.png") , 18 ); 
 
     private AnimationState climbingRight= new AnimationState("climbing_left",CLIMB_RIGHT);
     private AnimationState climbingLeft= new AnimationState("climbing_left",CLIMB_LEFT);
     
     private AnimationState runningRight= new AnimationState("running_right",RUN_RIGHT);
     private AnimationState runningLeft= new AnimationState("running_left",RUN_LEFT);
+    private AnimationState sprintingLeft= new AnimationState("sprinting_left",SPRINT_LEFT);
+    private AnimationState sprintingRight= new AnimationState("sprinting_right",SPRINT_RIGHT);
     private AnimationState idlingRight= new AnimationState("idle_right",IDLE_RIGHT);
     private AnimationState idlingLeft= new AnimationState("idle_left",IDLE_LEFT);
     private AnimationState jumpingLeft= new AnimationState("jumping_left",JUMP_LEFT);
@@ -59,11 +66,11 @@ public class PlayerCharacter extends Player {
 
     private void initPlayer() {
         
-        setBoundingBox(-12,-16,24,32);
+        setBoundingBox(-12,-38,24,76);
         loadAnimatedSprite(IDLE_LEFT); 
-        //this.entitySprite.setOffset(-100, -100); 
+        this.getEntitySprite().setOffset(12, 38); 
         //setAngle(0);
-        setAccY( 0.1f ); // Force initialize gravity (temporary)
+        setAccY( 0.2f ); // Force initialize gravity (temporary)
         
     }
 
@@ -75,15 +82,21 @@ public class PlayerCharacter extends Player {
 
         int key = e.getKeyCode();
 
-        if (key == KeyEvent.VK_SHIFT) {
+        if (key == KeyEvent.VK_1) {
         	
         	board.player = new PlayerShape(board.ICRAFT_X , board.ICRAFT_Y, board);
-        	
-        	
+
+        }
+        
+        if (key == KeyEvent.VK_SHIFT && !keypressSHIFT ) {
+        	keypressSHIFT = true; 
+
         }
 
         if (key == KeyEvent.VK_A && !keypressA) {
         	keypressA = true; 
+        
+        
         }
 
         if (key == KeyEvent.VK_D && !keypressD) {
@@ -106,6 +119,11 @@ public class PlayerCharacter extends Player {
 
         int key = e.getKeyCode();
 
+        if (key == KeyEvent.VK_SHIFT && keypressSHIFT) {
+        	keypressSHIFT = false;
+        	
+        }
+        
         if (key == KeyEvent.VK_A && keypressA) {
         	keypressA = false;
         	
@@ -133,32 +151,47 @@ public class PlayerCharacter extends Player {
         //RUN_RIGHT.updateSpeed((int) getDX(), 0, 2, 2, 10); //move to rendering
         //
         
-    	//setAngle(0);
+    	//OPTIMIZE ALL THIS KEYPRESSING INTO ITS OWN ACTION CLASS
         
     	if (keypressA && isColliding ){
     		//applyAccelerationX( -0.1f );
-    		dx = -2;
+    		if (keypressSHIFT){
+    			dx = -5.5f;
+    			setState(sprintingLeft);
+    		}
+    		else {
+    			setState(runningLeft);
+    			dx = -3;
+    		}
     	}
-    	if (keypressD && isColliding){ 
+    	else if (keypressD && isColliding){ 
     		//applyAccelerationX( 0.1f );
-    		dx = 2;
+    		if (keypressSHIFT){
+    			dx = 5.5f;
+    			setState(sprintingRight);
+    		}
+    		else {
+    			setState(runningRight);
+    			dx = 3;
+    		}
     	}
-    	
-		if (keypressUP && isColliding ){
-				
-		}
+    	else{
+    		
+    		setState(idlingLeft);
+    		
+    	}
 
 
     	
-		if (dx>2){
-			dx=2;
-		}
-		else if (dx<-2){
-			dx=-2;
-		}
+		//if (dx>2){
+		//	dx=2;
+		//}
+		//else if (dx<-2){
+		//	dx=-2;
+		//}
 		
-		
-		if (!climbing){
+		/*
+		/if (!climbing){
 			if (keypressA){
 				setState(runningLeft);
 				setStateBuffer(idlingLeft);
@@ -185,7 +218,7 @@ public class PlayerCharacter extends Player {
 				
 			}
 			
-		}
+		}*/
 		
     	/*if (keypressA ){
     		//accX = -0.2f ; 

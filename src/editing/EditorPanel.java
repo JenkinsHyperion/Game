@@ -212,6 +212,7 @@ public class EditorPanel extends JPanel {
 				
 				//sets Board's current entity
 				setSelectedEntityThruEditor(board.getStaticEntities().get(currentEntIndex));
+				//board.
 				createAndShowPropertiesPanel();
 				setSelectedEntityNameLabel("Selected: " + getSelectedEntity().name);
 				setEntityCoordsLabel(String.format("Coords of Selected Entity: %s,%s", getSelectedEntity().getX(), getSelectedEntity().getY()));
@@ -324,12 +325,14 @@ public class EditorPanel extends JPanel {
         allEntitiesComboBox.setSelectedIndex(allEntitiesComboBox.getItemCount()-1);
 	}
 	//will refresh(create a new one of)staticEntityStringArr, remove old comboBox and then create & add a new updated one
+	//PROBLEM AREA
 	public void updateAllEntitiesComboBox() {
 		System.out.println("item count: "+ allEntitiesComboBox.getItemCount());
 		int prevIndex = allEntitiesComboBox.getSelectedIndex();
 		int prevMax = allEntitiesComboBox.getItemCount();
 		updateEntityStringArr();
 		entitiesComboBoxPanel.remove(allEntitiesComboBox);
+		allEntitiesComboBox = null;
 		allEntitiesComboBox = new JComboBox<>(staticEntityStringArr);
 		allEntitiesComboBox.setFocusable(false);
 		allEntitiesComboBox.addActionListener(new EntitiesComboBoxActionHandler());

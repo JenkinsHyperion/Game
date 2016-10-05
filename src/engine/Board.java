@@ -123,7 +123,7 @@ public class Board extends JPanel implements Runnable {
         staticEntitiesList.add(new Platform(50,180,Platform.PF2));
         staticEntitiesList.add(new Platform(60,270,Platform.PF2));
         staticEntitiesList.add(new Ground(200,500,"ground_1.png"));
-        staticEntitiesList.add(new Slope(40,160));
+        //staticEntitiesList.add(new Slope(40,160));
         
       	physicsEntitiesList.add(new EntityPhysics(120,260,"box.png"));
         dynamicEntitiesList.add(new Bullet(100,100,1,1));
@@ -487,9 +487,10 @@ public class Board extends JPanel implements Runnable {
   		@Override
   		public void mouseReleased(MouseEvent e) 
   		{	
-  			if (currentSelectedEntity != null)
-  				currentSelectedEntity.getEntitySprite().setVisible(true);
-  			if (clickedOnEntity(e.getPoint() ) == null) {
+  			/*if (currentSelectedEntity != null)
+  				
+  				currentSelectedEntity.getEntitySprite().setVisible(true);*/
+  			if ( currentSelectedEntity == null) {
   				deselectAllEntities();
   			}
 
@@ -501,11 +502,11 @@ public class Board extends JPanel implements Runnable {
   	//LEVEL EDITOR METHODS
   	
   	private void checkForSelection(Point click) { //redundant
-  		setCurrentSelectedEntity(clickedOnEntity(click));
-  		//currentSelectedEntity = clickedOnEntity(click);
+  		//setCurrentSelectedEntity(clickedOnEntity(click));
+  		currentSelectedEntity = clickedOnEntity(click);
 
   		if (currentSelectedEntity != null)
-  			currentDebugEntity = clickedOnEntity(click);
+  			currentDebugEntity = currentSelectedEntity;
 
   	}
 
@@ -516,10 +517,11 @@ public class Board extends JPanel implements Runnable {
 	 		if (entity.getEntitySprite().hasSprite()){ //if entity has sprite, select by using sprite dimensions
 	  			selectedBox.setLocation(entity.getX() + entity.getSpriteOffsetX(), entity.getY() + entity.getSpriteOffsetY());
 	  			selectedBox.setSize(entity.getEntitySprite().getImage().getWidth(null), entity.getEntitySprite().getImage().getHeight(null) );
+	  			System.out.println(staticEntitiesList.indexOf(currentSelectedEntity));
 	  			if (selectedBox.contains(click)) 
 	  			{
 	  				entity.isSelected = true;
-	  				editorPanel.enableEditPropertiesButton(true);
+	  				editorPanel.enableEditPropertiesButton(true); //might not need
 	  				editorPanel.restorePanels();
 	  				editorPanel.setAllEntitiesComboBoxIndex(counter);
 	  	  			editorPanel.setSelectedEntityNameLabel("Selected: " + entity.name);
@@ -905,6 +907,7 @@ public class Board extends JPanel implements Runnable {
 	public ArrayList<EntityDynamic> getDynamicEntities(){ return dynamicEntitiesList; }
 	public ArrayList<EntityPhysics> getPhysicsEntities(){ return physicsEntitiesList; }
 	public EntityStatic getCurrentSelectedEntity() { return currentSelectedEntity; }
+	
 	public void setCurrentSelectedEntity(EntityStatic newSelectedEntity){
 		try{
 			if (newSelectedEntity != null) {
@@ -917,10 +920,13 @@ public class Board extends JPanel implements Runnable {
 				currentSelectedEntity = newSelectedEntity;
 				currentSelectedEntity.isSelected = true;
 			}
-			else
-				currentSelectedEntity = null;
+			else {}
+				//currentSelectedEntity = null;
 		}catch (Exception e) {e.printStackTrace();}
   	}
+	
+	
+	
 	public void transferEditorPanel(EditorPanel instance){
 		this.editorPanel = instance; 
 	}

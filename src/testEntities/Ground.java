@@ -20,7 +20,7 @@ public class Ground extends EntityStatic{
     	this.offsetX = offsetX;
     	this.offsetY = offsetY;
     	loadSprite(path,offsetX,offsetY);	
-		setBoundingBox(this.offsetX,this.offsetY+5,446,100);
+		setBoundingBox(-223,-48,446,100);
 		name = "Ground"+ count;
 	}
 

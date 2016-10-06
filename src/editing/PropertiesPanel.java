@@ -133,7 +133,6 @@ public class PropertiesPanel extends JPanel implements ActionListener,ItemListen
 	}
 	protected void updateCurrentStatusLabel(int propType) {
 		if (propType == Property.COL_STATE) {
-			System.out.println("was able to reach upDateCurrentStatusLabel. Attempting to set collisionStatusLabel again...");
 			collisionStatusLabel.setText(String.valueOf(ep.getThisProperty(propType).getEntityCollidableState(ep.getSelectedEntity())) );
 		}
 		else if (propType == Property.XPOS)

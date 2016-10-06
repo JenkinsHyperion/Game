@@ -302,6 +302,7 @@ public class EditorPanel extends JPanel {
 		removeEntryFromListOfPropLists(index); 	//must remove corresponding property of deleted entity
 		updateAllEntitiesComboBox();
 		board.deselectAllEntities();
+		minimizePanels();
 	}
 	//so many ways I can do this. Will start with overloaded methods
 	public void addEntity(int x, int y, int offsetX, int offsetY, String path) {  //default one. Adds test entity
@@ -325,7 +326,7 @@ public class EditorPanel extends JPanel {
         allEntitiesComboBox.setSelectedIndex(allEntitiesComboBox.getItemCount()-1);
 	}
 	//will refresh(create a new one of)staticEntityStringArr, remove old comboBox and then create & add a new updated one
-	//PROBLEM AREA
+	//PROBLEM AREA, still a problem. Thought was fixed but has an issue when deleting entities
 	public void updateAllEntitiesComboBox() {
 		System.out.println("item count: "+ allEntitiesComboBox.getItemCount());
 		int prevIndex = allEntitiesComboBox.getSelectedIndex();

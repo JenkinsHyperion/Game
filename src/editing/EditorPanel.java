@@ -34,6 +34,11 @@ public class EditorPanel extends JPanel {
 	public static final String PF2 = "platform02.png";
 	public static final String GND = "ground01.png";
 	public static final String GRASS1 = "grass01.png";
+	public static final int DEFAULT_MODE = 0;
+	public static final int ENTPLACEMENT_MODE = 1;
+	public static final int WORLDGEOM_MODE = 2;
+	
+	public int mode;
 	private String newEntityPath;
 	public boolean entityPlacementMode;
 	public final Dimension minimizedSize = new Dimension(200,20);
@@ -41,8 +46,8 @@ public class EditorPanel extends JPanel {
 	public final Dimension allEntitiesComboBoxDefSize = new Dimension(120,20);
 	protected int currentEntIndex;
 	public boolean testFlag;
-	private Board board;
-	private Sprite ghostSprite;
+	protected Board board;
+	private Sprite ghostSprite; 
 	private Point editorMousePos;
 	
 	protected ArrayList<PropertiesList> listOfPropLists;
@@ -74,8 +79,9 @@ public class EditorPanel extends JPanel {
 
 	public EditorPanel( Board boardInstance) {
 		//initializing some of the fields
+		mode = EditorPanel.DEFAULT_MODE;
 		newEntityPath = "";
-		entityPlacementMode = false;
+		//entityPlacementMode = false;
 		editorMousePos = new Point();
 		ghostSprite = SpriteNull.getNullSprite();
 		testFlag = true;
@@ -185,9 +191,9 @@ public class EditorPanel extends JPanel {
 		IconLoader iconLoader = new IconLoader(this, iconBar);
 
 		
-		JScrollPane toolBarContainer = new JScrollPane(iconBar);
-		toolBarContainer.setVerticalScrollBarPolicy((JScrollPane.VERTICAL_SCROLLBAR_ALWAYS));
-		add(toolBarContainer, FlowLayout.TRAILING);
+		JScrollPane iconBarScrollPane = new JScrollPane(iconBar);
+		iconBarScrollPane.setVerticalScrollBarPolicy((JScrollPane.VERTICAL_SCROLLBAR_ALWAYS));
+		add(iconBarScrollPane, FlowLayout.TRAILING);
 		
 		//testing setting the ghostSprite
 		//setGhostSprite(ASSET_PATH + PF1 );
@@ -213,7 +219,7 @@ public class EditorPanel extends JPanel {
 				//sets Board's current entity
 				setSelectedEntityThruEditor(board.getStaticEntities().get(currentEntIndex));
 				//board.
-				createAndShowPropertiesPanel();
+				createAndShowPropertiesPanel(board);
 				setSelectedEntityNameLabel("Selected: " + getSelectedEntity().name);
 				setEntityCoordsLabel(String.format("Coords of Selected Entity: %s,%s", getSelectedEntity().getX(), getSelectedEntity().getY()));
 				//sends code from here over to Board to let it draw this entity's selection box
@@ -236,9 +242,9 @@ public class EditorPanel extends JPanel {
 		propFrame.setLocationRelativeTo(null);
 		propFrame.setVisible(true);
 	}
-	public void createAndShowPropertiesPanel() {
+	public void createAndShowPropertiesPanel(Board board) {
 		propertyPanelTest.removeAll();
-		propertyPanelTest.add(new PropertiesPanel(this));
+		propertyPanelTest.add(new PropertiesPanel(this, board));
 		revalidate();
 	}
 	public void minimizePanels() {
@@ -420,5 +426,6 @@ public class EditorPanel extends JPanel {
 	public Point getEditorMousePos(){
 		return editorMousePos;
 	}
+	
 
 }

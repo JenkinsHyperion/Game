@@ -2,9 +2,12 @@ package editing;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+
 import javax.swing.*;
 
 import editing.*;
+import engine.Board;
 
 
 //HUGE NOTE:
@@ -34,9 +37,11 @@ public class PropertiesPanel extends JPanel implements ActionListener,ItemListen
 	JPanel entityNamePanel;
 	JPanel entityTypePanel;
 	EditorPanel ep;
+	Board board;
 	
-	public PropertiesPanel(EditorPanel editorPanelRef) { 		 //constructor 
+	public PropertiesPanel(EditorPanel editorPanelRef, Board board) { 		 //constructor 
 		this.ep = editorPanelRef;
+		this.board = board;
 		//setPreferredSize(ep.propPanelDefaultSize);
 		collisionStatusLabelcursed = new JLabel("N/A"); //initializing these so they won't cause null problems
 		collisionStatusLabel = new JLabel("cursed?");
@@ -122,16 +127,36 @@ public class PropertiesPanel extends JPanel implements ActionListener,ItemListen
 		else if(e.getSource() == entNameTextField){
 			/*
 			 * Here, set the name field of the current propertyList's yPos property */
-			ep.getThisProperty(Property.ENTNAME).setEntityName(ep.getSelectedEntity(), command);
-			updateCurrentStatusLabel(Property.ENTNAME);
-			ep.updateAllEntitiesComboBox();
+			//INPUT VALIDATION: IF DUPLICATE NAME FOUND, DON'T TAKE INPUT
+			if (checkDuplicateName(ep.listOfPropLists, command) == true) {  //found duplicate name
+				JOptionPane.showMessageDialog(null, "Entity name already taken. Try again.");				
+			} 
+			else {
+				ep.getThisProperty(Property.ENTNAME).setEntityName(ep.getSelectedEntity(), command);
+				updateCurrentStatusLabel(Property.ENTNAME);
+				ep.updateAllEntitiesComboBox();				
+			}
 		}
-		/*
-		invalidate();
-		validate();
-		repaint(); */
+		revalidate();
+		repaint(); 
 	}
-	protected void updateCurrentStatusLabel(int propType) {
+	private boolean checkDuplicateName(ArrayList<PropertiesList> propList, String nameCheck) {
+		int duplicatesFound = 0;
+		int index = 0;
+		for (PropertiesList prop : propList) {
+			System.out.println(prop.getProperty(Property.ENTNAME).getEntityName(board.getStaticEntities().get(index)));
+			if (prop.getProperty(Property.ENTNAME).getEntityName(board.getStaticEntities().get(index)).equals(nameCheck)){
+				duplicatesFound++;
+				System.out.println("In checkDuplicateName(): found duplicate " + duplicatesFound + " times");
+			}
+			index++;
+		}
+		if (duplicatesFound > 0)
+			return true;
+		else
+			return false;
+	}
+	public void updateCurrentStatusLabel(int propType) {
 		if (propType == Property.COL_STATE) {
 			collisionStatusLabel.setText(String.valueOf(ep.getThisProperty(propType).getEntityCollidableState(ep.getSelectedEntity())) );
 		}

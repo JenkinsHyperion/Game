@@ -418,7 +418,7 @@ public class Board extends JPanel implements Runnable {
   			if (!mouseClick) {
 	  			clickPosition.setLocation(e.getX(),e.getY());
   				mouseClick = true;
-  				if (editorPanel.entityPlacementMode == false) 
+  				if (editorPanel.mode == EditorPanel.DEFAULT_MODE) 
   				{
 	  				deselectAllEntities();
 
@@ -456,12 +456,12 @@ public class Board extends JPanel implements Runnable {
 		  			}
   				}
   				//entity placement mode is ON
-  				else {
+  				else if (editorPanel.mode == EditorPanel.ENTPLACEMENT_MODE) {
   					clickPositionXOffset =( (editorPanel.getGhostSprite().getImage().getWidth(null)) / 2);
   					clickPositionYOffset =  ( (editorPanel.getGhostSprite().getImage().getHeight(null)) / 2);
   					editorPanel.addEntity(e.getX(), e.getY(), 0, 0, editorPanel.getNewEntityPath());
   					editorPanel.nullifyGhostSprite();
-  					editorPanel.entityPlacementMode = false;
+  					//editorPanel.entityPlacementMode = false;
   					deselectAllEntities();
   				}
   			}
@@ -493,7 +493,8 @@ public class Board extends JPanel implements Runnable {
   			if ( currentSelectedEntity == null) {
   				deselectAllEntities();
   			}
-
+  			if (editorPanel.mode == EditorPanel.ENTPLACEMENT_MODE)
+  				editorPanel.mode = EditorPanel.DEFAULT_MODE;
   			System.out.println("Released");
   			mouseClick = false;
   		}

@@ -21,7 +21,7 @@ import sprites.Sprite;
  */
 public class EntityStatic extends Entity{
 
-	public transient boolean isSelected;
+	//public transient boolean isSelected;
     protected transient ArrayList<CollidingPair> collisions = new ArrayList<>(); //moving to composit
 	protected transient Rectangle boundingBox = new Rectangle(0,0); //moving to composite
 	protected transient Boundary boundary = new BoundingBox(new Rectangle(2,2)); //moving to composite
@@ -34,7 +34,7 @@ public class EntityStatic extends Entity{
 	public EntityStatic(int x, int y) {
 
     	super(x,y);
-    	isSelected = false;
+    	//isSelected = false;
     }  
 	
     public void loadSprite(String path){ // needs handling if failed. Also needs to be moved out of object class into sprites

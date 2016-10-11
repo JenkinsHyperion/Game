@@ -222,7 +222,7 @@ public class Boundary implements Serializable {
 		double b2;
 		double intersectX; // intersectY is  m*intersectX + b  so is calculated at the end
 		
-		
+		// since these are double, they will never equal eachother because of precision errors - Dave
 		if ( line1.getP1().getX() == line1.getP2().getX() ) { //Line is vertical, slope in undefined
 			
 			if ( line2.getP1().getX() != line2.getP2().getX() ) { 
@@ -262,7 +262,7 @@ public class Boundary implements Serializable {
 				b1 = line1.getP1().getY() - ( m1 * line2.getP1().getX() );			
 				b2 = line2.getP1().getY() - ( m2 * line2.getP1().getX() );		
 			
-				if (m2*m2 - m1*m1 == 0 ){
+				if ( (m2*m2 - m1*m1) > -.00001 && (m2*m2 - m1*m1) < .00001){
 					//System.out.println( "identical line" ); 
 					return new Point( (int)line1.getX1() , (int)line1.getY1() );
 				}
@@ -374,9 +374,11 @@ public class Boundary implements Serializable {
 	private boolean duplicateSideExists( Line2D side , Line2D[] array, int currentIndex ){
 		//checks if axis already exists in previous array indexes before adding a new one
 		
-		if ( side.getP1().getX() - side.getP2().getX() == 0 ) {//line is vertical, slope is undefined
+		if ( (side.getP1().getX() - side.getP2().getX() > -.00001) &&
+			 (side.getP1().getX() - side.getP2().getX() < .00001) ) {//line is vertical, slope is undefined
 			for ( int j = 0 ; j < currentIndex ; j++){
-				if (array[j].getP1().getX() - array[j].getP2().getX() == 0){ // other vertical sides exist
+				if ( (array[j].getP1().getX() - array[j].getP2().getX() > -.00001) &&
+						(array[j].getP1().getX() - array[j].getP2().getX() < .00001) ){ // other vertical sides exist
 					return true;
 				}
 			}
@@ -476,7 +478,7 @@ public class Boundary implements Serializable {
 			double m = ( separatingSide.getY1() - separatingSide.getY2() )/( separatingSide.getX1() - separatingSide.getX2() );
 			int b = (int)( separatingSide.getY1() - ( m*separatingSide.getX1() ) );
 			
-			if (m==0)
+			if ( (m > -.00001) && (m < .00001))
 				return new Line2D.Float( 20 , 0 , 20 , yMax );
 	
 			else { // y=mx+b    y = m*(x - Xoffset ) + yOffset    (y-b)/( x-Xoffset )

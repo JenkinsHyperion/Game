@@ -76,7 +76,6 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     	g2.dispose();
     }
     protected void getImageDimensions() { 
-
         width = image.getWidth(null);
         height = image.getHeight(null); 
     }

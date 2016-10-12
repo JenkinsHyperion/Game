@@ -4,6 +4,8 @@ import engine.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.*;
 
@@ -29,25 +31,81 @@ public class WorldGeometry {
 	
 	private EditorPanel editorPanel;
 	private Board board;
-	private ArrayList<Point> vertices = new ArrayList<>();
+	private ArrayList<Point> vertexPoints = new ArrayList<>();
+	private ArrayList<Line2D.Double> surfaceLines = new ArrayList<>();
 	private ArrayList<WorldGeometry> worldGeometryEntities = new ArrayList<>();
-	private BufferedImage ghostVertex;
+	private BufferedImage ghostVertexPic;
+	private BufferedImage vertexPic;
+	private int offsetX; //actual point will be within the square's center, so square must be offset.
+	private int offsetY;
 	
 	public WorldGeometry(EditorPanel editorPanelRef, Board board) { 
-		createGhostVertex();
+		ghostVertexPic = (BufferedImage)createVertexPic(0.5f);
+		vertexPic = (BufferedImage)createVertexPic(1.0f);
+		/* test section adding vertices to list
+		 * 
+		 */
+		vertexPoints.add(new Point(120, 30));
+		vertexPoints.add(new Point(30, 40));
+		vertexPoints.add(new Point(40, 50));
+		vertexPoints.add(new Point(50, 60));
+	}
+
+	public Image createVertexPic(float opacity) {
+		BufferedImage temp = new BufferedImage(6,6, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2 = temp.createGraphics();
+		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
+		g2.setColor(Color.WHITE);
+		g2.fillRect(0, 0, 6, 6);
+		g2.dispose();
+		return temp;
+	}
+	public void drawGhostVertex(Graphics g, Point pos){
+		Graphics2D g2 = (Graphics2D)g.create();
+		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .5f));
+		g2.drawImage(vertexPic, pos.x, pos.y, null);
+		if (vertexPoints.size() > 0) {		
+			g2.setColor(Color.PINK);
+			g2.draw(new Line2D.Double(vertexPoints.get(vertexPoints.size()-1), pos));
+		}
+		g2.dispose();
+	}
+	public void drawVertexPoints(Graphics g) {
+		Graphics2D g2 = (Graphics2D) g;
+		for (Point point: vertexPoints) {
+			g2.drawImage(vertexPic, point.x-3, point.y-3, null);
+		}
+	}
+	public void drawSurfaceLines(Graphics g) {
+		Graphics2D g2 = (Graphics2D)g;
+		g2.setColor(Color.MAGENTA);
+		for (int i = 0; i < vertexPoints.size()-1; i++) {
+			g2.draw(new Line2D.Double(vertexPoints.get(i), vertexPoints.get(i+1)));
+		}
+	}
+	public Image getGhostVertexPic() {
+		return ghostVertexPic;
+	}
+	public Image getVertexPic() {
+		return vertexPic;
+	}
+	public void addVertex(int x, int y) {
+		//deselectAllVertices()   (for when vertices can be selected)
+		vertexPoints.add(new Point(x, y));
+	}
+
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		addVertex(e.getX(),e.getY());
+	}
+
+	public void mouseDragged(MouseEvent e) {
+		// TODO Auto-generated method stub
 		
 	}
-	
 
-	public Image createGhostVertex() {
-		ghostVertex = new BufferedImage(5,5, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g2 = ghostVertex.createGraphics();
-		g2.setColor(Color.WHITE);
-		g2.fillRect(0, 0, 5, 5);
-		g2.dispose();
-		return ghostVertex;
-	}
-	public Image getGhostVertext() {
-		return ghostVertex;
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 }

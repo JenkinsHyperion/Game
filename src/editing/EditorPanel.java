@@ -44,13 +44,14 @@ public class EditorPanel extends JPanel {
 	public int clickPositionYOffset;
 	public int mode;
 	private String newEntityPath;
-	public boolean entityPlacementMode;
+	//public boolean entityPlacementMode;
 	public final Dimension minimizedSize = new Dimension(200,20);
 	public final Dimension propPanelDefaultSize = new Dimension(215,125);
 	public final Dimension allEntitiesComboBoxDefSize = new Dimension(120,20);
 	protected int currentEntIndex;
 	public boolean testFlag;
 	protected Board board;
+	private WorldGeometry worldGeom;
 	private Sprite ghostSprite; 
 	private Point editorMousePos;
     protected EntityStatic currentSelectedEntity;
@@ -71,6 +72,7 @@ public class EditorPanel extends JPanel {
 	protected JButton loadButton;
 	protected JButton saveButton;
 	protected JButton deleteEntButton;
+	protected JButton worldGeomButton;
 
 	//Panels
 	private JPanel entitiesComboBoxPanel;
@@ -86,7 +88,9 @@ public class EditorPanel extends JPanel {
 
 	public EditorPanel( Board boardInstance) {
 		//initializing some of the fields
+		this.board = boardInstance;
 		mode = EditorPanel.DEFAULT_MODE;
+		worldGeom = new WorldGeometry(this, boardInstance);
 		newEntityPath = "";
 		selectedBox = new Rectangle();
 		//entityPlacementMode = false;
@@ -94,7 +98,7 @@ public class EditorPanel extends JPanel {
 		ghostSprite = SpriteNull.getNullSprite();
 		testFlag = true;
         clickPosition = new Point(0,0);
-		this.board = boardInstance;
+
 		//set default selected entity so it's not null
 		setCurrentSelectedEntity(board.getStaticEntities().get(0)); 
 		
@@ -149,12 +153,21 @@ public class EditorPanel extends JPanel {
 				deleteEntity(allEntitiesComboBox.getSelectedIndex());
 			} 		
 		});
+		worldGeomButton = new JButton("World Geom");
+		worldGeomButton.setFocusable(false);
+		worldGeomButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mode = WORLDGEOM_MODE;
+			}
+		});
 		// inline panel for button
 		buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		buttonPanel.setBackground(Color.GRAY);
 	    buttonPanel.setBorder(BorderFactory.createTitledBorder("buttonPanelTest"));
-		buttonPanel.setPreferredSize(new Dimension(190, 50));		
+		//buttonPanel.setPreferredSize(new Dimension(190, 50));		
 		buttonPanel.add(deleteEntButton);
+		buttonPanel.add(worldGeomButton);
 
 		// ## The drop down box for the list of all entities in board ###	
 		allEntitiesComboBox = new JComboBox<>(staticEntityStringArr);
@@ -243,6 +256,7 @@ public class EditorPanel extends JPanel {
 	} //end of inner class
 	
 	public void mousePressed(MouseEvent e) {
+		worldGeom.mousePressed(e);
 		if (!mouseClick) {
 			clickPosition.setLocation(e.getX(),e.getY());
 			mouseClick = true;
@@ -290,6 +304,7 @@ public class EditorPanel extends JPanel {
 		}
 	}
 	public void mouseDragged(MouseEvent e) {
+		worldGeom.mouseDragged(e);
 		if (mode == EditorPanel.DEFAULT_MODE) {
 			setMousePosLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
 
@@ -305,6 +320,7 @@ public class EditorPanel extends JPanel {
 		setEditorMousePos(e.getX(), e.getY());
 	}
 	public void mouseReleased(MouseEvent e) {	
+		worldGeom.mouseReleased(e);
 		if ( currentSelectedEntity == null) {
 			deselectAllEntities();
 		}
@@ -578,6 +594,9 @@ public class EditorPanel extends JPanel {
 	}
 	public EntityStatic getCurrentSelectedEntity() {
 		return currentSelectedEntity; 
+	}
+	public WorldGeometry getWorldGeom() {
+		return this.worldGeom;
 	}
 	
 

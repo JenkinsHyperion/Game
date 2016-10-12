@@ -166,14 +166,16 @@ public class Board extends JPanel implements Runnable {
         		checkCollisions();
         	}
         };*/
-        TimerTask repaintUpdateTask = new TimerTask() {
+  /*      TimerTask repaintUpdateTask = new TimerTask() {
         	@Override
         	public void run() {
         		repaint();
         	}
-        };
+        }; */
         //Trying out Swing timer instead of util Timer
+
         ActionListener repaintUpdateTaskSwing = new ActionListener() {
+        	@Override
         	public void actionPerformed(ActionEvent e) {
         		repaint();
         	}
@@ -181,7 +183,7 @@ public class Board extends JPanel implements Runnable {
         Timer repaintTimer = new Timer(16, repaintUpdateTaskSwing);
         repaintTimer.setRepeats(true);
         repaintTimer.start();
- 
+
         updateEntitiesTimer.scheduleAtFixedRate( updateEntitiesTask , 0 , 16); // fire task every 16 ms
         //collisionTimer.scheduleAtFixedRate( collisionUpdateTask , 0 , 5);
         //repaintTimer.scheduleAtFixedRate( repaintUpdateTask, 0, 16);
@@ -195,6 +197,11 @@ public class Board extends JPanel implements Runnable {
         super.paintComponent(g);
         drawObjects(g);
         drawGhostSprite(g, editorPanel.getGhostSprite(), editorPanel.getEditorMousePos());
+        if (editorPanel.mode == EditorPanel.WORLDGEOM_MODE) {
+        	editorPanel.getWorldGeom().drawGhostVertex(g, editorPanel.getEditorMousePos());
+        	editorPanel.getWorldGeom().drawVertexPoints(g);
+        	editorPanel.getWorldGeom().drawSurfaceLines(g);
+        }
     }
     
     /* ##################
@@ -532,8 +539,10 @@ public class Board extends JPanel implements Runnable {
             	}
             }
             if (key == KeyEvent.VK_ESCAPE) {
-            	editorPanel.entityPlacementMode = false;
+            	//editorPanel.entityPlacementMode = false;
+            	editorPanel.mode = EditorPanel.DEFAULT_MODE;
             	editorPanel.nullifyGhostSprite();
+            	//editorPanel.nullifyGhostVertex();
             }            
         }
     }

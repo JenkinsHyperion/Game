@@ -33,7 +33,7 @@ public class WorldGeometry {
 	private Board board;
 	private ArrayList<Point> vertexPoints = new ArrayList<>();
 	private ArrayList<Line2D.Double> surfaceLines = new ArrayList<>();
-	private ArrayList<WorldGeometry> worldGeometryEntities = new ArrayList<>();
+	//private ArrayList<WorldGeometry> worldGeometryEntities = new ArrayList<>();
 	private BufferedImage ghostVertexPic;
 	private BufferedImage vertexPic;
 	private boolean keypressSHIFT;
@@ -42,11 +42,13 @@ public class WorldGeometry {
 	private int offsetX; //actual point will be within the square's center, so square must be offset.
 	private int offsetY;
 	private int yClamp;
-	public boolean yClampGate;
+	private boolean vertexPlacementAllowed;
 	
 	public WorldGeometry(EditorPanel editorPanelRef, Board board) { 
 		this.editorPanel = editorPanelRef;
 		this.board = board;
+		vertexPlacementAllowed = true;
+		updateSurfaceLines();
 		worldGeomMousePos = new Point();
 		keypressSHIFT = false;
 		ghostVertexPic = (BufferedImage)createVertexPic(0.5f);
@@ -68,9 +70,28 @@ public class WorldGeometry {
 		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .5f));
 		//the -3 accounts for the offset
 		g2.drawImage(vertexPic, worldGeomMousePos.x - 3, worldGeomMousePos.y - 3, null);
-		if (vertexPoints.size() > 0) {		
-			g2.setColor(Color.PINK);
-			g2.draw(new Line2D.Double(vertexPoints.get(vertexPoints.size()-1), worldGeomMousePos));
+		if (vertexPoints.size() > 0) {	
+			//Line2D.Double ghostLine = new Line2D.Double(vertexPoints.get(vertexPoints.size()-1), worldGeomMousePos);
+			//offset by a pixel because it was always intersecting with previous line in list
+			Line2D.Double ghostLine = new Line2D.Double(vertexPoints.get(vertexPoints.size()-1).getX()+3, vertexPoints.get(vertexPoints.size()-1).getY(),
+						worldGeomMousePos.getX(),worldGeomMousePos.getY());
+			// if checkForIntersection(ghostLine, new Line2D.Double(vertexPoints(size()-2, vertexPoints(size()-1)
+			if (vertexPoints.size() > 1) { //there exists at least one line already drawn:
+				
+				if (checkIfLinesIntersect(ghostLine)) {  //one of the lines are crossing
+					g2.setColor(Color.RED);
+					//canCreateVertices(false) <---do later EDIT: done
+					vertexPlacementAllowed = false;
+				}
+				else {								// nothing's intersecting, ready to place another point
+					g2.setColor(Color.PINK);
+					vertexPlacementAllowed = true;
+				}
+			}
+			else {
+				g2.setColor(Color.PINK);
+			}
+			g2.draw(ghostLine);
 		}
 		g2.dispose();
 	}
@@ -82,11 +103,28 @@ public class WorldGeometry {
 		g2.setColor(Color.WHITE);
 		g2.drawString(Boolean.toString(keypressSHIFT), 50, 50);
 	}
+	/** True if any intersection is found across all lines in the surfaceLines arrayList<> 
+	 */
+	public boolean checkIfLinesIntersect(Line2D.Double testLine){
+		for (Line2D.Double lineIterator: surfaceLines) {
+			if (lineIterator.intersectsLine(testLine))
+				return true;
+		}
+		return false;
+		
+	}
 	public void drawSurfaceLines(Graphics g) {
 		Graphics2D g2 = (Graphics2D)g;
 		g2.setColor(Color.MAGENTA);
 		for (int i = 0; i < vertexPoints.size()-1; i++) {
-			g2.draw(new Line2D.Double(vertexPoints.get(i), vertexPoints.get(i+1)));
+			Line2D.Double tempLine = new Line2D.Double(vertexPoints.get(i), vertexPoints.get(i+1));
+			g2.draw(tempLine);
+		}
+	}
+	public void updateSurfaceLines() {
+		for (int i = 0; i < vertexPoints.size()-1; i++) {
+			Line2D.Double tempLine = new Line2D.Double(vertexPoints.get(i), vertexPoints.get(i+1));
+			surfaceLines.add(tempLine);
 		}
 	}
 	public Image getGhostVertexPic() {
@@ -98,6 +136,7 @@ public class WorldGeometry {
 	public void addVertex(int x, int y) {
 		//deselectAllVertices()   (for when vertices can be selected)
 		vertexPoints.add(new Point(x, y));
+		updateSurfaceLines();
 	}
 	public void removeVertex(Point selectedPoint) {
 		
@@ -107,8 +146,11 @@ public class WorldGeometry {
 	}
 	public void mousePressed(MouseEvent e) {
 		// TODO Auto-generated method stub
-		if (editorPanel.mode== EditorPanel.WORLDGEOM_MODE)
-			addVertex(worldGeomMousePos.x, worldGeomMousePos.y);
+		if (editorPanel.mode== EditorPanel.WORLDGEOM_MODE) //might be reduntant, leave for now
+		{
+			if (vertexPlacementAllowed == true)
+				addVertex(worldGeomMousePos.x, worldGeomMousePos.y);
+		}
 	}
 
 	public void mouseDragged(MouseEvent e) {

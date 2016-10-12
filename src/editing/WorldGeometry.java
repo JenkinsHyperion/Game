@@ -36,19 +36,22 @@ public class WorldGeometry {
 	private ArrayList<WorldGeometry> worldGeometryEntities = new ArrayList<>();
 	private BufferedImage ghostVertexPic;
 	private BufferedImage vertexPic;
+	private boolean keypressSHIFT;
+	private Point worldGeomMousePos;
+	
 	private int offsetX; //actual point will be within the square's center, so square must be offset.
 	private int offsetY;
+	private int yClamp;
+	public boolean yClampGate;
 	
 	public WorldGeometry(EditorPanel editorPanelRef, Board board) { 
+		this.editorPanel = editorPanelRef;
+		this.board = board;
+		worldGeomMousePos = new Point();
+		keypressSHIFT = false;
 		ghostVertexPic = (BufferedImage)createVertexPic(0.5f);
 		vertexPic = (BufferedImage)createVertexPic(1.0f);
-		/* test section adding vertices to list
-		 * 
-		 */
-		vertexPoints.add(new Point(120, 30));
-		vertexPoints.add(new Point(30, 40));
-		vertexPoints.add(new Point(40, 50));
-		vertexPoints.add(new Point(50, 60));
+
 	}
 
 	public Image createVertexPic(float opacity) {
@@ -60,13 +63,14 @@ public class WorldGeometry {
 		g2.dispose();
 		return temp;
 	}
-	public void drawGhostVertex(Graphics g, Point pos){
+	public void drawGhostVertex(Graphics g){
 		Graphics2D g2 = (Graphics2D)g.create();
 		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .5f));
-		g2.drawImage(vertexPic, pos.x, pos.y, null);
+		//the -3 accounts for the offset
+		g2.drawImage(vertexPic, worldGeomMousePos.x - 3, worldGeomMousePos.y - 3, null);
 		if (vertexPoints.size() > 0) {		
 			g2.setColor(Color.PINK);
-			g2.draw(new Line2D.Double(vertexPoints.get(vertexPoints.size()-1), pos));
+			g2.draw(new Line2D.Double(vertexPoints.get(vertexPoints.size()-1), worldGeomMousePos));
 		}
 		g2.dispose();
 	}
@@ -75,6 +79,8 @@ public class WorldGeometry {
 		for (Point point: vertexPoints) {
 			g2.drawImage(vertexPic, point.x-3, point.y-3, null);
 		}
+		g2.setColor(Color.WHITE);
+		g2.drawString(Boolean.toString(keypressSHIFT), 50, 50);
 	}
 	public void drawSurfaceLines(Graphics g) {
 		Graphics2D g2 = (Graphics2D)g;
@@ -93,19 +99,69 @@ public class WorldGeometry {
 		//deselectAllVertices()   (for when vertices can be selected)
 		vertexPoints.add(new Point(x, y));
 	}
-
+	public void removeVertex(Point selectedPoint) {
+		
+	}
+	public void clearAllVertices() {
+		vertexPoints.clear();
+	}
 	public void mousePressed(MouseEvent e) {
 		// TODO Auto-generated method stub
-		addVertex(e.getX(),e.getY());
+		if (editorPanel.mode== EditorPanel.WORLDGEOM_MODE)
+			addVertex(worldGeomMousePos.x, worldGeomMousePos.y);
 	}
 
 	public void mouseDragged(MouseEvent e) {
 		// TODO Auto-generated method stub
 		
 	}
+	public void mouseMoved(MouseEvent e) {
+		if (keypressSHIFT) {
+			if (vertexPoints.size() > 0)
+				worldGeomMousePos.setLocation(e.getX(), vertexPoints.get(vertexPoints.size()-1).getY());
+			else
+				worldGeomMousePos.setLocation(e.getX(), e.getY());
+		}
+		else //shift isn't held; default running condition
+			worldGeomMousePos.setLocation(e.getX(), e.getY());
+			
+	}
 
 	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	//KEY EVENTS PASSED IN FROM BOARD
+	public void keyPressed(KeyEvent e){
+		int key = e.getKeyCode();
+		if (key == KeyEvent.VK_SHIFT && !keypressSHIFT) {
+			keypressSHIFT = true;
+			//yClampGate = true;
+			//setYClamp(worldGeomMousePos.getY();
+			//yClampGate = false;
+		}
+	}
+	public void keyReleased(KeyEvent e) {
+		int key = e.getKeyCode();
+		if (key == KeyEvent.VK_SHIFT && keypressSHIFT)
+			keypressSHIFT = false;
+	}
+	/* public void setYClamp(int yClamp){
+		this.yClamp = yClamp;
+		yClampGate = false;
+	} */
+	public void setShiftHeld(boolean state){
+		this.keypressSHIFT = state;
+	}
+	public boolean getShiftHeld() {
+		return this.keypressSHIFT;
+	}
+	public Point getWorldGeomMousePos() {
+		return worldGeomMousePos;
+	}
+
+	public void setWorldGeomMousePos(Point pos) {
+		this.worldGeomMousePos = pos;
 	}
 }

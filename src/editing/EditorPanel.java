@@ -256,7 +256,7 @@ public class EditorPanel extends JPanel {
 	} //end of inner class
 	
 	public void mousePressed(MouseEvent e) {
-		worldGeom.mousePressed(e);
+
 		if (!mouseClick) {
 			clickPosition.setLocation(e.getX(),e.getY());
 			mouseClick = true;
@@ -304,7 +304,7 @@ public class EditorPanel extends JPanel {
 		}
 	}
 	public void mouseDragged(MouseEvent e) {
-		worldGeom.mouseDragged(e);
+
 		if (mode == EditorPanel.DEFAULT_MODE) {
 			setMousePosLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
 
@@ -320,7 +320,7 @@ public class EditorPanel extends JPanel {
 		setEditorMousePos(e.getX(), e.getY());
 	}
 	public void mouseReleased(MouseEvent e) {	
-		worldGeom.mouseReleased(e);
+		
 		if ( currentSelectedEntity == null) {
 			deselectAllEntities();
 		}

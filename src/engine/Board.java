@@ -198,7 +198,7 @@ public class Board extends JPanel implements Runnable {
         drawObjects(g);
         drawGhostSprite(g, editorPanel.getGhostSprite(), editorPanel.getEditorMousePos());
         if (editorPanel.mode == EditorPanel.WORLDGEOM_MODE) {
-        	editorPanel.getWorldGeom().drawGhostVertex(g, editorPanel.getEditorMousePos());
+        	editorPanel.getWorldGeom().drawGhostVertex(g);
         	editorPanel.getWorldGeom().drawVertexPoints(g);
         	editorPanel.getWorldGeom().drawSurfaceLines(g);
         }
@@ -399,20 +399,24 @@ public class Board extends JPanel implements Runnable {
   		public void mousePressed(MouseEvent e)
   		{  	
   			editorPanel.mousePressed(e);
+  			editorPanel.getWorldGeom().mousePressed(e);
   		}
   		@Override
   		public void mouseDragged(MouseEvent e) 
   		{ 		
   			editorPanel.mouseDragged(e);
+  			editorPanel.getWorldGeom().mouseDragged(e);
   		}
   		@Override
   		public void mouseMoved(MouseEvent e){
   			editorPanel.mouseMoved(e);
+  			editorPanel.getWorldGeom().mouseMoved(e);
   		}
   		@Override
   		public void mouseReleased(MouseEvent e) 
   		{	
   			editorPanel.mouseReleased(e);
+  			editorPanel.getWorldGeom().mouseReleased(e);
   		}
   			/*if (currentSelectedEntity != null)
   				
@@ -515,12 +519,13 @@ public class Board extends JPanel implements Runnable {
         @Override
         public void keyReleased(KeyEvent e) {
             player.keyReleased(e);
+            editorPanel.getWorldGeom().keyReleased(e);           
         }
 
         @Override
         public void keyPressed(KeyEvent e) {
             player.keyPressed(e);
-            
+            editorPanel.getWorldGeom().keyPressed(e);
             int key = e.getKeyCode();
 
             if (key == KeyEvent.VK_F2) {
@@ -542,8 +547,9 @@ public class Board extends JPanel implements Runnable {
             	//editorPanel.entityPlacementMode = false;
             	editorPanel.mode = EditorPanel.DEFAULT_MODE;
             	editorPanel.nullifyGhostSprite();
+            	editorPanel.getWorldGeom().clearAllVertices();
             	//editorPanel.nullifyGhostVertex();
-            }            
+            }   
         }
     }
     

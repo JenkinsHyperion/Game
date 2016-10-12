@@ -105,23 +105,23 @@ public class PropertiesPanel extends JPanel implements ActionListener,ItemListen
 		String command = e.getActionCommand();
 		//for the radio button panels
 		if (command.equals("COL_TRUE")) {
-			ep.getThisProperty(Property.COL_STATE).setEntityCollidableState(ep.getSelectedEntity(), true);
+			ep.getThisProperty(Property.COL_STATE).setEntityCollidableState(ep.getCurrentSelectedEntity(), true);
 			updateCurrentStatusLabel(Property.COL_STATE);
 		}
 		else if(command.equals("COL_FALSE")) {
-			ep.getThisProperty(Property.COL_STATE).setEntityCollidableState(ep.getSelectedEntity(), false);
+			ep.getThisProperty(Property.COL_STATE).setEntityCollidableState(ep.getCurrentSelectedEntity(), false);
 			updateCurrentStatusLabel(Property.COL_STATE);
 		}
 		else if(e.getSource() == xPosTextField){
 			/*
 			 * Here, set the xPosition field of the current propertyList's xPos property */
-			ep.getThisProperty(Property.XPOS).setEntityXpos(ep.getSelectedEntity(), Integer.parseInt(command));
+			ep.getThisProperty(Property.XPOS).setEntityXpos(ep.getCurrentSelectedEntity(), Integer.parseInt(command));
 			updateCurrentStatusLabel(Property.XPOS);
 		}
 		else if(e.getSource() == yPosTextField){
 			/*
 			 * Here, set the yPosition field of the current propertyList's yPos property */
-			ep.getThisProperty(Property.YPOS).setEntityYpos(ep.getSelectedEntity(), Integer.parseInt(command));
+			ep.getThisProperty(Property.YPOS).setEntityYpos(ep.getCurrentSelectedEntity(), Integer.parseInt(command));
 			updateCurrentStatusLabel(Property.YPOS);
 		}
 		else if(e.getSource() == entNameTextField){
@@ -132,7 +132,7 @@ public class PropertiesPanel extends JPanel implements ActionListener,ItemListen
 				JOptionPane.showMessageDialog(null, "Entity name already taken. Try again.");				
 			} 
 			else {
-				ep.getThisProperty(Property.ENTNAME).setEntityName(ep.getSelectedEntity(), command);
+				ep.getThisProperty(Property.ENTNAME).setEntityName(ep.getCurrentSelectedEntity(), command);
 				updateCurrentStatusLabel(Property.ENTNAME);
 				ep.updateAllEntitiesComboBox();				
 			}
@@ -158,14 +158,14 @@ public class PropertiesPanel extends JPanel implements ActionListener,ItemListen
 	}
 	public void updateCurrentStatusLabel(int propType) {
 		if (propType == Property.COL_STATE) {
-			collisionStatusLabel.setText(String.valueOf(ep.getThisProperty(propType).getEntityCollidableState(ep.getSelectedEntity())) );
+			collisionStatusLabel.setText(String.valueOf(ep.getThisProperty(propType).getEntityCollidableState(ep.getCurrentSelectedEntity())) );
 		}
 		else if (propType == Property.XPOS)
-			xPosStatusLabel.setText(Integer.toString(ep.getThisProperty(propType).getEntityXpos(ep.getSelectedEntity())) );
+			xPosStatusLabel.setText(Integer.toString(ep.getThisProperty(propType).getEntityXpos(ep.getCurrentSelectedEntity())) );
 		else if (propType == Property.YPOS)
-			yPosStatusLabel.setText(Integer.toString(ep.getThisProperty(propType).getEntityYpos(ep.getSelectedEntity())) );
+			yPosStatusLabel.setText(Integer.toString(ep.getThisProperty(propType).getEntityYpos(ep.getCurrentSelectedEntity())) );
 		else if (propType == Property.ENTNAME)
-			entNameStatusLabel.setText(ep.getThisProperty(propType).getEntityName(ep.getSelectedEntity()) );
+			entNameStatusLabel.setText(ep.getThisProperty(propType).getEntityName(ep.getCurrentSelectedEntity()) );
 	}
 // ###### Panel creation section  ###########
 	// will create true/false (radiobutton), text field, and others here:
@@ -181,7 +181,7 @@ public class PropertiesPanel extends JPanel implements ActionListener,ItemListen
 		rbFalse.setActionCommand("COL_FALSE");
 		rbFalse.addActionListener(this);	
 		//initial check to correctly choose true or false for property
-		if (ep.getThisProperty(Property.COL_STATE).getEntityCollidableState(ep.getSelectedEntity()) == true) {
+		if (ep.getThisProperty(Property.COL_STATE).getEntityCollidableState(ep.getCurrentSelectedEntity()) == true) {
 			rbTrue.setSelected(true);
 			updateCurrentStatusLabel(Property.COL_STATE);
 		}
@@ -232,7 +232,7 @@ public class PropertiesPanel extends JPanel implements ActionListener,ItemListen
 	protected JPanel createEntTypePanel(){
 		JPanel entTypePanel = new JPanel();
 		collisionStatusLabelcursed = new JLabel();
-		String entTypeString = ep.getThisProperty(Property.ENTTYPE).getEntityType(ep.getSelectedEntity());
+		String entTypeString = ep.getThisProperty(Property.ENTTYPE).getEntityType(ep.getCurrentSelectedEntity());
 		entTypePanel.add(new JLabel(entTypeString), BorderLayout.PAGE_END);
 		return entTypePanel;
 	}

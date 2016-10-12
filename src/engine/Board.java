@@ -24,7 +24,7 @@ public class Board extends JPanel implements Runnable {
 
 	private double currentDuration;
 	
-	private Timer timer;
+	//private Timer timer;
 	
 	private java.util.Timer updateEntitiesTimer;
 	private java.util.Timer repaintTimer;
@@ -40,7 +40,7 @@ public class Board extends JPanel implements Runnable {
     
     protected Point clickPosition;
     protected boolean mouseClick = false;
-    public Rectangle selectedBox;
+
     
     protected MouseHandlerClass myMouseHandler;
     public final int ICRAFT_X = 170;
@@ -49,7 +49,7 @@ public class Board extends JPanel implements Runnable {
     public static int B_HEIGHT;// = 300;
     private boolean debug1On = false; 
     private boolean debug2On = false; 
-    protected EntityStatic currentSelectedEntity;
+
     public EntityStatic currentDebugEntity;
     
     private final int DELAY = 10;
@@ -109,7 +109,7 @@ public class Board extends JPanel implements Runnable {
         player = new PlayerCharacter(ICRAFT_X, ICRAFT_Y,this);
         player.getEntitySprite().setVisible(true);
 
-        selectedBox = new Rectangle();
+        
         clickPosition = new Point(0,0);
         //## TESTING ##
         //Manually add test objects here
@@ -133,16 +133,14 @@ public class Board extends JPanel implements Runnable {
         
         p = new PaintOverlay(200,0,150,60);
         initBullets();
-
-        
+    
         //THREAD AREA
         //If what I read was correct, timers all have their own threads.
         //The "tasks" below will fire at each respective timer's "scheduleAtFixedRate", putting them
         //each on their own threads. There is a thread for updating entity positions, updating collisions, and the rendering.
+       
         updateEntitiesTimer = new java.util.Timer(); //create timer
-        repaintTimer = new java.util.Timer();
-        
-        
+        //repaintTimer = new java.util.Timer();    
         TimerTask updateEntitiesTask = new TimerTask() {
         	@Override
         	public void run(){
@@ -150,24 +148,20 @@ public class Board extends JPanel implements Runnable {
         		updateEntities();
 
         	}
-        };
-        
+        };      
 /* ########################################################################################################################
  * 
- * 		TIMER AND PAINT FUNCTIONALITY - LATER MOVED TO RENDERIGN ENGINE
+ * 		TIMER AND PAINT FUNCTIONALITY - LATER MOVED TO RENDERING ENGINE
  * 
  * ########################################################################################################################
- */
-        
+ */      
         //will have to experiment how often collisions should be checked.
         //I get strange anomolies when setting the update rate (below in "scheduleAtFixedRate(collisionUpdateTask)" too
         // low or too high. We might want to try implementing something that puts the thread to sleep
         //	 when it can guarantee there are no collisions happening whatsoever. Which wouldn't be often anyway I guess.
         /*TimerTask collisionUpdateTask = new TimerTask() {
-
         	@Override
         	public void run() {
-
         		//RUN COLLISION DETECTION
         		checkCollisions();
         	}
@@ -178,14 +172,22 @@ public class Board extends JPanel implements Runnable {
         		repaint();
         	}
         };
-        
+        //Trying out Swing timer instead of util Timer
+        ActionListener repaintUpdateTaskSwing = new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		repaint();
+        	}
+        };
+        Timer repaintTimer = new Timer(16, repaintUpdateTaskSwing);
+        repaintTimer.setRepeats(true);
+        repaintTimer.start();
+ 
         updateEntitiesTimer.scheduleAtFixedRate( updateEntitiesTask , 0 , 16); // fire task every 16 ms
         //collisionTimer.scheduleAtFixedRate( collisionUpdateTask , 0 , 5);
-        repaintTimer.scheduleAtFixedRate( repaintUpdateTask, 0, 16);
+        //repaintTimer.scheduleAtFixedRate( repaintUpdateTask, 0, 16);
         
-
-        //collisionThread.start();
         //updateBoard();
+        //collisionThread.start();
     }
     
     @Override	
@@ -278,12 +280,9 @@ public class Board extends JPanel implements Runnable {
 	        for (EntityStatic stat : staticEntitiesList) {
 	        	//g.drawImage(stat.getEntitySprite().getImage(), 
 	        	//		stat.getSpriteOffsetX() + stat.getX(), 
-	        	//		stat.getSpriteOffsetY() + stat.getY(), this);
-	        	
-	        	stat.getEntitySprite().draw(g);
-
-	        	drawEditorSelectedRectangle(stat, g, selectedBox);
-
+	        	//		stat.getSpriteOffsetY() + stat.getY(), this);	        	
+	        	stat.getEntitySprite().drawSprite(g);
+	        	editorPanel.drawEditorSelectedRectangle(stat, g);
 	        }
     	}
         //Draw all dynamic (moving) entities from list (ex. bullets)
@@ -331,21 +330,7 @@ public class Board extends JPanel implements Runnable {
     }
 
     
-    public void drawEditorSelectedRectangle(EntityStatic stat, Graphics g, Rectangle r) {
-	    if (currentSelectedEntity != null) {	
-	    	if (stat == currentSelectedEntity) {
-	    		//int width = stat.getObjectGraphic().getImage().getWidth(null);
-	        	//int height = stat.getObjectGraphic().getImage().getHeight(null);
-	    		Graphics2D g2 = (Graphics2D)g;
-	        	g2.setColor(Color.BLUE);
-	        	Stroke oldStroke = g2.getStroke();
-	        	float thickness = 2;
-	        	g2.setStroke(new BasicStroke(thickness));
-	    		g2.drawRect(stat.getX() + stat.getSpriteOffsetX(), stat.getY() + stat.getSpriteOffsetY(), r.width, r.height);
-	    		g2.setStroke(oldStroke);
-	    	}
-	    }
-    }
+   
     public void drawGhostSprite(Graphics g, Sprite ghost, Point mousePos) {
     	ghost.editorDraw(g, mousePos);
     }
@@ -843,14 +828,7 @@ public class Board extends JPanel implements Runnable {
 	public ArrayList<EntityStatic> getStaticEntities(){ return staticEntitiesList; }
 	public ArrayList<EntityDynamic> getDynamicEntities(){ return dynamicEntitiesList; }
 	public ArrayList<EntityPhysics> getPhysicsEntities(){ return physicsEntitiesList; }
-	public EntityStatic getCurrentSelectedEntity() { return currentSelectedEntity; }
-	
-	public void setCurrentSelectedEntity(EntityStatic newSelectedEntity){
-		currentSelectedEntity = newSelectedEntity;
-	}
 
-
-	
 	public void transferEditorPanel(EditorPanel instance){
 		this.editorPanel = instance; 
 	}

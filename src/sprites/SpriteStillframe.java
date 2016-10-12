@@ -64,7 +64,7 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     }
     
     @Override
-    public void draw(Graphics g){
+    public void drawSprite(Graphics g){
     	g.drawImage(this.getImage(), this.owner.getX() + spriteOffsetX, this.owner.getY() + spriteOffsetY, null); //null is observer
     }
     @Override

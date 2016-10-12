@@ -131,7 +131,7 @@ public class Tracer extends EntityDynamic{ // Can extend either EntityStatic or 
     	//beam = new Line2D.Float(originPoint,endPoint);
        	
     	g2.draw(beam); 
-    	aim.getEntitySprite().draw(g2); //draw crosshair
+    	aim.getEntitySprite().drawSprite(g2); //draw crosshair
 
     }
     

@@ -482,7 +482,10 @@ public class EditorPanel extends JPanel {
 			newEnt = new Ground(x, y, offsetX, offsetY, path);
 		}
 		else if (path.toLowerCase().contains("grass")) {
-			newEnt = new Grass(x, y, offsetX, offsetY, path);
+			//newEnt = new Grass(x, y, offsetX, offsetY, path);
+			//
+			newEnt = EntityComposed.buildStaticEntity( x , y , EntityComposed.INTANGIBLE );
+			newEnt.loadSprite("grass01.png");
 		}
 		else {
 			newEnt = new ObjectTemplate(x, y, offsetX, offsetY);

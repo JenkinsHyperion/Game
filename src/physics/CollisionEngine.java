@@ -126,7 +126,7 @@ public class CollisionEngine implements Serializable{
     		if (!hasActiveCollision(collidable1.getOwner(),collidable2.getOwner())) { 
 			// if not, add new collision event
 			//int index = currentBoard.getStaticEntities().size() + 1 ;
-    			System.out.println( "Collision detected" );
+    			//System.out.println( "Collision detected" );
     			collisionsList.add(new CollisionPlayerStaticSAT( collidable1 , collidable2 ) ); 
 			
 			} 	

@@ -32,7 +32,7 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
     // IMPLEMENTED METHODS
 
     @Override
-    public void draw(Graphics g){
+    public void drawSprite(Graphics g){
     	//g.drawImage(this.getImage(), x, y, observer)
     }
     @Override

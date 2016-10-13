@@ -25,7 +25,7 @@ public class Board extends JPanel implements Runnable {
 
 	private double currentDuration;
 	
-	private Timer timer;
+	//private Timer timer;
 	
 	private java.util.Timer updateEntitiesTimer;
 	private java.util.Timer repaintTimer;
@@ -41,17 +41,17 @@ public class Board extends JPanel implements Runnable {
     
     protected Point clickPosition;
     protected boolean mouseClick = false;
-    public Rectangle selectedBox;
+
     
-    protected MouseHandlerClass handler;
+    protected MouseHandlerClass myMouseHandler;
     public final int ICRAFT_X = 170;
     public final int ICRAFT_Y = 100;
     public static int B_WIDTH;// = 400;
     public static int B_HEIGHT;// = 300;
     private boolean debug1On = false; 
     private boolean debug2On = false; 
-    protected EntityStatic currentSelectedEntity;
-    protected EntityStatic currentDebugEntity;
+
+    public EntityStatic currentDebugEntity;
     
     private final int DELAY = 10;
     
@@ -88,16 +88,14 @@ public class Board extends JPanel implements Runnable {
     	
     	
     	//EntityStatic test = new EntityStatic.Solid();
-    	
-    	
     	//currentSelectedEntity = new EntityStatic(0,0 );  
     	//currentDebugEntity = new EntityStatic(0,0 ); 
     	//or currentSelectedEntity = new Object();
     	currentDuration = System.currentTimeMillis();
         addKeyListener(new TAdapter());
-        handler = new MouseHandlerClass();
-  		addMouseListener(handler);
-  		addMouseMotionListener(handler);
+        myMouseHandler = new MouseHandlerClass();
+  		addMouseListener(myMouseHandler);
+  		addMouseMotionListener(myMouseHandler);
         setFocusable(true);
         setBackground(Color.BLACK);
         //        setPreferredSize(new Dimension(B_WIDTH, B_HEIGHT));
@@ -112,7 +110,7 @@ public class Board extends JPanel implements Runnable {
         player = new PlayerCharacter(ICRAFT_X, ICRAFT_Y,this);
         player.getEntitySprite().setVisible(true);
 
-        selectedBox = new Rectangle();
+        
         clickPosition = new Point(0,0);
         //## TESTING ##
         //Manually add test objects here
@@ -146,16 +144,14 @@ public class Board extends JPanel implements Runnable {
         
         p = new PaintOverlay(200,0,150,60);
         initBullets();
-
-        
+    
         //THREAD AREA
         //If what I read was correct, timers all have their own threads.
         //The "tasks" below will fire at each respective timer's "scheduleAtFixedRate", putting them
         //each on their own threads. There is a thread for updating entity positions, updating collisions, and the rendering.
+       
         updateEntitiesTimer = new java.util.Timer(); //create timer
-        repaintTimer = new java.util.Timer();
-        
-        
+        //repaintTimer = new java.util.Timer();    
         TimerTask updateEntitiesTask = new TimerTask() {
         	@Override
         	public void run(){
@@ -163,42 +159,48 @@ public class Board extends JPanel implements Runnable {
         		updateEntities();
 
         	}
-        };
-        
+        };      
 /* ########################################################################################################################
  * 
- * 		TIMER AND PAINT FUNCTIONALITY - LATER MOVED TO RENDERIGN ENGINE
+ * 		TIMER AND PAINT FUNCTIONALITY - LATER MOVED TO RENDERING ENGINE
  * 
  * ########################################################################################################################
- */
-        
+ */      
         //will have to experiment how often collisions should be checked.
         //I get strange anomolies when setting the update rate (below in "scheduleAtFixedRate(collisionUpdateTask)" too
         // low or too high. We might want to try implementing something that puts the thread to sleep
         //	 when it can guarantee there are no collisions happening whatsoever. Which wouldn't be often anyway I guess.
         /*TimerTask collisionUpdateTask = new TimerTask() {
-
         	@Override
         	public void run() {
-
         		//RUN COLLISION DETECTION
         		checkCollisions();
         	}
         };*/
-        TimerTask repaintUpdateTask = new TimerTask() {
+  /*      TimerTask repaintUpdateTask = new TimerTask() {
         	@Override
         	public void run() {
         		repaint();
         	}
+        }; */
+        //Trying out Swing timer instead of util Timer
+
+        ActionListener repaintUpdateTaskSwing = new ActionListener() {
+        	@Override
+        	public void actionPerformed(ActionEvent e) {
+        		repaint();
+        	}
         };
-        
+        Timer repaintTimer = new Timer(16, repaintUpdateTaskSwing);
+        repaintTimer.setRepeats(true);
+        repaintTimer.start();
+
         updateEntitiesTimer.scheduleAtFixedRate( updateEntitiesTask , 0 , 16); // fire task every 16 ms
         //collisionTimer.scheduleAtFixedRate( collisionUpdateTask , 0 , 5);
-        repaintTimer.scheduleAtFixedRate( repaintUpdateTask, 0, 16);
+        //repaintTimer.scheduleAtFixedRate( repaintUpdateTask, 0, 16);
         
-
-        //collisionThread.start();
         //updateBoard();
+        //collisionThread.start();
     }
     
     @Override	
@@ -206,6 +208,11 @@ public class Board extends JPanel implements Runnable {
         super.paintComponent(g);
         drawObjects(g);
         drawGhostSprite(g, editorPanel.getGhostSprite(), editorPanel.getEditorMousePos());
+        if (editorPanel.mode == EditorPanel.WORLDGEOM_MODE) {
+        	editorPanel.getWorldGeom().drawGhostVertex(g);
+        	editorPanel.getWorldGeom().drawVertexPoints(g);
+        	editorPanel.getWorldGeom().drawSurfaceLines(g);
+        }
     }
     
     /* ##################
@@ -291,12 +298,9 @@ public class Board extends JPanel implements Runnable {
 	        for (EntityStatic stat : staticEntitiesList) {
 	        	//g.drawImage(stat.getEntitySprite().getImage(), 
 	        	//		stat.getSpriteOffsetX() + stat.getX(), 
-	        	//		stat.getSpriteOffsetY() + stat.getY(), this);
-	        	
-	        	stat.getEntitySprite().draw(g);
-
-	        	drawEditorSelectedRectangle(stat, g, selectedBox);
-
+	        	//		stat.getSpriteOffsetY() + stat.getY(), this);	        	
+	        	stat.getEntitySprite().drawSprite(g);
+	        	editorPanel.drawEditorSelectedRectangle(stat, g);
 	        }
     	}
         //Draw all dynamic (moving) entities from list (ex. bullets)
@@ -344,21 +348,7 @@ public class Board extends JPanel implements Runnable {
     }
 
     
-    public void drawEditorSelectedRectangle(EntityStatic stat, Graphics g, Rectangle r) {
-	    if (currentSelectedEntity != null) {	
-	    	if (stat == currentSelectedEntity) {
-	    		//int width = stat.getObjectGraphic().getImage().getWidth(null);
-	        	//int height = stat.getObjectGraphic().getImage().getHeight(null);
-	    		Graphics2D g2 = (Graphics2D)g;
-	        	g2.setColor(Color.BLUE);
-	        	Stroke oldStroke = g2.getStroke();
-	        	float thickness = 2;
-	        	g2.setStroke(new BasicStroke(thickness));
-	    		g2.drawRect(stat.getX() + stat.getSpriteOffsetX(), stat.getY() + stat.getSpriteOffsetY(), r.width, r.height);
-	    		g2.setStroke(oldStroke);
-	    	}
-	    }
-    }
+   
     public void drawGhostSprite(Graphics g, Sprite ghost, Point mousePos) {
     	ghost.editorDraw(g, mousePos);
     }
@@ -413,113 +403,57 @@ public class Board extends JPanel implements Runnable {
     
   //MOUSE INPUT
   	protected class MouseHandlerClass extends MouseInputAdapter  { 		
-  	    public int clickPositionXOffset;
-  	    public int clickPositionYOffset;
-  		//p1 is your clicked position, p2 is the entity's original position that
-  		//	will be used for calculating the offsets
-  		public int entityOriginalXPosition;
-		public int entityOriginalYPosition;
+  	    /*public int clickPositionXOffset;
+  	    public int clickPositionYOffset;*/
 
   		@Override
   		public void mousePressed(MouseEvent e)
   		{  	
-  		//code for getting the entity's sprite's actual area: 
-  		// currentSelectedEntity.getObjectGraphic().getImage().getWidth(null);"
-  			
-  			if (!mouseClick) {
-	  			clickPosition.setLocation(e.getX(),e.getY());
-  				mouseClick = true;
-  				if (editorPanel.entityPlacementMode == false) 
-  				{
-	  				deselectAllEntities();
-
-
-		  			//MainWindow.getEditorPanel().setEntityCoordsLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
-		  			editorPanel.setEntityCoordsLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));			
-		  			checkForSelection(clickPosition);  			
-		  		
-		  			if (currentSelectedEntity != null) {  	// there is entity under cursor
-		  				if(currentSelectedEntity.isSelected != true) {
-		  					currentSelectedEntity.isSelected = true;
-		  					
-		  				}
-		  				else{
-		  					currentSelectedEntity.isSelected = false;
-		  				}
-		  				/*
-		  				selectedBox.setSize(currentSelectedEntity.getEntitySprite().getImage().getWidth(null),
-		  									currentSelectedEntity.getEntitySprite().getImage().getHeight(null) ); */
-		  				
-			  			System.out.println(currentSelectedEntity.name);
-		  	  			//SidePanel.setSelectedEntityName("Selected: " + currentSelectedEntity.name);
-			  			editorPanel.setSelectedEntityNameLabel("Selected: " + currentSelectedEntity.name);
-			  			editorPanel.setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
-			  			//get offsets
-			  			clickPositionXOffset = e.getX() - currentSelectedEntity.getX() ;
-			  			clickPositionYOffset = e.getY() - currentSelectedEntity.getY() ;
-		  			}
-		  			// WILL TRIGGER DESELECTING THE CURRENT ENTITY
-		  			// CODE FIRES WHEN YOU CLICK AND NOTHING IS UNDER CURSOR
-		  			else { 
-		  				
-		  				editorPanel.setSelectedEntityNameLabel("Nothing Selected");
-			  			editorPanel.setEntityCoordsLabel("Coords. of selected entity: N/A");
-		  			}
-  				}
-  				//entity placement mode is ON
-  				else {
-  					clickPositionXOffset =( (editorPanel.getGhostSprite().getImage().getWidth(null)) / 2);
-  					clickPositionYOffset =  ( (editorPanel.getGhostSprite().getImage().getHeight(null)) / 2);
-  					editorPanel.addEntity(e.getX(), e.getY(), 0, 0, editorPanel.getNewEntityPath());
-  					editorPanel.nullifyGhostSprite();
-  					editorPanel.entityPlacementMode = false;
-  					deselectAllEntities();
-  				}
-  			}
+  			editorPanel.mousePressed(e);
+  			editorPanel.getWorldGeom().mousePressed(e);
   		}
   		@Override
   		public void mouseDragged(MouseEvent e) 
   		{ 		
-  			if (editorPanel.entityPlacementMode == false) {
-  				editorPanel.setMousePosLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
-
-  				if (currentSelectedEntity != null) {
-  					currentSelectedEntity.setX(e.getX() - clickPositionXOffset);
-  					currentSelectedEntity.setY(e.getY() - clickPositionYOffset);
-  					editorPanel.setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
-  				}
-
-  			}
+  			editorPanel.mouseDragged(e);
+  			editorPanel.getWorldGeom().mouseDragged(e);
   		}
   		@Override
   		public void mouseMoved(MouseEvent e){
-  			editorPanel.setEditorMousePos(e.getX(), e.getY());
+  			editorPanel.mouseMoved(e);
+  			editorPanel.getWorldGeom().mouseMoved(e);
   		}
   		@Override
   		public void mouseReleased(MouseEvent e) 
   		{	
-  			if (currentSelectedEntity != null)
-  				currentSelectedEntity.getEntitySprite().setVisible(true);
-  			if (clickedOnEntity(e.getPoint() ) == null) {
+  			editorPanel.mouseReleased(e);
+  			editorPanel.getWorldGeom().mouseReleased(e);
+  		}
+  			/*if (currentSelectedEntity != null)
+  				
+  				currentSelectedEntity.getEntitySprite().setVisible(true);*/
+  			/*
+  			if ( currentSelectedEntity == null) {
   				deselectAllEntities();
   			}
-
+  			if (editorPanel.mode == EditorPanel.ENTPLACEMENT_MODE)
+  				editorPanel.mode = EditorPanel.DEFAULT_MODE;
   			System.out.println("Released");
   			mouseClick = false;
-  		}
+  		} */
   	}
   	
   	//LEVEL EDITOR METHODS
-  	
+  	/*
   	private void checkForSelection(Point click) { //redundant
-  		setCurrentSelectedEntity(clickedOnEntity(click));
-  		//currentSelectedEntity = clickedOnEntity(click);
+  		//setCurrentSelectedEntity(clickedOnEntity(click));
+  		currentSelectedEntity = clickedOnEntity(click);
 
   		if (currentSelectedEntity != null)
-  			currentDebugEntity = clickedOnEntity(click);
+  			currentDebugEntity = currentSelectedEntity;
 
-  	}
-
+  	} */
+/*
   	private EntityStatic clickedOnEntity(Point click) {
   		int counter = 0;
   		for (EntityStatic entity : staticEntitiesList) {
@@ -527,10 +461,11 @@ public class Board extends JPanel implements Runnable {
 	 		if (entity.getEntitySprite().hasSprite()){ //if entity has sprite, select by using sprite dimensions
 	  			selectedBox.setLocation(entity.getX() + entity.getSpriteOffsetX(), entity.getY() + entity.getSpriteOffsetY());
 	  			selectedBox.setSize(entity.getEntitySprite().getImage().getWidth(null), entity.getEntitySprite().getImage().getHeight(null) );
+	  			System.out.println(staticEntitiesList.indexOf(currentSelectedEntity));
 	  			if (selectedBox.contains(click)) 
 	  			{
-	  				entity.isSelected = true;
-	  				editorPanel.enableEditPropertiesButton(true);
+	  				//entity.isSelected = true;
+	  				editorPanel.enableEditPropertiesButton(true); //might not need
 	  				editorPanel.restorePanels();
 	  				editorPanel.setAllEntitiesComboBoxIndex(counter);
 	  	  			editorPanel.setSelectedEntityNameLabel("Selected: " + entity.name);
@@ -551,17 +486,17 @@ public class Board extends JPanel implements Runnable {
   		editorPanel.enableEditPropertiesButton(false);
   		editorPanel.minimizePanels();
   		return null;
-  	}
-  	
+  	} */
+  /*	
   	public void deselectAllEntities() {
   		currentSelectedEntity = null;
   		editorPanel.enableEditPropertiesButton(false);
-  		for (EntityStatic entity : staticEntitiesList) {
+  		/*for (EntityStatic entity : staticEntitiesList) {
   			if (entity.isSelected == true)
   				entity.isSelected = false;
-  		}
+  		} //
   	}
-
+*/
   	
   	/*
     //testing selection of entities with mouse
@@ -595,12 +530,13 @@ public class Board extends JPanel implements Runnable {
         @Override
         public void keyReleased(KeyEvent e) {
             player.keyReleased(e);
+            editorPanel.getWorldGeom().keyReleased(e);           
         }
 
         @Override
         public void keyPressed(KeyEvent e) {
             player.keyPressed(e);
-            
+            editorPanel.getWorldGeom().keyPressed(e);
             int key = e.getKeyCode();
 
             if (key == KeyEvent.VK_F2) {
@@ -619,9 +555,12 @@ public class Board extends JPanel implements Runnable {
             	}
             }
             if (key == KeyEvent.VK_ESCAPE) {
-            	editorPanel.entityPlacementMode = false;
+            	//editorPanel.entityPlacementMode = false;
+            	editorPanel.mode = EditorPanel.DEFAULT_MODE;
             	editorPanel.nullifyGhostSprite();
-            }            
+            	editorPanel.getWorldGeom().clearAllVertices();
+            	//editorPanel.nullifyGhostVertex();
+            }   
         }
     }
     
@@ -917,23 +856,7 @@ public class Board extends JPanel implements Runnable {
 	public ArrayList<EntityStatic> getStaticEntities(){ return staticEntitiesList; }
 	public ArrayList<EntityDynamic> getDynamicEntities(){ return dynamicEntitiesList; }
 	public ArrayList<EntityPhysics> getPhysicsEntities(){ return physicsEntitiesList; }
-	public EntityStatic getCurrentSelectedEntity() { return currentSelectedEntity; }
-	public void setCurrentSelectedEntity(EntityStatic newSelectedEntity){
-		try{
-			if (newSelectedEntity != null) {
-			//checks the previous selected entity and makes it false if its flag was set as selected
-				if (currentSelectedEntity != null) {
-					if (currentSelectedEntity.isSelected == true)
-						currentSelectedEntity.isSelected = false;
-				}
-	
-				currentSelectedEntity = newSelectedEntity;
-				currentSelectedEntity.isSelected = true;
-			}
-			else
-				currentSelectedEntity = null;
-		}catch (Exception e) {e.printStackTrace();}
-  	}
+
 	public void transferEditorPanel(EditorPanel instance){
 		this.editorPanel = instance; 
 	}

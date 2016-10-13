@@ -30,16 +30,29 @@ public class EditorPanel extends JPanel {
 	public static final String PF2 = "platform02.png";
 	public static final String GND = "ground01.png";
 	public static final String GRASS1 = "grass01.png";
+	public static final int DEFAULT_MODE = 0;
+	public static final int ENTPLACEMENT_MODE = 1;
+	public static final int WORLDGEOM_MODE = 2;
+	
+	protected boolean mouseClick = false;
+	private Point clickPosition;
+	public int clickPositionXOffset;
+	public int clickPositionYOffset;
+	public int mode;
 	private String newEntityPath;
-	public boolean entityPlacementMode;
+	//public boolean entityPlacementMode;
 	public final Dimension minimizedSize = new Dimension(200,20);
 	public final Dimension propPanelDefaultSize = new Dimension(215,125);
 	public final Dimension allEntitiesComboBoxDefSize = new Dimension(120,20);
 	protected int currentEntIndex;
 	public boolean testFlag;
-	private Board board;
-	private Sprite ghostSprite;
+	protected Board board;
+	private WorldGeometry worldGeom;
+	private Sprite ghostSprite; 
 	private Point editorMousePos;
+    protected EntityStatic currentSelectedEntity;
+    public Rectangle selectedBox;
+    
 	
 	protected ArrayList<PropertiesList> listOfPropLists;
     private String[] staticEntityStringArr;
@@ -55,6 +68,7 @@ public class EditorPanel extends JPanel {
 	protected JButton loadButton;
 	protected JButton saveButton;
 	protected JButton deleteEntButton;
+	protected JButton worldGeomButton;
 
 	//Panels
 	private JPanel entitiesComboBoxPanel;
@@ -70,14 +84,22 @@ public class EditorPanel extends JPanel {
 
 	public EditorPanel( Board boardInstance) {
 		//initializing some of the fields
+		this.board = boardInstance;
+		mode = EditorPanel.DEFAULT_MODE;
+		worldGeom = new WorldGeometry(this, boardInstance);
 		newEntityPath = "";
-		entityPlacementMode = false;
+		selectedBox = new Rectangle();
+		//entityPlacementMode = false;
 		editorMousePos = new Point();
 		ghostSprite = SpriteNull.getNullSprite();
 		testFlag = true;
-		this.board = boardInstance;
+        clickPosition = new Point(0,0);
+
 		//set default selected entity so it's not null
-		setSelectedEntityThruEditor(board.getStaticEntities().get(0)); //NEEDS ZERO ARRAY SIZE CHECK
+
+		//setSelectedEntityThruEditor(board.getStaticEntities().get(0)); //NEEDS ZERO ARRAY SIZE CHECK
+
+		setCurrentSelectedEntity(board.getStaticEntities().get(0)); 
 		
 		//set the editor's layout
 		layout = new FlowLayout(FlowLayout.LEADING, 3, 3);
@@ -130,12 +152,21 @@ public class EditorPanel extends JPanel {
 				deleteEntity(allEntitiesComboBox.getSelectedIndex());
 			} 		
 		});
+		worldGeomButton = new JButton("World Geom");
+		worldGeomButton.setFocusable(false);
+		worldGeomButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mode = WORLDGEOM_MODE;
+			}
+		});
 		// inline panel for button
 		buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		buttonPanel.setBackground(Color.GRAY);
 	    buttonPanel.setBorder(BorderFactory.createTitledBorder("buttonPanelTest"));
-		buttonPanel.setPreferredSize(new Dimension(190, 50));		
+		//buttonPanel.setPreferredSize(new Dimension(190, 50));		
 		buttonPanel.add(deleteEntButton);
+		buttonPanel.add(worldGeomButton);
 
 		// ## The drop down box for the list of all entities in board ###	
 		allEntitiesComboBox = new JComboBox<>(staticEntityStringArr);
@@ -181,9 +212,9 @@ public class EditorPanel extends JPanel {
 		IconLoader iconLoader = new IconLoader(this, iconBar);
 
 		
-		JScrollPane toolBarContainer = new JScrollPane(iconBar);
-		toolBarContainer.setVerticalScrollBarPolicy((JScrollPane.VERTICAL_SCROLLBAR_ALWAYS));
-		add(toolBarContainer, FlowLayout.TRAILING);
+		JScrollPane iconBarScrollPane = new JScrollPane(iconBar);
+		iconBarScrollPane.setVerticalScrollBarPolicy((JScrollPane.VERTICAL_SCROLLBAR_ALWAYS));
+		add(iconBarScrollPane, FlowLayout.TRAILING);
 		
 		//testing setting the ghostSprite
 		//setGhostSprite(ASSET_PATH + PF1 );
@@ -203,25 +234,159 @@ public class EditorPanel extends JPanel {
 			currentEntIndex = allEntitiesComboBox.getSelectedIndex();
 			System.out.println(currentEntIndex);
 			try{					
-				board.deselectAllEntities();
+				deselectAllEntities();
 				deleteEntButton.setEnabled(true);
 				
 				//sets Board's current entity
-				setSelectedEntityThruEditor(board.getStaticEntities().get(currentEntIndex));
-				createAndShowPropertiesPanel();
-				setSelectedEntityNameLabel("Selected: " + getSelectedEntity().name);
-				setEntityCoordsLabel(String.format("Coords of Selected Entity: %s,%s", getSelectedEntity().getX(), getSelectedEntity().getY()));
+				setCurrentSelectedEntity(board.getStaticEntities().get(currentEntIndex));
+				//board.
+				createAndShowPropertiesPanel(board);
+				setSelectedEntityNameLabel("Selected: " + currentSelectedEntity.name);
+				setEntityCoordsLabel(String.format("Coords of Selected Entity: %s,%s", currentSelectedEntity.getX(), currentSelectedEntity.getY()));
 				//sends code from here over to Board to let it draw this entity's selection box
-				board.selectedBox.setSize(getSelectedEntity().getEntitySprite().getImage().getWidth(null),
-															getSelectedEntity().getEntitySprite().getImage().getHeight(null) );
+				selectedBox.setSize(currentSelectedEntity.getEntitySprite().getImage().getWidth(null),
+															currentSelectedEntity.getEntitySprite().getImage().getHeight(null) );
 			}
 			catch (NullPointerException exception){
 				exception.printStackTrace();
 				System.err.println("nullpointerexception"); 
 			}
 		}	
-	}
+	} //end of inner class
+	
+	public void mousePressed(MouseEvent e) {
 
+		if (!mouseClick) {
+			clickPosition.setLocation(e.getX(),e.getY());
+			mouseClick = true;
+			if (mode == EditorPanel.DEFAULT_MODE) 
+			{
+				deselectAllEntities();
+
+
+				//MainWindow.getEditorPanel().setEntityCoordsLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
+				setEntityCoordsLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));			
+				checkForSelection(clickPosition);  			  		
+				if (currentSelectedEntity != null) {  	// there is entity under cursor
+					/*if(currentSelectedEntity.isSelected != true) {
+	  					currentSelectedEntity.isSelected = true;	  					
+	  				}
+	  				else{
+	  					currentSelectedEntity.isSelected = false;
+	  				} */
+					/*
+	  				selectedBox.setSize(currentSelectedEntity.getEntitySprite().getImage().getWidth(null),
+	  									currentSelectedEntity.getEntitySprite().getImage().getHeight(null) ); */	  				
+					//SidePanel.setSelectedEntityName("Selected: " + currentSelectedEntity.name);
+					setSelectedEntityNameLabel("Selected: " + currentSelectedEntity.name);
+					setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
+					//get offsets
+					clickPositionXOffset = e.getX() - currentSelectedEntity.getX() ;
+					clickPositionYOffset = e.getY() - currentSelectedEntity.getY() ;
+				}
+				// WILL TRIGGER DESELECTING THE CURRENT ENTITY
+				// CODE FIRES WHEN YOU CLICK AND NOTHING IS UNDER CURSOR
+				else {   				
+					setSelectedEntityNameLabel("Nothing Selected");
+					setEntityCoordsLabel("Coords. of selected entity: N/A");
+				}
+			}
+			//entity placement mode is ON
+			else if (mode == EditorPanel.ENTPLACEMENT_MODE) {
+				clickPositionXOffset =( (ghostSprite.getImage().getWidth(null)) / 2);
+				clickPositionYOffset =  ( (ghostSprite.getImage().getHeight(null)) / 2);
+				addEntity(e.getX(), e.getY(), 0, 0, newEntityPath);
+				nullifyGhostSprite();
+				//editorPanel.entityPlacementMode = false;
+				deselectAllEntities();
+			}
+		}
+	}
+	public void mouseDragged(MouseEvent e) {
+
+		if (mode == EditorPanel.DEFAULT_MODE) {
+			setMousePosLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
+
+			if (currentSelectedEntity != null) {
+				currentSelectedEntity.setX(e.getX() - clickPositionXOffset);
+				currentSelectedEntity.setY(e.getY() - clickPositionYOffset);
+				setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
+			}
+
+		}
+	}
+	public void mouseMoved(MouseEvent e){
+		setEditorMousePos(e.getX(), e.getY());
+	}
+	public void mouseReleased(MouseEvent e) {	
+		
+		if ( currentSelectedEntity == null) {
+			deselectAllEntities();
+		}
+		if (mode == EditorPanel.ENTPLACEMENT_MODE)
+			mode = EditorPanel.DEFAULT_MODE;
+		mouseClick = false;
+	}
+	
+  	public void checkForSelection(Point click) { //redundant
+  		setCurrentSelectedEntity(clickedOnEntity(click));
+  		//currentSelectedEntity = clickedOnEntity(click);
+
+  		if (currentSelectedEntity != null)
+  			board.currentDebugEntity = currentSelectedEntity;
+
+  	}
+  	 public void drawEditorSelectedRectangle(EntityStatic stat, Graphics g) {
+ 	    if (currentSelectedEntity != null) {	
+ 	    	if (stat == currentSelectedEntity) {
+ 	    		int width = stat.getEntitySprite().getImage().getWidth(null);
+ 	        	int height = stat.getEntitySprite().getImage().getHeight(null);
+ 	    		Graphics2D g2 = (Graphics2D)g;
+ 	        	g2.setColor(Color.BLUE);
+ 	        	Stroke oldStroke = g2.getStroke();
+ 	        	float thickness = 2;
+ 	        	g2.setStroke(new BasicStroke(thickness));
+ 	    		g2.drawRect(stat.getX() + stat.getSpriteOffsetX(), stat.getY() + stat.getSpriteOffsetY(),width,height);
+ 	    		g2.setStroke(oldStroke);
+ 	    	}
+ 	    }
+     }
+  	private EntityStatic clickedOnEntity(Point click) {
+  		int counter = 0;
+  		for (EntityStatic entity : board.getStaticEntities()) {
+  			
+	 		if (entity.getEntitySprite().hasSprite()){ //if entity has sprite, select by using sprite dimensions
+	  			selectedBox.setLocation(entity.getX() + entity.getSpriteOffsetX(), entity.getY() + entity.getSpriteOffsetY());
+	  			selectedBox.setSize(entity.getEntitySprite().getImage().getWidth(null), entity.getEntitySprite().getImage().getHeight(null) );
+	  			if (selectedBox.contains(click)) 
+	  			{
+	  				//entity.isSelected = true;
+	  				enableEditPropertiesButton(true); //might not need
+	  				restorePanels();
+	  				setAllEntitiesComboBoxIndex(counter);
+	  	  			setSelectedEntityNameLabel("Selected: " + entity.name);
+	  	  			setEntityCoordsLabel("Coords. of selected entity: " + entity.getX() + ", " + entity.getY());
+	  				return entity;
+	  			}
+	  			counter++;
+	  			
+	 		}
+	 		else {
+	 			//Entity has no sprite, so selection needs some other method, like by boundary
+	 		}
+  			
+  		}
+  		//TESTING BOX SELECTION
+
+  		//nothing was found under cursor: 
+  		enableEditPropertiesButton(false);
+  		minimizePanels();
+  		return null;
+  	}
+	public void deselectAllEntities() {
+  		setCurrentSelectedEntity(null);
+  		enableEditPropertiesButton(false);
+  	}
 	//this class will be the stand-in for my current shitty JOptionPane popup.
 	// will be created when createPropertiesFrame() is called.
 	@Deprecated	
@@ -231,9 +396,9 @@ public class EditorPanel extends JPanel {
 		propFrame.setLocationRelativeTo(null);
 		propFrame.setVisible(true);
 	}
-	public void createAndShowPropertiesPanel() {
+	public void createAndShowPropertiesPanel(Board board) {
 		propertyPanelTest.removeAll();
-		propertyPanelTest.add(new PropertiesPanel(this));
+		propertyPanelTest.add(new PropertiesPanel(this, board));
 		revalidate();
 	}
 	public void minimizePanels() {
@@ -260,18 +425,23 @@ public class EditorPanel extends JPanel {
 	 * <b>Helper method to return Board's currentSelectedEntity, also runs a null check.</b>
 	 * @return Board's current selected Entity
 	 */
-	public EntityStatic getSelectedEntity(){
+	/*
+	public EntityStatic currentSelectedEntity{
 		try{
-			return board.getCurrentSelectedEntity();
+			return currentSelectedEntity;
 		}catch (Exception e) {	e.printStackTrace();  return null; }
-	}
+	} */
 	/**
 	 * Helper method to set Board's currentSelectedEntity
 	 * @param newSelectedEntity
 	 */
+	
+	
+	/*
 	private void setSelectedEntityThruEditor(EntityStatic newSelectedEntity){
 		board.setCurrentSelectedEntity(newSelectedEntity);
 	}
+///	*/
 	//helper function to transfer data from ArrayList into a regular array
 	public void populateArrayFromList(String[] arr, ArrayList<EntityStatic> arrayList)
 	{
@@ -292,11 +462,12 @@ public class EditorPanel extends JPanel {
 		populateArrayFromList(staticEntityStringArr, board.getStaticEntities());
 	}
 	public void deleteEntity(int index) {
-		board.deselectAllEntities();
+		deselectAllEntities();
 		board.getStaticEntities().remove(index);
 		removeEntryFromListOfPropLists(index); 	//must remove corresponding property of deleted entity
 		updateAllEntitiesComboBox();
-		board.deselectAllEntities();
+		deselectAllEntities();
+		minimizePanels();
 	}
 	//so many ways I can do this. Will start with overloaded methods
 	public void addEntity(int x, int y, int offsetX, int offsetY, String path) {  //default one. Adds test entity
@@ -316,19 +487,21 @@ public class EditorPanel extends JPanel {
 		else {
 			newEnt = new ObjectTemplate(x, y, offsetX, offsetY);
 		}
-		board.deselectAllEntities();
+		deselectAllEntities();
 		board.getStaticEntities().add(newEnt);
 		addEntryToListOfPropLists(new PropertiesList(newEnt));
 		updateAllEntitiesComboBox();
         allEntitiesComboBox.setSelectedIndex(allEntitiesComboBox.getItemCount()-1);
 	}
 	//will refresh(create a new one of)staticEntityStringArr, remove old comboBox and then create & add a new updated one
+	//PROBLEM AREA, still a problem. Thought was fixed but has an issue when deleting entities
 	public void updateAllEntitiesComboBox() {
 		System.out.println("item count: "+ allEntitiesComboBox.getItemCount());
 		int prevIndex = allEntitiesComboBox.getSelectedIndex();
 		int prevMax = allEntitiesComboBox.getItemCount();
 		updateEntityStringArr();
 		entitiesComboBoxPanel.remove(allEntitiesComboBox);
+		allEntitiesComboBox = null;
 		allEntitiesComboBox = new JComboBox<>(staticEntityStringArr);
 		allEntitiesComboBox.setFocusable(false);
 		allEntitiesComboBox.addActionListener(new EntitiesComboBoxActionHandler());
@@ -415,5 +588,18 @@ public class EditorPanel extends JPanel {
 	public Point getEditorMousePos(){
 		return editorMousePos;
 	}
+	public Rectangle getSelectedBox(){
+		return selectedBox;
+	}
+	public void setCurrentSelectedEntity(EntityStatic newSelectedEntity){
+		currentSelectedEntity = newSelectedEntity;
+	}
+	public EntityStatic getCurrentSelectedEntity() {
+		return currentSelectedEntity; 
+	}
+	public WorldGeometry getWorldGeom() {
+		return this.worldGeom;
+	}
+	
 
 }

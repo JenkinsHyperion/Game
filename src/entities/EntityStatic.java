@@ -21,10 +21,12 @@ import sprites.Sprite;
  */
 public class EntityStatic extends Entity{
 
+
 	public transient boolean isSelected;
     //protected transient ArrayList<CollidingPair> collisions = new ArrayList<>(); //moving to composit
 	//protected transient Rectangle boundingBox = new Rectangle(0,0); //moving to composite
 	//protected transient Boundary boundary = new BoundingBox(new Rectangle(2,2)); //moving to composite
+
 	protected int offsetX;
 	protected int offsetY;
 	//COMPOSITE TESTING
@@ -34,7 +36,7 @@ public class EntityStatic extends Entity{
 	public EntityStatic(int x, int y) {
 
     	super(x,y);
-    	isSelected = false;
+    	//isSelected = false;
     }  
 	
 	//COMPOSITE CONTRUCTION

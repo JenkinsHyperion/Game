@@ -2,7 +2,12 @@ package editing;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+
 import javax.swing.*;
+
+import engine.Board;
+
 
 
 //HUGE NOTE:
@@ -32,9 +37,11 @@ public class PropertiesPanel extends JPanel implements ActionListener,ItemListen
 	JPanel entityNamePanel;
 	JPanel entityTypePanel;
 	EditorPanel ep;
+	Board board;
 	
-	public PropertiesPanel(EditorPanel editorPanelRef) { 		 //constructor 
+	public PropertiesPanel(EditorPanel editorPanelRef, Board board) { 		 //constructor 
 		this.ep = editorPanelRef;
+		this.board = board;
 		//setPreferredSize(ep.propPanelDefaultSize);
 		collisionStatusLabelcursed = new JLabel("N/A"); //initializing these so they won't cause null problems
 		collisionStatusLabel = new JLabel("cursed?");
@@ -98,48 +105,67 @@ public class PropertiesPanel extends JPanel implements ActionListener,ItemListen
 		String command = e.getActionCommand();
 		//for the radio button panels
 		if (command.equals("COL_TRUE")) {
-			ep.getThisProperty(Property.COL_STATE).setEntityCollidableState(ep.getSelectedEntity(), true);
+			ep.getThisProperty(Property.COL_STATE).setEntityCollidableState(ep.getCurrentSelectedEntity(), true);
 			updateCurrentStatusLabel(Property.COL_STATE);
 		}
 		else if(command.equals("COL_FALSE")) {
-			ep.getThisProperty(Property.COL_STATE).setEntityCollidableState(ep.getSelectedEntity(), false);
+			ep.getThisProperty(Property.COL_STATE).setEntityCollidableState(ep.getCurrentSelectedEntity(), false);
 			updateCurrentStatusLabel(Property.COL_STATE);
 		}
 		else if(e.getSource() == xPosTextField){
 			/*
 			 * Here, set the xPosition field of the current propertyList's xPos property */
-			ep.getThisProperty(Property.XPOS).setEntityXpos(ep.getSelectedEntity(), Integer.parseInt(command));
+			ep.getThisProperty(Property.XPOS).setEntityXpos(ep.getCurrentSelectedEntity(), Integer.parseInt(command));
 			updateCurrentStatusLabel(Property.XPOS);
 		}
 		else if(e.getSource() == yPosTextField){
 			/*
 			 * Here, set the yPosition field of the current propertyList's yPos property */
-			ep.getThisProperty(Property.YPOS).setEntityYpos(ep.getSelectedEntity(), Integer.parseInt(command));
+			ep.getThisProperty(Property.YPOS).setEntityYpos(ep.getCurrentSelectedEntity(), Integer.parseInt(command));
 			updateCurrentStatusLabel(Property.YPOS);
 		}
 		else if(e.getSource() == entNameTextField){
 			/*
 			 * Here, set the name field of the current propertyList's yPos property */
-			ep.getThisProperty(Property.ENTNAME).setEntityName(ep.getSelectedEntity(), command);
-			updateCurrentStatusLabel(Property.ENTNAME);
-			ep.updateAllEntitiesComboBox();
+			//INPUT VALIDATION: IF DUPLICATE NAME FOUND, DON'T TAKE INPUT
+			if (checkDuplicateName(ep.listOfPropLists, command) == true) {  //found duplicate name
+				JOptionPane.showMessageDialog(null, "Entity name already taken. Try again.");				
+			} 
+			else {
+				ep.getThisProperty(Property.ENTNAME).setEntityName(ep.getCurrentSelectedEntity(), command);
+				updateCurrentStatusLabel(Property.ENTNAME);
+				ep.updateAllEntitiesComboBox();				
+			}
 		}
-		/*
-		invalidate();
-		validate();
-		repaint(); */
+		revalidate();
+		repaint(); 
 	}
-	protected void updateCurrentStatusLabel(int propType) {
+	private boolean checkDuplicateName(ArrayList<PropertiesList> propList, String nameCheck) {
+		int duplicatesFound = 0;
+		int index = 0;
+		for (PropertiesList prop : propList) {
+			System.out.println(prop.getProperty(Property.ENTNAME).getEntityName(board.getStaticEntities().get(index)));
+			if (prop.getProperty(Property.ENTNAME).getEntityName(board.getStaticEntities().get(index)).equals(nameCheck)){
+				duplicatesFound++;
+				System.out.println("In checkDuplicateName(): found duplicate " + duplicatesFound + " times");
+			}
+			index++;
+		}
+		if (duplicatesFound > 0)
+			return true;
+		else
+			return false;
+	}
+	public void updateCurrentStatusLabel(int propType) {
 		if (propType == Property.COL_STATE) {
-			System.out.println("was able to reach upDateCurrentStatusLabel. Attempting to set collisionStatusLabel again...");
-			collisionStatusLabel.setText(String.valueOf(ep.getThisProperty(propType).getEntityCollidableState(ep.getSelectedEntity())) );
+			collisionStatusLabel.setText(String.valueOf(ep.getThisProperty(propType).getEntityCollidableState(ep.getCurrentSelectedEntity())) );
 		}
 		else if (propType == Property.XPOS)
-			xPosStatusLabel.setText(Integer.toString(ep.getThisProperty(propType).getEntityXpos(ep.getSelectedEntity())) );
+			xPosStatusLabel.setText(Integer.toString(ep.getThisProperty(propType).getEntityXpos(ep.getCurrentSelectedEntity())) );
 		else if (propType == Property.YPOS)
-			yPosStatusLabel.setText(Integer.toString(ep.getThisProperty(propType).getEntityYpos(ep.getSelectedEntity())) );
+			yPosStatusLabel.setText(Integer.toString(ep.getThisProperty(propType).getEntityYpos(ep.getCurrentSelectedEntity())) );
 		else if (propType == Property.ENTNAME)
-			entNameStatusLabel.setText(ep.getThisProperty(propType).getEntityName(ep.getSelectedEntity()) );
+			entNameStatusLabel.setText(ep.getThisProperty(propType).getEntityName(ep.getCurrentSelectedEntity()) );
 	}
 // ###### Panel creation section  ###########
 	// will create true/false (radiobutton), text field, and others here:
@@ -155,7 +181,7 @@ public class PropertiesPanel extends JPanel implements ActionListener,ItemListen
 		rbFalse.setActionCommand("COL_FALSE");
 		rbFalse.addActionListener(this);	
 		//initial check to correctly choose true or false for property
-		if (ep.getThisProperty(Property.COL_STATE).getEntityCollidableState(ep.getSelectedEntity()) == true) {
+		if (ep.getThisProperty(Property.COL_STATE).getEntityCollidableState(ep.getCurrentSelectedEntity()) == true) {
 			rbTrue.setSelected(true);
 			updateCurrentStatusLabel(Property.COL_STATE);
 		}
@@ -206,7 +232,7 @@ public class PropertiesPanel extends JPanel implements ActionListener,ItemListen
 	protected JPanel createEntTypePanel(){
 		JPanel entTypePanel = new JPanel();
 		collisionStatusLabelcursed = new JLabel();
-		String entTypeString = ep.getThisProperty(Property.ENTTYPE).getEntityType(ep.getSelectedEntity());
+		String entTypeString = ep.getThisProperty(Property.ENTTYPE).getEntityType(ep.getCurrentSelectedEntity());
 		entTypePanel.add(new JLabel(entTypeString), BorderLayout.PAGE_END);
 		return entTypePanel;
 	}

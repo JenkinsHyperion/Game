@@ -22,7 +22,7 @@ public class SpriteNull extends Sprite{
 	}
 	
     @Override
-    public void draw(Graphics g){
+    public void drawSprite(Graphics g){
     	//DO NOTHING 
     }
     @Override

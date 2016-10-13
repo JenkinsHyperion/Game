@@ -1,7 +1,6 @@
 package entities;
 
 
-import java.awt.Shape;
 import java.awt.event.KeyEvent;
 
 //import javax.swing.Action;
@@ -9,8 +8,6 @@ import java.awt.event.KeyEvent;
 
 import animation.*;
 import engine.Board;
-import testEntities.Bullet;
-import testEntities.Particle;
 
 public class PlayerShape extends Player {
 	

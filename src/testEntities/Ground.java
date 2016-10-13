@@ -5,7 +5,7 @@ import entities.EntityStatic;
 public class Ground extends EntityStatic{
 	
 
-
+	@Deprecated
 	public Ground(int x, int y, String path) {
 		super(x, y);
 
@@ -15,6 +15,7 @@ public class Ground extends EntityStatic{
 		setBoundingBox(this.offsetX,this.offsetY+5,446,100);
 		name = "Ground"+ count;
 	}
+	@Deprecated
 	public Ground(int x, int y, int offsetX, int offsetY, String path) {
 		super(x, y);
     	this.offsetX = offsetX;

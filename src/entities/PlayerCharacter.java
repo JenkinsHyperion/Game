@@ -8,8 +8,6 @@ import java.awt.event.KeyEvent;
 
 import animation.*;
 import engine.Board;
-import testEntities.Bullet;
-import testEntities.Particle;
 
 public class PlayerCharacter extends Player {
 
@@ -28,7 +26,7 @@ public class PlayerCharacter extends Player {
 	
 	private boolean climbing = false;
     
-    private AnimationEnhanced RUN_RIGHT = new AnimationEnhanced(LoadAnimation.buildAnimation(16, 0, 75, "RunRight.png") , 2 ,spriteOffsetX,spriteOffsetY ); 	
+    private AnimationEnhanced RUN_RIGHT = new AnimationEnhanced(LoadAnimation.buildAnimation(16, 0, 75, "RunRight.png") , 2 ,spriteOffsetX,spriteOffsetY ); 
     private Animation RUN_LEFT = new Animation(LoadAnimation.buildAnimation(16, 0, 75, "Run_75px.png") , 2 ,spriteOffsetX,spriteOffsetY); 
     
     private Animation SPRINT_LEFT = new Animation(LoadAnimation.buildAnimation(10, 0, 75, "SprintLeft2.png") , 3 ,spriteOffsetX,spriteOffsetY); 
@@ -58,6 +56,9 @@ public class PlayerCharacter extends Player {
 
     public PlayerCharacter(int x, int y , Board currentBoard) {
         super(x, y, currentBoard);
+        
+        RUN_RIGHT.setReverse();
+        SPRINT_RIGHT.setReverse();
 
 		name = "Player"+count;
         board = currentBoard;
@@ -106,7 +107,7 @@ public class PlayerCharacter extends Player {
         if (key == KeyEvent.VK_SPACE && !keypressUP) { //JUMP
         	keypressUP = true;
         	if (isColliding){
-        		dy -= 2.5f;
+        		dy -= 4;
         	}
         }
 
@@ -155,7 +156,7 @@ public class PlayerCharacter extends Player {
         
     	if (keypressA && isColliding ){
     		//applyAccelerationX( -0.1f );
-    		if (keypressSHIFT){
+    		if (keypressSHIFT){ //OPTIMIZE THIS TO EVENTS RATHER THAN CRAPPY CHECKS
     			dx = -5.5f;
     			setState(sprintingLeft);
     		}

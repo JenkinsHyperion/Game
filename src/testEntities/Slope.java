@@ -5,6 +5,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 
 import entities.EntityStatic;
+import entityComposites.Collidable;
 import physics.Boundary;
 
 public class Slope extends EntityStatic{
@@ -18,14 +19,13 @@ public class Slope extends EntityStatic{
 				new Line2D.Float( new Point2D.Double(-25,10), new Point2D.Double(-25,-10) )
 		};
 		
-		boundary = new Boundary( slopeSides );
+
+		((Collidable) collisionType).setBoundary( new Boundary( slopeSides ) );
 		
 		//loadSprite("bullet.png");
 		loadSprite(null);
 		name = "Slope"+count;
-		
-		//obsolete
-		boundingBox = new Rectangle(25 , 10);
+
 	}
 
 	

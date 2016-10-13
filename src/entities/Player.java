@@ -6,7 +6,6 @@ import java.awt.event.KeyEvent;
 //import javax.swing.Action;
 //import javax.swing.Timer;
 
-import animation.*;
 import engine.Board;
 
 public class Player extends EntityRotationalDynamic {

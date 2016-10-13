@@ -58,6 +58,10 @@ public class Animation {
 
 	}
 
+	public void setReverse(){
+		this.animationDirection = -1;
+	}
+	
 	public void start() {
 		if (!stopped) {
 			return;

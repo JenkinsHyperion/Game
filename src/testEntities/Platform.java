@@ -1,12 +1,13 @@
 package testEntities;
 
+import entities.EntityComposed;
 import entities.EntityStatic;
 
 public class Platform extends EntityStatic{
 
 	public static final String PF1 = "platform.png";
 	public static final String PF2 = "platform02.png";
-	
+	@Deprecated
 	public Platform(int x, int y, String path) {
 		super(x, y);
 	   	this.offsetX = -20;
@@ -14,10 +15,9 @@ public class Platform extends EntityStatic{
 		loadSprite(path, offsetX, offsetY);	
 		setBoundingBox(this.offsetX,this.offsetY,40,6);
 		name = "Platform"+count;
+		
 	}
-	/**
-	 * Secondary constructor to handle offsets
-	*/
+	@Deprecated
 	public Platform(int x, int y, int offsetX, int offsetY, String path) {
 		super(x, y);
 		this.offsetX = offsetX;

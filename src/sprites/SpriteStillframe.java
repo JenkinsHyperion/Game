@@ -5,10 +5,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
-
 import javax.swing.ImageIcon;
 
 import animation.*;
@@ -25,7 +22,7 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     	if (!checkPath(path)) {
     		fileName = null;
     		image = new MissingIcon().paintMissingSprite();
-    		System.err.println("Image file not found; using placeHolder");
+    		System.err.println("Image file '"+path +"' not found; using placeholder");
     	}
     	else {
 	    	fileName = path;	    	
@@ -61,6 +58,11 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     	visibility = true;
     	this.spriteOffsetX = offset_x;
     	this.spriteOffsetY = offset_y;
+    }
+    
+    public SpriteStillframe(EntityStatic owner) { //TESTING for composite only
+    	this.owner = owner;
+    	visibility = true;
     }
     
     @Override

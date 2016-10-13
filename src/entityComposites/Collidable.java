@@ -1,6 +1,8 @@
 package entityComposites;
 
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.geom.Line2D;
 import java.util.ArrayList;
 
 import entities.EntityStatic;
@@ -8,19 +10,56 @@ import physics.Boundary;
 import physics.BoundingBox;
 import physics.CollidingPair;
 import physics.Collision;
+import physics.CollisionCheck;
+import physics.CollisionEngine;
 
-public final class Collidable extends CollisionType{
-	
-	protected transient ArrayList<CollidingPair> collisions = new ArrayList<>();
+public final class Collidable extends CollisionProperty{
 	
 	protected transient Boundary boundary;
-	private EntityStatic owner;
 	
-	public Collidable(  ){
+	protected transient ArrayList<CollidingPair> collisionInteractions = new ArrayList<>();
+	
+	protected transient Collision collisionMath;
+
+
+	
+	public Collidable( EntityStatic owner ){
+		
+		this.owner = owner;
+	}
+	
+public Collidable( EntityStatic owner , Boundary boundary){
 		
 		this.boundary = boundary;
 		this.owner = owner;
 	}
+	
+	/* #################################################################
+	 * 		ENGINE FUNCTIONALITY
+	 * #################################################################
+	 */
+	@Override
+	public void checkForInteractionWith( CollisionProperty entity, CollisionCheck checkType ,CollisionEngine engine){ 
+		//We know owner entity has composite collidable, which is THIS instance of collidable, so pass owner's physical
+		// information to the other entity
+		
+		entity.passInteraction(this, checkType, engine); //THIS is collidable, so
+		
+		//Physical constants like mass, restitution (bounciness), rotational friction and other stuff to be passed 
+		// to collisionEngine here:
+		
+	}
+	@Override
+	public void passInteraction( Collidable entity, CollisionCheck checkType , CollisionEngine engine ){ 
+		//entity is collidable because if it wasn't it non-collidable would have terminated and returned WARNING to console.
+		//Both entities have passed through null object pattern, so now we can perform the actual
+		// check for interaction. For now we only have the SEPARATING AXIS THEOREM SAT check.
+		
+		engine.registerCollision( checkType.check(this, entity) , this , entity);
+		
+	}
+	
+	//################################################
 	
 	   /**
      * 
@@ -34,25 +73,21 @@ public final class Collidable extends CollisionType{
     	
         boundary = new BoundingBox( new Rectangle(x_offset, y_offset, width , height) );
     }
-    
-    //overloaded function to accept Rectangle that getBounds() will return.
-    /**
-     * 
-     * @param getBounds The rectangle that will be passed any time getBounds() is called [or maybe getBounds2D, gotta try it]
-     */
-    //public void setBoundingBox(Rectangle getBounds){
-    //	boundingBox = getBounds;
-    //	boundary = new BoundingBox(getBounds);
-    //}
-	
-	public Boundary getBoundaryLocal(){
-		return boundary.atPosition( (int)owner.getX(),(int)owner.getY() );
-	}
 	
 	public Boundary getBoundary(){
 		return boundary;
 	}
-
+	public void setBoundary(Boundary newBoundary){
+		this.boundary = newBoundary;
+	}
+    
+	public Boundary getBoundaryLocal(){
+		return boundary.atPosition( (int)owner.getX(),(int)owner.getY() );
+	}
+	
+	public Boundary getBoundaryDelta(){
+		return boundary.atPosition( (int)owner.getDeltaX(),(int)owner.getDeltaY() );
+	}
 	
 	/* #################################################################################
 	 * 
@@ -70,43 +105,55 @@ public final class Collidable extends CollisionType{
 	 * @return Adds collision to this entity's current collisions and return the index where it was put
 	 */
     public int addCollision(Collision collision , boolean pairIndex){
-    	collisions.add( new CollidingPair(collision , pairIndex) );
+    	collisionInteractions.add( new CollidingPair(collision , pairIndex) );
     	//printCollisions();
-    	return ( collisions.size() - 1 );
+    	return ( collisionInteractions.size() - 1 ); //return index of added element
     }
     
     public void removeCollision(int index){ //Remove collision 
     	//System.out.println("Removing " + index + " from "+name );
-    	collisions.remove(index);
+    	
+    	collisionInteractions.remove(index);
     	//decrement indexes for all following collisions involving this entity
-    	for ( int i = index ; i < collisions.size() ; i++) {
-    		collisions.get(i).collision().indexShift(collisions.get(i).pairID());
+    	for ( int i = index ; i < collisionInteractions.size() ; i++) {
+    		collisionInteractions.get(i).collision().indexShift(collisionInteractions.get(i).pairID());
     	} 
     	//printCollisions();
     }
 	
 	public Collision[] getCollisions(){
-		Collision[] returnCollisions = new Collision[collisions.size()];
-		for ( int i = 0 ; i < collisions.size() ; i++ ){
-			returnCollisions[i] = collisions.get(i).collision();
+		Collision[] returnCollisions = new Collision[collisionInteractions.size()];
+		for ( int i = 0 ; i < collisionInteractions.size() ; i++ ){
+			returnCollisions[i] = collisionInteractions.get(i).collision();
 		}
 		return returnCollisions;
     }
 	
 	public EntityStatic[] getCollidingPartners(){
-		EntityStatic[] partners = new EntityStatic[ collisions.size() ];
-		for (int i = 0 ; i < collisions.size() ; i++){
-			partners[i] = collisions.get(i).collision().getEntityInvolved( collisions.get(i).partnerID() ) ;
+		EntityStatic[] partners = new EntityStatic[ collisionInteractions.size() ];
+		for (int i = 0 ; i < collisionInteractions.size() ; i++){
+			partners[i] = collisionInteractions.get(i).collision().getEntityInvolved( collisionInteractions.get(i).partnerID() ) ;
 		}
 		return partners;
 	}
 	
 	private void printCollisions() {
 		System.out.println("\nCollisions on "+ owner.name );
-		for ( int i = 0 ; i < collisions.size() ; i++) 
-		System.out.println("---" + i + " " + collisions.get(i).collision().collisionName);
+		for ( int i = 0 ; i < collisionInteractions.size() ; i++) 
+		System.out.println("---" + i + " " + collisionInteractions.get(i).collision().collisionName);
 	}
 	
-	
+	public EntityStatic getOwner(){
+		return this.owner;
+	}
 
+	@Override
+	public void debugDrawBoundary(Graphics2D g){
+		
+		for ( Line2D side : this.getBoundaryLocal().getSides()){
+			g.draw(side);
+		}
+		
+	}
+	
 }

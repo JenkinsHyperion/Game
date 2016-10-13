@@ -1,10 +1,6 @@
 package editing;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
-import javax.swing.event.*;
-
-import editing.*;
 import sprites.*;
 import entities.*;
 import engine.*;
@@ -81,7 +77,7 @@ public class EditorPanel extends JPanel {
 		testFlag = true;
 		this.board = boardInstance;
 		//set default selected entity so it's not null
-		setSelectedEntityThruEditor(board.getStaticEntities().get(0)); 
+		setSelectedEntityThruEditor(board.getStaticEntities().get(0)); //NEEDS ZERO ARRAY SIZE CHECK
 		
 		//set the editor's layout
 		layout = new FlowLayout(FlowLayout.LEADING, 3, 3);
@@ -306,7 +302,10 @@ public class EditorPanel extends JPanel {
 	public void addEntity(int x, int y, int offsetX, int offsetY, String path) {  //default one. Adds test entity
 		EntityStatic newEnt;
 		if (path.toLowerCase().contains("platform")) {
-			newEnt = new Platform(x, y, offsetX, offsetY, path);
+			
+			//newEnt = new Platform(x, y, offsetX, offsetY, path);
+			//
+			newEnt = EntityComposed.buildPlatform( x , y , offsetX , offsetY , path );
 		}
 		else if (path.toLowerCase().contains("ground")) {
 			newEnt = new Ground(x, y, offsetX, offsetY, path);

@@ -10,10 +10,11 @@ import javax.swing.event.*;
 
 import editing.EditorPanel;
 import entities.*; //local imports
-import entityComposites.CollisionType;
-import entityComposites.NonCollidable;
+import entityComposites.Collidable;
 import physics.*;
 import sprites.Sprite;
+import sprites.SpriteAnimated;
+import sprites.SpriteStillframe;
 import testEntities.*;
 import misc.*;
 
@@ -29,7 +30,7 @@ public class Board extends JPanel implements Runnable {
 	private java.util.Timer updateEntitiesTimer;
 	private java.util.Timer repaintTimer;
 	
-	private CollisionEngine Collisions = new CollisionEngine(this); //Refactor to a better name
+	private CollisionEngine collisionEngine = new CollisionEngine(this); //Refactor to a better name
 	private EditorPanel editorPanel;
     public Player player;
     private  PaintOverlay p;
@@ -116,14 +117,24 @@ public class Board extends JPanel implements Runnable {
         //## TESTING ##
         //Manually add test objects here
 
-        staticEntitiesList.add(new Platform(210,180,Platform.PF2));
+        /*staticEntitiesList.add(new Platform(210,180,Platform.PF2));
         staticEntitiesList.add(new Platform(170,180,Platform.PF1));
         staticEntitiesList.add(new Platform(250,240,Platform.PF2));
         staticEntitiesList.add(new Platform(210,240,Platform.PF2));
         staticEntitiesList.add(new Platform(50,180,Platform.PF2));
         staticEntitiesList.add(new Platform(60,270,Platform.PF2));
         staticEntitiesList.add(new Ground(200,500,"ground_1.png"));
-        staticEntitiesList.add(new Slope(40,160));
+        staticEntitiesList.add(new Slope(40,160));*/
+        
+        EntityStatic testEntity = new EntityStatic("Test Ground",200,500);
+        
+        Collidable collidable = new Collidable(testEntity, new Boundary.Box(446,100,-223,-50) );
+        
+        testEntity.setCollisionProperties( collidable );
+        testEntity.loadSprite("ground_1.png" , -223 , -53 );
+
+        staticEntitiesList.add( testEntity );
+        
         
       	physicsEntitiesList.add(new EntityPhysics(120,260,"box.png"));
         dynamicEntitiesList.add(new Bullet(100,100,1,1));
@@ -148,7 +159,7 @@ public class Board extends JPanel implements Runnable {
         TimerTask updateEntitiesTask = new TimerTask() {
         	@Override
         	public void run(){
-        		Collisions.checkCollisions();
+        		collisionEngine.checkCollisions();
         		updateEntities();
 
         	}
@@ -632,21 +643,23 @@ public class Board extends JPanel implements Runnable {
 	    g.drawString("AccX: " + player.getAccX() + "  AccY: " + player.getAccY(),5,45);
 	    g.drawString("Rotation: " + player.getAngle()*5 + " degrees",5,60);
 	    g.drawString("Colliding: " + player.isColliding(),5,75);
-	    
-	    for ( int i = 0 ; i < player.getCollisions().length ; i++ ) {
-	    	
-	    	g.drawString("Colliding with: " + player.getCollidingPartners()[i].name ,5,105+(10*i));
-	    }
-	    
-
-	    
+	        
 	    //Draw player bounding box
 	    Graphics2D g2 = (Graphics2D) g;
 
 	    g2.setColor(Color.CYAN);
-	    for (Line2D line : player.getBoundaryLocal().getSides()){
+	    
+	    collisionEngine.debugPrintCollisionList(5, 105, g);
+	    
+	    for (Line2D line : ((Collidable) player.collidability()).getBoundaryLocal().getSides()){
 	    	g2.draw(line);
 	    } 
+	    
+	    for (EntityStatic entity : staticEntitiesList){
+	    	
+	    	entity.collidability().debugDrawBoundary(g2);
+	    	
+	    }
 	    
 	    //g2.setColor(Color.DARK_GRAY);
 	    //g2.draw(player.getLocalBoundary().getTestSide(3) );
@@ -659,13 +672,13 @@ public class Board extends JPanel implements Runnable {
 	    		drawCross( ((CollisionPositioning) Collisions.list().get(i)).getClosestIntersection() , g2);
 	    }*/
 	    
-	    for ( Line2D axis : staticEntitiesList.get(2).getBoundaryLocal().getSeparatingSides() ){
-	    	g2.draw(axis);
-	    }
+	    //for ( Line2D axis : staticEntitiesList.get(2).getBoundaryLocal().getSeparatingSides() ){
+	    //	g2.draw(axis);
+	    //}
 	    
 	    
 	    g2.draw(laser.getBoundary().getSides()[0]);
-	    
+	    /*
 	    for ( EntityStatic stat : staticEntitiesList) {	    	
 	    	for (Line2D line : stat.getBoundaryLocal().getSides()){
 		    	g2.draw(line);
@@ -683,7 +696,7 @@ public class Board extends JPanel implements Runnable {
 		    	g2.draw(line);
 		    }	
 	    }
-	    
+	    */
 	    
 	    
 	    //DEBUG - DISPLAY LIST OF COLLISIONS
@@ -748,8 +761,8 @@ public class Board extends JPanel implements Runnable {
 	    drawCross( player.getX() , player.getY() , g2);
 	    drawCross( stat.getX() , stat.getY() , g2);
 	    
-	    Boundary bounds = stat.getBoundaryLocal() ;
-	    Boundary playerBounds = player.getBoundaryLocal();
+	    Boundary bounds = ((Collidable) stat.collidability()).getBoundaryLocal() ;
+	    Boundary playerBounds = ((Collidable) player.collidability()).getBoundaryLocal();
 	    
 	    Point2D playerCenter = new Point2D.Double(player.getX(), player.getY());
 	    Point2D statCenter = new Point2D.Double(stat.getX(), stat.getY());
@@ -866,7 +879,7 @@ public class Board extends JPanel implements Runnable {
     	
 
 	    
-	    drawDebugSAT( player , currentDebugEntity , g2);
+	    drawDebugSAT( player , staticEntitiesList.get(0) , g2);
 
     }
     

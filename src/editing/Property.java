@@ -1,6 +1,5 @@
 package editing;
 
-import engine.MainWindow;
 import entities.*;
 
 public class Property {

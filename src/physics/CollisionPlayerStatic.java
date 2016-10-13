@@ -1,13 +1,11 @@
 package physics;
 
-import java.awt.Rectangle;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 
-import javax.swing.plaf.SliderUI;
-
 import entities.EntityDynamic;
 import entities.EntityStatic;
+import entityComposites.*;
 
 public class CollisionPlayerStatic extends Collision {
 	
@@ -28,6 +26,10 @@ public class CollisionPlayerStatic extends Collision {
 		
 		entityPrimary = entity1;
 		entitySecondary = entity2;
+		
+		collidingSecondary = ((Collidable)entity1.collidability());
+		collidingPrimary = ((Collidable)entity1.collidability());
+		
 		collisionName = entity1.name + " + " + entity2.name;
 		
 		//GENERIC COLLISION
@@ -47,7 +49,7 @@ public class CollisionPlayerStatic extends Collision {
 	@Override
 	public void updateCollision(){ 
 		
-		Line2D[] contactingSides = entityPrimary.getBoundaryLocal().getContactingSides(entitySecondary.getBoundaryLocal());
+		Line2D[] contactingSides = collidingPrimary.getBoundaryLocal().getContactingSides(collidingSecondary.getBoundaryLocal());
 		
 		//CHECK FOR CONTACTING SIDES
 		if ( contactingSides != null ){ 
@@ -88,7 +90,7 @@ public class CollisionPlayerStatic extends Collision {
 
 			//CHECK FOR CLIPPING IN NEXT FRAME 
 			//Note this checks intersections of delta boundary, where boundary WILL BE next frame ( posX + DX , PosY + DY )
-			Line2D[][] intersectingSides = entityPrimary.getBoundaryDelta().getIntersectingSides(entitySecondary.getBoundaryLocal());
+			Line2D[][] intersectingSides = entityPrimary.getBoundaryDelta().getIntersectingSides(collidingSecondary.getBoundaryLocal());
 			
 			if ( intersectingSides != null ) { // Boundary will clip next frame
 				

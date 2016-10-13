@@ -4,8 +4,6 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-import editing.*;
-
 
 //HUGE NOTE:
 //I WILL BE CHANGING THIS INTO A PANEL, MAKING IT EXTEND EDITORPANEL.JAVA TO OBTAIN ALL ITS FIELDS,

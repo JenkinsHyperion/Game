@@ -1,6 +1,7 @@
 package testEntities;
 
 import entities.*;
+import entityComposites.Collidable;
 import physics.*;
 
 import java.awt.geom.Line2D;
@@ -107,7 +108,7 @@ public class Tracer extends EntityDynamic{ // Can extend either EntityStatic or 
     //setBoundingBox( getX(), getY()-10, Math.abs(getX()-xEndPoint), Math.abs(getY()-yEndPoint) ); 
     	// ^^^ this one works, revert if the following code below doesn't work
     	    	
-    	boundary = new Boundary(new Line2D.Double(1, 1, 100, 100));
+		((Collidable) collisionType).setBoundary( new Boundary(new Line2D.Double(1, 1, 100, 100)) );
     	
     }
     /**
@@ -151,12 +152,12 @@ public class Tracer extends EntityDynamic{ // Can extend either EntityStatic or 
     	//Rough testing collision blocking
     	beam = new Line2D.Float(getPos(),new Point(xEndPoint,yEndPoint));
     	
-    	for (Collision collision : this.getCollisions() ){
+    	for (Collision collision : ((Collidable) this.collidability()).getCollisions() ){
     		CollisionPositioning laserBlock = (CollisionPositioning) collision;
     		beam = new Line2D.Float ( getPos() , laserBlock.getClosestIntersection() );
     	}
     	
-       	boundary = new Boundary(tracer);
+    	((Collidable) collisionType).setBoundary( new Boundary(tracer) );
        	
     }
     

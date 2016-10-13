@@ -35,7 +35,7 @@ public class CollisionPlayerDynamic extends Collision {
 	}
 	
 	//CONTINUOUS COLLISION COMMANDS - Ongoing commands during collision like particle effects, sound, etc.
-	@Override
+	/*@Override
 	public void updateCollision(){ 
 				
 		// Initial Momentum = mass_1 * velocity_1 + mass_2 + velocity_2      Final Momentum = (mass_1+mass_2)velocity_both
@@ -80,13 +80,13 @@ public class CollisionPlayerDynamic extends Collision {
 		
 		
 		
-	}
+	}*/
 	
 	//FINAL COLLISION COMMANDS - Last commands before this collision object self destructs
 	@Override
 	public void completeCollision(){
 		entityPrimary.setColliding(false); // unset entity collision flag. 
-		entityPrimary.setAccX(0); //remove friction
+		entityPrimary.setAccX(0); //remove friction 
 	}
 	
 	public String toString(){

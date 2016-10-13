@@ -2,8 +2,7 @@ package testEntities;
 
 import animation.Animation;
 import animation.LoadAnimation;
-import entities.Entity;
-import entities.EntityDynamic;
+import entities.*;
 
 public class Bullet extends EntityDynamic{
 	

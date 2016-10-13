@@ -1,12 +1,11 @@
 package physics;
 
+import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Shape;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Vector;
 
 public class Boundary implements Serializable {
 	
@@ -23,6 +22,21 @@ public class Boundary implements Serializable {
 	
 	public Boundary(Line2D[] bounds) {
 		sides = bounds;
+	}
+	
+	public static class Box extends Boundary{
+		
+		public Box(int width, int height, int xOffset, int yOffset){
+			
+			sides = new Line2D[4];
+			
+			sides[0] = new Line2D.Float(xOffset , yOffset , xOffset+width , yOffset );
+			sides[1] = new Line2D.Float(xOffset+width , yOffset , xOffset+width , yOffset+height );
+			sides[2] = new Line2D.Float(xOffset+width , yOffset+height , xOffset , yOffset+height );
+			sides[3] = new Line2D.Float(xOffset , yOffset+height , xOffset , yOffset );
+
+		}
+		
 	}
 	
 	
@@ -220,21 +234,21 @@ public class Boundary implements Serializable {
 		double m2;
 		double b1;
 		double b2;
-		double intersectX; // intersectY is  m*intersectX + b  so is calculated at the end
+		double intersectX; // intersectY is  m*intersectX + b  and is calculated at the end rather than a variable 
 		
-		
-		if ( line1.getP1().getX() == line1.getP2().getX() ) { //Line is vertical, slope in undefined
+		if ( line1.getP1().getX() == line1.getP2().getX() ) { //Line1 is vertical, slope is undefined
 			
 			if ( line2.getP1().getX() != line2.getP2().getX() ) { 
-				// line 1 is vertical, so x intersect is simply x for a vertical line 
+				// Line1 is vertical, so x intersect is simply x1 on vertical line 1
 				intersectX = line1.getP1().getX() ;
-				// get y=mx+b for other line and find y intercept
+				
+				// 
 				m2 = ( line2.getP1().getY() - line2.getP2().getY()  ) / ( line2.getP1().getX() - line2.getP2().getX() );
 				b2 = line2.getP1().getY() - ( m2 * line2.getP1().getX() );
 				return new Point( (int)intersectX , (int)( (m2 * intersectX) + b2 ) );
 			}
 			else {
-				System.out.println("Identical line"  + line1.getX1());
+				//System.out.println("Identical line"  + line1.getX1());
 				return new Point( (int) line1.getX1() , (int)line1.getY1() );
 			}
 			
@@ -249,7 +263,7 @@ public class Boundary implements Serializable {
 				return new Point( (int)intersectX , (int) ( (m1 * intersectX) + b1 ) );
 			}
 			else {
-				System.out.println("Identical line" + line1.getX1());
+				//System.out.println("Identical line" + line1.getX1());
 				return new Point( (int) line1.getX1() , (int)line1.getY1() );
 			}
 		}
@@ -591,6 +605,8 @@ public Point2D farthestPointFromPoint(Point2D origin , Line2D axis){
 	public Line2D getTestSide(int i){
 		return sides[i];
 	}
+
+	
 
 	
 }

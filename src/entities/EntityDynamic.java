@@ -1,6 +1,7 @@
 package entities;
 
 
+import entityComposites.Collidable;
 import physics.Boundary;
 
 public class EntityDynamic extends EntityStatic{
@@ -54,11 +55,11 @@ public class EntityDynamic extends EntityStatic{
     public void setDY(float setdy) {
     	dy = setdy;
     }
-    
+    @Override
     public int getDeltaX(){
     	return (int)(x + dx + accX);
     }
-    
+    @Override
     public int getDeltaY(){
     	return (int)(y + dy + accY);
     }
@@ -130,7 +131,8 @@ public class EntityDynamic extends EntityStatic{
     }
     
 	public Boundary getBoundaryDelta(){
-		return boundary.atPosition( (int) (x+dx+accX), (int) (y+dy+accY ));
+		//return boundary.atPosition( (int) (x+dx+accX), (int) (y+dy+accY ));
+		return ((Collidable)collisionType).getBoundary().atPosition( (int) (x+dx+accX), (int) (y+dy+accY ) );
 	}
     
     public boolean isColliding(){ return isColliding; }

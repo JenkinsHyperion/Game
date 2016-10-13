@@ -2,18 +2,23 @@ package physics;
 
 import java.awt.Point;
 import java.awt.geom.Line2D;
-import java.util.ArrayList;
-
 import entities.EntityDynamic;
 import entities.EntityStatic;
+import entityComposites.Collidable;
 
 public class CollisionPositioning extends Collision { //TO BE MOVED TO ITS OWN INTERFACE
+	
+	private Collidable collisionPrimary;
+	private Collidable collisionSecondary;
 	
 	private Point[] intersections = new Point[0];
 	
 	public CollisionPositioning(EntityDynamic entity1, EntityStatic entity2){
 		
 		super(entity1,entity2);
+		
+		collisionPrimary = (Collidable) entity1.collidability(); // TAKE COLLIDABLE IN COSNTRUCTOR INSTEAD OF ENTITY
+		collisionSecondary = (Collidable) entity2.collidability();
 		
 		initCollision();
 		
@@ -32,11 +37,11 @@ public class CollisionPositioning extends Collision { //TO BE MOVED TO ITS OWN I
 		//OPTIMIZATION for tracers, modify the Line2D.intersects() method to trace only as far as the closest point and ignore any
 		//further points
 		
-		intersections = new Point[entityPrimary.getBoundary().getIntersectingSides(entitySecondary.getBoundaryLocal()).length];
+		intersections = new Point[entityPrimary.getBoundary().getIntersectingSides(collidingSecondary.getBoundaryLocal()).length];
 
 			//System.out.println(intersections.length);
 			for (int i = 0 ; i < intersections.length ; i++){
-				Line2D[] pair = entityPrimary.getBoundary().getIntersectingSides(entitySecondary.getBoundaryLocal())[i];
+				Line2D[] pair = entityPrimary.getBoundary().getIntersectingSides(collidingSecondary.getBoundaryLocal())[i];
 				
 				intersections[i] = new Point(
 						(int)entityPrimary.getBoundary().getIntersectionPoint(pair[1], pair[0]).getX() ,
@@ -56,14 +61,14 @@ public class CollisionPositioning extends Collision { //TO BE MOVED TO ITS OWN I
 	@Override
 	public void completeCollision(){
 		entityPrimary.setColliding(false); // unset entity collision flag. 
-		entityPrimary.removeCollision( entityPairIndex[0] );
-		entitySecondary.removeCollision(entityPairIndex[1] );
+		collisionPrimary.removeCollision( entityPairIndex[0] );
+		collisionSecondary.removeCollision(entityPairIndex[1] );
 	}
 	
 	@Override
 	public boolean isComplete(){ // Check if entities are no longer colliding
 		
-		if ( entityPrimary.getBoundary().boundaryIntersects(entitySecondary.getBoundaryLocal()) )
+		if ( entityPrimary.getBoundary().boundaryIntersects(collidingSecondary.getBoundaryLocal()) )
 			return false;
 		else {
 			completeCollision();

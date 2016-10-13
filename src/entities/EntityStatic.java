@@ -22,14 +22,14 @@ import sprites.Sprite;
 public class EntityStatic extends Entity{
 
 	public transient boolean isSelected;
-    protected transient ArrayList<CollidingPair> collisions = new ArrayList<>(); //moving to composit
-	protected transient Rectangle boundingBox = new Rectangle(0,0); //moving to composite
-	protected transient Boundary boundary = new BoundingBox(new Rectangle(2,2)); //moving to composite
+    //protected transient ArrayList<CollidingPair> collisions = new ArrayList<>(); //moving to composit
+	//protected transient Rectangle boundingBox = new Rectangle(0,0); //moving to composite
+	//protected transient Boundary boundary = new BoundingBox(new Rectangle(2,2)); //moving to composite
 	protected int offsetX;
 	protected int offsetY;
 	//COMPOSITE TESTING
-	private Sprite entitySprite = SpriteNull.getNullSprite(); //might want to put into super class unless Entity without image is useful
-	private CollisionType collisionType;
+	protected Sprite spriteType = SpriteNull.getNullSprite(); //might want to put into super class unless Entity without image is useful
+	protected CollisionProperty collisionType = new Collidable(this);
    
 	public EntityStatic(int x, int y) {
 
@@ -37,16 +37,26 @@ public class EntityStatic extends Entity{
     	isSelected = false;
     }  
 	
+	//COMPOSITE CONTRUCTION
+	public EntityStatic( String name , int x, int y) {
+    	super(x,y);
+    	this.name = name;
+    	
+    }
+	
+	public void setSpriteType(Sprite spriteType){ this.spriteType = spriteType; }
+	public void setCollisionProperties(CollisionProperty collisionType){ this.collisionType = collisionType; }
+	public Sprite getSpriteType(){ return spriteType; }
+	public CollisionProperty getCollisionType(){ return collisionType; }
+	
     public void loadSprite(String path){ // needs handling if failed. Also needs to be moved out of object class into sprites
 
-
-    	entitySprite = new SpriteStillframe(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path, this);
+    	spriteType = new SpriteStillframe(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path, this);
     }
     
     public void loadSprite(String path, int offset_x , int offset_y){ // needs handling if failed. Also needs to be moved out of object class into sprites
-    	entitySprite = new SpriteStillframe(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path, offset_x,offset_y, this);
-
-
+    	
+    	spriteType = new SpriteStillframe(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path, offset_x,offset_y, this);
     }
     
     /*protected void loadAnimatedSprite(String path){ // needs handling if failed. 
@@ -54,26 +64,26 @@ public class EntityStatic extends Entity{
     }*/
     
     protected void loadAnimatedSprite(Animation a){ // needs handling if failed. 
-    	entitySprite = new SpriteAnimated(a,this); 
+    	spriteType = new SpriteAnimated(a,this); 
     }
     
     //OPTIONAL INIT WITH OFFSET
     protected void loadAnimatedSprite(Animation a, int offsetX, int offsetY){ // needs handling if failed. 
-    	entitySprite = new SpriteAnimated(a,offsetX,offsetY,this); 
+    	spriteType = new SpriteAnimated(a,offsetX,offsetY,this); 
     }
     
     protected void setEntitySpriteOffset(int x , int y){
-    	entitySprite.setOffset(x, y); 
+    	spriteType.setOffset(x, y); 
     }
     
     public Sprite getEntitySprite(){ // gets the Object's sprite, still image or animation
-    	return entitySprite;
+    	return spriteType;
     }
     public int getSpriteOffsetX(){
-    	return entitySprite.getOffsetX(); 
+    	return spriteType.getOffsetX(); 
     }
     public int getSpriteOffsetY() {
-    	return entitySprite.getOffsetY();
+    	return spriteType.getOffsetY();
     }
     /**
      * 
@@ -85,8 +95,8 @@ public class EntityStatic extends Entity{
      */
     public void setBoundingBox(int x_offset, int y_offset , int width , int height) {
     	
-        boundingBox = new Rectangle(x_offset, y_offset, width , height);
-        boundary = new BoundingBox(boundingBox);
+        //boundingBox = new Rectangle(x_offset, y_offset, width , height);
+        //boundary = new BoundingBox(boundingBox);
     }
     
     //overloaded function to accept Rectangle that getBounds() will return.
@@ -99,16 +109,23 @@ public class EntityStatic extends Entity{
     //	boundary = new BoundingBox(getBounds);
     //}
 	
-	public Rectangle getBoundingBox(){ //move position to override in dynamic entity since static doesnt need position calc.
-		return new Rectangle (getX() + boundingBox.x , getY() + boundingBox.y , boundingBox.width , boundingBox.height);
-	}
+	//public Rectangle getBoundingBox(){ //move position to override in dynamic entity since static doesnt need position calc.
+	//	return new Rectangle (getX() + boundingBox.x , getY() + boundingBox.y , boundingBox.width , boundingBox.height);
+	//}
 	
-	public Boundary getBoundaryLocal(){
-		return boundary.atPosition((int)x,(int)y);
-	}
+    public CollisionProperty collidability(){
+    	
+    	return collisionType;
+    }
+
+	//public Boundary getBoundaryLocal(){
+		
+	//	return ((Collidable)collisionType).getBoundary().atPosition((int)x,(int)y);
+	//}
 	
 	public Boundary getBoundary(){
-		return boundary;
+		
+	    return ((Collidable)collisionType).getBoundary();
 	}
 
 	@Override
@@ -141,7 +158,7 @@ public class EntityStatic extends Entity{
 	 * @param collision
 	 * @return Adds collision to this entity's current collisions and return the index where it was put
 	 */
-    public int addCollision(Collision collision , boolean pairIndex){
+    /*public int addCollision(Collision collision , boolean pairIndex){
     	collisions.add( new CollidingPair(collision , pairIndex) );
     	//printCollisions();
     	onCollisionEvent();
@@ -179,12 +196,15 @@ public class EntityStatic extends Entity{
 		System.out.println("\nCollisions on "+ name );
 		for ( int i = 0 ; i < collisions.size() ; i++) 
 		System.out.println("---" + i + " " + collisions.get(i).collision().collisionName);
-	}
+	}*/
 
 	public void move(Point distance) { //MAKE VECTOR LATER
 
 		x=x+(float)distance.getX();
 		y=y+(float)distance.getY();
 	}
+
+	public int getDeltaX() { return this.getX(); }
+	public int getDeltaY() { return this.getY(); }
 	
 }

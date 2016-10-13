@@ -1,5 +1,6 @@
 package physics;
 
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Line2D;
@@ -12,6 +13,7 @@ import engine.Board;
 import entities.EntityDynamic;
 import entities.EntityStatic;
 import entities.Player;
+import entityComposites.*;
 
 public class CollisionEngine implements Serializable{
 
@@ -61,13 +63,13 @@ public class CollisionEngine implements Serializable{
 	    	
     	Player player = currentBoard.getPlayer();
 	    	
-        Rectangle r0 = currentBoard.getPlayer().getBoundingBox(); // get bounding box of player first
+        //Rectangle r0 = currentBoard.getPlayer().getBoundingBox(); // get bounding box of player first
 	 
         //make larger box to represent distance at which a new collision will be opened 
-        Rectangle r3 = new Rectangle(r0.x - 1 , r0.y - 1, r0.width + 2, r0.height + 2); 
+        //Rectangle r3 = new Rectangle(r0.x - 1 , r0.y - 1, r0.width + 2, r0.height + 2); 
 
         //KILL PLAYER AT BOTTOM OF SCREEN
-        if (r3.getMinY() > currentBoard.getboundaryY()) {  
+        if (player.getX() > currentBoard.getboundaryY()) {  
 	        	
         	//could be teleport(x,y) or reposition(x,y) method in either player or parent entity classes
         	player.setX(currentBoard.ICRAFT_X);
@@ -82,68 +84,34 @@ public class CollisionEngine implements Serializable{
 	        
         // Check collisions between player and static objects
         for ( EntityStatic statS : currentBoard.getStaticEntities() ) {    
-        //EntityStatic statS = currentBoard.getStaticEntities().get(1);
         
-        		if ( checkForCollisionsSAT(player, statS) ) {
+        	statS.collidability().checkForInteractionWith(player.collidability() , CollisionCheck.SAT, this);
+        	
+        	
+        		/*if ( checkForCollisionsSAT(player, statS) ) { 
         			 //check to see if collision isn't already occurring
-        			if (!hasActiveCollision(player,statS)) {
+        			if (!hasActiveCollision(player,statS)) { 
         				// if not, add new collision event
         				//int index = currentBoard.getStaticEntities().size() + 1 ;
         			    System.out.println( "Collision detected" );
         				collisionsList.add(new CollisionPlayerStaticSAT(player,statS) ); 
         				
         			} 	
-        		}
+        		}*/
         }
 	        
 	        // TEST LASER COLLISION 
-	        for (EntityStatic stat : currentBoard.getStaticEntities()) {                	
-	        	if ( currentBoard.laser.getBoundary().boundaryIntersects( stat.getBoundaryLocal() ) ) {
+	        /*for (EntityStatic stat : currentBoard.getStaticEntities()) {                	
+	        	if ( currentBoard.laser.getBoundary().boundaryIntersects( ((Collidable) stat.collidability()).getBoundaryLocal() ) ) {
 		            	
 		            //OPEN COLLISION
 		            if (!hasActiveCollision(currentBoard.laser,stat)) { //check to see if collision isn't already occurring
 		            	collisionsList.add(new CollisionPositioning(currentBoard.laser, stat)); // if not, add new collision event
 		            } 		            
 		   		}
-	        }
+	        }*/
 	        
-	        
-	        
-	        //Check collisions between dynamics entities and static entities
-        for (EntityDynamic dynamicEntity : currentBoard.getDynamicEntities()) { //index through physics entities        
-	            
-        	Rectangle r1 = dynamicEntity.getBoundingBox();            
-            for (EntityStatic statEntity : currentBoard.getDynamicEntities()){ // index through static entities	
-            	
-            	Rectangle r2 = statEntity.getBoundingBox();
-            
-	            if (r1.intersects(r2)) {
-	            	
-	            	if (!hasActiveCollision(dynamicEntity,statEntity)) { 
-	            		collisionsList.add(new CollisionPositioning(dynamicEntity,statEntity)); 
-	            	}
-	            }  
-	            
-            }
-            
-        }
-        
-
-        // Check collisions between player and physics objects
-        for (EntityDynamic physics : currentBoard.getPhysicsEntities() ) { 
-        	
-        	if ( checkForCollisionsSAT(player, physics) ) {
-   			 //check to see if collision isn't already occurring
-   			if (!hasActiveCollision(player,physics)) {
-   				// if not, add new collision event
-   				//int index = currentBoard.getStaticEntities().size() + 1 ;
-   			    System.out.println( "Physics-Dynamic collision detected" );
-   				collisionsList.add(new CollisionPlayerStaticSAT(player,physics) ); 
-   				
-   			} 	
-   		}
-        	
-        }
+	    
         
         // END OF CHECKS, update and remove collisions that completed;
     	updateCollisions();    
@@ -151,9 +119,25 @@ public class CollisionEngine implements Serializable{
     }
     
     
-    protected boolean checkForCollisionsSAT( EntityDynamic entityPrimary , EntityStatic entitySecondary ) {
+    public void registerCollision( boolean bool , Collidable collidable1 , Collidable collidable2){
+    	
+    	if ( bool ) { 
+		 //check to see if collision isn't already occurring
+    		if (!hasActiveCollision(collidable1.getOwner(),collidable2.getOwner())) { 
+			// if not, add new collision event
+			//int index = currentBoard.getStaticEntities().size() + 1 ;
+    			System.out.println( "Collision detected" );
+    			collisionsList.add(new CollisionPlayerStaticSAT( collidable1 , collidable2 ) ); 
+			
+			} 	
+    	}
+    	//else System.out.println("TEST");
+    	
+    }
+    
+    /*protected boolean checkForCollisionsSAT( EntityDynamic entityPrimary , EntityStatic entitySecondary ) {
         
-	    for ( Line2D separatingSide : entityPrimary.getBoundaryLocal().getSeparatingSides() ){
+	    for ( Line2D separatingSide : ((Collidable)entityPrimary.collidability()).getBoundaryLocal().getSeparatingSides() ){
 	    	
 	    	Point distanceVector = getDistanceSAT( separatingSide , entityPrimary , entitySecondary );
 	    	
@@ -176,28 +160,28 @@ public class CollisionEngine implements Serializable{
 
 	    return true;
     	
-    }
+    }*/
     
     
-    private Point getDistanceSAT( Line2D separatingSide , EntityDynamic entityPrimary , EntityStatic stat ){
+    private Point getDistanceSAT( Line2D separatingSide , Collidable entityPrimary , Collidable stat ){
 	    
 	    Boundary bounds = stat.getBoundaryLocal() ;
 	    Boundary playerBounds = entityPrimary.getBoundaryDelta();
 	    //Boundary playerBounds = entityPrimary.getBoundaryLocal();
 	    
-	    int deltaX = (int) (entityPrimary.getX() + entityPrimary.getDX() );
-	    int deltaY = (int) (entityPrimary.getY() + entityPrimary.getDY() );
+	    int deltaX = (int) (entityPrimary.getOwner().getDeltaX() );
+	    int deltaY = (int) (entityPrimary.getOwner().getDeltaY() );
 	    
 	    Point2D playerCenter = new Point2D.Double(deltaX, deltaY);
 	    //Point2D playerCenter = new Point2D.Double(entityPrimary.getX(), entityPrimary.getY());
 	    
-	    Point2D statCenter = new Point2D.Double(stat.getX(), stat.getY());
+	    Point2D statCenter = new Point2D.Double(stat.getOwner().getX(), stat.getOwner().getY());
 		
 		
 		Line2D axis = bounds.getSeparatingAxis(separatingSide); //OPTIMIZE TO SLOPE ONLY CALCULATIONS
 	    
 	    Line2D centerDistance = new Line2D.Float(deltaX , deltaY,
-	    		stat.getX() , stat.getY() );
+	    		stat.getOwner().getX() , stat.getOwner().getY() );
 	    Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
 	 
 	    
@@ -269,8 +253,8 @@ public class CollisionEngine implements Serializable{
      */
     private Vector getDistanceSAT2( Line2D separatingSide , EntityStatic entityA , EntityStatic entityB ){
 	    
-	    Boundary boundsB = entityB.getBoundaryLocal(); 
-	    Boundary boundsA = entityA.getBoundaryLocal();
+	    Boundary boundsB = ((Collidable) entityB.collidability()).getBoundaryLocal(); 
+	    Boundary boundsA = ((Collidable) entityA.collidability()).getBoundaryLocal();
 	    
 	    Point2D centerA = new Point2D.Double(entityA.getX(), entityA.getY());
 	    Point2D centerB = new Point2D.Double(entityB.getX(), entityB.getY());
@@ -391,7 +375,14 @@ public class CollisionEngine implements Serializable{
     
 	    
 
-    public LinkedList<Collision> list(){ return collisionsList; } //OPTIMIZATION reduce visibility of array list
+    public void debugPrintCollisionList( int x, int y ,Graphics g){
+    	
+    	for ( int i = 0 ; i < this.collisionsList.size() ; i++ ) {
+	    	
+	    	g.drawString( collisionsList.get(i).toString() , x , y+(10*i) );
+	    }
+    	
+    }
 	    
 }
 	   

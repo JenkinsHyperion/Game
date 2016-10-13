@@ -1,22 +1,14 @@
 
 package editing;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Image;
-import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.border.BevelBorder;
 import javax.swing.*;
-
-import editing.*;
-import engine.*;
-import sprites.*;
 
 @SuppressWarnings("serial")
 public class IconLoader extends JFrame {

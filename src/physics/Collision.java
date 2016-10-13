@@ -6,8 +6,8 @@ import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import entities.EntityDynamic;
-import entities.EntityStatic;
+import entities.*;
+import entityComposites.*;
 
 public class Collision implements Serializable{
 	
@@ -15,6 +15,10 @@ public class Collision implements Serializable{
 	
 	protected EntityDynamic entityPrimary;
 	protected EntityStatic entitySecondary;
+	
+	protected Collidable collidingPrimary ;
+	protected Collidable collidingSecondary; 
+	
 	public String collisionName;
 	
 	protected int[] entityPairIndex = new int[2];
@@ -32,11 +36,15 @@ public class Collision implements Serializable{
 		
 		entityPrimary = e1;
 		entitySecondary = e2;
+		
+		collidingPrimary = (Collidable) e1.collidability(); //TRACE ALL CASTS BACK TO PASSING COLLIDABLE IN CONSTRUCTOR
+		collidingSecondary = (Collidable) e2.collidability();
+		
 		collisionName = e1.name + " + " + e2.name;
 		
 		//THIS TEST COLLISION IS A NORMAL SURFACE SUCH AS A FLAT PLATFORM
-		entityPairIndex[0] = e1.addCollision(this,true); 
-		entityPairIndex[1] = e2.addCollision(this,false);
+		entityPairIndex[0] = ((Collidable) e1.collidability()).addCollision(this,true); 
+		entityPairIndex[1] = ((Collidable) e2.collidability()).addCollision(this,false); 
 		//initCollision();
 	}
 	
@@ -52,8 +60,11 @@ public class Collision implements Serializable{
 	
 	//FINAL COLLISION COMMANDS - Last commands before this collision object self destructs
 	public void completeCollision(){
-		entityPrimary.removeCollision( entityPairIndex[0] );
-		entitySecondary.removeCollision(entityPairIndex[1] );
+		//((Collidable) entityPrimary.getCollisionProperty()).removeCollision( entityPairIndex[0] );
+		//((Collidable) entitySecondary.getCollisionProperty()).removeCollision( entityPairIndex[1] );
+		
+		
+		
 	}
 	
 	public void indexShift( boolean pairIndex ){

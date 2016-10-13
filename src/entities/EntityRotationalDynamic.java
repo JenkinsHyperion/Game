@@ -6,6 +6,7 @@ import java.awt.geom.Point2D;
 
 import physics.Boundary;
 import physics.BoundingBox;
+import entityComposites.*;
 
 public class EntityRotationalDynamic extends EntityDynamic{
 	
@@ -18,11 +19,14 @@ public class EntityRotationalDynamic extends EntityDynamic{
 	}
 	
 	@Override
-    public void setBoundingBox(int x_offset, int y_offset , int width , int height) {
+    public void setBoundingBox(int xOffset, int yOffset , int width , int height) {
     	
-        boundingBox = new Rectangle(x_offset, y_offset, width , height);
-        boundary = new BoundingBox(boundingBox);
-        storedBounds = boundary;
+		Boundary boundarytemp =  new Boundary.Box(width, height, xOffset, yOffset);
+		
+		((Collidable) collisionType).setBoundary( boundarytemp );
+		
+		storedBounds = boundarytemp;
+		boundarytemp = null;
     }
 	
 	public Boundary getBoundaryAtAngle(double angle){ //OPTIMIZATION TRIG FUNCTIONS ARE NOTORIOUSLY EXPENSIVE Look into performing some trig magic
@@ -72,7 +76,7 @@ public class EntityRotationalDynamic extends EntityDynamic{
         	else if ((int)angle<-36){angle=36;}
 
     	
-        	boundary = getBoundaryAtAngle((int)angle * ((2*Math.PI)/72) ); 
+        	((Collidable) collisionType).setBoundary( getBoundaryAtAngle((int)angle * ((2*Math.PI)/72) ) ); 
     	}
     }
 	

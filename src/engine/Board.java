@@ -57,7 +57,6 @@ public class Board extends JPanel implements Runnable {
     
     private double time = 0;
     private double deltaTime = 0;
-    
 
     private final int[][] pos = {
         {2380, 29}, {2500, 59}, {1380, 89},
@@ -184,7 +183,6 @@ public class Board extends JPanel implements Runnable {
         	}
         }; */
         //Trying out Swing timer instead of util Timer
-
         ActionListener repaintUpdateTaskSwing = new ActionListener() {
         	@Override
         	public void actionPerformed(ActionEvent e) {
@@ -201,8 +199,7 @@ public class Board extends JPanel implements Runnable {
         
         //updateBoard();
         //collisionThread.start();
-    }
-    
+    }    
     @Override	
     public void paintComponent(Graphics g) {  
         super.paintComponent(g);
@@ -213,15 +210,12 @@ public class Board extends JPanel implements Runnable {
         	editorPanel.getWorldGeom().drawVertexPoints(g);
         	editorPanel.getWorldGeom().drawSurfaceLines(g);
         }
-    }
-    
+    }   
     /* ##################
      * ## UPDATE BOARD ##    (non-Javadoc)
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      * ##################
      */
-    
-
       public void updateEntities(){ //TESTING CONSTANT FPS
     	      
           deltaTime = System.currentTimeMillis() - time ;
@@ -240,10 +234,8 @@ public class Board extends JPanel implements Runnable {
 		          
 	          //}
 		          
-		         //Toolkit.getDefaultToolkit().sync(); // what does this even do
-          
+		         //Toolkit.getDefaultToolkit().sync(); // what does this even do         
       }
-
     //spawn bullets (TESTING)
     public void initBullets() {
 
@@ -251,17 +243,12 @@ public class Board extends JPanel implements Runnable {
             dynamicEntitiesList.add(new Bullet(p[0], p[1],-1,1)); 
         }
         
-    }
-    
-
-    
-    
+    }  
     /* ####################
      * Nested Static class allowing Board objects access to the Board.
      * This is bad form, instead pass board instance through constructors of objects that need access to board 
      *###################*/
-	
-    	
+  	
     	//spawn new entities and add to Board
         public void spawnDynamicEntity(EntityDynamic spawn) {
         	
@@ -276,10 +263,6 @@ public class Board extends JPanel implements Runnable {
         public int getBoardWidth(){
         	return B_WIDTH;
         }
-        
-
-    
-
 /* ########################################################################################################################
  * 
  * 		RENDERING
@@ -290,10 +273,7 @@ public class Board extends JPanel implements Runnable {
     	
     	//Draw all static entities from list (ex. platforms)
     	
-    	//Draw ghostSprite for editor using null-object pattern
-    	//
-    	
-    	
+    	//Draw ghostSprite for editor using null-object pattern   	
     	if (staticEntitiesList.size() > 0 && staticEntitiesList != null) {  //must null check in case all items are deleted
 	        for (EntityStatic stat : staticEntitiesList) {
 	        	//g.drawImage(stat.getEntitySprite().getImage(), 
@@ -308,8 +288,7 @@ public class Board extends JPanel implements Runnable {
             if (dynamic.getEntitySprite().isVisible()) {
                 g.drawImage(dynamic.getEntitySprite().getImage(), dynamic.getX(), dynamic.getY(), this);
             }
-        }
-        
+        }       
         //Draw physics entities
         for (EntityDynamic physics : physicsEntitiesList) {
             if (physics.getEntitySprite().isVisible()) {
@@ -328,32 +307,22 @@ public class Board extends JPanel implements Runnable {
              
             }
         }
-
 		//Draw player
         if (player.getEntitySprite().isVisible()) {
             ((Graphics2D) g).drawImage(player.getEntitySprite().getImage(), 
             		player.getX() - player.getEntitySprite().getOffsetX() , 
             		player.getY() - player.getEntitySprite().getOffsetY(), this);
-        }
-
-
-        
+        }   
         //laser.setxEndPoint(B_WIDTH);
        // laser.setyEndPoint(physicsEntitiesList.get(0).getY()+10);
-        laser.pewpew(g);
-                
+        laser.pewpew(g);                
         if (debug1On){ drawDebugBoundaries(g); }
         if (debug2On){ drawDebugCollisions(g); }
 
     }
-
-    
-   
     public void drawGhostSprite(Graphics g, Sprite ghost, Point mousePos) {
     	ghost.editorDraw(g, mousePos);
-    }
-    
-    
+    }   
     // Update position and Graphic of dynamic objects
     private void updateDynamicEntities() {
     	//for (EntityDynamic dynamicEntity : dynamicObjects) {     	

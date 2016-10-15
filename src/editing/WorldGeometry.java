@@ -1,6 +1,8 @@
 package editing;
 
 import engine.*;
+import entities.EntityStatic;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -38,15 +40,20 @@ public class WorldGeometry {
 	private BufferedImage vertexPic;
 	private boolean keypressSHIFT;
 	private Point worldGeomMousePos;
+	private int worldGeomMode;
+	private static final int VERTEXDRAWING_MODE = 0;
+	private static final int VERTEXSELECT_MODE = 1;
+	private Point currentSelectedVertex;
 	
 	private int offsetX; //actual point will be within the square's center, so square must be offset.
 	private int offsetY;
-	private int yClamp;
+
 	private boolean vertexPlacementAllowed;
 	
 	public WorldGeometry(EditorPanel editorPanelRef, Board board) { 
 		this.editorPanel = editorPanelRef;
 		this.board = board;
+		worldGeomMode = VERTEXDRAWING_MODE;
 		vertexPlacementAllowed = true;
 		updateSurfaceLines();
 		worldGeomMousePos = new Point();
@@ -144,15 +151,63 @@ public class WorldGeometry {
 	public void clearAllVertices() {
 		vertexPoints.clear();
 	}
+	public void setCurrentSelectedVertex(Point newSelectedVertex){
+		currentSelectedVertex = newSelectedVertex;
+	}
+	//VERTEX SELECTION AREA: IDENTICAL TO SPRITE SELECTION BECAUSE THE FUNCTIONALITY WORKS WELL
+	/*
+	public void checkForSelection(Point click) 
+	{
+  		setCurrentSelectedEntity(clickedOnEntity(click));
+  		//currentSelectedEntity = clickedOnEntity(click);
+  		if (currentSelectedEntity != null)
+  			board.currentDebugEntity = currentSelectedEntity;
+  	}
+  	public EntityStatic clickedOnEntity(Point click) {
+  		int counter = 0;
+  		for (EntityStatic entity : board.getStaticEntities()) 
+  		{
+  			
+	 		if (entity.getEntitySprite().hasSprite())  //if entity has sprite, select by using sprite dimensions
+	 		{ 
+	  			selectedBox.setLocation(entity.getX() + entity.getSpriteOffsetX(), entity.getY() + entity.getSpriteOffsetY());
+	  			selectedBox.setSize(entity.getEntitySprite().getImage().getWidth(null), entity.getEntitySprite().getImage().getHeight(null) );
+	  			if (selectedBox.contains(click)) 
+	  			{
+	  				//entity.isSelected = true;
+	  				enableEditPropertiesButton(true); //might not need
+	  				restorePanels();
+	  				setAllEntitiesComboBoxIndex(counter);
+	  	  			setSelectedEntityNameLabel("Selected: " + entity.name);
+	  	  			setEntityCoordsLabel("Coords. of selected entity: " + entity.getX() + ", " + entity.getY());
+	  				return entity;
+	  			}
+	  			counter++;	  			
+	 		}
+	 		else {
+	 			//Entity has no sprite, so selection needs some other method, like by boundary
+	 		} 			
+  		}
+  		//nothing was found under cursor: 
+  		enableEditPropertiesButton(false);
+  		minimizePanels();
+  		return null;
+  	}
+	*/
+	//// WORLD GEOM'S MOUSE HANDLING SECTION  ////////////
 	public void mousePressed(MouseEvent e) {
 		// TODO Auto-generated method stub
-		if (editorPanel.mode== EditorPanel.WORLDGEOM_MODE) //might be reduntant, leave for now
+		if (this.worldGeomMode == VERTEXDRAWING_MODE) 
 		{
 			if (vertexPlacementAllowed == true)
 				addVertex(worldGeomMousePos.x, worldGeomMousePos.y);
 		}
+		else if (this.worldGeomMode == VERTEXSELECT_MODE)
+		{
+			/// same type of code for checking selection of sprites
+			/// will need to draw projected rectangle around each vertex to make it easier to click.
+		}
 	}
-
 	public void mouseDragged(MouseEvent e) {
 		// TODO Auto-generated method stub
 		
@@ -173,6 +228,7 @@ public class WorldGeometry {
 		// TODO Auto-generated method stub
 		
 	}
+	//END OF MOUSE HANDLING //////
 	
 	//KEY EVENTS PASSED IN FROM BOARD
 	public void keyPressed(KeyEvent e){
@@ -199,6 +255,7 @@ public class WorldGeometry {
 	public boolean getShiftHeld() {
 		return this.keypressSHIFT;
 	}
+	//// END OF KEY HANDLING SECTION /////
 	public Point getWorldGeomMousePos() {
 		return worldGeomMousePos;
 	}

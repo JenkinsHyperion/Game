@@ -328,14 +328,7 @@ public class EditorPanel extends JPanel {
 		mouseClick = false;
 	}
 	
-  	public void checkForSelection(Point click) { //redundant
-  		setCurrentSelectedEntity(clickedOnEntity(click));
-  		//currentSelectedEntity = clickedOnEntity(click);
 
-  		if (currentSelectedEntity != null)
-  			board.currentDebugEntity = currentSelectedEntity;
-
-  	}
   	 public void drawEditorSelectedRectangle(EntityStatic stat, Graphics g) {
  	    if (currentSelectedEntity != null) {	
  	    	if (stat == currentSelectedEntity) {
@@ -351,11 +344,21 @@ public class EditorPanel extends JPanel {
  	    	}
  	    }
      }
-  	private EntityStatic clickedOnEntity(Point click) {
+   	public void checkForSelection(Point click) { //redundant
+  		setCurrentSelectedEntity(clickedOnEntity(click));
+  		//currentSelectedEntity = clickedOnEntity(click);
+
+  		if (currentSelectedEntity != null)
+  			board.currentDebugEntity = currentSelectedEntity;
+
+  	}
+  	public EntityStatic clickedOnEntity(Point click) {
   		int counter = 0;
-  		for (EntityStatic entity : board.getStaticEntities()) {
+  		for (EntityStatic entity : board.getStaticEntities()) 
+  		{
   			
-	 		if (entity.getEntitySprite().hasSprite()){ //if entity has sprite, select by using sprite dimensions
+	 		if (entity.getEntitySprite().hasSprite())  //if entity has sprite, select by using sprite dimensions
+	 		{ 
 	  			selectedBox.setLocation(entity.getX() + entity.getSpriteOffsetX(), entity.getY() + entity.getSpriteOffsetY());
 	  			selectedBox.setSize(entity.getEntitySprite().getImage().getWidth(null), entity.getEntitySprite().getImage().getHeight(null) );
 	  			if (selectedBox.contains(click)) 
@@ -373,11 +376,8 @@ public class EditorPanel extends JPanel {
 	 		}
 	 		else {
 	 			//Entity has no sprite, so selection needs some other method, like by boundary
-	 		}
-  			
+	 		} 			
   		}
-  		//TESTING BOX SELECTION
-
   		//nothing was found under cursor: 
   		enableEditPropertiesButton(false);
   		minimizePanels();

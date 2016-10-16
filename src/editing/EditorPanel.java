@@ -346,7 +346,7 @@ public class EditorPanel extends JPanel {
  	        	Stroke oldStroke = g2.getStroke();
  	        	float thickness = 2;
  	        	g2.setStroke(new BasicStroke(thickness));
- 	    		g2.drawRect(stat.getX() + stat.getSpriteOffsetX(), stat.getY() + stat.getSpriteOffsetY(),width,height);
+ 	    		g2.drawRect(stat.getXRelativeTo(board.camera) + stat.getSpriteOffsetX(), stat.getYRelativeTo(board.camera) + stat.getSpriteOffsetY(),width,height);
  	    		g2.setStroke(oldStroke);
  	    	}
  	    }
@@ -356,7 +356,7 @@ public class EditorPanel extends JPanel {
   		for (EntityStatic entity : board.getStaticEntities()) {
   			
 	 		if (entity.getEntitySprite().hasSprite()){ //if entity has sprite, select by using sprite dimensions
-	  			selectedBox.setLocation(entity.getX() + entity.getSpriteOffsetX(), entity.getY() + entity.getSpriteOffsetY());
+	  			selectedBox.setLocation(entity.getXRelativeTo(board.camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(board.camera) + entity.getSpriteOffsetY());
 	  			selectedBox.setSize(entity.getEntitySprite().getImage().getWidth(null), entity.getEntitySprite().getImage().getHeight(null) );
 	  			if (selectedBox.contains(click)) 
 	  			{

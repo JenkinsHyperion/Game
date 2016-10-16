@@ -6,6 +6,7 @@ import java.awt.Point;
 import java.io.Serializable;
 
 import animation.Animation;
+import engine.Camera;
 import entities.EntityStatic;
 
 /*
@@ -13,7 +14,7 @@ import entities.EntityStatic;
  */
 public abstract class Sprite implements Serializable {
 	
-	protected EntityStatic owner;
+	public EntityStatic owner;
     protected boolean visibility;
     protected int spriteOffsetX = 0;
     protected int spriteOffsetY = 0;
@@ -22,7 +23,8 @@ public abstract class Sprite implements Serializable {
 //ABSTRACT FUNCTIONS 
 	//This is a getImage() that works for both still and animated sprites, so draw functions in Board 
     //can call a generalized format.
-    public abstract void drawSprite(Graphics g);
+    public abstract void drawSprite(Graphics g , Camera camera);
+    public abstract void drawSprite(Graphics g );
     public abstract void editorDraw(Graphics g, Point pos);
     
 	public abstract Image getImage(); 

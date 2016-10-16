@@ -5,6 +5,7 @@ import java.awt.Image;
 import java.awt.Point;
 
 import animation.Animation;
+import engine.Camera;
 import entities.EntityStatic;
 
 public class SpriteAnimated extends Sprite {  // Sprite with animation
@@ -33,7 +34,11 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
 
     @Override
     public void drawSprite(Graphics g){
-    	//g.drawImage(this.getImage(), x, y, observer)
+    	g.drawImage(this.getImage(), this.owner.getX() + spriteOffsetX, this.owner.getY() + spriteOffsetY, null);
+    }
+    @Override
+    public void drawSprite(Graphics g , Camera camera){
+    	camera.draw(this, g);
     }
     @Override
     public void editorDraw(Graphics g, Point pos){

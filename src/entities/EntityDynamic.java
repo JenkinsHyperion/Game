@@ -66,27 +66,43 @@ public class EntityDynamic extends EntityStatic{
     
     public void clipDX(float clipDX) {
     	if ( dx > 0 ) {
-    		
-    		if (clipDX < dx){ dx = dx - clipDX ; }
-    		else { dx = 0 ; }
+    	    
+    		if ( clipDX < 0 ){ 
+    			if ( clipDX + dx > 0)
+    				dx = dx + clipDX;
+    			else
+    				dx = 0;
+    		}
     	}
     	else if ( dx < 0 ) {
     		
-    		if (clipDX > dx){ dx =  dx - clipDX ; }
-    		else { dx = 0 ; }
+    		if ( clipDX > 0 ){ 
+    			if ( clipDX + dx < 0)
+    				dx = dx + clipDX;
+    			else
+    				dx = 0;
+    		}
     	}
     }
     
-    public void clipDY(float clipDY) {
+    public void clipDY(float clipDY) { 
     	if ( dy > 0 ) {
     
-    		if (clipDY < dy){ dy = dy - clipDY  ; }
-    		else { dy = 0 ; }
+    		if ( clipDY < 0 ){ 
+    			if ( clipDY + dy > 0)
+    				dy = dy + clipDY;
+    			else
+    				dy = 0;
+    		}
     	}
     	else if ( dy < 0 ) {
     		
-    		if (clipDY > dy){ dy = clipDY - dy  ; }
-    		else { dy = 0 ; }
+    		if ( clipDY > 0 ){ 
+    			if ( clipDY + dy < 0)
+    				dy = dy + clipDY;
+    			else
+    				dy = 0;
+    		}
     	}
     }
     

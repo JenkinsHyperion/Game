@@ -5,6 +5,7 @@ import java.awt.Image;
 import java.awt.Point;
 
 import animation.Animation;
+import engine.Camera;
 
 public class SpriteNull extends Sprite{
 	
@@ -23,6 +24,10 @@ public class SpriteNull extends Sprite{
 	
     @Override
     public void drawSprite(Graphics g){
+    	//DO NOTHING 
+    }
+    @Override
+    public void drawSprite(Graphics g , Camera camera){
     	//DO NOTHING 
     }
     @Override

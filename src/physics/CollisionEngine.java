@@ -87,17 +87,12 @@ public class CollisionEngine implements Serializable{
         
         	statS.collidability().checkForInteractionWith(player.collidability() , CollisionCheck.SAT, this);
         	
+        }
+        
+        for ( EntityStatic statS : currentBoard.getPhysicsEntities() ) {    
+            
+        	statS.collidability().checkForInteractionWith(player.collidability() , CollisionCheck.SAT, this);
         	
-        		/*if ( checkForCollisionsSAT(player, statS) ) { 
-        			 //check to see if collision isn't already occurring
-        			if (!hasActiveCollision(player,statS)) { 
-        				// if not, add new collision event
-        				//int index = currentBoard.getStaticEntities().size() + 1 ;
-        			    System.out.println( "Collision detected" );
-        				collisionsList.add(new CollisionPlayerStaticSAT(player,statS) ); 
-        				
-        			} 	
-        		}*/
         }
 	        
 	        // TEST LASER COLLISION 

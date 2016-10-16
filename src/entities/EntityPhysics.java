@@ -1,5 +1,9 @@
 package entities;
 
+import entityComposites.Collidable;
+import entityComposites.NonCollidable;
+import physics.Boundary;
+
 public class EntityPhysics extends EntityDynamic{
 	
 	int yReturn;
@@ -8,7 +12,7 @@ public class EntityPhysics extends EntityDynamic{
     	super(x,y);
 
 		initPhysics(x,y,path);
-		setBoundingBox(0,0,24,24);
+		//setBoundingBox(0,0,24,24);
 		name = "Box"+count;
     	
     }
@@ -16,6 +20,11 @@ public class EntityPhysics extends EntityDynamic{
     private void initPhysics(int x, int y, String path){
     	
     	loadSprite(path);
+    	
+    	Collidable collidable = new Collidable(this);
+    	collidable.setBoundary( new Boundary.Box(24, 24, 0, 0) );
+    	this.setCollisionProperties( collidable );
+    	
     	
     	yReturn = y + 12 ;
     	//accY = 0.1f;

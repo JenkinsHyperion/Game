@@ -2,6 +2,7 @@ package entityComposites;
 
 import java.awt.Graphics2D;
 
+import engine.Camera;
 import entities.EntityStatic;
 import physics.CollisionCheck;
 import physics.CollisionEngine;
@@ -32,5 +33,5 @@ public final class NonCollidable extends CollisionProperty{
 	}
 	
 	@Override
-	public void debugDrawBoundary(Graphics2D g){}
+	public void debugDrawBoundary(Camera camera , Graphics2D g){}
 }

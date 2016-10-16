@@ -2,6 +2,7 @@ package entityComposites;
 
 import java.awt.Graphics2D;
 
+import engine.Camera;
 import entities.EntityStatic;
 import physics.CollisionCheck;
 import physics.CollisionEngine;
@@ -15,6 +16,6 @@ public abstract class CollisionProperty {
 
 	public void passInteraction(Collidable entity , CollisionCheck checkType, CollisionEngine engine) {}
 	
-	public void debugDrawBoundary(Graphics2D g){}
+	public void debugDrawBoundary(Camera camera, Graphics2D g){}
 
 }

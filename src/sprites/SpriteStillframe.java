@@ -11,6 +11,7 @@ import javax.swing.ImageIcon;
 import animation.*;
 import entities.*;
 import editing.*;
+import engine.Camera;
 
 public class SpriteStillframe extends Sprite {  // Object with still image
 
@@ -68,6 +69,11 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     @Override
     public void drawSprite(Graphics g){
     	g.drawImage(this.getImage(), this.owner.getX() + spriteOffsetX, this.owner.getY() + spriteOffsetY, null); //null is observer
+    }
+    @Override
+    public void drawSprite(Graphics g, Camera camera){
+    	
+    	camera.draw(this, g);
     }
     @Override
     public void editorDraw(Graphics g, Point pos){

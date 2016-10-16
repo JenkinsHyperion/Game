@@ -21,8 +21,8 @@ public class PlayerCharacter extends Player {
 	private boolean keypressS = false;
 	private boolean keypressSHIFT = false;
 	
-	private final int spriteOffsetX=38;
-	private final int spriteOffsetY=38;
+	private final int spriteOffsetX=-38;
+	private final int spriteOffsetY=-38;
 	
 	private boolean climbing = false;
     

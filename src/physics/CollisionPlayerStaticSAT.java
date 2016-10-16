@@ -42,6 +42,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 		
 		//updateCollision(); //Run math for first time 
 
+		System.out.println("\nBegin Collision");
 		
 		// Things like bullets won't need to go any futher than the initial method
 		
@@ -73,7 +74,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 		}
 		else { //Primary Entity is clipping with closest resolution of vector
 			
-
+			System.out.println("\nWill clip by "+(int) resolution.getX()+" , "+ (int) resolution.getY());
 			
 			depthX = (int) resolution.getX();
 			depthY = (int) resolution.getY();
@@ -81,18 +82,22 @@ public class CollisionPlayerStaticSAT extends Collision {
 			
 			//Resolution will resolve
 			
+			System.out.println("Clamped DX: "+entityPrimary.getDX() + " and DY: "+entityPrimary.getDY());
+			
+			entityPrimary.setAccX(0);
+			entityPrimary.clipDX((int) ( resolution.getX() ) );
+    
+			entityPrimary.setAccY(0);
+			entityPrimary.clipDY((int) ( resolution.getY() ) );
+			
+			System.out.print(" to "+entityPrimary.getDX() + " and DY: "+entityPrimary.getDY());
+			
 			//Resolution wont resolve
 			
-				entityPrimary.setX( entityPrimary.getDeltaX() + depthX );
-				entityPrimary.setY( entityPrimary.getDeltaY() + depthY );
+			//entityPrimary.setX( entityPrimary.getDeltaX() + depthX );
+			//entityPrimary.setY( entityPrimary.getDeltaY() + depthY );
 				
-				entityPrimary.setAccX(0);
-				entityPrimary.clipDX((int) ( -resolution.getX() ) );
-				//System.out.println(" Resultant DX "+  entityPrimary.getDX() );
-        
-				entityPrimary.setAccY(0);
-				entityPrimary.clipDY((int) ( -resolution.getY() ) );
-				//System.out.println(" Resultant DY "+  entityPrimary.getDY() );
+
 				
 			//}
 				
@@ -191,9 +196,9 @@ public class CollisionPlayerStaticSAT extends Collision {
 		    			//System.out.println("Rejected Greater");
 		    		}
 	    		}
-	    		else {
+	    		//else {
 	    			//System.out.println("Violates velocity "+ entityPrimary.getDX() + " , " + entityPrimary.getDY() );
-	    		}
+	    		//}
 	    	}
     	}
     	

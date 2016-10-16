@@ -5,6 +5,7 @@ import java.awt.Rectangle;
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
 
+import engine.Camera;
 import entities.EntityStatic;
 import physics.Boundary;
 import physics.BoundingBox;
@@ -148,10 +149,11 @@ public Collidable( EntityStatic owner , Boundary boundary){
 	}
 
 	@Override
-	public void debugDrawBoundary(Graphics2D g){
+	public void debugDrawBoundary(Camera camera , Graphics2D g){
 		
 		for ( Line2D side : this.getBoundaryLocal().getSides()){
-			g.draw(side);
+			//g.draw(side);
+			camera.draw(side, g);
 		}
 		
 	}

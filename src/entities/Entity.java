@@ -3,6 +3,8 @@ package entities;
 import java.awt.Point;
 import java.io.Serializable;
 
+import engine.Camera;
+
 /* This is the base class for all game objects. Contains only position variables. 
  * 
  */
@@ -75,13 +77,44 @@ public class Entity implements Serializable {
     	this.x = (float) x;
     	this.y = (float) y;
     }
-    
+    @Deprecated
     public boolean isCollidable() {
 		return collidable;
 	}
-
+    @Deprecated
 	public void setCollidable(boolean collidable) {
 		this.collidable = collidable;
 	}
+	
+	/**
+	 * Returns this entity's X position relative to the camera screen, rather than the X position in board
+	 * @param camera
+	 * @return the ordinate of this entity relative to the camera area
+	 */
+	public int getXRelativeTo(Camera camera) {
+        return camera.getLocalX( this.getX() );
+    }
+
+	/**
+	 * Returns this entity's Y position relative to the camera screen, rather than the Y position in board
+	 * @param camera
+	 * @return the ordinate of this entity relative to the camera area
+	 */
+    public int getYRelativeTo(Camera camera) {
+        return camera.getLocalY( this.getY() );
+    }
+    
+    /**
+     * Returns this entity's position relative to the camera screen, rather than the Y position in board
+     * @param camera
+     * @return
+     */
+    public Point getPositionRelativeTo(Camera camera) {
+        return new Point(
+        		camera.getLocalX( this.getX() ),
+        		camera.getLocalY( this.getY() )
+        		);
+    }
+    
 
 }

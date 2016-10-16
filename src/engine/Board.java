@@ -39,6 +39,8 @@ public class Board extends JPanel implements Runnable {
     protected static ArrayList<EntityDynamic> dynamicEntitiesList; 
     protected static ArrayList<EntityPhysics> physicsEntitiesList; 
     
+    public Camera camera;
+    
     protected Point clickPosition;
     protected boolean mouseClick = false;
 
@@ -86,7 +88,6 @@ public class Board extends JPanel implements Runnable {
 
     private void initBoard() {
     	
-    	
     	//EntityStatic test = new EntityStatic.Solid();
     	//currentSelectedEntity = new EntityStatic(0,0 );  
     	//currentDebugEntity = new EntityStatic(0,0 ); 
@@ -124,14 +125,18 @@ public class Board extends JPanel implements Runnable {
         staticEntitiesList.add(new Ground(200,500,"ground_1.png"));
         staticEntitiesList.add(new Slope(40,160));*/
         
-        EntityStatic testEntity = new EntityStatic("Test Ground",200,500);
-        
+        EntityStatic testEntity = new EntityStatic("Test Ground",200,500);     
         Collidable collidable = new Collidable(testEntity, new Boundary.Box(446,100,-223,-50) );
-        
         testEntity.setCollisionProperties( collidable );
         testEntity.loadSprite("ground_1.png" , -223 , -53 );
-
         staticEntitiesList.add( testEntity );
+        
+        testEntity = new EntityStatic("Test Ground",500,700);     
+        collidable = new Collidable(testEntity, new Boundary.Box(446,100,-223,-50) );
+        testEntity.setCollisionProperties( collidable );
+        testEntity.loadSprite("ground_1.png" , -223 , -53 );
+        staticEntitiesList.add( testEntity );
+        
         
         
       	physicsEntitiesList.add(new EntityPhysics(120,260,"box.png"));
@@ -141,6 +146,10 @@ public class Board extends JPanel implements Runnable {
         laser = new Tracer(143,260, physicsEntitiesList.get(0) , this ); //later will be parent system
         //dynamicEntitiesList.add(new LaserTest(400,60));  <-- can't add as long as I don't have a sprite for it
         //		--- for now will just draw in the drawObjects() method
+        
+        
+        //############################################### CAMERA #######################
+    	camera = new Camera(this);
         
         p = new PaintOverlay(200,0,150,60);
         initBullets();
@@ -234,7 +243,9 @@ public class Board extends JPanel implements Runnable {
 		          updateDynamicEntities();
 		          updatePhysicsEntities();
 		          
-			      laser.updatePosition();		      
+			      laser.updatePosition();	
+			      
+			      camera.updatePosition();
 		          
 		          time = System.currentTimeMillis();
 		          
@@ -293,49 +304,36 @@ public class Board extends JPanel implements Runnable {
     	//Draw ghostSprite for editor using null-object pattern
     	//
     	
-    	
-    	if (staticEntitiesList.size() > 0 && staticEntitiesList != null) {  //must null check in case all items are deleted
-	        for (EntityStatic stat : staticEntitiesList) {
+
+	    for (EntityStatic stat : staticEntitiesList) {
 	        	//g.drawImage(stat.getEntitySprite().getImage(), 
 	        	//		stat.getSpriteOffsetX() + stat.getX(), 
 	        	//		stat.getSpriteOffsetY() + stat.getY(), this);	        	
-	        	stat.getEntitySprite().drawSprite(g);
+	        	stat.getEntitySprite().drawSprite(g,camera);
 	        	editorPanel.drawEditorSelectedRectangle(stat, g);
-	        }
-    	}
+	    }
         //Draw all dynamic (moving) entities from list (ex. bullets)
         for (EntityDynamic dynamic : dynamicEntitiesList) {
-            if (dynamic.getEntitySprite().isVisible()) {
-                g.drawImage(dynamic.getEntitySprite().getImage(), dynamic.getX(), dynamic.getY(), this);
-            }
+        	
+                //g.drawImage(dynamic.getEntitySprite().getImage(), dynamic.getX(), dynamic.getY(), this);
+        	dynamic.getEntitySprite().drawSprite(g,camera);
+                
         }
         
         //Draw physics entities
         for (EntityDynamic physics : physicsEntitiesList) {
-            if (physics.getEntitySprite().isVisible()) {
-                g.drawImage(physics.getEntitySprite().getImage(), physics.getX(), physics.getY(), this);
- 
-                /*
-                laser.setX(physics.getX()+20);
-                laser.setY(physics.getY()+20);
-                laser.setxEndPoint(B_WIDTH);
-                laser.setyEndPoint(physics.getY()+20);
-                laser.pewpew(g);
-                //code shouldn't be inside this for loop. Moved it down
-                */     
-             //Try messing around with this code here, it just occured to me we can use this line drawing functionality
-             //to use for wire-frame type debugging
-             
-            }
+        	
+                //g.drawImage(physics.getEntitySprite().getImage(), physics.getX(), physics.getY(), this);
+        	physics.getEntitySprite().drawSprite(g,camera);
         }
 
 		//Draw player
-        if (player.getEntitySprite().isVisible()) {
+        /*if (player.getEntitySprite().isVisible()) {
             ((Graphics2D) g).drawImage(player.getEntitySprite().getImage(), 
             		player.getX() - player.getEntitySprite().getOffsetX() , 
             		player.getY() - player.getEntitySprite().getOffsetY(), this);
-        }
-
+        }*/
+        player.getEntitySprite().drawSprite(g,camera);
 
         
         //laser.setxEndPoint(B_WIDTH);
@@ -539,7 +537,14 @@ public class Board extends JPanel implements Runnable {
             editorPanel.getWorldGeom().keyPressed(e);
             int key = e.getKeyCode();
 
-            if (key == KeyEvent.VK_F2) {
+            if (key == KeyEvent.VK_F1) {
+            	if (camera.isLocked())
+            		camera.unlock();
+            	else
+            		camera.lockAtPosition(Camera.ORIGIN);
+            }  
+            
+            else if (key == KeyEvent.VK_F2) {
             	if (debug1On){
             		debug1On = false;
             	} else {
@@ -547,14 +552,14 @@ public class Board extends JPanel implements Runnable {
             	}
             }  
 
-            if (key == KeyEvent.VK_F3) {
+            else if (key == KeyEvent.VK_F3) {
             	if (debug2On){
             		debug2On = false;
             	} else {
             		debug2On = true;
             	}
             }
-            if (key == KeyEvent.VK_ESCAPE) {
+            else if (key == KeyEvent.VK_ESCAPE) {
             	//editorPanel.entityPlacementMode = false;
             	editorPanel.mode = EditorPanel.DEFAULT_MODE;
             	editorPanel.nullifyGhostSprite();
@@ -577,7 +582,7 @@ public class Board extends JPanel implements Runnable {
         g.fillRect(0, 0, B_WIDTH, B_HEIGHT);
         
         g.setColor(Color.GRAY);
-	    g.drawString("FPS: " + Math.round(1000/deltaTime),5,15);
+	    g.drawString("FPS: " + Math.round(1000/deltaTime) + "     " +camera.getFocus().getX()+","+camera.getFocus().getY(),5,15);
 	    g.drawString("DX: "+player.getDX() + " DY: " + player.getDY(),5,30);
 	    g.drawString("AccX: " + player.getAccX() + "  AccY: " + player.getAccY(),5,45);
 	    g.drawString("Rotation: " + player.getAngle()*5 + " degrees",5,60);
@@ -590,15 +595,24 @@ public class Board extends JPanel implements Runnable {
 	    
 	    collisionEngine.debugPrintCollisionList(5, 105, g);
 	    
-	    for (Line2D line : ((Collidable) player.collidability()).getBoundaryLocal().getSides()){
-	    	g2.draw(line);
-	    } 
+	    
+	    
+	    player.collidability().debugDrawBoundary(camera , g2);
 	    
 	    for (EntityStatic entity : staticEntitiesList){
 	    	
-	    	entity.collidability().debugDrawBoundary(g2);
+	    	entity.collidability().debugDrawBoundary(camera , g2);
 	    	
 	    }
+	    
+	    for (EntityStatic entity : physicsEntitiesList){
+	    	
+	    	entity.collidability().debugDrawBoundary(camera , g2);
+	    	
+	    }
+	    
+	    //DRAW CAMERA FOCUS
+	    //drawCross(camera.getFocus(), g2);
 	    
 	    //g2.setColor(Color.DARK_GRAY);
 	    //g2.draw(player.getLocalBoundary().getTestSide(3) );
@@ -616,7 +630,11 @@ public class Board extends JPanel implements Runnable {
 	    //}
 	    
 	    
-	    g2.draw(laser.getBoundary().getSides()[0]);
+	   // g2.draw(laser.getBoundary().getSides()[0]);
+	    
+	    camera.draw( laser.getBoundary().getSides()[0] , g2);
+	    
+	    
 	    /*
 	    for ( EntityStatic stat : staticEntitiesList) {	    	
 	    	for (Line2D line : stat.getBoundaryLocal().getSides()){

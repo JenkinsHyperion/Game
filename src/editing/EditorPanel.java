@@ -3,6 +3,9 @@ package editing;
 import javax.swing.*;
 import sprites.*;
 import entities.*;
+import entityComposites.Collidable;
+import entityComposites.NonCollidable;
+import physics.Boundary;
 import engine.*;
 import testEntities.*;
 
@@ -479,12 +482,16 @@ public class EditorPanel extends JPanel {
 			newEnt = EntityComposed.buildPlatform( x , y , offsetX , offsetY , path );
 		}
 		else if (path.toLowerCase().contains("ground")) {
-			newEnt = new Ground(x, y, offsetX, offsetY, path);
+			newEnt = EntityComposed.buildStaticEntity(x,  y, EntityComposed.COLLIDABLE);
+			Collidable collidable = new Collidable(newEnt, new Boundary.Box(446,100,-223,-50) );
+			newEnt.setCollisionProperties( collidable );
+			newEnt.loadSprite("ground_1.png" , -223 , -53 );
 		}
 		else if (path.toLowerCase().contains("grass")) {
 			//newEnt = new Grass(x, y, offsetX, offsetY, path);
 			//
 			newEnt = EntityComposed.buildStaticEntity( x , y , EntityComposed.INTANGIBLE );
+			newEnt.setCollisionProperties(NonCollidable.getNonCollidable());
 			newEnt.loadSprite("grass01.png");
 		}
 		else {

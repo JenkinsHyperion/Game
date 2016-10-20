@@ -69,7 +69,7 @@ public class CollisionEngine implements Serializable{
         //Rectangle r3 = new Rectangle(r0.x - 1 , r0.y - 1, r0.width + 2, r0.height + 2); 
 
         //KILL PLAYER AT BOTTOM OF SCREEN
-        if (player.getX() > currentBoard.getboundaryY()) {  
+        /*if (player.getX() > currentBoard.getboundaryY()) {  
 	        	
         	//could be teleport(x,y) or reposition(x,y) method in either player or parent entity classes
         	player.setX(currentBoard.ICRAFT_X);
@@ -79,7 +79,7 @@ public class CollisionEngine implements Serializable{
         	player.setAccX(0);
         	player.setAccY(0.1f);
 	        	
-        }//
+        }//*/
 	        
 	        
         // Check collisions between player and static objects

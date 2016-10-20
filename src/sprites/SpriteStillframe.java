@@ -30,8 +30,7 @@ public class SpriteStillframe extends Sprite {  // Object with still image
 	    	loadImage(fileName);
     	}
     	this.owner = owner;
-    	visibility = true;
-    }
+    	}
     //another constructor only for owner-less sprite (such as the ghostSprite in Editor)
     public SpriteStillframe(String path){
     	if (!checkPath(path)) {

@@ -11,29 +11,36 @@ public class Boundary implements Serializable {
 	
 	//protected Shape boundaryShape;
 	
-	protected Line2D[] sides = new Line2D[1]; 
+	protected Side[] sides = new Side[1]; 
 
 	public Boundary() {
 	}
 	
 	public Boundary(Line2D line){
-		sides[0] = line; 
+		sides[0] = new Side(line); 
+	}
+	
+	public Boundary(Side[] bounds) {
+		sides = bounds;
 	}
 	
 	public Boundary(Line2D[] bounds) {
-		sides = bounds;
+		
+		for ( int i = 0 ; i < bounds.length ; i++ ){
+			sides[i] = new Side( bounds[i] );
+		}
 	}
 	
 	public static class Box extends Boundary{
 		
 		public Box(int width, int height, int xOffset, int yOffset){
 			
-			sides = new Line2D[4];
+			sides = new Side[4];
 			
-			sides[0] = new Line2D.Float(xOffset , yOffset , xOffset+width , yOffset );
-			sides[1] = new Line2D.Float(xOffset+width , yOffset , xOffset+width , yOffset+height );
-			sides[2] = new Line2D.Float(xOffset+width , yOffset+height , xOffset , yOffset+height );
-			sides[3] = new Line2D.Float(xOffset , yOffset+height , xOffset , yOffset );
+			sides[0] = new Side( new Line2D.Float(xOffset , yOffset , xOffset+width , yOffset ) );
+			sides[1] = new Side( new Line2D.Float(xOffset+width , yOffset , xOffset+width , yOffset+height ) );
+			sides[2] = new Side( new Line2D.Float(xOffset+width , yOffset+height , xOffset , yOffset+height ) );
+			sides[3] = new Side( new Line2D.Float(xOffset , yOffset+height , xOffset , yOffset ) );
 
 		}
 		
@@ -66,9 +73,9 @@ public class Boundary implements Serializable {
 		
 		for (int i = 0 ; i < sides.length ; i++) {
 			
-			for ( Line2D line2 : bounds.getSides()) {
+			for ( Side side : bounds.getSides()) {
 				
-				if ( sides[i].intersectsLine( line2 ) ) {
+				if ( sides[i].toLine().intersectsLine( side.toLine() ) ) {
 					return true;
 				}
 				
@@ -79,25 +86,25 @@ public class Boundary implements Serializable {
 	}
 	
 	//Cycle through all sides of two shapes and get the sides that intersect
-	public Line2D[][] getIntersectingSides(Boundary bounds){ //returns pairs of sides of this boundary that are intesecting
+	public Side[][] getIntersectingSides(Boundary bounds){ //returns pairs of sides of this boundary that are intesecting
 		
-		ArrayList<Line2D[]> intersectingSidesA = new ArrayList<Line2D[]>(); //array of *pairs* of intersecting lines
+		ArrayList<Side[]> intersectingSidesA = new ArrayList<Side[]>(); //array of *pairs* of intersecting lines
 		
 		for (int i = 0 ; i < sides.length ; i++) { // cycle through all sides. OPTIMIZATION NEEDED
 			
 			for ( int j = 0 ; j < bounds.getSides().length ; j++ ) {
 				
-				if ( sides[i].intersectsLine( bounds.getSides()[j] ) ) { 
+				if ( sides[i].toLine().intersectsLine( bounds.getSides()[j].toLine() ) ) { 
 					
 					//place intersecting line pair into array
-					intersectingSidesA.add( new Line2D[]{ sides[i] , bounds.getSides()[j] } );	
+					intersectingSidesA.add( new Side[]{ sides[i] , bounds.getSides()[j] } );	
 				}
 			}
 		}
 		
 		//System.out.println( intersectingSidesA.size() + " intersecting sides found" );
 		
-		Line2D[][] intersectingSides = new Line2D[intersectingSidesA.size()][2]; // create final regular array
+		Side[][] intersectingSides = new Side[intersectingSidesA.size()][2]; // create final regular array
 		
 			for (int j = 0 ; j < intersectingSidesA.size() ; j++) { // compile arrayList pairs into regular array
 				intersectingSides[j] = intersectingSidesA.get(j);
@@ -115,8 +122,8 @@ public class Boundary implements Serializable {
 				
 				for ( int j = 0 ; j < bounds.getSides().length ; j++ ) {
 
-						if ( pointIsAgainstLine(bounds.getSides()[j].getP1(), sides[i]) ) { 
-							if ( pointIsAgainstLine(bounds.getSides()[j].getP2(), sides[i]) ) {
+						if ( pointIsAgainstSide(bounds.getSides()[j].getP1(), sides[i] ) ) { 
+							if ( pointIsAgainstSide(bounds.getSides()[j].getP2(), sides[i]) ) {
 								//sides i and j are flush
 								
 								if (  sidesHaveContact(bounds.getSides()[j], sides[i]) )  {
@@ -126,8 +133,8 @@ public class Boundary implements Serializable {
 							}
 						}
 
-						if ( pointIsAgainstLine(sides[i].getP1(), bounds.getSides()[j]) ) {
-							if ( pointIsAgainstLine(sides[i].getP2(), bounds.getSides()[j]) ) {
+						if ( pointIsAgainstSide(sides[i].getP1(), bounds.getSides()[j]) ) {
+							if ( pointIsAgainstSide(sides[i].getP2(), bounds.getSides()[j]) ) {
 								//sides i and j are flush
 								
 								if (  sidesHaveContact(bounds.getSides()[j], sides[i]) ){
@@ -142,16 +149,16 @@ public class Boundary implements Serializable {
 		}
 
 	//Cycle through all sides of two shapes and get the sides that contact
-	public Line2D[] getContactingSides(Boundary bounds){ 
+	public Side[] getContactingSides(Boundary bounds){ 
 		
-		Line2D[] contactingSides = new Line2D[2];
+		Side[] contactingSides = new Side[2];
 		
 		for (int i = 0 ; i < sides.length ; i++) {
 			
 			for ( int j = 0 ; j < bounds.getSides().length ; j++ ) {
 	
-					if ( pointIsAgainstLine(bounds.getSides()[j].getP1(), sides[i]) ) { 
-						if ( pointIsAgainstLine(bounds.getSides()[j].getP2(), sides[i]) ) {
+					if ( pointIsAgainstSide(bounds.getSides()[j].getP1(), sides[i]) ) { 
+						if ( pointIsAgainstSide(bounds.getSides()[j].getP2(), sides[i]) ) {
 							//sides i and j are flush
 							
 							if (  sidesHaveContact(bounds.getSides()[j], sides[i])  ){
@@ -163,8 +170,8 @@ public class Boundary implements Serializable {
 						}
 					}
 	
-					if ( pointIsAgainstLine(sides[i].getP1(), bounds.getSides()[j]) ) {
-						if ( pointIsAgainstLine(sides[i].getP2(), bounds.getSides()[j]) ) {
+					if ( pointIsAgainstSide(sides[i].getP1(), bounds.getSides()[j]) ) {
+						if ( pointIsAgainstSide(sides[i].getP2(), bounds.getSides()[j]) ) {
 							//sides i and j are flush
 							
 							if (  sidesHaveContact(bounds.getSides()[j], sides[i])  ){
@@ -182,7 +189,7 @@ public class Boundary implements Serializable {
 		return null;
 	}
 
-	public boolean sidesHaveContact(Line2D side1, Line2D side2) { 
+	public boolean sidesHaveContact(Side side1, Side side2) { 
 		
 		Point2D p1 = null;
 		Point2D p2 = null;
@@ -292,8 +299,8 @@ public class Boundary implements Serializable {
 	}
 	
 	
-	private boolean pointIsAgainstLine(Point2D point, Line2D line){
-		double dist = Math.abs( line.ptLineDist( point ) );  
+	private boolean pointIsAgainstSide(Point2D point, Side line){
+		double dist = Math.abs( line.toLine().ptLineDist( point ) );  
 		if ( dist > 0 && dist <= 1 ) {
 			return true;			
 		}
@@ -302,8 +309,8 @@ public class Boundary implements Serializable {
 		}
 	}
 	
-	private boolean pointIsAgainstSegment(Point2D point, Line2D line){
-		double dist = Math.abs( line.ptSegDist(point)) ;  	
+	private boolean pointIsAgainstSegment(Point2D point, Side side){
+		double dist = Math.abs( side.toLine().ptSegDist(point)) ;  	
 		if ( dist > 0 && dist <= 1 ) {
 			return true;			
 		}
@@ -313,11 +320,11 @@ public class Boundary implements Serializable {
 	}
 	
 	
-	public Line2D[] getSides(){
+	public Side[] getSides(){
 		return sides;
 	}
 	
-	public void constructSides(Line2D[] sidesC){
+	public void constructSides(Side[] sidesC){
 		sides = sidesC;
 	}
 
@@ -325,11 +332,13 @@ public class Boundary implements Serializable {
 	public Boundary atPosition(int x, int y) {
 
 		Boundary shifted = new Boundary();
-		Line2D[] shiftedSides = new Line2D[sides.length];
+		Side[] shiftedSides = new Side[sides.length];
 		
 		for ( int i = 0 ; i < sides.length ; i++ ){
-			shiftedSides[i] = new Line2D.Double(sides[i].getX1()+x, sides[i].getY1()+y , 
-					sides[i].getX2()+x, sides[i].getY2()+y );
+			shiftedSides[i] = new Side (
+					new Line2D.Double(sides[i].getX1()+x, sides[i].getY1()+y , 
+					sides[i].getX2()+x, sides[i].getY2()+y ) 
+					);
 		}
 		
 		shifted.constructSides(shiftedSides);	
@@ -388,7 +397,7 @@ public class Boundary implements Serializable {
 		
 	}
 	
-	private boolean duplicateSideExists( Line2D side , Line2D[] array, int currentIndex ){
+	private boolean duplicateSideExists( Side side , Side[] array, int currentIndex ){
 		//checks if axis already exists in previous array indexes before adding a new one
 		
 		if ( (side.getP1().getX() - side.getP2().getX() > -.00001) &&
@@ -401,17 +410,20 @@ public class Boundary implements Serializable {
 			}
 			return false;
 		}
-		else { // line has defines slope
+		
+		else { // line has defined slope
 			for ( int j = 0 ; j < currentIndex ; j++){
-				
-				if ( 
-					Math.abs(
-						( ( side.getY1() - side.getY2()  ) / ( side.getX1() - side.getX2() ) )
-						-
-						( (array[j].getY1() - array[j].getY2()  ) / ( array[j].getX1() - array[j].getX2() ) )
-					)
-						< 0.1){ //error
-					return true;
+				if (array[j].getX1() - array[j].getX2() != 0) { //OPTIMIZATION 
+					if ( 
+						Math.abs(
+							( ( side.getY1() - side.getY2()  ) / ( side.getX1() - side.getX2() ) )
+							-
+							( (array[j].getY1() - array[j].getY2()  ) / ( array[j].getX1() - array[j].getX2() ) )
+						)
+							< 0.1
+					){ //error
+						return true;
+					}
 				}
 			}
 			return false;
@@ -419,14 +431,14 @@ public class Boundary implements Serializable {
 		
 	}
 	
-	public Line2D[] getSeparatingSides(){ 
+	public Line2D[] getSeparatingSides(){  //LOOK FOR OPTIMIZATION IN SIDE.TOLINE()
 		
 		ArrayList<Line2D> axes = new ArrayList<>();
 		
 		for ( int i = 0 ; i < sides.length ; i++ ){ // gets unique sides to be used for separating axes
 
 				if ( !duplicateSideExists(sides[i], sides, i) ){
-					axes.add(sides[i]);
+					axes.add(sides[i].toLine() );
 				}
 		}
 		
@@ -444,14 +456,14 @@ public class Boundary implements Serializable {
 		for ( int i = 0 ; i < sides.length ; i++ ){ // Sides of primary boundary
 
 			if ( !duplicateSideExists(sides[i], sides, i) ){
-				axes.add(sides[i]);
+				axes.add(sides[i].toLine() );
 			}
 		}
 		
 		for ( int i = 0 ; i < bounds.getSides().length ; i++ ){ // Sides of target boundary
 
 			if ( !duplicateSideExists(bounds.getSides()[i], bounds.getSides(), i) ){
-				axes.add(bounds.getSides()[i]);
+				axes.add(bounds.getSides()[i].toLine() );
 			}
 		}
 		
@@ -608,7 +620,7 @@ public Point2D farthestPointFromPoint(Point2D origin , Line2D axis){
 	}
 	
 	public Line2D getTestSide(int i){
-		return sides[i];
+		return sides[i].toLine();
 	}
 
 	

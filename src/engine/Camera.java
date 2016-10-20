@@ -1,6 +1,7 @@
 package engine;
 
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.geom.Line2D;
 
@@ -88,7 +89,14 @@ public class Camera extends EntityDynamic{
 				sprite.owner.getX() + sprite.getOffsetX() - (int)this.x + boardHalfWidth , 
 				sprite.owner.getY() + sprite.getOffsetY() - (int)this.y + boardHalfHeight , 
 				null);
+	}
+	
+	public void draw(Image image , Graphics g , int worldX, int worldY ){
 		
+		g.drawImage(image, 
+				worldX - (int)this.x + boardHalfWidth , 
+				worldY - (int)this.y + boardHalfHeight , 
+				null);
 	}
 	
 	/**

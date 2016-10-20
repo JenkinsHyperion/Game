@@ -49,7 +49,7 @@ public class CollisionPlayerStatic extends Collision {
 	@Override
 	public void updateCollision(){ 
 		
-		Line2D[] contactingSides = collidingPrimary.getBoundaryLocal().getContactingSides(collidingSecondary.getBoundaryLocal());
+		Side[] contactingSides = collidingPrimary.getBoundaryLocal().getContactingSides(collidingSecondary.getBoundaryLocal());
 		
 		//CHECK FOR CONTACTING SIDES
 		if ( contactingSides != null ){ 
@@ -90,7 +90,7 @@ public class CollisionPlayerStatic extends Collision {
 
 			//CHECK FOR CLIPPING IN NEXT FRAME 
 			//Note this checks intersections of delta boundary, where boundary WILL BE next frame ( posX + DX , PosY + DY )
-			Line2D[][] intersectingSides = entityPrimary.getBoundaryDelta().getIntersectingSides(collidingSecondary.getBoundaryLocal());
+			Side[][] intersectingSides = entityPrimary.getBoundaryDelta().getIntersectingSides(collidingSecondary.getBoundaryLocal());
 			
 			if ( intersectingSides != null ) { // Boundary will clip next frame
 				
@@ -103,9 +103,9 @@ public class CollisionPlayerStatic extends Collision {
 				//for ( Line2D[] pair : intersectingSides ) { //first line of pair is THIS boundary, second is other boundary
 				for (int i = 0 ; i < intersectingSides.length ; i++){
 					
-					Line2D[] pair = intersectingSides[i];
+					Side[] pair = intersectingSides[i];
 	
-					Point2D intersect = getIntersectionPoint(pair[0], pair[1]);
+					Point2D intersect = getIntersectionPoint(pair[0].toLine() , pair[1].toLine() );
 					debugIntersectionPoints.add(intersect);
 					
 					if (intersect != null){
@@ -234,23 +234,23 @@ public class CollisionPlayerStatic extends Collision {
 	
 	// Finds the actual contacting surface of two contacting sides. As in, if a side is overhanging off a ledge, only the 
 	// part that is actually on the ledge is returned
-	private void getContactPoints(Line2D side1, Line2D side2) {
+	private void getContactPoints(Side side1, Side side2) {
 		
 		contactPoints[0]=null; contactPoints[1]=null;
 
-		if ( pointIsOnSegment(side1.getP1(), side2) ) {
+		if ( pointIsOnSegment(side1.getP1(), side2.toLine()) ) {
 			if (contactPoints[0]==null)  { contactPoints[0] = side1.getP1(); } 
 			else  { contactPoints[1] = side1.getP1(); return; }
 		}
-		if ( pointIsOnSegment(side1.getP2(), side2) ) {
+		if ( pointIsOnSegment(side1.getP2(), side2.toLine()) ) {
 			if (contactPoints[0]==null)  { contactPoints[0] = side1.getP2(); } 
 			else  { contactPoints[1] = side1.getP2(); return; }
 		}
-		if ( pointIsOnSegment(side2.getP1(), side1) ) {
+		if ( pointIsOnSegment(side2.getP1(), side1.toLine()) ) {
 			if (contactPoints[0]==null)  { contactPoints[0] = side2.getP1(); } 
 			else  { contactPoints[1] = side2.getP1(); return; }
 		}
-		if ( pointIsOnSegment(side2.getP2(), side1) ) {
+		if ( pointIsOnSegment(side2.getP2(), side1.toLine()) ) {
 			if (contactPoints[0]==null)  { contactPoints[0] = side2.getP2(); } 
 			else  { contactPoints[1] = side2.getP2(); return; }
 		}

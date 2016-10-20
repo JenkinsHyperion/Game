@@ -12,6 +12,7 @@ import editing.EditorPanel;
 import entities.*; //local imports
 import entityComposites.Collidable;
 import physics.*;
+import sprites.Background;
 import sprites.Sprite;
 import sprites.SpriteAnimated;
 import sprites.SpriteStillframe;
@@ -26,6 +27,8 @@ public class Board extends JPanel implements Runnable {
 	private double currentDuration;
 	
 	//private Timer timer;
+	
+	private Background background = new Background("BGtest.png"); //move to rendering later
 	
 	private java.util.Timer updateEntitiesTimer;
 	private java.util.Timer repaintTimer;
@@ -137,7 +140,15 @@ public class Board extends JPanel implements Runnable {
         testEntity.loadSprite("ground_1.png" , -223 , -53 );
         staticEntitiesList.add( testEntity );
         
-        
+        /*testEntity = new EntityStatic("Test Slope",700,600);   
+        Side[] sides = new Side[3]; 
+        sides[0] = new Side( new Line2D.Float(0,0,100,-100) ); 
+        sides[1] = new Side( new Line2D.Float(100,-100,100,0) );
+        sides[2] = new Side( new Line2D.Float(100,0,0,0) );
+        collidable = new Collidable(testEntity, new Boundary(sides) );
+        testEntity.setCollisionProperties( collidable );
+        //testEntity.loadSprite("ground_1.png" , -223 , -53 );
+        staticEntitiesList.add( testEntity );*/
         
       	physicsEntitiesList.add(new EntityPhysics(120,260,"box.png"));
         dynamicEntitiesList.add(new Bullet(100,100,1,1));
@@ -215,7 +226,11 @@ public class Board extends JPanel implements Runnable {
     @Override	
     public void paintComponent(Graphics g) {  
         super.paintComponent(g);
+        
+        background.drawBackground( g , camera );
+        
         drawObjects(g);
+        
         drawGhostSprite(g, editorPanel.getGhostSprite(), editorPanel.getEditorMousePos());
         if (editorPanel.mode == EditorPanel.WORLDGEOM_MODE) {
         	editorPanel.getWorldGeom().drawGhostVertex(g);
@@ -226,7 +241,7 @@ public class Board extends JPanel implements Runnable {
     
     /* ##################
      * ## UPDATE BOARD ##    (non-Javadoc)
-     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     * @see java.awt.event.ActionListener#acddddtionPerformed(java.awt.event.ActionEvent)
      * ##################
      */
     
@@ -378,11 +393,7 @@ public class Board extends JPanel implements Runnable {
     // Update position and Graphic of Player
     private void updatePlayer() { 
 
-        if (player.getEntitySprite().isVisible()) { //obsolete
-
-        	player.updatePosition();
-
-        }
+        player.updatePosition();
         
 		player.getEntitySprite().getAnimatedSprite().update();
     }
@@ -632,7 +643,7 @@ public class Board extends JPanel implements Runnable {
 	    
 	   // g2.draw(laser.getBoundary().getSides()[0]);
 	    
-	    camera.draw( laser.getBoundary().getSides()[0] , g2);
+	    camera.draw( laser.getBoundary().getSides()[0].toLine() , g2);
 	    
 	    
 	    /*

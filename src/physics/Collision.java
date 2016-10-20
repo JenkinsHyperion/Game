@@ -23,8 +23,8 @@ public class Collision implements Serializable{
 	
 	protected int[] entityPairIndex = new int[2];
 	
-	protected Line2D contactingSide1;
-	protected Line2D contactingSide2;
+	protected Side contactingSide1;
+	protected Side contactingSide2;
 	
 	protected int depthX = 0;
 	protected int depthY = 0;
@@ -175,8 +175,8 @@ public class Collision implements Serializable{
 	}
 	
 	
-	public Line2D getSidePrimary(){ return contactingSide1; }
-	public Line2D getSideSecondary(){ return contactingSide2; }
+	public Side getSidePrimary(){ return contactingSide1; }
+	public Side getSideSecondary(){ return contactingSide2; }
 	public Point2D[] getContactPoints(){ return contactPoints; }
 	public ArrayList<Point2D> getIntersections() { return debugIntersectionPoints; }
 }

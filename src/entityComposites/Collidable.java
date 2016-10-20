@@ -13,6 +13,7 @@ import physics.CollidingPair;
 import physics.Collision;
 import physics.CollisionCheck;
 import physics.CollisionEngine;
+import physics.Side;
 
 public final class Collidable extends CollisionProperty{
 	
@@ -70,10 +71,7 @@ public Collidable( EntityStatic owner , Boundary boundary){
      * @param height
      * <b /> Sets the x and y coordinates and width and height for this object's bounding box
      */
-    public void setBoundingBox(int x_offset, int y_offset , int width , int height) {
-    	
-        boundary = new BoundingBox( new Rectangle(x_offset, y_offset, width , height) );
-    }
+    
 	
 	public Boundary getBoundary(){
 		return boundary;
@@ -151,9 +149,9 @@ public Collidable( EntityStatic owner , Boundary boundary){
 	@Override
 	public void debugDrawBoundary(Camera camera , Graphics2D g){
 		
-		for ( Line2D side : this.getBoundaryLocal().getSides()){
+		for ( Side side : this.getBoundaryLocal().getSides() ){
 			//g.draw(side);
-			camera.draw(side, g);
+			camera.draw( side.toLine() , g);
 		}
 		
 	}

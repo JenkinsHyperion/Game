@@ -1,6 +1,7 @@
 package entities;
 
 import entityComposites.*;
+import physics.Boundary;
 import sprites.Sprite;
 import sprites.SpriteStillframe;
 
@@ -47,7 +48,7 @@ public class EntityComposed {
 		entityConstructing.loadSprite(path, offsetX, offsetY);	
 		
 		Collidable collidable = new Collidable( entityConstructing );
-		collidable.setBoundingBox(offsetX, offsetY, 40, 6);
+		collidable.setBoundary( new Boundary.Box( 40 , 6 , offsetX , offsetY) );
 		
 		entityConstructing.setCollisionProperties(collidable);
 		

@@ -26,7 +26,7 @@ public class CollisionPositioning extends Collision { //TO BE MOVED TO ITS OWN I
 	
 	//INITAL COLLISION COMMANDS - Run once, the first time collision occurs
 	@Override
-	public void initCollision(){
+	public void initCollision(){ 
 		entityPrimary.setColliding(true); // set entity collision flag for entity events. Possibly useless
 	}
 	
@@ -41,11 +41,11 @@ public class CollisionPositioning extends Collision { //TO BE MOVED TO ITS OWN I
 
 			//System.out.println(intersections.length);
 			for (int i = 0 ; i < intersections.length ; i++){
-				Line2D[] pair = entityPrimary.getBoundary().getIntersectingSides(collidingSecondary.getBoundaryLocal())[i];
+				Side[] pair = entityPrimary.getBoundary().getIntersectingSides(collidingSecondary.getBoundaryLocal())[i];
 				
 				intersections[i] = new Point(
-						(int)entityPrimary.getBoundary().getIntersectionPoint(pair[1], pair[0]).getX() ,
-						(int)entityPrimary.getBoundary().getIntersectionPoint(pair[1], pair[0]).getY()
+						(int)entityPrimary.getBoundary().getIntersectionPoint(pair[1].toLine() , pair[0].toLine() ).getX() ,
+						(int)entityPrimary.getBoundary().getIntersectionPoint(pair[1].toLine() , pair[0].toLine() ).getY()
 					);
 			}
 

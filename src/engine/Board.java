@@ -60,8 +60,9 @@ public class Board extends JPanel implements Runnable {
     
     private final int DELAY = 10;
     
-    private double time = 0;
-    private double deltaTime = 0;
+    private int[] speedLogDraw = new int[300];
+    private int[] speedLog = new int[300];
+    private static int counter=0;
     
 
     private final int[][] pos = {
@@ -173,11 +174,32 @@ public class Board extends JPanel implements Runnable {
         updateEntitiesTimer = new java.util.Timer(); //create timer
         //repaintTimer = new java.util.Timer();    
         TimerTask updateEntitiesTask = new TimerTask() {
+        	
+        	private long time = 0;
+            private long deltaTime = 0;
+            private long speed = 0;
+        	
         	@Override
         	public void run(){
+        		
+        		time = System.nanoTime();
+        		//System.out.println("press " + time);
+        		
         		collisionEngine.checkCollisions();
         		updateEntities();
-
+        		
+        		deltaTime = System.nanoTime() ;
+        		speed = deltaTime - time;
+        		
+        		speedLog[counter] = (int)(speed/1000);
+        		
+        		if (counter < 299)
+        			counter++;
+        		else
+        			counter = 0;
+        		
+        		
+        		
         	}
         };      
 /* ########################################################################################################################
@@ -206,9 +228,21 @@ public class Board extends JPanel implements Runnable {
         //Trying out Swing timer instead of util Timer
 
         ActionListener repaintUpdateTaskSwing = new ActionListener() {
+        	
+        	private long time = 0;
+            private long deltaTime = 0;
+            private long speed = 0;
+            
         	@Override
         	public void actionPerformed(ActionEvent e) {
+        		time = System.nanoTime();
+        		
         		repaint();
+        		
+        		deltaTime = System.nanoTime() ;
+        		speed = deltaTime - time;
+        		
+        		speedLogDraw[counter] = (int)(speed/1000);
         	}
         };
         Timer repaintTimer = new Timer(16, repaintUpdateTaskSwing);
@@ -247,10 +281,6 @@ public class Board extends JPanel implements Runnable {
     
 
       public void updateEntities(){ //TESTING CONSTANT FPS
-    	      
-          deltaTime = System.currentTimeMillis() - time ;
-    	  
-	          //if (deltaTime > 15) {
 	      
           
 		          //RUN POSITION AND DRAW UPDATES
@@ -261,8 +291,6 @@ public class Board extends JPanel implements Runnable {
 			      laser.updatePosition();	
 			      
 			      camera.updatePosition();
-		          
-		          time = System.currentTimeMillis();
 		          
 	          //}
 		          
@@ -593,7 +621,7 @@ public class Board extends JPanel implements Runnable {
         g.fillRect(0, 0, B_WIDTH, B_HEIGHT);
         
         g.setColor(Color.GRAY);
-	    g.drawString("FPS: " + Math.round(1000/deltaTime) + "     " +camera.getFocus().getX()+","+camera.getFocus().getY(),5,15);
+	    g.drawString("FPS: "   +camera.getFocus().getX()+","+camera.getFocus().getY(),5,15);
 	    g.drawString("DX: "+player.getDX() + " DY: " + player.getDY(),5,30);
 	    g.drawString("AccX: " + player.getAccX() + "  AccY: " + player.getAccY(),5,45);
 	    g.drawString("Rotation: " + player.getAngle()*5 + " degrees",5,60);
@@ -622,6 +650,7 @@ public class Board extends JPanel implements Runnable {
 	    	
 	    }
 	    
+	    
 	    //DRAW CAMERA FOCUS
 	    //drawCross(camera.getFocus(), g2);
 	    
@@ -645,7 +674,16 @@ public class Board extends JPanel implements Runnable {
 	    
 	    camera.draw( laser.getBoundary().getSides()[0].toLine() , g2);
 	    
+	    g2.drawLine(0, 500 , 1280, 500); //make better overlay class
 	    
+	    for (int i = 0 ; i < speedLog.length ; i++){
+	    	
+	    		int speed = speedLogDraw[i]/10;
+	    		g2.setColor(Color.MAGENTA);
+	    		g2.drawLine(3*i + 50 , 600 , 3*i + 50 , 600 - speed );
+	    		g2.setColor(Color.CYAN);
+	    		g2.drawLine(3*i + 50 , 600 - speed , 3*i + 50 , 600 - speed-(speedLog[i]/10) );
+	    }
 	    /*
 	    for ( EntityStatic stat : staticEntitiesList) {	    	
 	    	for (Line2D line : stat.getBoundaryLocal().getSides()){

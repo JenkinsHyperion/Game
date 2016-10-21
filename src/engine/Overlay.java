@@ -1,5 +1,15 @@
 package engine;
 
-public class Overlay {
+import java.awt.Graphics;
 
+public class Overlay {
+	
+	public Overlay(){
+		
+	}
+	
+	public void drawOverlay( Graphics g2 ){
+		
+	}
+	
 }

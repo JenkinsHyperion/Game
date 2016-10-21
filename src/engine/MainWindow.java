@@ -67,14 +67,6 @@ public class MainWindow extends JPanel {
 	public JSplitPane getSplitPane() {
 		return splitPane;
 	}
-	@Deprecated
-	public Board getBoard(){
-		return board;
-	}
-	@Deprecated
-	public static EditorPanel getEditorPanel() {
-		return editorPanel;
-	}
 	
 	public static void createAndShowGUI() {
 		//Create and set up the window

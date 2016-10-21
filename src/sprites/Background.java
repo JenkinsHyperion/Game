@@ -28,8 +28,9 @@ public class Background {
     private int tileWidth = 192;
     private int tileHeight = 768;
     
-	private final int PARALLAX = 5; // 1 = background moves as fast as entities, 100 = background nearly static relative to camera 
+	private final int PARALLAX_X = 5; // 1 = background moves as fast as entities, 100 = background nearly static relative to camera 
 									 // negative = parallax moves in opposite direction, 0 = divide by zero error so can you just not
+	private final int PARALLAX_Y = 5;
 	
 	public Background(String name){
 		
@@ -43,12 +44,12 @@ public class Background {
 	
 	public void drawBackground( Graphics g , Camera camera ){ 
 		
-		int cameraPosition = camera.getX()/PARALLAX ;
+		int cameraPosition = camera.getX()/PARALLAX_X ;
 		
 		int positionModulo = cameraPosition % 192 ; //Clamps camera position to repeating intervals of 0 - 191, the distance of one BG tile
 													// % ( Modulo ) simply returns the remainder of the division of two numbers. As such its
 													// range is 0 - (the divisor - 1)
-		for ( int i = 0  ; i < 8 ; i++ ){ 
+		for ( int i = 0  ; i < 9 ; i++ ){ 
 			//convert to automatic parameterization of i later
 			
 			int index =  ( ( ( (cameraPosition + (192*i) ) /192 ) % 12 ) + 12 ) % 12 ; //Clamps camera position to 0-11, the number of tiles BG was divided into

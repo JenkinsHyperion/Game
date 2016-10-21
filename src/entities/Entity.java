@@ -92,7 +92,7 @@ public class Entity implements Serializable {
 	 * @return the ordinate of this entity relative to the camera area
 	 */
 	public int getXRelativeTo(Camera camera) {
-        return camera.getLocalX( this.getX() );
+        return camera.getRelativeX((int) this.x);
     }
 
 	/**
@@ -101,7 +101,7 @@ public class Entity implements Serializable {
 	 * @return the ordinate of this entity relative to the camera area
 	 */
     public int getYRelativeTo(Camera camera) {
-        return camera.getLocalY( this.getY() );
+    	return camera.getRelativeY((int) this.y);
     }
     
     /**
@@ -111,8 +111,8 @@ public class Entity implements Serializable {
      */
     public Point getPositionRelativeTo(Camera camera) {
         return new Point(
-        		camera.getLocalX( this.getX() ),
-        		camera.getLocalY( this.getY() )
+        			camera.getRelativeX((int) this.x),
+        			camera.getRelativeY((int) this.y)
         		);
     }
     

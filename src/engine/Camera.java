@@ -121,7 +121,7 @@ public class Camera extends EntityDynamic{
 	 * @return the ordinate relative to the board/world 
 	 */
 	public int getLocalX( int x_relative_to_camera){
-		return x_relative_to_camera - (int)this.x + boardHalfWidth;
+		return x_relative_to_camera +  (int)this.x - boardHalfWidth  ;
 	}
 	
 	/**
@@ -130,7 +130,7 @@ public class Camera extends EntityDynamic{
 	 * @return the ordinate relative to the board/world 
 	 */
 	public int getLocalY( int y_relative_to_camera){
-		return y_relative_to_camera - (int)this.y + boardHalfHeight;
+		return y_relative_to_camera +  (int)this.y - boardHalfHeight ;
 	}
 	
 	/**
@@ -140,8 +140,18 @@ public class Camera extends EntityDynamic{
 	 */
 	public Point getLocalPosition( Point position_relative_to_camera){
 		return new Point(
-				(int)(position_relative_to_camera.getX() - (int)this.x + boardHalfWidth),
-				(int)(position_relative_to_camera.getY() - (int)this.y + boardHalfHeight)
+				(int)(position_relative_to_camera.getX() + (int)this.x - boardHalfWidth),
+				(int)(position_relative_to_camera.getY() + (int)this.y - boardHalfHeight)
 				);
 	}
+	
+	public int getRelativeX( int x_relative_to_world){
+		return x_relative_to_world -  (int)this.x + boardHalfWidth  ;
+	}
+	
+	public int getRelativeY( int y_relative_to_world){
+		return y_relative_to_world -  (int)this.y + boardHalfHeight  ;
+	}
+	
+	
 }

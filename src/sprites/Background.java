@@ -57,7 +57,7 @@ public class Background {
 			// index will wrap instead of going out of bounds. (so 4 iterations of index starting at 10 would be 10, 11, 0, 1 ) 
 			//the %12 +12 %12 is some magical crap that I didn't know about but it returns absolute value without using abs()
 			
-			camera.draw( tiles.get( index ) , g , -192 + (i*192) - camera.getLocalX( positionModulo ) , 0 ); //change constant to variable camera halfwidth
+			camera.draw( tiles.get( index ) , g , -192 + (i*192) - camera.getRelativeX( positionModulo ) , 0 ); //change constant to variable camera halfwidth
 			// +200 is constant offset, the farthest left a tile will appear to go before modlulo shifts the indexes and it disappears  
 			// +(i*192) is the position of each consecutive tile, 192 is their width so the for loop draws them next to each other
 			// -camera.getLocalX( positionModulo ) is the position in the world where the first tile is drawn. 

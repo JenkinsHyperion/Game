@@ -105,7 +105,7 @@ public class WorldGeometry {
 	public void drawVertexPoints(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
 		for (Point point: vertexPoints) {
-			g2.drawImage(vertexPic, point.x-3, point.y-3, null);
+			g2.drawImage(vertexPic, board.camera.getLocalX(point.x)-3, board.camera.getLocalY(point.y)-3, null);
 		}
 		g2.setColor(Color.WHITE);
 		g2.drawString(Boolean.toString(keypressSHIFT), 50, 50);
@@ -140,9 +140,12 @@ public class WorldGeometry {
 	public Image getVertexPic() {
 		return vertexPic;
 	}
+	/**Adds vertex to the arrayList
+	 */
 	public void addVertex(int x, int y) {
 		//deselectAllVertices()   (for when vertices can be selected)
-		vertexPoints.add(new Point(x, y));
+		//vertexPoints.add(new Point(board.camera.getLocalX(x), board.camera.getLocalY(y)));
+		vertexPoints.add(new Point(x,y));
 		updateSurfaceLines();
 	}
 	public void removeVertex(Point selectedPoint) {
@@ -200,7 +203,7 @@ public class WorldGeometry {
 		if (this.worldGeomMode == VERTEXDRAWING_MODE) 
 		{
 			if (vertexPlacementAllowed == true)
-				addVertex(worldGeomMousePos.x, worldGeomMousePos.y);
+				addVertex(e.getX(), e.getY());
 		}
 		else if (this.worldGeomMode == VERTEXSELECT_MODE)
 		{

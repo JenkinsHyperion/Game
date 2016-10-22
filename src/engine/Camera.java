@@ -36,14 +36,32 @@ public class Camera extends EntityDynamic{
 	}
 	
 	public void updatePosition(){
-		super.updatePosition();
-		
-		behaviorCurrent.updateAIPosition(); //CAMERA MATH
-		
+		super.updatePosition();	
+		behaviorCurrent.updateAIPosition(); //CAMERA MATH	
 	}
 	
 	public Point getFocus(){
 		return new Point((int)this.x,(int)this.y);
+	}
+	/**
+	 * Set the current focus of the camera. Useful for panning.
+	 * @param position
+	 */
+	public void setFocus(Point position){ //CHANGE TO INT INSTEAD OF FLOAT LATER
+		this.x = (float) position.getX();
+		this.y = (float) position.getY();
+
+		this.dx=0;	//halt velocity		
+		this.dy=0;
+	}
+	/**
+	 * translate(): for using keyboard to move camera
+	 * @param dx
+	 * @param dy
+	 */
+	public void translate(float dx, float dy) {
+		this.dx = dx;
+		this.dy = dy;
 	}
 	
 	/**
@@ -123,6 +141,9 @@ public class Camera extends EntityDynamic{
 	public int getLocalX( int x_relative_to_camera){
 		return x_relative_to_camera +  (int)this.x - boardHalfWidth  ;
 	}
+	public double getLocalX( double x_relative_to_camera){
+		return x_relative_to_camera +  (int)this.x - boardHalfWidth  ;
+	}
 	
 	/**
 	 * Takes ordinate relative to the camera screen and returns the local ordinate in the world
@@ -130,6 +151,9 @@ public class Camera extends EntityDynamic{
 	 * @return the ordinate relative to the board/world 
 	 */
 	public int getLocalY( int y_relative_to_camera){
+		return y_relative_to_camera +  (int)this.y - boardHalfHeight ;
+	}
+	public double getLocalY( double y_relative_to_camera){
 		return y_relative_to_camera +  (int)this.y - boardHalfHeight ;
 	}
 	
@@ -148,9 +172,15 @@ public class Camera extends EntityDynamic{
 	public int getRelativeX( int x_relative_to_world){
 		return x_relative_to_world -  (int)this.x + boardHalfWidth  ;
 	}
+	public double getRelativeX( double  x_relative_to_world){
+		return x_relative_to_world -  (int)this.x + boardHalfWidth  ;
+	}
 	
 	public int getRelativeY( int y_relative_to_world){
 		return y_relative_to_world -  (int)this.y + boardHalfHeight  ;
+	}
+	public double getRelativeY( double  y_relative_to_world){
+		return y_relative_to_world -  (int)this.x + boardHalfWidth  ;
 	}
 	
 	

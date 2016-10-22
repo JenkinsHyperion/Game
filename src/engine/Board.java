@@ -416,6 +416,7 @@ public class Board extends JPanel implements Runnable {
     			dynamicEntitiesList.remove(i);
     		}
         }
+    	camera.updatePosition();
     } 
     
     // Update position and Graphic of Player
@@ -567,12 +568,14 @@ public class Board extends JPanel implements Runnable {
         @Override
         public void keyReleased(KeyEvent e) {
             player.keyReleased(e);
+            editorPanel.keyReleased(e);
             editorPanel.getWorldGeom().keyReleased(e);           
         }
 
         @Override
         public void keyPressed(KeyEvent e) {
             player.keyPressed(e);
+            editorPanel.keyPressed(e);
             editorPanel.getWorldGeom().keyPressed(e);
             int key = e.getKeyCode();
 
@@ -602,7 +605,6 @@ public class Board extends JPanel implements Runnable {
             	//editorPanel.entityPlacementMode = false;
             	editorPanel.mode = EditorPanel.DEFAULT_MODE;
             	editorPanel.nullifyGhostSprite();
-            	editorPanel.getWorldGeom().clearAllVertices();
             	//editorPanel.nullifyGhostVertex();
             }   
         }

@@ -36,6 +36,7 @@ public class EditorPanel extends JPanel {
 	public static final int DEFAULT_MODE = 0;
 	public static final int ENTPLACEMENT_MODE = 1;
 	public static final int WORLDGEOM_MODE = 2;
+	public static final int CAMERAPAN_MODE = 3;
 	
 	protected boolean mouseClick = false;
 	private Point clickPosition;
@@ -49,10 +50,19 @@ public class EditorPanel extends JPanel {
 	public final Dimension allEntitiesComboBoxDefSize = new Dimension(120,20);
 	protected int currentEntIndex;
 	public boolean testFlag;
+	private boolean keypressUP = false;
+	private boolean keypressDOWN = false;
+	private boolean keypressLEFT = false;
+	private boolean keypressRIGHT = false;
+	private float pan_dx = 0.0f;
+	private float pan_dy = 0.0f;
+	
+	
 	protected Board board;
 	private WorldGeometry worldGeom;
 	private Sprite ghostSprite; 
 	private Point editorMousePos;
+	private Point oldPanPosition;
     protected EntityStatic currentSelectedEntity;
     public Rectangle selectedBox;
     
@@ -97,6 +107,7 @@ public class EditorPanel extends JPanel {
 		ghostSprite = SpriteNull.getNullSprite();
 		testFlag = true;
         clickPosition = new Point(0,0);
+		oldPanPosition = new Point(clickPosition);
 
 		//set default selected entity so it's not null
 
@@ -163,6 +174,7 @@ public class EditorPanel extends JPanel {
 				mode = WORLDGEOM_MODE;
 			}
 		});
+		
 		// inline panel for button
 		buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		buttonPanel.setBackground(Color.GRAY);
@@ -315,8 +327,8 @@ public class EditorPanel extends JPanel {
 				currentSelectedEntity.setY(e.getY() - clickPositionYOffset);
 				setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
 			}
-
 		}
+
 	}
 	public void mouseMoved(MouseEvent e){
 		setEditorMousePos(e.getX(), e.getY());
@@ -326,12 +338,65 @@ public class EditorPanel extends JPanel {
 		if ( currentSelectedEntity == null) {
 			deselectAllEntities();
 		}
-		if (mode == EditorPanel.ENTPLACEMENT_MODE)
+		if (mode == EditorPanel.ENTPLACEMENT_MODE) {
 			mode = EditorPanel.DEFAULT_MODE;
+		}
+
 		mouseClick = false;
 	}
 	
+	// ############ KEY HANDLING SECTION ###########
+	public void keyPressed(KeyEvent e) {
 
+		int key = e.getKeyCode();
+		if (key == KeyEvent.VK_UP && !keypressUP ) {
+			keypressUP = true; 
+			pan_dy = -8f;
+		}
+		else if (key == KeyEvent.VK_DOWN && !keypressDOWN) {
+			keypressDOWN = true;
+			pan_dy = 8f;
+		}
+		else if (key == KeyEvent.VK_LEFT && !keypressLEFT) {
+			if (!keypressRIGHT) {
+				keypressLEFT = true; 	
+				pan_dx = -8f;
+			}
+		}
+		else if (key == KeyEvent.VK_RIGHT && !keypressRIGHT ) { 
+			if (!keypressLEFT) {
+				keypressRIGHT= true;
+				pan_dx = 8f;
+			}
+		}	
+		board.camera.translate(pan_dx, pan_dy);
+	}	
+	public void keyReleased(KeyEvent e) {
+		int key = e.getKeyCode();
+		if (key == KeyEvent.VK_UP && keypressUP ) {
+			keypressUP = false; 
+			pan_dy = 0f;
+		}
+		else if (key == KeyEvent.VK_DOWN && keypressDOWN) {
+			keypressDOWN = false;
+			pan_dy = 0f;
+		}
+		else if (key == KeyEvent.VK_LEFT && keypressLEFT) {
+			if (!keypressRIGHT) {
+				keypressLEFT = false;
+				pan_dx = 0f;
+			}
+		}
+		else if (key == KeyEvent.VK_RIGHT && keypressRIGHT) { //JUMP
+			if (!keypressLEFT) {
+				keypressRIGHT= false;
+				pan_dx = 0f;
+			}
+		}
+		board.camera.translate(pan_dx, pan_dy);
+	}
+    //END OF KEYHANDLING SECTION 
+    
   	 public void drawEditorSelectedRectangle(EntityStatic stat, Graphics g) {
  	    if (currentSelectedEntity != null) {	
  	    	if (stat == currentSelectedEntity) {

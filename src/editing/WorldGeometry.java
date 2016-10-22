@@ -81,7 +81,7 @@ public class WorldGeometry {
 			//Line2D.Double ghostLine = new Line2D.Double(vertexPoints.get(vertexPoints.size()-1), worldGeomMousePos);
 			//offset by a pixel because it was always intersecting with previous line in list
 			Line2D.Double ghostLine = new Line2D.Double(vertexPoints.get(vertexPoints.size()-1).getX()+3, vertexPoints.get(vertexPoints.size()-1).getY(),
-						worldGeomMousePos.getX(),worldGeomMousePos.getY());
+						board.camera.getLocalX(worldGeomMousePos.getX()), board.camera.getLocalY(worldGeomMousePos.getY()));
 			// if checkForIntersection(ghostLine, new Line2D.Double(vertexPoints(size()-2, vertexPoints(size()-1)
 			if (vertexPoints.size() > 1) { //there exists at least one line already drawn:
 				
@@ -98,7 +98,11 @@ public class WorldGeometry {
 			else {
 				g2.setColor(Color.PINK);
 			}
-			g2.draw(ghostLine);
+			//######  first point is the world (local) position, and the second point is the relative position under cursor. #####
+			//g2.draw(new Line2D.Double(board.camera.getLocalPosition((Point) ghostLine.getP1()), ghostLine.getP2()));
+			//g2.drawLine(board.camera.getRelativeX((int)ghostLine.getX1()), board.camera.getRelativeY((int)ghostLine.getY1()),
+					   //board.camera.getRelativeX((int)ghostLine.getX2()), board.camera.getRelativeY((int)ghostLine.getY2()));
+			board.camera.draw(ghostLine, g2);
 		}
 		g2.dispose();
 	}
@@ -110,6 +114,7 @@ public class WorldGeometry {
 		}
 		g2.setColor(Color.WHITE);
 		g2.drawString(Boolean.toString(keypressSHIFT), 50, 50);
+		g2.drawString(Boolean.toString(vertexPlacementAllowed),50, 100);
 	}
 	/** True if any intersection is found across all lines in the surfaceLines arrayList<> 
 	 */
@@ -126,7 +131,8 @@ public class WorldGeometry {
 		g2.setColor(Color.MAGENTA);
 		for (int i = 0; i < vertexPoints.size()-1; i++) {
 			Line2D.Double tempLine = new Line2D.Double(vertexPoints.get(i), vertexPoints.get(i+1));
-			g2.draw(tempLine);
+			//g2.draw(tempLine);
+			board.camera.draw(tempLine, g2);
 		}
 	}
 	public void updateSurfaceLines() {
@@ -142,10 +148,12 @@ public class WorldGeometry {
 		return vertexPic;
 	}
 	/**Adds vertex to the arrayList
+	 * Should take input from MouseEvent e that is passed in from board into this class's mousePressed(e) method
 	 */
 	public void addVertex(int x, int y) {
 		//deselectAllVertices()   (for when vertices can be selected)
-		vertexPoints.add(new Point(board.camera.getLocalX(worldGeomMousePos.x), board.camera.getLocalY(worldGeomMousePos.y)));
+		//vertexPoints.add(new Point(board.camera.getLocalX(worldGeomMousePos.x), board.camera.getLocalY(worldGeomMousePos.y)));
+		vertexPoints.add(new Point(board.camera.getLocalX(x), board.camera.getLocalY(y)));
 		//vertexPoints.add(new Point(x,y));
 		updateSurfaceLines();
 	}
@@ -243,6 +251,10 @@ public class WorldGeometry {
 			//setYClamp(worldGeomMousePos.getY();
 			//yClampGate = false;
 		}
+		if (key == KeyEvent.VK_ESCAPE) {
+			resetStates();
+        	clearAllVertices();
+		}
 	}
 	public void keyReleased(KeyEvent e) {
 		int key = e.getKeyCode();
@@ -266,5 +278,9 @@ public class WorldGeometry {
 
 	public void setWorldGeomMousePos(Point pos) {
 		this.worldGeomMousePos = pos;
+	}
+	public void resetStates() {
+		vertexPlacementAllowed = true;
+		keypressSHIFT = false;
 	}
 }

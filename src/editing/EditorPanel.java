@@ -353,22 +353,26 @@ public class EditorPanel extends JPanel {
 			keypressUP = true; 
 			pan_dy = -8f;
 		}
-		else if (key == KeyEvent.VK_DOWN && !keypressDOWN) {
+		if (key == KeyEvent.VK_DOWN && !keypressDOWN) {
 			keypressDOWN = true;
 			pan_dy = 8f;
 		}
-		else if (key == KeyEvent.VK_LEFT && !keypressLEFT) {
-			if (!keypressRIGHT) {
+		if (key == KeyEvent.VK_LEFT && !keypressLEFT) {
+
 				keypressLEFT = true; 	
 				pan_dx = -8f;
-			}
 		}
-		else if (key == KeyEvent.VK_RIGHT && !keypressRIGHT ) { 
-			if (!keypressLEFT) {
+		if (key == KeyEvent.VK_RIGHT && !keypressRIGHT ) { 
+	
 				keypressRIGHT= true;
 				pan_dx = 8f;
-			}
 		}	
+		
+		if ( keypressRIGHT ){
+			
+		}
+		
+		
 		board.camera.translate(pan_dx, pan_dy);
 	}	
 	public void keyReleased(KeyEvent e) {
@@ -382,16 +386,12 @@ public class EditorPanel extends JPanel {
 			pan_dy = 0f;
 		}
 		else if (key == KeyEvent.VK_LEFT && keypressLEFT) {
-			if (!keypressRIGHT) {
-				keypressLEFT = false;
-				pan_dx = 0f;
-			}
+			keypressLEFT = false;				
+			pan_dx = 0f;
 		}
-		else if (key == KeyEvent.VK_RIGHT && keypressRIGHT) { //JUMP
-			if (!keypressLEFT) {
-				keypressRIGHT= false;
-				pan_dx = 0f;
-			}
+		else if (key == KeyEvent.VK_RIGHT && keypressRIGHT) { 
+			keypressRIGHT= false;
+			pan_dx = 0f;
 		}
 		board.camera.translate(pan_dx, pan_dy);
 	}

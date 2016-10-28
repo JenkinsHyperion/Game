@@ -38,7 +38,7 @@ public class WorldGeometry {
 	//private ArrayList<WorldGeometry> worldGeometryEntities = new ArrayList<>();
 	private BufferedImage ghostVertexPic;
 	private BufferedImage vertexPic;
-	private boolean keypressSHIFT;
+	private boolean keypressALT;
 	private Point worldGeomMousePos;
 	private int worldGeomMode;
 	private static final int VERTEXDRAWING_MODE = 0;
@@ -57,7 +57,7 @@ public class WorldGeometry {
 		vertexPlacementAllowed = true;
 		updateSurfaceLines();
 		worldGeomMousePos = new Point();
-		keypressSHIFT = false;
+		keypressALT = false;
 		ghostVertexPic = (BufferedImage)createVertexPic(0.5f);
 		vertexPic = (BufferedImage)createVertexPic(1.0f);
 
@@ -113,7 +113,7 @@ public class WorldGeometry {
 			board.camera.draw(vertexPic, g, point.x-3, point.y-3);
 		}
 		g2.setColor(Color.WHITE);
-		g2.drawString(Boolean.toString(keypressSHIFT), 50, 50);
+		g2.drawString(Boolean.toString(keypressALT), 50, 50);
 		g2.drawString(Boolean.toString(vertexPlacementAllowed),50, 100);
 	}
 	/** True if any intersection is found across all lines in the surfaceLines arrayList<> 
@@ -225,7 +225,7 @@ public class WorldGeometry {
 		
 	}
 	public void mouseMoved(MouseEvent e) {
-		if (keypressSHIFT) {
+		if (keypressALT) {
 			if (vertexPoints.size() > 0)
 				worldGeomMousePos.setLocation(e.getX(), vertexPoints.get(vertexPoints.size()-1).getY());
 			else
@@ -245,8 +245,8 @@ public class WorldGeometry {
 	//KEY EVENTS PASSED IN FROM BOARD
 	public void keyPressed(KeyEvent e){
 		int key = e.getKeyCode();
-		if (key == KeyEvent.VK_SHIFT && !keypressSHIFT) {
-			keypressSHIFT = true;
+		if (key == KeyEvent.VK_ALT && !keypressALT) {  // holding ALT when placing vertices will lock the y axis to the last placed point
+			keypressALT = true;
 			//yClampGate = true;
 			//setYClamp(worldGeomMousePos.getY();
 			//yClampGate = false;
@@ -258,18 +258,18 @@ public class WorldGeometry {
 	}
 	public void keyReleased(KeyEvent e) {
 		int key = e.getKeyCode();
-		if (key == KeyEvent.VK_SHIFT && keypressSHIFT)
-			keypressSHIFT = false;
+		if (key == KeyEvent.VK_ALT && keypressALT)
+			keypressALT = false;
 	}
 	/* public void setYClamp(int yClamp){
 		this.yClamp = yClamp;
 		yClampGate = false;
 	} */
 	public void setShiftHeld(boolean state){
-		this.keypressSHIFT = state;
+		this.keypressALT = state;
 	}
 	public boolean getShiftHeld() {
-		return this.keypressSHIFT;
+		return this.keypressALT;
 	}
 	//// END OF KEY HANDLING SECTION /////
 	public Point getWorldGeomMousePos() {
@@ -281,6 +281,6 @@ public class WorldGeometry {
 	}
 	public void resetStates() {
 		vertexPlacementAllowed = true;
-		keypressSHIFT = false;
+		keypressALT = false;
 	}
 }

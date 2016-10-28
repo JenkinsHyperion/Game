@@ -37,32 +37,39 @@ public class EditorPanel extends JPanel {
 	public static final int ENTPLACEMENT_MODE = 1;
 	public static final int WORLDGEOM_MODE = 2;
 	public static final int CAMERAPAN_MODE = 3;
-	
+	//Mouse and positioning fields
 	protected boolean mouseClick = false;
 	private Point clickPosition;
+	private Point editorMousePos;
+	private Point oldMousePanPos; // the reference point of last click position for mouse camera panning
+	// oldMousePanPos will only refresh when shift is held, and then mouse is dragged. Purely for the panning
+	
+	 // the distance from reference point and current point
+	private double mousePanDX = 0f;
+	private double mousePanDY = 0f;
 	public int clickPositionXOffset;
 	public int clickPositionYOffset;
 	public int mode;
+	public int modeBuffer; // to store most recent mode a quick-mode change happens (such as shift pressed for panning)
 	private String newEntityPath;
-	//public boolean entityPlacementMode;
-	public final Dimension minimizedSize = new Dimension(200,20);
-	public final Dimension propPanelDefaultSize = new Dimension(215,125);
-	public final Dimension allEntitiesComboBoxDefSize = new Dimension(120,20);
-	protected int currentEntIndex;
-	public boolean testFlag;
+
+	//Keyboard fields
 	private boolean keypressUP = false;
 	private boolean keypressDOWN = false;
 	private boolean keypressLEFT = false;
 	private boolean keypressRIGHT = false;
+	private boolean keypressSHIFT = false;
 	private float pan_dx = 0.0f;
 	private float pan_dy = 0.0f;
-	
-	
+	public final Dimension minimizedSize = new Dimension(200,20);
+	public final Dimension propPanelDefaultSize = new Dimension(215,125);
+	public final Dimension allEntitiesComboBoxDefSize = new Dimension(120,20);
+	protected int currentEntIndex;
+
 	protected Board board;
 	private WorldGeometry worldGeom;
 	private Sprite ghostSprite; 
-	private Point editorMousePos;
-	private Point oldPanPosition;
+
     protected EntityStatic currentSelectedEntity;
     public Rectangle selectedBox;
     
@@ -98,6 +105,7 @@ public class EditorPanel extends JPanel {
 	public EditorPanel( Board boardInstance) {
 		//initializing some of the fields
 		this.board = boardInstance;
+		oldMousePanPos = new Point();
 		mode = EditorPanel.DEFAULT_MODE;
 		worldGeom = new WorldGeometry(this, boardInstance);
 		newEntityPath = "";
@@ -105,9 +113,7 @@ public class EditorPanel extends JPanel {
 		//entityPlacementMode = false;
 		editorMousePos = new Point();
 		ghostSprite = SpriteNull.getNullSprite();
-		testFlag = true;
         clickPosition = new Point(0,0);
-		oldPanPosition = new Point(clickPosition);
 
 		//set default selected entity so it's not null
 
@@ -240,7 +246,7 @@ public class EditorPanel extends JPanel {
 	public class EntitiesComboBoxActionHandler implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			JComboBox cb = (JComboBox)e.getSource();
+			//JComboBox cb = (JComboBox)e.getSource();
 			//cb.getSelectedIndex());
 			restorePanels();
 			//String testString = (String)allEntitiesComboBox.getSelectedItem();
@@ -277,20 +283,11 @@ public class EditorPanel extends JPanel {
 			if (mode == EditorPanel.DEFAULT_MODE) 
 			{
 				deselectAllEntities();
-
-
 				//MainWindow.getEditorPanel().setEntityCoordsLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
 				setEntityCoordsLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));			
 				checkForSelection(clickPosition);  			  		
 				if (currentSelectedEntity != null) {  	// there is entity under cursor
-					/*if(currentSelectedEntity.isSelected != true) {
-	  					currentSelectedEntity.isSelected = true;	  					
-	  				}
-	  				else{
-	  					currentSelectedEntity.isSelected = false;
-	  				} */
-					/*
-	  				selectedBox.setSize(currentSelectedEntity.getEntitySprite().getImage().getWidth(null),
+	  				/*selectedBox.setSize(currentSelectedEntity.getEntitySprite().getImage().getWidth(null),
 	  									currentSelectedEntity.getEntitySprite().getImage().getHeight(null) ); */	  				
 					//SidePanel.setSelectedEntityName("Selected: " + currentSelectedEntity.name);
 					setSelectedEntityNameLabel("Selected: " + currentSelectedEntity.name);
@@ -315,10 +312,14 @@ public class EditorPanel extends JPanel {
 				//editorPanel.entityPlacementMode = false;
 				deselectAllEntities();
 			}
+			else if (mode == EditorPanel.CAMERAPAN_MODE) {
+				oldMousePanPos.setLocation(e.getPoint()); // sets temporary old mouse position reference			
+				mousePanDX = (e.getX() - oldMousePanPos.getX());
+				mousePanDY = (e.getY() - oldMousePanPos.getY());
+			}
 		}
 	}
 	public void mouseDragged(MouseEvent e) {
-
 		if (mode == EditorPanel.DEFAULT_MODE) {
 			setMousePosLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
 
@@ -328,7 +329,17 @@ public class EditorPanel extends JPanel {
 				setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
 			}
 		}
-
+		else if (mode == EditorPanel.CAMERAPAN_MODE) {//keypressSHIFT == true: holding down shift key, ready to pan
+			//mousePanDX = e.getX() - oldMousePanPos.getX()
+			//mousePanDY = e.getY() - oldMousePanPos.getY()
+			//camera.translate (-mousePanDX, -mousePanDY) or something
+			// ^^^ must be negative because camera will pan in direction opposite the mouse drag
+			mousePanDX = (e.getX() - oldMousePanPos.getX());
+			mousePanDY = (e.getY() - oldMousePanPos.getY());
+			//board.camera.translate(mousePanDX, mousePanDY);
+			//board.camera.setFocus(e.getPoint());
+			board.camera.setFocusForEditor(-mousePanDX, -mousePanDY);
+		}
 	}
 	public void mouseMoved(MouseEvent e){
 		setEditorMousePos(e.getX(), e.getY());
@@ -340,6 +351,9 @@ public class EditorPanel extends JPanel {
 		}
 		if (mode == EditorPanel.ENTPLACEMENT_MODE) {
 			mode = EditorPanel.DEFAULT_MODE;
+		}
+		else if (mode == EditorPanel.CAMERAPAN_MODE) {
+			//oldMousePanPos.setLocation(e.getPoint());
 		}
 
 		mouseClick = false;
@@ -353,23 +367,24 @@ public class EditorPanel extends JPanel {
 			keypressUP = true; 
 			pan_dy = -8f;
 		}
-		if (key == KeyEvent.VK_DOWN && !keypressDOWN) {
+		else if (key == KeyEvent.VK_DOWN && !keypressDOWN) {
 			keypressDOWN = true;
 			pan_dy = 8f;
 		}
-		if (key == KeyEvent.VK_LEFT && !keypressLEFT) {
+		else if (key == KeyEvent.VK_LEFT && !keypressLEFT) {
 
 				keypressLEFT = true; 	
 				pan_dx = -8f;
 		}
-		if (key == KeyEvent.VK_RIGHT && !keypressRIGHT ) { 
+		else if (key == KeyEvent.VK_RIGHT && !keypressRIGHT ) { 
 	
 				keypressRIGHT= true;
 				pan_dx = 8f;
 		}	
-		
-		if ( keypressRIGHT ){
-			
+		else if (key == KeyEvent.VK_SHIFT && !keypressSHIFT) {
+			keypressSHIFT = true;
+			modeBuffer = mode; // save the most recent mode, will switch back when shift is released
+			mode = CAMERAPAN_MODE;
 		}
 		
 		
@@ -392,6 +407,10 @@ public class EditorPanel extends JPanel {
 		else if (key == KeyEvent.VK_RIGHT && keypressRIGHT) { 
 			keypressRIGHT= false;
 			pan_dx = 0f;
+		}
+		else if (key == KeyEvent.VK_SHIFT && keypressSHIFT) {
+			keypressSHIFT = false;
+			mode = modeBuffer; //sets mode back to most recent mode before shift was pressed
 		}
 		board.camera.translate(pan_dx, pan_dy);
 	}
@@ -659,10 +678,10 @@ public class EditorPanel extends JPanel {
 	public void setEditorMousePos(int x, int y){
 		editorMousePos.x = x;
 		editorMousePos.y = y;
-	}
+	} 
 	public Point getEditorMousePos(){
 		return editorMousePos;
-	}
+	} 
 	public Rectangle getSelectedBox(){
 		return selectedBox;
 	}

@@ -10,6 +10,10 @@ import physics.CollisionEngine;
 public abstract class CollisionProperty {
 
 	protected EntityStatic owner;
+	
+	public void setOwner(EntityStatic entity){ //composite only, set to protected and move to package
+		owner = entity;
+	}
 	// check and pass are both points of termination if either entity in non colliding but is checked for collision
 	// this shouldn't happen since collidables are in their own array, so this might be unoptimal
 	public void checkForInteractionWith(CollisionProperty entity , CollisionCheck checkType ,CollisionEngine engine) {} 

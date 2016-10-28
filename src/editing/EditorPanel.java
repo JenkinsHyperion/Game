@@ -563,10 +563,10 @@ public class EditorPanel extends JPanel {
 			
 			//newEnt = new Platform(x, y, offsetX, offsetY, path);
 			//
-			newEnt = EntityComposed.buildPlatform( x , y , offsetX , offsetY , path );
+			newEnt = EntityFactory.buildPlatform( x , y , offsetX , offsetY , path );
 		}
 		else if (path.toLowerCase().contains("ground")) {
-			newEnt = EntityComposed.buildStaticEntity(x,  y, EntityComposed.COLLIDABLE);
+			newEnt = EntityFactory.buildStaticEntity(x,  y, EntityFactory.COLLIDABLE);
 			Collidable collidable = new Collidable(newEnt, new Boundary.Box(446,100,-223,-50) );
 			newEnt.setCollisionProperties( collidable );
 			newEnt.loadSprite("ground_1.png" , -223 , -53 );
@@ -574,12 +574,12 @@ public class EditorPanel extends JPanel {
 		else if (path.toLowerCase().contains("grass")) {
 			//newEnt = new Grass(x, y, offsetX, offsetY, path);
 			//
-			newEnt = EntityComposed.buildStaticEntity( x , y , EntityComposed.INTANGIBLE );
+			newEnt = EntityFactory.buildStaticEntity( x , y , EntityFactory.INTANGIBLE );
 			newEnt.setCollisionProperties(NonCollidable.getNonCollidable());
 			newEnt.loadSprite("grass01.png");
 		}
 		else {
-			newEnt = new ObjectTemplate(x, y, offsetX, offsetY);
+			newEnt = new EntityStatic(x, y);
 		}
 		deselectAllEntities();
 		board.getStaticEntities().add(newEnt);

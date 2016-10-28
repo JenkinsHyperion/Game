@@ -42,6 +42,10 @@ public abstract class Sprite implements Serializable {
     public boolean isVisible() {
         return visibility;
     }
+    
+    public void setOwner( EntityStatic entity){
+    	this.owner = entity;
+    }
 
     public void setVisible(Boolean visible) {
         visibility = visible;

@@ -5,6 +5,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
+import engine.Board;
 import entities.EntityDynamic;
 import entities.EntityStatic;
 import entityComposites.Collidable;
@@ -60,17 +61,10 @@ public class CollisionPlayerStaticSAT extends Collision {
 			depthX = 0;
 			depthY = 0;
 			
-			//System.out.println("euqalized" );
-
-			
 			entityPrimary.setColliding(true);
-			//entityPrimary.setDX(0);
-			//entityPrimary.setAccY(0);
-			//entityPrimary.setDY(0);
 			
 			entityPrimary.setDampeningX(0.1f);
-			
-			
+
 		}
 		else { //Primary Entity is clipping with closest resolution of vector
 			
@@ -78,8 +72,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 			
 			depthX = (int) resolution.getX();
 			depthY = (int) resolution.getY();
-			
-			
+
 			//Resolution will resolve
 			
 			System.out.println("Clamped DX: "+entityPrimary.getDX() + " and DY: "+entityPrimary.getDY());
@@ -94,13 +87,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 			
 			//Resolution wont resolve
 			
-			//entityPrimary.setX( entityPrimary.getDeltaX() + depthX );
-			//entityPrimary.setY( entityPrimary.getDeltaY() + depthY );
-				
 
-				
-			//}
-				
 				
 		}
 	    
@@ -144,7 +131,6 @@ public class CollisionPlayerStaticSAT extends Collision {
 	private Point getClosestResolution() {
 		//System.out.println("Checking best resolution"); 
 		ArrayList<Point> penetrations = new ArrayList<>();
-
     	
     	// Get penetration vectors along all separating axes for primary entity and add to list
     	for (int i = 0 ; i < collisionPrimary.getBoundaryLocal().getSeparatingSides().length ; i++ ){
@@ -277,12 +263,12 @@ public class CollisionPlayerStaticSAT extends Collision {
 	    		stat.getX() , stat.getY() );
 	    Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
 	 
-	    
+	    																					// [0] needs to be for loop
 	    Point2D nearStatCorner = bounds.farthestPointFromPoint( bounds.getFarthestPoints(playerBounds,axis)[0] , axis );
 	      
 	    Point2D nearPlayerCorner = playerBounds.farthestPointFromPoint( playerBounds.getFarthestPoints(bounds,axis)[0] , axis );
 
-
+	    
 	    
 	    Line2D playerHalf = new Line2D.Float( 
 				playerBounds.getProjectionPoint(playerCenter,axis) ,

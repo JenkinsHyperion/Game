@@ -26,6 +26,9 @@ public class Boundary implements Serializable {
 	
 	public Boundary(Line2D[] bounds) {
 		
+		sides = null;
+		sides = new Side[ bounds.length ];
+		
 		for ( int i = 0 ; i < bounds.length ; i++ ){
 			sides[i] = new Side( bounds[i] );
 		}
@@ -356,9 +359,8 @@ public class Boundary implements Serializable {
 				(line1.getY1() - line1.getY2()) * (line2.getY1() - line2.getY2());
 	}
 	
-	public Point2D  getProjectionPoint( Point2D point, Line2D line){ //Returns the point on the line that would be the 
-		//start of a normal that is perpendicular to the input line and also intersects the input point. This is also
-		//always the one point on the line that is closest in distance to the input point 
+	public Point2D  getProjectionPoint( Point2D point, Line2D line){ //Returns the point on the line where the input point is
+		//projected on the line
 		
 		if (line.getX1() == line.getX2()){ //Good ol' undefined slope check
 			return new Point2D.Double( line.getX1() , point.getY() );
@@ -397,14 +399,14 @@ public class Boundary implements Serializable {
 		
 	}
 	
-	private boolean duplicateSideExists( Side side , Side[] array, int currentIndex ){
+	private boolean duplicateSideExists( Side side , ArrayList<Line2D> array ){
 		//checks if axis already exists in previous array indexes before adding a new one
 		
 		if ( (side.getP1().getX() - side.getP2().getX() > -.00001) &&
 			 (side.getP1().getX() - side.getP2().getX() < .00001) ) {//line is vertical, slope is undefined
-			for ( int j = 0 ; j < currentIndex ; j++){
-				if ( (array[j].getP1().getX() - array[j].getP2().getX() > -.00001) &&
-						(array[j].getP1().getX() - array[j].getP2().getX() < .00001) ){ // other vertical sides exist
+			for ( int j = 0 ; j < array.size() ; j++){
+				if ( (array.get(j).getP1().getX() - array.get(j).getP2().getX() > -.00001) &&
+						(array.get(j).getP1().getX() - array.get(j).getP2().getX() < .00001) ){ // other vertical sides exist
 					return true;
 				}
 			}
@@ -412,13 +414,13 @@ public class Boundary implements Serializable {
 		}
 		
 		else { // line has defined slope
-			for ( int j = 0 ; j < currentIndex ; j++){
-				if (array[j].getX1() - array[j].getX2() != 0) { //OPTIMIZATION 
+			for ( int j = 0 ; j < array.size() ; j++){
+				if (array.get(j).getX1() - array.get(j).getX2() != 0) { //discard vertical lines  OPTIMIZATION 
 					if ( 
 						Math.abs(
 							( ( side.getY1() - side.getY2()  ) / ( side.getX1() - side.getX2() ) )
 							-
-							( (array[j].getY1() - array[j].getY2()  ) / ( array[j].getX1() - array[j].getX2() ) )
+							( (array.get(j).getY1() - array.get(j).getY2()  ) / ( array.get(j).getX1() - array.get(j).getX2() ) )
 						)
 							< 0.1
 					){ //error
@@ -437,7 +439,7 @@ public class Boundary implements Serializable {
 		
 		for ( int i = 0 ; i < sides.length ; i++ ){ // gets unique sides to be used for separating axes
 
-				if ( !duplicateSideExists(sides[i], sides, i) ){
+				if ( !duplicateSideExists(sides[i], axes) ){
 					axes.add(sides[i].toLine() );
 				}
 		}
@@ -455,14 +457,14 @@ public class Boundary implements Serializable {
 		
 		for ( int i = 0 ; i < sides.length ; i++ ){ // Sides of primary boundary
 
-			if ( !duplicateSideExists(sides[i], sides, i) ){
+			if ( !duplicateSideExists(sides[i], axes) ){
 				axes.add(sides[i].toLine() );
 			}
 		}
 		
 		for ( int i = 0 ; i < bounds.getSides().length ; i++ ){ // Sides of target boundary
 
-			if ( !duplicateSideExists(bounds.getSides()[i], bounds.getSides(), i) ){
+			if ( !duplicateSideExists(bounds.getSides()[i], axes ) ){
 				axes.add(bounds.getSides()[i].toLine() );
 			}
 		}
@@ -581,7 +583,26 @@ public class Boundary implements Serializable {
 		return farthestPoints;
 	}
 	
-public Point2D farthestPointFromPoint(Point2D origin , Line2D axis){
+	public Point2D getFarthestPoint( Line2D axis ){
+		
+		ArrayList<Point2D> outerPoints = new ArrayList<>();
+		Point2D outerPoint = this.getCorners()[0];
+		double farthestDistances = 0;
+	
+		for ( int i = 0 ; i < this.getCorners().length ; i++ ){
+				
+			double distance = this.getCorners()[0].distance( getProjectionPoint( this.getCorners()[i] , axis ) );
+			
+			if ( distance > farthestDistances ){
+				farthestDistances = distance;
+				outerPoint = this.getCorners()[i];
+			}
+				
+		}
+		return outerPoint;
+	}
+	
+	public Point2D farthestPointFromPoint(Point2D origin , Line2D axis){
 		
 		Point2D farthestPoint = getCorners()[0]; //store the first pair ahead
 		
@@ -595,6 +616,38 @@ public Point2D farthestPointFromPoint(Point2D origin , Line2D axis){
 				}
 		}
 		return farthestPoint;
+	}
+	
+	public Point2D[] farthestPointsFromPoint(Point2D origin , Line2D axis){ //TESTING
+		
+		ArrayList<Point2D> farthestPoints = new ArrayList<>();
+		farthestPoints.add(getCorners()[0]);
+		
+		for ( int i = 0 ; i < getCorners().length ; i++ ){ //check to start i at 1
+			
+				Point2D originProjection = getProjectionPoint( origin , axis );
+				Point2D cornerProjection = getProjectionPoint( getCorners()[i] , axis ); 
+				Point2D farthestPointProjection = getProjectionPoint( farthestPoints.get(0) , axis );
+				
+				if (cornerProjection.distance( originProjection ) < farthestPointProjection.distance( originProjection )  ){
+					
+				}
+				else {
+					if ( cornerProjection.distance( originProjection ) == farthestPointProjection.distance( originProjection ) ){
+						//duplicate
+						farthestPoints.add( getCorners()[i] );
+					}
+					else {
+						farthestPoints.removeAll(farthestPoints);
+						farthestPoints.add( getCorners()[i] );
+					}
+				}
+		}
+		Point2D[] returnFarthestPoints = new Point2D[ farthestPoints.size() ];
+		for (int i = 0 ; i < returnFarthestPoints.length ; i++){
+			returnFarthestPoints[i] = farthestPoints.get(i);
+		}
+		return returnFarthestPoints;
 	}
 	
 	public Point2D[] getNearestPoints(Boundary bounds , Line2D axis){ //same deal as above just witht he closest points
@@ -623,6 +676,8 @@ public Point2D farthestPointFromPoint(Point2D origin , Line2D axis){
 		return sides[i].toLine();
 	}
 
+	
+	
 	
 
 	

@@ -11,6 +11,7 @@ import javax.swing.event.*;
 import editing.EditorPanel;
 import entities.*; //local imports
 import entityComposites.Collidable;
+import entityComposites.CollisionProperty;
 import physics.*;
 import sprites.Background;
 import sprites.Sprite;
@@ -129,13 +130,27 @@ public class Board extends JPanel implements Runnable {
         staticEntitiesList.add(new Ground(200,500,"ground_1.png"));
         staticEntitiesList.add(new Slope(40,160));*/
         
-        EntityStatic testEntity = new EntityStatic("Test Ground",200,500);     
-        Collidable collidable = new Collidable(testEntity, new Boundary.Box(446,100,-223,-50) );
+        EntityStatic testEntity = new EntityStatic("Test Ground1",150,500);     
+        CollisionProperty collidable = new Collidable(testEntity, new Boundary.Box(446,100,-223,-50) );
         testEntity.setCollisionProperties( collidable );
         testEntity.loadSprite("ground_1.png" , -223 , -53 );
+
         staticEntitiesList.add( testEntity );
         
-        testEntity = new EntityStatic("Test Ground",500,700);     
+        /*Line2D[] triangleBounds = new Line2D[]{
+        		new Line2D.Double( 0 , 0 , 0 , 100 ),
+        		new Line2D.Double( 0 , 100 , 100 , 100 ),
+        		new Line2D.Double( 100 , 100 , 0 , 0 )
+        };
+        
+        testEntity = EntityFactory.entityFromBoundary(100, 400, 
+        			new Boundary( triangleBounds ) 
+        		);
+        testEntity.loadSprite("bullet.png" , 0 , 0 );
+        staticEntitiesList.add( testEntity );*/
+        
+        
+        testEntity = new EntityStatic("Test Ground",600,500);     
         collidable = new Collidable(testEntity, new Boundary.Box(446,100,-223,-50) );
         testEntity.setCollisionProperties( collidable );
         testEntity.loadSprite("ground_1.png" , -223 , -53 );
@@ -769,16 +784,18 @@ public class Board extends JPanel implements Runnable {
 	    drawCross( player.getX() , player.getY() , g2);
 	    drawCross( stat.getX() , stat.getY() , g2);
 	    
-	    Boundary bounds = ((Collidable) stat.collidability()).getBoundaryLocal() ;
+	    Boundary statBounds = ((Collidable) stat.collidability()).getBoundaryLocal() ;
 	    Boundary playerBounds = ((Collidable) player.collidability()).getBoundaryLocal();
 	    
 	    Point2D playerCenter = new Point2D.Double(player.getX(), player.getY());
 	    Point2D statCenter = new Point2D.Double(stat.getX(), stat.getY());
 	    
 	    	//for ( Line2D axis : bounds.debugSeparatingAxes(B_WIDTH, B_HEIGHT) ){
-	    	for ( Line2D side : bounds.getSpearatingSidesBetween(playerBounds) ){
+	    	for ( int i = 0 ; i < statBounds.getSpearatingSidesBetween(playerBounds).length ; i++ ){
 	    		
-	    		Line2D axis = bounds.debugGetSeparatingAxis(side, B_WIDTH, B_HEIGHT);
+	    		Line2D side = statBounds.getSpearatingSidesBetween(playerBounds)[i];
+	    		
+	    		Line2D axis = statBounds.debugGetSeparatingAxis(side, B_WIDTH, B_HEIGHT);
 	    		
 		    	g2.setColor(Color.DARK_GRAY);
 		    	
@@ -795,19 +812,40 @@ public class Board extends JPanel implements Runnable {
 		    	
 		    	g2.setColor(Color.YELLOW);
 			    
-			    Point2D nearStatCorner = bounds.farthestPointFromPoint( bounds.getFarthestPoints(playerBounds,axis)[0] , axis );
+		    	Point2D[] statOuter= statBounds.getFarthestPoints(playerBounds,axis);
+		    	
+			    Point2D nearStatCorner = statBounds.farthestPointFromPoint( statOuter[0] , axis );
+			    Point2D[] testingNearStatCorners = statBounds.farthestPointsFromPoint( statOuter[0] , axis );
 			      
-			    Point2D nearPlayerCorner = playerBounds.farthestPointFromPoint( playerBounds.getFarthestPoints(bounds,axis)[0] , axis );
-			    //drawPointCross( nearCorner , g2);
-
+			    Point2D nearPlayerCorner = playerBounds.farthestPointFromPoint( playerBounds.getFarthestPoints(statBounds,axis)[0] , axis );
+			    
+			    
+			    
+			    for ( Point2D corner : testingNearStatCorners ) {
+			    	g2.drawString(""+i , (int)corner.getX()+5*i, (int)corner.getY());
+			    }
+			    
+			    if ( testingNearStatCorners.length > 1 ){
+			    
+			    	Line2D closestSide = new Line2D.Float( 
+			    			(int)testingNearStatCorners[1].getX() , (int)testingNearStatCorners[1].getY() ,
+			    			(int)testingNearStatCorners[0].getX() , (int)testingNearStatCorners[0].getY() 
+			    			);
+			    	camera.draw(closestSide, g2);
+			    }
+			    else {
+			    	drawCross(testingNearStatCorners[0], g2);
+			    }
+			    
+			    
 			    
 			    Line2D playerHalf = new Line2D.Float( 
 						playerBounds.getProjectionPoint(playerCenter,axis) ,
 						playerBounds.getProjectionPoint(nearPlayerCorner,axis)
 								);
 				Line2D statHalf = new Line2D.Float( 
-						bounds.getProjectionPoint(statCenter,axis) ,
-						bounds.getProjectionPoint(nearStatCorner,axis)
+						statBounds.getProjectionPoint(statCenter,axis) ,
+						statBounds.getProjectionPoint(nearStatCorner,axis)
 								);
 				
 				g2.draw(playerHalf);

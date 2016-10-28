@@ -36,7 +36,7 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     	if (!checkPath(path)) {
     		fileName = null;
     		image = new MissingIcon().paintMissingSprite();
-    		System.err.println("Image file not found; using placeHolder");
+    		System.err.println("Image file '"+path +"' not found; using placeholder");
     	}
     	else {
 	    	fileName = path;	    	
@@ -48,7 +48,7 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     	if (!checkPath(path)) {
     		fileName = null;
     		image = new MissingIcon().paintMissingSprite();
-    		System.err.println("Image file not found; using placeHolder");
+    		System.err.println("Image file '"+path +"' not found for '"+owner.name+"', using placeholder");
     	}
     	else {
 	    	fileName = path;	    	
@@ -60,9 +60,19 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     	this.spriteOffsetY = offset_y;
     }
     
-    public SpriteStillframe(EntityStatic owner) { //TESTING for composite only
-    	this.owner = owner;
+    public SpriteStillframe(String path, int offset_x, int offset_y) { 
+    	if (!checkPath(path)) {
+    		fileName = null;
+    		image = new MissingIcon().paintMissingSprite();
+    		System.err.println("Image file '"+path +"' not found for '"+owner.name+"', using placeholder");
+    	}
+    	else {
+	    	fileName = path;	    	
+	    	loadImage(fileName);
+    	}
     	visibility = true;
+    	this.spriteOffsetX = offset_x;
+    	this.spriteOffsetY = offset_y;
     }
     
     @Override

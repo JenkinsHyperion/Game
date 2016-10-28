@@ -30,10 +30,15 @@ public final class Collidable extends CollisionProperty{
 		this.owner = owner;
 	}
 	
-public Collidable( EntityStatic owner , Boundary boundary){
+	public Collidable( EntityStatic owner , Boundary boundary){
 		
 		this.boundary = boundary;
 		this.owner = owner;
+	}
+	
+	public Collidable( Boundary boundary){ //Ownerless For composite testing
+		
+		this.boundary = boundary;
 	}
 	
 	/* #################################################################

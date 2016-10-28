@@ -313,9 +313,11 @@ public class EditorPanel extends JPanel {
 				deselectAllEntities();
 			}
 			else if (mode == EditorPanel.CAMERAPAN_MODE) {
-				oldMousePanPos.setLocation(e.getPoint()); // sets temporary old mouse position reference			
-				mousePanDX = (e.getX() - oldMousePanPos.getX());
-				mousePanDY = (e.getY() - oldMousePanPos.getY());
+				oldMousePanPos.setLocation(e.getPoint()); // sets temporary old mouse position reference
+				//board.camera.setFocusForEditor(oldMousePanPos.getX(), oldMousePanPos.getY());
+				board.camera.setFocusForEditor(oldMousePanPos.getX(), oldMousePanPos.getY());
+/*				mousePanDX = (e.getX() - oldMousePanPos.getX());
+				mousePanDY = (e.getY() - oldMousePanPos.getY());*/
 			}
 		}
 	}
@@ -334,11 +336,13 @@ public class EditorPanel extends JPanel {
 			//mousePanDY = e.getY() - oldMousePanPos.getY()
 			//camera.translate (-mousePanDX, -mousePanDY) or something
 			// ^^^ must be negative because camera will pan in direction opposite the mouse drag
-			mousePanDX = (e.getX() - oldMousePanPos.getX());
-			mousePanDY = (e.getY() - oldMousePanPos.getY());
+			/*mousePanDX = (e.getX() - oldMousePanPos.getX());
+			mousePanDY = (e.getY() - oldMousePanPos.getY());*/
 			//board.camera.translate(mousePanDX, mousePanDY);
 			//board.camera.setFocus(e.getPoint());
-			board.camera.setFocusForEditor(-mousePanDX, -mousePanDY);
+			board.camera.setFocusForEditor(oldMousePanPos.getX()-(e.getX()-oldMousePanPos.getX()), 
+										oldMousePanPos.getY()-(e.getY()-oldMousePanPos.getY())
+										);
 		}
 	}
 	public void mouseMoved(MouseEvent e){
@@ -353,7 +357,7 @@ public class EditorPanel extends JPanel {
 			mode = EditorPanel.DEFAULT_MODE;
 		}
 		else if (mode == EditorPanel.CAMERAPAN_MODE) {
-			//oldMousePanPos.setLocation(e.getPoint());
+			oldMousePanPos.setLocation(e.getPoint());
 		}
 
 		mouseClick = false;

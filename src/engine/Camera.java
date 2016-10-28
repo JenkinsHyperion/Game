@@ -55,7 +55,7 @@ public class Camera extends EntityDynamic{
 		this.dy=0;
 	}
 	
-	public void setFocusForEditor(double deltaX, double deltaY) {
+/*	public void setFocusForEditor(double deltaX, double deltaY) {
 		if (deltaX > 2) {
 			deltaX *= .05;
 		}
@@ -71,13 +71,13 @@ public class Camera extends EntityDynamic{
 		this.x = (float)(x + deltaX);
 		this.y = (float)(y + deltaY);
 		System.out.println("DeltaX: " + deltaX + " DeltaY: " + deltaY);
-	} 
-	/*
-	public void setFocusForEditor(double deltaX, double deltaY) {
-		this.x = (float)(deltaX);
-		this.y = (float)(deltaY);
-		System.out.println("DeltaX: " + deltaX + " DeltaY: " + deltaY);
 	} */
+	
+	public void setFocusForEditor(double distFromOriginalX, double distFromOriginalY) {
+		this.x = (float)(distFromOriginalX);
+		this.y = (float)(distFromOriginalY);
+		//System.out.println("DeltaX: " + distFromOriginalX + " DeltaY: " + distFromOriginalY);
+	} 
 	/**
 	 * translate(): for using keyboard to move camera
 	 * @param dx

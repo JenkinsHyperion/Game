@@ -41,6 +41,7 @@ public class EditorPanel extends JPanel {
 	protected boolean mouseClick = false;
 	private Point clickPosition;
 	private Point editorMousePos;
+	private Point worldMousePos;
 	private Point oldMousePanPos; // the reference point of last click position for mouse camera panning
 	// oldMousePanPos will only refresh when shift is held, and then mouse is dragged. Purely for the panning
 	
@@ -106,6 +107,7 @@ public class EditorPanel extends JPanel {
 		//initializing some of the fields
 		this.board = boardInstance;
 		oldMousePanPos = new Point();
+		worldMousePos = new Point();
 		mode = EditorPanel.DEFAULT_MODE;
 		worldGeom = new WorldGeometry(this, boardInstance);
 		newEntityPath = "";
@@ -313,15 +315,15 @@ public class EditorPanel extends JPanel {
 				deselectAllEntities();
 			}
 			else if (mode == EditorPanel.CAMERAPAN_MODE) {
-				oldMousePanPos.setLocation(e.getPoint()); // sets temporary old mouse position reference
+			oldMousePanPos.setLocation(worldMousePos); // sets temporary old mouse position reference
 				//board.camera.setFocusForEditor(oldMousePanPos.getX(), oldMousePanPos.getY());
-				board.camera.setFocusForEditor(oldMousePanPos.getX(), oldMousePanPos.getY());
 /*				mousePanDX = (e.getX() - oldMousePanPos.getX());
 				mousePanDY = (e.getY() - oldMousePanPos.getY());*/
 			}
 		}
 	}
 	public void mouseDragged(MouseEvent e) {
+		setEditorMousePos(e.getX(), e.getY());
 		if (mode == EditorPanel.DEFAULT_MODE) {
 			setMousePosLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
 
@@ -340,9 +342,11 @@ public class EditorPanel extends JPanel {
 			mousePanDY = (e.getY() - oldMousePanPos.getY());*/
 			//board.camera.translate(mousePanDX, mousePanDY);
 			//board.camera.setFocus(e.getPoint());
-			board.camera.setFocusForEditor(oldMousePanPos.getX()-(e.getX()-oldMousePanPos.getX()), 
-										oldMousePanPos.getY()-(e.getY()-oldMousePanPos.getY())
+			board.camera.setFocusForEditor(oldMousePanPos.getX() - (worldMousePos.x - oldMousePanPos.getX() ), 
+										   oldMousePanPos.getY() - (worldMousePos.y - oldMousePanPos.getY() )
 										);
+			//board.camera.setFocusForEditor(worldMousePos.x , worldMousePos.y );
+			//oldMousePanPos.setLocation(e.getPoint());
 		}
 	}
 	public void mouseMoved(MouseEvent e){
@@ -357,7 +361,7 @@ public class EditorPanel extends JPanel {
 			mode = EditorPanel.DEFAULT_MODE;
 		}
 		else if (mode == EditorPanel.CAMERAPAN_MODE) {
-			oldMousePanPos.setLocation(e.getPoint());
+			oldMousePanPos.setLocation(worldMousePos);
 		}
 
 		mouseClick = false;
@@ -434,7 +438,11 @@ public class EditorPanel extends JPanel {
  	    		g2.setStroke(oldStroke);
  	    	}
  	    }
-     }
+ 	    g.fillOval((int)board.camera.getRelativeX(oldMousePanPos.getX()), (int)board.camera.getRelativeY(oldMousePanPos.getY()), 5, 5);
+ 	    g.drawString("Camera Pos: " + board.camera.getX() + "," + board.camera.getY(), 10, 10);
+ 	    g.drawString("World Mouse Pos: " + worldMousePos.x + "," + worldMousePos.y, 10, 20);
+ 	    g.drawString("oldMousePanPos: " + oldMousePanPos.x + "," + oldMousePanPos.y, 10, 30);
+  	 }
    	public void checkForSelection(Point click) { //redundant
   		setCurrentSelectedEntity(clickedOnEntity(click));
   		//currentSelectedEntity = clickedOnEntity(click);
@@ -682,6 +690,8 @@ public class EditorPanel extends JPanel {
 	public void setEditorMousePos(int x, int y){
 		editorMousePos.x = x;
 		editorMousePos.y = y;
+		worldMousePos.x = board.camera.getLocalX(x);
+		worldMousePos.y = board.camera.getLocalY(y);
 	} 
 	public Point getEditorMousePos(){
 		return editorMousePos;

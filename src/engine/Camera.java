@@ -16,7 +16,7 @@ public class Camera extends EntityDynamic{
 	final static int boardHalfWidth = Board.B_WIDTH/2;
 	final static int boardHalfHeight = Board.B_HEIGHT/2;
 	
-	final static Point ORIGIN = new Point(boardHalfWidth,boardHalfHeight);
+	public final static Point ORIGIN = new Point(boardHalfWidth,boardHalfHeight);
 	
 	EntityDynamic target;
 	MovementBehavior behaviorCurrent;
@@ -204,7 +204,7 @@ public class Camera extends EntityDynamic{
 		return y_relative_to_world -  (int)this.y + boardHalfHeight  ;
 	}
 	public double getRelativeY( double  y_relative_to_world){
-		return y_relative_to_world -  (int)this.x + boardHalfWidth  ;
+		return y_relative_to_world -  (int)this.y + boardHalfHeight  ;
 	}
 	
 	

@@ -43,6 +43,8 @@ public class EditorPanel extends JPanel {
 	private Point editorMousePos;
 	private Point worldMousePos;
 	private Point oldMousePanPos; // the reference point of last click position for mouse camera panning
+	private Point oldCameraPos;
+	private Robot automaticMouseReturn;
 	// oldMousePanPos will only refresh when shift is held, and then mouse is dragged. Purely for the panning
 	
 	 // the distance from reference point and current point
@@ -108,6 +110,7 @@ public class EditorPanel extends JPanel {
 		this.board = boardInstance;
 		oldMousePanPos = new Point();
 		worldMousePos = new Point();
+		oldCameraPos = new Point();
 		mode = EditorPanel.DEFAULT_MODE;
 		worldGeom = new WorldGeometry(this, boardInstance);
 		newEntityPath = "";
@@ -239,6 +242,12 @@ public class EditorPanel extends JPanel {
 		iconBarScrollPane.setVerticalScrollBarPolicy((JScrollPane.VERTICAL_SCROLLBAR_ALWAYS));
 		add(iconBarScrollPane, FlowLayout.TRAILING);
 		
+		try {
+			automaticMouseReturn = new Robot();
+		} catch (AWTException e) {
+			
+		}
+		
 		//testing setting the ghostSprite
 		//setGhostSprite(ASSET_PATH + PF1 );
 		//revalidate();
@@ -315,7 +324,12 @@ public class EditorPanel extends JPanel {
 				deselectAllEntities();
 			}
 			else if (mode == EditorPanel.CAMERAPAN_MODE) {
-			oldMousePanPos.setLocation(worldMousePos); // sets temporary old mouse position reference
+				
+			oldMousePanPos.setLocation(editorMousePos); // sets temporary old mouse position reference
+			oldCameraPos.setLocation( board.camera.getFocus() );
+			//Set start positions 
+			
+			
 				//board.camera.setFocusForEditor(oldMousePanPos.getX(), oldMousePanPos.getY());
 /*				mousePanDX = (e.getX() - oldMousePanPos.getX());
 				mousePanDY = (e.getY() - oldMousePanPos.getY());*/
@@ -342,11 +356,21 @@ public class EditorPanel extends JPanel {
 			mousePanDY = (e.getY() - oldMousePanPos.getY());*/
 			//board.camera.translate(mousePanDX, mousePanDY);
 			//board.camera.setFocus(e.getPoint());
-			board.camera.setFocusForEditor(oldMousePanPos.getX() - (worldMousePos.x - oldMousePanPos.getX() ), 
-										   oldMousePanPos.getY() - (worldMousePos.y - oldMousePanPos.getY() )
-										);
+			board.camera.setFocusForEditor( oldCameraPos.getX() + ( oldMousePanPos.getX() - editorMousePos.getX() ), 
+										    oldCameraPos.getY() + ( oldMousePanPos.getY() - editorMousePos.getY() )
+										);// camera start pos   - (   distance dragged relative to screen         )
+			
+			// I changed this to screen relative positions (editorMousePos) since we want the distance between two points, 
+			// which in this case is the same distance between world points because the camera is at x1 zoom. 
+			
+			//testing automatic mouse return
+			//oldMousePanPos.setLocation( editorMousePos );
+			//oldCameraPos.setLocation( board.camera.getFocus() );
+			//automaticMouseReturn.mouseMove( 500 , 250 );
+			
 			//board.camera.setFocusForEditor(worldMousePos.x , worldMousePos.y );
 			//oldMousePanPos.setLocation(e.getPoint());
+			
 		}
 	}
 	public void mouseMoved(MouseEvent e){
@@ -361,7 +385,7 @@ public class EditorPanel extends JPanel {
 			mode = EditorPanel.DEFAULT_MODE;
 		}
 		else if (mode == EditorPanel.CAMERAPAN_MODE) {
-			oldMousePanPos.setLocation(worldMousePos);
+			//oldMousePanPos.setLocation(worldMousePos);
 		}
 
 		mouseClick = false;
@@ -440,7 +464,7 @@ public class EditorPanel extends JPanel {
  	    }
  	    g.fillOval((int)board.camera.getRelativeX(oldMousePanPos.getX()), (int)board.camera.getRelativeY(oldMousePanPos.getY()), 5, 5);
  	    g.drawString("Camera Pos: " + board.camera.getX() + "," + board.camera.getY(), 10, 10);
- 	    g.drawString("World Mouse Pos: " + worldMousePos.x + "," + worldMousePos.y, 10, 20);
+ 	    g.drawString("Editor Mouse Pos: " + editorMousePos.x + "," + editorMousePos.y, 10, 20);
  	    g.drawString("oldMousePanPos: " + oldMousePanPos.x + "," + oldMousePanPos.y, 10, 30);
   	 }
    	public void checkForSelection(Point click) { //redundant

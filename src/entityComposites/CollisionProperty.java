@@ -4,6 +4,7 @@ import java.awt.Graphics2D;
 
 import engine.Camera;
 import entities.EntityStatic;
+import physics.Boundary;
 import physics.CollisionCheck;
 import physics.CollisionEngine;
 
@@ -21,5 +22,7 @@ public abstract class CollisionProperty {
 	public void passInteraction(Collidable entity , CollisionCheck checkType, CollisionEngine engine) {}
 	
 	public void debugDrawBoundary(Camera camera, Graphics2D g){}
+	
+	public Boundary getBoundaryLocal(){return null;}
 
 }

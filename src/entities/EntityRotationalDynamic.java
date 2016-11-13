@@ -5,7 +5,6 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 
 import physics.Boundary;
-import physics.BoundingBox;
 import physics.Side;
 import entityComposites.*;
 
@@ -33,7 +32,7 @@ public class EntityRotationalDynamic extends EntityDynamic{
 	public Boundary getBoundaryAtAngle(double angle){ //OPTIMIZATION TRIG FUNCTIONS ARE NOTORIOUSLY EXPENSIVE Look into performing some trig magic
 		// with fast trig approximations
 
-		Side[] newSides = new Side[storedBounds.getSides().length];
+		/*Side[] newSides = new Side[storedBounds.getSides().length];
 		
 		for ( int i = 0 ; i < storedBounds.getSides().length ; i++ ) {
 			
@@ -52,11 +51,12 @@ public class EntityRotationalDynamic extends EntityDynamic{
 			
 			Point2D p2 = new Point2D.Float( (float)(r2 * Math.cos( a2 + angle  ) ) , (float)(r2 * Math.sin( a2 + angle  ) )  );
 		
-			newSides[i] = new Side( new Line2D.Float(p1,p2) );
+			newSides[i] = new Side( new Line2D.Float(p1,p2) , i );
 			
 		}
 		
-		return new Boundary(newSides);
+		return new Boundary(newSides);*/
+		return storedBounds.atPosition( this.getPos() ).rotateBoundaryAround( this.getPos() , angle);
 	}
 	
 	@Override

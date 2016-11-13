@@ -4,6 +4,7 @@ import java.awt.Graphics2D;
 
 import engine.Camera;
 import entities.EntityStatic;
+import physics.Boundary;
 import physics.CollisionCheck;
 import physics.CollisionEngine;
 import sprites.SpriteNull;
@@ -34,4 +35,10 @@ public final class NonCollidable extends CollisionProperty{
 	
 	@Override
 	public void debugDrawBoundary(Camera camera , Graphics2D g){}
+	
+	@Override
+	public Boundary getBoundaryLocal(){
+		return new Boundary();
+	}
+	
 }

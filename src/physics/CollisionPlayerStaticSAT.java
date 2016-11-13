@@ -62,7 +62,6 @@ public class CollisionPlayerStaticSAT extends Collision {
 			depthY = 0;
 			
 			entityPrimary.setColliding(true);
-			
 			entityPrimary.setDampeningX(0.1f);
 
 		}
@@ -161,7 +160,7 @@ public class CollisionPlayerStaticSAT extends Collision {
     	int penetrationY = 0;
     	
     	//RESOLUTION LOGIC checks all penetration vectors and finds best resolution (currently lowest)
-    	if (penetrations.size() != 0){
+    	if (penetrations.size() > 0){
     		
     		penetrationX = (int) ( penetrations.get(0).getX() );
     		penetrationY = (int) ( penetrations.get(0).getY() );
@@ -243,7 +242,6 @@ public class CollisionPlayerStaticSAT extends Collision {
 	 * 
 	 */
 	private Point getSeparationDistance( Line2D separatingSide ){
-		//This is the ejection algorithm that pushes a clipping boundary out of another boundary
 		
 	    EntityStatic stat = entitySecondary;
 	    

@@ -507,7 +507,7 @@ public class EditorPanel extends JPanel {
   		return null;
   	}
 	public void deselectAllEntities() {
-  		setCurrentSelectedEntity(null);
+  		setCurrentSelectedEntity( EntityNull.getNullEntity() );
   		enableEditPropertiesButton(false);
   	}
 	//this class will be the stand-in for my current shitty JOptionPane popup.

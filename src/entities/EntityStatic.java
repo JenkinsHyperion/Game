@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import animation.Animation;
 import entityComposites.*;
 import physics.Boundary;
-import physics.BoundingBox;
 import physics.CollidingPair;
 import physics.Collision;
 import sprites.SpriteAnimated;

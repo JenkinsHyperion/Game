@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import engine.Camera;
 import entities.EntityStatic;
 import physics.Boundary;
-import physics.BoundingBox;
 import physics.CollidingPair;
 import physics.Collision;
 import physics.CollisionCheck;
@@ -86,7 +85,7 @@ public final class Collidable extends CollisionProperty{
 	}
     
 	public Boundary getBoundaryLocal(){
-		return boundary.atPosition( (int)owner.getX(),(int)owner.getY() );
+		return boundary.atPosition( owner.getPos() );
 	}
 	
 	public Boundary getBoundaryDelta(){

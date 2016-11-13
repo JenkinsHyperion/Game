@@ -12,16 +12,28 @@ public class Boundary implements Serializable {
 	//protected Shape boundaryShape;
 	
 	protected Side[] sides = new Side[1]; 
+	protected Vertex[] corners;
 
-	public Boundary() {
+	@Deprecated
+	public Boundary(){
+		sides = new Side[0];
+		corners = new Vertex[0];
+	} //use cloning instead
+	
+	private Boundary( Side[] sides , Vertex[] corners ){
+		this.sides = sides;
+		this.corners = corners;
 	}
 	
 	public Boundary(Line2D line){
-		sides[0] = new Side(line); 
+		sides[0] = new Side(line , 0); 
+		corners = new Vertex[]{ new Vertex(line.getP1(),0) , new Vertex(line.getP2(),1) };
+		compileBoundaryMap();
 	}
 	
 	public Boundary(Side[] bounds) {
 		sides = bounds;
+		compileBoundaryMap();
 	}
 	
 	public Boundary(Line2D[] bounds) {
@@ -30,46 +42,101 @@ public class Boundary implements Serializable {
 		sides = new Side[ bounds.length ];
 		
 		for ( int i = 0 ; i < bounds.length ; i++ ){
-			sides[i] = new Side( bounds[i] );
+			sides[i] = new Side( bounds[i] , i );
 		}
+		compileBoundaryMap();
 	}
 	
 	public static class Box extends Boundary{
-		
+
 		public Box(int width, int height, int xOffset, int yOffset){
 			
 			sides = new Side[4];
 			
-			sides[0] = new Side( new Line2D.Float(xOffset , yOffset , xOffset+width , yOffset ) );
-			sides[1] = new Side( new Line2D.Float(xOffset+width , yOffset , xOffset+width , yOffset+height ) );
-			sides[2] = new Side( new Line2D.Float(xOffset+width , yOffset+height , xOffset , yOffset+height ) );
-			sides[3] = new Side( new Line2D.Float(xOffset , yOffset+height , xOffset , yOffset ) );
-
+			sides[0] = new Side( new Line2D.Float(xOffset , yOffset , xOffset+width , yOffset ) , 0 );
+			sides[1] = new Side( new Line2D.Float(xOffset+width , yOffset , xOffset+width , yOffset+height ) , 1 );
+			sides[2] = new Side( new Line2D.Float(xOffset+width , yOffset+height , xOffset , yOffset+height ) , 2 );
+			sides[3] = new Side( new Line2D.Float(xOffset , yOffset+height , xOffset , yOffset ) , 3 );
+			compileBoundaryMap();
 		}
 		
 	}
 	
-	
-	public boolean checkForInteractionOLD(Boundary bounds){
-		if (boundaryIntersects(bounds)){
-			return true;
-		}
-		else if (boundsHaveContact(bounds)){
-			return true;
-		}
-		else {
-			return false;
-		}
+	protected void compileBoundaryMap(){
+		
+		corners = new Vertex[ sides.length  ];
+		corners[0] = new Vertex( sides[0].getP1() , 0 );
+		
+		for (int i = 0 ; i < sides.length ; i++) {
+			
+			int iNext = (i+1) % sides.length;
+			
+			corners[ iNext ]  = new Vertex( sides[i].getP2() , sides[i] , sides[iNext] , iNext );
+			
+			sides[i].setStartPoint( corners[i] ); 
+			sides[i].setEndPoint( corners[ iNext ] );
+
+		}	
 	}
 	
-	/*public boolean checkForCollision(Boundary bounds) {
-		if (  ){
+	protected void linkBoundary(){
+		
+		sides[0].setStartPoint(corners[0]);
+		sides[0].setEndPoint(corners[1]);
+		
+		for (int i = 1 ; i < sides.length-1 ; i++) {	
+			sides[i].setStartPoint( corners[i] ); 
+			corners[i].setStartingSide(sides[i]);
+			sides[i].setEndPoint( corners[ i+1 ] );
+			corners[i].setEndingSide(sides[i-1]);
+		}
+		
+		
+	}
+	
+	@Override
+	public Boundary clone(){  
+
+		Boundary returnBounds = new Boundary(this.sides , this.corners);
+		
+		
+		
+		return returnBounds;
+		
+	}
+	
+	public Boundary rotateBoundaryAround(Point center, double angle){ //OPTIMIZATION TRIG FUNCTIONS ARE NOTORIOUSLY EXPENSIVE Look into performing some trig magic
+		// with fast trig approximations
+		//THIS IS DOUBLING EVERY VERTEX BY DOING LINES, DO BY VERTEX INSTEAD!!!
+
+		Side[] newSides = new Side[this.getSides().length];
+		
+		for ( int i = 0 ; i < this.sides.length ; i++ ) {
+			
+			Side side = this.sides[i];
+			Point origin = new Point(center.x,center.y);
+			
+			double r = side.getP1().distance(origin); 
+			double a = Math.acos( (side.getX1()-center.x) / r );
+			if (side.getY1() > center.y){ a = (2*Math.PI) - a ;}
+			
+			Point p1 = new Point( (int)(r * Math.cos( a + angle  )  ) , (int)(r * Math.sin( a + angle ) )    );
+			
+			double r2 = side.getP2().distance(origin);
+			double a2 = Math.acos( (side.getX2()-center.x) / r );
+			if (side.getY2() > center.y){ a2 = (2*Math.PI) - a2 ;}
+			
+			Point p2 = new Point( (int)(r2 * Math.cos( a2 + angle  ) ) , (int)(r2 * Math.sin( a2 + angle  ) )  );
+			
+			newSides[i] = new Side( new Line2D.Float(p1,p2) , i );
 			
 		}
-		else {
-			return false;
-		}
-	}*/
+		
+		return new Boundary(newSides);
+		//return returnedBounds;
+	}
+	
+	
 	
 	//Cycle through all sides of two shapes and check for intersections
 	public boolean boundaryIntersects(Boundary bounds){ 
@@ -332,20 +399,35 @@ public class Boundary implements Serializable {
 	}
 
 	// Returns boundary shifted to some position, usually the position of the entity that owns the boundary
-	public Boundary atPosition(int x, int y) {
+	public Boundary atPosition(Point pos) {
 
-		Boundary shifted = new Boundary();
+		Side[] shiftedSides = new Side[sides.length];
+		
+		for ( int i = 0 ; i < sides.length ; i++ ){
+			shiftedSides[i] = new Side (
+					new Line2D.Double(sides[i].getX1()+pos.x, sides[i].getY1()+pos.y , 
+					sides[i].getX2()+pos.x, sides[i].getY2()+pos.y ) ,
+					i
+				);
+		}
+
+		return new Boundary(shiftedSides);
+		
+	};
+	
+	public Boundary atPosition(int x , int y) {
+
 		Side[] shiftedSides = new Side[sides.length];
 		
 		for ( int i = 0 ; i < sides.length ; i++ ){
 			shiftedSides[i] = new Side (
 					new Line2D.Double(sides[i].getX1()+x, sides[i].getY1()+y , 
-					sides[i].getX2()+x, sides[i].getY2()+y ) 
-					);
+					sides[i].getX2()+x, sides[i].getY2()+y ) ,
+					i
+				);
 		}
 		
-		shifted.constructSides(shiftedSides);	
-		return shifted;
+		return new Boundary(shiftedSides);
 		
 	};
 	
@@ -533,28 +615,40 @@ public class Boundary implements Serializable {
 		}
 		return axes;
 	}
-	
-	public Point2D[] getCorners(){
+	/**
+	 * Returns array of corners of type (Point2D) for this boundary. If information is needed about sides connected to this point,
+	 * use getCornerVertex() instead.
+	 * @return
+	 */
+	public Point2D[] getCornersPoint(){
 		Point2D[] corners = new Point2D[sides.length];
 		for (int i = 0 ; i < sides.length ; i++){
 			corners[i] = sides[i].getP1();
 		}
 		return corners;
 	}
+	/**
+	 * Returns array of corners of type (Vertex) for this boundary, which contains pointers to adjacent sides.
+	 * @return
+	 */
+	public Vertex[] getCornersVertex(){
+
+		return this.corners;
+	}
 	
 	
 	public Point2D getOppositePoint( Point2D center , Line2D axis){
 		
-		Point2D oppositePoint = getCorners()[0] ; //store the first pair ahead
+		Point2D oppositePoint = getCornersPoint()[0] ; //store the first pair ahead
 		
-		for ( int i = 0 ; i < getCorners().length ; i++ ){
+		for ( int i = 0 ; i < getCornersPoint().length ; i++ ){
 				
-				if (getProjectionPoint( getCorners()[i] , axis ).distance( getProjectionPoint( center , axis ) ) 
+				if (getProjectionPoint( getCornersPoint()[i] , axis ).distance( getProjectionPoint( center , axis ) ) 
 						> 
 					getProjectionPoint( oppositePoint , axis ).distance( getProjectionPoint( center , axis ) ) 
 				){
 					// points i and j are farther apart than whats stored
-					oppositePoint = getCorners()[i];
+					oppositePoint = getCornersPoint()[i];
 				}
 		}
 		return oppositePoint;
@@ -563,19 +657,19 @@ public class Boundary implements Serializable {
 	
 	public Point2D[] getFarthestPoints(Boundary bounds , Line2D axis){
 		
-		Point2D[] farthestPoints = new Point2D[]{ getCorners()[0] , bounds.getCorners()[0] }; //store the first pair ahead
+		Point2D[] farthestPoints = new Point2D[]{ getCornersPoint()[0] , bounds.getCornersPoint()[0] }; //store the first pair ahead
 		
-		for ( int i = 0 ; i < getCorners().length ; i++ ){
+		for ( int i = 0 ; i < getCornersPoint().length ; i++ ){
 			
-			for ( int j = 0 ; j < bounds.getCorners().length ; j++ ){
+			for ( int j = 0 ; j < bounds.getCornersPoint().length ; j++ ){
 				
-				if (getProjectionPoint( getCorners()[i] , axis ).distance( getProjectionPoint( bounds.getCorners()[j] , axis ) ) 
+				if (getProjectionPoint( getCornersPoint()[i] , axis ).distance( getProjectionPoint( bounds.getCornersPoint()[j] , axis ) ) 
 						> 
 					getProjectionPoint( farthestPoints[0] , axis ).distance( getProjectionPoint( farthestPoints[1] , axis ) ) 
 				){
 					// points i and j are farther apart than whats stored
-					farthestPoints[0] = getCorners()[i];
-					farthestPoints[1] = bounds.getCorners()[j];
+					farthestPoints[0] = getCornersPoint()[i];
+					farthestPoints[1] = bounds.getCornersPoint()[j];
 				}
 				
 			}
@@ -586,16 +680,16 @@ public class Boundary implements Serializable {
 	public Point2D getFarthestPoint( Line2D axis ){
 		
 		ArrayList<Point2D> outerPoints = new ArrayList<>();
-		Point2D outerPoint = this.getCorners()[0];
+		Point2D outerPoint = this.getCornersPoint()[0];
 		double farthestDistances = 0;
 	
-		for ( int i = 0 ; i < this.getCorners().length ; i++ ){
+		for ( int i = 0 ; i < this.getCornersPoint().length ; i++ ){
 				
-			double distance = this.getCorners()[0].distance( getProjectionPoint( this.getCorners()[i] , axis ) );
+			double distance = this.getCornersPoint()[0].distance( getProjectionPoint( this.getCornersPoint()[i] , axis ) );
 			
 			if ( distance > farthestDistances ){
 				farthestDistances = distance;
-				outerPoint = this.getCorners()[i];
+				outerPoint = this.getCornersPoint()[i];
 			}
 				
 		}
@@ -604,15 +698,15 @@ public class Boundary implements Serializable {
 	
 	public Point2D farthestPointFromPoint(Point2D origin , Line2D axis){
 		
-		Point2D farthestPoint = getCorners()[0]; //store the first pair ahead
+		Point2D farthestPoint = getCornersPoint()[0]; //store the first pair ahead
 		
-		for ( int i = 0 ; i < getCorners().length ; i++ ){ //check to start i at 1
+		for ( int i = 0 ; i < getCornersPoint().length ; i++ ){ //check to start i at 1
 				
-				if (getProjectionPoint( getCorners()[i] , axis ).distance( getProjectionPoint( origin , axis ) ) 
+				if (getProjectionPoint( getCornersPoint()[i] , axis ).distance( getProjectionPoint( origin , axis ) ) 
 						> 
 					getProjectionPoint( farthestPoint , axis ).distance( getProjectionPoint( origin , axis ) ) 
 				){
-					farthestPoint = getCorners()[i];
+					farthestPoint = getCornersPoint()[i];
 				}
 		}
 		return farthestPoint;
@@ -621,12 +715,12 @@ public class Boundary implements Serializable {
 	public Point2D[] farthestPointsFromPoint(Point2D origin , Line2D axis){ //TESTING
 		
 		ArrayList<Point2D> farthestPoints = new ArrayList<>();
-		farthestPoints.add(getCorners()[0]);
+		farthestPoints.add(getCornersPoint()[0]);
 		
-		for ( int i = 0 ; i < getCorners().length ; i++ ){ //check to start i at 1
+		for ( int i = 0 ; i < getCornersPoint().length ; i++ ){ //check to start i at 1
 			
 				Point2D originProjection = getProjectionPoint( origin , axis );
-				Point2D cornerProjection = getProjectionPoint( getCorners()[i] , axis ); 
+				Point2D cornerProjection = getProjectionPoint( getCornersPoint()[i] , axis ); 
 				Point2D farthestPointProjection = getProjectionPoint( farthestPoints.get(0) , axis );
 				
 				if (cornerProjection.distance( originProjection ) < farthestPointProjection.distance( originProjection )  ){
@@ -635,11 +729,11 @@ public class Boundary implements Serializable {
 				else {
 					if ( cornerProjection.distance( originProjection ) == farthestPointProjection.distance( originProjection ) ){
 						//duplicate
-						farthestPoints.add( getCorners()[i] );
+						farthestPoints.add( getCornersPoint()[i] );
 					}
 					else {
 						farthestPoints.removeAll(farthestPoints);
-						farthestPoints.add( getCorners()[i] );
+						farthestPoints.add( getCornersPoint()[i] );
 					}
 				}
 		}
@@ -650,21 +744,87 @@ public class Boundary implements Serializable {
 		return returnFarthestPoints;
 	}
 	
+	public Vertex[] farthestVerticesFromPoint(Point2D origin , Line2D axis){ //RETURNING DUPLICATES?
+		
+		ArrayList<Vertex> farthestVertices = new ArrayList<>();
+		farthestVertices.add(getCornersVertex()[0]);
+		
+		for ( int i = 1 ; i < getCornersPoint().length ; i++ ){ //check to start i at 1
+			
+				Point2D originProjection = getProjectionPoint( origin , axis );
+				Point2D cornerProjection = getProjectionPoint( getCornersPoint()[i] , axis ); 
+				Point2D farthestPointProjection = getProjectionPoint( farthestVertices.get(0).toPoint() , axis );
+				
+				if (cornerProjection.distance( originProjection ) < farthestPointProjection.distance( originProjection )  ){
+					//discard this vertex
+				}
+				else {
+					if ( cornerProjection.distance( originProjection ) == farthestPointProjection.distance( originProjection ) ){
+						//duplicate
+						farthestVertices.add( getCornersVertex()[i] );
+					}
+					else {
+						farthestVertices.removeAll(farthestVertices);
+						farthestVertices.add( getCornersVertex()[i] );
+					}
+				}
+		}
+		Vertex[] returnFarthestPoints = new Vertex[ farthestVertices.size() ];
+		for (int i = 0 ; i < returnFarthestPoints.length ; i++){
+			returnFarthestPoints[i] = farthestVertices.get(i);
+		}
+		return returnFarthestPoints;
+	}
+	
+	
+	public Vertex[] nearestVerticesFromPoint(Point2D origin , Line2D axis){ //RETURNING DUPLICATES?
+		
+		ArrayList<Vertex> farthestVertices = new ArrayList<>();
+		farthestVertices.add(getCornersVertex()[0]);
+		
+		for ( int i = 1 ; i < getCornersPoint().length ; i++ ){ //check to start i at 1
+			
+				Point2D originProjection = getProjectionPoint( origin , axis );
+				Point2D cornerProjection = getProjectionPoint( getCornersPoint()[i] , axis ); 
+				Point2D farthestPointProjection = getProjectionPoint( farthestVertices.get(0).toPoint() , axis );
+				
+				if (cornerProjection.distance( originProjection ) > farthestPointProjection.distance( originProjection )  ){
+					//discard this vertex
+				}
+				else {
+					if ( cornerProjection.distance( originProjection ) == farthestPointProjection.distance( originProjection ) ){
+						//duplicate
+						farthestVertices.add( getCornersVertex()[i] );
+					}
+					else {
+						farthestVertices.removeAll(farthestVertices);
+						farthestVertices.add( getCornersVertex()[i] );
+					}
+				}
+		}
+		Vertex[] returnFarthestPoints = new Vertex[ farthestVertices.size() ];
+		for (int i = 0 ; i < returnFarthestPoints.length ; i++){
+			returnFarthestPoints[i] = farthestVertices.get(i);
+		}
+		return returnFarthestPoints;
+	}
+	
+	
 	public Point2D[] getNearestPoints(Boundary bounds , Line2D axis){ //same deal as above just witht he closest points
 		
-		Point2D[] nearestPoints = new Point2D[]{ getCorners()[0] , bounds.getCorners()[0] }; //store the first pair ahead
+		Point2D[] nearestPoints = new Point2D[]{ getCornersPoint()[0] , bounds.getCornersPoint()[0] }; //store the first pair ahead
 		
-		for ( int i = 0 ; i < getCorners().length ; i++ ){
+		for ( int i = 0 ; i < getCornersPoint().length ; i++ ){
 			
-			for ( int j = 0 ; j < bounds.getCorners().length ; j++ ){
+			for ( int j = 0 ; j < bounds.getCornersPoint().length ; j++ ){
 				
-				if (getProjectionPoint( getCorners()[i] , axis ).distance( getProjectionPoint( bounds.getCorners()[j] , axis ) ) 
+				if (getProjectionPoint( getCornersPoint()[i] , axis ).distance( getProjectionPoint( bounds.getCornersPoint()[j] , axis ) ) 
 						< 
 					getProjectionPoint( nearestPoints[0] , axis ).distance( getProjectionPoint( nearestPoints[1] , axis ) ) 
 				){
 					// points i and j are farther apart than whats stored
-					nearestPoints[0] = getCorners()[i];
-					nearestPoints[1] = bounds.getCorners()[j];
+					nearestPoints[0] = getCornersPoint()[i];
+					nearestPoints[1] = bounds.getCornersPoint()[j];
 				}
 				
 			}

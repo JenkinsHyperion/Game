@@ -54,25 +54,6 @@ public class Camera extends EntityDynamic{
 		this.dx=0;	//halt velocity		
 		this.dy=0;
 	}
-	
-/*	public void setFocusForEditor(double deltaX, double deltaY) {
-		if (deltaX > 2) {
-			deltaX *= .05;
-		}
-		if (deltaX < -2) {
-			deltaX *= .05;
-		}
-		if (deltaY > 2) {
-			deltaY *= .05;
-		}
-		if (deltaY < -2) {
-			deltaY *= .05;
-		}
-		this.x = (float)(x + deltaX);
-		this.y = (float)(y + deltaY);
-		System.out.println("DeltaX: " + deltaX + " DeltaY: " + deltaY);
-	} */
-	
 	public void setFocusForEditor(double distFromOriginalX, double distFromOriginalY) {
 		this.x = (float)(distFromOriginalX);
 		this.y = (float)(distFromOriginalY);

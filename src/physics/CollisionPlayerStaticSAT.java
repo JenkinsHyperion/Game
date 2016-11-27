@@ -260,21 +260,24 @@ public class CollisionPlayerStaticSAT extends Collision {
 	    Line2D centerDistance = new Line2D.Float(deltaX , deltaY,
 	    		stat.getX() , stat.getY() );
 	    Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
-	 
+	    
+    	Point2D[] statOuterVertices= bounds.getFarthestPoints(playerBounds,axis);
+    	Point2D[] playerOuterVertices= playerBounds.getFarthestPoints(bounds,axis);
+    	
 	    																					// [0] needs to be for loop
-	    Point2D nearStatCorner = bounds.farthestPointFromPoint( bounds.getFarthestPoints(playerBounds,axis)[0] , axis );
+	    Vertex[] statInnerVertices = bounds.farthestVerticesFromPoint( statOuterVertices[0] , axis );
 	      
-	    Point2D nearPlayerCorner = playerBounds.farthestPointFromPoint( playerBounds.getFarthestPoints(bounds,axis)[0] , axis );
+	    Vertex[] playerInnerVertices = playerBounds.farthestVerticesFromPoint( playerOuterVertices[0] , axis );
 
 	    
 	    
 	    Line2D playerHalf = new Line2D.Float( 
 				playerBounds.getProjectionPoint(playerCenter,axis) ,
-				playerBounds.getProjectionPoint(nearPlayerCorner,axis)
+				playerBounds.getProjectionPoint(playerInnerVertices[0].toPoint(),axis)
 						);
 		Line2D statHalf = new Line2D.Float( 
 				bounds.getProjectionPoint(statCenter,axis) ,
-				bounds.getProjectionPoint(nearStatCorner,axis)
+				bounds.getProjectionPoint(statInnerVertices[0].toPoint(),axis)
 						);
 		
 		

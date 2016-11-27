@@ -10,6 +10,7 @@ public class Side {
 	Line2D line;
 	private Vertex startpoint;
 	private Vertex endpoint;
+	private double slope;
 
 	//individual side properties here
 	

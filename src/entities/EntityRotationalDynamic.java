@@ -89,9 +89,9 @@ public class EntityRotationalDynamic extends EntityDynamic{
 		return (int)angle;
 	}
 
-	@Override
+	/*@Override
 	public Boundary getBoundaryDelta(){
 		return getBoundaryAtAngle((int)(angle+angularVelocity) * ((2*Math.PI)/72)) 
 				.atPosition( (int) (x+dx+accX), (int) (y+dy+accY ));
-	}
+	}*/
 }

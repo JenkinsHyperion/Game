@@ -69,19 +69,19 @@ public class CollisionCheck {
 		    Boundary playerBounds = primary.getBoundaryDelta();
 		    //Boundary playerBounds = entityPrimary.getBoundaryLocal();
 		    
-		    int deltaX = (int) (primary.getOwner().getDeltaX() );
-		    int deltaY = (int) (primary.getOwner().getDeltaY() );
+		    int deltaX = (int) (primary.getOwnerEntity().getDeltaX() );
+		    int deltaY = (int) (primary.getOwnerEntity().getDeltaY() );
 		    
 		    Point2D playerCenter = new Point2D.Double(deltaX, deltaY);
 		    //Point2D playerCenter = new Point2D.Double(entityPrimary.getX(), entityPrimary.getY());
 		    
-		    Point2D statCenter = new Point2D.Double(stat.getOwner().getX(), stat.getOwner().getY());
+		    Point2D statCenter = new Point2D.Double(stat.getOwnerEntity().getX(), stat.getOwnerEntity().getY());
 			
 			
 			Line2D axis = bounds.getSeparatingAxis(separatingSide); //OPTIMIZE TO SLOPE ONLY CALCULATIONS
 		    
 		    Line2D centerDistance = new Line2D.Float(deltaX , deltaY,
-		    		stat.getOwner().getX() , stat.getOwner().getY() );
+		    		stat.getOwnerEntity().getX() , stat.getOwnerEntity().getY() );
 		    Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
 		 
 		    
@@ -150,19 +150,19 @@ public class CollisionCheck {
 		    Boundary playerBounds = primary.getBoundaryDelta();
 		    //Boundary playerBounds = entityPrimary.getBoundaryLocal();
 		    
-		    int deltaX = (int) (primary.getOwner().getDeltaX() );
-		    int deltaY = (int) (primary.getOwner().getDeltaY() );
+		    int deltaX = (int) (primary.getOwnerEntity().getDeltaX() );
+		    int deltaY = (int) (primary.getOwnerEntity().getDeltaY() );
 		    
 		    Point2D playerCenter = new Point2D.Double(deltaX, deltaY);
 		    //Point2D playerCenter = new Point2D.Double(entityPrimary.getX(), entityPrimary.getY());
 		    
-		    Point2D statCenter = new Point2D.Double(stat.getOwner().getX(), stat.getOwner().getY());
+		    Point2D statCenter = new Point2D.Double(stat.getOwnerEntity().getX(), stat.getOwnerEntity().getY());
 			
 			
 			Line2D axis = bounds.getSeparatingAxis(separatingSide); //OPTIMIZE TO SLOPE ONLY CALCULATIONS
 		    
 		    Line2D centerDistance = new Line2D.Float(deltaX , deltaY,
-		    		stat.getOwner().getX() , stat.getOwner().getY() );
+		    		stat.getOwnerEntity().getX() , stat.getOwnerEntity().getY() );
 		    Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
 		 
 		    

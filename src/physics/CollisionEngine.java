@@ -118,7 +118,7 @@ public class CollisionEngine implements Serializable{
     	
     	if ( bool ) { 
 		 //check to see if collision isn't already occurring
-    		if (!hasActiveCollision(collidable1.getOwner(),collidable2.getOwner())) { 
+    		if (!hasActiveCollision(collidable1.getOwnerEntity(),collidable2.getOwnerEntity())) { 
 			// if not, add new collision event
 			//int index = currentBoard.getStaticEntities().size() + 1 ;
     			//System.out.println( "Collision detected" );
@@ -164,19 +164,19 @@ public class CollisionEngine implements Serializable{
 	    Boundary playerBounds = entityPrimary.getBoundaryDelta();
 	    //Boundary playerBounds = entityPrimary.getBoundaryLocal();
 	    
-	    int deltaX = (int) (entityPrimary.getOwner().getDeltaX() );
-	    int deltaY = (int) (entityPrimary.getOwner().getDeltaY() );
+	    int deltaX = (int) (entityPrimary.getOwnerEntity().getDeltaX() );
+	    int deltaY = (int) (entityPrimary.getOwnerEntity().getDeltaY() );
 	    
 	    Point2D playerCenter = new Point2D.Double(deltaX, deltaY);
 	    //Point2D playerCenter = new Point2D.Double(entityPrimary.getX(), entityPrimary.getY());
 	    
-	    Point2D statCenter = new Point2D.Double(stat.getOwner().getX(), stat.getOwner().getY());
+	    Point2D statCenter = new Point2D.Double(stat.getOwnerEntity().getX(), stat.getOwnerEntity().getY());
 		
 		
 		Line2D axis = bounds.getSeparatingAxis(separatingSide); //OPTIMIZE TO SLOPE ONLY CALCULATIONS
 	    
 	    Line2D centerDistance = new Line2D.Float(deltaX , deltaY,
-	    		stat.getOwner().getX() , stat.getOwner().getY() );
+	    		stat.getOwnerEntity().getX() , stat.getOwnerEntity().getY() );
 	    Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
 	 
 	    

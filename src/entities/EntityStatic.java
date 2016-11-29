@@ -150,7 +150,7 @@ public class EntityStatic extends Entity{
 	
 	public String toString()
 	{
-		return String.format("%s", this);
+		return "entity";
 	}
 	
 	/**

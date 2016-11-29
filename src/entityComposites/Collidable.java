@@ -143,10 +143,10 @@ public final class Collidable extends CollisionProperty{
 	private void printCollisions() {
 		System.out.println("\nCollisions on "+ owner.name );
 		for ( int i = 0 ; i < collisionInteractions.size() ; i++) 
-		System.out.println("---" + i + " " + collisionInteractions.get(i).collision().collisionName);
+		System.out.println("---" + i + " " + collisionInteractions.get(i).collision().collisionDebugTag);
 	}
 	
-	public EntityStatic getOwner(){
+	public EntityStatic getOwnerEntity(){
 		return this.owner;
 	}
 
@@ -156,6 +156,7 @@ public final class Collidable extends CollisionProperty{
 		for ( Side side : this.getBoundaryLocal().getSides() ){
 			//g.draw(side);
 			camera.draw( side.toLine() , g);
+			camera.drawString(side.toString(), side.getX1()+(side.getX2()-side.getX1())/2 , side.getY1()+(side.getY2()-side.getY1())/2 , g);
 		}
 		
 	}

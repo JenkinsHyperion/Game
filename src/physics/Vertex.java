@@ -3,9 +3,9 @@ package physics;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 
-public class Vertex {
+public class Vertex extends BoundaryFeature{
 
-	private int ID;
+	//private int ID;
 	private Point position;
 	private Side endingSide; //Side ending on this vertex (Side whose P2 is this vertex)
 	private Side startingSide; // Side starting from this vertex (Side whose P1 is this vertex)
@@ -65,5 +65,8 @@ public class Vertex {
 	protected void setPos(Point point) { this.position = point; }
 
 	public int getID() { return this.ID; }
+	
+	@Override
+	public String toString(){ return "Vertex"+this.ID ; }
 
 }

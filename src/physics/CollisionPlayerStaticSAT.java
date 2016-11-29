@@ -12,26 +12,18 @@ import entityComposites.Collidable;
 
 public class CollisionPlayerStaticSAT extends Collision {
 	
-	private EntityDynamic entityPrimary; //redundant, parent has protected
-	private EntityStatic entitySecondary;//redundant, parent has protected
 	
-	private Collidable collisionPrimary;
-	private Collidable collisionSecondary;
-
 	public CollisionPlayerStaticSAT(Collidable collidable1, Collidable collidable2){
 		
-		super( (EntityDynamic)collidable1.getOwner() , collidable2.getOwner());
+		super( (EntityDynamic)collidable1.getOwnerEntity() , collidable2.getOwnerEntity());
 		
-		entityPrimary = (EntityDynamic)collidable1.getOwner();
-		entitySecondary = collidable2.getOwner();
+		entityPrimary = (EntityDynamic)collidable1.getOwnerEntity();
+		entitySecondary = collidable2.getOwnerEntity();
 		
-		collisionPrimary = collidable1; // TAKE COLLIDABLE IN COSNTRUCTOR INSTEAD OF ENTITY
-		collisionSecondary = collidable2;
+		collidingPrimary = collidable1; // TAKE COLLIDABLE IN COSNTRUCTOR INSTEAD OF ENTITY
+		collidingSecondary = collidable2;
 		
-		collisionName = collidable1.getOwner().name + " + " + collidable2.getOwner().name;
-		
-		//Put this collision into each entity's list of interactions and receive the index where it was put
-		//System.out.println("Indexed collisions "+ toString() + " " +entityPairIndex[0] +  " " + entityPairIndex[1]);
+		collisionDebugTag = collidable1.getOwnerEntity().name + " + " + collidable2.getOwnerEntity().name;
 		
 		initCollision();
 		
@@ -41,7 +33,9 @@ public class CollisionPlayerStaticSAT extends Collision {
 	@Override
 	public void initCollision(){
 		
-		//updateCollision(); //Run math for first time 
+		this.resolutionState = new ResolutionEvent();
+		
+		//updateCollision(); //Run math for first time OPTIMIZE, Add new code block for first time math
 
 		System.out.println("\nBegin Collision");
 		
@@ -50,22 +44,24 @@ public class CollisionPlayerStaticSAT extends Collision {
 		// Later on events will go here (damage, triggering, etc)
 	}
 	
-	//CONTINUOUS COLLISION COMMANDS - Ongoing commands during collision like particle effects, sound, etc.
 	@Override
 	public void updateCollision(){ 
 		
-		Point resolution = getClosestResolution();
+		Resolution closestResolution = getClosestResolution();
 		
-		if (resolution == null){ //Primary entity is at surface with resolution of 0,0
-
-			depthX = 0;
-			depthY = 0;
+		if (closestResolution.Vector() == null){ //Primary entity is at surface with resolution of 0,0
 			
 			entityPrimary.setColliding(true);
 			entityPrimary.setDampeningX(0.1f);
 
+			triggerResolutionEvent( closestResolution );
+			
 		}
-		else { //Primary Entity is clipping with closest resolution of vector
+		else { //Primary Entity is clipping by closestResolution.vector()
+			System.out.println("");
+			System.out.println( ""+closestResolution.FeaturePrimary().toString() + " colliding with " + closestResolution.FeatureSecondary().toString() );
+			
+			Vector resolution = closestResolution.Vector();
 			
 			System.out.println("\nWill clip by "+(int) resolution.getX()+" , "+ (int) resolution.getY());
 			
@@ -85,14 +81,32 @@ public class CollisionPlayerStaticSAT extends Collision {
 			System.out.print(" to "+entityPrimary.getDX() + " and DY: "+entityPrimary.getDY());
 			
 			//Resolution wont resolve
-			
-
-				
+	
 		}
 	    
 		 
 	}
+	
+	private class ResolutionEvent extends ResolutionState{
+
+		@Override
+		protected void triggerEvent() { //One time event upon resolution of collision
+			
+		}
+
+	}
+	
+	@Override
+	protected void triggerResolutionEvent( Resolution resolution ) {
 		
+		collisionDebugTag = "("+resolution.FeaturePrimary()+" of "+entityPrimary.toString()+") contacting ("+
+							resolution.FeatureSecondary()+" of "+entitySecondary.toString()+")";
+				
+		this.resolutionState.triggerEvent();
+		this.resolutionState = ResolvedState.resolved();
+		
+	}
+
 	//FINAL COLLISION COMMANDS - Last commands before this collision object self destructs
 	@Override
 	public void completeCollision(){
@@ -102,8 +116,8 @@ public class CollisionPlayerStaticSAT extends Collision {
 		entityPrimary.setAccX(0); //remove friction
 		
 		//Remove collision from involved entities lists
-		collisionPrimary.removeCollision( entityPairIndex[0] );
-		collisionSecondary.removeCollision(entityPairIndex[1] );
+		collidingPrimary.removeCollision( entityPairIndex[0] );
+		collidingSecondary.removeCollision(entityPairIndex[1] );
 	}
 	
 	/* ######################
@@ -127,23 +141,23 @@ public class CollisionPlayerStaticSAT extends Collision {
 	}
 	
 	//Resolution calculation
-	private Point getClosestResolution() {
+	private Resolution getClosestResolution() {
 		//System.out.println("Checking best resolution"); 
-		ArrayList<Point> penetrations = new ArrayList<>();
+		ArrayList<Resolution> penetrations = new ArrayList<>();
     	
     	// Get penetration vectors along all separating axes for primary entity and add to list
-    	for (int i = 0 ; i < collisionPrimary.getBoundaryLocal().getSeparatingSides().length ; i++ ){
+    	for (int i = 0 ; i < collidingPrimary.getBoundaryLocal().getSeparatingSides().length ; i++ ){
     		
-    		if (getSeparationDistance(collisionPrimary.getBoundaryLocal().getSeparatingSides()[i]) != null){
+    		if (getSeparationDistance(collidingPrimary.getBoundaryLocal().getSeparatingSides()[i]) != null){
     			
-    			penetrations.add( getSeparationDistance(collisionPrimary.getBoundaryLocal().getSeparatingSides()[i]) );
+    			penetrations.add( getSeparationDistance(collidingPrimary.getBoundaryLocal().getSeparatingSides()[i]) );
     			
     		}
     	}
     	
     	// Get penetration vectors along all separating axes for other collision and add to list
     	//research if boundarylocal is needed
-    	for ( EntityStatic entitySecondary : collisionPrimary.getCollidingPartners()){
+    	for ( EntityStatic entitySecondary : collidingPrimary.getCollidingPartners()){
     		
 	    	for (int i = 0 ; i < ((Collidable) entitySecondary.collidability()).getBoundaryLocal().getSeparatingSides().length ; i++ ){
 	    		
@@ -158,15 +172,18 @@ public class CollisionPlayerStaticSAT extends Collision {
     	
     	int penetrationX = 0;
     	int penetrationY = 0;
+    	Resolution closestResolution = null;
     	
     	//RESOLUTION LOGIC checks all penetration vectors and finds best resolution (currently lowest)
     	if (penetrations.size() > 0){
     		
-    		penetrationX = (int) ( penetrations.get(0).getX() );
-    		penetrationY = (int) ( penetrations.get(0).getY() );
-    		//System.out.println("Start "+penetrationX+" "+penetrationY + " -- "+entityPrimary.getX() + entitySecondary.getX());		
-	    	for ( Point vector : penetrations ){
-	    		//System.out.println("Proposed resolution "+ vector.getX() + " , " + vector.getY() );
+    		penetrationX = (int) ( penetrations.get(0).Vector().getX() ); //condense
+    		penetrationY = (int) ( penetrations.get(0).Vector().getY() ); //<
+    		closestResolution = penetrations.get(0); 					  //<
+    			
+	    	for ( int i = 0 ; i < penetrations.size() ; i++ ){
+	    		Vector vector = penetrations.get(i).Vector(); //vector component of resolution
+
 	    		if ( vectorOpposesVelocity( vector ) ) {
 	    		
 	    			//Keep lowest
@@ -174,8 +191,9 @@ public class CollisionPlayerStaticSAT extends Collision {
 		    				< ( penetrationX*penetrationX + penetrationY*penetrationY )
 		    			){
 		    			//System.out.println("Accepted Lowest");
-		    			penetrationX = (int) (vector.getX());
-		    			penetrationY = (int) (vector.getY()); 
+		    			penetrationX = (int) (vector.getX()); //obsolete
+		    			penetrationY = (int) (vector.getY()); //obsolete
+		    			closestResolution = penetrations.get(i);
 		    		}
 		    		else {
 		    			//System.out.println("Rejected Greater");
@@ -190,18 +208,23 @@ public class CollisionPlayerStaticSAT extends Collision {
     	
     	if (penetrationX == 0 && penetrationY == 0 ){ //Passed to updateCollision() for collisions where side is flush
     		//System.out.println(" Null resolution 0,0 ");
-    		return null;
+    		return new Resolution(
+    					closestResolution.FeaturePrimary(),
+    					closestResolution.FeatureSecondary(),
+    					null
+    				);
     	}
     	else {
-    		//System.out.println(" Accepted lowest resolution "+ penetrationX + " , " + penetrationY);
-    		return new Point(penetrationX,penetrationY); //return chosen best resolution
+    		//return new Point(penetrationX,penetrationY); //return chosen best resolution
+    		return closestResolution;
+    		
     	}
 
 	}
 	
 
 	
-	private boolean vectorOpposesVelocity(Point vector) {
+	private boolean vectorOpposesVelocity(Vector vector) {
 		
 		if ( entityPrimary.getDX() > 0 ) {
 			if ( vector.getX() > entityPrimary.getDX() ){
@@ -241,12 +264,12 @@ public class CollisionPlayerStaticSAT extends Collision {
 	 * @return Depth of intersection along given axis of separation.
 	 * 
 	 */
-	private Point getSeparationDistance( Line2D separatingSide ){
+	private Resolution getSeparationDistance( Line2D separatingSide ){
 		
 	    EntityStatic stat = entitySecondary;
 	    
 	    Boundary bounds = collidingSecondary.getBoundaryLocal() ;
-	    Boundary playerBounds = entityPrimary.getBoundaryDelta();
+	    Boundary playerBounds = collidingPrimary.getBoundaryDelta();
 	    
 	    int deltaX = (int) (entityPrimary.getDeltaX() );
 	    int deltaY = (int) (entityPrimary.getDeltaY() );
@@ -269,7 +292,11 @@ public class CollisionPlayerStaticSAT extends Collision {
 	      
 	    Vertex[] playerInnerVertices = playerBounds.farthestVerticesFromPoint( playerOuterVertices[0] , axis );
 
+	    //CLOSEST FEATURE
 	    
+	    
+	    
+	    //
 	    
 	    Line2D playerHalf = new Line2D.Float( 
 				playerBounds.getProjectionPoint(playerCenter,axis) ,
@@ -335,16 +362,25 @@ public class CollisionPlayerStaticSAT extends Collision {
 			penetrationY = -(playerProjectionY + statProjectionY) ;
 		}
 		
-
-			return new Point( penetrationX , penetrationY );
-
-	}
-	
-	/*public Vector getPenetrationDepth(){   OPTIMIZATION - SEPARATE DISTANCE INTO PENETRATION AND ABSOLUTE DISTANCE
-
-		return 
+		BoundaryFeature featurePrimary = playerInnerVertices[0];
+		BoundaryFeature featureSecondary = statInnerVertices[0];
 		
-	}*/
+		if ( playerInnerVertices.length > 1 ){ 
+			featurePrimary = playerInnerVertices[0].getSharedSide(playerInnerVertices[1]);
+	    }
+		
+		if ( statInnerVertices.length > 1 ){ 
+			featureSecondary = statInnerVertices[0].getSharedSide(statInnerVertices[1]);
+	    }
+		
+			//System.out.println(""+featurePrimary.toString()+" : "+featureSecondary.toString() );
+			return new Resolution( 
+					featurePrimary, //construct sides
+					featureSecondary,
+					new Vector( penetrationX , penetrationY )
+			);
+			
+	}
 	
 
 	
@@ -380,7 +416,8 @@ public class CollisionPlayerStaticSAT extends Collision {
 	}
 	
 	public String toString(){
-		return String.format("%s",collisionName);
+		//return String.format("%s",collisionName);
+		return "CollisionSAT: "+collisionDebugTag;
 	}
 	
 

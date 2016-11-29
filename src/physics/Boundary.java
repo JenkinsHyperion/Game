@@ -7,10 +7,12 @@ import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import entityComposites.Collidable;
+
 public class Boundary implements Serializable {
 	
 	//protected Shape boundaryShape;
-	
+	private Collidable ownerCollidable;
 	protected Side[] sides = new Side[1]; 
 	protected Vertex[] corners;
 
@@ -20,29 +22,32 @@ public class Boundary implements Serializable {
 		corners = new Vertex[0];
 	} //use cloning instead
 	
-	private Boundary( Side[] sides , Vertex[] corners ){
+	private Boundary( Side[] sides , Vertex[] corners , Collidable owner ){
 		this.sides = sides;
 		this.corners = corners;
+		this.ownerCollidable = owner;
 	}
 	
-	public Boundary(Line2D line){
-		sides[0] = new Side(line , 0); 
+	public Boundary(Line2D line , Collidable owner){
+		sides[0] = new Side(line , this , 0); 
 		corners = new Vertex[]{ new Vertex(line.getP1(),0) , new Vertex(line.getP2(),1) };
+		this.ownerCollidable = owner;
 		compileBoundaryMap();
 	}
 	
-	public Boundary(Side[] bounds) {
+	public Boundary(Side[] bounds , Collidable owner) {
 		sides = bounds;
+		this.ownerCollidable = owner;
 		compileBoundaryMap();
 	}
 	
-	public Boundary(Line2D[] bounds) {
-		
+	public Boundary(Line2D[] bounds , Collidable owner) {
+		this.ownerCollidable = owner;
 		sides = null;
 		sides = new Side[ bounds.length ];
 		
 		for ( int i = 0 ; i < bounds.length ; i++ ){
-			sides[i] = new Side( bounds[i] , i );
+			sides[i] = new Side( bounds[i] , this , i );
 		}
 		compileBoundaryMap();
 	}
@@ -53,10 +58,10 @@ public class Boundary implements Serializable {
 			
 			sides = new Side[4];
 			
-			sides[0] = new Side( new Line2D.Float(xOffset , yOffset , xOffset+width , yOffset ) , 0 );
-			sides[1] = new Side( new Line2D.Float(xOffset+width , yOffset , xOffset+width , yOffset+height ) , 1 );
-			sides[2] = new Side( new Line2D.Float(xOffset+width , yOffset+height , xOffset , yOffset+height ) , 2 );
-			sides[3] = new Side( new Line2D.Float(xOffset , yOffset+height , xOffset , yOffset ) , 3 );
+			sides[0] = new Side( new Line2D.Float(xOffset , yOffset , xOffset+width , yOffset ) , this, 0 );
+			sides[1] = new Side( new Line2D.Float(xOffset+width , yOffset , xOffset+width , yOffset+height ) , this, 1 );
+			sides[2] = new Side( new Line2D.Float(xOffset+width , yOffset+height , xOffset , yOffset+height ) , this, 2 );
+			sides[3] = new Side( new Line2D.Float(xOffset , yOffset+height , xOffset , yOffset ) , this, 3 );
 			compileBoundaryMap();
 		}
 		
@@ -94,10 +99,11 @@ public class Boundary implements Serializable {
 		
 	}
 	
+	
 	@Override
 	public Boundary clone(){  
 
-		Boundary returnBounds = new Boundary(this.sides , this.corners);
+		Boundary returnBounds = new Boundary(this.sides , this.corners , this.ownerCollidable);
 		
 		
 		
@@ -128,11 +134,11 @@ public class Boundary implements Serializable {
 			
 			Point p2 = new Point( (int)(r2 * Math.cos( a2 + angle  ) ) , (int)(r2 * Math.sin( a2 + angle  ) )  );
 			
-			newSides[i] = new Side( new Line2D.Float(p1,p2) , i );
+			newSides[i] = new Side( new Line2D.Float(p1,p2) , this, i );
 			
 		}
 		
-		return new Boundary(newSides);
+		return new Boundary(newSides , this.ownerCollidable );
 		//return returnedBounds;
 	}
 	
@@ -407,11 +413,12 @@ public class Boundary implements Serializable {
 			shiftedSides[i] = new Side (
 					new Line2D.Double(sides[i].getX1()+pos.x, sides[i].getY1()+pos.y , 
 					sides[i].getX2()+pos.x, sides[i].getY2()+pos.y ) ,
+					this ,
 					i
 				);
 		}
 
-		return new Boundary(shiftedSides);
+		return new Boundary(shiftedSides , this.ownerCollidable);
 		
 	};
 	
@@ -423,14 +430,19 @@ public class Boundary implements Serializable {
 			shiftedSides[i] = new Side (
 					new Line2D.Double(sides[i].getX1()+x, sides[i].getY1()+y , 
 					sides[i].getX2()+x, sides[i].getY2()+y ) ,
+					this,
 					i
 				);
 		}
 		
-		return new Boundary(shiftedSides);
+		return new Boundary(shiftedSides , this.ownerCollidable);
 		
 	};
 	
+	
+	public Collidable getOwnerCollidable(){
+		return this.ownerCollidable;
+	}
 	
 	
 	//SEPARATING AXIS THEORM METHODS

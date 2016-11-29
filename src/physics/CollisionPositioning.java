@@ -77,7 +77,7 @@ public class CollisionPositioning extends Collision { //TO BE MOVED TO ITS OWN I
 	}
 	
 	public String toString(){
-		return String.format("%s",collisionName);
+		return String.format("%s",collisionDebugTag);
 	}
 	
 	public Point getClosestIntersection(){ //OPTIMIZE see above in updateCOllision()

@@ -4,24 +4,36 @@ import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 
-public class Side {
+import entities.EntityStatic;
 
-	private int ID;
+public class Side extends BoundaryFeature{
+
+	//private int ID;
 	Line2D line;
 	private Vertex startpoint;
 	private Vertex endpoint;
-	private double slope;
+	private int slopeX;
+	private int slopeY;
 
 	//individual side properties here
 	
-	public Side( Line2D line , int ID){
+	public Side( Line2D line , Boundary owner, int ID){
 		this.line = line;
+		this.owner = owner;
 		this.ID = ID;
+		calculateSlope(line);
 	}
 	
-	public Side( Line2D line , Point2D startpoint , Point2D endpoint , int ID){
+	public Side( Line2D line , Point2D startpoint , Point2D endpoint , Boundary owner , int ID){
 		this.line = line;
+		this.owner = owner;
 		this.ID = ID;
+		calculateSlope(line);
+	}
+	
+	private void calculateSlope(Line2D line){
+		slopeX = (int)(line.getX2() - line.getX1());
+		slopeY = (int)(line.getY2() - line.getY1());
 	}
 	
 	//PROTECTED METHODS
@@ -40,6 +52,26 @@ public class Side {
 	
 	//PUBLIC
 	
+	@Override 
+	protected void onCollision(){
+		
+	}
+	
+	@Override
+	public Boundary getOwnerBoundary(){
+		return this.owner;
+	}
+	
+	@Override
+	public EntityStatic getOwnerEntity(){
+		return this.owner.getOwnerCollidable().getOwnerEntity();
+	}
+
+	
+	public int getSlopeX(){ return slopeX; }
+	public int getSlopeY(){ return slopeY; }
+	public Vector getSlopeVector(){ return new Vector(slopeX , slopeY); }
+	
 	public Vertex getStartPoint(){ return startpoint; }
 	public Vertex getEndPoint(){ return endpoint; }
 	
@@ -55,6 +87,6 @@ public class Side {
 	public int getID(){ return ID; }
 	
 	@Override
-	public String toString(){ return "Side"+ID ; }
+	public String toString(){ return "Side"+this.ID ; }
 	
 }

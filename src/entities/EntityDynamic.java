@@ -145,11 +145,7 @@ public class EntityDynamic extends EntityStatic{
     public void applyAccelerationY(float acY){
     	accY =+ acY;
     }
-    
-	public Boundary getBoundaryDelta(){
-		//return boundary.atPosition( (int) (x+dx+accX), (int) (y+dy+accY ));
-		return ((Collidable)collisionType).getBoundary().atPosition( (int) (x+dx+accX), (int) (y+dy+accY ) );
-	}
+
     
     public boolean isColliding(){ return isColliding; }
     public void setColliding( boolean state ){ isColliding = state;}

@@ -794,9 +794,7 @@ public class Board extends JPanel implements Runnable {
 	    
 	    Point2D playerCenter = new Point2D.Double(player.getX(), player.getY());
 	    Point2D statCenter = new Point2D.Double(stat.getX(), stat.getY());
-	    
-	    Vertex[] testingNearStatCorners = new Vertex[0];
-	    Vertex[] testingNearPlayerCorners = new Vertex[0];
+
 	    
 	    	//for ( Line2D axis : bounds.debugSeparatingAxes(B_WIDTH, B_HEIGHT) ){
 	    	for ( int i = 0 ; i < statBounds.getSpearatingSidesBetween(playerBounds).length ; i++ ){
@@ -821,42 +819,42 @@ public class Board extends JPanel implements Runnable {
 		    	g2.setColor(Color.YELLOW);
 			    
 		    	Point2D[] statOuter= statBounds.getFarthestPoints(playerBounds,axis);
-		    	Point2D[] playerOuter= statBounds.getFarthestPoints(statBounds,axis);
+		    	Point2D[] playerOuter= playerBounds.getFarthestPoints(statBounds,axis);
 		    	
-			    Point2D nearStatCorner = statBounds.farthestPointFromPoint( statOuter[0] , axis ); //merge below
+			    Vertex[] nearStatCorner = statBounds.farthestVerticesFromPoint( statOuter[0] , axis ); //merge below
 			      
-			    Point2D nearPlayerCorner = playerBounds.farthestPointFromPoint( playerOuter[0] , axis );
+			    Vertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( playerOuter[0] , axis );
 			    
 			    //CLOSEST SIDE TESTING
-			    testingNearStatCorners = statBounds.farthestVerticesFromPoint( statOuter[0] , axis );
 			    
 			    //selected entity
-			    if ( testingNearStatCorners.length > 1 ){ 
-			    	Side closest = testingNearStatCorners[0].getSharedSide(testingNearStatCorners[1]);
+			    if ( nearStatCorner.length > 1 ){ 
+			    	Side closest = nearStatCorner[0].getSharedSide(nearStatCorner[1]);
 			    	camera.draw(closest.toLine(), g2);
+			    	camera.drawString( closest.toString() , closest.getX1(), closest.getY1(), g2);
 			    }
 			    else 
-			    	drawCross(testingNearStatCorners[0], g2);
-			    
-			    testingNearPlayerCorners = playerBounds.nearestVerticesFromPoint( statOuter[0] , axis );
+			    	drawCross(nearStatCorner[0], g2);
+
 			    //make verticesFromPoint
 			    //player
-			    if ( testingNearPlayerCorners.length > 1 ){
-			    	Side closest = testingNearPlayerCorners[0].getSharedSide(testingNearPlayerCorners[1]);
+			    if ( nearPlayerCorner.length > 1 ){
+			    	Side closest = nearPlayerCorner[0].getSharedSide(nearPlayerCorner[1]);
 			    	camera.draw(closest.toLine(), g2);
+			    	camera.drawString( closest.toString() , closest.getX1(), closest.getY1(), g2);
 			    }
 			    else 
-			    	drawCross(testingNearPlayerCorners[0], g2);
+			    	drawCross(nearPlayerCorner[0], g2);
 			    
 			    // -----------------
 			    
 			    Line2D playerHalf = new Line2D.Float( 
 						playerBounds.getProjectionPoint(playerCenter,axis) ,
-						playerBounds.getProjectionPoint(nearPlayerCorner,axis)
+						playerBounds.getProjectionPoint(nearPlayerCorner[0].toPoint(),axis)
 								);
 				Line2D statHalf = new Line2D.Float( 
 						statBounds.getProjectionPoint(statCenter,axis) ,
-						statBounds.getProjectionPoint(nearStatCorner,axis)
+						statBounds.getProjectionPoint(nearStatCorner[0].toPoint(),axis)
 								);
 				
 				g2.draw(playerHalf);

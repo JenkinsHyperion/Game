@@ -90,7 +90,7 @@ public class CollisionPlayerDynamic extends Collision {
 	}
 	
 	public String toString(){
-		return String.format("%s",collisionName + " "+ yequilibrium);
+		return String.format("%s",collisionDebugTag + " "+ yequilibrium);
 	}
 	
 	public boolean sideIsAllignedX(Rectangle box1, Rectangle box2){

@@ -609,8 +609,12 @@ public class EditorPanel extends JPanel {
 		}
 		else if (path.toLowerCase().contains("grass")) {
 			//newEnt = new Grass(x, y, offsetX, offsetY, path);
-			//
+
+			// Possibilities:
 			/*newEnt = Platform01.buildStaticEntity( x , y , Platform01.INTANGIBLE );
+			/*
+			newEnt = Platform01.buildStaticEntity( x , y , Platform01.INTANGIBLE );
+
 			newEnt.setCollisionProperties(NonCollidable.getNonCollidable());
 			newEnt.loadSprite("grass01.png");*/
 		}

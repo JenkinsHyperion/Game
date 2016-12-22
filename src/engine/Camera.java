@@ -138,6 +138,13 @@ public class Camera extends EntityDynamic{
 		
 	}
 	
+	public void drawString( String string , int x, int y , Graphics g) {
+		g.drawString(string, 
+				x - (int)this.x + boardHalfWidth, 
+				y - (int)this.y + boardHalfHeight
+		);
+	}
+	
 	/**
 	 * Takes ordinate relative to the camera screen and returns the local ordinate in the world
 	 * @param x_relative_to_camera

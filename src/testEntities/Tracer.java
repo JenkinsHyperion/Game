@@ -108,7 +108,7 @@ public class Tracer extends EntityDynamic{ // Can extend either EntityStatic or 
     //setBoundingBox( getX(), getY()-10, Math.abs(getX()-xEndPoint), Math.abs(getY()-yEndPoint) ); 
     	// ^^^ this one works, revert if the following code below doesn't work
     	    	
-		((Collidable) collisionType).setBoundary( new Boundary(new Line2D.Double(1, 1, 100, 100)) );
+		((Collidable) collisionType).setBoundary( new Boundary(new Line2D.Double(1, 1, 100, 100) , null  ) );
     	
     }
     /**
@@ -157,7 +157,7 @@ public class Tracer extends EntityDynamic{ // Can extend either EntityStatic or 
     		beam = new Line2D.Float ( getPos() , laserBlock.getClosestIntersection() );
     	}
     	
-    	((Collidable) collisionType).setBoundary( new Boundary(tracer) );
+    	((Collidable) collisionType).setBoundary( new Boundary(tracer , null ) );
        	
     }
     

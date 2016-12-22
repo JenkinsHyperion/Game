@@ -1,6 +1,8 @@
 package physics;
 
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
@@ -8,10 +10,13 @@ import java.util.ArrayList;
 
 import entities.*;
 import entityComposites.*;
+import physics.Collision.Resolution;
 
 public class Collision implements Serializable{
 	
 	protected boolean isComplete = false;
+	
+	protected ResolutionState resolutionState;
 	
 	protected EntityDynamic entityPrimary;
 	protected EntityStatic entitySecondary;
@@ -19,7 +24,7 @@ public class Collision implements Serializable{
 	protected Collidable collidingPrimary ;
 	protected Collidable collidingSecondary; 
 	
-	public String collisionName;
+	public String collisionDebugTag = "-";
 	
 	protected int[] entityPairIndex = new int[2];
 	
@@ -40,7 +45,7 @@ public class Collision implements Serializable{
 		collidingPrimary = (Collidable) e1.collidability(); //TRACE ALL CASTS BACK TO PASSING COLLIDABLE IN CONSTRUCTOR
 		collidingSecondary = (Collidable) e2.collidability();
 		
-		collisionName = e1.name + " + " + e2.name;
+		collisionDebugTag = e1.name + " + " + e2.name;
 		
 		//THIS TEST COLLISION IS A NORMAL SURFACE SUCH AS A FLAT PLATFORM
 		entityPairIndex[0] = ((Collidable) e1.collidability()).addCollision(this,true); 
@@ -48,6 +53,29 @@ public class Collision implements Serializable{
 		//initCollision();
 	}
 	
+	protected class Resolution{ //Wrapper class for clipping resolution vector and involved features of entities involved
+		
+		private BoundaryFeature closestFeaturePrimary;
+		private BoundaryFeature closestFeatureSecondary;
+		private Vector resolutionVector;
+		
+		protected Resolution( BoundaryFeature featurePrimary , BoundaryFeature featureSecondary  , Vector resolution ){
+			this.closestFeaturePrimary = featurePrimary;
+			this.closestFeatureSecondary = featureSecondary;
+			this.resolutionVector = resolution;
+		}
+		
+		protected Vector Vector(){ return resolutionVector; }
+		
+		protected BoundaryFeature FeaturePrimary(){ return closestFeaturePrimary; }
+		protected BoundaryFeature FeatureSecondary(){ return closestFeatureSecondary; }
+		
+	}
+	
+	protected void triggerResolutionEvent(){
+		
+	}
+
 	//INITAL COLLISION COMMANDS - Run once, the first time collision occurs
 	public void initCollision(){
 		
@@ -167,7 +195,7 @@ public class Collision implements Serializable{
 	
 	public String toString(){
 		//return String.format("%s",this);
-		return collisionName;
+		return collisionDebugTag;
 	}
 	
 	public Point getDepth(){
@@ -179,4 +207,8 @@ public class Collision implements Serializable{
 	public Side getSideSecondary(){ return contactingSide2; }
 	public Point2D[] getContactPoints(){ return contactPoints; }
 	public ArrayList<Point2D> getIntersections() { return debugIntersectionPoints; }
+
+	protected void triggerResolutionEvent(Resolution closest) {
+				
+	}
 }

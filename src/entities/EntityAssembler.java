@@ -17,4 +17,10 @@ public class EntityAssembler {
 		
 	}
 	
+	public EntityStatic getEntity(){
+		EntityStatic returnEntity = new EntityStatic(0, 0);
+		
+		return returnEntity;
+	}
+	
 }

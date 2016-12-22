@@ -1,4 +1,4 @@
-package entities;
+/*package entities;
 
 public class EntityFactory {
 	
@@ -19,3 +19,4 @@ public class EntityFactory {
 	}
 	
 }
+*/

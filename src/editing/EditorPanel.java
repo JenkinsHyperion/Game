@@ -599,27 +599,27 @@ public class EditorPanel extends JPanel {
 			
 			//newEnt = new Platform(x, y, offsetX, offsetY, path);
 			//
-			newEnt = Platform01.buildPlatform( x , y , offsetX , offsetY , path );
+			//newEnt = Platform01.buildPlatform( x , y , offsetX , offsetY , path );
 		}
 		else if (path.toLowerCase().contains("ground")) {
-			newEnt = Platform01.buildStaticEntity(x,  y, Platform01.COLLIDABLE);
+			/*newEnt = Platform01.buildStaticEntity(x,  y, Platform01.COLLIDABLE);
 			Collidable collidable = new Collidable(newEnt, new Boundary.Box(446,100,-223,-50) );
 			newEnt.setCollisionProperties( collidable );
-			newEnt.loadSprite("ground_1.png" , -223 , -53 );
+			newEnt.loadSprite("ground_1.png" , -223 , -53 );*/
 		}
 		else if (path.toLowerCase().contains("grass")) {
 			//newEnt = new Grass(x, y, offsetX, offsetY, path);
 			//
-			newEnt = Platform01.buildStaticEntity( x , y , Platform01.INTANGIBLE );
+			/*newEnt = Platform01.buildStaticEntity( x , y , Platform01.INTANGIBLE );
 			newEnt.setCollisionProperties(NonCollidable.getNonCollidable());
-			newEnt.loadSprite("grass01.png");
+			newEnt.loadSprite("grass01.png");*/
 		}
 		else {
 			newEnt = new EntityStatic(x, y);
 		}
 		deselectAllEntities();
-		board.getStaticEntities().add(newEnt);
-		addEntryToListOfPropLists(new PropertiesList(newEnt));
+		//board.getStaticEntities().add(newEnt);
+		//addEntryToListOfPropLists(new PropertiesList(newEnt));
 		updateAllEntitiesComboBox();
         allEntitiesComboBox.setSelectedIndex(allEntitiesComboBox.getItemCount()-1);
 	}

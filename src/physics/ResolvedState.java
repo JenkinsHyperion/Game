@@ -1,5 +1,7 @@
 package physics;
 
+import physics.Collision.Resolution;
+
 public class ResolvedState extends ResolutionState {
 	
 	private static ResolvedState resolvedState = new ResolvedState();
@@ -8,13 +10,14 @@ public class ResolvedState extends ResolutionState {
 		
 	}
 	
-	@Override
-	protected void triggerEvent(){
-		//DO NOTHING, collision has been resolved
-	}
-	
 	public static ResolutionState resolved(){
 		return resolvedState;
+	}
+
+	@Override
+	protected void triggerEvent(Resolution resolution) {
+		// DO NOTHING
+		
 	}
 	
 }

@@ -3,6 +3,8 @@ package physics;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 
+import misc.CollisionEvent;
+
 public class Vertex extends BoundaryFeature{
 
 	//private int ID;
@@ -10,21 +12,24 @@ public class Vertex extends BoundaryFeature{
 	private Side endingSide; //Side ending on this vertex (Side whose P2 is this vertex)
 	private Side startingSide; // Side starting from this vertex (Side whose P1 is this vertex)
 	
-	private Vertex( Point position , int ID ){
+	private Vertex( Point position , int ID , CollisionEvent collisionEvent ){
 		this.position = position;
 		this.ID = ID;
+		this.collisionEvent = collisionEvent;
 	}
 	
-	public Vertex( Point2D position , int ID){
+	public Vertex( Point2D position , int ID , CollisionEvent collisionEvent ){
 		this.position = new Point( (int)position.getX(), (int)position.getY() );
 		this.ID = ID;
+		this.collisionEvent = collisionEvent;
 	}
 	
-	public Vertex( Point2D position , Side CW_side , Side CCW_side , int ID ){
+	public Vertex( Point2D position , Side CW_side , Side CCW_side , int ID , CollisionEvent collisionEvent ){
 		this.position = new Point( (int)position.getX(), (int)position.getY() );
 		this.startingSide = CW_side;
 		this.endingSide = CCW_side;
 		this.ID = ID;
+		this.collisionEvent = collisionEvent;
 	}
 	
 	public Point toPoint(){
@@ -49,6 +54,11 @@ public class Vertex extends BoundaryFeature{
 			return null;		
 		}
 
+	}
+	
+	@Override
+	public void collisionTrigger(){
+		//TO DO
 	}
 	
 	public Side getEndingSide(){ return endingSide; }

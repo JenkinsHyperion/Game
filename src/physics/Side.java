@@ -5,6 +5,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 
 import entities.EntityStatic;
+import misc.CollisionEvent;
 
 public class Side extends BoundaryFeature{
 
@@ -12,23 +13,25 @@ public class Side extends BoundaryFeature{
 	Line2D line;
 	private Vertex startpoint;
 	private Vertex endpoint;
-	private int slopeX;
+	private int slopeX; 
 	private int slopeY;
 
 	//individual side properties here
 	
-	public Side( Line2D line , Boundary owner, int ID){
+	public Side( Line2D line , Boundary owner, int ID, CollisionEvent collisionEvent){
 		this.line = line;
 		this.owner = owner;
 		this.ID = ID;
 		calculateSlope(line);
+		this.collisionEvent = collisionEvent;
 	}
 	
-	public Side( Line2D line , Point2D startpoint , Point2D endpoint , Boundary owner , int ID){
+	public Side( Line2D line , Point2D startpoint , Point2D endpoint , Boundary owner , int ID, CollisionEvent collisionEvent){
 		this.line = line;
 		this.owner = owner;
 		this.ID = ID;
 		calculateSlope(line);
+		this.collisionEvent = collisionEvent;
 	}
 	
 	private void calculateSlope(Line2D line){
@@ -66,9 +69,14 @@ public class Side extends BoundaryFeature{
 	public EntityStatic getOwnerEntity(){
 		return this.owner.getOwnerCollidable().getOwnerEntity();
 	}
+	
+	@Override
+	public void collisionTrigger(){
+		
+	}
 
 	
-	public int getSlopeX(){ return slopeX; }
+	public int getSlopeX(){ return slopeX; }  
 	public int getSlopeY(){ return slopeY; }
 	public Vector getSlopeVector(){ return new Vector(slopeX , slopeY); }
 	

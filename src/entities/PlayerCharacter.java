@@ -8,6 +8,10 @@ import java.awt.event.KeyEvent;
 
 import animation.*;
 import engine.Board;
+import entityComposites.Collidable;
+import misc.CollisionEvent;
+import misc.DefaultCollisionEvent;
+import physics.Boundary;
 
 public class PlayerCharacter extends Player {
 
@@ -40,19 +44,21 @@ public class PlayerCharacter extends Player {
     
     private Animation JUMP_LEFT = new Animation(LoadAnimation.buildAnimation(2, 5, 32, "player_sheet.png") , 18 ); 
 
-    private AnimationState climbingRight= new AnimationState("climbing_left",CLIMB_RIGHT);
-    private AnimationState climbingLeft= new AnimationState("climbing_left",CLIMB_LEFT);
+    private EntityState climbingRight= new EntityState("climbing_left",CLIMB_RIGHT);
+    private EntityState climbingLeft= new EntityState("climbing_left",CLIMB_LEFT);
     
-    private AnimationState runningRight= new AnimationState("running_right",RUN_RIGHT);
-    private AnimationState runningLeft= new AnimationState("running_left",RUN_LEFT);
-    private AnimationState sprintingLeft= new AnimationState("sprinting_left",SPRINT_LEFT);
-    private AnimationState sprintingRight= new AnimationState("sprinting_right",SPRINT_RIGHT);
-    private AnimationState idlingRight= new AnimationState("idle_right",IDLE_RIGHT);
-    private AnimationState idlingLeft= new AnimationState("idle_left",IDLE_LEFT);
-    private AnimationState jumpingLeft= new AnimationState("jumping_left",JUMP_LEFT);
+    private EntityState runningRight= new EntityState("running_right",RUN_RIGHT);
+    private EntityState runningLeft= new EntityState("running_left",RUN_LEFT);
+    private EntityState sprintingLeft= new EntityState("sprinting_left",SPRINT_LEFT);
+    private EntityState sprintingRight= new EntityState("sprinting_right",SPRINT_RIGHT);
+    private EntityState idlingRight= new EntityState("idle_right",IDLE_RIGHT);
+    private EntityState idlingLeft= new EntityState("idle_left",IDLE_LEFT);
+    private EntityState jumpingLeft= new EntityState("jumping_left",JUMP_LEFT);
     
-    private AnimationState playerState = idlingLeft;
-    private AnimationState playerStateBuffer = idlingLeft;
+    private EntityState playerState = idlingLeft;
+    private EntityState playerStateBuffer = idlingLeft;
+    
+    private CollisionEvent onSideCollision = new SideCollisionEvent();
 
     public PlayerCharacter(int x, int y , Board currentBoard) {
         super(x, y, currentBoard);
@@ -67,12 +73,27 @@ public class PlayerCharacter extends Player {
 
     private void initPlayer() {
         
-        setBoundingBox(-12,-38,24,76);
         loadAnimatedSprite(IDLE_LEFT); 
         this.getEntitySprite().setOffset(12, 38); 
         //setAngle(0);
         setAccY( 0.2f ); // Force initialize gravity (temporary)
+
+        CollisionEvent defaultEvent = new DefaultCollisionEvent( (Collidable) this.collisionType );
+        CollisionEvent[] eventList = new CollisionEvent[]{
+        		defaultEvent, //top
+        		onSideCollision,
+        		defaultEvent,
+        		onSideCollision
+        };
         
+        Boundary boundarytemp =  new Boundary.EnhancedBox( 24,76 ,-12,-38, eventList , (Collidable) this.collisionType );
+        //Boundary boundarytemp =  new Boundary.Box( 24,76 ,-12,-38, (Collidable) this.collisionType );
+		((Collidable) collisionType).setBoundary( boundarytemp ); 
+		storedBounds = boundarytemp;
+		boundarytemp = null;
+		defaultEvent = null;
+		eventList = null;
+		
     }
 
 
@@ -183,82 +204,43 @@ public class PlayerCharacter extends Player {
     	}
 
 
-    	
-		//if (dx>2){
-		//	dx=2;
-		//}
-		//else if (dx<-2){
-		//	dx=-2;
-		//}
-		
-		/*
-		/if (!climbing){
-			if (keypressA){
-				setState(runningLeft);
-				setStateBuffer(idlingLeft);
-			}
-			else if (keypressD){
-				setState(runningRight);
-				setStateBuffer(idlingRight);
-			}
-			else
-				setState(playerStateBuffer);
-			
-		}
-		else { //climbing
-			
-			if (keypressA || keypressD) {
-				playerState.getAnimation().start(); //climb when holding jump
-			}
-			
-			if (keypressS){
-				
-				//abort climb
-				playerState = idlingRight;
-	        	getEntitySprite().setSprite(idlingRight.getAnimation());
-				
-			}
-			
-		}*/
-		
-    	/*if (keypressA ){
-    		//accX = -0.2f ; 
-    		dx = -1;
-		
-    	}
-    	else if (keypressD ){ 
-    		//accX = 0.2f ; 
-    		dx = 1; 
-    	}
-    	
-    	else if (keypressUP){
-    		//dy = -2.5f;
-		}
-		
-    	else if (keypressS){
-			dy = 2;
-    	}
-    	//else {dx=0; dy=0;}*/
-    	
-
     }   
+    
+
+    
+    private class SideCollisionEvent extends CollisionEvent{
+    	
+    	protected SideCollisionEvent(){
+    		this.name = "SIDE COLLISION";
+    	}
+    	
+		@Override
+		public void run( ) {
+			
+			//System.out.println("SIDESIDE");
+			dx = -1;
+			
+		}
+    }
+    
+    
     
     public String getPlayerStateName() {
         return playerState.getName();
     }
     
-    public AnimationState getPlayerState() {
+    public EntityState getPlayerState() {
         return playerState;
     }
 
-    public void setState( AnimationState state){
+    public void setState( EntityState state){
     	playerState = state;
     	getEntitySprite().setSprite(state.getAnimation());
     	playerState.getAnimation().start(); //Check for redundant calls to Animation.start() method
     }
     
     
-    private void setStateBuffer( AnimationState state){
+    private void setStateBuffer( EntityState state){
     	playerStateBuffer = state;
     }
     

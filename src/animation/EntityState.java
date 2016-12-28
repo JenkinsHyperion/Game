@@ -1,11 +1,11 @@
 package animation;
 
-public class AnimationState {
+public class EntityState {
 
 	private Animation stateAnimation;
 	private String stateName;
 
-	public AnimationState(String name, Animation anim) {
+	public EntityState(String name, Animation anim) {
 
 		initState(name, anim);
 	}

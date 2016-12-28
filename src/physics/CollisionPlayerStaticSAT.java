@@ -51,8 +51,8 @@ public class CollisionPlayerStaticSAT extends Collision {
 		
 		if (closestResolution.Vector() == null){ //Primary entity is at surface with resolution of 0,0
 			
-			entityPrimary.setColliding(true);
-			entityPrimary.setDampeningX(0.1f);
+			entityPrimary.setColliding(true); //MOVE TO RESOLVED UPDATE CLASS JUST LIKE RESOLUTION EVENT
+			entityPrimary.setDampeningX(0.1f); //
 
 			triggerResolutionEvent( closestResolution );
 			
@@ -87,22 +87,27 @@ public class CollisionPlayerStaticSAT extends Collision {
 		 
 	}
 	
-	private class ResolutionEvent extends ResolutionState{
+	protected class ResolutionEvent extends ResolutionState{
 
 		@Override
-		protected void triggerEvent() { //One time event upon resolution of collision
+		protected void triggerEvent( Resolution resolution ) { //One time event upon resolution of collision
+			
+			collisionDebugTag = "("+resolution.FeaturePrimary()+" of "+entityPrimary.toString()+") contacting ("+
+					resolution.FeatureSecondary()+" of "+entitySecondary.toString()+")";
+			
+			System.out.println("\nEvent Triggered: "+resolution.FeaturePrimary().collisionEvent  );
+
+			entityPrimary.setDX(1);
+			resolution.FeaturePrimary().collisionEvent.run();
 			
 		}
 
 	}
 	
 	@Override
-	protected void triggerResolutionEvent( Resolution resolution ) {
-		
-		collisionDebugTag = "("+resolution.FeaturePrimary()+" of "+entityPrimary.toString()+") contacting ("+
-							resolution.FeatureSecondary()+" of "+entitySecondary.toString()+")";
+	protected void triggerResolutionEvent( Resolution resolution ) { 
 				
-		this.resolutionState.triggerEvent();
+		this.resolutionState.triggerEvent( resolution );
 		this.resolutionState = ResolvedState.resolved();
 		
 	}

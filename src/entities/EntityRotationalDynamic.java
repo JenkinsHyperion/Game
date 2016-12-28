@@ -7,6 +7,7 @@ import java.awt.geom.Point2D;
 import physics.Boundary;
 import physics.Side;
 import entityComposites.*;
+import misc.CollisionEvent;
 
 public class EntityRotationalDynamic extends EntityDynamic{
 	
@@ -18,7 +19,7 @@ public class EntityRotationalDynamic extends EntityDynamic{
 		super(x, y);
 	}
 	
-	@Override
+	/*@Override
     public void setBoundingBox(int xOffset, int yOffset , int width , int height) {
     	
 		Boundary boundarytemp =  new Boundary.Box(width, height, xOffset, yOffset);
@@ -27,7 +28,9 @@ public class EntityRotationalDynamic extends EntityDynamic{
 		
 		storedBounds = boundarytemp;
 		boundarytemp = null;
-    }
+    }*/
+	
+	
 	
 	public Boundary getBoundaryAtAngle(double angle){ //OPTIMIZATION TRIG FUNCTIONS ARE NOTORIOUSLY EXPENSIVE Look into performing some trig magic
 		// with fast trig approximations

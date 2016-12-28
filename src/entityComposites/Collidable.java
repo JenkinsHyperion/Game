@@ -29,15 +29,18 @@ public final class Collidable extends CollisionProperty{
 		this.owner = owner;
 	}
 	
-	public Collidable( EntityStatic owner , Boundary boundary){
+	private Collidable( EntityStatic owner , Boundary boundary){
 		
 		this.boundary = boundary;
-		this.owner = owner;
+		this.owner = owner; 
+		
 	}
-	
-	public Collidable( Boundary boundary){ //Ownerless For composite testing
+
+	public void setBoundary( Boundary boundary ){
+		
 		
 		this.boundary = boundary;
+		
 	}
 	
 	/* #################################################################
@@ -80,9 +83,7 @@ public final class Collidable extends CollisionProperty{
 	public Boundary getBoundary(){
 		return boundary;
 	}
-	public void setBoundary(Boundary newBoundary){
-		this.boundary = newBoundary;
-	}
+
     
 	public Boundary getBoundaryLocal(){
 		return boundary.atPosition( owner.getPos() );

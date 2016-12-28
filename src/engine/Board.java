@@ -147,15 +147,18 @@ public class Board extends JPanel implements Runnable {
         
         
         testEntity = new EntityStatic("Test Ground1",150,500);     
-        CollisionProperty collidable = new Collidable(testEntity, new Boundary.Box(446,100,-223,-50) );
+        Collidable collidable = new Collidable( testEntity );
         testEntity.setCollisionProperties( collidable );
+        collidable.setBoundary( new Boundary.Box(446,100,-223,-50 , collidable ) );
+
         testEntity.loadSprite("ground_1.png" , -223 , -53 );
 
         staticEntitiesList.add( testEntity );
         
         
         testEntity = new EntityStatic("Test Ground",600,500);     
-        collidable = new Collidable(testEntity, new Boundary.Box(446,100,-223,-50) );
+        collidable = new Collidable( testEntity );
+        collidable.setBoundary( new Boundary.Box(446,100,-223,-50 , collidable ) );
         testEntity.setCollisionProperties( collidable );
         testEntity.loadSprite("ground_1.png" , -223 , -53 );
         staticEntitiesList.add( testEntity );
@@ -642,7 +645,7 @@ public class Board extends JPanel implements Runnable {
         g.fillRect(0, 0, B_WIDTH, B_HEIGHT);
         
         g.setColor(Color.GRAY);
-	    g.drawString("FPS: "     ,5,15);
+	    g.drawString(player.name,5,15);
 	    g.drawString("DX: "+player.getDX() + " DY: " + player.getDY(),5,30);
 	    g.drawString("AccX: " + player.getAccX() + "  AccY: " + player.getAccY(),5,45);
 	    g.drawString("Rotation: " + player.getAngle()*5 + " degrees",5,60);
@@ -693,7 +696,7 @@ public class Board extends JPanel implements Runnable {
 	    
 	   // g2.draw(laser.getBoundary().getSides()[0]);
 	    
-	    camera.draw( laser.getBoundary().getSides()[0].toLine() , g2);
+	    //camera.draw( laser.getBoundary().getSides()[0].toLine() , g2);
 	    
 	    g2.drawLine(0, 500 , 1280, 500); //make better overlay class
 	    

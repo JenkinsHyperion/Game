@@ -22,7 +22,7 @@ public class EntityPhysics extends EntityDynamic{
     	loadSprite(path);
     	
     	Collidable collidable = new Collidable(this);
-    	collidable.setBoundary( new Boundary.Box(24, 24, 0, 0) );
+    	collidable.setBoundary( new Boundary.Box(24, 24, 0, 0 , collidable) );
     	this.setCollisionProperties( collidable );
     	
     	

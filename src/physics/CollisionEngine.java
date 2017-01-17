@@ -85,13 +85,13 @@ public class CollisionEngine implements Serializable{
         // Check collisions between player and static objects
         for ( EntityStatic statS : currentBoard.getStaticEntities() ) {    
         
-        	statS.collidability().checkForInteractionWith(player.collidability() , CollisionCheck.SAT, this);
+        	statS.getCollisionType().checkForInteractionWith(player.getCollisionType() , CollisionCheck.SAT, this);
         	
         }
         
         for ( EntityStatic statS : currentBoard.getPhysicsEntities() ) {    
             
-        	statS.collidability().checkForInteractionWith(player.collidability() , CollisionCheck.SAT, this);
+        	statS.getCollisionType().checkForInteractionWith(player.getCollisionType() , CollisionCheck.SAT, this);
         	
         }
 	        
@@ -248,8 +248,8 @@ public class CollisionEngine implements Serializable{
      */
     private Vector getDistanceSAT2( Line2D separatingSide , EntityStatic entityA , EntityStatic entityB ){
 	    
-	    Boundary boundsB = ((Collidable) entityB.collidability()).getBoundaryLocal(); 
-	    Boundary boundsA = ((Collidable) entityA.collidability()).getBoundaryLocal();
+	    Boundary boundsB = ((Collidable) entityB.getCollisionType()).getBoundaryLocal(); 
+	    Boundary boundsA = ((Collidable) entityA.getCollisionType()).getBoundaryLocal();
 	    
 	    Point2D centerA = new Point2D.Double(entityA.getX(), entityA.getY());
 	    Point2D centerB = new Point2D.Double(entityB.getX(), entityB.getY());

@@ -33,11 +33,13 @@ public class EditorPanel extends JPanel {
 	public static final String PF2 = "platform02.png";
 	public static final String GND = "ground01.png";
 	public static final String GRASS1 = "grass01.png";
+	
+//	##### MODES #####
 	public static final int DEFAULT_MODE = 0;
 	public static final int ENTPLACEMENT_MODE = 1;
 	public static final int WORLDGEOM_MODE = 2;
 	public static final int CAMERAPAN_MODE = 3;
-	//Mouse and positioning fields
+//	Mouse and positioning fields
 	protected boolean mouseClick = false;
 	private Point clickPosition;
 	private Point editorMousePos;
@@ -45,18 +47,20 @@ public class EditorPanel extends JPanel {
 	private Point oldMousePanPos; // the reference point of last click position for mouse camera panning
 	private Point oldCameraPos;
 	private Robot automaticMouseReturn;
-	// oldMousePanPos will only refresh when shift is held, and then mouse is dragged. Purely for the panning
+// oldMousePanPos will only refresh when shift is held, and then mouse is dragged. Purely for the panning
 	
-	 // the distance from reference point and current point
+// the distance from reference point and current point
 	private double mousePanDX = 0f;
 	private double mousePanDY = 0f;
 	public int clickPositionXOffset;
 	public int clickPositionYOffset;
 	public int mode;
 	public int modeBuffer; // to store most recent mode a quick-mode change happens (such as shift pressed for panning)
-	private String newEntityPath;
+	private String newEntityPath; //**Will definitely need to rework this.
+//	currently used as an identifier to indicate which entity should be created,
+//	but the system should be more like a factory.
 
-	//Keyboard fields
+//	Keyboard fields
 	private boolean keypressUP = false;
 	private boolean keypressDOWN = false;
 	private boolean keypressLEFT = false;
@@ -82,7 +86,7 @@ public class EditorPanel extends JPanel {
     //private String[] dynamicEntityStringArr;
     //private String[] physicsEntityStringArr;  will use these later, it won't be hard. 
 	
-    // ###### COMPONENTS
+// ###### COMPONENTS
 	private JLabel mousePosLabel;
 	private JLabel entityCoordsLabel;
 	private JLabel selectedEntityNameLabel;
@@ -93,7 +97,7 @@ public class EditorPanel extends JPanel {
 	protected JButton deleteEntButton;
 	protected JButton worldGeomButton;
 
-	//Panels
+//	Panels
 	private JPanel entitiesComboBoxPanel;
 	private JPanel labelsPanel;
 	private JPanel buttonPanel;
@@ -166,7 +170,6 @@ public class EditorPanel extends JPanel {
 					new SavingLoading(board).loadLevel(board.getStaticEntities(), levelName);
 			}
 		});
-		// #### This button is useless as of now, but can possibly be repurposed later.
 		deleteEntButton = new JButton("Delete");
 		deleteEntButton.setFocusable(false);
 		deleteEntButton.setEnabled(false);
@@ -244,14 +247,13 @@ public class EditorPanel extends JPanel {
 		
 		try {
 			automaticMouseReturn = new Robot();
-		} catch (AWTException e) {
-			
-		}
+		} catch (AWTException e) {}
 		
 		//testing setting the ghostSprite
 		//setGhostSprite(ASSET_PATH + PF1 );
 		//revalidate();
-	} //end of constructor;
+		
+	} // #### end of constructor ####
 	
 	//Handler for the allEntitiesComboBox drop down panel
 	public class EntitiesComboBoxActionHandler implements ActionListener{

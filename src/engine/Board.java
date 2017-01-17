@@ -660,17 +660,17 @@ public class Board extends JPanel implements Runnable {
 	    
 	    
 	    
-	    player.collidability().debugDrawBoundary(camera , g2);
+	    player.getCollisionType().debugDrawBoundary(camera , g2);
 	    
 	    for (EntityStatic entity : staticEntitiesList){
 	    	
-	    	entity.collidability().debugDrawBoundary(camera , g2);
+	    	entity.getCollisionType().debugDrawBoundary(camera , g2);
 	    	
 	    }
 	    
 	    for (EntityStatic entity : physicsEntitiesList){
 	    	
-	    	entity.collidability().debugDrawBoundary(camera , g2);
+	    	entity.getCollisionType().debugDrawBoundary(camera , g2);
 	    	
 	    }
 	    
@@ -779,153 +779,151 @@ public class Board extends JPanel implements Runnable {
 	    //g.drawString("Calculation time: " + dt, 55, 45);
     }
     
-    private void drawDebugSAT( EntityStatic entityPrimary , EntityStatic entitySecondary , Graphics2D g2 ){
+    private void drawDebugSAT( EntityStatic playerRef , EntityStatic entitySecondary , Graphics2D g2 ){
   	
-    	
-	    EntityStatic player = entityPrimary;
 	    //EntityStatic stat = entitySecondary;
 	    EntityStatic stat = editorPanel.getCurrentSelectedEntity();
 	    
 	    //EntityStatic stat = staticEntitiesList.get(1);
-	    //EntityStatic player = this.player;
+	    //EntityStatic playerRef = this.playerRef;
 	    
-	    drawCross( player.getX() , player.getY() , g2);
+	    drawCross( playerRef.getX() , playerRef.getY() , g2);
 	    drawCross( stat.getX() , stat.getY() , g2);
 	    
-	    Boundary statBounds = stat.collidability().getBoundaryLocal() ;
-	    Boundary playerBounds = ((Collidable) player.collidability()).getBoundaryLocal();
+	    Boundary statBounds = stat.getCollisionType().getBoundaryLocal() ;
+	    Boundary playerBounds = ((Collidable) playerRef.getCollisionType()).getBoundaryLocal();
 	    
-	    Point2D playerCenter = new Point2D.Double(player.getX(), player.getY());
+	    Point2D playerCenter = new Point2D.Double(playerRef.getX(), playerRef.getY());
 	    Point2D statCenter = new Point2D.Double(stat.getX(), stat.getY());
 
-	    
-	    	//for ( Line2D axis : bounds.debugSeparatingAxes(B_WIDTH, B_HEIGHT) ){
-	    	for ( int i = 0 ; i < statBounds.getSpearatingSidesBetween(playerBounds).length ; i++ ){
-	    		
-	    		Line2D side = statBounds.getSpearatingSidesBetween(playerBounds)[i];
-	    		
-	    		Line2D axis = statBounds.debugGetSeparatingAxis(side, B_WIDTH, B_HEIGHT);
-	    		
-		    	g2.setColor(Color.DARK_GRAY);
-		    	
-		    		g2.draw(axis);
-		    	
-		    	g2.setColor(Color.GRAY);
 
-			    
-			    Line2D centerDistance = new Line2D.Float(player.getX() , player.getY(),
-			    		stat.getX() , stat.getY());
-			    Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
-			    
-			    g2.draw(centerProjection);
-		    	
-		    	g2.setColor(Color.YELLOW);
-			    
-		    	Point2D[] statOuter= statBounds.getFarthestPoints(playerBounds,axis);
-		    	Point2D[] playerOuter= playerBounds.getFarthestPoints(statBounds,axis);
-		    	
-			    Vertex[] nearStatCorner = statBounds.farthestVerticesFromPoint( statOuter[0] , axis ); //merge below
-			      
-			    Vertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( playerOuter[0] , axis );
-			    
-			    //CLOSEST SIDE TESTING
-			    
-			    //selected entity
-			    if ( nearStatCorner.length > 1 ){ 
-			    	Side closest = nearStatCorner[0].getSharedSide(nearStatCorner[1]);
-			    	camera.draw(closest.toLine(), g2);
-			    	camera.drawString( closest.toString() , closest.getX1(), closest.getY1(), g2);
-			    }
-			    else 
-			    	drawCross(nearStatCorner[0], g2);
+	    //for ( Line2D axis : bounds.debugSeparatingAxes(B_WIDTH, B_HEIGHT) ){
+	    for ( int i = 0 ; i < statBounds.getSpearatingSidesBetween(playerBounds).length ; i++ ){
 
-			    //make verticesFromPoint
-			    //player
-			    if ( nearPlayerCorner.length > 1 ){
-			    	Side closest = nearPlayerCorner[0].getSharedSide(nearPlayerCorner[1]);
-			    	camera.draw(closest.toLine(), g2);
-			    	camera.drawString( closest.toString() , closest.getX1(), closest.getY1(), g2);
-			    }
-			    else 
-			    	drawCross(nearPlayerCorner[0], g2);
-			    
-			    // -----------------
-			    
-			    Line2D playerHalf = new Line2D.Float( 
-						playerBounds.getProjectionPoint(playerCenter,axis) ,
-						playerBounds.getProjectionPoint(nearPlayerCorner[0].toPoint(),axis)
-								);
-				Line2D statHalf = new Line2D.Float( 
-						statBounds.getProjectionPoint(statCenter,axis) ,
-						statBounds.getProjectionPoint(nearStatCorner[0].toPoint(),axis)
-								);
-				
-				g2.draw(playerHalf);
-				g2.setColor(Color.GREEN);
-				g2.draw(statHalf);
-				
-				int centerDistanceX = (int)(centerProjection.getX1() -  centerProjection.getX2()  );
-				int centerDistanceY = (int)(centerProjection.getY1() -  centerProjection.getY2()  );
-				
-				if (centerDistanceX>0){ centerDistanceX -= 1; } 
-				else if (centerDistanceX<0){ centerDistanceX += 1; } //NEEDS HIGHER LEVEL SOLUTION
-				
-				if (centerDistanceY>0){ centerDistanceY -= 1; } 
-				else if (centerDistanceY<0){ centerDistanceY += 1; }
-				
-				int playerProjectionX = (int)(playerHalf.getX1() -  playerHalf.getX2());
-				int playerProjectionY = (int)(playerHalf.getY1() -  playerHalf.getY2());
-				
-				int statProjectionX = (int)(statHalf.getX2() -  statHalf.getX1());
-				int statProjectionY = (int)(statHalf.getY2() -  statHalf.getY1());
-				
-				int penetrationX = 0;
-				int penetrationY = 0;  
-				
+	    	Line2D side = statBounds.getSpearatingSidesBetween(playerBounds)[i];
 
-				
-				penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
-				penetrationY = playerProjectionY + statProjectionY - centerDistanceY ;
-				
-	
-				//Constrain X
-				if ( Math.signum(penetrationX) != Math.signum(centerDistanceX)  || 
-					Math.signum(penetrationY) != Math.signum(centerDistanceY)  ){
-					penetrationX = 0;
-					penetrationY = 0;
-				}
-				
-				
-				if (centerDistanceX*centerDistanceX + centerDistanceY*centerDistanceY == 0){ //LOOK INTO BETTER CONDITIONALS
-					penetrationX = -(playerProjectionX + statProjectionX) ;
-				}
-				if (centerDistanceX*centerDistanceX + centerDistanceY*centerDistanceY == 0){
-					penetrationY = -(playerProjectionY + statProjectionY) ;
-				}
-				
-				
-				g2.setFont( new Font( Font.DIALOG , Font.PLAIN , 10 ) );
-				
-			   // g2.drawString("Center distance X: " + centerDistanceX + " Y: " + centerDistanceY ,
-			    			//(int)centerProjection.getX1()+20 , (int)centerProjection.getY1()+20);
-			    /*
+	    	Line2D axis = statBounds.debugGetSeparatingAxis(side, B_WIDTH, B_HEIGHT);
+
+	    	g2.setColor(Color.DARK_GRAY);
+
+	    	g2.draw(axis);
+
+	    	g2.setColor(Color.GRAY);
+
+
+	    	Line2D centerDistance = new Line2D.Float(playerRef.getX() , playerRef.getY(),
+	    			stat.getX() , stat.getY());
+	    	Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
+
+	    	g2.draw(centerProjection);
+
+	    	g2.setColor(Color.YELLOW);
+
+	    	Point2D[] statOuter= statBounds.getFarthestPoints(playerBounds,axis);
+	    	Point2D[] playerOuter= playerBounds.getFarthestPoints(statBounds,axis);
+
+	    	Vertex[] nearStatCorner = statBounds.farthestVerticesFromPoint( statOuter[0] , axis ); //merge below
+
+	    	Vertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( playerOuter[0] , axis );
+
+	    	//CLOSEST SIDE TESTING
+
+	    	//selected entity
+	    	if ( nearStatCorner.length > 1 ){ 
+	    		Side closest = nearStatCorner[0].getSharedSide(nearStatCorner[1]);
+	    		camera.draw(closest.toLine(), g2);
+	    		camera.drawString( closest.toString() , closest.getX1(), closest.getY1(), g2);
+	    	}
+	    	else 
+	    		drawCross(nearStatCorner[0], g2);
+
+	    	//make verticesFromPoint
+	    	//playerRef
+	    	if ( nearPlayerCorner.length > 1 ){
+	    		Side closest = nearPlayerCorner[0].getSharedSide(nearPlayerCorner[1]);
+	    		camera.draw(closest.toLine(), g2);
+	    		camera.drawString( closest.toString() , closest.getX1(), closest.getY1(), g2);
+	    	}
+	    	else 
+	    		drawCross(nearPlayerCorner[0], g2);
+
+	    	// -----------------
+
+	    	Line2D playerHalf = new Line2D.Float( 
+	    			playerBounds.getProjectionPoint(playerCenter,axis) ,
+	    			playerBounds.getProjectionPoint(nearPlayerCorner[0].toPoint(),axis)
+	    			);
+	    	Line2D statHalf = new Line2D.Float( 
+	    			statBounds.getProjectionPoint(statCenter,axis) ,
+	    			statBounds.getProjectionPoint(nearStatCorner[0].toPoint(),axis)
+	    			);
+
+	    	g2.draw(playerHalf);
+	    	g2.setColor(Color.GREEN);
+	    	g2.draw(statHalf);
+
+	    	int centerDistanceX = (int)(centerProjection.getX1() -  centerProjection.getX2()  );
+	    	int centerDistanceY = (int)(centerProjection.getY1() -  centerProjection.getY2()  );
+
+	    	if (centerDistanceX>0){ centerDistanceX -= 1; } 
+	    	else if (centerDistanceX<0){ centerDistanceX += 1; } //NEEDS HIGHER LEVEL SOLUTION
+
+	    	if (centerDistanceY>0){ centerDistanceY -= 1; } 
+	    	else if (centerDistanceY<0){ centerDistanceY += 1; }
+
+	    	int playerProjectionX = (int)(playerHalf.getX1() -  playerHalf.getX2());
+	    	int playerProjectionY = (int)(playerHalf.getY1() -  playerHalf.getY2());
+
+	    	int statProjectionX = (int)(statHalf.getX2() -  statHalf.getX1());
+	    	int statProjectionY = (int)(statHalf.getY2() -  statHalf.getY1());
+
+	    	int penetrationX = 0;
+	    	int penetrationY = 0;  
+
+
+
+	    	penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
+	    	penetrationY = playerProjectionY + statProjectionY - centerDistanceY ;
+
+
+	    	//Constrain X
+	    	if ( Math.signum(penetrationX) != Math.signum(centerDistanceX)  || 
+	    			Math.signum(penetrationY) != Math.signum(centerDistanceY)  ){
+	    		penetrationX = 0;
+	    		penetrationY = 0;
+	    	}
+
+
+	    	if (centerDistanceX*centerDistanceX + centerDistanceY*centerDistanceY == 0){ //LOOK INTO BETTER CONDITIONALS
+	    		penetrationX = -(playerProjectionX + statProjectionX) ;
+	    	}
+	    	if (centerDistanceX*centerDistanceX + centerDistanceY*centerDistanceY == 0){
+	    		penetrationY = -(playerProjectionY + statProjectionY) ;
+	    	}
+
+
+	    	g2.setFont( new Font( Font.DIALOG , Font.PLAIN , 10 ) );
+
+	    	// g2.drawString("Center distance X: " + centerDistanceX + " Y: " + centerDistanceY ,
+	    	//(int)centerProjection.getX1()+20 , (int)centerProjection.getY1()+20);
+	    	/*
 			   g2.drawString("Player projection X: " + playerProjectionX + " Y: " + playerProjectionY ,
 		    			(int)centerProjection.getX1()+20 , (int)centerProjection.getY1()+35);
-			    
+
 			   g2.drawString("Stat projection X: " + statProjectionX + " Y: " + statProjectionY ,
 		    		(int)centerProjection.getX1()+20 , (int)centerProjection.getY1()+50);
-			    */
-			    g2.drawString("Penetration X: " + penetrationX + " Y: " + penetrationY ,
+	    	 */
+	    	g2.drawString("Penetration X: " + penetrationX + " Y: " + penetrationY ,
 	    			(int)playerHalf.getX1() , (int)playerHalf.getY1()+10);
-			    
-			    
-			    //g2.setColor(Color.DARK_GRAY);
-			    
-			    //g2.draw(new Line2D.Float(playerBounds.getProjectionPoint( nearPlayerCorner , axis ), nearPlayerCorner) );
-			    //g2.draw(new Line2D.Float(playerBounds.getProjectionPoint( playerCenter , axis ), playerCenter) );
 
-	    	}
-	    	
+
+	    	//g2.setColor(Color.DARK_GRAY);
+
+	    	//g2.draw(new Line2D.Float(playerBounds.getProjectionPoint( nearPlayerCorner , axis ), nearPlayerCorner) );
+	    	//g2.draw(new Line2D.Float(playerBounds.getProjectionPoint( playerCenter , axis ), playerCenter) );
+
+	    }
+
 	    g2.setColor(Color.YELLOW);
 		g2.drawString( statBounds.getSides().length +" sides" ,30,45);
 		//g2.drawString( ""+testingNearStatCorners[0].getEndingSide()+" "+testingNearStatCorners[0].getStartingSide() ,30,60);

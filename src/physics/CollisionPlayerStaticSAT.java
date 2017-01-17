@@ -164,11 +164,11 @@ public class CollisionPlayerStaticSAT extends Collision {
     	//research if boundarylocal is needed
     	for ( EntityStatic entitySecondary : collidingPrimary.getCollidingPartners()){
     		
-	    	for (int i = 0 ; i < ((Collidable) entitySecondary.collidability()).getBoundaryLocal().getSeparatingSides().length ; i++ ){
+	    	for (int i = 0 ; i < ((Collidable) entitySecondary.getCollisionType()).getBoundaryLocal().getSeparatingSides().length ; i++ ){
 	    		
-	    		if (getSeparationDistance(((Collidable) entitySecondary.collidability()).getBoundaryLocal().getSeparatingSides()[i]) != null){
+	    		if (getSeparationDistance(((Collidable) entitySecondary.getCollisionType()).getBoundaryLocal().getSeparatingSides()[i]) != null){
 	    			
-	    			penetrations.add( getSeparationDistance(((Collidable) entitySecondary.collidability()).getBoundaryLocal().getSeparatingSides()[i]) );
+	    			penetrations.add( getSeparationDistance(((Collidable) entitySecondary.getCollisionType()).getBoundaryLocal().getSeparatingSides()[i]) );
 	    			
 	    		}
 	    	}

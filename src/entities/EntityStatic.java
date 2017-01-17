@@ -42,11 +42,9 @@ public class EntityStatic extends Entity{
     	this.name = name;
     	
     }
-	
 	public void setSpriteType(Sprite spriteType){ this.spriteType = spriteType; }
 	public void setCollisionProperties(CollisionProperty collisionType){ this.collisionType = collisionType; }
 	public Sprite getSpriteType(){ return spriteType; }
-	public CollisionProperty getCollisionType(){ return collisionType; }
 	
     public void loadSprite(String path){ // needs handling if failed. Also needs to be moved out of object class into sprites
 
@@ -112,7 +110,7 @@ public class EntityStatic extends Entity{
 	//	return new Rectangle (getX() + boundingBox.x , getY() + boundingBox.y , boundingBox.width , boundingBox.height);
 	//}
 	
-    public CollisionProperty collidability(){
+    public CollisionProperty getCollisionType(){
     	
     	return collisionType;
     }

@@ -19,7 +19,7 @@ public class Bullet extends EntityDynamic{
     private void initBulletTest(){
     	
         loadAnimatedSprite(flying);
-        getEntitySprite().getAnimatedSprite().start();
+        getEntitySprite().getAnimation().start();
     	
     }
 }

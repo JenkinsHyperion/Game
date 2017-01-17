@@ -98,7 +98,6 @@ public class Board extends JPanel implements Runnable {
     	//currentDebugEntity = new EntityStatic(0,0 ); 
     	//or currentSelectedEntity = new Object();
     	currentDuration = System.currentTimeMillis();
-        addKeyListener(new TAdapter());
         myMouseHandler = new MouseHandlerClass();
   		addMouseListener(myMouseHandler);
   		addMouseMotionListener(myMouseHandler);
@@ -446,7 +445,7 @@ public class Board extends JPanel implements Runnable {
 
         player.updatePosition();
         
-		player.getEntitySprite().getAnimatedSprite().update();
+		player.getEntitySprite().getAnimation().update();
     }
     
     private void updatePhysicsEntities() {
@@ -584,19 +583,15 @@ public class Board extends JPanel implements Runnable {
     	
     }*/
   	
-  	
-  	//Inner class to handle F2 keypress for debug window
-    private class TAdapter extends KeyAdapter {
-        @Override
+
         public void keyReleased(KeyEvent e) {
-            player.keyReleased(e);
+            player.inputController.keyReleased(e);
             editorPanel.keyReleased(e);
             editorPanel.getWorldGeom().keyReleased(e);           
         }
 
-        @Override
         public void keyPressed(KeyEvent e) {
-            player.keyPressed(e);
+            player.inputController.keyPressed(e);
             editorPanel.keyPressed(e);
             editorPanel.getWorldGeom().keyPressed(e);
             int key = e.getKeyCode();
@@ -630,7 +625,7 @@ public class Board extends JPanel implements Runnable {
             	//editorPanel.nullifyGhostVertex();
             }   
         }
-    }
+
     
 /* ########################################################################################################################
  * 
@@ -649,7 +644,8 @@ public class Board extends JPanel implements Runnable {
 	    g.drawString("DX: "+player.getDX() + " DY: " + player.getDY(),5,30);
 	    g.drawString("AccX: " + player.getAccX() + "  AccY: " + player.getAccY(),5,45);
 	    g.drawString("Rotation: " + player.getAngle()*5 + " degrees",5,60);
-	    g.drawString("Colliding: " + player.isColliding(),5,75);
+	    g.drawString("State: "+ ((PlayerCharacter)player).printState() + "Colliding: " + player.isColliding(),5,75);
+	    g.drawString( ((PlayerCharacter)player).printBufferState() ,5,90 );
 	        
 	    //Draw player bounding box
 	    Graphics2D g2 = (Graphics2D) g;
@@ -674,109 +670,22 @@ public class Board extends JPanel implements Runnable {
 	    	
 	    }
 	    
-	    
-	    //DRAW CAMERA FOCUS
-	    //drawCross(camera.getFocus(), g2);
-	    
-	    //g2.setColor(Color.DARK_GRAY);
-	    //g2.draw(player.getLocalBoundary().getTestSide(3) );
-	    //g2.setColor(Color.CYAN);
-	    
-	    /*for ( int i = 0 ; i < Collisions.list().size() ; i++ ) {
-	    	
-	    	g.drawString("Collision " + Collisions.list().get(i).collisionName ,5,105+(10*i));
-	    	//for ( Point2D intersect : ((CollisionPositioning) Collisions.list().get(i)).getIntersectionPoints() )
-	    		drawCross( ((CollisionPositioning) Collisions.list().get(i)).getClosestIntersection() , g2);
-	    }*/
-	    
-	    //for ( Line2D axis : staticEntitiesList.get(2).getBoundaryLocal().getSeparatingSides() ){
-	    //	g2.draw(axis);
-	    //}
-	    
-	    
-	   // g2.draw(laser.getBoundary().getSides()[0]);
-	    
-	    //camera.draw( laser.getBoundary().getSides()[0].toLine() , g2);
-	    
-	    g2.drawLine(0, 500 , 1280, 500); //make better overlay class
-	    
+	    //DIAGNOSTIC GRAPH
+	    for (int i = 0 ; i < 320 ; i += 20){
+	    	g2.drawLine(45, 600-i , 1280, 600-i); //make better overlay class
+	    	g2.drawString( i/20 + " ms" , 10,603-i);
+    	}	
+    
 	    for (int i = 0 ; i < speedLog.length ; i++){
 	    	
-	    		int speed = speedLogDraw[i]/10;
+	    		int speed = speedLogDraw[i]/50; //1ms = 20px
 	    		g2.setColor(Color.MAGENTA);
 	    		g2.drawLine(3*i + 50 , 600 , 3*i + 50 , 600 - speed );
 	    		g2.setColor(Color.CYAN);
-	    		g2.drawLine(3*i + 50 , 600 - speed , 3*i + 50 , 600 - speed-(speedLog[i]/10) );
-	    }
-	    /*
-	    for ( EntityStatic stat : staticEntitiesList) {	    	
-	    	for (Line2D line : stat.getBoundaryLocal().getSides()){
-		    	g2.draw(line);
-		    }	
+	    		g2.drawLine(3*i + 50 , 600 - speed , 3*i + 50 , 600 - speed-(speedLog[i]/50) );
 	    }
 	    
-	    for ( EntityStatic dynamic : dynamicEntitiesList) {	    	
-	    	for (Line2D line : dynamic.getBoundaryLocal().getSides()){
-		    	g2.draw(line);
-		    }	
-	    }
-	    
-	    for ( EntityStatic physics : physicsEntitiesList) {	    	
-	    	for (Line2D line : physics.getBoundaryLocal().getSides()){
-		    	g2.draw(line);
-		    }	
-	    }
-	    */
-	    
-	    
-	    //DEBUG - DISPLAY LIST OF COLLISIONS
-	    /*g.drawString("Collisions: ",5,90);
-	    if (!Collisions.list().isEmpty())
-	    {
-	    	g2.setColor(Color.YELLOW);
-		    g.drawString("Collisions: ",5,90);
-		   
-		    for (int i = 0 ; i < Collisions.list().size() ; i++){
-		    	//draw list of collisions
-		    	g.drawString(""+Collisions.list().get(i) + " " + 
-		    			Collisions.list().get(i).isContacting() + ": " +
-		    	(int)Collisions.list().get(i).getContactDist(),5,105+(10*i));
-		    	
-		    	//draw colliding sides
-		    	if ( Collisions.list().get(i).getSidePrimary() != null ) {
-		    		
-			    	g2.draw(Collisions.list().get(i).getSidePrimary() );
-			    	g2.draw(Collisions.list().get(i).getSideSecondary() );
-		    	}
-	
-		    	
-		    	/*if ( collisionsList.get(i).getContactPoints()[1] != null ) {
-		    		g2.setColor(Color.RED);	    		
-		    		g2.drawLine( 
-		    				(int) collisionsList.get(i).getContactPoints()[0].getX(), 
-		    				(int) collisionsList.get(i).getContactPoints()[0].getY(), 
-		    				(int) collisionsList.get(i).getContactPoints()[1].getX(), 
-		    				(int) collisionsList.get(i).getContactPoints()[1].getY() 
-		    				);
-		    		g2.setColor(Color.YELLOW);
-		    	}*//*
-		    	else {
-		    		g.drawString("Depth "+Collisions.list().get(i).getDepth().getX()
-		    				+ " " + Collisions.list().get(i).getDepth().getY(),300,105+(10*i));
-		    	}
-		    	
-		    	//draw intersection points
-		    	/*Iterator<Point2D> it = collisionsList.get(i).getIntersections().iterator();
-		    	do { 
-		    		Point2D point = it.next();
-		    		g.drawLine((int)point.getX()-3, (int)point.getY()-3, (int)point.getX()+3, (int)point.getY()+3);
-		    		g.drawLine((int)point.getX()-3, (int)point.getY()+3, (int)point.getX()+3, (int)point.getY()-3);
-		    	}
-		    	while (it.hasNext()); *//*
-		    		
-		    }
-	    }*/
-	    //g.drawString("Calculation time: " + dt, 55, 45);
+
     }
     
     private void drawDebugSAT( EntityStatic entityPrimary , EntityStatic entitySecondary , Graphics2D g2 ){

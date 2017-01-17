@@ -189,14 +189,14 @@ public class Tracer extends EntityDynamic{ // Can extend either EntityStatic or 
 		this.yEndPoint = yEndPoint;
 	}
 	
-	@Override
+	
 	public void onCollisionEvent() {
 
 			aim.deactivate();
 			System.out.println("deactivate");
 	}
 	
-	@Override
+	
 	public void onCollisionCompletion() {
 			System.out.println("targeting");
 			aim.activate();

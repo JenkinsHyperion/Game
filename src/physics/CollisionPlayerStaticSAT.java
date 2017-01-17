@@ -97,7 +97,6 @@ public class CollisionPlayerStaticSAT extends Collision {
 			
 			System.out.println("\nEvent Triggered: "+resolution.FeaturePrimary().collisionEvent  );
 
-			entityPrimary.setDX(1);
 			resolution.FeaturePrimary().collisionEvent.run();
 			
 		}
@@ -115,6 +114,10 @@ public class CollisionPlayerStaticSAT extends Collision {
 	//FINAL COLLISION COMMANDS - Last commands before this collision object self destructs
 	@Override
 	public void completeCollision(){
+		
+		collidingPrimary.onLeavingCollisionEvent();
+		collidingSecondary.onLeavingCollisionEvent();
+		
 		entityPrimary.setColliding(false); // unset entity collision flag. 
 		entityPrimary.setAccY(0.2f); //turn gravity back on
 		//entityPrimary.setDY(2);

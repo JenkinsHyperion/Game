@@ -41,7 +41,7 @@ public class SpriteNull extends Sprite{
 	}
 
 	@Override
-	public Animation getAnimatedSprite() {
+	public Animation getAnimation() {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -27,7 +27,7 @@ public class EntityStatic extends Entity{
 	//protected transient Boundary boundary = new BoundingBox(new Rectangle(2,2)); //moving to composite
 
 	//COMPOSITE TESTING
-	protected Sprite spriteType = SpriteNull.getNullSprite(); //might want to put into super class unless Entity without image is useful
+	protected Sprite entitySprite = SpriteNull.getNullSprite(); //might want to put into super class unless Entity without image is useful
 	protected CollisionProperty collisionType = new Collidable(this);
    
 	public EntityStatic(int x, int y) {
@@ -43,46 +43,50 @@ public class EntityStatic extends Entity{
     	
     }
 	
-	public void setSpriteType(Sprite spriteType){ this.spriteType = spriteType; }
+	public void setSpriteType(Sprite spriteType){ this.entitySprite = spriteType; }
 	public void setCollisionProperties(CollisionProperty collisionType){ this.collisionType = collisionType; }
-	public Sprite getSpriteType(){ return spriteType; }
+	public Sprite getSpriteType(){ return entitySprite; }
 	public CollisionProperty getCollisionType(){ return collisionType; }
 	
     public void loadSprite(String path){ // needs handling if failed. Also needs to be moved out of object class into sprites
 
-    	spriteType = new SpriteStillframe(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path, this);
+    	entitySprite = new SpriteStillframe(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path, this);
     }
     
     public void loadSprite(String path, int offset_x , int offset_y){ // needs handling if failed. Also needs to be moved out of object class into sprites
     	
-    	spriteType = new SpriteStillframe(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path, offset_x,offset_y, this);
+    	entitySprite = new SpriteStillframe(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path, offset_x,offset_y, this);
     }
     
     /*protected void loadAnimatedSprite(String path){ // needs handling if failed. 
     	graphic = new SpriteAnimatedTest(System.getProperty("user.dir").replace( "\\", "//" ) + "//Assets//" +path + ".png");
     }*/
-    
+    @Deprecated
     protected void loadAnimatedSprite(Animation a){ // needs handling if failed. 
-    	spriteType = new SpriteAnimated(a,this); 
+    	entitySprite = new SpriteAnimated(a,this); 
+    }
+    
+    protected void loadAnimatedSprite(SpriteAnimated a){ // needs handling if failed. 
+    	entitySprite = a; 
     }
     
     //OPTIONAL INIT WITH OFFSET
     protected void loadAnimatedSprite(Animation a, int offsetX, int offsetY){ // needs handling if failed. 
-    	spriteType = new SpriteAnimated(a,offsetX,offsetY,this); 
+    	entitySprite = new SpriteAnimated(a,offsetX,offsetY,this); 
     }
     
     protected void setEntitySpriteOffset(int x , int y){
-    	spriteType.setOffset(x, y); 
+    	entitySprite.setOffset(x, y); 
     }
     
     public Sprite getEntitySprite(){ // gets the Object's sprite, still image or animation
-    	return spriteType;
+    	return entitySprite;
     }
     public int getSpriteOffsetX(){
-    	return spriteType.getOffsetX(); 
+    	return entitySprite.getOffsetX(); 
     }
     public int getSpriteOffsetY() {
-    	return spriteType.getOffsetY();
+    	return entitySprite.getOffsetY();
     }
     /**
      * 
@@ -139,14 +143,6 @@ public class EntityStatic extends Entity{
 	 * 
 	 * #################################################################################
 	 */
-	
-	public void onCollisionEvent(){ //TO BE MOVED TO COLLIDABLE INTERFACE
-		
-	}
-	
-	public void onCollisionCompletion(){ //TO BE MOVED TO COLLIDABLE INTERFACE
-		
-	}
 	
 	public String toString()
 	{

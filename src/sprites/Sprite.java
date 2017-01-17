@@ -29,7 +29,7 @@ public abstract class Sprite implements Serializable {
     
 	public abstract Image getImage(); 
 	
-	public abstract Animation getAnimatedSprite(); 
+	public abstract Animation getAnimation(); 
 	
 	public abstract void updateSprite();
 	

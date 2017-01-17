@@ -1,22 +1,30 @@
-package animation;
+package misc;
+
+import sprites.Sprite;
+import sprites.SpriteAnimated;
 
 public class EntityState {
 
-	private Animation stateAnimation;
+	private Sprite stateSpriteRight;
+	private Sprite stateSpriteLeft;
 	private String stateName;
 
-	public EntityState(String name, Animation anim) {
+	public EntityState(String name, Sprite spriteRight , Sprite spriteLeft) {
 
-		initState(name, anim);
+		initState(name, spriteRight, spriteLeft);
 	}
 
-	private void initState(String name, Animation anim) {
-		stateAnimation = anim;
+	private void initState(String name, Sprite right, Sprite left) {
+		stateSpriteRight = right;
 		stateName = name;
 	}
-
-	public Animation getAnimation() {
-		return stateAnimation;
+	
+	public Sprite getSpriteRight() {
+		return stateSpriteRight;
+	}
+	
+	public Sprite getSpriteLeft() {
+		return stateSpriteLeft;
 	}
 
 	public String getName() {

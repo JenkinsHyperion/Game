@@ -8,7 +8,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 @SuppressWarnings("serial")
-public class MainWindow extends JPanel {
+public class MainWindow extends JPanel implements KeyListener{
 	private Board board;
 	private static EditorPanel editorPanel;
 	private JSplitPane splitPane;
@@ -19,7 +19,6 @@ public class MainWindow extends JPanel {
     private static int height;
 
 	public MainWindow() {
-		
 		//TESTING window size
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		width = (int) screenSize.getWidth();
@@ -40,12 +39,12 @@ public class MainWindow extends JPanel {
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, editorPanel, board);
 		splitPane.setOneTouchExpandable(true);
 		splitPane.setDividerLocation(editorPanel.getWidth());
-		board.setFocusable(true);
+		//board.setFocusable(true);
 		
 		splitPane.setSize(new Dimension(board.getWidth() + editorPanel.getWidth(), 300));
 		splitPane.setMinimumSize(new Dimension(board.getWidth() + editorPanel.getWidth(), 300));
 		
-		splitPane.addKeyListener(new KeyListener() {
+		/*splitPane.addKeyListener(new KeyListener() {
 			@Override
 	        public void keyPressed(KeyEvent e) {
 				int key = e.getKeyCode();
@@ -61,7 +60,9 @@ public class MainWindow extends JPanel {
 			@Override
 			public void keyTyped(KeyEvent e) {
 			}
-		});
+		});*/
+		
+
 		
 	}
 	public JSplitPane getSplitPane() {
@@ -72,10 +73,16 @@ public class MainWindow extends JPanel {
 		//Create and set up the window
 		JFrame frame = new JFrame(System.getProperty("user.dir"));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
 		MainWindow splitPaneInstance = new MainWindow();
+
+		
 		frame.add(splitPaneInstance.getSplitPane());
 		frame.setPreferredSize(new Dimension(width,height)); //TESTING SCREEN RESOLUTION was 300,600
 		//frame.setLocationRelativeTo();
+		frame.addKeyListener(splitPaneInstance);
+		frame.setFocusable(true);
+		
 		frame.setVisible(true);
 		frame.pack();
 	}
@@ -89,6 +96,27 @@ public class MainWindow extends JPanel {
 			}
 		});
 	}
+	
+	@Override
+	public void keyPressed(KeyEvent e) {
+		board.keyPressed(e);
+		editorPanel.keyPressed(e);
+	}
+	@Override
+	public void keyReleased(KeyEvent e) {
+		board.keyReleased(e);
+		editorPanel.keyReleased(e);
+		
+	}
+	@Override
+	public void keyTyped(KeyEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
+
+	
     /*@Override //Should go in intermediate "Rendering" class or something 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);

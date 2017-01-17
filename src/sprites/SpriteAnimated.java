@@ -54,7 +54,7 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
     	spriteAnimation.update();
     }
     
-    public Animation getAnimatedSprite() {
+    public Animation getAnimation() {
     	return spriteAnimation;
     }
     

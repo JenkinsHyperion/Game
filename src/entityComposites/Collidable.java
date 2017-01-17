@@ -7,6 +7,8 @@ import java.util.ArrayList;
 
 import engine.Camera;
 import entities.EntityStatic;
+import misc.CollisionEvent;
+import misc.NullCollisionEvent;
 import physics.Boundary;
 import physics.CollidingPair;
 import physics.Collision;
@@ -16,13 +18,13 @@ import physics.Side;
 
 public final class Collidable extends CollisionProperty{
 	
-	protected transient Boundary boundary;
+	protected Boundary boundary;
 	
-	protected transient ArrayList<CollidingPair> collisionInteractions = new ArrayList<>();
+	protected ArrayList<CollidingPair> collisionInteractions = new ArrayList<>();
 	
-	protected transient Collision collisionMath;
+	protected Collision collisionMath;
 
-
+	private CollisionEvent uponLeavingCollision = new NullCollisionEvent();
 	
 	public Collidable( EntityStatic owner ){
 		
@@ -100,8 +102,18 @@ public final class Collidable extends CollisionProperty{
 	 * #################################################################################
 	 */
 	
-	public void onCollisionEvent(){ //TO BE MOVED TO COLLIDABLE INTERFACE
+	public void onCollisionEvent(){ 
 		
+	}
+	
+	public void onLeavingCollisionEvent(){
+		
+		uponLeavingCollision.run();
+		
+	}
+	
+	public void setLeavingCollisionEvent( CollisionEvent leavingEvent ){
+		uponLeavingCollision = leavingEvent;
 	}
 	
 	/**

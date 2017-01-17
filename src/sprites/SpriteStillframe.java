@@ -115,7 +115,7 @@ public class SpriteStillframe extends Sprite {  // Object with still image
         return image;
     }
     
-    public Animation getAnimatedSprite(){ // This method is redundant
+    public Animation getAnimation(){ // This method is redundant
     	return null;
     }
     

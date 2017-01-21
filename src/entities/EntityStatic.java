@@ -61,10 +61,7 @@ public class EntityStatic extends Entity{
     /*protected void loadAnimatedSprite(String path){ // needs handling if failed. 
     	graphic = new SpriteAnimatedTest(System.getProperty("user.dir").replace( "\\", "//" ) + "//Assets//" +path + ".png");
     }*/
-    @Deprecated
-    protected void loadAnimatedSprite(Animation a){ // needs handling if failed. 
-    	entitySprite = new SpriteAnimated(a,this); 
-    }
+
     
     protected void loadAnimatedSprite(SpriteAnimated a){ // needs handling if failed. 
     	entitySprite = a; 
@@ -72,7 +69,7 @@ public class EntityStatic extends Entity{
     
     //OPTIONAL INIT WITH OFFSET
     protected void loadAnimatedSprite(Animation a, int offsetX, int offsetY){ // needs handling if failed. 
-    	entitySprite = new SpriteAnimated(a,offsetX,offsetY,this); 
+    	entitySprite = new SpriteAnimated(a,this,offsetX,offsetY); 
     }
     
     protected void setEntitySpriteOffset(int x , int y){

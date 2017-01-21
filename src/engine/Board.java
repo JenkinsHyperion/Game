@@ -12,8 +12,10 @@ import editing.EditorPanel;
 import entities.*; //local imports
 import entityComposites.Collidable;
 import entityComposites.CollisionProperty;
+import entityComposites.NonCollidable;
 import physics.*;
 import sprites.Background;
+import sprites.RenderingLayer;
 import sprites.Sprite;
 import sprites.SpriteAnimated;
 import sprites.SpriteStillframe;
@@ -29,7 +31,7 @@ public class Board extends JPanel implements Runnable {
 	
 	//private Timer timer;
 	
-	private Background background = new Background("BGtest.png"); //move to rendering later
+	private Background background = new Background("Prototypes/Sky.png"); //move to rendering later
 	
 	private java.util.Timer updateEntitiesTimer;
 	private java.util.Timer repaintTimer;
@@ -43,7 +45,17 @@ public class Board extends JPanel implements Runnable {
     protected static ArrayList<EntityDynamic> dynamicEntitiesList; 
     protected static ArrayList<EntityPhysics> physicsEntitiesList; 
     
+    //RENDERING
     public Camera camera;
+    private RenderingLayer[] layer = {
+    		new RenderingLayer(1,1),
+    		new RenderingLayer(1.15f,0.98),
+    		new RenderingLayer(1.3f, 0.97),
+    		new RenderingLayer(1.5f, 0.96 ),
+    		new RenderingLayer(1.7f, 0.95),
+    		new RenderingLayer(1.9f, 0.94),
+    		new RenderingLayer(2f, 0.93)
+    };
     
     protected Point clickPosition;
     protected boolean mouseClick = false;
@@ -162,16 +174,6 @@ public class Board extends JPanel implements Runnable {
         testEntity.loadSprite("ground_1.png" , -223 , -53 );
         staticEntitiesList.add( testEntity );
         
-        /*testEntity = new EntityStatic("Test Slope",700,600);   
-        Side[] sides = new Side[3]; 
-        sides[0] = new Side( new Line2D.Float(0,0,100,-100) ); 
-        sides[1] = new Side( new Line2D.Float(100,-100,100,0) );
-        sides[2] = new Side( new Line2D.Float(100,0,0,0) );
-        collidable = new Collidable(testEntity, new Boundary(sides) );
-        testEntity.setCollisionProperties( collidable );
-        //testEntity.loadSprite("ground_1.png" , -223 , -53 );
-        staticEntitiesList.add( testEntity );*/
-        
       	physicsEntitiesList.add(new EntityPhysics(120,260,"box.png"));
         dynamicEntitiesList.add(new Bullet(100,100,1,1));
         
@@ -179,6 +181,19 @@ public class Board extends JPanel implements Runnable {
         laser = new Tracer(143,260, physicsEntitiesList.get(0) , this ); //later will be parent system
         //dynamicEntitiesList.add(new LaserTest(400,60));  <-- can't add as long as I don't have a sprite for it
         //		--- for now will just draw in the drawObjects() method
+        
+        //############################################## TESTING BACKGROUND SPRITES #######################
+        
+        int offset_x = 500;
+        int offset_y = 300;
+        
+        layer[6].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L7.png", 300-offset_x, 450-offset_y) );
+        layer[5].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L6.png", 0-offset_x, -650-offset_y) );//bass
+        layer[4].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L5.png", 530-offset_x, 590-offset_y) );
+        layer[3].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L4.png", -40-offset_x, -650-offset_y) );//base
+        layer[2].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L3.png", 60-offset_x, 710-offset_y) );
+        //layer[1].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L2.png", 400-offset_x, 640-offset_y) );
+        layer[0].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L1.png", 0-offset_x, -650-offset_y) );//base
         
         
         //############################################### CAMERA #######################
@@ -367,6 +382,9 @@ public class Board extends JPanel implements Runnable {
     	
     	//Draw ghostSprite for editor using null-object pattern
     	//
+    	for ( int i = 6 ; i > -1 ; i-- ) {	        	
+    		layer[i].drawLayer(g, camera);
+    	}
     	
 
 	    for (EntityStatic stat : staticEntitiesList) {

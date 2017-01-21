@@ -9,6 +9,7 @@ import engine.Board;
 import entities.EntityDynamic;
 import entities.EntityStatic;
 import entityComposites.Collidable;
+import physics.Collision;
 
 public class CollisionPlayerStaticSAT extends Collision {
 	
@@ -53,8 +54,8 @@ public class CollisionPlayerStaticSAT extends Collision {
 			
 			entityPrimary.setColliding(true); //MOVE TO RESOLVED UPDATE CLASS JUST LIKE RESOLUTION EVENT
 			entityPrimary.setDampeningX(0.1f); //
-
-			triggerResolutionEvent( closestResolution );
+			
+			triggerResolutionEvent( closestResolution ); 
 			
 		}
 		else { //Primary Entity is clipping by closestResolution.vector()
@@ -63,24 +64,26 @@ public class CollisionPlayerStaticSAT extends Collision {
 			
 			Vector resolution = closestResolution.Vector();
 			
-			System.out.println("\nWill clip by "+(int) resolution.getX()+" , "+ (int) resolution.getY());
-			
 			depthX = (int) resolution.getX();
 			depthY = (int) resolution.getY();
+			
+			System.out.println("\nWill clip by "+ depthX+" , "+ depthY );
 
+			
+			//Resolution will not resolve
+
+			
 			//Resolution will resolve
 			
-			System.out.println("Clamped DX: "+entityPrimary.getDX() + " and DY: "+entityPrimary.getDY());
+				System.out.println("Clamped DX: "+entityPrimary.getDX() + " and DY: "+entityPrimary.getDY());
 			
-			entityPrimary.setAccX(0);
-			entityPrimary.clipDX((int) ( resolution.getX() ) );
+				entityPrimary.setAccX( 0 );
+				entityPrimary.clipDX((int) ( resolution.getX() ) );
     
-			entityPrimary.setAccY(0);
-			entityPrimary.clipDY((int) ( resolution.getY() ) );
+				entityPrimary.setAccY( 0 );
+				entityPrimary.clipDY((int) ( resolution.getY() ) );
 			
-			System.out.print(" to "+entityPrimary.getDX() + " and DY: "+entityPrimary.getDY());
-			
-			//Resolution wont resolve
+				System.out.print(" to "+entityPrimary.getDX() + " and DY: "+entityPrimary.getDY());	
 	
 		}
 	    
@@ -97,18 +100,18 @@ public class CollisionPlayerStaticSAT extends Collision {
 			
 			System.out.println("\nEvent Triggered: "+resolution.FeaturePrimary().collisionEvent  );
 
-			resolution.FeaturePrimary().collisionEvent.run();
+			resolution.FeaturePrimary().collisionEvent.run( resolution.FeaturePrimary() , resolution.FeatureSecondary() );
 			
 		}
 
 	}
-	
+		
 	@Override
 	protected void triggerResolutionEvent( Resolution resolution ) { 
-				
+					
 		this.resolutionState.triggerEvent( resolution );
 		this.resolutionState = ResolvedState.resolved();
-		
+			
 	}
 
 	//FINAL COLLISION COMMANDS - Last commands before this collision object self destructs

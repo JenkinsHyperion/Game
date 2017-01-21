@@ -85,7 +85,9 @@ public class Side extends BoundaryFeature{
 	
 	public Line2D toLine(){ return line; }
 	
+	@Override
 	public Point2D getP1(){ return line.getP1(); }
+	@Override
 	public Point2D getP2(){ return line.getP2(); }
 	
 	public int getX1(){ return (int)line.getX1(); }

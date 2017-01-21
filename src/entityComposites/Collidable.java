@@ -108,8 +108,12 @@ public final class Collidable extends CollisionProperty{
 	
 	public void onLeavingCollisionEvent(){
 		
-		uponLeavingCollision.run();
+		//uponLeavingCollision.run();
+	}
+	
+	public void onLeavingAllCollisionsEvent(){
 		
+		uponLeavingCollision.run( null , null );
 	}
 	
 	public void setLeavingCollisionEvent( CollisionEvent leavingEvent ){
@@ -131,9 +135,15 @@ public final class Collidable extends CollisionProperty{
     	
     	collisionInteractions.remove(index);
     	//decrement indexes for all following collisions involving this entity
-    	for ( int i = index ; i < collisionInteractions.size() ; i++) {
-    		collisionInteractions.get(i).collision().indexShift(collisionInteractions.get(i).pairID());
-    	} 
+    	if ( collisionInteractions.size() == 0 ){
+    		onLeavingAllCollisionsEvent();
+    	}
+    	else{
+	    	for ( int i = index ; i < collisionInteractions.size() ; i++) {
+	    		collisionInteractions.get(i).collision().indexShift(collisionInteractions.get(i).pairID());
+	    	} 
+    	}
+
     	//printCollisions();
     }
 	

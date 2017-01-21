@@ -1,4 +1,6 @@
-/*package entities;
+package entities;
+
+import entityComposites.NonCollidable;
 
 public class EntityFactory {
 	
@@ -18,5 +20,11 @@ public class EntityFactory {
 		
 	}
 	
+	public static EntityStatic createBackgroundSprite( String path, int x, int y ){
+		EntityStatic testEntity = new EntityStatic(x,y);
+        testEntity.setCollisionProperties( NonCollidable.getNonCollidable() );
+        testEntity.loadSprite( path , 0 , 0 );
+        return testEntity;
+	}
+	
 }
-*/

@@ -11,6 +11,8 @@ import Input.KeyBinding;
 import animation.*;
 import engine.Board;
 import entityComposites.Collidable;
+import physics.Collision;
+import physics.BoundaryFeature;
 import misc.CollisionEvent;
 import misc.DefaultCollisionEvent;
 import misc.EntityState;
@@ -22,42 +24,44 @@ import sprites.SpriteAnimated;
 
 public class PlayerCharacter extends Player {
 	
-	private final int spriteOffsetX=-75;
-	private final int spriteOffsetY=-75;
+	private final int spriteOffsetX=-35;
+	private final int spriteOffsetY=-35;
 	
 	private boolean climbing = false;
     
     private final SpriteAnimated RUN_RIGHT = new SpriteAnimated(
-    		new AnimationEnhanced(LoadAnimation.buildAnimation(16, 0, 75, "RunRight.png") , 2 ,spriteOffsetX,spriteOffsetY ),
-    		this );
+    		new AnimationEnhanced(LoadAnimation.buildAnimation(16, 0, 75, "RunRight.png") , 2 ),
+    		this , spriteOffsetX , spriteOffsetY );
     private final SpriteAnimated RUN_LEFT = new SpriteAnimated(
-    		new Animation(LoadAnimation.buildAnimation(16, 0, 75, "Run_75px.png") , 2 ,spriteOffsetX,spriteOffsetY),
-    		this);
+    		new Animation(LoadAnimation.buildAnimation(16, 0, 75, "Run_75px.png") , 2 ),
+    		this , spriteOffsetX , spriteOffsetY );
     
     private final SpriteAnimated SPRINT_LEFT = new SpriteAnimated(
-    		new Animation(LoadAnimation.buildAnimation(10, 0, 75, "SprintLeft2.png") , 3 ,spriteOffsetX,spriteOffsetY),
-    		this);
+    		new Animation(LoadAnimation.buildAnimation(10, 0, 75, "SprintLeft2.png") , 3 ),
+    		this , spriteOffsetX , spriteOffsetY );
     private final SpriteAnimated SPRINT_RIGHT = new SpriteAnimated(
-    		new Animation(LoadAnimation.buildAnimation(10, 0, 75, "SprintRight2.png") , 3 ,spriteOffsetX,spriteOffsetY),
-    		this); 
+    		new Animation(LoadAnimation.buildAnimation(10, 0, 75, "SprintRight2.png") , 3 ),
+    		this , spriteOffsetX , spriteOffsetY ); 
     
     private final SpriteAnimated IDLE_RIGHT = new SpriteAnimated(
-    		new Animation(LoadAnimation.buildAnimation(1, 0, 75, "IdleLeft.png") , 18 ,spriteOffsetX,spriteOffsetY),
-    		this);
+    		new Animation(LoadAnimation.buildAnimation(2, 0, 75, "IdleLeft.png") , 18 ),
+    		this , spriteOffsetX , spriteOffsetY );
+    
+    //
     private final SpriteAnimated IDLE_LEFT = new SpriteAnimated(
-    		new Animation(LoadAnimation.buildAnimation(1, 0, 75, "IdleLeft.png") , 18 ,spriteOffsetX,spriteOffsetY),
-    		this);
+    		new Animation(LoadAnimation.buildAnimation(2, 0, 75, "IdleLeft.png") , 18 ),
+    		this , spriteOffsetX , spriteOffsetY );
     
     private final SpriteAnimated CLIMB_LEFT = new SpriteAnimated(
     		new Animation(LoadAnimation.getAnimation(21, 0, 40,64 , "spritesFramesFinal.png") , 2 ),
-    		this);
+    		this , spriteOffsetX , spriteOffsetY );
     private final SpriteAnimated CLIMB_RIGHT = new SpriteAnimated(
-    		new Animation(LoadAnimation.getAnimation(21, 1, 40,64 , "spritesFramesFinal.png") , 2 , -9, 0),
-    		this);
+    		new Animation(LoadAnimation.getAnimation(21, 1, 40,64 , "spritesFramesFinal.png") , 2 ),
+    		this , spriteOffsetX , spriteOffsetY );
     
     private SpriteAnimated JUMP_LEFT = new SpriteAnimated(
     		new Animation(LoadAnimation.buildAnimation(2, 5, 32, "player_sheet.png") , 18 ),
-    		this);
+    		this , spriteOffsetX , spriteOffsetY );
 
     //private PlayerState climbingRight= new EntityState("climbing_left",CLIMB_RIGHT);
     //private PlayerState climbingLeft= new EntityState("climbing_left",CLIMB_LEFT);
@@ -65,12 +69,15 @@ public class PlayerCharacter extends Player {
     private final PlayerState running= new Running( "Running" , RUN_RIGHT , RUN_LEFT);
     private final PlayerState sprintingRight= new Sprinting("sprinting_right",SPRINT_RIGHT , SPRINT_LEFT );
     private final PlayerState standing = new Standing("standing", IDLE_RIGHT , IDLE_LEFT);
+    private final PlayerState runningTurn = new RunningTurn("turning", IDLE_RIGHT , IDLE_LEFT);
+    private final PlayerState sprintingTurn = new SprintingTurn("skidding", IDLE_RIGHT , IDLE_LEFT);
+    private final PlayerState wallSliding = new WallSliding("WallSliding", IDLE_RIGHT , IDLE_LEFT);
     //private PlayerState jumpingLeft= new EntityState("jumping_left",JUMP_LEFT);
     
     private final PlayerState fallingLeft = new Falling( "Falling" , JUMP_LEFT , JUMP_LEFT );
     
-    private PlayerState playerState = running;
-    private PlayerState playerStateBuffer = running;
+    private PlayerState playerState = fallingLeft;
+    private PlayerState playerStateBuffer = standing;
     
     private Direction playerDirection = new Direction();
     
@@ -94,7 +101,7 @@ public class PlayerCharacter extends Player {
         //setAngle(0);
         setAccY( 0.2f ); // Force initialize gravity (temporary)
 
-        CollisionEvent floorCollisionEvent = new DefaultCollisionEvent( (Collidable) this.collisionType );
+        CollisionEvent floorCollisionEvent = new DefaultCollisionEvent(  );
         CollisionEvent[] eventList = new CollisionEvent[]{
         		floorCollisionEvent, //top
         		onSideCollision,
@@ -130,7 +137,7 @@ public class PlayerCharacter extends Player {
     @Override
     public void updatePosition() {// SPLIT INTO GENERAL UPDATE BETWEEN INPUT AND POSITION
     	super.updatePosition();
-    	playerState.update();
+    	playerState.updateState();
     	
     	//inputController.runHeld();
     	
@@ -138,14 +145,20 @@ public class PlayerCharacter extends Player {
     
     private void changePlayerState( PlayerState state ){
     	
+    	System.out.println("Changing state to "+state.getName());
+    	
 		playerState = state;
 		
-		entitySprite = state.getSpriteRight() ;
+		entitySprite = playerDirection.getDirectionalSprite(state) ;
 		
-		((SpriteAnimated) state.getSpriteRight() ).getAnimation().start();
+		((SpriteAnimated) playerDirection.getDirectionalSprite(state) ).getAnimation().start();
 		
+		//inputController.runReleased();
+
 		inputController.runHeld();
-		  	
+		
+		playerState.uponChange();
+  	
     }
     
     private void changeDirection(){
@@ -157,30 +170,34 @@ public class PlayerCharacter extends Player {
 
     private class OnLeavingCollision extends CollisionEvent{
 		@Override
-		public void run() {
+		public void run( BoundaryFeature source , BoundaryFeature collidingWith ) {
 			changePlayerState( fallingLeft );
 		}	
     }
     
     private class FloorCollisionEvent extends CollisionEvent {
+
 		@Override
-		public void run() {
-			
+		public void run( BoundaryFeature source , BoundaryFeature collidingWith ) {
 			playerState.onCollision();
+		}
+		@Override
+		public String toString() {
+			return "Floor";
 		}
     }
     
     private class SideCollisionEvent extends CollisionEvent{
-    	
-    	protected SideCollisionEvent(){
-    		this.name = "SIDE COLLISION";
-    	}
-    	
+	
 		@Override
-		public void run( ) {
+		public void run( BoundaryFeature source , BoundaryFeature collidingWith ) {
 			
-			dx = -1;
-			
+				changePlayerState( wallSliding );
+		}
+		
+		@Override
+		public String toString() {
+			return "Side";
 		}
     }
     
@@ -244,14 +261,34 @@ public class PlayerCharacter extends Player {
     
     
     private class Running extends PlayerState{ 
+    	
+    	private abstract class RunState{ public void update(){} } //CONSIDER SEPERATE IDLERUN STATE
+    	
+    	private class Accelerating extends RunState{ 
+    		public void update(){ dx = playerDirection.normalize( 3 ); }
+    	}
+    	
+    	private class Idling extends RunState{ public void update(){/*nothing*/} }
+    	
+    	private final RunState idle = new Idling();
+    	private final RunState accelerate = new Accelerating();
+    	private RunState state = accelerate;
 
 		public Running( String name , Sprite spriteRight , Sprite spriteLeft) {
 			super( name , spriteRight , spriteLeft);
 		}
 		
 		@Override
-		public void update() {
-			dx = playerDirection.normalize(3);
+		public void uponChange() {
+			
+		}
+		
+		@Override
+		public void updateState() {
+			state.update();
+			if (dx == 0){
+				changePlayerState(standing);
+			}
 		}
 		
 		@Override
@@ -265,13 +302,51 @@ public class PlayerCharacter extends Player {
 		}
 		
 		@Override
+		public void holdingForward() {
+			state = accelerate;
+		}
+		
+		@Override
 		public void offForward() {
-			changePlayerState( standing );
+			state = idle;
+			//System.out.println(" RELEASED RUN ");
+			//inputController.debugReleased();
+		}
+		
+		@Override
+		public void onBackward() {
+			changePlayerState( runningTurn );
 		}
 		
     	
     }
     
+    private class RunningTurn extends PlayerState{
+    	
+    	private int counter = 10; //Duration of turn in frames
+    	
+    	public RunningTurn( String name , Sprite spriteRight , Sprite spriteLeft) {
+			super( name , spriteRight , spriteLeft );
+    	}
+    	
+    	@Override
+    	public void uponChange() {
+    		counter = 10;
+    	}
+    	
+    	@Override
+    	public void updateState() {
+    		
+    		if (counter < 0){
+    			changeDirection();
+    			changePlayerState(running);
+    		}
+    		else 
+    			counter--;
+
+    	}
+    	
+    }
     
     private class Sprinting extends PlayerState{ 
 
@@ -280,22 +355,83 @@ public class PlayerCharacter extends Player {
 		}
 
 		@Override
-		public void update() {
+		public void updateState() {
 			dx = playerDirection.normalize(5);
+		}
+		
+		@Override
+		public void onJump() {
+			setDY(-5);
 		}
 		
 		@Override
 		public void offShift() {
 			changePlayerState( running );
 		}
+		
+		@Override
+		public void offForward() {
+			changePlayerState( running );
+		}
+    	
+		@Override
+		public void holdingBackward() {
+			changePlayerState( sprintingTurn );
+		}
+		
+    }
+    
+private class SprintingTurn extends PlayerState{
+    	
+    	private int counter = 20; //Duration of turn in frames
+    	
+    	public SprintingTurn( String name , Sprite spriteRight , Sprite spriteLeft) {
+			super( name , spriteRight , spriteLeft );
+    	}
+    	
+    	@Override
+    	public void uponChange() {
+    		counter = 20;
+    	}
+    	
+    	@Override
+    	public void updateState() {
+    		
+    		if (counter < 0){
+    			changeDirection();
+    			changePlayerState( sprintingRight );
+    		}
+    		else 
+    			counter--;
+
+    	}
     	
     }
     
     
     private class Falling extends PlayerState{
 
+    	private boolean hold = false;
+    	
 		public Falling( String name , Sprite spriteRight , Sprite spriteLeft) {
 			super( name , spriteRight , spriteLeft);
+		}
+		
+		@Override
+		public void onUp() {
+			setAngle(45);
+		}
+		
+		@Override
+		public void holdingJump() {
+			accY=0.1f;
+			hold = true;
+		}
+		
+		@Override
+		public void offJump() {
+			hold = false;
+			accY=0.2f;
 		}
 		
 		@Override
@@ -316,12 +452,44 @@ public class PlayerCharacter extends Player {
     	
     }
     
-
-    
     private class WallSliding extends PlayerState{
 
+    	private boolean clinging = false;
+    	
 		public WallSliding( String name , Sprite spriteRight , Sprite spriteLeft) {
 			super( name , spriteRight , spriteLeft );
+		}
+		
+		@Override
+		public void uponChange() {
+			clinging = false;
+		}
+		
+		@Override
+		public void updateState() {
+			if (clinging){
+				dy = 0.5f;
+			}
+		}
+		
+		@Override
+		public void onJump() { // wall jump reverse direction 
+			
+			changeDirection();
+			dx = playerDirection.normalize(2);
+			dy = dy-5;
+			
+		}
+		
+		@Override
+		public void holdingForward() {
+			clinging = true;
+		}
+		
+		@Override
+		public void offForward() {
+			accY = 0.2f;
+			clinging = false;
 		}
 		
     	
@@ -383,6 +551,11 @@ public class PlayerCharacter extends Player {
 
 		@Override
 		public void onHeld(){ playerState.holdingRight(playerDirection); }
+		
+		@Override
+		public String toString() {
+			return "Right";
+		}
 		
     }
     

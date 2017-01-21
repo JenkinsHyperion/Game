@@ -79,4 +79,14 @@ public class Vertex extends BoundaryFeature{
 	@Override
 	public String toString(){ return "Vertex"+this.ID ; }
 
+	@Override
+	public Point2D getP1() {
+		return this.getP1();
+	}
+
+	@Override
+	public Point2D getP2() {
+		return this.getP2();
+	}
+
 }

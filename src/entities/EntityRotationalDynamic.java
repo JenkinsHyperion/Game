@@ -1,5 +1,6 @@
 package entities;
 
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -59,7 +60,10 @@ public class EntityRotationalDynamic extends EntityDynamic{
 		}
 		
 		return new Boundary(newSides);*/
-		return storedBounds.atPosition( this.getPos() ).rotateBoundaryAround( this.getPos() , angle);
+		//return storedBounds.atPosition( this.getPos() ).rotateBoundaryAround( this.getPos() , angle);
+		
+		return this.getBoundary();
+		
 	}
 	
 	@Override
@@ -83,6 +87,10 @@ public class EntityRotationalDynamic extends EntityDynamic{
         	((Collidable) collisionType).setBoundary( getBoundaryAtAngle((int)angle * ((2*Math.PI)/72) ) ); 
     	}
     }
+	
+	public void setAngle( int angle ){
+		getBoundary().rotateBoundaryAround( new Point(0,0) , ((int)angle * ((2*Math.PI)/72) ) ); 
+	}
 	
 	public void setAngularVelocity(){
 		

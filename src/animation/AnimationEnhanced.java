@@ -11,14 +11,7 @@ public class AnimationEnhanced extends Animation {
 		super(frames, frameDelay);
 
 	}
-	
-	public AnimationEnhanced(BufferedImage[] frames, int frameDelay, int offsetX, int offsetY) {
 
-		super(frames, frameDelay);
-
-		animationOffsetX = offsetX;
-		animationOffsetY = offsetY;
-	}
 
 	/**
 	 * 

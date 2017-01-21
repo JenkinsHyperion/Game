@@ -70,7 +70,7 @@ public class CollisionCheck {
 		    //Boundary playerBounds = entityPrimary.getBoundaryLocal();
 		    
 		    int deltaX = (int) (primary.getOwnerEntity().getDeltaX() );
-		    int deltaY = (int) (primary.getOwnerEntity().getDeltaY() );
+		    int deltaY = (int) (primary.getOwnerEntity().getDeltaY() ); 
 		    
 		    Point2D playerCenter = new Point2D.Double(deltaX, deltaY);
 		    //Point2D playerCenter = new Point2D.Double(entityPrimary.getX(), entityPrimary.getY());
@@ -104,92 +104,18 @@ public class CollisionCheck {
 			int centerDistanceX = (int)(centerProjection.getX1() -  centerProjection.getX2()  );
 			int centerDistanceY = (int)(centerProjection.getY1() -  centerProjection.getY2()  );
 			
-			if (centerDistanceX>0){ centerDistanceX -= 1; } 
-			else if (centerDistanceX<0){ centerDistanceX += 1; } //NEEDS HIGHER LEVEL SOLUTION
+			if (centerDistanceX>0){ centerDistanceX -= 2; } 
+			else if (centerDistanceX<0){ centerDistanceX += 2; } //NEEDS HIGHER LEVEL SOLUTION
 			
-			if (centerDistanceY>0){ centerDistanceY -= 1; } 
-			else if (centerDistanceY<0){ centerDistanceY += 1; }
+			if (centerDistanceY>0){ centerDistanceY -= 2; } 		
+			else if (centerDistanceY<0){ centerDistanceY += 2; }	
 			
-			int playerProjectionX = (int)(playerHalf.getX1() -  playerHalf.getX2());
-			int playerProjectionY = (int)(playerHalf.getY1() -  playerHalf.getY2());
-			
-			int statProjectionX = (int)(statHalf.getX2() -  statHalf.getX1());
-			int statProjectionY = (int)(statHalf.getY2() -  statHalf.getY1());
-			
-			int penetrationX = 0;
-			int penetrationY = 0;
-			
-			// Get penetration vector
-			penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
-			penetrationY = playerProjectionY + statProjectionY - centerDistanceY ;
-			
-			if ( penetrationX * centerDistanceX < 0  || penetrationY * centerDistanceY < 0  ) //SIGNS ARE NOT THE SAME
-			{
-				penetrationX = 0;
-				penetrationY = 0;
-				
-			}
-
-			// Handling of exception where centered collisions always have penetration of 0
-			if (centerDistanceX*centerDistanceX + centerDistanceY*centerDistanceY == 0){ //LOOK INTO BETTER CONDITIONALS
-				penetrationX = -(playerProjectionX + statProjectionX) ;
-			}
-			if (centerDistanceX*centerDistanceX + centerDistanceY*centerDistanceY == 0){ //Merge with above checks
-				penetrationY = -(playerProjectionY + statProjectionY) ;
-			}
-
-			return new Point( penetrationX , penetrationY );
-
-		}
-	 
-	 
-	 
-	 public Point debuggetDistanceSAT( Line2D separatingSide , Collidable primary , Collidable stat ){
-		    
-		    Boundary bounds = stat.getBoundaryLocal() ;
-		    Boundary playerBounds = primary.getBoundaryDelta();
-		    //Boundary playerBounds = entityPrimary.getBoundaryLocal();
-		    
-		    int deltaX = (int) (primary.getOwnerEntity().getDeltaX() );
-		    int deltaY = (int) (primary.getOwnerEntity().getDeltaY() );
-		    
-		    Point2D playerCenter = new Point2D.Double(deltaX, deltaY);
-		    //Point2D playerCenter = new Point2D.Double(entityPrimary.getX(), entityPrimary.getY());
-		    
-		    Point2D statCenter = new Point2D.Double(stat.getOwnerEntity().getX(), stat.getOwnerEntity().getY());
-			
-			
-			Line2D axis = bounds.getSeparatingAxis(separatingSide); //OPTIMIZE TO SLOPE ONLY CALCULATIONS
-		    
-		    Line2D centerDistance = new Line2D.Float(deltaX , deltaY,
-		    		stat.getOwnerEntity().getX() , stat.getOwnerEntity().getY() );
-		    Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
-		 
-		    
-		    Point2D nearStatCorner = bounds.farthestPointFromPoint( bounds.getFarthestPoints(playerBounds,axis)[0] , axis );
-		      
-		    Point2D nearPlayerCorner = playerBounds.farthestPointFromPoint( playerBounds.getFarthestPoints(bounds,axis)[0] , axis );
-
-
-		    
-		    Line2D playerHalf = new Line2D.Float( 
-					playerBounds.getProjectionPoint(playerCenter,axis) ,
-					playerBounds.getProjectionPoint(nearPlayerCorner,axis)
-							);
-			Line2D statHalf = new Line2D.Float( 
-					bounds.getProjectionPoint(statCenter,axis) ,
-					bounds.getProjectionPoint(nearStatCorner,axis)
-							);
-			
-			
-			int centerDistanceX = (int)(centerProjection.getX1() -  centerProjection.getX2()  );
-			int centerDistanceY = (int)(centerProjection.getY1() -  centerProjection.getY2()  );
-			
-			if (centerDistanceX>0){ centerDistanceX -= 1; } 
-			else if (centerDistanceX<0){ centerDistanceX += 1; } //NEEDS HIGHER LEVEL SOLUTION
-			
-			if (centerDistanceY>0){ centerDistanceY -= 1; } 
-			else if (centerDistanceY<0){ centerDistanceY += 1; }
+			/*	Unlike the collision math which uses a shift of 1, this check will use a shift of 2 which allows collisions to
+			 * be opened when the dynamic entity is flush with a surface. 
+			 * 
+			 * This is specifically to handle the case where the dynamic entity (player) hits a flush surface perfectly 
+			 * such as two platforms that are vertically aligned.
+			 */
 			
 			int playerProjectionX = (int)(playerHalf.getX1() -  playerHalf.getX2());
 			int playerProjectionY = (int)(playerHalf.getY1() -  playerHalf.getY2());

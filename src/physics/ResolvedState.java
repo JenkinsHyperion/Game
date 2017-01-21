@@ -15,7 +15,7 @@ public class ResolvedState extends ResolutionState {
 	}
 
 	@Override
-	protected void triggerEvent(Resolution resolution) {
+	protected void triggerEvent( Resolution resolution) {
 		// DO NOTHING
 		
 	}

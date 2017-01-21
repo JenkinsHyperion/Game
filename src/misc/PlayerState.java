@@ -7,12 +7,18 @@ import sprites.Sprite;
 
 public abstract class PlayerState extends EntityState{
 
+	private Sprite stateSpriteRight;
+	private Sprite stateSpriteLeft;
 	
 	public PlayerState( String name , Sprite spriteRight , Sprite spriteLeft){
-		super( name , spriteRight, spriteLeft );
+		super( name );
+		this.stateSpriteRight = spriteRight;
+		this.stateSpriteLeft = spriteLeft;
 	}
 
-	public void update(){}
+	public void updateState(){}
+	
+	public void uponChange(){}
 	
 	//public abstract void onKeyEvent( int key );
 	
@@ -47,5 +53,13 @@ public abstract class PlayerState extends EntityState{
 	public void offBackward(){ }
 	
 	public void onCollision(){}
+	
+	public Sprite getSpriteRight() {
+		return stateSpriteRight;
+	}
+	
+	public Sprite getSpriteLeft() {
+		return stateSpriteLeft;
+	}
 	
 }

@@ -49,12 +49,12 @@ public class Board extends JPanel implements Runnable {
     public Camera camera;
     private RenderingLayer[] layer = {
     		new RenderingLayer(1,1),
-    		new RenderingLayer(1.15f,0.98),
-    		new RenderingLayer(1.3f, 0.97),
-    		new RenderingLayer(1.5f, 0.96 ),
-    		new RenderingLayer(1.7f, 0.95),
-    		new RenderingLayer(1.9f, 0.94),
-    		new RenderingLayer(2f, 0.93)
+    		new RenderingLayer(1.15f,0.998),
+    		new RenderingLayer(1.3f, 0.990),
+    		new RenderingLayer(1.6f, 0.985 ),
+    		new RenderingLayer(1.8f, 0.98),
+    		new RenderingLayer(3f, 0.975),
+    		new RenderingLayer(5, 0.97)
     };
     
     protected Point clickPosition;
@@ -185,15 +185,15 @@ public class Board extends JPanel implements Runnable {
         //############################################## TESTING BACKGROUND SPRITES #######################
         
         int offset_x = 500;
-        int offset_y = 300;
+        int offset_y = 100;
         
-        layer[6].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L7.png", 300-offset_x, 450-offset_y) );
-        layer[5].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L6.png", 0-offset_x, -650-offset_y) );//bass
-        layer[4].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L5.png", 530-offset_x, 590-offset_y) );
-        layer[3].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L4.png", -40-offset_x, -650-offset_y) );//base
-        layer[2].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L3.png", 60-offset_x, 710-offset_y) );
-        //layer[1].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L2.png", 400-offset_x, 640-offset_y) );
-        layer[0].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L1.png", 0-offset_x, -650-offset_y) );//base
+        layer[6].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L7.png", 350-offset_x, 600-offset_y) );
+        layer[5].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L6.png", 200-offset_x, -200-offset_y) );//bass
+        layer[4].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L5.png", 590-offset_x, 700-offset_y) );
+        layer[3].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L4.png", 220-offset_x, -200-offset_y) );//base
+        layer[2].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L3.png", 200-offset_x, 820-offset_y) );
+        layer[1].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L2.png", 250-offset_x, -200-offset_y) );
+        layer[0].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L1.png", 300-offset_x, -200-offset_y) );//base
         
         
         //############################################### CAMERA #######################

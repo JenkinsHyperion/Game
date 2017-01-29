@@ -98,5 +98,15 @@ public class Side extends BoundaryFeature{
 	
 	@Override
 	public String toString(){ return "Side"+this.ID ; }
+
+	@Override
+	public boolean debugIsVertex() {
+		return false;
+	}
+
+	@Override
+	public boolean debugIsSide() {
+		return true;
+	}
 	
 }

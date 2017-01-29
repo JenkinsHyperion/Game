@@ -143,17 +143,15 @@ public class Board extends JPanel implements Runnable {
   
         EntityStatic testEntity;
         
-        /*Line2D[] triangleBounds = new Line2D[]{
-			new Line2D.Double( 0 , 0 , 0 , 100 ),
-			new Line2D.Double( 0 , 100 , 100 , 100 ),
-			new Line2D.Double( 100 , 100 , 0 , 0 )
+        Line2D[] triangleBounds = new Line2D[]{
+			new Line2D.Double( -25 , -50 , -25 , 50 ),
+			new Line2D.Double( -25 , 50 , 50 , 50 ),
+			new Line2D.Double( 50 , 50 , -25 , -50 )
 		};
 
-		testEntity = EntityFactory.entityFromBoundary(100, 400, 
-			new Boundary( triangleBounds ) 
-		);
+		testEntity = EntityFactory.createEntityFromBoundary(100, 400, triangleBounds );
 		testEntity.loadSprite("bullet.png" , 0 , 0 );
-		staticEntitiesList.add( testEntity );    */  
+		staticEntitiesList.add( testEntity );    
         
         
         
@@ -221,8 +219,9 @@ public class Board extends JPanel implements Runnable {
         		time = System.nanoTime();
         		//System.out.println("press " + time);
         		
-        		collisionEngine.checkCollisions();
+        		
         		updateEntities();
+        		collisionEngine.checkCollisions();
         		
         		deltaTime = System.nanoTime() ;
         		speed = deltaTime - time;
@@ -735,26 +734,35 @@ public class Board extends JPanel implements Runnable {
 
 	    	g2.draw(axis);
 
-	    	g2.setColor(Color.GRAY);
 
 
-	    	Line2D centerDistance = new Line2D.Float(playerRef.getX() , playerRef.getY(),
-	    			stat.getX() , stat.getY());
-	    	Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
 
-	    	g2.draw(centerProjection);
+	    	//Line2D centerDistance = new Line2D.Float(playerRef.getX() , playerRef.getY(),
+	    	//		stat.getX() , stat.getY());
+	    	//Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
 
-	    	g2.setColor(Color.YELLOW);
+	    	//g2.draw(centerProjection);
+
+	    	
 
 	    	Point2D[] statOuter= statBounds.getFarthestPoints(playerBounds,axis);
-	    	Point2D[] playerOuter= playerBounds.getFarthestPoints(statBounds,axis);
 
 	    	Vertex[] nearStatCorner = statBounds.farthestVerticesFromPoint( statOuter[0] , axis ); //merge below
+	    	Vertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( statOuter[1] , axis );
+	    	
+	    	Vertex farStatCorner = statBounds.farthestVerticesFromPoint(nearStatCorner[0].toPoint(), axis)[0];
+	    	Vertex farPlayerCorner = playerBounds.farthestVerticesFromPoint(nearPlayerCorner[0].toPoint(), axis)[0];
+	    	
+	    	Point2D centerStat = farStatCorner.getCenter(nearStatCorner[0]);
+	    	Point2D centerPlayer = farPlayerCorner.getCenter(nearPlayerCorner[0]);
 
-	    	Vertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( playerOuter[0] , axis );
-
+	    	Line2D centerDistance = new Line2D.Double( centerPlayer , centerStat );
+	    	Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
+	    	
+	    	g2.setColor(Color.GRAY);
+	    	camera.draw(centerProjection,g2);
 	    	//CLOSEST SIDE TESTING
-
+	    	g2.setColor(Color.YELLOW);
 	    	//selected entity
 	    	if ( nearStatCorner.length > 1 ){ 
 	    		Side closest = nearStatCorner[0].getSharedSide(nearStatCorner[1]);
@@ -781,8 +789,8 @@ public class Board extends JPanel implements Runnable {
 	    			playerBounds.getProjectionPoint(nearPlayerCorner[0].toPoint(),axis)
 	    			);
 	    	Line2D statHalf = new Line2D.Float( 
-	    			statBounds.getProjectionPoint(statCenter,axis) ,
-	    			statBounds.getProjectionPoint(nearStatCorner[0].toPoint(),axis)
+	    			statBounds.getProjectionPoint(centerStat,axis) ,
+	    			statBounds.getProjectionPoint(nearStatCorner[0].toPoint(),axis) 
 	    			);
 
 	    	g2.draw(playerHalf);
@@ -792,12 +800,6 @@ public class Board extends JPanel implements Runnable {
 	    	int centerDistanceX = (int)(centerProjection.getX1() -  centerProjection.getX2()  );
 	    	int centerDistanceY = (int)(centerProjection.getY1() -  centerProjection.getY2()  );
 
-	    	if (centerDistanceX>0){ centerDistanceX -= 1; } 
-	    	else if (centerDistanceX<0){ centerDistanceX += 1; } //NEEDS HIGHER LEVEL SOLUTION
-
-	    	if (centerDistanceY>0){ centerDistanceY -= 1; } 
-	    	else if (centerDistanceY<0){ centerDistanceY += 1; }
-
 	    	int playerProjectionX = (int)(playerHalf.getX1() -  playerHalf.getX2());
 	    	int playerProjectionY = (int)(playerHalf.getY1() -  playerHalf.getY2());
 
@@ -806,27 +808,37 @@ public class Board extends JPanel implements Runnable {
 
 	    	int penetrationX = 0;
 	    	int penetrationY = 0;  
+	    	
 
-
-
-	    	penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
-	    	penetrationY = playerProjectionY + statProjectionY - centerDistanceY ;
-
-
-	    	//Constrain X
-	    	if ( Math.signum(penetrationX) != Math.signum(centerDistanceX)  || 
-	    			Math.signum(penetrationY) != Math.signum(centerDistanceY)  ){
-	    		penetrationX = 0;
-	    		penetrationY = 0;
+	    	if (centerDistanceX>0){
+	    		centerDistanceX -= 1;
+	    		penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
 	    	}
+	    	else if (centerDistanceX<0){
+	    		centerDistanceX += 1;  //NEEDS HIGHER LEVEL SOLUTION
+	    		penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
+	    	}
+	    	else 
+	    		penetrationX = playerProjectionX + statProjectionX;
+
+	    	if (centerDistanceY>0){
+	    		centerDistanceY -= 1;
+	    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY ; 
+	    	}
+	    	else if (centerDistanceY<0){
+	    		centerDistanceY += 1; 
+	    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY ; 
+	    	}
+	    	else 
+	    		penetrationY = playerProjectionY + statProjectionY;
 
 
-	    	if (centerDistanceX*centerDistanceX + centerDistanceY*centerDistanceY == 0){ //LOOK INTO BETTER CONDITIONALS
-	    		penetrationX = -(playerProjectionX + statProjectionX) ;
-	    	}
-	    	if (centerDistanceX*centerDistanceX + centerDistanceY*centerDistanceY == 0){
-	    		penetrationY = -(playerProjectionY + statProjectionY) ;
-	    	}
+	    	
+	    	if ( penetrationX * centerDistanceX < 0 ) //SIGNS ARE NOT THE SAME
+				penetrationX = 0;
+	    	if ( penetrationY * centerDistanceY < 0 )
+				penetrationY = 0;
+
 
 
 	    	g2.setFont( new Font( Font.DIALOG , Font.PLAIN , 10 ) );

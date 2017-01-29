@@ -54,7 +54,6 @@ public class Boundary implements Serializable {
 		
 		this.ownerCollidable = owner;
 
-		sides = null;
 		sides = new Side[ bounds.length ];
 		
 		for ( int i = 0 ; i < bounds.length ; i++ ){
@@ -133,19 +132,18 @@ public class Boundary implements Serializable {
 
 		Boundary returnBounds = new Boundary(this.sides , this.corners , this.ownerCollidable);
 		
-		
-		
 		return returnBounds;
-		
 	}
 	
-	public void rotateBoundaryAround(Point center, double angle){ //OPTIMIZATION TRIG FUNCTIONS ARE NOTORIOUSLY EXPENSIVE Look into performing some trig magic
+	
+	
+	public void rotateBoundaryFromTemplate(Point center, double angle , Boundary template){ //OPTIMIZATION TRIG FUNCTIONS ARE NOTORIOUSLY EXPENSIVE Look into performing some trig magic
 		// with fast trig approximations
 		//THIS IS DOUBLING EVERY VERTEX BY DOING LINES, DO BY VERTEX INSTEAD!!!
 		
-		for ( int i = 0 ; i < this.sides.length ; i++ ) {
+		for ( int i = 0 ; i < template.sides.length ; i++ ) {
 			
-			Side side = this.sides[i];
+			Side side = template.sides[i];
 			Point origin = new Point(center.x,center.y);
 			
 			double r = side.getP1().distance(origin); 
@@ -791,7 +789,7 @@ public class Boundary implements Serializable {
 		ArrayList<Vertex> farthestVertices = new ArrayList<>();
 		farthestVertices.add(getCornersVertex()[0]);
 		
-		for ( int i = 1 ; i < getCornersPoint().length ; i++ ){ //check to start i at 1
+		for ( int i = 1 ; i < getCornersVertex().length ; i++ ){ //check to start i at 1
 			
 				Point2D originProjection = getProjectionPoint( origin , axis );
 				Point2D cornerProjection = getProjectionPoint( getCornersPoint()[i] , axis ); 

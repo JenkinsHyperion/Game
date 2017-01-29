@@ -26,6 +26,10 @@ public class Direction{
 		return facing.normalize(a);
 	}
 	
+	public double normalize( double a ){
+		return facing.normalize(a);
+	}
+	
 	public Sprite getDirectionalSprite( PlayerState state ){
 		return facing.getDirectionSprite(state);
 	}
@@ -44,6 +48,7 @@ public class Direction{
 		protected abstract void swapDirection();
 		
 		public abstract int normalize( int a );
+		public abstract double normalize( double a );
 		
 		public abstract Sprite getDirectionSprite( PlayerState state );
 	}
@@ -70,6 +75,11 @@ public class Direction{
 		
 		@Override
 		public int normalize(int a) {
+			return a;
+		}
+		
+		@Override
+		public double normalize(double a) {
 			return a;
 		}
 		
@@ -122,6 +132,11 @@ public class Direction{
 
 			@Override
 			public int normalize(int a) {
+				return -a;
+			}
+			
+			@Override
+			public double normalize(double a) {
 				return -a;
 			}
 			

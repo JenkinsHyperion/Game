@@ -196,7 +196,7 @@ public class EntityStatic extends Entity{
 		y=y+(float)distance.getY();
 	}
 
-	public int getDeltaX() { return this.getX(); }
-	public int getDeltaY() { return this.getY(); }
+	public float getDeltaX() { return this.getX(); }
+	public float getDeltaY() { return this.getY(); }
 	
 }

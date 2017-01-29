@@ -34,4 +34,7 @@ abstract public class BoundaryFeature {
 	public abstract Point2D getP1();
 	public abstract Point2D getP2();
 	
+	public abstract boolean debugIsVertex();
+	public abstract boolean debugIsSide();
+	
 }

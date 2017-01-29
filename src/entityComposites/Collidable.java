@@ -29,11 +29,19 @@ public final class Collidable extends CollisionProperty{
 	public Collidable( EntityStatic owner ){
 		
 		this.owner = owner;
+		this.boundary = null;
 	}
 	
-	private Collidable( EntityStatic owner , Boundary boundary){
+	public Collidable( EntityStatic owner , Boundary boundary){
 		
 		this.boundary = boundary;
+		this.owner = owner; 
+		
+	}
+	
+	public Collidable( EntityStatic owner , Line2D[] lines){
+		
+		this.boundary = new Boundary( lines , this ) ;
 		this.owner = owner; 
 		
 	}

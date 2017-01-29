@@ -20,17 +20,6 @@ public class EntityRotationalDynamic extends EntityDynamic{
 		super(x, y);
 	}
 	
-	/*@Override
-    public void setBoundingBox(int xOffset, int yOffset , int width , int height) {
-    	
-		Boundary boundarytemp =  new Boundary.Box(width, height, xOffset, yOffset);
-		
-		((Collidable) collisionType).setBoundary( boundarytemp );
-		
-		storedBounds = boundarytemp;
-		boundarytemp = null;
-    }*/
-	
 	
 	
 	public Boundary getBoundaryAtAngle(double angle){ //OPTIMIZATION TRIG FUNCTIONS ARE NOTORIOUSLY EXPENSIVE Look into performing some trig magic
@@ -84,16 +73,16 @@ public class EntityRotationalDynamic extends EntityDynamic{
         	else if ((int)angle<-36){angle=36;}
 
     	
-        	((Collidable) collisionType).setBoundary( getBoundaryAtAngle((int)angle * ((2*Math.PI)/72) ) ); 
+        	this.setAngle(angle);
     	}
     }
 	
-	public void setAngle( int angle ){
-		getBoundary().rotateBoundaryAround( new Point(0,0) , ((int)angle * ((2*Math.PI)/72) ) ); 
+	public void setAngle( float angle ){
+		this.getBoundary().rotateBoundaryFromTemplate( new Point(0,0) , (angle * ((2*Math.PI)/72) ) , storedBounds ); 
 	}
 	
-	public void setAngularVelocity(){
-		
+	public void setAngularVelocity( float angularVelocity ){
+		this.angularVelocity = angularVelocity;
 	}
 	
 	public int getAngle(){

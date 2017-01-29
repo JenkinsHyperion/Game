@@ -4,26 +4,16 @@ import java.io.Serializable;
 
 public class Vector implements Serializable{
 		
-		private int x;
-		private int y;
+		private double x;
+		private double y;
 		
-		public Vector( int setX, int setY ){
+		public Vector( double setX, double setY ){
 			x = setX;
 			y = setY;
 		}
 		
-		public Vector( float setX, float setY ){
-			x = (int) setX;
-			y = (int) setY;
-		}
-		
-		public Vector( double setX, double setY ){
-			x = (int) setX;
-			y = (int) setY;
-		}
-		
-		public int getX(){ return x; }
-		public int getY(){ return y; }
+		public double getX(){ return x; }
+		public double getY(){ return y; }
 
 		public boolean isShorterThan( Vector compare ){
 			
@@ -48,6 +38,7 @@ public class Vector implements Serializable{
 				return false;
 			
 		}
+		
 	
 	
 }

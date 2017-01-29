@@ -1,6 +1,11 @@
 package entities;
 
+import java.awt.geom.Line2D;
+
+import entityComposites.Collidable;
 import entityComposites.NonCollidable;
+import physics.Boundary;
+import sprites.SpriteNull;
 
 public class EntityFactory {
 	
@@ -25,6 +30,15 @@ public class EntityFactory {
         testEntity.setCollisionProperties( NonCollidable.getNonCollidable() );
         testEntity.loadSprite( path , 0 , 0 );
         return testEntity;
+	}
+
+	public static EntityStatic createEntityFromBoundary(int x, int y, Line2D[] lines) {
+		EntityStatic testEntity = new EntityStatic(x,y);
+		
+		testEntity.setCollisionProperties( new Collidable( testEntity , lines ) );
+		testEntity.setSpriteType( SpriteNull.getNullSprite() );
+		
+		return testEntity;
 	}
 	
 }

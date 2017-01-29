@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 import engine.Board;
 import entities.EntityDynamic;
-import entities.EntityStatic;
+import entities.*;
 import entityComposites.Collidable;
 import physics.Collision;
 
@@ -38,7 +38,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 		
 		//updateCollision(); //Run math for first time OPTIMIZE, Add new code block for first time math
 
-		System.out.println("\nBegin Collision");
+		System.out.println("\n### Collision Start between "+entityPrimary + " and " + entitySecondary + " ===============");
 		
 		// Things like bullets won't need to go any futher than the initial method
 		
@@ -50,24 +50,28 @@ public class CollisionPlayerStaticSAT extends Collision {
 		
 		Resolution closestResolution = getClosestResolution();
 		
-		if (closestResolution.Vector() == null){ //Primary entity is at surface with resolution of 0,0
-			
-			entityPrimary.setColliding(true); //MOVE TO RESOLVED UPDATE CLASS JUST LIKE RESOLUTION EVENT
-			entityPrimary.setDampeningX(0.1f); //
-			
-			triggerResolutionEvent( closestResolution ); 
-			
-		}
-		else { //Primary Entity is clipping by closestResolution.vector()
-			System.out.println("");
+
+		if ( 
+				(	(int)closestResolution.getDistanceVector().getY()-(int)entityPrimary.getDY() != 0  
+					&& closestResolution.getClippingVector().getY() != 0 
+				)
+				||
+				(	(int)closestResolution.getDistanceVector().getX()-(int)entityPrimary.getDX() != 0
+					&& closestResolution.getClippingVector().getX() != 0 
+				)
+				
+		) { //Primary Entity is clipping by closestResolution.vector() 
+					
+			entityPrimary.setColliding(false);
 			System.out.println( ""+closestResolution.FeaturePrimary().toString() + " colliding with " + closestResolution.FeatureSecondary().toString() );
 			
-			Vector resolution = closestResolution.Vector();
+			Vector resolution = closestResolution.getClippingVector();
+			Vector rawDistance = closestResolution.getDistanceVector();
 			
-			depthX = (int) resolution.getX();
-			depthY = (int) resolution.getY();
+			depthX = resolution.getX();
+			depthY = resolution.getY();
 			
-			System.out.println("\nWill clip by "+ depthX+" , "+ depthY );
+			System.out.println("Clipping resolution chosen "+ depthX +" , "+ depthY );
 
 			
 			//Resolution will not resolve
@@ -75,16 +79,41 @@ public class CollisionPlayerStaticSAT extends Collision {
 			
 			//Resolution will resolve
 			
-				System.out.println("Clamped DX: "+entityPrimary.getDX() + " and DY: "+entityPrimary.getDY());
 			
-				entityPrimary.setAccX( 0 );
-				entityPrimary.clipDX((int) ( resolution.getX() ) );
-    
-				entityPrimary.setAccY( 0 );
-				entityPrimary.clipDY((int) ( resolution.getY() ) );
 			
-				System.out.print(" to "+entityPrimary.getDX() + " and DY: "+entityPrimary.getDY());	
-	
+			entityPrimary.setX( entityPrimary.getDeltaX() + depthX  );
+			entityPrimary.setY( entityPrimary.getDeltaY()  + depthY );
+			
+			if ( depthX != 0){ 
+				System.out.print(" Clamping DX");
+				entityPrimary.setDX(0);
+				entityPrimary.setAccX(0);
+			}
+			if ( depthY != 0){ 
+				System.out.print(" Clamping DY");
+				entityPrimary.setDY(0);
+				entityPrimary.setAccY(0);
+			}
+			
+			if ( closestResolution.FeaturePrimary().debugIsVertex() ){
+				
+				
+				//closestResolution.FeaturePrimary().getP1().
+				
+			}
+			
+			
+		}
+		
+		else { 
+			
+			entityPrimary.setColliding(true); //MOVE TO RESOLVED UPDATE CLASS JUST LIKE RESOLUTION EVENT
+			entityPrimary.setDampeningX(0.1f); //
+			
+			triggerResolutionEvent( closestResolution );
+			
+			
+			// TESTING ROTATIONAL PHYSICS	
 		}
 	    
 		 
@@ -98,8 +127,8 @@ public class CollisionPlayerStaticSAT extends Collision {
 			collisionDebugTag = "("+resolution.FeaturePrimary()+" of "+entityPrimary.toString()+") contacting ("+
 					resolution.FeatureSecondary()+" of "+entitySecondary.toString()+")";
 			
-			System.out.println("\nEvent Triggered: "+resolution.FeaturePrimary().collisionEvent  );
-
+			System.out.println("\n### Collision Resolved, event on "+ entityPrimary +" triggered: "+resolution.FeaturePrimary().collisionEvent +" =================\n"  );
+			
 			resolution.FeaturePrimary().collisionEvent.run( resolution.FeaturePrimary() , resolution.FeatureSecondary() );
 			
 		}
@@ -177,59 +206,73 @@ public class CollisionPlayerStaticSAT extends Collision {
 	    			penetrations.add( getSeparationDistance(((Collidable) entitySecondary.getCollisionType()).getBoundaryLocal().getSeparatingSides()[i]) );
 	    			
 	    		}
+	    		else
+	    			System.out.println( "Axis Dropped" );
+
 	    	}
+	    	
 		}
     	 
     	
-    	int penetrationX = 0;
-    	int penetrationY = 0;
+    	
+    	double penetrationX = 0;
+    	double penetrationY = 0;
+
     	Resolution closestResolution = null;
     	
     	//RESOLUTION LOGIC checks all penetration vectors and finds best resolution (currently lowest)
     	if (penetrations.size() > 0){
     		
-    		penetrationX = (int) ( penetrations.get(0).Vector().getX() ); //condense
-    		penetrationY = (int) ( penetrations.get(0).Vector().getY() ); //<
+    		penetrationX =  ( penetrations.get(0).getClippingVector().getX() ); //condense
+    		penetrationY =  ( penetrations.get(0).getClippingVector().getY() ); //<
     		closestResolution = penetrations.get(0); 					  //<
     			
-	    	for ( int i = 0 ; i < penetrations.size() ; i++ ){
-	    		Vector vector = penetrations.get(i).Vector(); //vector component of resolution
+	    	for ( int i = 0 ; i < penetrations.size() ; i++ ){ //can start at 1
+	    		Vector vector = penetrations.get(i).getClippingVector(); //vector component of resolution
 
-	    		if ( vectorOpposesVelocity( vector ) ) {
+	    		//if ( vectorOpposesVelocity( vector ) ) {
 	    		
 	    			//Keep lowest
 		    		if ( (vector.getX()*vector.getX() + vector.getY()*vector.getY())
 		    				< ( penetrationX*penetrationX + penetrationY*penetrationY )
 		    			){
-		    			//System.out.println("Accepted Lowest");
-		    			penetrationX = (int) (vector.getX()); //obsolete
-		    			penetrationY = (int) (vector.getY()); //obsolete
+
+		    			penetrationX =  ( penetrations.get(i).getClippingVector().getX() ); //condense
+		        		penetrationY =  ( penetrations.get(i).getClippingVector().getY() ); //<
+
 		    			closestResolution = penetrations.get(i);
+		    			
+		    			//System.out.println( i + " possible lesser "+vector.getX() + " , "+ vector.getY());
 		    		}
 		    		else {
-		    			//System.out.println("Rejected Greater");
+		    			//System.out.println( i + " rejected greater "+vector.getX() + " , "+ vector.getY());
 		    		}
-	    		}
-	    		//else {
-	    			//System.out.println("Violates velocity "+ entityPrimary.getDX() + " , " + entityPrimary.getDY() );
 	    		//}
+	    		//else {
+	    		//	System.out.println( i + " rejected velocity "+vector.getX() + " against " + entityPrimary.getDX() +
+	    		//			" , "+ vector.getY() + " against " + entityPrimary.getDY() );
+	    					
+	    		//}
+	    		
 	    	}
+	    	//System.out.println( "Accepted "+ closestResolution.getClippingVector().getX() + " , " + closestResolution.getClippingVector().getY());
     	}
     	
     	
-    	if (penetrationX == 0 && penetrationY == 0 ){ //Passed to updateCollision() for collisions where side is flush
+    	/*if (penetrationX == 0 && penetrationY == 0 ){ //Passed to updateCollision() for collisions where side is flush
     		//System.out.println(" Null resolution 0,0 ");
     		return new Resolution(
     					closestResolution.FeaturePrimary(),
     					closestResolution.FeatureSecondary(),
-    					null
+    					null,
+    					new Vector( distanceX , distanceY )
     				);
     	}
-    	else {
+    	else {*/
     		//return new Point(penetrationX,penetrationY); //return chosen best resolution
     		return closestResolution;
     		
-    	}
+    	//}
 
 	}
 	
@@ -279,99 +322,123 @@ public class CollisionPlayerStaticSAT extends Collision {
 		
 	    EntityStatic stat = entitySecondary;
 	    
-	    Boundary bounds = collidingSecondary.getBoundaryLocal() ;
+	    Boundary statBounds = collidingSecondary.getBoundaryLocal() ;
+	    Boundary playerBoundsDelta = collidingPrimary.getBoundaryLocal();
 	    Boundary playerBounds = collidingPrimary.getBoundaryDelta();
 	    
-	    int deltaX = (int) (entityPrimary.getDeltaX() );
-	    int deltaY = (int) (entityPrimary.getDeltaY() );
+	    double deltaX = entityPrimary.getDeltaX() ;
+	    double deltaY = entityPrimary.getDeltaY() ;
 	    
-	    Point2D playerCenter = new Point2D.Double(deltaX, deltaY);
+	    Point2D playerCenterDelta = new Point2D.Double(deltaX, deltaY);
+	    Point2D playerCenter = new Point2D.Double(entityPrimary.getX(), entityPrimary.getY());
 	    Point2D statCenter = new Point2D.Double(stat.getX(), stat.getY());
 		
 		
-		Line2D axis = bounds.getSeparatingAxis(separatingSide); //OPTIMIZE TO SLOPE ONLY CALCULATIONS
+		Line2D axis = statBounds.getSeparatingAxis(separatingSide); //OPTIMIZE TO SLOPE ONLY CALCULATIONS
+   
 	    
-	    Line2D centerDistance = new Line2D.Float(deltaX , deltaY,
-	    		stat.getX() , stat.getY() );
-	    Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
-	    
-    	Point2D[] statOuterVertices= bounds.getFarthestPoints(playerBounds,axis);
-    	Point2D[] playerOuterVertices= playerBounds.getFarthestPoints(bounds,axis);
+    	Point2D[] statOuterVertices= statBounds.getFarthestPoints(playerBounds,axis);
+    	Point2D[] playerOuterVertices= playerBounds.getFarthestPoints(statBounds,axis);
     	
 	    																					// [0] needs to be for loop
-	    Vertex[] statInnerVertices = bounds.farthestVerticesFromPoint( statOuterVertices[0] , axis );
-	      
+	    Vertex[] statInnerVertices = statBounds.farthestVerticesFromPoint( statOuterVertices[0] , axis ); 
 	    Vertex[] playerInnerVertices = playerBounds.farthestVerticesFromPoint( playerOuterVertices[0] , axis );
 
+	    
+	    
+	    Point2D[] statOuter= statBounds.getFarthestPoints(playerBoundsDelta,axis);
+
+    	Vertex[] nearStatCorner = statBounds.farthestVerticesFromPoint( statOuter[0] , axis ); //merge below
+    	Vertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( statOuter[1] , axis );
+    	
+    	Vertex farStatCorner = statBounds.farthestVerticesFromPoint(nearStatCorner[0].toPoint(), axis)[0];
+    	Vertex farPlayerCorner = playerBounds.farthestVerticesFromPoint(nearPlayerCorner[0].toPoint(), axis)[0];
+    	
+    	Point2D centerStat = farStatCorner.getCenter(nearStatCorner[0]);
+    	Point2D centerPlayer = farPlayerCorner.getCenter(nearPlayerCorner[0]);
+
+    	Line2D centerDistance = new Line2D.Double( centerPlayer , centerStat );
+    	Line2D centerProjection = playerBoundsDelta.getProjectionLine(centerDistance, axis);
+	    
 	    //CLOSEST FEATURE
 	    
 	    
 	    
 	    //
 	    
-	    Line2D playerHalf = new Line2D.Float( 
-				playerBounds.getProjectionPoint(playerCenter,axis) ,
-				playerBounds.getProjectionPoint(playerInnerVertices[0].toPoint(),axis)
-						);
-		Line2D statHalf = new Line2D.Float( 
-				bounds.getProjectionPoint(statCenter,axis) ,
-				bounds.getProjectionPoint(statInnerVertices[0].toPoint(),axis)
-						);
+    	Line2D playerHalf = new Line2D.Float( 
+    			playerBoundsDelta.getProjectionPoint(centerPlayer,axis) ,
+    			playerBoundsDelta.getProjectionPoint(nearPlayerCorner[0].toPoint(),axis)
+    			);
+    	Line2D statHalf = new Line2D.Float( 
+    			statBounds.getProjectionPoint(centerStat,axis) ,
+    			statBounds.getProjectionPoint(nearStatCorner[0].toPoint(),axis) 
+    			);
 		
 		
-		int centerDistanceX = (int)(centerProjection.getX1() -  centerProjection.getX2()  );
-		int centerDistanceY = (int)(centerProjection.getY1() -  centerProjection.getY2()  );
+		double centerDistanceX = centerProjection.getX1() -  centerProjection.getX2()  ;
+		double centerDistanceY = centerProjection.getY1() -  centerProjection.getY2()  ;
 		
-		if (centerDistanceX>0){ centerDistanceX -= 1; } 
-		else if (centerDistanceX<0){ centerDistanceX += 1; } //NEEDS HIGHER LEVEL SOLUTION merge with later checks
+		double playerProjectionX = (playerHalf.getX1() -  playerHalf.getX2());
+		double playerProjectionY = (playerHalf.getY1() -  playerHalf.getY2());
 		
-		if (centerDistanceY>0){ centerDistanceY -= 1; } 
-		else if (centerDistanceY<0){ centerDistanceY += 1; }
+		double statProjectionX = (statHalf.getX2() -  statHalf.getX1());
+		double statProjectionY = (statHalf.getY2() -  statHalf.getY1());
 		
-		int playerProjectionX = (int)(playerHalf.getX1() -  playerHalf.getX2());
-		int playerProjectionY = (int)(playerHalf.getY1() -  playerHalf.getY2());
-		
-		int statProjectionX = (int)(statHalf.getX2() -  statHalf.getX1());
-		int statProjectionY = (int)(statHalf.getY2() -  statHalf.getY1());
-		
-		int penetrationX = 0;
-		int penetrationY = 0;
+		double penetrationX = 0;
+		double penetrationY = 0;
 		
 		// Get penetration vector
-		penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
-		penetrationY = playerProjectionY + statProjectionY - centerDistanceY ;
+
+
+			
 		
-
-
-/*
- * ##############################################################################################33
- * 		CUT THIS CHECK AND FOLLOWING CODE INT SEPERATE METHODS FOR DISTANCE AND PENETRATION
- */
-
-		if ( penetrationY * centerDistanceY < 0  ){
-			//System.out.println("isn't contacting");
-			isComplete=true;
+		if (centerDistanceX>0){
+    		centerDistanceX -= 1;  
+			penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
+			
+			if ( penetrationX < 0 ) 
+    			this.isComplete = true;
 		}
-		else if ( penetrationX * centerDistanceX < 0  ){
-			//System.out.println("isn't contacting");
-			isComplete=true;
-		}
+    	else if (centerDistanceX<0){
+    		centerDistanceX += 1;  //NEEDS HIGHER LEVEL SOLUTION
+    		penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
+    		
+    		if ( penetrationX > 0 ) 
+    			this.isComplete = true;
+    	}
+    	else 
+    		penetrationX = playerProjectionX - statProjectionX;
+
+    	if (centerDistanceY>0){
+    		centerDistanceY -= 1;
+    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY ;	
+    		
+    		if ( penetrationY < 0 ) 
+    			this.isComplete = true;
+    	}
+    	else if (centerDistanceY<0){
+    		centerDistanceY += 1; 
+    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY ;	
+    		
+    		if ( penetrationY > 0 ) 
+    			this.isComplete = true;
+    	}
+    	else 
+    		penetrationY = playerProjectionY - statProjectionY;
+
+    	
+		double rawDistanceX = penetrationX;
+		double rawDistanceY = penetrationY; //Store raw distances before clamping
 		
-		if ( penetrationX * centerDistanceX < 0  || penetrationY * centerDistanceY < 0  ) //SIGNS ARE NOT THE SAME
-			{
+		
+		if ( penetrationX * centerDistanceX < 0 ) //
 				penetrationX = 0;
+		if ( penetrationY * centerDistanceY < 0 ) // 
 				penetrationY = 0;
-				
-			}
-		
 
-		// Handling of exception where centered collisions always have penetration of 0
-		if (centerDistanceX*centerDistanceX + centerDistanceY*centerDistanceY == 0){ //LOOK INTO BETTER CONDITIONALS
-			penetrationX = -(playerProjectionX + statProjectionX) ;
-		}
-		if (centerDistanceX*centerDistanceX + centerDistanceY*centerDistanceY == 0){ //Merge with above checks
-			penetrationY = -(playerProjectionY + statProjectionY) ;
-		}
+
+		
 		
 		BoundaryFeature featurePrimary = playerInnerVertices[0];
 		BoundaryFeature featureSecondary = statInnerVertices[0];
@@ -388,7 +455,8 @@ public class CollisionPlayerStaticSAT extends Collision {
 			return new Resolution( 
 					featurePrimary, //construct sides
 					featureSecondary,
-					new Vector( penetrationX , penetrationY )
+					new Vector( penetrationX , penetrationY ),
+					new Vector( rawDistanceX , rawDistanceY )
 			);
 			
 	}
@@ -418,12 +486,6 @@ public class CollisionPlayerStaticSAT extends Collision {
 			else  { contactPoints[1] = side2.getP2(); return; }
 		}
 
-	}
-	
-
-	
-	public Point getDepth(){
-		return new Point( depthX , depthY );
 	}
 	
 	public String toString(){

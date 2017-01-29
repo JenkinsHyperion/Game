@@ -19,5 +19,15 @@ public class NullFeature extends BoundaryFeature{
 	public Point2D getP2() {
 		return null;
 	}
+
+	@Override
+	public boolean debugIsVertex() {
+		return false;
+	}
+
+	@Override
+	public boolean debugIsSide() {
+		return false;
+	}
 	
 }

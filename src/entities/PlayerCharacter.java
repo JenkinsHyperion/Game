@@ -97,7 +97,6 @@ public class PlayerCharacter extends Player {
     private void initPlayer() {
         
         loadAnimatedSprite(IDLE_LEFT); 
-        this.getEntitySprite().setOffset(12, 38); 
         //setAngle(0);
         setAccY( 0.2f ); // Force initialize gravity (temporary)
 
@@ -115,7 +114,7 @@ public class PlayerCharacter extends Player {
         Boundary boundarytemp =  new Boundary.EnhancedBox( 24,76 ,-12,-38, eventList , (Collidable) this.collisionType );
         //Boundary boundarytemp =  new Boundary.Box( 24,76 ,-12,-38, (Collidable) this.collisionType );
 		((Collidable) collisionType).setBoundary( boundarytemp ); 
-		storedBounds = boundarytemp;
+		storedBounds = new Boundary.Box(24,76 ,-12,-38, (Collidable) this.collisionType );   //OPTIMIZE move to child RotationalCollidable that can store boundary 
 		boundarytemp = null;
 		floorCollisionEvent = null;
 		eventList = null;
@@ -265,12 +264,13 @@ public class PlayerCharacter extends Player {
     	private abstract class RunState{ public void update(){} } //CONSIDER SEPERATE IDLERUN STATE
     	
     	private class Accelerating extends RunState{ 
+    		
     		public void update(){ dx = playerDirection.normalize( 3 ); }
     	}
     	
-    	private class Idling extends RunState{ public void update(){/*nothing*/} }
+    	private class Neutral extends RunState{ public void update(){/*nothing*/} }
     	
-    	private final RunState idle = new Idling();
+    	private final RunState idle = new Neutral();
     	private final RunState accelerate = new Accelerating();
     	private RunState state = accelerate;
 
@@ -286,6 +286,9 @@ public class PlayerCharacter extends Player {
 		@Override
 		public void updateState() {
 			state.update();
+			
+			//((AnimationEnhanced) RUN_RIGHT.getAnimation()).updateLinkedSpeed((int)-dx, 2, 20, 0, 3);
+			
 			if (dx == 0){
 				changePlayerState(standing);
 			}
@@ -410,8 +413,10 @@ private class SprintingTurn extends PlayerState{
     
     
     private class Falling extends PlayerState{
-
-    	private boolean hold = false;
+    	
+    	private final float hangAccelerationUp = 0.1f;
+    	private final float hangAccelerationForward = 0.02f;
+    	private final float hangAccelerationBackward = 0.02f;
     	
 		public Falling( String name , Sprite spriteRight , Sprite spriteLeft) {
 			super( name , spriteRight , spriteLeft);
@@ -419,29 +424,41 @@ private class SprintingTurn extends PlayerState{
 		
 		@Override
 		public void onUp() {
-			setAngle(45);
+			
 		}
 		
 		@Override
 		public void holdingJump() {
-			accY=0.1f;
-			hold = true;
+			accY = hangAccelerationUp;
 		}
 		
 		@Override
 		public void offJump() {
-			hold = false;
 			accY=0.2f;
 		}
 		
 		@Override
 		public void holdingForward() {
 			playerStateBuffer = running;
+			accX=(float)playerDirection.normalize( hangAccelerationForward );
 		}
 		
 		@Override
 		public void offForward() {
 			playerStateBuffer = standing;
+			accX=0;
+		}
+		
+		@Override
+		public void holdingBackward() {
+			playerStateBuffer = standing;
+			accX=(float)playerDirection.normalize( -hangAccelerationBackward );
+		}
+		
+		@Override
+		public void offBackward() {
+			playerStateBuffer = standing;
+			accX=0;
 		}
 		
 		@Override
@@ -487,7 +504,7 @@ private class SprintingTurn extends PlayerState{
 		}
 		
 		@Override
-		public void offForward() {
+		public void onDown() {
 			accY = 0.2f;
 			clinging = false;
 		}

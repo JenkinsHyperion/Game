@@ -14,7 +14,8 @@ public class EntityRotationalDynamic extends EntityDynamic{
 	
 	protected Boundary storedBounds; //So that rounding errors from rotation don't degrade the vertex locations
 	protected float angle = 0;
-	protected float angularVelocity = 0;
+	protected double angularVelocity = 0;
+	protected double angularAcc = 0;
 
 	public EntityRotationalDynamic(int x, int y) {
 		super(x, y);
@@ -69,25 +70,40 @@ public class EntityRotationalDynamic extends EntityDynamic{
     	if (angularVelocity != 0){
     		angle += angularVelocity;
 
-        	if ((int)angle>36){angle=-36;} //constrain range from -180 to 180 degrees for convenience
-        	else if ((int)angle<-36){angle=36;}
+        	if ((int)angle>180){angle=-180;} //constrain range from -180 to 180 degrees for convenience
+        	else if ((int)angle<-180){angle=180;}
 
     	
-        	this.setAngle(angle);
+        	this.setAngleInDegrees((int)angle);
     	}
+    	
+    	angularVelocity += angularAcc;
+    	
     }
 	
-	public void setAngle( float angle ){
-		this.getBoundary().rotateBoundaryFromTemplate( new Point(0,0) , (angle * ((2*Math.PI)/72) ) , storedBounds ); 
+	public void setAngleInDegrees( float angle ){
+		this.angle = (float) angle;
+		this.getBoundary().rotateBoundaryFromTemplate( new Point(0,0) , (angle * ((Math.PI)/180) ) , storedBounds ); 
 	}
 	
-	public void setAngularVelocity( float angularVelocity ){
+	public void setAngleInRadians( double angle ){
+		this.angle = (float) angle;
+		this.getBoundary().rotateBoundaryFromTemplate( new Point(0,0) , angle , storedBounds ); 
+	}
+	
+	public void setAngularVelocity( double angularVelocity ){
 		this.angularVelocity = angularVelocity;
 	}
 	
-	public int getAngle(){
-		return (int)angle;
+	public void setAngularAcceleration( double angularAcc ){
+		this.angularAcc = angularAcc;
 	}
+	
+	public float getAngle(){ return (float) (angle * (180/(Math.PI))); }
+	
+	public float getAngularVel(){ return (float)angularVelocity; }
+	
+	public float getAngularAcc(){ return (float)angularAcc; }
 
 	/*@Override
 	public Boundary getBoundaryDelta(){

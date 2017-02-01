@@ -1,5 +1,7 @@
 package physics;
 
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.io.Serializable;
 
 public class Vector implements Serializable{
@@ -15,6 +17,12 @@ public class Vector implements Serializable{
 		public double getX(){ return x; }
 		public double getY(){ return y; }
 
+		public Vector unitVector(){
+			double unitX = x /  new Point2D.Double(0,0).distance( new Point2D.Double(x,y) );
+			double unitY = y / new Point2D.Double(0,0).distance( new Point2D.Double(x,y) );
+			return new Vector( unitX, unitY );
+		}
+		
 		public boolean isShorterThan( Vector compare ){
 			
 			if ( 
@@ -27,7 +35,7 @@ public class Vector implements Serializable{
 			
 		}
 		
-		public boolean isShorterThan( int length ){
+		public boolean isShorterThan( double length ){
 			
 			if ( 
 					this.getX()*this.getX() +  this.getY()*this.getY() < 
@@ -39,6 +47,96 @@ public class Vector implements Serializable{
 			
 		}
 		
-	
+		/**Returns the absolute value of this Vector, by taking the absolute value of all this Vector's components. 
+		 * Note that the returned absolute Vector is always in Quadrant I
+		 * @return
+		 */
+		public Vector abs(){
+			double returnX = Math.abs(this.x);
+			double returnY = Math.abs(this.y);
+			return new Vector( returnX , returnY );
+		}
+		
+		public Vector inverse(){
+			double returnX = -this.x;
+			double returnY = -this.y;
+			return new Vector( returnX , returnY );
+		}
+		
+		public Vector add( Vector input ){
+			double returnX = this.x + input.getX();
+			double returnY = this.y + input.getY();
+			return new Vector( returnX , returnY );
+		}
+		
+		public Vector multiply( double input ){
+			double returnX = this.x * input;
+			double returnY = this.y * input;
+			return new Vector( returnX , returnY );
+		}
+		
+		public Vector multiply( Vector input ){
+			double returnX = this.x * input.getX();
+			double returnY = this.y * input.getY();
+			return new Vector( returnX , returnY );
+		}
+		
+		public double crossProduct( Vector input){
+			
+			return  input.getX()*this.getY() - input.getY()*this.getX() ;
+		}
+		
+		public double dotProduct( Vector vector2){ //Returns the magnitude of the projection vector
+			
+			return (this.getX() ) * (vector2.getX()) + 
+					(this.getY() ) * (vector2.getY() );
+		}
+		
+		public Vector projectedOver( Vector base ){
+			return base.unitVector().multiply( this.dotProduct(base) );
+		}
+		
+		/**Returns new directional Unit Vector (magnitude of 1) from given Line2D
+		 * Please note that all returned Vectors hold no position information
+		 * @param line
+		 * @return directional Unit Vector with magnitude of 1
+		 */
+		public Vector unitVectorFromLine2D( Line2D line ){
+			return new Vector( line.getX2() - line.getX1() , line.getY2() - line.getY1() ).unitVector() ;
+		}
+		
+		public double calculateAngleFromVector(){
+			if ( this.getX() > 0 )
+				return Math.PI/2 - Math.atan2( this.getX(), this.getY() );
+			else //if ( vector.getX() < 0 )
+				return -Math.PI/2 - Math.atan2( this.getX(), this.getY() );  
+
+		}
+		
+		public Vector normal(){
+			double returnX = -this.y;
+			double returnY = this.x;
+			return new Vector( returnX , returnY );
+		}
+		
+		public Vector scaledBy( double factor ){
+			double returnX = this.x*factor;
+			double returnY = this.y*factor;
+			return new Vector( returnX , returnY );
+		}
+		
+		public Vector scaleYTo( double y ){
+			if ( this.getY() != 0 )
+				return this.scaledBy( y / this.getY() );
+			else
+				return this;
+			
+		}
+		
+		@Override
+		public String toString(){
+			return "Vector("+ x + "," + y +")";
+		}
+
 	
 }

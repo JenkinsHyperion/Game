@@ -1,11 +1,15 @@
 package entityComposites;
 
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 import engine.Camera;
+import entities.EntityDynamic;
+import entities.EntityRotationalDynamic;
 import entities.EntityStatic;
 import misc.CollisionEvent;
 import misc.NullCollisionEvent;
@@ -14,13 +18,19 @@ import physics.CollidingPair;
 import physics.Collision;
 import physics.CollisionCheck;
 import physics.CollisionEngine;
+import physics.Force;
 import physics.Side;
+import physics.Vector;
 
 public final class Collidable extends CollisionProperty{
 	
 	protected Boundary boundary;
 	
+    private float mass = 1;
+	
 	protected ArrayList<CollidingPair> collisionInteractions = new ArrayList<>();
+	
+	protected ArrayList<Force> forces = new ArrayList<>();
 	
 	protected Collision collisionMath;
 
@@ -133,16 +143,14 @@ public final class Collidable extends CollisionProperty{
 	 * @return Adds collision to this entity's current collisions and return the index where it was put
 	 */
     public int addCollision(Collision collision , boolean pairIndex){
+    	
     	collisionInteractions.add( new CollidingPair(collision , pairIndex) );
-    	//printCollisions();
     	return ( collisionInteractions.size() - 1 ); //return index of added element
     }
     
     public void removeCollision(int index){ //Remove collision 
-    	//System.out.println("Removing " + index + " from "+name );
     	
     	collisionInteractions.remove(index);
-    	//decrement indexes for all following collisions involving this entity
     	if ( collisionInteractions.size() == 0 ){
     		onLeavingAllCollisionsEvent();
     	}
@@ -151,8 +159,6 @@ public final class Collidable extends CollisionProperty{
 	    		collisionInteractions.get(i).collision().indexShift(collisionInteractions.get(i).pairID());
 	    	} 
     	}
-
-    	//printCollisions();
     }
 	
 	public Collision[] getCollisions(){
@@ -191,5 +197,71 @@ public final class Collidable extends CollisionProperty{
 		}
 		
 	}
+	
+	public float getMass(){ return mass; }
+	
+	public void applyPointMomentum( Vector momentum , Point2D point ){
+		
+		EntityRotationalDynamic thisEntity = (EntityRotationalDynamic)this.owner;
+		
+		//Vector momentumLinear = new Vector( mass*thisEntity.getDX() , mass*thisEntity.getDY() );
+		Vector radius = new Vector( thisEntity.getX() - point.getX() , thisEntity.getY() - point.getY() );
+		double momentumAngular = momentum.crossProduct( radius );
+		
+		thisEntity.setAngularVelocity( momentumAngular * 0.05 );
+		
+	}
+	
+	public void applyPointForce( Vector force , Point2D point ){
+		
+		EntityRotationalDynamic thisEntity = (EntityRotationalDynamic)this.owner;
+		
+		//Vector momentumLinear = new Vector( mass*thisEntity.getDX() , mass*thisEntity.getDY() );
+		Vector radius = new Vector( thisEntity.getX() - point.getX() , thisEntity.getY() - point.getY() );
+		double torque = force.crossProduct( radius );
+		
+		thisEntity.setAngularVelocity( torque * 0.1 );
+		
+	}
+	
+	/** Creates new Force on this Collidable out of input Vector, and returns the Force that was added
+	 * 
+	 * @param vector
+	 * @return
+	 */
+    public Force addForce( Vector vector ){
+
+    	int indexID = forces.size();     	
+    	Force newForce = new Force( vector , indexID );
+    	forces.add( newForce ) ;
+    	return newForce;
+    }
+    
+    public void removeForce(int index){ //Remove collision 
+    	
+    	forces.remove(index); 
+	    for ( int i = index ; i < forces.size() ; i++) {
+	    	forces.get(i).indexShift();
+	    } 
+    }
+    
+    public Vector[] debugForceArrows(){
+    	Vector[] returnVectors = new Vector[ forces.size() ];
+    	for ( int i = 0 ; i < forces.size() ; i++ ){
+    		returnVectors[i] = forces.get(i).getVector() ;
+    	}
+    	return returnVectors;
+    }
+	
+    public Vector sumOfForces(){
+    	
+    	Vector returnVector = new Vector(0,0);
+    	for ( Force force : forces ){
+    		returnVector = returnVector.add( force.getVector() );
+    	}
+    	
+    	return returnVector;
+    }
+    
 	
 }

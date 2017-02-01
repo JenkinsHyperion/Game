@@ -12,6 +12,7 @@ import animation.*;
 import engine.Board;
 import entityComposites.Collidable;
 import physics.Collision;
+import physics.Vector;
 import physics.BoundaryFeature;
 import misc.CollisionEvent;
 import misc.DefaultCollisionEvent;
@@ -98,8 +99,9 @@ public class PlayerCharacter extends Player {
         
         loadAnimatedSprite(IDLE_LEFT); 
         //setAngle(0);
-        setAccY( 0.2f ); // Force initialize gravity (temporary)
-
+        //setAccY( 0.2f ); // Force initialize gravity (temporary)
+        ((Collidable) collisionType).addForce( new Vector( 0 , 0.2 ) );
+        
         CollisionEvent floorCollisionEvent = new DefaultCollisionEvent(  );
         CollisionEvent[] eventList = new CollisionEvent[]{
         		floorCollisionEvent, //top
@@ -138,7 +140,10 @@ public class PlayerCharacter extends Player {
     	super.updatePosition();
     	playerState.updateState();
     	
-    	//inputController.runHeld();
+    	//TESTING FORCES
+    	this.accX = (float) ((Collidable)collisionType).sumOfForces().getX();
+    	this.accY = (float) ((Collidable)collisionType).sumOfForces().getY();
+    	
     	
     }   
     

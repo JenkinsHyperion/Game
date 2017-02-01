@@ -14,6 +14,7 @@ import entityComposites.Collidable;
 import entityComposites.CollisionProperty;
 import entityComposites.NonCollidable;
 import physics.*;
+import physics.Vector;
 import sprites.Background;
 import sprites.RenderingLayer;
 import sprites.Sprite;
@@ -144,12 +145,12 @@ public class Board extends JPanel implements Runnable {
         EntityStatic testEntity;
         
         Line2D[] triangleBounds = new Line2D[]{
-			new Line2D.Double( -25 , -50 , -25 , 50 ),
-			new Line2D.Double( -25 , 50 , 50 , 50 ),
-			new Line2D.Double( 50 , 50 , -25 , -50 )
+			new Line2D.Double( -25 , -50 , 500 , 500 ),
+			new Line2D.Double( 500 , 500 , -25 , 500 ),
+			new Line2D.Double( -25 , 500 , -25 , -50 )
 		};
 
-		testEntity = EntityFactory.createEntityFromBoundary(100, 400, triangleBounds );
+		testEntity = EntityFactory.createEntityFromBoundary(140, 400, triangleBounds );
 		testEntity.loadSprite("bullet.png" , 0 , 0 );
 		staticEntitiesList.add( testEntity );    
         
@@ -162,10 +163,10 @@ public class Board extends JPanel implements Runnable {
 
         testEntity.loadSprite("ground_1.png" , -223 , -53 );
 
-        staticEntitiesList.add( testEntity );
+        //staticEntitiesList.add( testEntity );
         
         
-        testEntity = new EntityStatic("Test Ground",600,500);     
+        testEntity = new EntityStatic("Test Ground",700,800);     
         collidable = new Collidable( testEntity );
         collidable.setBoundary( new Boundary.Box(446,100,-223,-50 , collidable ) );
         testEntity.setCollisionProperties( collidable );
@@ -660,7 +661,7 @@ public class Board extends JPanel implements Runnable {
 	    g.drawString(player.name,5,15);
 	    g.drawString("DX: "+player.getDX() + " DY: " + player.getDY(),5,30);
 	    g.drawString("AccX: " + player.getAccX() + "  AccY: " + player.getAccY(),5,45);
-	    g.drawString("Rotation: " + player.getAngle()*5 + " degrees",5,60);
+	    g.drawString("Rotation: " + (int)player.getAngle() + " degrees " + player.getAngularVel() + " " + player.getAngularAcc(),5,60);
 	    g.drawString("State: "+ ((PlayerCharacter)player).printState() + "Colliding: " + player.isColliding(),5,75);
 	    g.drawString( ((PlayerCharacter)player).printBufferState() ,5,90 );
 	        
@@ -712,6 +713,20 @@ public class Board extends JPanel implements Runnable {
 	    
 	    //EntityStatic stat = staticEntitiesList.get(1);
 	    //EntityStatic playerRef = this.playerRef;
+	    
+	    g2.setColor(Color.RED);
+	    for ( int i = 0 ; i < ((Collidable) playerRef.getCollisionType()).debugForceArrows().length ; i++ ){
+	    	
+	    	Vector force = ((Collidable) playerRef.getCollisionType()).debugForceArrows()[i];
+	    	Line2D forceArrow = new Line2D.Double( player.getPos() , new Point2D.Double(player.getX() + force.getX()*200 , player.getY() + force.getY()*200 ) );
+	    	
+	    	camera.draw( forceArrow , g2);
+	    
+	    	g2.drawString( "Force "+i+" "+force.getX()+" , "+force.getY() ,800,50+i*10);
+	    }
+	    
+	    g2.setColor(Color.BLUE);
+	    
 	    
 	    drawCross( playerRef.getX() , playerRef.getY() , g2);
 	    drawCross( stat.getX() , stat.getY() , g2);

@@ -31,6 +31,8 @@ public class Collision implements Serializable{
 	protected Side contactingSide1;
 	protected Side contactingSide2;
 	
+	protected Point2D contactPoint;
+	
 	protected double depthX = 0;
 	protected double depthY = 0;
 	

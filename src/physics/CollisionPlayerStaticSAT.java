@@ -13,6 +13,12 @@ import physics.Collision;
 
 public class CollisionPlayerStaticSAT extends Collision {
 	
+	Force normalForce = collidingPrimary.addForce( new Vector( 0 , 0 ) );
+	Force friction = collidingPrimary.addForce( new Vector( 0 , 0 ) );
+	
+	Resolution currentResolution;
+	
+	ResolutionEvent resolutionEvent = new ResolutionEvent();
 	
 	public CollisionPlayerStaticSAT(Collidable collidable1, Collidable collidable2){
 		
@@ -34,7 +40,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 	@Override
 	public void initCollision(){
 		
-		this.resolutionState = new ResolutionEvent();
+		this.resolutionState = resolutionEvent;
 		
 		//updateCollision(); //Run math for first time OPTIMIZE, Add new code block for first time math
 
@@ -53,11 +59,11 @@ public class CollisionPlayerStaticSAT extends Collision {
 
 		if ( 
 				(	(int)closestResolution.getDistanceVector().getY()-(int)entityPrimary.getDY() != 0  
-					&& closestResolution.getClippingVector().getY() != 0 
+					&& (int)closestResolution.getClippingVector().getY() != 0 
 				)
 				||
 				(	(int)closestResolution.getDistanceVector().getX()-(int)entityPrimary.getDX() != 0
-					&& closestResolution.getClippingVector().getX() != 0 
+					&& (int)closestResolution.getClippingVector().getX() != 0 
 				)
 				
 		) { //Primary Entity is clipping by closestResolution.vector() 
@@ -81,51 +87,83 @@ public class CollisionPlayerStaticSAT extends Collision {
 			
 			
 			
-			entityPrimary.setX( entityPrimary.getDeltaX() + depthX  );
-			entityPrimary.setY( entityPrimary.getDeltaY()  + depthY );
+			entityPrimary.setX( entityPrimary.getDeltaX() + (int)depthX  );
+			entityPrimary.setY( entityPrimary.getDeltaY()  + (int)depthY );
+	
+			
+			/*if ( closestResolution.FeaturePrimary().debugIsVertex() ){
+				collidingPrimary.applyPointMomentum( 
+						new Vector(entityPrimary.getDX(),entityPrimary.getDY()), 
+						closestResolution.FeaturePrimary().getP1() 
+					);	
+			}*/
+			
+			//TESTING ANGLE SNAPPING
+			
+			if ( closestResolution.FeaturePrimary().debugIsVertex() ){
+				
+				double angle =  ((Side)closestResolution.FeatureSecondary()).getSlopeVector().unitVector().calculateAngleFromVector();
+				
+				System.out.println("Snapping angle to "+(float)(angle*180/Math.PI ));
+				((EntityRotationalDynamic)entityPrimary).setAngleInRadians( (float)angle );
+			}
+			
+			//###
 			
 			if ( depthX != 0){ 
 				System.out.print(" Clamping DX");
 				entityPrimary.setDX(0);
-				entityPrimary.setAccX(0);
 			}
 			if ( depthY != 0){ 
 				System.out.print(" Clamping DY");
 				entityPrimary.setDY(0);
-				entityPrimary.setAccY(0);
 			}
-			
-			if ( closestResolution.FeaturePrimary().debugIsVertex() ){
-				
-				
-				//closestResolution.FeaturePrimary().getP1().
-				
-			}
-			
 			
 		}
 		
 		else { 
 			
 			entityPrimary.setColliding(true); //MOVE TO RESOLVED UPDATE CLASS JUST LIKE RESOLUTION EVENT
-			entityPrimary.setDampeningX(0.1f); //
+
+			if ( closestResolution.FeaturePrimary().debugIsSide() ){
+				Side surface = (Side)closestResolution.FeaturePrimary();
+				Vector playerDP = new Vector( entityPrimary.getDX(), entityPrimary.getDY() );
+				
+				if ( !playerDP.isShorterThan( 0.1 ) ){				
+						friction.setVector(   surface.unitVector().multiply( playerDP.unitVector().multiply(0.1).inverse() )   );
+				}
+				else
+					friction.setVector( 0 , 0 );
+				
+			}
 			
-			triggerResolutionEvent( closestResolution );
 			
 			
-			// TESTING ROTATIONAL PHYSICS	
+			triggerResolutionEvent( closestResolution ); 
 		}
 	    
 		 
 	}
 	
 	protected class ResolutionEvent extends ResolutionState{
-
+		
 		@Override
 		protected void triggerEvent( Resolution resolution ) { //One time event upon resolution of collision
 			
 			collisionDebugTag = "("+resolution.FeaturePrimary()+" of "+entityPrimary.toString()+") contacting ("+
 					resolution.FeatureSecondary()+" of "+entitySecondary.toString()+")";
+			
+			if (resolution.FeatureSecondary().debugIsSide()){ 
+				Vector slope = ((Side)resolution.FeatureSecondary()).getSlopeVector();
+				Vector normal = slope.normal().unitVector().scaledBy( -0.2 );
+				
+				Vector test = new Vector( 0 , 0.2 ).projectedOver( slope.normal().unitVector() ).inverse() ;
+				
+				System.out.println( " Slope " + slope + " Normal "+test );
+				normalForce.setVector( test );
+			}
+			else
+				normalForce.setVector( 0 , -0.2 );
 			
 			System.out.println("\n### Collision Resolved, event on "+ entityPrimary +" triggered: "+resolution.FeaturePrimary().collisionEvent +" =================\n"  );
 			
@@ -139,9 +177,16 @@ public class CollisionPlayerStaticSAT extends Collision {
 	protected void triggerResolutionEvent( Resolution resolution ) { 
 					
 		this.resolutionState.triggerEvent( resolution );
+		this.currentResolution = resolution ;
 		this.resolutionState = ResolvedState.resolved();
 			
 	}
+	
+	/*private boolean resolutionsAreEqual( Resolution newer, Resolution current ){
+		
+		
+		
+	}*/
 
 	//FINAL COLLISION COMMANDS - Last commands before this collision object self destructs
 	@Override
@@ -151,9 +196,8 @@ public class CollisionPlayerStaticSAT extends Collision {
 		collidingSecondary.onLeavingCollisionEvent();
 		
 		entityPrimary.setColliding(false); // unset entity collision flag. 
-		entityPrimary.setAccY(0.2f); //turn gravity back on
-		//entityPrimary.setDY(2);
-		entityPrimary.setAccX(0); //remove friction
+		collidingPrimary.removeForce(normalForce.getID());              //turn gravity back on
+		collidingPrimary.removeForce(friction.getID());     //remove friction
 		
 		//Remove collision from involved entities lists
 		collidingPrimary.removeCollision( entityPairIndex[0] );
@@ -397,14 +441,14 @@ public class CollisionPlayerStaticSAT extends Collision {
     		centerDistanceX -= 1;  
 			penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
 			
-			if ( penetrationX < 0 ) 
+			if ( penetrationX < -2 ) 
     			this.isComplete = true;
 		}
     	else if (centerDistanceX<0){
     		centerDistanceX += 1;  //NEEDS HIGHER LEVEL SOLUTION
     		penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
     		
-    		if ( penetrationX > 0 ) 
+    		if ( penetrationX > 2 ) 
     			this.isComplete = true;
     	}
     	else 
@@ -414,14 +458,14 @@ public class CollisionPlayerStaticSAT extends Collision {
     		centerDistanceY -= 1;
     		penetrationY = playerProjectionY + statProjectionY - centerDistanceY ;	
     		
-    		if ( penetrationY < 0 ) 
+    		if ( penetrationY < -2 ) 
     			this.isComplete = true;
     	}
     	else if (centerDistanceY<0){
     		centerDistanceY += 1; 
     		penetrationY = playerProjectionY + statProjectionY - centerDistanceY ;	
     		
-    		if ( penetrationY > 0 ) 
+    		if ( penetrationY > 2 ) 
     			this.isComplete = true;
     	}
     	else 

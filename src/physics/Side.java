@@ -44,16 +44,27 @@ public class Side extends BoundaryFeature{
 	protected void setStartPoint( Vertex vertex ){ 
 		this.startpoint = vertex; 
 		line = new Line2D.Float( vertex.getX(), vertex.getY(), (int)line.getX2() , (int)line.getY2() );
+		calculateSlope(line);
 	} //assign this side to vertex 
 	
 	protected void setEndPoint( Vertex vertex ){ 
 		this.endpoint = vertex; 
 		line = new Line2D.Float( (int)line.getX1() , (int)line.getY1() ,vertex.getX(), vertex.getY() );
+		calculateSlope(line);
 	}
 	
-	protected void setLine( Point P1 , Point P2){ this.line = new Line2D.Float( P1, P2 ); }
+	protected void setLine( Point P1 , Point P2){ 
+		this.line = new Line2D.Float( P1, P2 ); 
+		calculateSlope(line);
+	}
 	
 	//PUBLIC
+	
+	public Vector unitVector(){
+		double unitX = this.slopeX / this.line.getP1().distance( this.line.getP2() );
+		double unitY = this.slopeY / this.line.getP1().distance( this.line.getP2() );
+		return new Vector( unitX, unitY );
+	}
 	
 	@Override 
 	protected void onCollision(){

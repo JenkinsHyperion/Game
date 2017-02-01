@@ -138,12 +138,12 @@ public class EntityDynamic extends EntityStatic{
     	}
     }
     
-    public void applyAccelerationX(float acX){
-    	accX =+ acX;
+    public void applyAccelerationX(float accX){
+    	accX =+ accX;
     }
     
-    public void applyAccelerationY(float acY){
-    	accY =+ acY;
+    public void applyAccelerationY(float accY){
+    	accY =+ accY;
     }
 
     

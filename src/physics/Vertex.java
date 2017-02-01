@@ -81,12 +81,12 @@ public class Vertex extends BoundaryFeature{
 
 	@Override
 	public Point2D getP1() {
-		return this.getP1();
+		return position;
 	}
 
 	@Override
 	public Point2D getP2() {
-		return this.getP2();
+		return position;
 	}
 	
 	public Point2D getCenter(Vertex vertex){ 

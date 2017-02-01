@@ -56,12 +56,12 @@ public class EntityDynamic extends EntityStatic{
     	dy = setdy;
     }
     @Override
-    public int getDeltaX(){
-    	return (int)(x + dx + accX);
+    public float getDeltaX(){
+    	return (x + dx + accX);
     }
     @Override
-    public int getDeltaY(){
-    	return (int)(y + dy + accY);
+    public float getDeltaY(){
+    	return (y + dy + accY);
     }
     
     public void clipDX(float clipDX) {
@@ -69,7 +69,7 @@ public class EntityDynamic extends EntityStatic{
     	    
     		if ( clipDX < 0 ){ 
     			if ( clipDX + dx > 0)
-    				dx = dx + clipDX;
+    				dx = (dx + clipDX);
     			else
     				dx = 0;
     		}
@@ -99,7 +99,7 @@ public class EntityDynamic extends EntityStatic{
     		
     		if ( clipDY > 0 ){ 
     			if ( clipDY + dy < 0)
-    				dy = dy + clipDY;
+    				dy = (dy + clipDY);
     			else
     				dy = 0;
     		}

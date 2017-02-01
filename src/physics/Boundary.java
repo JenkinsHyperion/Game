@@ -36,40 +36,35 @@ public class Boundary implements Serializable {
 	public Boundary(Line2D line , Collidable owner){
 		
 		this.ownerCollidable = owner;
-		defaultCollisionEvent = new DefaultCollisionEvent( owner );
 		
 		sides[0] = new Side(line , this , 0, defaultCollisionEvent); 
 		corners = new Vertex[]{ new Vertex(line.getP1() , 0 , defaultCollisionEvent) 
 				, new Vertex(line.getP2() , 1 , defaultCollisionEvent) };
 
-		compileBoundaryMap();
+		compileBoundaryMap( new DefaultCollisionEvent( ) );
 	}
 	
 	public Boundary(Side[] bounds , Collidable owner) {
 		sides = bounds;
 		this.ownerCollidable = owner;
-		compileBoundaryMap();
+		compileBoundaryMap( new DefaultCollisionEvent( ) );
 	}
 	
 	public Boundary(Line2D[] bounds , Collidable owner) {
 		
 		this.ownerCollidable = owner;
-		defaultCollisionEvent = new DefaultCollisionEvent( owner );
-		
-		sides = null;
+
 		sides = new Side[ bounds.length ];
 		
 		for ( int i = 0 ; i < bounds.length ; i++ ){
 			sides[i] = new Side( bounds[i] , this , i , defaultCollisionEvent);
 		}
-		compileBoundaryMap();
+		compileBoundaryMap( new DefaultCollisionEvent( ) );
 	}
 	
 	public static class Box extends Boundary{
 
 		public Box(int width, int height, int xOffset, int yOffset , Collidable owner ){
-			
-			defaultCollisionEvent = new DefaultCollisionEvent( owner );
 			
 			sides = new Side[4];
 			
@@ -77,7 +72,7 @@ public class Boundary implements Serializable {
 			sides[1] = new Side( new Line2D.Float(xOffset+width , yOffset , xOffset+width , yOffset+height ) , this, 1 , defaultCollisionEvent);
 			sides[2] = new Side( new Line2D.Float(xOffset+width , yOffset+height , xOffset , yOffset+height ) , this, 2 , defaultCollisionEvent);
 			sides[3] = new Side( new Line2D.Float(xOffset , yOffset+height , xOffset , yOffset ) , this, 3 , defaultCollisionEvent);
-			compileBoundaryMap();
+			compileBoundaryMap( new DefaultCollisionEvent( ) );
 		}
 		
 	}
@@ -88,28 +83,27 @@ public class Boundary implements Serializable {
 			
 			//this.ownerCollidable = owner;
 			
-			defaultCollisionEvent = new DefaultCollisionEvent( owner ); //TEMPORARY
 			sides = new Side[4];
 			
 			sides[0] = new Side( new Line2D.Float(xOffset , yOffset , xOffset+width , yOffset ) , this, 0 , eventList[0]);
 			sides[1] = new Side( new Line2D.Float(xOffset+width , yOffset , xOffset+width , yOffset+height ) , this, 1 , eventList[1]);
 			sides[2] = new Side( new Line2D.Float(xOffset+width , yOffset+height , xOffset , yOffset+height ) , this, 2 , eventList[2]);
 			sides[3] = new Side( new Line2D.Float(xOffset , yOffset+height , xOffset , yOffset ) , this, 3 , eventList[3]);
-			compileBoundaryMap();
+			compileBoundaryMap( new DefaultCollisionEvent( ) );
 		}
 		
 	}
 	
-	protected void compileBoundaryMap(){
+	protected void compileBoundaryMap( CollisionEvent cornerEvent ){
 		
 		corners = new Vertex[ sides.length  ];
-		corners[0] = new Vertex( sides[0].getP1() , 0 , defaultCollisionEvent );
+		corners[0] = new Vertex( sides[0].getP1() , 0 , cornerEvent );
 		
 		for (int i = 0 ; i < sides.length ; i++) {
 			
 			int iNext = (i+1) % sides.length;
 			
-			corners[ iNext ]  = new Vertex( sides[i].getP2() , sides[i] , sides[iNext] , iNext , defaultCollisionEvent);
+			corners[ iNext ]  = new Vertex( sides[i].getP2() , sides[i] , sides[iNext] , iNext , cornerEvent);
 			
 			sides[i].setStartPoint( corners[i] ); 
 			sides[i].setEndPoint( corners[ iNext ] );
@@ -138,41 +132,40 @@ public class Boundary implements Serializable {
 
 		Boundary returnBounds = new Boundary(this.sides , this.corners , this.ownerCollidable);
 		
-		
-		
 		return returnBounds;
-		
 	}
 	
-	public Boundary rotateBoundaryAround(Point center, double angle){ //OPTIMIZATION TRIG FUNCTIONS ARE NOTORIOUSLY EXPENSIVE Look into performing some trig magic
+	
+	
+	public void rotateBoundaryFromTemplate(Point center, double angle , Boundary template){ //OPTIMIZATION TRIG FUNCTIONS ARE NOTORIOUSLY EXPENSIVE Look into performing some trig magic
 		// with fast trig approximations
 		//THIS IS DOUBLING EVERY VERTEX BY DOING LINES, DO BY VERTEX INSTEAD!!!
-
-		Side[] newSides = new Side[this.getSides().length];
 		
-		for ( int i = 0 ; i < this.sides.length ; i++ ) {
+		for ( int i = 0 ; i < template.sides.length ; i++ ) {
 			
-			Side side = this.sides[i];
+			Side side = template.sides[i];
 			Point origin = new Point(center.x,center.y);
 			
 			double r = side.getP1().distance(origin); 
 			double a = Math.acos( (side.getX1()-center.x) / r );
 			if (side.getY1() > center.y){ a = (2*Math.PI) - a ;}
 			
-			Point p1 = new Point( (int)(r * Math.cos( a + angle  )  ) , (int)(r * Math.sin( a + angle ) )    );
+			Point p1 = new Point( 
+					(int)(r * Math.cos( a + angle  ) ) , 
+					(int)(r * Math.sin( a + angle ) )    );
 			
 			double r2 = side.getP2().distance(origin);
 			double a2 = Math.acos( (side.getX2()-center.x) / r );
 			if (side.getY2() > center.y){ a2 = (2*Math.PI) - a2 ;}
 			
-			Point p2 = new Point( (int)(r2 * Math.cos( a2 + angle  ) ) , (int)(r2 * Math.sin( a2 + angle  ) )  );
+			Point p2 = new Point( 
+					(int)(r2 * Math.cos( a2 + angle  ) ) , 
+					(int)(r2 * Math.sin( a2 + angle  ) )  );
 			
-			newSides[i] = new Side( new Line2D.Float(p1,p2) , this, i , defaultCollisionEvent);
+			this.sides[i].setLine( p1, p2 );
 			
 		}
-		
-		return new Boundary(newSides , this.ownerCollidable );
-		//return returnedBounds;
+
 	}
 	
 	
@@ -796,7 +789,7 @@ public class Boundary implements Serializable {
 		ArrayList<Vertex> farthestVertices = new ArrayList<>();
 		farthestVertices.add(getCornersVertex()[0]);
 		
-		for ( int i = 1 ; i < getCornersPoint().length ; i++ ){ //check to start i at 1
+		for ( int i = 1 ; i < getCornersVertex().length ; i++ ){ //check to start i at 1
 			
 				Point2D originProjection = getProjectionPoint( origin , axis );
 				Point2D cornerProjection = getProjectionPoint( getCornersPoint()[i] , axis ); 

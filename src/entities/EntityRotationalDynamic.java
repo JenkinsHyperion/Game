@@ -1,5 +1,6 @@
 package entities;
 
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -18,17 +19,6 @@ public class EntityRotationalDynamic extends EntityDynamic{
 	public EntityRotationalDynamic(int x, int y) {
 		super(x, y);
 	}
-	
-	/*@Override
-    public void setBoundingBox(int xOffset, int yOffset , int width , int height) {
-    	
-		Boundary boundarytemp =  new Boundary.Box(width, height, xOffset, yOffset);
-		
-		((Collidable) collisionType).setBoundary( boundarytemp );
-		
-		storedBounds = boundarytemp;
-		boundarytemp = null;
-    }*/
 	
 	
 	
@@ -59,7 +49,10 @@ public class EntityRotationalDynamic extends EntityDynamic{
 		}
 		
 		return new Boundary(newSides);*/
-		return storedBounds.atPosition( this.getPos() ).rotateBoundaryAround( this.getPos() , angle);
+		//return storedBounds.atPosition( this.getPos() ).rotateBoundaryAround( this.getPos() , angle);
+		
+		return this.getBoundary();
+		
 	}
 	
 	@Override
@@ -80,12 +73,16 @@ public class EntityRotationalDynamic extends EntityDynamic{
         	else if ((int)angle<-36){angle=36;}
 
     	
-        	((Collidable) collisionType).setBoundary( getBoundaryAtAngle((int)angle * ((2*Math.PI)/72) ) ); 
+        	this.setAngle(angle);
     	}
     }
 	
-	public void setAngularVelocity(){
-		
+	public void setAngle( float angle ){
+		this.getBoundary().rotateBoundaryFromTemplate( new Point(0,0) , (angle * ((2*Math.PI)/72) ) , storedBounds ); 
+	}
+	
+	public void setAngularVelocity( float angularVelocity ){
+		this.angularVelocity = angularVelocity;
 	}
 	
 	public int getAngle(){

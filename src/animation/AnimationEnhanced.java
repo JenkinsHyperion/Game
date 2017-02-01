@@ -11,14 +11,7 @@ public class AnimationEnhanced extends Animation {
 		super(frames, frameDelay);
 
 	}
-	
-	public AnimationEnhanced(BufferedImage[] frames, int frameDelay, int offsetX, int offsetY) {
 
-		super(frames, frameDelay);
-
-		animationOffsetX = offsetX;
-		animationOffsetY = offsetY;
-	}
 
 	/**
 	 * 
@@ -28,7 +21,7 @@ public class AnimationEnhanced extends Animation {
 	 * @param minValue
 	 * @param maxValue
 	 */
-	public void updateSpeed(int linkedVariable, int minValue, int maxValue, int minDelay, int maxDelay) {
+	public void updateLinkedSpeed(int linkedVariable, int minValue, int maxValue, int minDelay, int maxDelay) {
 		// figure out way to do this better, without forcing enhanced update on
 		// Animation
 		// also move variable and speed ranges to constructor, not update

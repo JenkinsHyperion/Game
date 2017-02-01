@@ -3,6 +3,7 @@ package testEntities;
 import animation.Animation;
 import animation.LoadAnimation;
 import entities.*;
+import sprites.SpriteAnimated;
 
 public class Bullet extends EntityDynamic{
 	
@@ -18,7 +19,7 @@ public class Bullet extends EntityDynamic{
     
     private void initBulletTest(){
     	
-        loadAnimatedSprite(flying);
+        loadAnimatedSprite( new SpriteAnimated( flying , this, 0,0 ));
         getEntitySprite().getAnimation().start();
     	
     }

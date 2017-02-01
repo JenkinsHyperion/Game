@@ -14,7 +14,7 @@ public class InputController {
 		
 	}
 	
-	/** Add specified user-defined KeyBinding to be listened for.  
+	/** Add specified user-defined KeyBindingAbstract to be listened for.  
 	 * 
 	 * @param inputKey
 	 */
@@ -32,12 +32,14 @@ public class InputController {
 			
 			if ( keysListening.get(i).getKeyCode() == e.getKeyCode() ){ // If key is being pressed
 				
-				keysListening.get(i).onPressed(); // trigger pressed event for that key
+				KeyBindingAbstract key = keysListening.get(i);
 				
-				keysListening.get(i).setIndexHeld( keysHeld.size() ); // add this key to keys being held
-				keysHeld.add( keysListening.get(i) );
+				key.setIndexHeld( keysHeld.size() ); // add this key to keys being held
+				keysHeld.add( key );
 				
-				removeFromListening( keysListening.get(i) ); // stop listening for this key while it's being held
+				removeFromListening( key ); // stop listening for this key while it's being held
+				
+				key.onPressed(); // trigger pressed event for that key
 				
 			}
 			
@@ -51,12 +53,14 @@ public class InputController {
 			
 			if ( keysHeld.get(i).getKeyCode() == e.getKeyCode() ){
 				
-				keysHeld.get(i).onReleased();
+				KeyBindingAbstract key = keysHeld.get(i);
 				
-				keysHeld.get(i).setIndexListened( keysListening.size() ); //same as above but inverted
-				keysListening.add( keysHeld.get(i) );
+				key.setIndexListened( keysListening.size() ); //same as above but inverted
+				keysListening.add( key );
 				
-				removeFromHeld( keysHeld.get(i) );
+				removeFromHeld( key );
+				
+				key.onReleased();
 				
 			}
 			
@@ -69,6 +73,30 @@ public class InputController {
 		for ( int i = 0 ; i < keysHeld.size() ; i++ ){
 
 				keysHeld.get(i).onHeld();
+		}
+	}
+	
+	public void runReleased(){
+		
+		for ( int i = 0 ; i < keysListening.size() ; i++ ){
+
+			keysListening.get(i).onReleased();
+		}
+	}
+	
+	public void debugReleased(){
+		
+		for ( int i = 0 ; i < keysListening.size() ; i++ ){
+
+			System.out.println(keysListening.get(i) + "is released");
+		}
+	}
+	
+	public void debugHeld(){
+		
+		for ( int i = 0 ; i < keysHeld.size() ; i++ ){
+
+			System.out.println(keysHeld.get(i) + "is held");
 		}
 	}
 	

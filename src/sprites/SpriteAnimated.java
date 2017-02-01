@@ -12,7 +12,7 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
 
     private Animation spriteAnimation;
 
-    public SpriteAnimated(Animation animation , EntityStatic owner) {
+    private SpriteAnimated(Animation animation , EntityStatic owner) {
 
     	spriteAnimation = animation;
     	this.owner = owner;
@@ -22,7 +22,7 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
         setVisible(true);
     }
     
-    public SpriteAnimated(Animation animation, int offset_x, int offset_y, EntityStatic owner) {
+    public SpriteAnimated(Animation animation, EntityStatic owner , int offset_x, int offset_y) {
     	spriteAnimation = animation;
     	this.spriteOffsetX = offset_x;
     	this.spriteOffsetY = offset_y;
@@ -56,13 +56,6 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
     
     public Animation getAnimation() {
     	return spriteAnimation;
-    }
-    
-    @Override
-    public void setSprite(Animation a) {
-    	spriteAnimation = a;
-    	spriteOffsetX = a.getAnimationOffsetX();
-    	spriteOffsetY = a.getAnimationOffsetY();
     }
     
     public Image getSpriteFrame() {

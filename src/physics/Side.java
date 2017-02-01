@@ -85,7 +85,9 @@ public class Side extends BoundaryFeature{
 	
 	public Line2D toLine(){ return line; }
 	
+	@Override
 	public Point2D getP1(){ return line.getP1(); }
+	@Override
 	public Point2D getP2(){ return line.getP2(); }
 	
 	public int getX1(){ return (int)line.getX1(); }
@@ -96,5 +98,15 @@ public class Side extends BoundaryFeature{
 	
 	@Override
 	public String toString(){ return "Side"+this.ID ; }
+
+	@Override
+	public boolean debugIsVertex() {
+		return false;
+	}
+
+	@Override
+	public boolean debugIsSide() {
+		return true;
+	}
 	
 }

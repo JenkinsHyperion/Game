@@ -1,5 +1,7 @@
 package physics;
 
+import java.awt.geom.Point2D;
+
 import entities.EntityStatic;
 import misc.CollisionEvent;
 import misc.DefaultCollisionEvent;
@@ -28,5 +30,11 @@ abstract public class BoundaryFeature {
 	}
 	
 	public void collisionTrigger(){}
+	
+	public abstract Point2D getP1();
+	public abstract Point2D getP2();
+	
+	public abstract boolean debugIsVertex();
+	public abstract boolean debugIsSide();
 	
 }

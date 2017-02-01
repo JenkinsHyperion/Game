@@ -2,6 +2,7 @@ package misc.PlayerDirection;
 
 import misc.EntityState;
 import misc.PlayerState;
+import sprites.Sprite;
 
 public class PlayerDirection{
 	
@@ -25,6 +26,14 @@ public class PlayerDirection{
 		return facing.normalize(a);
 	}
 	
+	public double normalize( double a ){
+		return facing.normalize(a);
+	}
+	
+	public Sprite getDirectionalSprite( PlayerState state ){
+		return facing.getDirectionSprite(state);
+	}
+	
 	public String toString(){ return facing.toString(); } 
 	
 	private abstract class Facing{
@@ -39,6 +48,9 @@ public class PlayerDirection{
 		protected abstract void swapDirection();
 		
 		public abstract int normalize( int a );
+		public abstract double normalize( double a );
+		
+		public abstract Sprite getDirectionSprite( PlayerState state );
 	}
 	
 	private class Right extends Facing{
@@ -67,12 +79,22 @@ public class PlayerDirection{
 		}
 		
 		@Override
+		public double normalize(double a) {
+			return a;
+		}
+		
+		@Override
 		protected void swapDirection(){
 			facing = left;
 		}
 		
 		@Override
-		public String toString(){ return "Right"; } 
+		public String toString(){ return "Right"; }
+
+		@Override
+		public Sprite getDirectionSprite( PlayerState state ) {
+			return state.getSpriteRight();
+		} 
 		
 	}
 		
@@ -114,12 +136,22 @@ public class PlayerDirection{
 			}
 			
 			@Override
+			public double normalize(double a) {
+				return -a;
+			}
+			
+			@Override
 			protected void swapDirection(){
 				facing = right;
 			}
 			
 			@Override
 			public String toString(){ return "Left"; } 
+			
+			@Override
+			public Sprite getDirectionSprite( PlayerState state ) {
+				return state.getSpriteLeft();
+			} 
 
 	}
 	

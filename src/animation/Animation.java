@@ -7,8 +7,8 @@ import java.util.List;
 //Animation class holds array of individual frames as well as playback functionality
 public class Animation {
 	
-	protected int animationOffsetX = 0;
-	protected int animationOffsetY = 0;
+	//protected int animationOffsetX = 0;
+	//protected int animationOffsetY = 0;
 
 	private int frameCount; // Counts ticks for change
 	protected int frameDelay; // frame delay 1-12 (You will have to play around
@@ -38,25 +38,6 @@ public class Animation {
 
 	}
 	
-	//OPTIONAL ARGUMENT FOR OFFSET
-	public Animation(BufferedImage[] frames, int frameDelay, int xOffset, int yOffset) {
-		this.frameDelay = frameDelay;
-		this.stopped = true;
-
-		for (int i = 0; i < frames.length; i++) {
-			addFrame(frames[i], frameDelay);
-		}
-		
-		animationOffsetX = xOffset;
-		animationOffsetY = yOffset;
-
-		this.frameCount = 0;
-		this.frameDelay = frameDelay;
-		this.currentFrame = 0;
-		this.animationDirection = 1;
-		this.totalFrames = this.frames.size();
-
-	}
 
 	public void setReverse(){
 		this.animationDirection = -1;
@@ -144,14 +125,6 @@ public class Animation {
 			}
 		}
 
-	}
-	
-	public int getAnimationOffsetX(){
-		return animationOffsetX;
-	}
-	
-	public int getAnimationOffsetY(){
-		return animationOffsetY;
 	}
 
 }

@@ -12,8 +12,10 @@ import editing.EditorPanel;
 import entities.*; //local imports
 import entityComposites.Collidable;
 import entityComposites.CollisionProperty;
+import entityComposites.NonCollidable;
 import physics.*;
 import sprites.Background;
+import sprites.RenderingLayer;
 import sprites.Sprite;
 import sprites.SpriteAnimated;
 import sprites.SpriteStillframe;
@@ -29,7 +31,7 @@ public class Board extends JPanel implements Runnable {
 	
 	//private Timer timer;
 	
-	private Background background = new Background("BGtest.png"); //move to rendering later
+	private Background background = new Background("Prototypes/Sky.png"); //move to rendering later
 	
 	private java.util.Timer updateEntitiesTimer;
 	private java.util.Timer repaintTimer;
@@ -43,7 +45,17 @@ public class Board extends JPanel implements Runnable {
     protected static ArrayList<EntityDynamic> dynamicEntitiesList; 
     protected static ArrayList<EntityPhysics> physicsEntitiesList; 
     
+    //RENDERING
     public Camera camera;
+    private RenderingLayer[] layer = {
+    		new RenderingLayer(1,1),
+    		new RenderingLayer(1.15f,0.998),
+    		new RenderingLayer(1.3f, 0.990),
+    		new RenderingLayer(1.6f, 0.985 ),
+    		new RenderingLayer(1.8f, 0.98),
+    		new RenderingLayer(3f, 0.975),
+    		new RenderingLayer(5, 0.97)
+    };
     
     protected Point clickPosition;
     protected boolean mouseClick = false;
@@ -131,17 +143,15 @@ public class Board extends JPanel implements Runnable {
   
         EntityStatic testEntity;
         
-        /*Line2D[] triangleBounds = new Line2D[]{
-			new Line2D.Double( 0 , 0 , 0 , 100 ),
-			new Line2D.Double( 0 , 100 , 100 , 100 ),
-			new Line2D.Double( 100 , 100 , 0 , 0 )
+        Line2D[] triangleBounds = new Line2D[]{
+			new Line2D.Double( -25 , -50 , -25 , 50 ),
+			new Line2D.Double( -25 , 50 , 50 , 50 ),
+			new Line2D.Double( 50 , 50 , -25 , -50 )
 		};
 
-		testEntity = EntityFactory.entityFromBoundary(100, 400, 
-			new Boundary( triangleBounds ) 
-		);
+		testEntity = EntityFactory.createEntityFromBoundary(100, 400, triangleBounds );
 		testEntity.loadSprite("bullet.png" , 0 , 0 );
-		staticEntitiesList.add( testEntity );    */  
+		staticEntitiesList.add( testEntity );    
         
         
         
@@ -162,16 +172,6 @@ public class Board extends JPanel implements Runnable {
         testEntity.loadSprite("ground_1.png" , -223 , -53 );
         staticEntitiesList.add( testEntity );
         
-        /*testEntity = new EntityStatic("Test Slope",700,600);   
-        Side[] sides = new Side[3]; 
-        sides[0] = new Side( new Line2D.Float(0,0,100,-100) ); 
-        sides[1] = new Side( new Line2D.Float(100,-100,100,0) );
-        sides[2] = new Side( new Line2D.Float(100,0,0,0) );
-        collidable = new Collidable(testEntity, new Boundary(sides) );
-        testEntity.setCollisionProperties( collidable );
-        //testEntity.loadSprite("ground_1.png" , -223 , -53 );
-        staticEntitiesList.add( testEntity );*/
-        
       	physicsEntitiesList.add(new EntityPhysics(120,260,"box.png"));
         dynamicEntitiesList.add(new Bullet(100,100,1,1));
         
@@ -179,6 +179,19 @@ public class Board extends JPanel implements Runnable {
         laser = new Tracer(143,260, physicsEntitiesList.get(0) , this ); //later will be parent system
         //dynamicEntitiesList.add(new LaserTest(400,60));  <-- can't add as long as I don't have a sprite for it
         //		--- for now will just draw in the drawObjects() method
+        
+        //############################################## TESTING BACKGROUND SPRITES #######################
+        
+        int offset_x = 500;
+        int offset_y = 100;
+        
+        layer[6].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L7.png", 350-offset_x, 600-offset_y) );
+        layer[5].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L6.png", 200-offset_x, -200-offset_y) );//bass
+        layer[4].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L5.png", 590-offset_x, 700-offset_y) );
+        layer[3].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L4.png", 220-offset_x, -200-offset_y) );//base
+        layer[2].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L3.png", 200-offset_x, 820-offset_y) );
+        layer[1].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L2.png", 250-offset_x, -200-offset_y) );
+        layer[0].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L1.png", 300-offset_x, -200-offset_y) );//base
         
         
         //############################################### CAMERA #######################
@@ -206,8 +219,9 @@ public class Board extends JPanel implements Runnable {
         		time = System.nanoTime();
         		//System.out.println("press " + time);
         		
-        		collisionEngine.checkCollisions();
+        		
         		updateEntities();
+        		collisionEngine.checkCollisions();
         		
         		deltaTime = System.nanoTime() ;
         		speed = deltaTime - time;
@@ -367,6 +381,9 @@ public class Board extends JPanel implements Runnable {
     	
     	//Draw ghostSprite for editor using null-object pattern
     	//
+    	for ( int i = 6 ; i > -1 ; i-- ) {	        	
+    		layer[i].drawLayer(g, camera);
+    	}
     	
 
 	    for (EntityStatic stat : staticEntitiesList) {
@@ -717,26 +734,35 @@ public class Board extends JPanel implements Runnable {
 
 	    	g2.draw(axis);
 
-	    	g2.setColor(Color.GRAY);
 
 
-	    	Line2D centerDistance = new Line2D.Float(playerRef.getX() , playerRef.getY(),
-	    			stat.getX() , stat.getY());
-	    	Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
 
-	    	g2.draw(centerProjection);
+	    	//Line2D centerDistance = new Line2D.Float(playerRef.getX() , playerRef.getY(),
+	    	//		stat.getX() , stat.getY());
+	    	//Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
 
-	    	g2.setColor(Color.YELLOW);
+	    	//g2.draw(centerProjection);
+
+	    	
 
 	    	Point2D[] statOuter= statBounds.getFarthestPoints(playerBounds,axis);
-	    	Point2D[] playerOuter= playerBounds.getFarthestPoints(statBounds,axis);
 
 	    	Vertex[] nearStatCorner = statBounds.farthestVerticesFromPoint( statOuter[0] , axis ); //merge below
+	    	Vertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( statOuter[1] , axis );
+	    	
+	    	Vertex farStatCorner = statBounds.farthestVerticesFromPoint(nearStatCorner[0].toPoint(), axis)[0];
+	    	Vertex farPlayerCorner = playerBounds.farthestVerticesFromPoint(nearPlayerCorner[0].toPoint(), axis)[0];
+	    	
+	    	Point2D centerStat = farStatCorner.getCenter(nearStatCorner[0]);
+	    	Point2D centerPlayer = farPlayerCorner.getCenter(nearPlayerCorner[0]);
 
-	    	Vertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( playerOuter[0] , axis );
-
+	    	Line2D centerDistance = new Line2D.Double( centerPlayer , centerStat );
+	    	Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
+	    	
+	    	g2.setColor(Color.GRAY);
+	    	camera.draw(centerProjection,g2);
 	    	//CLOSEST SIDE TESTING
-
+	    	g2.setColor(Color.YELLOW);
 	    	//selected entity
 	    	if ( nearStatCorner.length > 1 ){ 
 	    		Side closest = nearStatCorner[0].getSharedSide(nearStatCorner[1]);
@@ -763,8 +789,8 @@ public class Board extends JPanel implements Runnable {
 	    			playerBounds.getProjectionPoint(nearPlayerCorner[0].toPoint(),axis)
 	    			);
 	    	Line2D statHalf = new Line2D.Float( 
-	    			statBounds.getProjectionPoint(statCenter,axis) ,
-	    			statBounds.getProjectionPoint(nearStatCorner[0].toPoint(),axis)
+	    			statBounds.getProjectionPoint(centerStat,axis) ,
+	    			statBounds.getProjectionPoint(nearStatCorner[0].toPoint(),axis) 
 	    			);
 
 	    	g2.draw(playerHalf);
@@ -774,12 +800,6 @@ public class Board extends JPanel implements Runnable {
 	    	int centerDistanceX = (int)(centerProjection.getX1() -  centerProjection.getX2()  );
 	    	int centerDistanceY = (int)(centerProjection.getY1() -  centerProjection.getY2()  );
 
-	    	if (centerDistanceX>0){ centerDistanceX -= 1; } 
-	    	else if (centerDistanceX<0){ centerDistanceX += 1; } //NEEDS HIGHER LEVEL SOLUTION
-
-	    	if (centerDistanceY>0){ centerDistanceY -= 1; } 
-	    	else if (centerDistanceY<0){ centerDistanceY += 1; }
-
 	    	int playerProjectionX = (int)(playerHalf.getX1() -  playerHalf.getX2());
 	    	int playerProjectionY = (int)(playerHalf.getY1() -  playerHalf.getY2());
 
@@ -788,27 +808,37 @@ public class Board extends JPanel implements Runnable {
 
 	    	int penetrationX = 0;
 	    	int penetrationY = 0;  
+	    	
 
-
-
-	    	penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
-	    	penetrationY = playerProjectionY + statProjectionY - centerDistanceY ;
-
-
-	    	//Constrain X
-	    	if ( Math.signum(penetrationX) != Math.signum(centerDistanceX)  || 
-	    			Math.signum(penetrationY) != Math.signum(centerDistanceY)  ){
-	    		penetrationX = 0;
-	    		penetrationY = 0;
+	    	if (centerDistanceX>0){
+	    		centerDistanceX -= 1;
+	    		penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
 	    	}
+	    	else if (centerDistanceX<0){
+	    		centerDistanceX += 1;  //NEEDS HIGHER LEVEL SOLUTION
+	    		penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
+	    	}
+	    	else 
+	    		penetrationX = playerProjectionX + statProjectionX;
+
+	    	if (centerDistanceY>0){
+	    		centerDistanceY -= 1;
+	    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY ; 
+	    	}
+	    	else if (centerDistanceY<0){
+	    		centerDistanceY += 1; 
+	    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY ; 
+	    	}
+	    	else 
+	    		penetrationY = playerProjectionY + statProjectionY;
 
 
-	    	if (centerDistanceX*centerDistanceX + centerDistanceY*centerDistanceY == 0){ //LOOK INTO BETTER CONDITIONALS
-	    		penetrationX = -(playerProjectionX + statProjectionX) ;
-	    	}
-	    	if (centerDistanceX*centerDistanceX + centerDistanceY*centerDistanceY == 0){
-	    		penetrationY = -(playerProjectionY + statProjectionY) ;
-	    	}
+	    	
+	    	if ( penetrationX * centerDistanceX < 0 ) //SIGNS ARE NOT THE SAME
+				penetrationX = 0;
+	    	if ( penetrationY * centerDistanceY < 0 )
+				penetrationY = 0;
+
 
 
 	    	g2.setFont( new Font( Font.DIALOG , Font.PLAIN , 10 ) );

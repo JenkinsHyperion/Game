@@ -5,26 +5,15 @@ import sprites.SpriteAnimated;
 
 public class EntityState {
 
-	private Sprite stateSpriteRight;
-	private Sprite stateSpriteLeft;
 	private String stateName;
 
-	public EntityState(String name, Sprite spriteRight , Sprite spriteLeft) {
+	public EntityState(String name) {
 
-		initState(name, spriteRight, spriteLeft);
+		initState(name);
 	}
 
-	private void initState(String name, Sprite right, Sprite left) {
-		stateSpriteRight = right;
+	private void initState(String name) {
 		stateName = name;
-	}
-	
-	public Sprite getSpriteRight() {
-		return stateSpriteRight;
-	}
-	
-	public Sprite getSpriteLeft() {
-		return stateSpriteLeft;
 	}
 
 	public String getName() {

@@ -29,11 +29,19 @@ public final class Collidable extends CollisionProperty{
 	public Collidable( EntityStatic owner ){
 		
 		this.owner = owner;
+		this.boundary = null;
 	}
 	
-	private Collidable( EntityStatic owner , Boundary boundary){
+	public Collidable( EntityStatic owner , Boundary boundary){
 		
 		this.boundary = boundary;
+		this.owner = owner; 
+		
+	}
+	
+	public Collidable( EntityStatic owner , Line2D[] lines){
+		
+		this.boundary = new Boundary( lines , this ) ;
 		this.owner = owner; 
 		
 	}
@@ -108,8 +116,12 @@ public final class Collidable extends CollisionProperty{
 	
 	public void onLeavingCollisionEvent(){
 		
-		uponLeavingCollision.run();
+		//uponLeavingCollision.run();
+	}
+	
+	public void onLeavingAllCollisionsEvent(){
 		
+		uponLeavingCollision.run( null , null );
 	}
 	
 	public void setLeavingCollisionEvent( CollisionEvent leavingEvent ){
@@ -131,9 +143,15 @@ public final class Collidable extends CollisionProperty{
     	
     	collisionInteractions.remove(index);
     	//decrement indexes for all following collisions involving this entity
-    	for ( int i = index ; i < collisionInteractions.size() ; i++) {
-    		collisionInteractions.get(i).collision().indexShift(collisionInteractions.get(i).pairID());
-    	} 
+    	if ( collisionInteractions.size() == 0 ){
+    		onLeavingAllCollisionsEvent();
+    	}
+    	else{
+	    	for ( int i = index ; i < collisionInteractions.size() ; i++) {
+	    		collisionInteractions.get(i).collision().indexShift(collisionInteractions.get(i).pairID());
+	    	} 
+    	}
+
     	//printCollisions();
     }
 	

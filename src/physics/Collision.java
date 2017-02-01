@@ -31,8 +31,8 @@ public class Collision implements Serializable{
 	protected Side contactingSide1;
 	protected Side contactingSide2;
 	
-	protected int depthX = 0;
-	protected int depthY = 0;
+	protected double depthX = 0;
+	protected double depthY = 0;
 	
 	protected Point2D[] contactPoints = new Point2D[2];
 	protected ArrayList<Point2D> debugIntersectionPoints = new ArrayList<>();
@@ -58,14 +58,17 @@ public class Collision implements Serializable{
 		private BoundaryFeature closestFeaturePrimary;
 		private BoundaryFeature closestFeatureSecondary;
 		private Vector resolutionVector;
+		private Vector distanceVector;
 		
-		protected Resolution( BoundaryFeature featurePrimary , BoundaryFeature featureSecondary  , Vector resolution ){
+		protected Resolution( BoundaryFeature featurePrimary , BoundaryFeature featureSecondary  , Vector resolution , Vector distance){
 			this.closestFeaturePrimary = featurePrimary;
 			this.closestFeatureSecondary = featureSecondary;
 			this.resolutionVector = resolution;
+			this.distanceVector = distance;
 		}
 		
-		protected Vector Vector(){ return resolutionVector; }
+		protected Vector getClippingVector(){ return resolutionVector; }
+		protected Vector getDistanceVector(){ return distanceVector; }
 		
 		protected BoundaryFeature FeaturePrimary(){ return closestFeaturePrimary; }
 		protected BoundaryFeature FeatureSecondary(){ return closestFeatureSecondary; }
@@ -197,11 +200,6 @@ public class Collision implements Serializable{
 		//return String.format("%s",this);
 		return collisionDebugTag;
 	}
-	
-	public Point getDepth(){
-		return new Point( depthX , depthY );
-	}
-	
 	
 	public Side getSidePrimary(){ return contactingSide1; }
 	public Side getSideSecondary(){ return contactingSide2; }

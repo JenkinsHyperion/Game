@@ -775,7 +775,7 @@ public class Board extends JPanel implements Runnable {
 	    	Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
 	    	
 	    	g2.setColor(Color.GRAY);
-	    	camera.draw(centerProjection,g2);
+	    	g2.draw(centerProjection);
 	    	//CLOSEST SIDE TESTING
 	    	g2.setColor(Color.YELLOW);
 	    	//selected entity
@@ -810,7 +810,7 @@ public class Board extends JPanel implements Runnable {
 
 	    	g2.draw(playerHalf);
 	    	g2.setColor(Color.GREEN);
-	    	g2.draw(statHalf);
+	    	g2.draw(statHalf );
 
 	    	int centerDistanceX = (int)(centerProjection.getX1() -  centerProjection.getX2()  );
 	    	int centerDistanceY = (int)(centerProjection.getY1() -  centerProjection.getY2()  );
@@ -904,13 +904,13 @@ public class Board extends JPanel implements Runnable {
     }
     
     private void drawCross(Point2D point , Graphics g){
-    	g.drawLine((int)point.getX()-3, (int)point.getY()-3, (int)point.getX()+3, (int)point.getY()+3);
-		g.drawLine((int)point.getX()-3, (int)point.getY()+3, (int)point.getX()+3, (int)point.getY()-3);
+    	camera.draw( new Line2D.Float( (int)point.getX()-3, (int)point.getY()-3, (int)point.getX()+3, (int)point.getY()+3 ) , g);
+    	camera.draw( new Line2D.Float( (int)point.getX()-3, (int)point.getY()+3, (int)point.getX()+3, (int)point.getY()-3) , g);
     }
     
     private void drawCross(Vertex vertex , Graphics g){
-    	g.drawLine((int)vertex.getX()-3, (int)vertex.getY()-3, (int)vertex.getX()+3, (int)vertex.getY()+3);
-		g.drawLine((int)vertex.getX()-3, (int)vertex.getY()+3, (int)vertex.getX()+3, (int)vertex.getY()-3);
+    	camera.draw( new Line2D.Float( (int)vertex.getX()-3, (int)vertex.getY()-3, (int)vertex.getX()+3, (int)vertex.getY()+3 ) , g);
+		camera.draw( new Line2D.Float( (int)vertex.getX()-3, (int)vertex.getY()+3, (int)vertex.getX()+3, (int)vertex.getY()-3 ) , g);
     }
 
     

@@ -10,7 +10,7 @@ public class InputController {
 	
 	KeyBindingAbstract tempInputKey;
 	
-	public InputController(){
+	public InputController(){ 
 		
 	}
 	

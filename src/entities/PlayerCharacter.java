@@ -3,7 +3,7 @@ package entities;
 
 import java.awt.event.KeyEvent;
 
-import Input.KeyBinding;
+import Input.KeyBindingAbstract;
 
 //import javax.swing.Action;
 //import javax.swing.Timer;
@@ -15,7 +15,7 @@ import misc.CollisionEvent;
 import misc.DefaultCollisionEvent;
 import misc.EntityState;
 import misc.PlayerState;
-import misc.Direction.Direction;
+import misc.PlayerDirection.PlayerDirection;
 import physics.Boundary;
 import sprites.Sprite;
 import sprites.SpriteAnimated;
@@ -72,7 +72,7 @@ public class PlayerCharacter extends Player {
     private PlayerState playerState = running;
     private PlayerState playerStateBuffer = running;
     
-    private Direction playerDirection = new Direction();
+    private PlayerDirection playerDirection = new PlayerDirection();
     
     private final CollisionEvent onSideCollision = new SideCollisionEvent();
 
@@ -335,7 +335,7 @@ public class PlayerCharacter extends Player {
      */
 
     
-    private class UpKey extends KeyBinding{
+    private class UpKey extends KeyBindingAbstract{
     	
 		protected UpKey(int keycode) {
 			super(keycode);
@@ -352,7 +352,7 @@ public class PlayerCharacter extends Player {
 		
     }
     
-    private class DownKey extends KeyBinding{
+    private class DownKey extends KeyBindingAbstract{
     	
 		protected DownKey(int keycode) {
 			super(keycode);
@@ -369,7 +369,7 @@ public class PlayerCharacter extends Player {
 		
     }
     
-    private class RightKey extends KeyBinding{
+    private class RightKey extends KeyBindingAbstract{
     	
 		protected RightKey(int keycode) {
 			super(keycode);
@@ -386,7 +386,7 @@ public class PlayerCharacter extends Player {
 		
     }
     
-    private class LeftKey extends KeyBinding{
+    private class LeftKey extends KeyBindingAbstract{
     	
 		protected LeftKey(int keycode) {
 			super(keycode);
@@ -404,7 +404,7 @@ public class PlayerCharacter extends Player {
     }
     
     
-    private class JumpKey extends KeyBinding{
+    private class JumpKey extends KeyBindingAbstract{
     	
 		protected JumpKey(int keycode) {
 			super(keycode);
@@ -421,7 +421,7 @@ public class PlayerCharacter extends Player {
 		
     }
     
-    private class ModKey extends KeyBinding{
+    private class ModKey extends KeyBindingAbstract{
     	
 		protected ModKey(int keycode) {
 			super(keycode);

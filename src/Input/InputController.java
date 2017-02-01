@@ -5,10 +5,10 @@ import java.util.ArrayList;
 
 public class InputController {
 
-	ArrayList< KeyBinding > keysListening = new ArrayList<>();
-	ArrayList< KeyBinding > keysHeld = new ArrayList<>();
+	ArrayList< KeyBindingAbstract > keysListening = new ArrayList<>();
+	ArrayList< KeyBindingAbstract > keysHeld = new ArrayList<>();
 	
-	KeyBinding tempInputKey;
+	KeyBindingAbstract tempInputKey;
 	
 	public InputController(){
 		
@@ -18,7 +18,7 @@ public class InputController {
 	 * 
 	 * @param inputKey
 	 */
-	public void addInputKey( KeyBinding inputKey ){
+	public void addInputKey( KeyBindingAbstract inputKey ){
 		
 		inputKey.setIndexListened( keysListening.size() ); 
 		keysListening.add( inputKey );
@@ -72,7 +72,7 @@ public class InputController {
 		}
 	}
 	
-	private void removeFromListening( KeyBinding key ){
+	private void removeFromListening( KeyBindingAbstract key ){
 		
 		keysListening.remove( key.getIndexListened() );
 		
@@ -82,7 +82,7 @@ public class InputController {
 		
 	}
 	
-	private void removeFromHeld( KeyBinding key ){
+	private void removeFromHeld( KeyBindingAbstract key ){
 		
 		keysHeld.remove( key.getIndexHeld() );
 		

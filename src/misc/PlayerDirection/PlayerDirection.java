@@ -1,9 +1,9 @@
-package misc.Direction;
+package misc.PlayerDirection;
 
 import misc.EntityState;
 import misc.PlayerState;
 
-public class Direction{
+public class PlayerDirection{
 	
 	private final Right right = new Right();
 	private final Left left = new Left();

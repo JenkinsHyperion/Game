@@ -1,13 +1,13 @@
 package Input;
 
-public abstract class KeyBinding {
+public abstract class KeyBindingAbstract {
 	
 	protected int key;
 
 	private int indexHeld;
 	private int indexListened;
 	
-	protected KeyBinding( int keycode ){ this.key = keycode; }
+	protected KeyBindingAbstract( int keycode ){ this.key = keycode; }
 	
 	public abstract void onPressed();
 	public abstract void onReleased();

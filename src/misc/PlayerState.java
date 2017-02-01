@@ -2,7 +2,7 @@ package misc;
 
 import java.awt.event.KeyEvent;
 
-import misc.Direction.*;
+import misc.PlayerDirection.*;
 import sprites.Sprite;
 
 public abstract class PlayerState extends EntityState{
@@ -21,8 +21,8 @@ public abstract class PlayerState extends EntityState{
 	public void onCrouch(){ holdingCrouch(); } // 
 	public void onUp(){}
 	public void onDown(){}
-	public void onRight(Direction direction){ direction.onRight( this ); }
-	public void onLeft(Direction direction){ direction.onLeft( this ); }
+	public void onRight(PlayerDirection playerDirection){ playerDirection.onRight( this ); }
+	public void onLeft(PlayerDirection playerDirection){ playerDirection.onLeft( this ); }
 	public void onForward( ){ holdingForward(); }
 	public void onBackward(){ holdingBackward(); }
 
@@ -31,8 +31,8 @@ public abstract class PlayerState extends EntityState{
 	public void holdingCrouch(){}
 	public void holdingUp(){}
 	public void holdingDown(){}
-	public void holdingRight(Direction direction){ direction.holdingRight( this ); }
-	public void holdingLeft(Direction direction){ direction.holdingLeft( this ); }
+	public void holdingRight(PlayerDirection playerDirection){ playerDirection.holdingRight( this ); }
+	public void holdingLeft(PlayerDirection playerDirection){ playerDirection.holdingLeft( this ); }
 	public void holdingForward(){}
 	public void holdingBackward(){}
 	
@@ -41,8 +41,8 @@ public abstract class PlayerState extends EntityState{
 	public void offCrouch(){}
 	public void offUp(){}
 	public void offDown(){}
-	public void offRight(Direction direction){ direction.offRight( this ); }
-	public void offLeft(Direction direction){ direction.offLeft( this ); }
+	public void offRight(PlayerDirection playerDirection){ playerDirection.offRight( this ); }
+	public void offLeft(PlayerDirection playerDirection){ playerDirection.offLeft( this ); }
 	public void offForward(){ }
 	public void offBackward(){ }
 	

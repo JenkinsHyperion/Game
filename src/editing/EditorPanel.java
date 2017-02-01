@@ -395,7 +395,7 @@ public class EditorPanel extends JPanel {
 	
 	// ############ KEY HANDLING SECTION ###########
 	public void keyPressed(KeyEvent e) {
-
+		worldGeom.keyPressed(e);
 		int key = e.getKeyCode();
 		if (key == KeyEvent.VK_UP && !keypressUP ) {
 			keypressUP = true; 
@@ -425,6 +425,7 @@ public class EditorPanel extends JPanel {
 		board.camera.translate(pan_dx, pan_dy);
 	}	
 	public void keyReleased(KeyEvent e) {
+		worldGeom.keyReleased(e);
 		int key = e.getKeyCode();
 		if (key == KeyEvent.VK_UP && keypressUP ) {
 			keypressUP = false; 

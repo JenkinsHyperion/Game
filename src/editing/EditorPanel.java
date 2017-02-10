@@ -740,5 +740,26 @@ public class EditorPanel extends JPanel {
 		return this.worldGeom;
 	}
 	
+	
+	
+	//state skeleton
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 }

@@ -147,20 +147,20 @@ public class Boundary implements Serializable {
 			Point origin = new Point(center.x,center.y);
 			
 			double r = side.getP1().distance(origin); 
-			double a = Math.acos( (side.getX1()-center.x) / r );
+			double a = -Math.acos( (side.getX1()-center.x) / r );
 			if (side.getY1() > center.y){ a = (2*Math.PI) - a ;}
 			
-			Point p1 = new Point( 
-					(int)(r * Math.cos( a + angle  ) ) , 
-					(int)(r * Math.sin( a + angle ) )    );
+			Point2D p1 = new Point2D.Double( 
+					Math.round(r * Math.cos( a + angle  ) ) , 
+					Math.round(r * Math.sin( a + angle ) )    );
 			
 			double r2 = side.getP2().distance(origin);
-			double a2 = Math.acos( (side.getX2()-center.x) / r );
+			double a2 = -Math.acos( (side.getX2()-center.x) / r );
 			if (side.getY2() > center.y){ a2 = (2*Math.PI) - a2 ;}
 			
-			Point p2 = new Point( 
-					(int)(r2 * Math.cos( a2 + angle  ) ) , 
-					(int)(r2 * Math.sin( a2 + angle  ) )  );
+			Point2D p2 = new Point2D.Double( 
+					Math.round(r2 * Math.cos( a2 + angle  ) ) , 
+					Math.round(r2 * Math.sin( a2 + angle  ) )  );
 			
 			this.sides[i].setLine( p1, p2 );
 			
@@ -799,7 +799,10 @@ public class Boundary implements Serializable {
 					//discard this vertex
 				}
 				else {
-					if ( cornerProjection.distance( originProjection ) == farthestPointProjection.distance( originProjection ) ){
+					if ( Math.abs(cornerProjection.distance( originProjection )) -
+							Math.abs(farthestPointProjection.distance( originProjection ) ) 
+							< 1
+							){
 						//duplicate
 						farthestVertices.add( getCornersVertex()[i] );
 					}

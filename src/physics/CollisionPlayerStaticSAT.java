@@ -86,7 +86,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 			//Resolution will resolve
 			
 			
-			
+			System.out.println("Snapping entity by "+(int)depthX + " , " + (int)depthY );
 			entityPrimary.setX( entityPrimary.getDeltaX() + (int)depthX  );
 			entityPrimary.setY( entityPrimary.getDeltaY()  + (int)depthY );
 	
@@ -111,11 +111,11 @@ public class CollisionPlayerStaticSAT extends Collision {
 			//###
 			
 			if ( depthX != 0){ 
-				System.out.print(" Clamping DX");
+				System.out.println(" Clamping DX");
 				entityPrimary.setDX(0);
 			}
 			if ( depthY != 0){ 
-				System.out.print(" Clamping DY");
+				System.out.println(" Clamping DY");
 				entityPrimary.setDY(0);
 			}
 			
@@ -129,12 +129,9 @@ public class CollisionPlayerStaticSAT extends Collision {
 				Side surface = (Side)closestResolution.FeaturePrimary();
 				Vector playerDP = new Vector( entityPrimary.getDX(), entityPrimary.getDY() );
 				
-				if ( !playerDP.isShorterThan( 0.1 ) ){				
-						friction.setVector(   surface.unitVector().multiply( playerDP.unitVector().multiply(0.1).inverse() )   );
-				}
-				else
-					friction.setVector( 0 , 0 );
-				
+					if ( entityPrimary.getDX() + entityPrimary.getDY() != 0 )
+						friction.setVector(   surface.unitVector().multiply( playerDP.unitVector().multiply(0.1) )   );
+
 			}
 			
 			

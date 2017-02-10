@@ -17,9 +17,11 @@ public class Vector implements Serializable{
 		public double getX(){ return x; }
 		public double getY(){ return y; }
 
-		public Vector unitVector(){
-			double unitX = x /  new Point2D.Double(0,0).distance( new Point2D.Double(x,y) );
-			double unitY = y / new Point2D.Double(0,0).distance( new Point2D.Double(x,y) );
+		public Vector unitVector(){  
+			Point2D origin = new Point2D.Double(0,0);
+			Point2D endpoint = new Point2D.Double(x,y);
+			double unitX = x /  origin.distance( endpoint );
+			double unitY = y / origin.distance( endpoint );
 			return new Vector( unitX, unitY );
 		}
 		

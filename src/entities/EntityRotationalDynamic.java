@@ -7,6 +7,7 @@ import java.awt.geom.Point2D;
 
 import physics.Boundary;
 import physics.Side;
+import physics.Vector;
 import entityComposites.*;
 import misc.CollisionEvent;
 
@@ -16,9 +17,11 @@ public class EntityRotationalDynamic extends EntityDynamic{
 	protected float angle = 0;
 	protected double angularVelocity = 0;
 	protected double angularAcc = 0;
+	protected Vector orientation = new Vector( 1 , 0 );
 
 	public EntityRotationalDynamic(int x, int y) {
 		super(x, y);
+		
 	}
 	
 	
@@ -82,13 +85,19 @@ public class EntityRotationalDynamic extends EntityDynamic{
     }
 	
 	public void setAngleInDegrees( float angle ){
-		this.angle = (float) angle;
-		this.getBoundary().rotateBoundaryFromTemplate( new Point(0,0) , (angle * ((Math.PI)/180) ) , storedBounds ); 
+		double angleRadians = (angle * ((Math.PI)/180) ) ;
+		this.angle = (float) angleRadians;
+		this.getBoundary().rotateBoundaryFromTemplate( new Point(0,0) , angleRadians , storedBounds ); 
+		this.orientation = new Vector( Math.cos(angleRadians) , Math.sin(angleRadians) );
+		
 	}
 	
 	public void setAngleInRadians( double angle ){
+		System.out.println("Setting angle " +angle);
 		this.angle = (float) angle;
 		this.getBoundary().rotateBoundaryFromTemplate( new Point(0,0) , angle , storedBounds ); 
+		this.orientation = new Vector( Math.cos(angle) , Math.sin(angle) );
+		
 	}
 	
 	public void setAngularVelocity( double angularVelocity ){
@@ -100,6 +109,8 @@ public class EntityRotationalDynamic extends EntityDynamic{
 	}
 	
 	public float getAngle(){ return (float) (angle * (180/(Math.PI))); }
+	
+	public Vector getOrientationVector(){ return orientation; }
 	
 	public float getAngularVel(){ return (float)angularVelocity; }
 	

@@ -2,8 +2,11 @@ package entities;
 
 
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 
-import Input.KeyBindingAbstract;
+import Input.KeyBinding;
+import Input.KeyCommand;
+import Input.MouseCommand;
 
 //import javax.swing.Action;
 //import javax.swing.Timer;
@@ -12,6 +15,7 @@ import animation.*;
 import engine.Board;
 import entityComposites.Collidable;
 import physics.Collision;
+import physics.Force;
 import physics.Vector;
 import physics.BoundaryFeature;
 import misc.CollisionEvent;
@@ -22,11 +26,17 @@ import misc.PlayerDirection.PlayerDirection;
 import physics.Boundary;
 import sprites.Sprite;
 import sprites.SpriteAnimated;
+import utility.StateController;
+import utility.Trigger;
 
 public class PlayerCharacter extends Player {
 	
 	private final int spriteOffsetX=-35;
 	private final int spriteOffsetY=-35;
+	
+	protected StateController stateController = new StateController();
+	
+	private Force movementForce = ((Collidable)this.collisionType).addForce( new Vector(0,0) );
 	
 	private boolean climbing = false;
     
@@ -121,15 +131,16 @@ public class PlayerCharacter extends Player {
 		floorCollisionEvent = null;
 		eventList = null;
 		
+
+		this.inputController.createMouseBinding( MouseEvent.ALT_MASK , MouseEvent.BUTTON3 , new ClickTest() ); 
 		
+		this.inputController.createKeyBinding( KeyEvent.VK_W , new UpKey() );
+		this.inputController.createKeyBinding( KeyEvent.VK_A , new LeftKey() ) ;
+		this.inputController.createKeyBinding( KeyEvent.VK_S , new DownKey() ) ;
+		this.inputController.createKeyBinding( KeyEvent.VK_D , new RightKey()) ;
 		
-		this.inputController.addInputKey( new UpKey( KeyEvent.VK_W ) );
-		this.inputController.addInputKey( new LeftKey( KeyEvent.VK_A ) );
-		this.inputController.addInputKey( new DownKey( KeyEvent.VK_S ) );
-		this.inputController.addInputKey( new RightKey( KeyEvent.VK_D ) );
-		
-		this.inputController.addInputKey( new JumpKey( KeyEvent.VK_SPACE ) );
-		this.inputController.addInputKey( new ModKey( KeyEvent.VK_SHIFT ) );
+		this.inputController.createKeyBinding( KeyEvent.VK_SPACE , new JumpKey() ) ;
+		this.inputController.createKeyBinding( KeyEvent.VK_SHIFT , new ModKey() ) ;
 		
     }
     
@@ -143,7 +154,6 @@ public class PlayerCharacter extends Player {
     	//TESTING FORCES
     	this.accX = (float) ((Collidable)collisionType).sumOfForces().getX();
     	this.accY = (float) ((Collidable)collisionType).sumOfForces().getY();
-    	
     	
     }   
     
@@ -167,7 +177,7 @@ public class PlayerCharacter extends Player {
     
     private void changeDirection(){
     	
-    	playerDirection.reveseDirection();
+    	playerDirection.reveseDirection(); 
     	
     	
     }
@@ -176,6 +186,7 @@ public class PlayerCharacter extends Player {
 		@Override
 		public void run( BoundaryFeature source , BoundaryFeature collidingWith ) {
 			changePlayerState( fallingLeft );
+			
 		}	
     }
     
@@ -266,14 +277,31 @@ public class PlayerCharacter extends Player {
     
     private class Running extends PlayerState{ 
     	
-    	private abstract class RunState{ public void update(){} } //CONSIDER SEPERATE IDLERUN STATE
+    	private abstract class RunState{ public abstract void update(); } //CONSIDER SEPERATE IDLERUN STATE
     	
     	private class Accelerating extends RunState{ 
-    		
-    		public void update(){ dx = playerDirection.normalize( 3 ); }
+    		@Override
+    		public void update(){ 
+    			
+    			float runningForce = 0.1f * ( 3 - Math.abs(dx) ) ;
+    			
+    			movementForce.setVector(
+    				(float) getOrientationVector().multiply(  playerDirection.normalize( 0.1 + runningForce  )  ).getX() ,
+    				(float) getOrientationVector().multiply(  playerDirection.normalize( 0.1 + runningForce )  ).getY()  
+    			);
+    			
+    		}
     	}
     	
-    	private class Neutral extends RunState{ public void update(){/*nothing*/} }
+    	private class Neutral extends RunState{ 
+    		@Override
+    		public void update(){
+    			movementForce.setVector(0,0);
+    			if (dx == 0){
+    				changePlayerState(standing);
+    			}
+    		} 
+    	}
     	
     	private final RunState idle = new Neutral();
     	private final RunState accelerate = new Accelerating();
@@ -290,18 +318,16 @@ public class PlayerCharacter extends Player {
 		
 		@Override
 		public void updateState() {
-			state.update();
 			
+			state.update();
 			//((AnimationEnhanced) RUN_RIGHT.getAnimation()).updateLinkedSpeed((int)-dx, 2, 20, 0, 3);
 			
-			if (dx == 0){
-				changePlayerState(standing);
-			}
 		}
 		
 		@Override
 		public void onJump() {
 			setDY(-5);
+			changePlayerState(fallingLeft); //later to be jum;ping
 		}
 		
 		@Override
@@ -389,7 +415,7 @@ public class PlayerCharacter extends Player {
 		
     }
     
-private class SprintingTurn extends PlayerState{
+    private class SprintingTurn extends PlayerState{
     	
     	private int counter = 20; //Duration of turn in frames
     	
@@ -425,6 +451,11 @@ private class SprintingTurn extends PlayerState{
     	
 		public Falling( String name , Sprite spriteRight , Sprite spriteLeft) {
 			super( name , spriteRight , spriteLeft);
+		}
+		
+		@Override
+		public void uponChange() {
+			movementForce.setVector(0,0);
 		}
 		
 		@Override
@@ -480,6 +511,7 @@ private class SprintingTurn extends PlayerState{
     	
 		public WallSliding( String name , Sprite spriteRight , Sprite spriteLeft) {
 			super( name , spriteRight , spriteLeft );
+			
 		}
 		
 		@Override
@@ -513,7 +545,6 @@ private class SprintingTurn extends PlayerState{
 			accY = 0.2f;
 			clinging = false;
 		}
-		
     	
     } 
     
@@ -525,11 +556,7 @@ private class SprintingTurn extends PlayerState{
      */
 
     
-    private class UpKey extends KeyBindingAbstract{
-    	
-		protected UpKey(int keycode) {
-			super(keycode);
-		}
+    private class UpKey implements KeyCommand{
 
 		@Override
 		public void onPressed() { playerState.onUp(); }
@@ -542,11 +569,7 @@ private class SprintingTurn extends PlayerState{
 		
     }
     
-    private class DownKey extends KeyBindingAbstract{
-    	
-		protected DownKey(int keycode) {
-			super(keycode);
-		}
+    private class DownKey implements KeyCommand{
 
 		@Override
 		public void onPressed() { playerState.onDown(); }
@@ -559,11 +582,8 @@ private class SprintingTurn extends PlayerState{
 		
     }
     
-    private class RightKey extends KeyBindingAbstract{
+    private class RightKey implements KeyCommand{
     	
-		protected RightKey(int keycode) {
-			super(keycode);
-		}
 
 		@Override
 		public void onPressed() { playerState.onRight(playerDirection); }
@@ -574,18 +594,10 @@ private class SprintingTurn extends PlayerState{
 		@Override
 		public void onHeld(){ playerState.holdingRight(playerDirection); }
 		
-		@Override
-		public String toString() {
-			return "Right";
-		}
-		
     }
     
-    private class LeftKey extends KeyBindingAbstract{
+    private class LeftKey implements KeyCommand{
     	
-		protected LeftKey(int keycode) {
-			super(keycode);
-		}
 
 		@Override
 		public void onPressed() { playerState.onLeft(playerDirection); }
@@ -599,11 +611,8 @@ private class SprintingTurn extends PlayerState{
     }
     
     
-    private class JumpKey extends KeyBindingAbstract{
+    private class JumpKey implements KeyCommand{
     	
-		protected JumpKey(int keycode) {
-			super(keycode);
-		}
 
 		@Override
 		public void onPressed() { playerState.onJump(); }
@@ -616,11 +625,7 @@ private class SprintingTurn extends PlayerState{
 		
     }
     
-    private class ModKey extends KeyBindingAbstract{
-    	
-		protected ModKey(int keycode) {
-			super(keycode);
-		}
+    private class ModKey implements KeyCommand{
 
 		@Override
 		public void onPressed() { playerState.onShift(); }
@@ -630,6 +635,31 @@ private class SprintingTurn extends PlayerState{
 
 		@Override
 		public void onHeld(){ playerState.holdingShift(); }
+		
+    }
+    
+    private class ClickTest implements MouseCommand{
+
+		@Override
+		public void mousePressed() {
+			playerState.onLeft(playerDirection);
+		}
+
+		@Override
+		public void mouseDragged() {
+		}
+
+		@Override
+		public void mouseMoved() {
+		}
+
+		@Override
+		public void mouseReleased() {
+			playerState.offLeft(playerDirection);
+		}
+    	
+
+		
 		
     }
     

@@ -53,8 +53,13 @@ public class Side extends BoundaryFeature{
 		calculateSlope(line);
 	}
 	
-	protected void setLine( Point P1 , Point P2){ 
-		this.line = new Line2D.Float( P1, P2 ); 
+	protected void setLine( Point2D p1 , Point2D p2){ 
+		this.line = new Line2D.Float( p1, p2 ); 
+		calculateSlope(line);
+	}
+	
+	protected void setLine( Point p1 , Point p2){ 
+		this.line = new Line2D.Float( p1, p2 ); 
 		calculateSlope(line);
 	}
 	

@@ -49,13 +49,21 @@ public class Board extends JPanel implements Runnable {
     //RENDERING
     public Camera camera;
     private RenderingLayer[] layer = {
+    		/*new RenderingLayer(1,1),
+    		new RenderingLayer(1.15,0.998),
+    		new RenderingLayer(1.3, 0.990),
+    		new RenderingLayer(1.6, 0.985 ),
+    		new RenderingLayer(1.8, 0.98),
+    		new RenderingLayer(3, 0.975),
+    		new RenderingLayer(5, 0.97)*/
+    		
     		new RenderingLayer(1,1),
-    		new RenderingLayer(1.15f,0.998),
-    		new RenderingLayer(1.3f, 0.990),
-    		new RenderingLayer(1.6f, 0.985 ),
-    		new RenderingLayer(1.8f, 0.98),
-    		new RenderingLayer(3f, 0.975),
-    		new RenderingLayer(5, 0.97)
+    		new RenderingLayer(1.15,1.15),
+    		new RenderingLayer(1.3, 1.3),
+    		new RenderingLayer(1.6, 1.6 ),
+    		new RenderingLayer(1.8, 1.8),
+    		new RenderingLayer(3, 3),
+    		new RenderingLayer(5, 5)
     };
     
     protected Point clickPosition;
@@ -150,23 +158,23 @@ public class Board extends JPanel implements Runnable {
 			new Line2D.Double( -25 , 500 , -25 , -50 )
 		};
 
-		testEntity = EntityFactory.createEntityFromBoundary(140, 400, triangleBounds );
+		testEntity = EntityFactory.createEntityFromBoundary(300, 500, triangleBounds );
 		testEntity.loadSprite("bullet.png" , 0 , 0 );
 		staticEntitiesList.add( testEntity );    
         
         
         
-        testEntity = new EntityStatic("Test Ground1",150,500);     
+        testEntity = new EntityStatic("Test Ground1",50,500);     
         Collidable collidable = new Collidable( testEntity );
         testEntity.setCollisionProperties( collidable );
         collidable.setBoundary( new Boundary.Box(446,100,-223,-50 , collidable ) );
 
         testEntity.loadSprite("ground_1.png" , -223 , -53 );
 
-        //staticEntitiesList.add( testEntity );
+        staticEntitiesList.add( testEntity );
         
         
-        testEntity = new EntityStatic("Test Ground",700,800);     
+        testEntity = new EntityStatic("Test Ground",700,500);     
         collidable = new Collidable( testEntity );
         collidable.setBoundary( new Boundary.Box(446,100,-223,-50 , collidable ) );
         testEntity.setCollisionProperties( collidable );
@@ -486,6 +494,7 @@ public class Board extends JPanel implements Runnable {
   		@Override
   		public void mousePressed(MouseEvent e)
   		{  	
+  			player.inputController.mousePressed(e);
   			editorPanel.mousePressed(e);
   			editorPanel.getWorldGeom().mousePressed(e);
   		}
@@ -503,6 +512,7 @@ public class Board extends JPanel implements Runnable {
   		@Override
   		public void mouseReleased(MouseEvent e) 
   		{	
+  			player.inputController.mouseReleased(e);
   			editorPanel.mouseReleased(e);
   			editorPanel.getWorldGeom().mouseReleased(e);
   		}
@@ -761,9 +771,10 @@ public class Board extends JPanel implements Runnable {
 	    	
 
 	    	Point2D[] statOuter= statBounds.getFarthestPoints(playerBounds,axis);
+	    	Point2D[] playerOuter= playerBounds.getFarthestPoints(statBounds,axis);
 
 	    	Vertex[] nearStatCorner = statBounds.farthestVerticesFromPoint( statOuter[0] , axis ); //merge below
-	    	Vertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( statOuter[1] , axis );
+	    	Vertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( playerOuter[0] , axis );
 	    	
 	    	Vertex farStatCorner = statBounds.farthestVerticesFromPoint(nearStatCorner[0].toPoint(), axis)[0];
 	    	Vertex farPlayerCorner = playerBounds.farthestVerticesFromPoint(nearPlayerCorner[0].toPoint(), axis)[0];
@@ -826,26 +837,22 @@ public class Board extends JPanel implements Runnable {
 	    	
 
 	    	if (centerDistanceX>0){
-	    		centerDistanceX -= 1;
+	    		//centerDistanceX -= 1;
 	    		penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
 	    	}
 	    	else if (centerDistanceX<0){
-	    		centerDistanceX += 1;  //NEEDS HIGHER LEVEL SOLUTION
+	    		//centerDistanceX += 1;  //NEEDS HIGHER LEVEL SOLUTION
 	    		penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
 	    	}
-	    	else 
-	    		penetrationX = playerProjectionX + statProjectionX;
 
 	    	if (centerDistanceY>0){
-	    		centerDistanceY -= 1;
+	    		//centerDistanceY -= 1;
 	    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY ; 
 	    	}
 	    	else if (centerDistanceY<0){
-	    		centerDistanceY += 1; 
+	    		//centerDistanceY += 1; 
 	    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY ; 
 	    	}
-	    	else 
-	    		penetrationY = playerProjectionY + statProjectionY;
 
 
 	    	

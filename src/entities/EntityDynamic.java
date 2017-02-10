@@ -27,7 +27,7 @@ public class EntityDynamic extends EntityStatic{
     	x += dx;
     	y += dy;
     	
-    	dx += accX;
+    	dx += accX; 
     	dy += accY;
     	
     }   

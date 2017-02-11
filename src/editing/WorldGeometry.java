@@ -32,7 +32,8 @@ import java.util.*;
 public class WorldGeometry {
 	
 	private EditorPanel editorPanel;
-	private Board board;
+	private BoardAbstract board;
+	private Camera camera;
 	private ArrayList<Point> vertexPoints = new ArrayList<>();
 	private ArrayList<Line2D.Double> surfaceLines = new ArrayList<>();
 	//private ArrayList<WorldGeometry> worldGeometryEntities = new ArrayList<>();
@@ -50,9 +51,10 @@ public class WorldGeometry {
 
 	private boolean vertexPlacementAllowed;
 	
-	public WorldGeometry(EditorPanel editorPanelRef, Board board) { 
+	public WorldGeometry(EditorPanel editorPanelRef, BoardAbstract board2) { 
 		this.editorPanel = editorPanelRef;
-		this.board = board;
+		this.board = board2;
+		this.camera = board2.getCamera();
 		worldGeomMode = VERTEXDRAWING_MODE;
 		vertexPlacementAllowed = true;
 		updateSurfaceLines();
@@ -81,7 +83,7 @@ public class WorldGeometry {
 			//Line2D.Double ghostLine = new Line2D.Double(vertexPoints.get(vertexPoints.size()-1), worldGeomMousePos);
 			//offset by a pixel because it was always intersecting with previous line in list
 			Line2D.Double ghostLine = new Line2D.Double(vertexPoints.get(vertexPoints.size()-1).getX()+3, vertexPoints.get(vertexPoints.size()-1).getY(),
-						board.camera.getLocalX(worldGeomMousePos.getX()), board.camera.getLocalY(worldGeomMousePos.getY()));
+						this.camera.getLocalX(worldGeomMousePos.getX()), this.camera.getLocalY(worldGeomMousePos.getY()));
 			// if checkForIntersection(ghostLine, new Line2D.Double(vertexPoints(size()-2, vertexPoints(size()-1)
 			if (vertexPoints.size() > 1) { //there exists at least one line already drawn:
 				
@@ -99,18 +101,18 @@ public class WorldGeometry {
 				g2.setColor(Color.PINK);
 			}
 			//######  first point is the world (local) position, and the second point is the relative position under cursor. #####
-			//g2.draw(new Line2D.Double(board.camera.getLocalPosition((Point) ghostLine.getP1()), ghostLine.getP2()));
-			//g2.drawLine(board.camera.getRelativeX((int)ghostLine.getX1()), board.camera.getRelativeY((int)ghostLine.getY1()),
-					   //board.camera.getRelativeX((int)ghostLine.getX2()), board.camera.getRelativeY((int)ghostLine.getY2()));
-			board.camera.draw(ghostLine, g2);
+			//g2.draw(new Line2D.Double(this.camera.getLocalPosition((Point) ghostLine.getP1()), ghostLine.getP2()));
+			//g2.drawLine(this.camera.getRelativeX((int)ghostLine.getX1()), this.camera.getRelativeY((int)ghostLine.getY1()),
+					   //this.camera.getRelativeX((int)ghostLine.getX2()), this.camera.getRelativeY((int)ghostLine.getY2()));
+			this.camera.draw(ghostLine, g2);
 		}
 		g2.dispose();
 	}
 	public void drawVertexPoints(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
 		for (Point point: vertexPoints) {
-			//g2.drawImage(vertexPic, board.camera.getLocalX(point.x)-3, board.camera.getLocalY(point.y)-3, null);
-			board.camera.draw(vertexPic, g, point.x-3, point.y-3);
+			//g2.drawImage(vertexPic, this.camera.getLocalX(point.x)-3, this.camera.getLocalY(point.y)-3, null);
+			this.camera.draw(vertexPic, g, point.x-3, point.y-3);
 		}
 		g2.setColor(Color.WHITE);
 		g2.drawString(Boolean.toString(keypressALT), 50, 50);
@@ -132,7 +134,7 @@ public class WorldGeometry {
 		for (int i = 0; i < vertexPoints.size()-1; i++) {
 			Line2D.Double tempLine = new Line2D.Double(vertexPoints.get(i), vertexPoints.get(i+1));
 			//g2.draw(tempLine);
-			board.camera.draw(tempLine, g2);
+			this.camera.draw(tempLine, g2);
 		}
 	}
 	public void updateSurfaceLines() {
@@ -152,8 +154,8 @@ public class WorldGeometry {
 	 */
 	public void addVertex(int x, int y) {
 		//deselectAllVertices()   (for when vertices can be selected)
-		//vertexPoints.add(new Point(board.camera.getLocalX(worldGeomMousePos.x), board.camera.getLocalY(worldGeomMousePos.y)));
-		vertexPoints.add(new Point(board.camera.getLocalX(x), board.camera.getLocalY(y)));
+		//vertexPoints.add(new Point(this.camera.getLocalX(worldGeomMousePos.x), this.camera.getLocalY(worldGeomMousePos.y)));
+		vertexPoints.add(new Point(this.camera.getLocalX(x), this.camera.getLocalY(y)));
 		//vertexPoints.add(new Point(x,y));
 		updateSurfaceLines();
 	}

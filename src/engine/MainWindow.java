@@ -9,7 +9,7 @@ import java.awt.event.*;
 
 @SuppressWarnings("serial")
 public class MainWindow extends JPanel implements KeyListener{
-	private Board board;
+	private BoardAbstract board;
 	private static EditorPanel editorPanel;
 	private JSplitPane splitPane;
     private boolean F1pressed = false;
@@ -26,7 +26,8 @@ public class MainWindow extends JPanel implements KeyListener{
 		System.out.println("Resolution set to "+ width + " by " + height);
 		
 		editorPanelMinSize = new Dimension(220,300);
-		board = new Board(width,height);
+		//board = new Board(width,height);
+		board = new TestBoard(width,height);
 		board.setPreferredSize(new Dimension(Board.B_WIDTH, Board.B_HEIGHT));
 		board.setMinimumSize(new Dimension(Board.B_WIDTH, Board.B_HEIGHT));
 		
@@ -99,12 +100,12 @@ public class MainWindow extends JPanel implements KeyListener{
 	
 	@Override
 	public void keyPressed(KeyEvent e) {
-		board.keyPressed(e);
+		//board.keyPressed(e);
 		editorPanel.keyPressed(e);
 	}
 	@Override
 	public void keyReleased(KeyEvent e) {
-		board.keyReleased(e);
+		//board.keyReleased(e);
 		editorPanel.keyReleased(e);
 		
 	}

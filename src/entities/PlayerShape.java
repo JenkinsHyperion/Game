@@ -8,6 +8,7 @@ import java.awt.event.KeyEvent;
 
 import animation.*;
 import engine.Board;
+import engine.BoardAbstract;
 
 public class PlayerShape extends Player {
 	
@@ -20,7 +21,7 @@ public class PlayerShape extends Player {
 
 	private Animation IDLE_LEFT = new Animation(LoadAnimation.buildAnimation(4, 0, 14, "bullet.png") , 4 ); 
 
-    public PlayerShape(int x, int y , Board currentBoard) {
+    public PlayerShape(int x, int y , BoardAbstract currentBoard) {
         super(x, y , currentBoard);
 
 		name = "Player"+count;
@@ -45,7 +46,7 @@ public class PlayerShape extends Player {
 
         if (key == KeyEvent.VK_SHIFT) {
             	
-            	board.player = new PlayerCharacter(board.ICRAFT_X , board.ICRAFT_Y, board);
+            	//board.player = new PlayerCharacter(board.ICRAFT_X , board.ICRAFT_Y, board);
         	
         }
 

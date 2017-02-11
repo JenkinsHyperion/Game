@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import javax.swing.*;
 
 import engine.Board;
+import engine.BoardAbstract;
 
 
 
@@ -37,11 +38,11 @@ public class PropertiesPanel extends JPanel implements ActionListener,ItemListen
 	JPanel entityNamePanel;
 	JPanel entityTypePanel;
 	EditorPanel ep;
-	Board board;
+	BoardAbstract board;
 	
-	public PropertiesPanel(EditorPanel editorPanelRef, Board board) { 		 //constructor 
+	public PropertiesPanel(EditorPanel editorPanelRef, BoardAbstract board2) { 		 //constructor 
 		this.ep = editorPanelRef;
-		this.board = board;
+		this.board = board2;
 		//setPreferredSize(ep.propPanelDefaultSize);
 		collisionStatusLabelcursed = new JLabel("N/A"); //initializing these so they won't cause null problems
 		collisionStatusLabel = new JLabel("cursed?");

@@ -57,6 +57,5 @@ public class SpriteNull extends Sprite{
 		return false;
 	}
 
-
 	
 }

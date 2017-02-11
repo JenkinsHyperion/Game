@@ -73,7 +73,8 @@ public class EditorPanel extends JPanel {
 	public final Dimension allEntitiesComboBoxDefSize = new Dimension(120,20);
 	protected int currentEntIndex;
 
-	protected Board board;
+	protected BoardAbstract board;
+	protected Camera camera;
 	private WorldGeometry worldGeom;
 	private Sprite ghostSprite; 
 
@@ -109,14 +110,15 @@ public class EditorPanel extends JPanel {
 
 	private SavingLoading saveLoad;
 
-	public EditorPanel( Board boardInstance) {
+	public EditorPanel( BoardAbstract board2) {
 		//initializing some of the fields
-		this.board = boardInstance;
+		this.board = board2;
+		this.camera = board.getCamera();
 		oldMousePanPos = new Point();
 		worldMousePos = new Point();
 		oldCameraPos = new Point();
 		mode = EditorPanel.DEFAULT_MODE;
-		worldGeom = new WorldGeometry(this, boardInstance);
+		worldGeom = new WorldGeometry(this, board2);
 		newEntityPath = "";
 		selectedBox = new Rectangle();
 		//entityPlacementMode = false;
@@ -272,7 +274,7 @@ public class EditorPanel extends JPanel {
 				deleteEntButton.setEnabled(true);
 				
 				//sets Board's current entity
-				setCurrentSelectedEntity(board.getStaticEntities().get(currentEntIndex));
+				setCurrentSelectedEntity(board.getEntities().get(currentEntIndex));
 				//board.
 				createAndShowPropertiesPanel(board);
 				setSelectedEntityNameLabel("Selected: " + currentSelectedEntity.name);
@@ -328,11 +330,11 @@ public class EditorPanel extends JPanel {
 			else if (mode == EditorPanel.CAMERAPAN_MODE) {
 				
 			oldMousePanPos.setLocation(editorMousePos); // sets temporary old mouse position reference
-			oldCameraPos.setLocation( board.camera.getFocus() );
+			oldCameraPos.setLocation( this.camera.getFocus() );
 			//Set start positions 
 			
 			
-				//board.camera.setFocusForEditor(oldMousePanPos.getX(), oldMousePanPos.getY());
+				//this.camera.setFocusForEditor(oldMousePanPos.getX(), oldMousePanPos.getY());
 /*				mousePanDX = (e.getX() - oldMousePanPos.getX());
 				mousePanDY = (e.getY() - oldMousePanPos.getY());*/
 			}
@@ -356,9 +358,9 @@ public class EditorPanel extends JPanel {
 			// ^^^ must be negative because camera will pan in direction opposite the mouse drag
 			/*mousePanDX = (e.getX() - oldMousePanPos.getX());
 			mousePanDY = (e.getY() - oldMousePanPos.getY());*/
-			//board.camera.translate(mousePanDX, mousePanDY);
-			//board.camera.setFocus(e.getPoint());
-			board.camera.setFocusForEditor( oldCameraPos.getX() + ( oldMousePanPos.getX() - editorMousePos.getX() ), 
+			//this.camera.translate(mousePanDX, mousePanDY);
+			//this.camera.setFocus(e.getPoint());
+			this.camera.setFocusForEditor( oldCameraPos.getX() + ( oldMousePanPos.getX() - editorMousePos.getX() ), 
 										    oldCameraPos.getY() + ( oldMousePanPos.getY() - editorMousePos.getY() )
 										);// camera start pos   - (   distance dragged relative to screen         )
 			
@@ -367,10 +369,10 @@ public class EditorPanel extends JPanel {
 			
 			//testing automatic mouse return
 			//oldMousePanPos.setLocation( editorMousePos );
-			//oldCameraPos.setLocation( board.camera.getFocus() );
+			//oldCameraPos.setLocation( this.camera.getFocus() );
 			//automaticMouseReturn.mouseMove( 500 , 250 );
 			
-			//board.camera.setFocusForEditor(worldMousePos.x , worldMousePos.y );
+			//this.camera.setFocusForEditor(worldMousePos.x , worldMousePos.y );
 			//oldMousePanPos.setLocation(e.getPoint());
 			
 		}
@@ -422,7 +424,7 @@ public class EditorPanel extends JPanel {
 		}
 		
 		
-		board.camera.translate(pan_dx, pan_dy);
+		this.camera.translate(pan_dx, pan_dy);
 	}	
 	public void keyReleased(KeyEvent e) {
 		worldGeom.keyReleased(e);
@@ -447,7 +449,7 @@ public class EditorPanel extends JPanel {
 			keypressSHIFT = false;
 			mode = modeBuffer; //sets mode back to most recent mode before shift was pressed
 		}
-		board.camera.translate(pan_dx, pan_dy);
+		this.camera.translate(pan_dx, pan_dy);
 	}
     //END OF KEYHANDLING SECTION 
     
@@ -461,12 +463,12 @@ public class EditorPanel extends JPanel {
  	        	Stroke oldStroke = g2.getStroke();
  	        	float thickness = 2;
  	        	g2.setStroke(new BasicStroke(thickness));
- 	    		g2.drawRect(stat.getXRelativeTo(board.camera) + stat.getSpriteOffsetX(), stat.getYRelativeTo(board.camera) + stat.getSpriteOffsetY(),width,height);
+ 	    		g2.drawRect(stat.getXRelativeTo(this.camera) + stat.getSpriteOffsetX(), stat.getYRelativeTo(this.camera) + stat.getSpriteOffsetY(),width,height);
  	    		g2.setStroke(oldStroke);
  	    	}
  	    }
- 	    g.fillOval((int)board.camera.getRelativeX(oldMousePanPos.getX()), (int)board.camera.getRelativeY(oldMousePanPos.getY()), 5, 5);
- 	    g.drawString("Camera Pos: " + board.camera.getX() + "," + board.camera.getY(), 10, 10);
+ 	    g.fillOval((int)this.camera.getRelativeX(oldMousePanPos.getX()), (int)this.camera.getRelativeY(oldMousePanPos.getY()), 5, 5);
+ 	    g.drawString("Camera Pos: " + this.camera.getX() + "," + this.camera.getY(), 10, 10);
  	    g.drawString("Editor Mouse Pos: " + editorMousePos.x + "," + editorMousePos.y, 10, 20);
  	    g.drawString("oldMousePanPos: " + oldMousePanPos.x + "," + oldMousePanPos.y, 10, 30);
   	 }
@@ -474,8 +476,9 @@ public class EditorPanel extends JPanel {
   		setCurrentSelectedEntity(clickedOnEntity(click));
   		//currentSelectedEntity = clickedOnEntity(click);
 
-  		if (currentSelectedEntity != null)
-  			board.currentDebugEntity = currentSelectedEntity;
+  		if (currentSelectedEntity != null){
+  			//board.currentDebugEntity = currentSelectedEntity;
+  		}
 
   	}
   	public EntityStatic clickedOnEntity(Point click) {
@@ -484,7 +487,7 @@ public class EditorPanel extends JPanel {
   		{
   			
 	 		if (entity.getEntitySprite().hasSprite()){ //if entity has sprite, select by using sprite dimensions
-	  			selectedBox.setLocation(entity.getXRelativeTo(board.camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(board.camera) + entity.getSpriteOffsetY());
+	  			selectedBox.setLocation(entity.getXRelativeTo(this.camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(this.camera) + entity.getSpriteOffsetY());
 
 	  			selectedBox.setSize(entity.getEntitySprite().getImage().getWidth(null), entity.getEntitySprite().getImage().getHeight(null) );
 	  			if (selectedBox.contains(click)) 
@@ -522,9 +525,9 @@ public class EditorPanel extends JPanel {
 		propFrame.setLocationRelativeTo(null);
 		propFrame.setVisible(true);
 	}
-	public void createAndShowPropertiesPanel(Board board) {
+	public void createAndShowPropertiesPanel(BoardAbstract board2) {
 		propertyPanelTest.removeAll();
-		propertyPanelTest.add(new PropertiesPanel(this, board));
+		propertyPanelTest.add(new PropertiesPanel(this, board2));
 		revalidate();
 	}
 	public void minimizePanels() {
@@ -721,8 +724,8 @@ public class EditorPanel extends JPanel {
 	public void setEditorMousePos(int x, int y){
 		editorMousePos.x = x;
 		editorMousePos.y = y;
-		worldMousePos.x = board.camera.getLocalX(x);
-		worldMousePos.y = board.camera.getLocalY(y);
+		worldMousePos.x = this.camera.getLocalX(x);
+		worldMousePos.y = this.camera.getLocalY(y);
 	} 
 	public Point getEditorMousePos(){
 		return editorMousePos;

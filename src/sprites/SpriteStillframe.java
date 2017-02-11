@@ -82,7 +82,7 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     @Override
     public void drawSprite(Graphics g, Camera camera){
     	
-    	camera.draw(this, g);
+    	camera.draw(this, (Graphics2D)g);
     }
     @Override
     public void editorDraw(Graphics g, Point pos){

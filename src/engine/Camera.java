@@ -1,34 +1,46 @@
 package engine;
 
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.geom.Line2D;
 
 import entities.Entity;
 import entities.EntityDynamic;
+import entities.EntityStatic;
 import misc.*;
 import sprites.Sprite;
 
 public class Camera extends EntityDynamic{
 	
-	Board currentBoard;
+	BoardAbstract currentBoard;
 	final static int boardHalfWidth = Board.B_WIDTH/2;
 	final static int boardHalfHeight = Board.B_HEIGHT/2;
 	
 	public final static Point ORIGIN = new Point(boardHalfWidth,boardHalfHeight);
 	
-	EntityDynamic target;
+	EntityStatic target;
 	MovementBehavior behaviorCurrent;
 	MovementBehavior behaviorActive;
 	
 	private boolean lockState = false;
 	
-	public Camera(Board currentBoard){
+	public Camera(BoardAbstract testBoard  ){
 		super(boardHalfWidth,boardHalfHeight);
 		
-		this.currentBoard = currentBoard;
-		target = currentBoard.player;
+		this.currentBoard = testBoard;
+		this.setPos(0, 0);
+		behaviorActive = new LinearFollow(this,target);
+		behaviorCurrent = behaviorActive;
+	}
+	
+	public Camera(BoardAbstract testBoard , EntityStatic targetEntity){
+		super(boardHalfWidth,boardHalfHeight);
+		
+		this.currentBoard = testBoard;
+		target = targetEntity;
 		this.x = target.getX();
 		this.y = target.getY();
 		behaviorActive = new LinearFollow(this,target);
@@ -106,11 +118,15 @@ public class Camera extends EntityDynamic{
 	 * @param sprite
 	 * @param g
 	 */
-	public void draw(Sprite sprite , Graphics g){
+	public void draw(Sprite sprite , Graphics2D g2){
 		
-		g.drawImage(sprite.getImage(), 
+		//g2.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		
+		g2.drawImage(sprite.getImage(), 
 				sprite.owner.getX() + sprite.getOffsetX() - (int)this.x + boardHalfWidth , 
 				sprite.owner.getY() + sprite.getOffsetY() - (int)this.y + boardHalfHeight , 
+				//100,
+				//100,
 				null);
 	}
 	

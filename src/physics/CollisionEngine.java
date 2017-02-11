@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 import engine.Board;
+import engine.BoardAbstract;
+import engine.TestBoard;
 import entities.EntityDynamic;
 import entities.EntityStatic;
 import entities.Player;
@@ -17,11 +19,15 @@ import entityComposites.*;
 
 public class CollisionEngine implements Serializable{
 
-	private Board currentBoard;
+	private BoardAbstract currentBoard;
+	
+	private ArrayList<Collidable> staticCollidablesList = new ArrayList<>(); 
+	private ArrayList<Collidable> dynamicCollidablesList = new ArrayList<>(); 
+	
     private LinkedList<Collision> collisionsList = new LinkedList<Collision>(); 
 	
-	public CollisionEngine(Board board){
-		currentBoard = board;
+	public CollisionEngine(BoardAbstract testBoard){
+		currentBoard = testBoard;
 		
 	}
 	
@@ -57,44 +63,27 @@ public class CollisionEngine implements Serializable{
     	}
 	    	
     }
+	
+	public void addStaticCollidable( Collidable collidable ){
+		staticCollidablesList.add(collidable);
+	}
+	
+	public void addDynamicCollidable( Collidable collidable ){
+		dynamicCollidablesList.add(collidable);
+	}
 	    
     //THIS IS THE MAIN BODY OF THE COLLISION ENGINE
     public void checkCollisions() { 
 	    	
-    	Player player = currentBoard.getPlayer();
-	    	
-        //Rectangle r0 = currentBoard.getPlayer().getBoundingBox(); // get bounding box of player first
-	 
-        //make larger box to represent distance at which a new collision will be opened 
-        //Rectangle r3 = new Rectangle(r0.x - 1 , r0.y - 1, r0.width + 2, r0.height + 2); 
-
-        //KILL PLAYER AT BOTTOM OF SCREEN
-        /*if (player.getX() > currentBoard.getboundaryY()) {  
-	        	
-        	//could be teleport(x,y) or reposition(x,y) method in either player or parent entity classes
-        	player.setX(currentBoard.ICRAFT_X);
-        	player.setY(currentBoard.ICRAFT_Y);
-        	player.setDX(0);
-        	player.setDY(0);
-        	player.setAccX(0);
-        	player.setAccY(0.1f);
-	        	
-        }//*/
-	        
-	        
-        // Check collisions between player and static objects
-        for ( EntityStatic statS : currentBoard.getStaticEntities() ) {    
-        
-        	statS.getCollisionType().checkForInteractionWith(player.getCollisionType() , CollisionCheck.SAT, this);
-        	
-        }
-        
-        for ( EntityStatic statS : currentBoard.getPhysicsEntities() ) {    
-            
-        	statS.getCollisionType().checkForInteractionWith(player.getCollisionType() , CollisionCheck.SAT, this);
-        	
-        }
-	        
+    	for ( Collidable dynamicCollidable : dynamicCollidablesList ){
+    		for ( Collidable staticCollidable : staticCollidablesList ){
+    			
+    			staticCollidable.checkForInteractionWith( dynamicCollidable , CollisionCheck.SAT, this);
+    		}
+    	}
+    	
+    	
+    	
 	        // TEST LASER COLLISION 
 	        /*for (EntityStatic stat : currentBoard.getStaticEntities()) {                	
 	        	if ( currentBoard.laser.getBoundary().boundaryIntersects( ((Collidable) stat.collidability()).getBoundaryLocal() ) ) {
@@ -105,9 +94,7 @@ public class CollisionEngine implements Serializable{
 		            } 		            
 		   		}
 	        }*/
-	        
-	    
-        
+
         // END OF CHECKS, update and remove collisions that completed;
     	updateCollisions();    
         
@@ -324,29 +311,7 @@ public class CollisionEngine implements Serializable{
    
     //#### EDITOR METHODS ###################################
     
-    /** Returns the distance to the closest side of the closest entity, or null if out of range. 
-     * 
-     * @param entityA - the entity being checked. This will be the entity being dragged
-     * @param list - the entity list from board that you want entityA to snap to
-     * @param range - the range at which this method will return distance instead of NULL. Positive only
-     * @return Point(x,y) of distance to surface of closest entity. NULL if out of range of any entities
-     */
-    public Vector getClosestSnap( EntityStatic entityA , ArrayList<EntityStatic> list , int range){ //change to side index or later side object
-    	
-    	//OPTIMIZATION - MERGE THIS AND GETSATVECTORS INTO CLASS
 
-    	//for ( EntityStatic entityB : currentBoard.getStaticEntities() ) { // index all static entities
-    	EntityStatic entityB = currentBoard.getStaticEntities().get(0);
-    	
-    	Vector[] vectors = getSATVectors(entityA, entityB);
-    			
-    			
-
-    	//}
-    		
-    	return new Vector( 0,0 );	
-    	
-    }
     
     private Vector[] getSATVectors( EntityStatic entityA, EntityStatic entityB ) {
     	

@@ -14,7 +14,7 @@ public class SavingLoading {
 	private final static String rootPath = "Levels";
 	//private ArrayList<EntityStatic> staticEntitiesList;
 	
-	public SavingLoading(Board board) {
+	public SavingLoading(BoardAbstract board) {
 		//staticEntitiesList = board.getStaticEntities();
 		makeLevelFolder();
 	}

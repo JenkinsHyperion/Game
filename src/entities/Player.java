@@ -9,16 +9,17 @@ import Input.InputController;
 //import javax.swing.Timer;
 
 import engine.Board;
+import engine.BoardAbstract;
 
 public class Player extends EntityRotationalDynamic {
 
-	protected transient Board board;
+	protected transient BoardAbstract board;
 	
-    public Player(int x, int y , Board currentBoard) {
+    public Player(int x, int y , BoardAbstract testBoard) {
         super(x, y);
 
 		name = "Player"+count;
-        board = currentBoard;
+        board = testBoard;
         initPlayer();
     }
 

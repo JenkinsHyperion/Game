@@ -1,6 +1,7 @@
 package sprites;
 
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 
@@ -38,7 +39,7 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
     }
     @Override
     public void drawSprite(Graphics g , Camera camera){
-    	camera.draw(this, g);
+    	camera.draw(this, (Graphics2D)g);
     }
     @Override
     public void editorDraw(Graphics g, Point pos){

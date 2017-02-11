@@ -26,21 +26,15 @@ import misc.*;
 
 
 @SuppressWarnings("serial")
-public class Board extends JPanel implements Runnable {
-
-	private double currentDuration;
-	
-	//private Timer timer;
+public class Board extends BoardAbstract{
 	
 	private Background background = new Background("Prototypes/Sky.png"); //move to rendering later
 	
 	private java.util.Timer updateEntitiesTimer;
-	private java.util.Timer repaintTimer;
 	
 	private CollisionEngine collisionEngine = new CollisionEngine(this); //Refactor to a better name
-	private EditorPanel editorPanel;
+
     public Player player;
-    private  PaintOverlay p;
     public Tracer laser;
     protected ArrayList<EntityStatic> staticEntitiesList; 
     protected static ArrayList<EntityDynamic> dynamicEntitiesList; 
@@ -49,13 +43,6 @@ public class Board extends JPanel implements Runnable {
     //RENDERING
     public Camera camera;
     private RenderingLayer[] layer = {
-    		/*new RenderingLayer(1,1),
-    		new RenderingLayer(1.15,0.998),
-    		new RenderingLayer(1.3, 0.990),
-    		new RenderingLayer(1.6, 0.985 ),
-    		new RenderingLayer(1.8, 0.98),
-    		new RenderingLayer(3, 0.975),
-    		new RenderingLayer(5, 0.97)*/
     		
     		new RenderingLayer(1,1),
     		new RenderingLayer(1.15,1.15),
@@ -99,35 +86,24 @@ public class Board extends JPanel implements Runnable {
         {820, 128}, {490, 170}, {700, 30}
     };
 
-    public Board(int width , int height) {
+    public Board(int width , int height ) {
     	
     	B_WIDTH = width ;
     	B_HEIGHT = height ;
     	
     	initBoard();
+    	initializeBoard();
     }
     //over loaded board constructor to accept SidePanel (editor) if editor is to be enabled
-    public Board(EditorPanel editorPanel){
-    	this.editorPanel = editorPanel;
-    	initBoard();
-    }
 
     private void initBoard() {
     	
-    	//EntityStatic test = new EntityStatic.Solid();
-    	//currentSelectedEntity = new EntityStatic(0,0 );  
-    	//currentDebugEntity = new EntityStatic(0,0 ); 
-    	//or currentSelectedEntity = new Object();
-    	currentDuration = System.currentTimeMillis();
         myMouseHandler = new MouseHandlerClass();
   		addMouseListener(myMouseHandler);
   		addMouseMotionListener(myMouseHandler);
         setFocusable(true);
         setBackground(Color.BLACK);
-        //        setPreferredSize(new Dimension(B_WIDTH, B_HEIGHT));
-//        setMinimumSize(new Dimension(B_WIDTH, B_HEIGHT));
-        // setSize(300,400);
-        // initialize object lists
+        
         staticEntitiesList = new ArrayList<>();
         dynamicEntitiesList = new ArrayList<>();
         physicsEntitiesList = new ArrayList<>();
@@ -138,17 +114,8 @@ public class Board extends JPanel implements Runnable {
 
         
         clickPosition = new Point(0,0);
-        //## TESTING ##
-        //Manually add test objects here
 
-        /*staticEntitiesList.add(new Platform(210,180,Platform.PF2));
-        staticEntitiesList.add(new Platform(170,180,Platform.PF1));
-        staticEntitiesList.add(new Platform(250,240,Platform.PF2));
-        staticEntitiesList.add(new Platform(210,240,Platform.PF2));
-        staticEntitiesList.add(new Platform(50,180,Platform.PF2));
-        staticEntitiesList.add(new Platform(60,270,Platform.PF2));
-        staticEntitiesList.add(new Ground(200,500,"ground_1.png"));
-        staticEntitiesList.add(new Slope(40,160));*/
+        
   
         EntityStatic testEntity;
         
@@ -204,108 +171,25 @@ public class Board extends JPanel implements Runnable {
         
         
         //############################################### CAMERA #######################
-    	camera = new Camera(this);
-        
-        p = new PaintOverlay(200,0,150,60);
+    	camera = new Camera(this,player);
+
         initBullets();
     
-        //THREAD AREA
-        //If what I read was correct, timers all have their own threads.
-        //The "tasks" below will fire at each respective timer's "scheduleAtFixedRate", putting them
-        //each on their own threads. There is a thread for updating entity positions, updating collisions, and the rendering.
-       
-        updateEntitiesTimer = new java.util.Timer(); //create timer
-        //repaintTimer = new java.util.Timer();    
-        TimerTask updateEntitiesTask = new TimerTask() {
-        	
-        	private long time = 0;
-            private long deltaTime = 0;
-            private long speed = 0;
-        	
-        	@Override
-        	public void run(){
-        		
-        		time = System.nanoTime();
-        		//System.out.println("press " + time);
-        		
-        		
-        		updateEntities();
-        		collisionEngine.checkCollisions();
-        		
-        		deltaTime = System.nanoTime() ;
-        		speed = deltaTime - time;
-        		
-        		speedLog[counter] = (int)(speed/1000);
-        		
-        		if (counter < 299)
-        			counter++;
-        		else
-        			counter = 0;
-        		
-        		
-        		
-        	}
-        };      
-/* ########################################################################################################################
- * 
- * 		TIMER AND PAINT FUNCTIONALITY - LATER MOVED TO RENDERING ENGINE
- * 
- * ########################################################################################################################
- */      
-        //will have to experiment how often collisions should be checked.
-        //I get strange anomolies when setting the update rate (below in "scheduleAtFixedRate(collisionUpdateTask)" too
-        // low or too high. We might want to try implementing something that puts the thread to sleep
-        //	 when it can guarantee there are no collisions happening whatsoever. Which wouldn't be often anyway I guess.
-        /*TimerTask collisionUpdateTask = new TimerTask() {
-        	@Override
-        	public void run() {
-        		//RUN COLLISION DETECTION
-        		checkCollisions();
-        	}
-        };*/
-  /*      TimerTask repaintUpdateTask = new TimerTask() {
-        	@Override
-        	public void run() {
-        		repaint();
-        	}
-        }; */
-        //Trying out Swing timer instead of util Timer
-
-        ActionListener repaintUpdateTaskSwing = new ActionListener() {
-        	
-        	private long time = 0;
-            private long deltaTime = 0;
-            private long speed = 0;
-            
-        	@Override
-        	public void actionPerformed(ActionEvent e) {
-        		time = System.nanoTime();
-        		
-        		repaint();
-        		
-        		deltaTime = System.nanoTime() ;
-        		speed = deltaTime - time;
-        		
-        		speedLogDraw[counter] = (int)(speed/1000);
-        	}
-        };
-        Timer repaintTimer = new Timer(16, repaintUpdateTaskSwing);
-        repaintTimer.setRepeats(true);
-        repaintTimer.start();
-
-        updateEntitiesTimer.scheduleAtFixedRate( updateEntitiesTask , 0 , 16); // fire task every 16 ms
-        //collisionTimer.scheduleAtFixedRate( collisionUpdateTask , 0 , 5);
-        //repaintTimer.scheduleAtFixedRate( repaintUpdateTask, 0, 16);
+        //ADD COLLIDABLES TO COLLISION ENGINE
         
-        //updateBoard();
-        //collisionThread.start();
-    }
+        for ( EntityStatic stat : staticEntitiesList ){
+        	collisionEngine.addStaticCollidable( (Collidable) stat.getCollisionType() );
+        }
+        
+        	collisionEngine.addDynamicCollidable( (Collidable)player.getCollisionType() );
+        
+    } 
+    //END INITIALIZE #############################################################################
     
-    @Override	
-    public void paintComponent(Graphics g) {  
-        super.paintComponent(g);
-        
-        background.drawBackground( g , camera );
+    @Override
+    protected void graphicsThreadPaint(Graphics g) {
+    	background.drawBackground( g , camera );
+ 		//System.out.println("Graphics running");
         
         drawObjects(g);
         
@@ -317,32 +201,68 @@ public class Board extends JPanel implements Runnable {
         }
     }
     
-    /* ##################
-     * ## UPDATE BOARD ##    (non-Javadoc)
-     * @see java.awt.event.ActionListener#acddddtionPerformed(java.awt.event.ActionEvent)
-     * ##################
-     */
+   
     
-
-      public void updateEntities(){ //TESTING CONSTANT FPS
-	      
-          
-		          //RUN POSITION AND DRAW UPDATES
+    
+    @Override
+    protected void entityThreadRun() {
+    	updateEntities();
+    	collisionEngine.checkCollisions();
+    }
+     
+    private void updateEntities(){ //RUN POSITION AND DRAW UPDATES
+    	
 		          updatePlayer();    
 		          updateDynamicEntities();
 		          updatePhysicsEntities();
 		          
 			      laser.updatePosition();	
 			      
-			      camera.updatePosition();
-		          
-	          //}
-		          
-		         //Toolkit.getDefaultToolkit().sync(); // what does this even do
-          
+			      camera.updatePosition();   
       }
+    
+    // Update position and Graphic of dynamic objects
+    private void updateDynamicEntities() {
+    	//for (EntityDynamic dynamicEntity : dynamicObjects) {     	
+    	for (int i = 0 ; i < dynamicEntitiesList.size() ; i++){
+    		EntityDynamic dynamicEntity = dynamicEntitiesList.get(i);
+    		dynamicEntity.updatePosition();
+    		dynamicEntity.getEntitySprite().updateSprite();
+    		
+    		//wrap objects around screen
+    		if ( dynamicEntity.getY() > 300){
+    			dynamicEntity.setY(0);
+    		}
+    		if ( dynamicEntity.getX() < 0){
+    			dynamicEntity.setX(400);
+    		}
+    		
+    		//CHECK IF ALIVE. IF NOT, REMOVE. 
+    		if ( !dynamicEntity.isAlive()){
+    			dynamicEntitiesList.remove(i);
+    		}
+        }
+    	camera.updatePosition();
+    } 
+    
+    // Update position and Graphic of Player
+    private void updatePlayer() { 
 
-    //spawn bullets (TESTING)
+        player.updatePosition();
+        
+		player.getEntitySprite().getAnimation().update();
+    }
+    
+    private void updatePhysicsEntities() {
+    	//for (EntityDynamic dynamicEntity : dynamicObjects) {     	
+    	for (int i = 0 ; i < physicsEntitiesList.size() ; i++){
+    		EntityDynamic physicsEntity = physicsEntitiesList.get(i);
+    		physicsEntity.updatePosition();
+    		physicsEntity.getEntitySprite().updateSprite();
+        }
+    	
+    }
+
     public void initBullets() {
 
         for (int[] p : pos) {
@@ -352,36 +272,25 @@ public class Board extends JPanel implements Runnable {
     }
     
 
-    
-    
-    /* ####################
-     * Nested Static class allowing Board objects access to the Board.
-     * This is bad form, instead pass board instance through constructors of objects that need access to board 
-     *###################*/
-	
-    	
-    	//spawn new entities and add to Board
-        public void spawnDynamicEntity(EntityDynamic spawn) {
+    public void spawnDynamicEntity(EntityDynamic spawn) {
         	
         	dynamicEntitiesList.add(spawn);       	
-        }
+    }
         
         //check board dimensions
-        public int getBoardHeight(){
-        	return B_HEIGHT;
-        }
+    public int getBoardHeight(){
+        return B_HEIGHT;
+    }
         
-        public int getBoardWidth(){
-        	return B_WIDTH;
-        }
+    public int getBoardWidth(){
+       	return B_WIDTH;
+    }
         
 
     
 
 /* ########################################################################################################################
- * 
  * 		RENDERING
- * 
  * ########################################################################################################################
  */
     public void drawObjects(Graphics g) {
@@ -442,47 +351,7 @@ public class Board extends JPanel implements Runnable {
     }
     
     
-    // Update position and Graphic of dynamic objects
-    private void updateDynamicEntities() {
-    	//for (EntityDynamic dynamicEntity : dynamicObjects) {     	
-    	for (int i = 0 ; i < dynamicEntitiesList.size() ; i++){
-    		EntityDynamic dynamicEntity = dynamicEntitiesList.get(i);
-    		dynamicEntity.updatePosition();
-    		dynamicEntity.getEntitySprite().updateSprite();
-    		
-    		//wrap objects around screen
-    		if ( dynamicEntity.getY() > 300){
-    			dynamicEntity.setY(0);
-    		}
-    		if ( dynamicEntity.getX() < 0){
-    			dynamicEntity.setX(400);
-    		}
-    		
-    		//CHECK IF ALIVE. IF NOT, REMOVE. 
-    		if ( !dynamicEntity.isAlive()){
-    			dynamicEntitiesList.remove(i);
-    		}
-        }
-    	camera.updatePosition();
-    } 
     
-    // Update position and Graphic of Player
-    private void updatePlayer() { 
-
-        player.updatePosition();
-        
-		player.getEntitySprite().getAnimation().update();
-    }
-    
-    private void updatePhysicsEntities() {
-    	//for (EntityDynamic dynamicEntity : dynamicObjects) {     	
-    	for (int i = 0 ; i < physicsEntitiesList.size() ; i++){
-    		EntityDynamic physicsEntity = physicsEntitiesList.get(i);
-    		physicsEntity.updatePosition();
-    		physicsEntity.getEntitySprite().updateSprite();
-        }
-    	
-    }
 
 
     
@@ -516,18 +385,7 @@ public class Board extends JPanel implements Runnable {
   			editorPanel.mouseReleased(e);
   			editorPanel.getWorldGeom().mouseReleased(e);
   		}
-  			/*if (currentSelectedEntity != null)
-  				
-  				currentSelectedEntity.getEntitySprite().setVisible(true);*/
-  			/*
-  			if ( currentSelectedEntity == null) {
-  				deselectAllEntities();
-  			}
-  			if (editorPanel.mode == EditorPanel.ENTPLACEMENT_MODE)
-  				editorPanel.mode = EditorPanel.DEFAULT_MODE;
-  			System.out.println("Released");
-  			mouseClick = false;
-  		} */
+  			
   	}
   	
   	//LEVEL EDITOR METHODS
@@ -927,14 +785,8 @@ public class Board extends JPanel implements Runnable {
  * 
  * ########################################################################################################################
  */
-
-    
-    
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public Camera getCamera() { return this.camera; }
 	
 	public int getboundaryX(){ return B_WIDTH ;}
 	public int getboundaryY(){ return B_HEIGHT ;}

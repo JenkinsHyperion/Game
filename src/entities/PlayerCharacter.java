@@ -13,6 +13,8 @@ import Input.MouseCommand;
 
 import animation.*;
 import engine.Board;
+import engine.BoardAbstract;
+import engine.TestBoard;
 import entityComposites.Collidable;
 import physics.Collision;
 import physics.Force;
@@ -94,14 +96,14 @@ public class PlayerCharacter extends Player {
     
     private final CollisionEvent onSideCollision = new SideCollisionEvent();
 
-    public PlayerCharacter(int x, int y , Board currentBoard) {
-        super(x, y, currentBoard);
+    public PlayerCharacter(int x, int y , BoardAbstract testBoard) {
+        super(x, y, testBoard);
         
         RUN_RIGHT.getAnimation().setReverse();
         SPRINT_RIGHT.getAnimation().setReverse();
 
 		name = "Player"+count;
-        board = currentBoard;
+        board = testBoard;
         initPlayer();
     }
 

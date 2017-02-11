@@ -1,6 +1,8 @@
 package editing;
 
 import javax.swing.*;
+
+import editing.worldGeom.*;
 import sprites.*;
 import entities.*;
 import entityComposites.Collidable;
@@ -409,13 +411,13 @@ public class EditorPanel extends JPanel {
 		}
 		else if (key == KeyEvent.VK_LEFT && !keypressLEFT) {
 
-				keypressLEFT = true; 	
-				pan_dx = -8f;
+			keypressLEFT = true; 	
+			pan_dx = -8f;
 		}
 		else if (key == KeyEvent.VK_RIGHT && !keypressRIGHT ) { 
-	
-				keypressRIGHT= true;
-				pan_dx = 8f;
+
+			keypressRIGHT= true;
+			pan_dx = 8f;
 		}	
 		else if (key == KeyEvent.VK_SHIFT && !keypressSHIFT) {
 			keypressSHIFT = true;

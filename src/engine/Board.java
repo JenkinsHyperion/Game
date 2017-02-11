@@ -195,9 +195,8 @@ public class Board extends BoardAbstract{
         
         drawGhostSprite(g, editorPanel.getGhostSprite(), editorPanel.getEditorMousePos());
         if (editorPanel.mode == EditorPanel.WORLDGEOM_MODE) {
-        	editorPanel.getWorldGeom().drawGhostVertex(g);
-        	editorPanel.getWorldGeom().drawVertexPoints(g);
-        	editorPanel.getWorldGeom().drawSurfaceLines(g);
+        	editorPanel.getWorldGeom().render(g);
+        	
         }
     }
     

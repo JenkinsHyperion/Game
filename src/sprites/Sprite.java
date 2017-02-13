@@ -3,6 +3,7 @@ package sprites;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.geom.AffineTransform;
 import java.io.Serializable;
 
 import animation.Animation;
@@ -18,7 +19,11 @@ public abstract class Sprite implements Serializable {
     protected boolean visibility;
     protected int spriteOffsetX = 0;
     protected int spriteOffsetY = 0;
+    protected int spriteSizePercent = 100;
+    protected int spriteAngle = 0;
     protected String fileName;
+    
+	AffineTransform spriteTransform = new AffineTransform();
 
 //ABSTRACT FUNCTIONS 
 	//This is a getImage() that works for both still and animated sprites, so draw functions in Board 

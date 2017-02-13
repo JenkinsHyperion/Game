@@ -8,6 +8,7 @@ import java.awt.geom.Point2D;
 import physics.Boundary;
 import physics.Side;
 import physics.Vector;
+import sprites.SpriteStillframe;
 import entityComposites.*;
 import misc.CollisionEvent;
 
@@ -71,25 +72,30 @@ public class EntityRotationalDynamic extends EntityDynamic{
     	dy += accY;
     	
     	if (angularVelocity != 0){
-    		angle += angularVelocity;
+    		angle = (float) (angle + angularVelocity);
 
         	if ((int)angle>180){angle=-180;} //constrain range from -180 to 180 degrees for convenience
         	else if ((int)angle<-180){angle=180;}
-
     	
-        	this.setAngleInDegrees((int)angle);
+        	this.setAngle(angle);
     	}
     	
     	angularVelocity += angularAcc;
     	
     }
 	
+	private void setAngle(double angle){
+		double angleRadians = (angle * ((Math.PI)/180) ) ;
+		this.orientation = new Vector( Math.cos(angleRadians) , Math.sin(angleRadians) );
+		((SpriteStillframe)this.getEntitySprite() ).setAngle((int)angle);
+	}
+	
 	public void setAngleInDegrees( float angle ){
 		double angleRadians = (angle * ((Math.PI)/180) ) ;
 		this.angle = (float) angleRadians;
-		this.getBoundary().rotateBoundaryFromTemplate( new Point(0,0) , angleRadians , storedBounds ); 
+		//this.getBoundary().rotateBoundaryFromTemplate( new Point(0,0) , angleRadians , storedBounds ); 
 		this.orientation = new Vector( Math.cos(angleRadians) , Math.sin(angleRadians) );
-		
+		((SpriteStillframe)this.getEntitySprite() ).setAngle((int)angle);
 	}
 	
 	public void setAngleInRadians( double angle ){
@@ -108,7 +114,7 @@ public class EntityRotationalDynamic extends EntityDynamic{
 		this.angularAcc = angularAcc;
 	}
 	
-	public float getAngle(){ return (float) (angle * (180/(Math.PI))); }
+	public float getAngle(){ return (float) (angle ); }
 	
 	public Vector getOrientationVector(){ return orientation; }
 	

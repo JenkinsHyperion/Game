@@ -5,6 +5,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
 import java.io.File;
 import javax.swing.ImageIcon;
 
@@ -77,12 +79,32 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     
     @Override
     public void drawSprite(Graphics g){
-    	g.drawImage(this.getImage(), this.owner.getX() + spriteOffsetX, this.owner.getY() + spriteOffsetY, null); //null is observer
+    	
+    	Graphics2D g2 = (Graphics2D)g;
+    	g2.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+    	
+    	//AffineTransform trans = new AffineTransform();
+    	//trans.translate(this.owner.getX() + spriteOffsetX, this.owner.getY() + spriteOffsetY );
+    	
+    	g2.drawImage(this.getImage(), 
+    			this.owner.getX() + spriteOffsetX, 
+    			this.owner.getY() + spriteOffsetY, 
+    			this.getImage().getWidth(null) * spriteSizePercent/100,
+    			this.getImage().getHeight(null) * spriteSizePercent/100,
+    			null); //null is observer
     }
     @Override
     public void drawSprite(Graphics g, Camera camera){
+
+    	AffineTransform position = new AffineTransform();
     	
-    	camera.draw(this, (Graphics2D)g);
+    	position.translate(this.owner.getX(), this.owner.getY() );
+    	position.scale( (double)this.spriteSizePercent/100 , (double)this.spriteSizePercent/100 );
+    	position.rotate( Math.toRadians(this.spriteAngle) ); 
+    	position.translate(spriteOffsetX, spriteOffsetY);
+
+    	camera.drawModded(this, position, (Graphics2D)g);
+    	
     }
     @Override
     public void editorDraw(Graphics g, Point pos){
@@ -124,6 +146,19 @@ public class SpriteStillframe extends Sprite {  // Object with still image
 	@Override
 	public boolean hasSprite() {
 		return true;
+	}
+	
+	public void setResizeFactor( int percent ){
+		this.spriteSizePercent = percent;
+	}
+	
+	public void setOffset( int x, int y){
+		this.spriteOffsetX = x;
+		this.spriteOffsetY = y;
+	}
+	
+	public void setAngle( int angle){
+		this.spriteAngle = angle;
 	}
     
 	public void setFileName(String path) {

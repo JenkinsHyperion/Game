@@ -26,7 +26,7 @@ import misc.*;
 
 
 @SuppressWarnings("serial")
-public class Board extends BoardAbstract{
+public class Board extends BoardAbstract {
 	
 	private Background background = new Background("Prototypes/Sky.png"); //move to rendering later
 	
@@ -101,7 +101,9 @@ public class Board extends BoardAbstract{
         myMouseHandler = new MouseHandlerClass();
   		addMouseListener(myMouseHandler);
   		addMouseMotionListener(myMouseHandler);
+  		addKeyListener(this);
         setFocusable(true);
+        
         setBackground(Color.BLACK);
         
         staticEntitiesList = new ArrayList<>();
@@ -387,94 +389,15 @@ public class Board extends BoardAbstract{
   			
   	}
   	
-  	//LEVEL EDITOR METHODS
-  	/*
-  	private void checkForSelection(Point click) { //redundant
-  		//setCurrentSelectedEntity(clickedOnEntity(click));
-  		currentSelectedEntity = clickedOnEntity(click);
-
-  		if (currentSelectedEntity != null)
-  			currentDebugEntity = currentSelectedEntity;
-
-  	} */
-/*
-  	private EntityStatic clickedOnEntity(Point click) {
-  		int counter = 0;
-  		for (EntityStatic entity : staticEntitiesList) {
-  			
-	 		if (entity.getEntitySprite().hasSprite()){ //if entity has sprite, select by using sprite dimensions
-	  			selectedBox.setLocation(entity.getX() + entity.getSpriteOffsetX(), entity.getY() + entity.getSpriteOffsetY());
-	  			selectedBox.setSize(entity.getEntitySprite().getImage().getWidth(null), entity.getEntitySprite().getImage().getHeight(null) );
-	  			System.out.println(staticEntitiesList.indexOf(currentSelectedEntity));
-	  			if (selectedBox.contains(click)) 
-	  			{
-	  				//entity.isSelected = true;
-	  				editorPanel.enableEditPropertiesButton(true); //might not need
-	  				editorPanel.restorePanels();
-	  				editorPanel.setAllEntitiesComboBoxIndex(counter);
-	  	  			editorPanel.setSelectedEntityNameLabel("Selected: " + entity.name);
-	  	  			editorPanel.setEntityCoordsLabel("Coords. of selected entity: " + entity.getX() + ", " + entity.getY());
-	  				return entity;
-	  			}
-	  			counter++;
-	  			
-	 		}
-	 		else {
-	 			//Entity has no sprite, so selection needs some other method, like by boundary
-	 		}
-  			
-  		}
-  		//TESTING BOX SELECTION
-
-  		//nothing was found under cursor: 
-  		editorPanel.enableEditPropertiesButton(false);
-  		editorPanel.minimizePanels();
-  		return null;
-  	} */
-  /*	
-  	public void deselectAllEntities() {
-  		currentSelectedEntity = null;
-  		editorPanel.enableEditPropertiesButton(false);
-  		/*for (EntityStatic entity : staticEntitiesList) {
-  			if (entity.isSelected == true)
-  				entity.isSelected = false;
-  		} //
-  	}
-*/
+  	//protected class KeyHandlerClass implements KeyListener  { 	
   	
-  	/*
-    //testing selection of entities with mouse
-    //'ent' in this case corresponds to the entities cycled through in the enhanced for loops above
-    public void checkSelectedEntity(EntityStatic ent) {
-    	if (ent.getBoundingBox().contains(clickPosition)) {
-        	//SidePanel.setSelectedEntityName("Selected: " + ent.name);
-        	currentSelectedEntity = ent;
-        	currentSelectedEntity.isSelected = true;
-        }
-    	else if (player.getBoundingBox().contains(clickPosition)){
-    		//SidePanel.setSelectedEntityName("Selected: " + player.name);
-    		currentSelectedEntity = player;
-    		currentSelectedEntity.isSelected = true;
-    	}
-    	else{
-    		currentSelectedEntity = blankEntity;
-    	}
-    	/*
-    	 * gives an error with the timer for some reason
-    	 
-    	else{
-    		SidePanel.selectedEntityName.setText("Nothing Selected.");
-    	}
-    	
-    }*/
-  	
-
+  		@Override
         public void keyReleased(KeyEvent e) {
             player.inputController.keyReleased(e);
             editorPanel.keyReleased(e);
             editorPanel.getWorldGeom().keyReleased(e);           
         }
-
+  		@Override
         public void keyPressed(KeyEvent e) {
             player.inputController.keyPressed(e);
             editorPanel.keyPressed(e);
@@ -510,6 +433,11 @@ public class Board extends BoardAbstract{
             	//editorPanel.nullifyGhostVertex();
             }   
         }
+		@Override
+		public void keyTyped(KeyEvent e) {
+			
+		}
+  	//}
 
     
 /* ########################################################################################################################

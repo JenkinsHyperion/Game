@@ -1,13 +1,7 @@
 package utility;
 
-public class Trigger { // per input controller key
+public interface Trigger { 
 
-	protected Trigger(){
-		
-	}
-	
-	public void run(){
-		
-	}
+	public void activate();
 	
 }

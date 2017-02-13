@@ -27,7 +27,7 @@ import misc.*;
 
 
 @SuppressWarnings("serial")
-public class TestBoard extends BoardAbstract {
+public class TestBoard extends BoardAbstract{
 	
 	private Background background = new Background("Prototypes/Sky.png"); //move to rendering later
 	
@@ -57,19 +57,19 @@ public class TestBoard extends BoardAbstract {
     
     private int[] speedLogDraw = new int[300];
     private int[] speedLog = new int[300];
-    private static int counter=0;
-
 
     public TestBoard(int width , int height ) {
     	B_WIDTH = width ;
     	B_HEIGHT = height ;
     	
     	initBoard();
+    	initializeBoard();
     }
     //over loaded board constructor to accept SidePanel (editor) if editor is to be enabled
     public TestBoard(){
     	
     	initBoard();
+    	initializeBoard();
     }
 
     private void initBoard() {
@@ -82,17 +82,26 @@ public class TestBoard extends BoardAbstract {
         
         staticEntitiesList = new ArrayList<>();
         dynamicEntitiesList = new ArrayList<>();
-  
-        EntityStatic testEntity;
-        
-        testEntity = new TestHinge(300,300);     
-        testEntity.setCollisionProperties( NonCollidable.getNonCollidable() );
 
-        testEntity.loadSprite("ground_1.png" , -223 , -53 );
-
-        staticEntitiesList.add( testEntity );
+        //dynamicEntitiesList.add( new PlantTwigSegment(300,300,this) );
 
     	camera = new Camera(this);
+    	
+    	
+    	
+    	TestHinge testEntity = new TestHinge(300,300, new Point( 100 , 5 ));     
+    	
+    	Collidable mesh = new Collidable( testEntity );
+    	
+        testEntity.setCollisionProperties( mesh );
+
+        testEntity.loadSprite("ground01.png" , 0 , 0);
+
+        //mesh.addForce( new Vector(0,0.01) );
+        //testEntity.setAngleInDegrees(45);
+        testEntity.setAngularVelocity(2);
+        
+        dynamicEntitiesList.add( testEntity );
     	
     }
     
@@ -109,6 +118,10 @@ public class TestBoard extends BoardAbstract {
     	//camera.updatePosition();
     }
 
+    public EntityDynamic buildSprout(int x, int y ){
+    	return new PlantTwigSegment(x, y, 100, this);
+    }
+    
     public void spawnDynamicEntity(EntityDynamic spawn) {
 
     	dynamicEntitiesList.add(spawn);       	
@@ -137,18 +150,26 @@ public class TestBoard extends BoardAbstract {
     	drawObjects(g);
     }
     
-    
     public void drawObjects(Graphics g) {
-
+    	
     	Graphics2D g2 = (Graphics2D)g;
     	
 	    for (EntityStatic stat : staticEntitiesList) {
 	    	
 	        	//stat.getEntitySprite().drawSprite(g2,camera);
-	    	camera.draw(stat.getEntitySprite(), g2);
+	    	stat.getEntitySprite().drawSprite(g2, camera);
 	    	
 	    }
 	    
+	    ArrayList<EntityDynamic> dynamicEntitiesBuffer = (ArrayList<EntityDynamic>) dynamicEntitiesList.clone();
+	    
+	    for (EntityDynamic dynamic : dynamicEntitiesBuffer) {
+	    	
+        	//stat.getEntitySprite().drawSprite(g2,camera);
+	    	dynamic.getEntitySprite().drawSprite(g2, camera);
+    	
+    }
+
         /*for (EntityDynamic dynamic : dynamicEntitiesList) {
     
         	dynamic.getEntitySprite().drawSprite(g,camera);
@@ -156,6 +177,8 @@ public class TestBoard extends BoardAbstract {
                 
         //if (debug1On){ drawDebugBoundaries(g); }
         //if (debug2On){ drawDebugCollisions(g); }
+	    
+	    camera.drawCrossInWorld(300, 300, g2);
 
     }
     
@@ -167,18 +190,8 @@ public class TestBoard extends BoardAbstract {
     		dynamicEntity.updatePosition();
     		dynamicEntity.getEntitySprite().updateSprite();
     		
-    		//wrap objects around screen
-    		if ( dynamicEntity.getY() > 300){
-    			dynamicEntity.setY(0);
-    		}
-    		if ( dynamicEntity.getX() < 0){
-    			dynamicEntity.setX(400);
-    		}
+    		//System.out.println( "angle " + ((EntityRotationalDynamic)dynamicEntity).getAngle() );
     		
-    		//CHECK IF ALIVE. IF NOT, REMOVE. 
-    		if ( !dynamicEntity.isAlive()){
-    			dynamicEntitiesList.remove(i);
-    		}
         }
     	camera.updatePosition();
     } 
@@ -226,6 +239,9 @@ public class TestBoard extends BoardAbstract {
   		@Override
   		public void mousePressed(MouseEvent e)
   		{  	
+  			
+  			spawnDynamicEntity( buildSprout( e .getX(), e.getY()) );
+  			
   			editorPanel.mousePressed(e);
   			editorPanel.getWorldGeom().mousePressed(e);
   		}
@@ -248,6 +264,26 @@ public class TestBoard extends BoardAbstract {
   		}
   			
   	}
+
+
+
+
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void keyReleased(KeyEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void keyTyped(KeyEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	
     

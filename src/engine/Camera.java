@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 
 import entities.Entity;
@@ -32,7 +33,7 @@ public class Camera extends EntityDynamic{
 		
 		this.currentBoard = testBoard;
 		this.setPos(0, 0);
-		behaviorActive = new LinearFollow(this,target);
+		behaviorActive = new InactiveBehavior();
 		behaviorCurrent = behaviorActive;
 	}
 	
@@ -130,6 +131,17 @@ public class Camera extends EntityDynamic{
 				null);
 	}
 	
+	public void drawModded(Sprite sprite , AffineTransform transform , Graphics2D g2){
+		
+		g2.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		
+		transform.translate( - (int)this.x + boardHalfWidth  ,  - (int)this.y + boardHalfHeight  );
+		
+		g2.drawImage(sprite.getImage(), 
+				transform,
+				null);
+	}
+	
 	public void draw(Image image , Graphics g , int worldX, int worldY ){
 		
 		g.drawImage(image, 
@@ -159,6 +171,11 @@ public class Camera extends EntityDynamic{
 				x - (int)this.x + boardHalfWidth, 
 				y - (int)this.y + boardHalfHeight
 		);
+	}
+	
+	public void drawCrossInWorld( int worldX, int worldY , Graphics g ){
+		
+		drawCross( worldX , worldY , g);
 	}
 	
 	/**
@@ -210,6 +227,12 @@ public class Camera extends EntityDynamic{
 	public double getRelativeY( double  y_relative_to_world){
 		return y_relative_to_world -  (int)this.y + boardHalfHeight  ;
 	}
+	
+	
+    private void drawCross(int x, int y , Graphics g){
+    	g.drawLine( x-3, y-3, x+3, y+3 );
+		g.drawLine( x-3, y+3, x+3, y-3 );
+    }
 	
 	
 }

@@ -28,15 +28,12 @@ import misc.PlayerDirection.PlayerDirection;
 import physics.Boundary;
 import sprites.Sprite;
 import sprites.SpriteAnimated;
-import utility.StateController;
 import utility.Trigger;
 
 public class PlayerCharacter extends Player {
 	
 	private final int spriteOffsetX=-35;
 	private final int spriteOffsetY=-35;
-	
-	protected StateController stateController = new StateController();
 	
 	private Force movementForce = ((Collidable)this.collisionType).addForce( new Vector(0,0) );
 	

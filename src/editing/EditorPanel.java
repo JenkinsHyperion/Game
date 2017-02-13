@@ -132,7 +132,8 @@ public class EditorPanel extends JPanel {
 
 		//setSelectedEntityThruEditor(board.getStaticEntities().get(0)); //NEEDS ZERO ARRAY SIZE CHECK
 
-		setCurrentSelectedEntity(board.getStaticEntities().get(0)); 
+		setCurrentSelectedEntity( NullEntitySelection.getNullEntity() ); 
+        //setCurrentSelectedEntity( this.board.getStaticEntities().get(0) ); 
 		
 		//set the editor's layout
 		layout = new FlowLayout(FlowLayout.LEADING, 3, 3);
@@ -205,7 +206,10 @@ public class EditorPanel extends JPanel {
 		allEntitiesComboBox = new JComboBox<>(staticEntityStringArr);
 		allEntitiesComboBox.setPreferredSize(allEntitiesComboBoxDefSize);
 		allEntitiesComboBox.setFocusable(false);
-		allEntitiesComboBox.setSelectedIndex(0); //give it a default value
+		
+		//allEntitiesComboBox.setSelectedIndex(0); //give it a default value     //TO DO ####################################
+		//######################################################################################################################
+		
 		allEntitiesComboBox.addActionListener(new EntitiesComboBoxActionHandler());
 
 		// Panel to contain allEntitiesComboBox drop down panel
@@ -747,17 +751,20 @@ public class EditorPanel extends JPanel {
 	
 	
 	
-	//state skeleton
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	private static class NullEntitySelection extends EntityStatic{
+
+		private static EntityStatic nullEntity = new NullEntitySelection();
+		
+		private NullEntitySelection() {
+			super(0,0);
+		}
+		
+		public static EntityStatic getNullEntity(){
+			return nullEntity;
+		}
+		
+	}
+
 	
 	
 	

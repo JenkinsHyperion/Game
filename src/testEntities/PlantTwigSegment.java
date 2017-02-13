@@ -80,57 +80,62 @@ public class PlantTwigSegment extends EntityDynamic {
 			
 			if ( getNumberFromBranch() > ThreadLocalRandom.current().nextInt( 0 , 5) ){ //start new branch every 1-6 segments
 				
+				final int FORK_ANGLE = 40; // Set to 90 or higher for some freaky shit
+				final int UPWARD_WILLPOWER = 10; //-20 to 40 look normal. Set to 90 or higher for chaos
+				
 				int thisMaxGrowth = (int)oldMaxGrowth-1;
 				
-				int trimmed =  (angle % 360) ; // constrain angle to 0-360 for convenience
+				int thisSegmentAngle =  (angle % 360) ; // constrain angle to 0-360 for convenience
 				
-				if ( trimmed > 0)
-					if (trimmed > 180) // Adds a 10 degree push towards angle of 0 ( pointing up )
-						trimmed += 10;
+				if ( thisSegmentAngle > 0)
+					if (thisSegmentAngle > 180) // Adds push towards angle of 0 ( pointing up )
+						thisSegmentAngle += UPWARD_WILLPOWER;
 					else
-						trimmed -= 10; //find better math way of doing this
+						thisSegmentAngle -= UPWARD_WILLPOWER; //find better math way of doing this
 				else
-					if (trimmed < -180)
-						trimmed -= 10;
+					if (thisSegmentAngle < -180)
+						thisSegmentAngle -= UPWARD_WILLPOWER;
 					else
-						trimmed += 10;
+						thisSegmentAngle += UPWARD_WILLPOWER;
 				
 				//Create next segments and spawn them into board
 				PlantTwigSegment sprout = new PlantTwigSegment( endPointX , endPointY , thisMaxGrowth , board) ;
-				sprout.setAngle( trimmed+40 );
+				sprout.setAngle( thisSegmentAngle + FORK_ANGLE );
 				board.spawnDynamicEntity( sprout );
 				
 				sprout = new PlantTwigSegment( endPointX , endPointY , thisMaxGrowth , board) ;
-				sprout.setAngle( trimmed-40 );
+				sprout.setAngle( thisSegmentAngle - FORK_ANGLE );
 				board.spawnDynamicEntity( sprout );
 				
 			}
 			else if (oldMaxGrowth > 20){ // Else segemnt didn't branch, so grown next segment if bigger than 20% grown
 				
+				final int RANDOM_BEND_RANGE = 20; // 0 is perfectly straight branch. Higher than 40 looks withered.
+				
 				int randomShrinkage = ThreadLocalRandom.current().nextInt( 1 , 10); // This being greater than 0 is the only
-				//thing stopping the stem from growing infinitely.
+				//thing stopping the stem from growing infinitely. Adjust chances accordingly
 				
 				int thisMaxGrowth = getMaxGrowth() - randomShrinkage; //reduce next segment's max growth so its always smaller
 				
 				PlantTwigSegment sprout = new PlantTwigSegment( endPointX , endPointY , thisMaxGrowth , board) ;
 				
-				int randomBend = ThreadLocalRandom.current().nextInt( -10 ,10); // get random bend
+				int randomBend = ThreadLocalRandom.current().nextInt( -RANDOM_BEND_RANGE ,RANDOM_BEND_RANGE); // get random bend
 				
-				int trimmed =  ((angle + randomBend) % 360) ; //And add it to the next segments angle
+				int thisSegmentAngle =  ((angle + randomBend) % 360) ; //And add it to the next segments angle
 				
-				if ( trimmed > 0)
-					if (trimmed > 180) // Adds a 10 degree push towards angle of 0 ( pointing up ) same as above
-						trimmed += 10;
+				if ( thisSegmentAngle > 0)
+					if (thisSegmentAngle > 180) // Adds a 10 degree push towards angle of 0 ( pointing up ) same as above
+						thisSegmentAngle += 10;
 					else
-						trimmed -= 10;
+						thisSegmentAngle -= 10;
 				else
-					if (trimmed > -180)
-						trimmed += 10;
+					if (thisSegmentAngle > -180)
+						thisSegmentAngle += 10;
 					else
-						trimmed -= 10;
+						thisSegmentAngle -= 10;
 					
 				
-				sprout.setAngle(trimmed);
+				sprout.setAngle(thisSegmentAngle);
 				sprout.nextNumberFromBranch( getNumberFromBranch()+1 ); //Increment next branches number in this stem
 				board.spawnDynamicEntity( sprout ); //then spawn it in
 				

@@ -112,6 +112,8 @@ public class PlantTwigSegment extends EntityDynamic {
 				
 				final int RANDOM_BEND_RANGE = 20; // 0 is perfectly straight branch. Higher than 40 looks withered.
 				
+				final int UPWARD_WILLPOWER = 10; // 
+				
 				int randomShrinkage = ThreadLocalRandom.current().nextInt( 1 , 10); // This being greater than 0 is the only
 				//thing stopping the stem from growing infinitely. Adjust chances accordingly
 				
@@ -125,14 +127,14 @@ public class PlantTwigSegment extends EntityDynamic {
 				
 				if ( thisSegmentAngle > 0)
 					if (thisSegmentAngle > 180) // Adds a 10 degree push towards angle of 0 ( pointing up ) same as above
-						thisSegmentAngle += 10;
+						thisSegmentAngle += UPWARD_WILLPOWER;
 					else
-						thisSegmentAngle -= 10;
+						thisSegmentAngle -= UPWARD_WILLPOWER;
 				else
 					if (thisSegmentAngle > -180)
-						thisSegmentAngle += 10;
+						thisSegmentAngle += UPWARD_WILLPOWER;
 					else
-						thisSegmentAngle -= 10;
+						thisSegmentAngle -= UPWARD_WILLPOWER;
 					
 				
 				sprout.setAngle(thisSegmentAngle);

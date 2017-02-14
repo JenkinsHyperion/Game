@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.*;
 
@@ -56,7 +57,7 @@ public class WorldGeometry {
 	/*private static final int VERTEXDRAWING_MODE = 0;
 	private static final int VERTEXSELECT_MODE = 1;*/
 	// private Point currentSelectedVertex;
-	private Point2D currentSelectedVertex;
+	private Point currentSelectedVertex;
 	private boolean vertexPlacementAllowed;
 	
 	private int offsetX; //actual point will be within the square's center, so square must be offset.
@@ -90,48 +91,6 @@ public class WorldGeometry {
 		g2.fillRect(0, 0, 6, 6);
 		g2.dispose();
 		return temp;
-	}
-
-	public void drawGhostVertex(Graphics g){
-		Graphics2D g2 = (Graphics2D)g.create();
-		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .5f));
-		//the -3 accounts for the offset
-		g2.drawImage(vertexPic, worldGeomMousePos.x - 3, worldGeomMousePos.y - 3, null);
-		if (vertexPoints.size() > 0) {	
-			//Line2D.Double ghostLine = new Line2D.Double(vertexPoints.get(vertexPoints.size()-1), worldGeomMousePos);
-			//offset by a pixel because it was always intersecting with previous line in list
-			Line2D.Double ghostLine = new Line2D.Double(vertexPoints.get(vertexPoints.size()-1).getX()+3, vertexPoints.get(vertexPoints.size()-1).getY(),
-						this.camera.getLocalX(worldGeomMousePos.getX()), this.camera.getLocalY(worldGeomMousePos.getY()));
-			// if checkForIntersection(ghostLine, new Line2D.Double(vertexPoints(size()-2, vertexPoints(size()-1)
-			if (vertexPoints.size() > 1) { //there exists at least one line already drawn:
-				
-				if (checkIfLinesIntersect(ghostLine)) {  //one of the lines are crossing
-					g2.setColor(Color.RED);
-					//canCreateVertices(false) <---do later EDIT: done
-					vertexPlacementAllowed = false;
-				}
-				else {								// nothing's intersecting, ready to place another point
-					g2.setColor(Color.PINK);
-					vertexPlacementAllowed = true;
-				}
-			}
-			else {
-				g2.setColor(Color.PINK);
-			}
-			//######  first point is the world (local) position, and the second point is the relative position under cursor. #####
-			//g2.draw(new Line2D.Double(this.camera.getLocalPosition((Point) ghostLine.getP1()), ghostLine.getP2()));
-			//g2.drawLine(this.camera.getRelativeX((int)ghostLine.getX1()), this.camera.getRelativeY((int)ghostLine.getY1()),
-					   //this.camera.getRelativeX((int)ghostLine.getX2()), this.camera.getRelativeY((int)ghostLine.getY2()));
-			this.camera.draw(ghostLine, g2);
-		}
-		g2.dispose();
-	}
-	public void drawVertexPoints(Graphics g) {
-		Graphics2D g2 = (Graphics2D) g;
-		for (Point point: vertexPoints) {
-			//g2.drawImage(vertexPic, this.camera.getLocalX(point.x)-3, this.camera.getLocalY(point.y)-3, null);
-			this.camera.draw(vertexPic, g, point.x-3, point.y-3);
-		}
 	}
 	
 /*	
@@ -197,49 +156,7 @@ public class WorldGeometry {
 		vertexList.clear();
 		surfaceLines.clear();
 	}
-	public void setCurrentSelectedVertex(Point2D newSelectedVertex){
-		currentSelectedVertex = newSelectedVertex;
-	}
-	//VERTEX SELECTION AREA: IDENTICAL TO SPRITE SELECTION BECAUSE THE FUNCTIONALITY WORKS WELL
-	/*
-	public void checkForSelection(Point click) 
-	{
-  		setCurrentSelectedEntity(clickedOnEntity(click));
-  		//currentSelectedEntity = clickedOnEntity(click);
-  		if (currentSelectedEntity != null)
-  			board.currentDebugEntity = currentSelectedEntity;
-  	}
-  	public EntityStatic clickedOnEntity(Point click) {
-  		int counter = 0;
-  		for (EntityStatic entity : board.getStaticEntities()) 
-  		{
-  			
-	 		if (entity.getEntitySprite().hasSprite())  //if entity has sprite, select by using sprite dimensions
-	 		{ 
-	  			selectedBox.setLocation(entity.getX() + entity.getSpriteOffsetX(), entity.getY() + entity.getSpriteOffsetY());
-	  			selectedBox.setSize(entity.getEntitySprite().getImage().getWidth(null), entity.getEntitySprite().getImage().getHeight(null) );
-	  			if (selectedBox.contains(click)) 
-	  			{
-	  				//entity.isSelected = true;
-	  				enableEditPropertiesButton(true); //might not need
-	  				restorePanels();
-	  				setAllEntitiesComboBoxIndex(counter);
-	  	  			setSelectedEntityNameLabel("Selected: " + entity.name);
-	  	  			setEntityCoordsLabel("Coords. of selected entity: " + entity.getX() + ", " + entity.getY());
-	  				return entity;
-	  			}
-	  			counter++;	  			
-	 		}
-	 		else {
-	 			//Entity has no sprite, so selection needs some other method, like by boundary
-	 		} 			
-  		}
-  		//nothing was found under cursor: 
-  		enableEditPropertiesButton(false);
-  		minimizePanels();
-  		return null;
-  	}
-	*/
+	
 	//// WORLD GEOM'S MOUSE HANDLING SECTION  ////////////
 	public void mousePressed(MouseEvent e) {
 		
@@ -252,6 +169,7 @@ public class WorldGeometry {
 	}
 	public void mouseDragged(MouseEvent e) {
 		// TODO Auto-generated method stub
+		this.worldGeomMode.mouseDragged(e);
 		
 	}
 	public void mouseMoved(MouseEvent e) {
@@ -396,9 +314,6 @@ public class WorldGeometry {
 				//g2.drawImage(vertexPic, board.camera.getLocalX(point.x)-3, board.camera.getLocalY(point.y)-3, null);
 				camera.draw(vertexPic, g, point.x-3, point.y-3);
 			}
-			g2.setColor(Color.WHITE);
-			g2.drawString(Boolean.toString(keypressALT), 50, 50);
-			g2.drawString(Boolean.toString(vertexPlacementAllowed),50, 100);
 			
 			// old drawsurfacelines vvvvvv
 			g2.setColor(Color.MAGENTA);
@@ -412,17 +327,29 @@ public class WorldGeometry {
 	// end of inner class
 	
 	
-/////////   INNER CLASS VERTEXPLACEMODE   //////////////////////////////////////////////////////
+/////////   INNER CLASS VERTEXSELECTMODE   //////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
 	public class VertexSelectMode extends WorldGeomMode {
-		
+		private WorldGeomMode subMode;
+		private Rectangle clickableVertexBox;
 		//worldGeomRef is inherited
 		public VertexSelectMode() {
+			clickableVertexBox = new Rectangle(10,10);
 		}
 
 		@Override
 		public void mousePressed(MouseEvent e) {
-			// TODO Auto-generated method stub
+			/* steps:
+			 * run checkForVertex(e)
+			 *    ---this will check if there's a vertex under the mouse, and if so, set the current
+			 *    ---selected vertex to point to this one
+			 *    ---when vertex is selected, will probably draw small box around it.
+			 *    ---pre-render this box at the start of method, and just call it and reposition it
+			 *    ---for every iteration of the for-loop to check for collision with pointer.
+			 */
+			Point pointToCheck = e.getPoint();
+			checkForVertex(pointToCheck);
+			
 		}
 
 		@Override
@@ -452,9 +379,6 @@ public class WorldGeometry {
 				//g2.drawImage(vertexPic, board.camera.getLocalX(point.x)-3, board.camera.getLocalY(point.y)-3, null);
 				camera.draw(vertexPic, g, point.x-3, point.y-3);
 			}
-			g2.setColor(Color.WHITE);
-			g2.drawString(Boolean.toString(keypressALT), 50, 50);
-			g2.drawString(Boolean.toString(vertexPlacementAllowed),50, 100);
 			
 			// old drawsurfacelines vvvvvv
 			g2.setColor(Color.MAGENTA);
@@ -463,7 +387,120 @@ public class WorldGeometry {
 				//g2.draw(tempLine);
 				camera.draw(tempLine, g2);
 			}
+			
+			// section to draw selected Vertex (if one is selected)
+			g2.setColor(Color.BLUE);
+			
 		}
+		public void setCurrentSelectedVertex(Point newSelectedVertex){
+			currentSelectedVertex = newSelectedVertex;
+		}
+		//VERTEX SELECTION AREA: IDENTICAL TO SPRITE SELECTION BECAUSE THE FUNCTIONALITY WORKS WELL
+		public void checkForVertex(Point click) {
+			int counter = 0;
+			for (Point point: vertexList) 
+			{
+				// TODO set location of collision box around vertex
+				// *** 
+				
+				if (clickableVertexBox.contains(click)) {
+					currentSelectedVertex = point;
+				// TODO here, would now set substate to VertexTranslateMode I think
+					break;
+				}
+			}
+		}
+		public void drawSelectedVertex(Point vertex, Graphics g) {
+			// ALL OF THIS WAS drawSelectedEntity
+			// I'm retailoring it to draw selected vertex
+	 /*	    if (currentSelectedVertex != null) 
+	 	    {	
+	 	    	if (stat == currentSelectedEntity) 
+	 	    	{*/
+	 	    		int width = clickableVertexBox.width;
+	 	        	int height = clickableVertexBox.height;
+	 	    		Graphics2D g2 = (Graphics2D)g;
+	 	        	g2.setColor(Color.BLUE);
+	 	        	Stroke oldStroke = g2.getStroke();
+	 	        	float thickness = 2;
+	 	        	g2.setStroke(new BasicStroke(thickness));
+	 	    		//g2.drawRect(stat.getXRelativeTo(this.camera) + stat.getSpriteOffsetX(), stat.getYRelativeTo(this.camera) + stat.getSpriteOffsetY(),width,height);
+	 	    		g2.setStroke(oldStroke);
+		}
+		/*
+		public void checkForSelection(Point click) 
+		{
+	  		setCurrentSelectedEntity(clickedOnEntity(click));
+	  		//currentSelectedEntity = clickedOnEntity(click);
+	  	}
+	  	public EntityStatic clickedOnEntity(Point click) {
+	  		int counter = 0;
+	  		for (EntityStatic entity : board.getStaticEntities()) 
+	  		{
+	  			
+		 		if (entity.getEntitySprite().hasSprite())  //if entity has sprite, select by using sprite dimensions
+		 		{ 
+		  			selectedBox.setLocation(entity.getX() + entity.getSpriteOffsetX(), entity.getY() + entity.getSpriteOffsetY());
+		  			selectedBox.setSize(entity.getEntitySprite().getImage().getWidth(null), entity.getEntitySprite().getImage().getHeight(null) );
+		  			if (selectedBox.contains(click)) 
+		  			{
+		  				//entity.isSelected = true;
+		  				enableEditPropertiesButton(true); //might not need
+		  				restorePanels();
+		  				setAllEntitiesComboBoxIndex(counter);
+		  	  			setSelectedEntityNameLabel("Selected: " + entity.name);
+		  	  			setEntityCoordsLabel("Coords. of selected entity: " + entity.getX() + ", " + entity.getY());
+		  				return entity;
+		  			}
+		  			counter++;	  			
+		 		}
+		 		else {
+		 			//Entity has no sprite, so selection needs some other method, like by boundary
+		 		} 			
+	  		}
+	  		//nothing was found under cursor: 
+	  		enableEditPropertiesButton(false);
+	  		minimizePanels();
+	  		return null;
+	  	}
+		*/
 	}
 	//end of inner class
+	
+/////////   INNER CLASS VERTEXTRANSLATEMODE   //////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+	public class VertexTranslateMode extends WorldGeomMode {
+
+		@Override
+		public void render(Graphics g) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseDragged(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseMoved(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+	}
+	// end of inner class
 }
+// end of entire class

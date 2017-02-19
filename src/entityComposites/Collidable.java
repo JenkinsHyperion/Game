@@ -30,8 +30,6 @@ public final class Collidable extends CollisionProperty{
 	
 	protected ArrayList<CollidingPair> collisionInteractions = new ArrayList<>();
 	
-	protected ArrayList<Force> forces = new ArrayList<>();
-	
 	protected Collision collisionMath;
 
 	private CollisionEvent uponLeavingCollision = new NullCollisionEvent();
@@ -211,7 +209,7 @@ public final class Collidable extends CollisionProperty{
 		thisEntity.setAngularVelocity( momentumAngular * 0.05 );
 		
 	}
-	
+	@Deprecated
 	public void applyPointForce( Vector force , Point2D point ){
 		
 		EntityRotationalDynamic thisEntity = (EntityRotationalDynamic)this.owner;
@@ -224,44 +222,6 @@ public final class Collidable extends CollisionProperty{
 		
 	}
 	
-	/** Creates new Force on this Collidable out of input Vector, and returns the Force that was added
-	 * 
-	 * @param vector
-	 * @return
-	 */
-    public Force addForce( Vector vector ){
-
-    	int indexID = forces.size();     	
-    	Force newForce = new Force( vector , indexID );
-    	forces.add( newForce ) ;
-    	return newForce;
-    }
-    
-    public void removeForce(int index){ //Remove collision 
-    	
-    	forces.remove(index); 
-	    for ( int i = index ; i < forces.size() ; i++) {
-	    	forces.get(i).indexShift();
-	    } 
-    }
-    
-    public Vector[] debugForceArrows(){
-    	Vector[] returnVectors = new Vector[ forces.size() ];
-    	for ( int i = 0 ; i < forces.size() ; i++ ){
-    		returnVectors[i] = forces.get(i).getVector() ;
-    	}
-    	return returnVectors;
-    }
-	
-    public Vector sumOfForces(){
-    	
-    	Vector returnVector = new Vector(0,0);
-    	for ( Force force : forces ){
-    		returnVector = returnVector.add( force.getVector() );
-    	}
-    	
-    	return returnVector;
-    }
     
 	
 }

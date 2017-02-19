@@ -13,8 +13,8 @@ import physics.Collision;
 
 public class CollisionPlayerStaticSAT extends Collision {
 	
-	Force normalForce = collidingPrimary.addForce( new Vector( 0 , 0 ) );
-	Force friction = collidingPrimary.addForce( new Vector( 0 , 0 ) );
+	Force normalForce = entityPrimary.addForce( new Vector( 0 , 0 ) );
+	Force friction = entityPrimary.addForce( new Vector( 0 , 0 ) );
 	
 	Resolution currentResolution;
 	
@@ -193,8 +193,8 @@ public class CollisionPlayerStaticSAT extends Collision {
 		collidingSecondary.onLeavingCollisionEvent();
 		
 		entityPrimary.setColliding(false); // unset entity collision flag. 
-		collidingPrimary.removeForce(normalForce.getID());              //turn gravity back on
-		collidingPrimary.removeForce(friction.getID());     //remove friction
+		entityPrimary.removeForce(normalForce.getID());              //turn gravity back on
+		entityPrimary.removeForce(friction.getID());     //remove friction
 		
 		//Remove collision from involved entities lists
 		collidingPrimary.removeCollision( entityPairIndex[0] );

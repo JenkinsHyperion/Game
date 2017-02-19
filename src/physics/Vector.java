@@ -115,6 +115,10 @@ public class Vector implements Serializable{
 
 		}
 		
+		public static Vector unitVectorFromAngle( double angle ){
+			return new Vector( Math.sin(angle) , Math.cos(angle) );
+		}
+		
 		public Vector normal(){
 			double returnX = -this.y;
 			double returnY = this.x;

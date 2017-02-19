@@ -1,8 +1,14 @@
 package entities;
 
 
+import java.awt.Point;
+import java.util.ArrayList;
+
 import entityComposites.Collidable;
 import physics.Boundary;
+import physics.Force;
+import physics.PointForce;
+import physics.Vector;
 
 public class EntityDynamic extends EntityStatic{
 
@@ -10,6 +16,10 @@ public class EntityDynamic extends EntityStatic{
     protected float dy;
     protected float accY;
     protected float accX;
+    
+    
+	protected ArrayList<Force> forces = new ArrayList<>();
+	protected ArrayList<PointForce> pointForces = new ArrayList<>();
     
     protected boolean isColliding;
 	
@@ -151,6 +161,74 @@ public class EntityDynamic extends EntityStatic{
     public void setColliding( boolean state ){ isColliding = state;}
     
 
+    
+	/** Creates new Force on this Collidable out of input Vector, and returns the Force that was added
+	 * 
+	 * @param vector
+	 * @return
+	 */
+    public Force addForce( Vector vector ){
+
+    	int indexID = forces.size();     	
+    	Force newForce = new Force( vector , indexID );
+    	forces.add( newForce ) ;
+    	return newForce;
+    }
+    
+    public void removeForce(int index){ 
+    	
+    	forces.remove(index); 
+	    for ( int i = index ; i < forces.size() ; i++) {
+	    	forces.get(i).indexShift();
+	    } 
+    }
+    
+    //MOVE TO ROTATIONAL BODY
+    public PointForce addPointForce( Vector vector , Point point ){
+
+    	int indexID = pointForces.size();     	
+    	PointForce newForce = new PointForce( vector, point , indexID );
+    	pointForces.add( newForce ) ;
+    	return newForce;
+    }
+    
+    public void removePointForce(int index){ 
+    	
+    	pointForces.remove(index); 
+	    for ( int i = index ; i < pointForces.size() ; i++) {
+	    	pointForces.get(i).indexShift();
+	    } 
+    }
+    
+    
+    public Vector[] debugForceArrows(){
+    	Vector[] returnVectors = new Vector[ forces.size() ];
+    	for ( int i = 0 ; i < forces.size() ; i++ ){
+    		returnVectors[i] = forces.get(i).getVector() ;
+    	}
+    	return returnVectors;
+    }
+	
+    @Deprecated
+    public Vector sumOfForces(){
+    	
+    	Vector returnVector = new Vector(0,0);
+    	for ( Force force : forces ){
+    		returnVector = returnVector.add( force.getVector() );
+    	}
+    	
+    	return returnVector;
+    }
+    
+    public void applyAllForces(){
+    	for ( Force force : forces ){
+
+    		Vector acc = force.getLinearForce();
+    		accX = (float)acc.getX();
+    		accY = (float)acc.getY();
+    	}
+    }
+    
     
     
     

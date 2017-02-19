@@ -44,6 +44,8 @@ public class TestBoard extends BoardAbstract{
     protected static ArrayList<EntityDynamic> dynamicEntitiesList; 
     protected static ArrayList<EntityPhysics> physicsEntitiesList; 
     
+    private Line2D dragLine = new Line2D.Double();
+    
     public Camera camera;
 
     public static int B_WIDTH;// = 400;
@@ -95,11 +97,11 @@ public class TestBoard extends BoardAbstract{
     	
         testEntity.setCollisionProperties( mesh );
 
-        testEntity.loadSprite("ground01.png" , 0 , 0);
+        testEntity.loadSprite("ground01.png" , -150 , 0);
 
-        //mesh.addForce( new Vector(0,0.01) );
+        //testEntity.addForce( new Vector(0,0.01) );
         //testEntity.setAngleInDegrees(45);
-        testEntity.setAngularVelocity(2);
+        //testEntity.setAngularAcceleration(0.1);
         
         dynamicEntitiesList.add( testEntity );
     	
@@ -114,11 +116,10 @@ public class TestBoard extends BoardAbstract{
     public void updateEntities(){ 
 
     	updateDynamicEntities();
-
-    	//camera.updatePosition();
+    	
     }
 
-    public EntityDynamic buildSprout(int x, int y ){
+    public PlantTwigSegment buildSprout(int x, int y ){
     	return new PlantTwigSegment(x, y, 100, this);
     }
     
@@ -148,6 +149,10 @@ public class TestBoard extends BoardAbstract{
     protected void graphicsThreadPaint(Graphics g) {
     	
     	drawObjects(g);
+    	
+    	g.setColor( Color.CYAN );
+    	//camera.drawCrossInWorld( ((TestHinge)dynamicEntitiesList.get(0)).getPointLocal() , g);
+    	g.drawString( "Number of Entities: "+dynamicEntitiesList.size() , 10,20);
     }
     
     public void drawObjects(Graphics g) {
@@ -168,17 +173,12 @@ public class TestBoard extends BoardAbstract{
         	//stat.getEntitySprite().drawSprite(g2,camera);
 	    	dynamic.getEntitySprite().drawSprite(g2, camera);
     	
-    }
+	    }
 
-        /*for (EntityDynamic dynamic : dynamicEntitiesList) {
-    
-        	dynamic.getEntitySprite().drawSprite(g,camera);
-        }*/
-                
-        //if (debug1On){ drawDebugBoundaries(g); }
-        //if (debug2On){ drawDebugCollisions(g); }
 	    
 	    camera.drawCrossInWorld(300, 300, g2);
+	    
+	    g2.draw( dragLine );
 
     }
     
@@ -187,10 +187,12 @@ public class TestBoard extends BoardAbstract{
     	//for (EntityDynamic dynamicEntity : dynamicObjects) {     	
     	for (int i = 0 ; i < dynamicEntitiesList.size() ; i++){
     		EntityDynamic dynamicEntity = dynamicEntitiesList.get(i);
-    		dynamicEntity.updatePosition();
-    		dynamicEntity.getEntitySprite().updateSprite();
     		
-    		//System.out.println( "angle " + ((EntityRotationalDynamic)dynamicEntity).getAngle() );
+    			dynamicEntity.updatePosition();
+    			dynamicEntity.getEntitySprite().updateSprite();
+    			
+    			if (dynamicEntity.getY()>768)
+    				dynamicEntitiesList.remove(i);
     		
         }
     	camera.updatePosition();
@@ -232,15 +234,12 @@ public class TestBoard extends BoardAbstract{
 
 	
 	  //MOUSE INPUT
-  	protected class MouseHandlerClass extends MouseInputAdapter  { 		
-  	    /*public int clickPositionXOffset;
-  	    public int clickPositionYOffset;*/
+  	protected class MouseHandlerClass extends MouseInputAdapter  { 	   
 
   		@Override
   		public void mousePressed(MouseEvent e)
   		{  	
-  			
-  			spawnDynamicEntity( buildSprout( e .getX(), e.getY()) );
+  			dragLine.setLine( e.getPoint() , e.getPoint() );
   			
   			editorPanel.mousePressed(e);
   			editorPanel.getWorldGeom().mousePressed(e);
@@ -248,6 +247,8 @@ public class TestBoard extends BoardAbstract{
   		@Override
   		public void mouseDragged(MouseEvent e) 
   		{ 		
+  			dragLine.setLine( dragLine.getP1(), e.getPoint());
+  			
   			editorPanel.mouseDragged(e);
   			editorPanel.getWorldGeom().mouseDragged(e);
   		}
@@ -261,6 +262,25 @@ public class TestBoard extends BoardAbstract{
   		{	
   			editorPanel.mouseReleased(e);
   			editorPanel.getWorldGeom().mouseReleased(e);
+  			
+  			PlantTwigSegment sprout = buildSprout( (int)dragLine.getX1(), (int)dragLine.getY1() );
+  			
+  			int angle = 0;
+  			
+  			if (dragLine.getX2() - dragLine.getX1() < 0)
+  				angle = -90+(int) Math.toDegrees( Math.atan( (dragLine.getY2() - dragLine.getY1()) / (dragLine.getX2() - dragLine.getX1()) ) ); 
+  			else
+  				angle = 90+(int) Math.toDegrees( Math.atan( (dragLine.getY1() - dragLine.getY2()) / (dragLine.getX1() - dragLine.getX2()) ) );
+	  			
+  			
+  			sprout.setAngle( angle);
+  			
+  			spawnDynamicEntity( sprout );
+  			
+  			System.out.println("angle "+angle);
+  			
+  			dragLine = new Line2D.Double( new Point() , new Point() );
+  			
   		}
   			
   	}

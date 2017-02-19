@@ -510,9 +510,9 @@ public class Board extends BoardAbstract {
 	    //EntityStatic playerRef = this.playerRef;
 	    
 	    g2.setColor(Color.RED);
-	    for ( int i = 0 ; i < ((Collidable) playerRef.getCollisionType()).debugForceArrows().length ; i++ ){
+	    for ( int i = 0 ; i < ((EntityDynamic)playerRef).debugForceArrows().length ; i++ ){
 	    	
-	    	Vector force = ((Collidable) playerRef.getCollisionType()).debugForceArrows()[i];
+	    	Vector force = ((EntityDynamic)playerRef).debugForceArrows()[i];
 	    	Line2D forceArrow = new Line2D.Double( player.getPos() , new Point2D.Double(player.getX() + force.getX()*200 , player.getY() + force.getY()*200 ) );
 	    	
 	    	camera.draw( forceArrow , g2);

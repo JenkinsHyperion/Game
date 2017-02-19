@@ -189,8 +189,11 @@ public class Camera extends EntityDynamic{
 	}
 	
 	public void drawCrossInWorld( int worldX, int worldY , Graphics g ){
-		
 		drawCross( worldX , worldY , g);
+	}
+	
+	public void drawCrossInWorld( Point point , Graphics g ){
+		drawCross( (int)point.getX() , (int)point.getY() , g);
 	}
 	
 	/**
@@ -248,6 +251,5 @@ public class Camera extends EntityDynamic{
     	g.drawLine( x-3, y-3, x+3, y+3 );
 		g.drawLine( x-3, y+3, x+3, y-3 );
     }
-	
 	
 }

@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 public class Force {
 
-	private int ID;
+	protected int ID;
 	
-	private Vector force;
+	protected Vector force;
 	
 	public Force( Vector force , int ID ){
 		this.force = force;
@@ -40,6 +40,10 @@ public class Force {
 	
 	public Vector getVector(){
 		return force;
+	}
+
+	public Vector getLinearForce() {
+		return new Vector ( force.getX() , force.getY() );
 	}
 	
 }

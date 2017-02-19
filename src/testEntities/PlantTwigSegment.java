@@ -2,6 +2,8 @@ package testEntities;
 
 import java.awt.Event;
 import java.awt.Point;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import engine.BoardAbstract;
@@ -19,6 +21,8 @@ public class PlantTwigSegment extends EntityDynamic {
 	private int maxGrowth;
 
 	private Counter growth;
+	private Counter lifespan;
+	private boolean dead;
 	
 	private int numberFromLastBranch = 0;
 	
@@ -27,11 +31,14 @@ public class PlantTwigSegment extends EntityDynamic {
 		this.board = board;
 		this.maxGrowth = maxGrowth;
 		init( maxGrowth );
+		
 	}
 	
 	private void init( int percentMax){
 		
 		growth = new Counter(Counter.COUNT_UP_TO , percentMax , new FullyGrown() ); //Counter that counts up to percentMax then fires FullyGrown class
+		
+		lifespan = new Counter(Counter.COUNT_DOWN_FROM , 10*percentMax , new Dead() );
 		
 		this.setCollisionProperties( NonCollidable.getNonCollidable() );
         this.loadSprite("Prototypes/twig.png" , -4 , -40 );
@@ -53,12 +60,14 @@ public class PlantTwigSegment extends EntityDynamic {
 	
 	public int getAngle(){ return this.angle; }
 	
+	public boolean isDead(){ return dead; }
 
 	@Override
 	public void updatePosition() {
 		super.updatePosition();
 		
 		growth.updateCounter(); // Counter "growth" counts up and then fires FullyGrown trigger when done
+		lifespan.updateCounter();
 		
     	(( SpriteStillframe )this.getEntitySprite()).setResizeFactor( growth.getCount() );
 
@@ -81,7 +90,7 @@ public class PlantTwigSegment extends EntityDynamic {
 			if ( getNumberFromBranch() > ThreadLocalRandom.current().nextInt( 0 , 5) ){ //start new branch every 1-6 segments
 				
 				final int FORK_ANGLE = 40; // Set to 90 or higher for some freaky shit
-				final int UPWARD_WILLPOWER = 10; //-20 to 40 look normal. Set to 90 or higher for chaos
+				final int UPWARD_WILLPOWER = 0; //-20 to 40 look normal. Set to 90 or higher for chaos
 				
 				int thisMaxGrowth = (int)oldMaxGrowth-1;
 				
@@ -108,11 +117,11 @@ public class PlantTwigSegment extends EntityDynamic {
 				board.spawnDynamicEntity( sprout );
 				
 			}
-			else if (oldMaxGrowth > 20){ // Else segemnt didn't branch, so grown next segment if bigger than 20% grown
+			else if (oldMaxGrowth > 30){ // Else segemnt didn't branch, so grown next segment if bigger than 20% grown
 				
 				final int RANDOM_BEND_RANGE = 20; // 0 is perfectly straight branch. Higher than 40 looks withered.
 				
-				final int UPWARD_WILLPOWER = 10; // 
+				final int UPWARD_WILLPOWER = 20; // 
 				
 				int randomShrinkage = ThreadLocalRandom.current().nextInt( 1 , 10); // This being greater than 0 is the only
 				//thing stopping the stem from growing infinitely. Adjust chances accordingly
@@ -149,9 +158,24 @@ public class PlantTwigSegment extends EntityDynamic {
 	}
 	
 	
+	private class Dead implements Trigger{
+
+		@Override
+		public void activate() {
+			accY = 0.05f;
+		}
+		
+	}
 	
 	
-	
+	class wheelw implements Trigger{
+
+		@Override
+		public void activate() {
+			
+		}
+		
+	}
 	
 	public class Counter{
 		
@@ -162,7 +186,7 @@ public class PlantTwigSegment extends EntityDynamic {
 		private static final int INCREMENT = 1;
 		private static final int DECREMENT = 2;
 		private static final int COUNT_UP_TO = 3;
-		private static final int COUNT_DOWN_TO = 4;
+		private static final int COUNT_DOWN_FROM = 4;
 		private CounterState currentState;
 		
 		public Counter(){
@@ -186,7 +210,7 @@ public class PlantTwigSegment extends EntityDynamic {
 				currentState = new CountUpTo(number, trigger);
 			}
 			else if (counterType == 4){
-				currentState =  new CountDownTo(number, trigger);
+				currentState =  new CountDownFrom(number, trigger);
 			}
 			else
 				currentState = inc;
@@ -249,16 +273,15 @@ public class PlantTwigSegment extends EntityDynamic {
 			}
 		}
 		
-		private class CountDownTo extends CounterState{
-			private final int min;
+		private class CountDownFrom extends CounterState{
 			private final Trigger trigger;
-			public CountDownTo( int min , Trigger trigger){
-				this.min = min;
+			public CountDownFrom( int start , Trigger trigger){
+				counter = start;
 				this.trigger = trigger;
 			}
 			@Override
 			public void updateState() {
-				if ( counter > min )
+				if ( counter > 0 )
 					counter--;
 				else {
 					stop();

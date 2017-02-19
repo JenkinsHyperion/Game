@@ -35,7 +35,7 @@ public class PlayerCharacter extends Player {
 	private final int spriteOffsetX=-35;
 	private final int spriteOffsetY=-35;
 	
-	private Force movementForce = ((Collidable)this.collisionType).addForce( new Vector(0,0) );
+	private Force movementForce = this.addForce( new Vector(0,0) );
 	
 	private boolean climbing = false;
     
@@ -109,7 +109,7 @@ public class PlayerCharacter extends Player {
         loadAnimatedSprite(IDLE_LEFT); 
         //setAngle(0);
         //setAccY( 0.2f ); // Force initialize gravity (temporary)
-        ((Collidable) collisionType).addForce( new Vector( 0 , 0.2 ) );
+        this.addForce( new Vector( 0 , 0.2 ) );
         
         CollisionEvent floorCollisionEvent = new DefaultCollisionEvent(  );
         CollisionEvent[] eventList = new CollisionEvent[]{
@@ -151,8 +151,9 @@ public class PlayerCharacter extends Player {
     	playerState.updateState();
     	
     	//TESTING FORCES
-    	this.accX = (float) ((Collidable)collisionType).sumOfForces().getX();
-    	this.accY = (float) ((Collidable)collisionType).sumOfForces().getY();
+    	//this.accX = (float) this.sumOfForces().getX();
+    	//this.accY = (float) this.sumOfForces().getY();
+    	this.applyAllForces();
     	
     }   
     

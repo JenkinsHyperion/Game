@@ -99,6 +99,8 @@ public class EditorPanel extends JPanel {
 	protected JButton saveButton;
 	protected JButton deleteEntButton;
 	protected JButton worldGeomButton;
+	protected JButton vertexPlaceModeButton;
+	protected JButton vertexSelectModeButton;
 
 //	Panels
 	private JPanel entitiesComboBoxPanel;
@@ -193,14 +195,31 @@ public class EditorPanel extends JPanel {
 				mode = WORLDGEOM_MODE;
 			}
 		});
-		
+		vertexPlaceModeButton = new JButton("VtxPlace");
+		vertexPlaceModeButton.setFocusable(false);
+		vertexPlaceModeButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				worldGeom.setMode(worldGeom.getVertexPlaceMode());
+			}
+		});
+		vertexSelectModeButton = new JButton("VtxSelect");
+		vertexSelectModeButton.setFocusable(false);
+		vertexSelectModeButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				worldGeom.setMode(worldGeom.getVertexSelectMode());
+			}
+		});
 		// inline panel for button
 		buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		buttonPanel.setBackground(Color.GRAY);
 	    buttonPanel.setBorder(BorderFactory.createTitledBorder("buttonPanelTest"));
-		//buttonPanel.setPreferredSize(new Dimension(190, 50));		
+		buttonPanel.setPreferredSize(new Dimension(190, 150));		
 		buttonPanel.add(deleteEntButton);
 		buttonPanel.add(worldGeomButton);
+		buttonPanel.add(vertexPlaceModeButton);
+		buttonPanel.add(vertexSelectModeButton);
 
 		// ## The drop down box for the list of all entities in board ###	
 		allEntitiesComboBox = new JComboBox<>(staticEntityStringArr);

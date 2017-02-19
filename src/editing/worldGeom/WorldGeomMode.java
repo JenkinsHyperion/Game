@@ -5,17 +5,15 @@ import java.awt.event.MouseEvent;
 
 import Input.*;
 
-public abstract class WorldGeomMode extends InputController implements MouseInputController{
-
-	public abstract void render(Graphics g);
-	@Override
+public abstract class WorldGeomMode {
+	protected InputController inputController;
+	/*public abstract void mouseInput(MouseEvent m);
+	public abstract void keyInput(KeyEvent e);
+	*/
 	public abstract void mousePressed(MouseEvent e);
-	
-	@Override
-	public abstract void mouseDragged(MouseEvent e);
-	@Override
+	public abstract void mouseDragged(MouseEvent e);	
 	public abstract void mouseMoved(MouseEvent e);
-	@Override
 	public abstract void mouseReleased(MouseEvent e);
-
+	public abstract void render(Graphics g);
+	
 }

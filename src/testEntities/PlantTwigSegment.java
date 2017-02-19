@@ -9,7 +9,7 @@ import engine.TestBoard;
 import entities.*;
 import entityComposites.NonCollidable;
 import sprites.SpriteStillframe;
-import sun.management.counter.Counter;
+//import sun.management.counter.Counter;
 import utility.Trigger;
 
 public class PlantTwigSegment extends EntityDynamic {

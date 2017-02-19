@@ -8,6 +8,7 @@ import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 
+import editing.worldGeom.*;
 import entities.Entity;
 import entities.EntityDynamic;
 import entities.EntityStatic;
@@ -113,6 +114,20 @@ public class Camera extends EntityDynamic{
 	public void unlock(){
 		behaviorCurrent = behaviorActive;
 		lockState = false;
+	}
+	public void drawVertex(VertexAbstract vertex, Graphics g)
+	{
+		Graphics2D g2 = (Graphics2D)g;
+		g2.drawImage(Vertex.vertexPicture, 
+				vertex.getPoint().x-3 - (int)this.x + boardHalfWidth,
+				vertex.getPoint().y-3 - (int)this.y + boardHalfHeight, null);				 
+	}
+	public void drawVertexClickableBox(VertexAbstract vertex, Graphics g)
+	{
+		Graphics2D g2 = (Graphics2D)g;
+		g2.drawRect(vertex.getClickableZone().x - (int)this.x + boardHalfWidth,
+				vertex.getClickableZone().y - (int)this.y + boardHalfHeight, 
+				vertex.getClickableZone().width, vertex.getClickableZone().height);				 
 	}
 	/**
 	 * Draws sprite image relative to camera position

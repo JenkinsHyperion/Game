@@ -145,6 +145,18 @@ public class InputController {
 		}
 		
 	}
+	public void mouseDragged(MouseEvent e){
+
+		for ( int i = 0 ; i < mouseHeld.size() ; i++ ){
+
+			mouseHeld.get(i).mouseDragged();
+		}
+	}
+	public void mouseMoved(MouseEvent e) {
+		for (int i = 0 ; i < mouseHeld.size() ; i++) {
+			mouseHeld.get(i).mouseMoved();
+		}
+	}
 	
 	public void runHeld(){
 		

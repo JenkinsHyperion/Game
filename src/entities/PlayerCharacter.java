@@ -644,18 +644,19 @@ public class PlayerCharacter extends Player {
 		public void mousePressed() {
 			playerState.onLeft(playerDirection);
 		}
-
-		@Override
-		public void mouseDragged() {
-		}
-
-		@Override
-		public void mouseMoved() {
-		}
-
 		@Override
 		public void mouseReleased() {
 			playerState.offLeft(playerDirection);
+		}
+		@Override
+		public void mouseDragged() {
+			// TODO Auto-generated method stub
+			
+		}
+		@Override
+		public void mouseMoved() {
+			// TODO Auto-generated method stub
+			
 		}
     	
 

@@ -167,19 +167,19 @@ public class CollisionEngine implements Serializable{
 	    Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
 	 
 	    
-	    Point2D nearStatCorner = bounds.farthestPointFromPoint( bounds.getFarthestPoints(playerBounds,axis)[0] , axis );
+	    Vertex[] nearStatCorner = bounds.farthestVerticesFromPoint( bounds.getFarthestVertices(playerBounds,axis)[0].toPoint() , axis );
 	      
-	    Point2D nearPlayerCorner = playerBounds.farthestPointFromPoint( playerBounds.getFarthestPoints(bounds,axis)[0] , axis );
+	    Vertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( playerBounds.getFarthestVertices(bounds,axis)[0].toPoint() , axis );
 
 
 	    
 	    Line2D playerHalf = new Line2D.Float( 
 				playerBounds.getProjectionPoint(playerCenter,axis) ,
-				playerBounds.getProjectionPoint(nearPlayerCorner,axis)
+				playerBounds.getProjectionPoint(nearPlayerCorner[0].toPoint(),axis)
 						);
 		Line2D statHalf = new Line2D.Float( 
 				bounds.getProjectionPoint(statCenter,axis) ,
-				bounds.getProjectionPoint(nearStatCorner,axis)
+				bounds.getProjectionPoint(nearStatCorner[0].toPoint(),axis)
 						);
 		
 		
@@ -246,18 +246,18 @@ public class CollisionEngine implements Serializable{
 	    Line2D centerDistance = new Line2D.Float(entityA.getPos() , entityB.getPos() );
 	    Line2D centerProjection = boundsA.getProjectionLine(centerDistance, axis);
 	    
-	    Point2D nearStatCorner = boundsB.farthestPointFromPoint( boundsB.getFarthestPoints(boundsA,axis)[0] , axis );
-	    Point2D nearPlayerCorner = boundsA.farthestPointFromPoint( boundsA.getFarthestPoints(boundsB,axis)[0] , axis );
+	    Vertex[] nearStatCorner = boundsB.farthestVerticesFromPoint( boundsB.getFarthestVertices(boundsA,axis)[0].toPoint() , axis );
+	    Vertex[] nearPlayerCorner = boundsA.farthestVerticesFromPoint( boundsA.getFarthestVertices(boundsB,axis)[0].toPoint() , axis );
 
 
 	    
 	    Line2D playerHalf = new Line2D.Float( 
 				boundsA.getProjectionPoint(centerA,axis) ,
-				boundsA.getProjectionPoint(nearPlayerCorner,axis)
+				boundsA.getProjectionPoint(nearPlayerCorner[0].toPoint(),axis)
 						);
 		Line2D statHalf = new Line2D.Float( 
 				boundsB.getProjectionPoint(centerB,axis) ,
-				boundsB.getProjectionPoint(nearStatCorner,axis)
+				boundsB.getProjectionPoint(nearStatCorner[0].toPoint(),axis)
 						);
 		
 		

@@ -364,8 +364,8 @@ public class CollisionPlayerStaticSAT extends Collision {
 	    EntityStatic stat = entitySecondary;
 	    
 	    Boundary statBounds = collidingSecondary.getBoundaryLocal() ;
-	    Boundary playerBoundsDelta = collidingPrimary.getBoundaryLocal();
-	    Boundary playerBounds = collidingPrimary.getBoundaryDelta();
+	    Boundary playerBoundsDelta = collidingPrimary.getBoundaryLocal() ;
+	    Boundary playerBounds = collidingPrimary.getBoundaryDelta() ;
 	    
 	    double deltaX = entityPrimary.getDeltaX() ;
 	    double deltaY = entityPrimary.getDeltaY() ;
@@ -378,8 +378,8 @@ public class CollisionPlayerStaticSAT extends Collision {
 		Line2D axis = statBounds.getSeparatingAxis(separatingSide); //OPTIMIZE TO SLOPE ONLY CALCULATIONS
    
 	    
-    	Point2D[] statOuterVertices= statBounds.getFarthestPoints(playerBounds,axis);
-    	Point2D[] playerOuterVertices= playerBounds.getFarthestPoints(statBounds,axis);
+		Vertex[] statOuterVertices= statBounds.getFarthestVertices(playerBounds,axis);
+    	Vertex[] playerOuterVertices= playerBounds.getFarthestVertices(statBounds,axis);
     	
 	    																					// [0] needs to be for loop
 	    Vertex[] statInnerVertices = statBounds.farthestVerticesFromPoint( statOuterVertices[0] , axis ); 
@@ -387,7 +387,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 
 	    
 	    
-	    Point2D[] statOuter= statBounds.getFarthestPoints(playerBoundsDelta,axis);
+	    Vertex[] statOuter= statBounds.getFarthestVertices(playerBoundsDelta,axis);
 
     	Vertex[] nearStatCorner = statBounds.farthestVerticesFromPoint( statOuter[0] , axis ); //merge below
     	Vertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( statOuter[1] , axis );

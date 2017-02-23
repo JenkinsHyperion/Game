@@ -555,17 +555,17 @@ public class Board extends BoardAbstract {
 
 	    	
 
-	    	Point2D[] statOuter= statBounds.getFarthestPoints(playerBounds,axis);
-	    	Point2D[] playerOuter= playerBounds.getFarthestPoints(statBounds,axis);
+	    	Vertex[] statOuter= statBounds.getFarthestVertices(playerBounds,axis);
+	    	Vertex[] playerOuter= playerBounds.getFarthestVertices(statBounds,axis);
 
 	    	Vertex[] nearStatCorner = statBounds.farthestVerticesFromPoint( statOuter[0] , axis ); //merge below
 	    	Vertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( playerOuter[0] , axis );
 	    	
-	    	Vertex farStatCorner = statBounds.farthestVerticesFromPoint(nearStatCorner[0].toPoint(), axis)[0];
-	    	Vertex farPlayerCorner = playerBounds.farthestVerticesFromPoint(nearPlayerCorner[0].toPoint(), axis)[0];
+	    	Vertex farStatCorner = statBounds.farthestVerticesFromPoint(nearStatCorner[0] , axis)[0];
+	    	Vertex farPlayerCorner = playerBounds.farthestVerticesFromPoint(nearPlayerCorner[0] , axis)[0];
 	    	
-	    	Point2D centerStat = farStatCorner.getCenter(nearStatCorner[0]);
-	    	Point2D centerPlayer = farPlayerCorner.getCenter(nearPlayerCorner[0]);
+	    	Point2D centerStat = statOuter[0].getCenter(nearStatCorner[0]);
+	    	Point2D centerPlayer = playerOuter[0].getCenter(nearPlayerCorner[0]);
 
 	    	Line2D centerDistance = new Line2D.Double( centerPlayer , centerStat );
 	    	Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);

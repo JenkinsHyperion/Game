@@ -61,18 +61,18 @@ public class CollisionCheck {
 			Line2D axis = statBounds.getSeparatingAxis(separatingSide); //OPTIMIZE TO SLOPE ONLY CALCULATIONS
 		    
 		    
-	    	Point2D[] statOuterVertices= statBounds.getFarthestPoints(playerBounds,axis);
-	    	Point2D[] playerOuterVertices= playerBounds.getFarthestPoints(statBounds,axis);
+	    	Vertex[] statOuterVertices= statBounds.getFarthestVertices(playerBounds,axis);
+	    	Vertex[] playerOuterVertices= playerBounds.getFarthestVertices(statBounds,axis);
 	    	
 		    																					// [0] needs to be for loop
-		    Vertex[] statInnerVertices = statBounds.farthestVerticesFromPoint( statOuterVertices[0] , axis );
-		    Vertex[] playerInnerVertices = playerBounds.farthestVerticesFromPoint( playerOuterVertices[0] , axis );
+		    Vertex[] statInnerVertices = statBounds.farthestVerticesFromPoint( statOuterVertices[0].toPoint() , axis );
+		    Vertex[] playerInnerVertices = playerBounds.farthestVerticesFromPoint( playerOuterVertices[0].toPoint() , axis );
 
 		    
-		    Point2D[] statOuter= statBounds.getFarthestPoints(playerBounds,axis);
+		    Vertex[] statOuter= statBounds.getFarthestVertices(playerBounds,axis);
 
-	    	Vertex[] nearStatCorner = statBounds.farthestVerticesFromPoint( statOuter[0] , axis ); //merge below
-	    	Vertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( statOuter[1] , axis );
+	    	Vertex[] nearStatCorner = statBounds.farthestVerticesFromPoint( statOuter[0].toPoint() , axis ); //merge below
+	    	Vertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( statOuter[1].toPoint() , axis );
 	    	
 	    	Vertex farStatCorner = statBounds.farthestVerticesFromPoint(nearStatCorner[0].toPoint(), axis)[0];
 	    	Vertex farPlayerCorner = playerBounds.farthestVerticesFromPoint(nearPlayerCorner[0].toPoint(), axis)[0];

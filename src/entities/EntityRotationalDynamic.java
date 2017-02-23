@@ -127,23 +127,29 @@ public class EntityRotationalDynamic extends EntityDynamic{
 	@Override
 	public void applyAllForces() {
 		
+		Vector returnLinearAcc = new Vector(0,0);
+		
     	for ( Force force : forces ){
     		Vector acc = force.getLinearForce();
-    		accX = (float)acc.getX();
-    		accY = (float)acc.getY();
+    		
+    		returnLinearAcc = returnLinearAcc.add(acc);
+    		
+    		//accX = (float)acc.getX();
+    		//accY = (float)acc.getY();
     	}
 
     	for ( PointForce force : pointForces ){
     		
     		Vector acc = force.getLinearForce();
-    		accX = (float)acc.getX();
-    		accY = (float)acc.getY();
+    		returnLinearAcc = returnLinearAcc.add(acc);
     		
     		double DA = force.getTorque( );
     		this.angularAcc = DA/10;
-    		
-			
+    			
     	}
+    	
+		accX = (float)returnLinearAcc.getX();
+		accY = (float)returnLinearAcc.getY();
 
 	}
 	

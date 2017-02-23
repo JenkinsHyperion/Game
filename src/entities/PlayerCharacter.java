@@ -137,7 +137,6 @@ public class PlayerCharacter extends Player {
 		this.inputController.createKeyBinding( KeyEvent.VK_A , new LeftKey() ) ;
 		this.inputController.createKeyBinding( KeyEvent.VK_S , new DownKey() ) ;
 		this.inputController.createKeyBinding( KeyEvent.VK_D , new RightKey()) ;
-		
 		this.inputController.createKeyBinding( KeyEvent.VK_SPACE , new JumpKey() ) ;
 		this.inputController.createKeyBinding( KeyEvent.VK_SHIFT , new ModKey() ) ;
 		

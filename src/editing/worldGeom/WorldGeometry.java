@@ -230,35 +230,47 @@ public class WorldGeometry {
 	
 /////////   INNER CLASS VERTEXPLACEMODE   //////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
-	public class VertexPlaceMode extends WorldGeomMode {
-
-		
+	public class VertexPlaceMode extends WorldGeomMode {	
+		/* Will need to create some booleans states here possibly */
+		// area for states, to handle lots of different key presses
 		public VertexPlaceMode() {
 			inputController = new InputController();
+			//inputController.createKeyBinding(KeyEvent.VK_ALT, new Ver);(MouseEvent.BUTTON1, new VertexPlaceLClickEvent());
+			//inputController.createMouseBinding(MouseEvent.BUTTON1, new VertexPlaceLClickEvent());
+			inputController.createMouseBinding(MouseEvent.BUTTON1, new MouseCommand(){ //left click event
+				public void mousePressed() {
+					if (vertexPlacementAllowed == true) 
+						addVertex(camera.getLocalX(worldGeomMousePos.x), camera.getLocalY(worldGeomMousePos.y));
+				}
+				public void mouseDragged() {
+					System.err.println("Reached Button1's event");
+				}
+				public void mouseMoved() {}
+				public void mouseReleased() {}
+			});
+			inputController.createMouseBinding(MouseEvent.ALT_MASK, MouseEvent.BUTTON3, new MouseCommand(){ //test drag event
+				public void mousePressed() {}
+				public void mouseDragged() {}
+				public void mouseMoved() {
+					// TODO Auto-generated method stub
+					System.err.println("Reached MouseMoved's event");}
+				public void mouseReleased() {}
+			});
 		}
-		
-		@Override
 		public void mousePressed(MouseEvent e) {
+			inputController.mousePressed(e);
 			// vvvv Will be the actual commands I want
 			// this.inputController.mousePressed(e);
 			
-			// vvvv this is the old stuff 
-			if (vertexPlacementAllowed == true) {
-				//addVertex(e.getX(), e.getY());
-				addVertex(camera.getLocalX(e.getX()),
-						  camera.getLocalY(e.getY()));
-			}
-		}
-
-		@Override
-		public void mouseDragged(MouseEvent e) {
-			// TODO Auto-generated method stub
 			
 		}
-
-		@Override
+		public void mouseDragged(MouseEvent e) {
+			inputController.mouseDragged(e);
+		}
 		public void mouseMoved(MouseEvent e) {
-			if (keypressALT) {
+			inputController.mouseMoved(e);
+			//functionality for locking the Y axis to draw a flat line
+			/*if (keypressALT) {
 				if (vertexList.size() > 0)
 					worldGeomMousePos.setLocation(e.getX(), vertexList.get(vertexList.size()-1).getPoint().y);
 				else
@@ -266,31 +278,24 @@ public class WorldGeometry {
 			}
 			else //shift isn't held; default running condition
 				worldGeomMousePos.setLocation(e.getX(), e.getY());
-			
+			*/
 		}
-
-		@Override
-		public void mouseReleased(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
+		public void mouseReleased(MouseEvent e) {inputController.mouseReleased(e);}
 		public void render(Graphics g) {
 			//old drawghostvertex
 			Graphics2D g2 = (Graphics2D)g.create();
 			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .5f));
 			//the -3 accounts for the offset
-			
+
 			g2.drawImage(ghostVertexPic, worldGeomMousePos.x - 3, worldGeomMousePos.y - 3, null);
 			if (vertexList.size() > 0) {	
 				//Line2D.Double ghostLine = new Line2D.Double(vertexPoints.get(vertexPoints.size()-1), worldGeomMousePos);
 				//offset by a pixel because it was always intersecting with previous line in list
 				Line2D.Double ghostLine = new Line2D.Double(vertexList.get(vertexList.size()-1).getPoint().x +3, vertexList.get(vertexList.size()-1).getPoint().y,
-															camera.getLocalX(worldGeomMousePos.x), camera.getLocalY(worldGeomMousePos.y));
+						camera.getLocalX(worldGeomMousePos.x), camera.getLocalY(worldGeomMousePos.y));
 				// if checkForIntersection(ghostLine, new Line2D.Double(vertexPoints(size()-2, vertexPoints(size()-1)
 				if (vertexList.size() > 1) { //there exists at least one line already drawn:
-					
+
 					if (checkIfLinesIntersect(ghostLine)) {  //one of the lines are crossing
 						g2.setColor(Color.RED);
 						//canCreateVertices(false) <---do later EDIT: done
@@ -307,16 +312,16 @@ public class WorldGeometry {
 				//######  first point is the world (local) position, and the second point is the relative position under cursor. #####
 				//g2.draw(new Line2D.Double(board.camera.getLocalPosition((Point) ghostLine.getP1()), ghostLine.getP2()));
 				//g2.drawLine(board.camera.getRelativeX((int)ghostLine.getX1()), board.camera.getRelativeY((int)ghostLine.getY1()),
-						   //board.camera.getRelativeX((int)ghostLine.getX2()), board.camera.getRelativeY((int)ghostLine.getY2()));
+				//board.camera.getRelativeX((int)ghostLine.getX2()), board.camera.getRelativeY((int)ghostLine.getY2()));
 				camera.draw(ghostLine, g2);
 			}
-			
+
 			//old drawVertexPoints vvvvvvv
 			for (Vertex vertex: vertexList) {
 				//g2.drawImage(vertexPic, board.camera.getLocalX(point.x)-3, board.camera.getLocalY(point.y)-3, null);
 				vertex.draw(g2, camera);
 			}
-			
+
 			// old drawsurfacelines vvvvvv
 			g2.setColor(Color.MAGENTA);
 			for (int i = 0; i < vertexList.size()-1; i++) {
@@ -324,7 +329,7 @@ public class WorldGeometry {
 				//g2.draw(tempLine);
 				camera.draw(tempLine, g2);
 			}
-		}
+		}	
 	}
 	// end of inner class
 	
@@ -344,8 +349,9 @@ public class WorldGeometry {
 		public VertexSelectMode() {
 			inputController = new InputController();
 			this.inputController.createMouseBinding(MouseEvent.BUTTON1, new VertexSelectLClickEvent());
-			this.inputController.createMouseBinding(MouseEvent.BUTTON3, new VertexSelectRClickEvent());
-			this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new ShiftVertexSelectLClickEvent());
+			//this.inputController.createMouseBinding(MouseEvent.ALT_MASK, MouseEvent.BUTTON1, new VertexSelectLClickEvent());
+			//this.inputController.createMouseBinding(MouseEvent.BUTTON3, new VertexSelectRClickEvent());
+			//this.inputController.createMouseBinding(MouseEvent.MOUSE_MOVED, new ShiftVertexSelectLClickEvent());
 			currentSelectedVertex = nullVertex;
 			
 		}
@@ -410,74 +416,53 @@ public class WorldGeometry {
 		
 		// ***** inner-inner classes for mouse behavior classes specific to vertex selecting
 		public class VertexSelectLClickEvent implements MouseCommand{
-
-			@Override
 			public void mousePressed() {
 				// TODO Auto-generated method stub
 				checkForVertex(camera.getLocalPosition(worldGeomMousePos));
 			}
-
-			@Override
 			public void mouseDragged() {
 				// TODO Auto-generated method stub
 				currentSelectedVertex.translate(camera.getLocalPosition(worldGeomMousePos));
 			}
-
-			@Override
 			public void mouseMoved() {
-				// TODO Auto-generated method stub			
+				// TODO Auto-generated method stub	
+				System.err.println("Seeing if fucking shift mask works.");
 			}
-
-			@Override
 			public void mouseReleased() {
 				// TODO Auto-generated method stub
 			}	
 		} // end of VertexSelectLClickEvent inner class
 		public class VertexSelectRClickEvent implements MouseCommand{
-
-			@Override
 			public void mousePressed() {
 				// TODO Auto-generated method stub
 				//checkForVertex(camera.getLocalPosition(e.getPoint()));
 				checkForVertex(camera.getLocalPosition(worldGeomMousePos));
 			}
-
-			@Override
 			public void mouseDragged() {
 				// TODO Auto-generated method stub
 				currentSelectedVertex.translate(camera.getLocalPosition(worldGeomMousePos));
 			}
-
-			@Override
 			public void mouseMoved() {
 				// TODO Auto-generated method stub			
 			}
-
-			@Override
 			public void mouseReleased() {
 				// TODO Auto-generated method stub
 			}	
 		} // end of VertexSelectRClickEvent inner class
 		public class ShiftVertexSelectLClickEvent implements MouseCommand{
 
-			@Override
 			public void mousePressed() {
 				// TODO Auto-generated method stub
 				checkForVertex(camera.getLocalPosition(worldGeomMousePos));
 			}
-
-			@Override
 			public void mouseDragged() {
 				// TODO Auto-generated method stub
 				//currentSelectedVertex.translate(camera.getLocalPosition(e.getPoint()));
 			}
-
-			@Override
 			public void mouseMoved() {
-				// TODO Auto-generated method stub			
+				// TODO Auto-generated method stub	
+				System.err.println("Seeing if fucking shift mask works.");
 			}
-
-			@Override
 			public void mouseReleased() {
 				// TODO Auto-generated method stub
 			}

@@ -173,7 +173,7 @@ public class Board extends BoardAbstract {
         
         
         //############################################### CAMERA #######################
-    	camera = new Camera(this,player);
+    	camera = new Camera(this,player );
 
         initBullets();
     
@@ -608,8 +608,8 @@ public class Board extends BoardAbstract {
 	    	g2.setColor(Color.GREEN);
 	    	g2.draw(statHalf );
 
-	    	int centerDistanceX = (int)(centerProjection.getX1() -  centerProjection.getX2()  );
-	    	int centerDistanceY = (int)(centerProjection.getY1() -  centerProjection.getY2()  );
+	    	int centerDistanceX = (int)(centerDistance.getX1() -  centerDistance.getX2()  );
+	    	int centerDistanceY = (int)(centerDistance.getY1() -  centerDistance.getY2()  );
 
 	    	int playerProjectionX = (int)(playerHalf.getX1() -  playerHalf.getX2());
 	    	int playerProjectionY = (int)(playerHalf.getY1() -  playerHalf.getY2());
@@ -629,6 +629,8 @@ public class Board extends BoardAbstract {
 	    		//centerDistanceX += 1;  //NEEDS HIGHER LEVEL SOLUTION
 	    		penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
 	    	}
+	    	else
+	    		penetrationX = Math.abs(playerProjectionX) + Math.abs(statProjectionX);
 
 	    	if (centerDistanceY>0){
 	    		//centerDistanceY -= 1;
@@ -637,7 +639,8 @@ public class Board extends BoardAbstract {
 	    	else if (centerDistanceY<0){
 	    		//centerDistanceY += 1; 
 	    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY ; 
-	    	}
+	    	}else
+	    		penetrationY = Math.abs(playerProjectionY) + Math.abs(statProjectionY);
 
 
 	    	

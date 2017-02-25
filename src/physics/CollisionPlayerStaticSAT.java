@@ -380,26 +380,26 @@ public class CollisionPlayerStaticSAT extends Collision {
 	    
 		Vertex[] statOuterVertices= statBounds.getFarthestVertices(playerBounds,axis);
     	Vertex[] playerOuterVertices= playerBounds.getFarthestVertices(statBounds,axis);
-    	
 	    																					// [0] needs to be for loop
 	    Vertex[] statInnerVertices = statBounds.farthestVerticesFromPoint( statOuterVertices[0] , axis ); 
 	    Vertex[] playerInnerVertices = playerBounds.farthestVerticesFromPoint( playerOuterVertices[0] , axis );
 
 	    
 	    
-	    Vertex[] statOuter= statBounds.getFarthestVertices(playerBoundsDelta,axis);
+	    Vertex[] statOuter= statBounds.getFarthestVertices(playerBounds,axis);
+    	Vertex[] playerOuter= playerBounds.getFarthestVertices(statBounds,axis);
 
     	Vertex[] nearStatCorner = statBounds.farthestVerticesFromPoint( statOuter[0] , axis ); //merge below
-    	Vertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( statOuter[1] , axis );
+    	Vertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( playerOuter[0] , axis );
     	
-    	Vertex farStatCorner = statBounds.farthestVerticesFromPoint(nearStatCorner[0].toPoint(), axis)[0];
-    	Vertex farPlayerCorner = playerBounds.farthestVerticesFromPoint(nearPlayerCorner[0].toPoint(), axis)[0];
+    	Vertex farStatCorner = statBounds.farthestVerticesFromPoint(nearStatCorner[0] , axis)[0];
+    	Vertex farPlayerCorner = playerBounds.farthestVerticesFromPoint(nearPlayerCorner[0] , axis)[0];
     	
-    	Point2D centerStat = farStatCorner.getCenter(nearStatCorner[0]);
-    	Point2D centerPlayer = farPlayerCorner.getCenter(nearPlayerCorner[0]);
+    	Point2D centerStat = statOuter[0].getCenter(nearStatCorner[0]);
+    	Point2D centerPlayer = playerOuter[0].getCenter(nearPlayerCorner[0]);
 
     	Line2D centerDistance = new Line2D.Double( centerPlayer , centerStat );
-    	Line2D centerProjection = playerBoundsDelta.getProjectionLine(centerDistance, axis);
+    	Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
 	    
 	    //CLOSEST FEATURE
 	    
@@ -432,53 +432,50 @@ public class CollisionPlayerStaticSAT extends Collision {
 		// Get penetration vector
 
 
-			
 		
 		if (centerDistanceX>0){
-    		centerDistanceX -= 1;  
-			penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
+			penetrationX = playerProjectionX + statProjectionX - centerDistanceX+1 ;
 			
-			if ( penetrationX < -2 ) 
-    			this.isComplete = true;
+
 		}
     	else if (centerDistanceX<0){
-    		centerDistanceX += 1;  //NEEDS HIGHER LEVEL SOLUTION
-    		penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
+    		penetrationX = playerProjectionX + statProjectionX - centerDistanceX-1;
     		
-    		if ( penetrationX > 2 ) 
-    			this.isComplete = true;
-    	}
-    	else 
-    		penetrationX = playerProjectionX - statProjectionX;
 
+    	}
+    	else {
+    		penetrationX = Math.abs(playerProjectionX) + Math.abs(statProjectionX);
+    	}
+
+		
     	if (centerDistanceY>0){
-    		centerDistanceY -= 1;
-    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY ;	
+    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY+1 ;	
     		
-    		if ( penetrationY < -2 ) 
-    			this.isComplete = true;
+ 
     	}
     	else if (centerDistanceY<0){
-    		centerDistanceY += 1; 
-    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY ;	
+    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY-1 ;	
     		
-    		if ( penetrationY > 2 ) 
-    			this.isComplete = true;
+
     	}
     	else 
-    		penetrationY = playerProjectionY - statProjectionY;
+    		penetrationY = Math.abs(playerProjectionY) + Math.abs(statProjectionY);
 
     	
 		double rawDistanceX = penetrationX;
 		double rawDistanceY = penetrationY; //Store raw distances before clamping
 		
 		
+		if ( rawDistanceX*Math.signum(centerDistanceX) < -2 || rawDistanceY*Math.signum(centerDistanceY) < -2 )
+			this.isComplete = true;
+		
 		if ( penetrationX * centerDistanceX < 0 ) //
+			
 				penetrationX = 0;
+	
 		if ( penetrationY * centerDistanceY < 0 ) // 
+			
 				penetrationY = 0;
-
-
 		
 		
 		BoundaryFeature featurePrimary = playerInnerVertices[0];

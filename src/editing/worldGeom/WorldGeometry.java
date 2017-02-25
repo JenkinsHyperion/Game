@@ -237,14 +237,14 @@ public class WorldGeometry {
 		// area for states, to handle lots of different key presses
 		public VertexPlaceMode() {
 			inputController = new InputController();
-			//KeyStateNull keyStateNull = new KeyStateNull();
-		//	KeyStateAlt keyStateAlt = new KeyStateAlt();
+			KeyStateNull keyStateNull = new KeyStateNull();
+			KeyStateCtrl keyStateCtrl = new KeyStateCtrl();
 			//set initial condition for keyState
-			//keyState = keyStateNull;
-			/*inputController.createKeyBinding(KeyEvent.VK_ALT, new KeyCommand() {
+			keyState = keyStateNull;
+			inputController.createKeyBinding(KeyEvent.VK_CONTROL, new KeyCommand() {
 				@Override
 				public void onPressed() {
-					keyState = keyStateAlt;
+					keyState = keyStateCtrl;
 				}
 				@Override
 				public void onReleased() {
@@ -254,8 +254,7 @@ public class WorldGeometry {
 				public void onHeld() {
 					//keyState = keyStateAlt;
 				}
-			});*/
-			//inputController.createKeyBinding(KeyEvent.VK_ALT, new Ver);(MouseEvent.BUTTON1, new VertexPlaceLClickEvent());
+			});
 			//inputController.createMouseBinding(MouseEvent.BUTTON1, new VertexPlaceLClickEvent());
 			inputController.createMouseBinding(MouseEvent.BUTTON1, new MouseCommand(){ //left click event
 				public void mousePressed() {
@@ -267,8 +266,11 @@ public class WorldGeometry {
 				}
 				public void mouseReleased() {}
 			});
-			inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON3, new MouseCommand(){ //test drag event
-				public void mousePressed() {}
+			inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON1, new MouseCommand(){ //test drag event
+				public void mousePressed() {
+					if (vertexPlacementAllowed == true)
+						addVertex(camera.getLocalX(worldGeomMousePos.x), vertexList.get(vertexList.size()-1).getPoint().y);
+				}
 				public void mouseDragged() {}
 				public void mouseReleased() {}
 			});
@@ -278,15 +280,13 @@ public class WorldGeometry {
 			// vvvv Will be the actual commands I want
 			// this.inputController.mousePressed(e);
 			
-			
 		}
 		public void mouseDragged(MouseEvent e) {
 			inputController.mouseDragged(e);
 		}
 		public void mouseMoved(MouseEvent e) {
-			//keyState.mouseMoved(e);
-			//inputController.mouseMoved(e);
 			//functionality for locking the Y axis to draw a flat line
+			keyState.mouseMoved(e);
 		}
 		public void mouseReleased(MouseEvent e) {inputController.mouseReleased(e);}
 		public void render(Graphics g) {
@@ -339,14 +339,13 @@ public class WorldGeometry {
 			}
 		}
 		
-		public class KeyStateAlt extends KeyState {
+		public class KeyStateCtrl extends KeyState {
 			@Override
 			public void mouseMoved(MouseEvent e) {
-				//implementation of mouseMoved for when alt is pressed. Will be triggered
+				//implementation of mouseMoved for when ctrl is pressed. Will be triggered
 				// by inputController
 				if (vertexList.size() > 0) {
-					//System.err.println("Reached keyStateAlt's mouseMoved() area");
-					//worldGeomMousePos.setLocation(e.getX(), vertexList.get(vertexList.size()-1).getPoint().y);
+					worldGeomMousePos.setLocation(e.getX(), camera.getRelativeY((vertexList.get(vertexList.size()-1).getPoint().y)));
 				}
 			}
 		} // end if inner inner class KeyStateAlt

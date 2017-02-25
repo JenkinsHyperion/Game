@@ -77,7 +77,24 @@ public class MainWindow extends JPanel implements KeyListener, MouseListener{
 		
 		MainWindow splitPaneInstance = new MainWindow();
 
-		
+		frame.addFocusListener(new FocusListener() {
+	        private final KeyEventDispatcher altDisabler = new KeyEventDispatcher() {
+	            @Override
+	            public boolean dispatchKeyEvent(KeyEvent e) {
+	                return e.getKeyCode() == 18;
+	            }
+	        };
+
+	        @Override
+	        public void focusGained(FocusEvent e) {
+	            KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(altDisabler);
+	        }
+
+	        @Override
+	        public void focusLost(FocusEvent e) {
+	            KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(altDisabler);
+	        }
+	    });
 		frame.add(splitPaneInstance.getSplitPane());
 		frame.setPreferredSize(new Dimension(width,height)); //TESTING SCREEN RESOLUTION was 300,600
 		//frame.setLocationRelativeTo();

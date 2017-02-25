@@ -272,10 +272,10 @@ public class EditorPanel extends JPanel {
 		iconBarScrollPane.setVerticalScrollBarPolicy((JScrollPane.VERTICAL_SCROLLBAR_ALWAYS));
 		add(iconBarScrollPane, FlowLayout.TRAILING);
 		
-		try {
+	/*	try {
 			automaticMouseReturn = new Robot();
 		} catch (AWTException e) {}
-		
+		*/
 		//testing setting the ghostSprite
 		//setGhostSprite(ASSET_PATH + PF1 );
 		//revalidate();

@@ -52,7 +52,7 @@ public class WorldGeometry {
 	//private ArrayList<WorldGeometry> worldGeometryEntities = new ArrayList<>();
 	protected BufferedImage ghostVertexPic;
 	//protected BufferedImage vertexPic;
-	protected boolean keypressALT;
+	//protected boolean keypressALT;
 	private Point worldGeomMousePos;
 	//private int worldGeomMode;
 	/*private static final int VERTEXDRAWING_MODE = 0;
@@ -83,7 +83,7 @@ public class WorldGeometry {
 		addVertex(220, 500); 
 		updateSurfaceLines();
 		worldGeomMousePos = new Point();
-		keypressALT = false;
+		//keypressALT = false;
 		ghostVertexPic = (BufferedImage)Vertex.createVertexPic(0.5f);
 	}
 
@@ -174,33 +174,35 @@ public class WorldGeometry {
 	
 	//KEY EVENTS PASSED IN FROM BOARD
 	public void keyPressed(KeyEvent e){
-		int key = e.getKeyCode();
-		if (key == KeyEvent.VK_ALT && !keypressALT) {  // holding ALT when placing vertices will lock the y axis to the last placed point
-			keypressALT = true;
+		this.worldGeomMode.inputController.keyPressed(e);
+		//int key = e.getKeyCode();
+		/*if (key == KeyEvent.VK_ALT && !keypressALT) {  // holding ALT when placing vertices will lock the y axis to the last placed point
+			keypressALT = true;*/
 			//yClampGate = true;
 			//setYClamp(worldGeomMousePos.getY();
 			//yClampGate = false;
-		}
-		if (key == KeyEvent.VK_ESCAPE) {
+		//}
+		/*if (key == KeyEvent.VK_ESCAPE) {
 			resetStates();
         	clearAllVertices();
-		}
+		}*/
 	}
 	public void keyReleased(KeyEvent e) {
-		int key = e.getKeyCode();
-		if (key == KeyEvent.VK_ALT && keypressALT)
-			keypressALT = false;
+		this.worldGeomMode.inputController.keyReleased(e);
+		//int key = e.getKeyCode();
+		/*if (key == KeyEvent.VK_ALT && keypressALT)
+			keypressALT = false;*/
 	}
 	/* public void setYClamp(int yClamp){
 		this.yClamp = yClamp;
 		yClampGate = false;
 	} */
-	public void setShiftHeld(boolean state){
+/*	public void setShiftHeld(boolean state){
 		this.keypressALT = state;
-	}
-	public boolean getShiftHeld() {
+	}*/
+	/*public boolean getShiftHeld() {
 		return this.keypressALT;
-	}
+	}*/
 	//// END OF KEY HANDLING SECTION /////
 	public Point getWorldGeomMousePos() {
 		return worldGeomMousePos;
@@ -211,7 +213,7 @@ public class WorldGeometry {
 	}
 	public void resetStates() {
 		vertexPlacementAllowed = true;
-		keypressALT = false;
+		//keypressALT = false;
 	}
 	
 	public void setMode(WorldGeomMode newMode) {
@@ -235,6 +237,24 @@ public class WorldGeometry {
 		// area for states, to handle lots of different key presses
 		public VertexPlaceMode() {
 			inputController = new InputController();
+			//KeyStateNull keyStateNull = new KeyStateNull();
+		//	KeyStateAlt keyStateAlt = new KeyStateAlt();
+			//set initial condition for keyState
+			//keyState = keyStateNull;
+			/*inputController.createKeyBinding(KeyEvent.VK_ALT, new KeyCommand() {
+				@Override
+				public void onPressed() {
+					keyState = keyStateAlt;
+				}
+				@Override
+				public void onReleased() {
+					keyState = keyStateNull;
+				}
+				@Override
+				public void onHeld() {
+					//keyState = keyStateAlt;
+				}
+			});*/
 			//inputController.createKeyBinding(KeyEvent.VK_ALT, new Ver);(MouseEvent.BUTTON1, new VertexPlaceLClickEvent());
 			//inputController.createMouseBinding(MouseEvent.BUTTON1, new VertexPlaceLClickEvent());
 			inputController.createMouseBinding(MouseEvent.BUTTON1, new MouseCommand(){ //left click event
@@ -245,15 +265,11 @@ public class WorldGeometry {
 				public void mouseDragged() {
 					System.err.println("Reached Button1's event");
 				}
-				public void mouseMoved() {}
 				public void mouseReleased() {}
 			});
-			inputController.createMouseBinding(MouseEvent.ALT_MASK, MouseEvent.BUTTON3, new MouseCommand(){ //test drag event
+			inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON3, new MouseCommand(){ //test drag event
 				public void mousePressed() {}
 				public void mouseDragged() {}
-				public void mouseMoved() {
-					// TODO Auto-generated method stub
-					System.err.println("Reached MouseMoved's event");}
 				public void mouseReleased() {}
 			});
 		}
@@ -268,17 +284,9 @@ public class WorldGeometry {
 			inputController.mouseDragged(e);
 		}
 		public void mouseMoved(MouseEvent e) {
-			inputController.mouseMoved(e);
+			//keyState.mouseMoved(e);
+			//inputController.mouseMoved(e);
 			//functionality for locking the Y axis to draw a flat line
-			/*if (keypressALT) {
-				if (vertexList.size() > 0)
-					worldGeomMousePos.setLocation(e.getX(), vertexList.get(vertexList.size()-1).getPoint().y);
-				else
-					worldGeomMousePos.setLocation(e.getX(), e.getY());
-			}
-			else //shift isn't held; default running condition
-				worldGeomMousePos.setLocation(e.getX(), e.getY());
-			*/
 		}
 		public void mouseReleased(MouseEvent e) {inputController.mouseReleased(e);}
 		public void render(Graphics g) {
@@ -329,9 +337,21 @@ public class WorldGeometry {
 				//g2.draw(tempLine);
 				camera.draw(tempLine, g2);
 			}
-		}	
+		}
+		
+		public class KeyStateAlt extends KeyState {
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				//implementation of mouseMoved for when alt is pressed. Will be triggered
+				// by inputController
+				if (vertexList.size() > 0) {
+					//System.err.println("Reached keyStateAlt's mouseMoved() area");
+					//worldGeomMousePos.setLocation(e.getX(), vertexList.get(vertexList.size()-1).getPoint().y);
+				}
+			}
+		} // end if inner inner class KeyStateAlt
 	}
-	// end of inner class
+	// end of inner class VertexPlaceMode
 	
 	
 /////////   INNER CLASS VERTEXSELECTMODE   //////////////////////////////////////////////////////
@@ -349,9 +369,10 @@ public class WorldGeometry {
 		public VertexSelectMode() {
 			inputController = new InputController();
 			this.inputController.createMouseBinding(MouseEvent.BUTTON1, new VertexSelectLClickEvent());
+			//this.inputController.createMouseBinding(MouseEvent.ALT_DOWN_MASK, MouseEvent.BUTTON1, new ShiftVertexSelectLClickEvent());
 			//this.inputController.createMouseBinding(MouseEvent.ALT_MASK, MouseEvent.BUTTON1, new VertexSelectLClickEvent());
 			//this.inputController.createMouseBinding(MouseEvent.BUTTON3, new VertexSelectRClickEvent());
-			//this.inputController.createMouseBinding(MouseEvent.MOUSE_MOVED, new ShiftVertexSelectLClickEvent());
+			
 			currentSelectedVertex = nullVertex;
 			
 		}
@@ -366,10 +387,11 @@ public class WorldGeometry {
 		public void mouseDragged(MouseEvent e) {
 			inputController.mouseDragged(e); }
 			// TODO Auto-generated method stub
-		@Override
+		
 		public void mouseMoved(MouseEvent e) {
 			// TODO Auto-generated method stub
-			inputController.mouseMoved(e); }
+			//inputController.mouseMoved(e);
+			}
 		@Override
 		public void mouseReleased(MouseEvent e) {
 			// TODO Auto-generated method stub
@@ -422,7 +444,7 @@ public class WorldGeometry {
 			}
 			public void mouseDragged() {
 				// TODO Auto-generated method stub
-				currentSelectedVertex.translate(camera.getLocalPosition(worldGeomMousePos));
+//				currentSelectedVertex.translate(camera.getLocalPosition(worldGeomMousePos));
 			}
 			public void mouseMoved() {
 				// TODO Auto-generated method stub	
@@ -453,11 +475,11 @@ public class WorldGeometry {
 
 			public void mousePressed() {
 				// TODO Auto-generated method stub
-				checkForVertex(camera.getLocalPosition(worldGeomMousePos));
+				
 			}
 			public void mouseDragged() {
 				// TODO Auto-generated method stub
-				//currentSelectedVertex.translate(camera.getLocalPosition(e.getPoint()));
+				currentSelectedVertex.translate(camera.getLocalPosition(worldGeomMousePos));
 			}
 			public void mouseMoved() {
 				// TODO Auto-generated method stub	

@@ -8,7 +8,5 @@ public interface MouseCommand {
 
 	public void mouseDragged();
 
-	public void mouseMoved();
-
 	public void mouseReleased();
 }

@@ -651,15 +651,7 @@ public class PlayerCharacter extends Player {
 		public void mouseDragged() {
 			// TODO Auto-generated method stub
 			
-		}
-		@Override
-		public void mouseMoved() {
-			// TODO Auto-generated method stub
-			
-		}
-    	
-
-		
+		}	
 		
     }
     

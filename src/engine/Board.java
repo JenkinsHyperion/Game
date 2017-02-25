@@ -394,14 +394,12 @@ public class Board extends BoardAbstract {
   		@Override
         public void keyReleased(KeyEvent e) {
             player.inputController.keyReleased(e);
-            editorPanel.keyReleased(e);
-            editorPanel.getWorldGeom().keyReleased(e);           
+            editorPanel.keyReleased(e);         
         }
   		@Override
         public void keyPressed(KeyEvent e) {
             player.inputController.keyPressed(e);
             editorPanel.keyPressed(e);
-            editorPanel.getWorldGeom().keyPressed(e);
             int key = e.getKeyCode();
 
             if (key == KeyEvent.VK_F1) {

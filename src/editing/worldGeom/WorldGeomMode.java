@@ -7,6 +7,7 @@ import Input.*;
 
 public abstract class WorldGeomMode {
 	protected InputController inputController;
+	protected KeyState keyState;
 	/*public abstract void mouseInput(MouseEvent m);
 	public abstract void keyInput(KeyEvent e);
 	*/

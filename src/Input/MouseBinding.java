@@ -30,7 +30,6 @@ public class MouseBinding {
 	
 	public void mousePressed(){ command.mousePressed(); } // forward events to the referenced user-defined command 
 	public void mouseDragged(){ command.mouseDragged(); } // that implements MouseCommand
-	public void mouseMoved(){ command.mouseMoved(); }
 	public void mouseReleased(){ command.mouseReleased(); }
 	
 	//CORE FUNCTIONALITY 

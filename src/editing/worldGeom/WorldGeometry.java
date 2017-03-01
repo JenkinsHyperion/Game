@@ -37,7 +37,7 @@ public class WorldGeometry {
 	private EditorPanel editorPanel;
 	private BoardAbstract board;
 	private Camera camera;
-	private ArrayList<Point> vertexPoints = new ArrayList<>();
+	//private ArrayList<Point> vertexPoints = new ArrayList<>();
 
 
 	// World Geometry Modes:
@@ -58,7 +58,6 @@ public class WorldGeometry {
 	/*private static final int VERTEXDRAWING_MODE = 0;
 	private static final int VERTEXSELECT_MODE = 1;*/
 	// private Point currentSelectedVertex;
-	private boolean vertexPlacementAllowed;
 	
 	private int offsetX; //actual point will be within the square's center, so square must be offset.
 	private int offsetY;
@@ -69,35 +68,16 @@ public class WorldGeometry {
 		this.editorPanel = editorPanelRef;
 		this.board = board2;
 		this.camera = board2.getCamera();
-		vertexPlacementAllowed = true;
-		
-		
 		// ########### initalize modes for world geometry  ##########
 		// default to placement mode
 		//worldGeomMode = vertexPlaceMode;
 		worldGeomMode = vertexSelectMode;
-		/* test section */
-		addVertex(50, 500);
-		addVertex(170, 411);
-		addVertex(180, 430);
-		addVertex(220, 500); 
-		updateSurfaceLines(0);
+
 		worldGeomMousePos = new Point();
 		//keypressALT = false;
 		ghostVertexPic = (BufferedImage)Vertex.createVertexPic(0.5f);
 	}
 
-	/** True if any intersection is found across all lines in the surfaceLines arrayList<> 
-	 */
-	public boolean checkIfLinesIntersect(Line2D.Double testLine){
-		for (int i = 0; i < surfaceLines.size()-1; i++){
-			if (surfaceLines.get(i).intersectsLine(testLine))
-				return true;
-		}
-		return false;
-		
-	}
-	
 /*	public void drawSurfaceLines(Graphics g) {
 		Graphics2D g2 = (Graphics2D)g;
 		g2.setColor(Color.MAGENTA);
@@ -113,6 +93,7 @@ public class WorldGeometry {
 		for (int i = startingIndex; i < vertexList.size()-1; i++) {
 			Line2D.Double tempLine = new Line2D.Double(vertexList.get(i).getPoint(), vertexList.get(i+1).getPoint());
 			surfaceLines.add(tempLine);
+			
 		}
 	}
 	public Image getGhostVertexPic() {
@@ -206,11 +187,11 @@ public class WorldGeometry {
 	public void setWorldGeomMousePos(Point pos) {
 		this.worldGeomMousePos = pos;
 	}
-	public void resetStates() {
+	/*public void resetStates() {
 		vertexPlacementAllowed = true;
 		//keypressALT = false;
 	}
-	
+	*/
 	public void setMode(WorldGeomMode newMode) {
 		this.worldGeomMode = newMode;
 	}
@@ -230,12 +211,38 @@ public class WorldGeometry {
 	public class VertexPlaceMode extends WorldGeomMode {	
 		/* Will need to create some booleans states here possibly */
 		// area for states, to handle lots of different key presses
+		private boolean vertexPlacementAllowed = true;
 		public VertexPlaceMode() {
 			inputController = new InputController();
 			KeyStateNull keyStateNull = new KeyStateNull();
 			KeyStateCtrl keyStateCtrl = new KeyStateCtrl();
 			//set initial condition for keyState
 			keyState = keyStateNull;
+			
+			
+			//TESTING
+			inputController.createKeyBinding(KeyEvent.VK_EQUALS, new KeyCommand() {
+
+				@Override
+				public void onPressed() {
+					
+					Line2D[] lines = new Line2D[surfaceLines.size()]; 
+					surfaceLines.toArray( lines );
+					System.out.println("adding");
+					((Board)board).addStaticEntity( EntityFactory.createEntityFromBoundary(0, 0, lines) );
+					
+				}
+
+				@Override
+				public void onReleased() {
+				}
+
+				@Override
+				public void onHeld() {
+				}
+				
+			});
+			
 			// ###### ALIGN TO X-AXIS BUTTON  #######
 			inputController.createKeyBinding(KeyEvent.VK_CONTROL, new KeyCommand() {
 				@Override
@@ -280,7 +287,7 @@ public class WorldGeometry {
 				}
 				public void mouseReleased() {}
 			});
-			inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new MouseCommand(){ //test drag event
+			inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON1, new MouseCommand(){ //test drag event
 				public void mousePressed() {
 					if (vertexPlacementAllowed == true) 
 						//addVertex(camera.getLocalX(worldGeomMousePos.x), camera.getLocalY(worldGeomMousePos.y));
@@ -322,11 +329,10 @@ public class WorldGeometry {
 					if (checkIfLinesIntersect(ghostLine)) {  //one of the lines are crossing
 						g2.setColor(Color.RED);
 						//canCreateVertices(false) <---do later EDIT: done
-						vertexPlacementAllowed = false;
+						
 					}
 					else {								// nothing's intersecting, ready to place another point
 						g2.setColor(Color.PINK);
-						vertexPlacementAllowed = true;
 					}
 				}
 				else {
@@ -353,17 +359,29 @@ public class WorldGeometry {
 				camera.draw(tempLine, g2);
 			}
 		}
-		
-		public class KeyStateCtrl extends KeyState {
-			@Override
-			public void mouseMoved(MouseEvent e) {
-				//implementation of mouseMoved for when ctrl is pressed. Will be triggered
-				// by inputController
-				if (vertexList.size() > 0) {
-					worldGeomMousePos.setLocation(e.getX(), camera.getRelativeY((vertexList.get(vertexList.size()-1).getPoint().y)));
+		/** True if any intersection is found across all lines in the surfaceLines arrayList<> 
+		 */
+		public boolean checkIfLinesIntersect(Line2D.Double testLine){
+			for (int i = 0; i < surfaceLines.size()-1; i++){
+				if (surfaceLines.get(i).intersectsLine(testLine)) {
+					vertexPlacementAllowed = false;
+					return true;	
 				}
 			}
-		} // end if inner inner class KeyStateAlt
+			vertexPlacementAllowed = true;
+			return false;
+		}
+		
+			public class KeyStateCtrl extends KeyState {
+				@Override
+				public void mouseMoved(MouseEvent e) {
+					//implementation of mouseMoved for when ctrl is pressed. Will be triggered
+					// by inputController
+					if (vertexList.size() > 0) {
+						worldGeomMousePos.setLocation(e.getX(), camera.getRelativeY((vertexList.get(vertexList.size()-1).getPoint().y)));
+					}
+				}
+			} // end if inner inner class KeyStateAlt
 	}
 	// end of inner class VertexPlaceMode
 	

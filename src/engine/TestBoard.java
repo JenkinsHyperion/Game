@@ -150,6 +150,8 @@ public class TestBoard extends BoardAbstract{
     	
     	drawObjects(g);
     	
+    	this.editorPanel.getWorldGeom().render(g);
+    	
     	g.setColor( Color.CYAN );
     	//camera.drawCrossInWorld( ((TestHinge)dynamicEntitiesList.get(0)).getPointLocal() , g);
     	g.drawString( "Number of Entities: "+dynamicEntitiesList.size() , 10,20);

@@ -713,6 +713,11 @@ public class Board extends BoardAbstract {
  * 
  * ########################################################################################################################
  */
+    
+    public void addStaticEntity(EntityStatic entity){
+    	this.staticEntitiesList.add( entity );
+    }
+    
     @Override
     public Camera getCamera() { return this.camera; }
 	

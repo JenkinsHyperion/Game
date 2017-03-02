@@ -45,5 +45,10 @@ public final class VertexNull extends VertexAbstract {
 		// TODO Auto-generated method stub
 		
 	}
+	@Override
+	public void translate(int x, int y) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

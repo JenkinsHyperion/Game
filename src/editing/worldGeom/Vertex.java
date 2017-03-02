@@ -69,4 +69,12 @@ public class Vertex extends VertexAbstract {
 		this.clickableZone.setLocation(vertexPoint.x-offsetX, vertexPoint.y-offsetY);
 	}
 
+	@Override
+	public void translate(int x, int y) {
+		// TODO Auto-generated method stub
+		this.vertexPoint.setLocation(x, y);
+		this.clickableZone.setLocation(vertexPoint.x-offsetX, vertexPoint.y-offsetY);
+		
+	}
+
 }

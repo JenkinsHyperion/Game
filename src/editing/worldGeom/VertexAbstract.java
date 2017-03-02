@@ -24,4 +24,5 @@ public abstract class VertexAbstract {
 	public abstract Rectangle getClickableZone();
 	
 	public abstract void translate(Point p);
+	public abstract void translate(int x, int y);
 }

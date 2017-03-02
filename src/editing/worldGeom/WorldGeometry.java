@@ -44,20 +44,13 @@ public class WorldGeometry {
 	private WorldGeomMode worldGeomMode;
 	private final VertexPlaceMode vertexPlaceMode = new VertexPlaceMode();
 	private final VertexSelectMode vertexSelectMode = new VertexSelectMode();
-	//private final VertexTranslateMode vertexTranslateMode = new VertexTranslateMode();
 	
 	private ArrayList<Vertex> vertexList = new ArrayList<>();
-	
 	private ArrayList<Line2D.Double> surfaceLines = new ArrayList<>();
 	//private ArrayList<WorldGeometry> worldGeometryEntities = new ArrayList<>();
+	
 	protected BufferedImage ghostVertexPic;
-	//protected BufferedImage vertexPic;
-	//protected boolean keypressALT;
 	private Point worldGeomMousePos;
-	//private int worldGeomMode;
-	/*private static final int VERTEXDRAWING_MODE = 0;
-	private static final int VERTEXSELECT_MODE = 1;*/
-	// private Point currentSelectedVertex;
 	
 	private int offsetX; //actual point will be within the square's center, so square must be offset.
 	private int offsetY;
@@ -225,18 +218,15 @@ public class WorldGeometry {
 
 				@Override
 				public void onPressed() {
-					
 					Line2D[] lines = new Line2D[surfaceLines.size()]; 
 					surfaceLines.toArray( lines );
 					System.out.println("adding");
 					((Board)board).addStaticEntity( EntityFactory.createEntityFromBoundary(0, 0, lines) );
 					
 				}
-
 				@Override
 				public void onReleased() {
 				}
-
 				@Override
 				public void onHeld() {
 				}
@@ -392,20 +382,28 @@ public class WorldGeometry {
 		
 		//private WorldGeomMode subMode;
 		
-		protected VertexAbstract currentSelectedVertex;
+		//protected VertexAbstract currentSelectedVertex;
+		protected SelectedVertices selectedVertices;
 		// will use this list for when there's multiple selection possible
 		//protected ArrayList<VertexAbstract> currentVertexList = new ArrayList<>();
 		private VertexAbstract nullVertex = VertexNull.getNullVertex();
+		private Point initClickPoint;
 		//worldGeomRef is inherited
 		
 		public VertexSelectMode() {
+			selectedVertices = new SelectedVertices(camera);
+			initClickPoint = new Point(3,3);
 			inputController = new InputController();
 			this.inputController.createMouseBinding(MouseEvent.BUTTON1, new VertexSelectLClickEvent());
+			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new CtrlVertexSelectLClickEvent());
+			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON2, new TranslateEvent());
+			this.inputController.createKeyBinding(KeyEvent.VK_ESCAPE, new EscapeEvent());
+			
 			//this.inputController.createMouseBinding(MouseEvent.ALT_DOWN_MASK, MouseEvent.BUTTON1, new ShiftVertexSelectLClickEvent());
 			//this.inputController.createMouseBinding(MouseEvent.ALT_MASK, MouseEvent.BUTTON1, new VertexSelectLClickEvent());
 			//this.inputController.createMouseBinding(MouseEvent.BUTTON3, new VertexSelectRClickEvent());
 			
-			currentSelectedVertex = nullVertex;
+			//currentSelectedVertex = nullVertex;
 			
 		}
 		// INPUT HANDLING SECTION
@@ -422,7 +420,6 @@ public class WorldGeometry {
 		public void mouseReleased(MouseEvent e) {
 			// TODO Auto-generated method stub
 			inputController.mouseReleased(e); }
-
 		@Override
 		public void render(Graphics g) {
 			Graphics2D g2 = (Graphics2D)g.create();			
@@ -442,76 +439,112 @@ public class WorldGeometry {
 			
 			// section to draw selected Vertex (if one is selected)
 			g2.setColor(Color.GREEN);
-			currentSelectedVertex.drawClickableBox(g2, camera);
+			//currentSelectedVertex.drawClickableBox(g2, camera);
+			selectedVertices.drawClickableBox(g2, camera);
 			g2.setColor(Color.BLUE);
 			
 		}
-		public void setCurrentSelectedVertex(VertexAbstract newSelectedVertex){
+		/*public void setCurrentSelectedVertex(VertexAbstract newSelectedVertex){
 			currentSelectedVertex = newSelectedVertex;
-		}
-		public void checkForVertex(Point click) {
-			for (Vertex vertex: vertexList)	{
+		}*/
+		public void checkForVertexShiftClick(Point click) {
+			for (Vertex vertex: vertexList) {
 				if (vertex.getClickableZone().contains(click)) {
-					currentSelectedVertex = vertex;
-					break;
-				// TODO here, would now set substate to VertexTranslateMode I think
-				}
-				else {
-					currentSelectedVertex = nullVertex;
+					if (selectedVertices.contains(vertex)) 
+						selectedVertices.removeSelectedVertex(vertex);
+					else
+						selectedVertices.addSelectedVertex(vertex);
 				}
 			}
+		}
+		public void checkForVertex(Point click) {
+			//boolean atLeastOneVertexFound = false;
+			//since this is the regular click method, would want to make sure any selected vertices are deselected first
+			//TODO: DON'T USE THIS METHOD WITH THE SELECTION BOX PROCEDURE
+			if (selectedVertices.size() > 0)
+				selectedVertices.clearSelectedVertices();
+			
+			for (Vertex vertex: vertexList) {
+				if (vertex.getClickableZone().contains(click)) 
+				{
+					if (selectedVertices.contains(vertex) == false) {
+						//atLeastOneVertexFound = true;
+						selectedVertices.addSelectedVertex(vertex);
+						break;
+					}
+				}
+			}
+			/*if (atLeastOneVertexFound == false)
+				selectedVertices.clearSelectedVertices();*/
 		}
 		
 		// ***** inner-inner classes for mouse behavior classes specific to vertex selecting
 		public class VertexSelectLClickEvent implements MouseCommand{
-			public void mousePressed() {
-				// TODO Auto-generated method stub
-				checkForVertex(camera.getLocalPosition(worldGeomMousePos));
-			}
-			public void mouseDragged() {
-				currentSelectedVertex.translate(camera.getLocalPosition(worldGeomMousePos));
-			}
-			public void mouseMoved() {}
-			public void mouseReleased() {
-				// TODO Auto-generated method stub
-			}	
-		} // end of VertexSelectLClickEvent inner class
+				public void mousePressed() {
+					// TODO Auto-generated method stub
+					checkForVertex(camera.getLocalPosition(worldGeomMousePos));
+				}
+				public void mouseDragged() {
+					//currentSelectedVertex.translate(camera.getLocalPosition(worldGeomMousePos));
+				}
+				public void mouseReleased() {}	
+			} // end of VertexSelectLClickEvent inner class
 		public class VertexSelectRClickEvent implements MouseCommand{
-			public void mousePressed() {
-				// TODO Auto-generated method stub
-				//checkForVertex(camera.getLocalPosition(e.getPoint()));
-				checkForVertex(camera.getLocalPosition(worldGeomMousePos));
-			}
-			public void mouseDragged() {
-				// TODO Auto-generated method stub
-				currentSelectedVertex.translate(camera.getLocalPosition(worldGeomMousePos));
-			}
-			public void mouseMoved() {
-				// TODO Auto-generated method stub			
-			}
-			public void mouseReleased() {
-				// TODO Auto-generated method stub
-			}	
-		} // end of VertexSelectRClickEvent inner class
-		public class ShiftVertexSelectLClickEvent implements MouseCommand{
-
-			public void mousePressed() {
-				// TODO Auto-generated method stub
+				public void mousePressed() {
+					// TODO Auto-generated method stub
+					//checkForVertex(camera.getLocalPosition(e.getPoint()));
+					//checkForVertex(camera.getLocalPosition(worldGeomMousePos));
+				}
+				public void mouseDragged() {
+					// TODO Auto-generated method stub
+					//currentSelectedVertex.translate(camera.getLocalPosition(worldGeomMousePos));
+				}
+				public void mouseReleased() {
+					// TODO Auto-generated method stub
+				}	
+			} // end of VertexSelectRClickEvent inner class
+		public class CtrlVertexSelectLClickEvent implements MouseCommand{
+	
+				public void mousePressed() {
+					// TODO Auto-generated method stub
+					checkForVertexShiftClick(camera.getLocalPosition(worldGeomMousePos));
+				}
+				public void mouseDragged() {
+					// TODO Auto-generated method stub
+					//currentSelectedVertex.translate(camera.getLocalPosition(worldGeomMousePos));
+				}
+				public void mouseReleased() {
+					// TODO Auto-generated method stub
+				}
 				
+			} // end of ShiftVertexSelectLClickEvent inner class
+		public class TranslateEvent implements MouseCommand{
+			
+			public void mousePressed() {
+				// TODO Auto-generated method stub
+				initClickPoint.setLocation(camera.getLocalPosition(worldGeomMousePos));
+				selectedVertices.cloneList();
 			}
 			public void mouseDragged() {
 				// TODO Auto-generated method stub
-				currentSelectedVertex.translate(camera.getLocalPosition(worldGeomMousePos));
-			}
-			public void mouseMoved() {
-				// TODO Auto-generated method stub	
-				System.err.println("Seeing if fucking shift mask works.");
+				//currentSelectedVertex.translate(camera.getLocalPosition(worldGeomMousePos));
+				selectedVertices.translate(camera.getLocalPosition(initClickPoint),
+										   camera.getLocalPosition(worldGeomMousePos));
 			}
 			public void mouseReleased() {
 				// TODO Auto-generated method stub
 			}
 			
-		} // end of ShiftVertexSelectLClickEvent inner class
+		}
+		public class EscapeEvent implements KeyCommand {
+				@Override
+				public void onPressed() {
+					// TODO Auto-generated method stub
+					selectedVertices.clearSelectedVertices();
+				}
+				public void onReleased() {}
+				public void onHeld() {}
+			}
 	}
 	//end of VertexSelectMode inner class
 	

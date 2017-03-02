@@ -54,10 +54,12 @@ public class SelectedVertices {
 	}
 	
 	public void translate(Point initClickPoint, Point worldGeomMousePos) {
+		System.out.println("Camera is null?: " + camera == null);
 		int deltaX = initClickPoint.x - worldGeomMousePos.x;
 		int deltaY = initClickPoint.y - worldGeomMousePos.y;
 		for (int i = 0; i < selectedVertices.size(); i++) {
-			selectedVertices.get(i).translate(clonedList.get(i).x - deltaX, clonedList.get(i).y - deltaY);
+			selectedVertices.get(i).translate(camera.getLocalX(clonedList.get(i).x - deltaX), 
+											 camera.getLocalY(clonedList.get(i).y - deltaY));
 		}
 	}
 	public void removeSelectedVertex(int i) {

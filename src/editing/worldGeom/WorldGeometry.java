@@ -36,14 +36,13 @@ public class WorldGeometry {
 	
 	private EditorPanel editorPanel;
 	private BoardAbstract board;
-	private Camera camera;
+	protected Camera camera;
 	//private ArrayList<Point> vertexPoints = new ArrayList<>();
-
 
 	// World Geometry Modes:
 	private WorldGeomMode worldGeomMode;
-	private final VertexPlaceMode vertexPlaceMode = new VertexPlaceMode();
-	private final VertexSelectMode vertexSelectMode = new VertexSelectMode();
+	private final VertexPlaceMode vertexPlaceMode;
+	private final VertexSelectMode vertexSelectMode;
 	
 	private ArrayList<Vertex> vertexList = new ArrayList<>();
 	private ArrayList<Line2D.Double> surfaceLines = new ArrayList<>();
@@ -64,6 +63,8 @@ public class WorldGeometry {
 		// ########### initalize modes for world geometry  ##########
 		// default to placement mode
 		//worldGeomMode = vertexPlaceMode;
+		vertexPlaceMode = new VertexPlaceMode();
+		vertexSelectMode = new VertexSelectMode();
 		worldGeomMode = vertexSelectMode;
 
 		worldGeomMousePos = new Point();
@@ -383,7 +384,9 @@ public class WorldGeometry {
 		//private WorldGeomMode subMode;
 		
 		//protected VertexAbstract currentSelectedVertex;
+		
 		protected SelectedVertices selectedVertices;
+		
 		// will use this list for when there's multiple selection possible
 		//protected ArrayList<VertexAbstract> currentVertexList = new ArrayList<>();
 		private VertexAbstract nullVertex = VertexNull.getNullVertex();
@@ -392,11 +395,12 @@ public class WorldGeometry {
 		
 		public VertexSelectMode() {
 			selectedVertices = new SelectedVertices(camera);
-			initClickPoint = new Point(3,3);
+			initClickPoint = new Point();
 			inputController = new InputController();
+			TranslateEvent translateEvent = new TranslateEvent();
 			this.inputController.createMouseBinding(MouseEvent.BUTTON1, new VertexSelectLClickEvent());
 			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new CtrlVertexSelectLClickEvent());
-			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON2, new TranslateEvent());
+			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON2, translateEvent);
 			this.inputController.createKeyBinding(KeyEvent.VK_ESCAPE, new EscapeEvent());
 			
 			//this.inputController.createMouseBinding(MouseEvent.ALT_DOWN_MASK, MouseEvent.BUTTON1, new ShiftVertexSelectLClickEvent());
@@ -526,10 +530,7 @@ public class WorldGeometry {
 				selectedVertices.cloneList();
 			}
 			public void mouseDragged() {
-				// TODO Auto-generated method stub
-				//currentSelectedVertex.translate(camera.getLocalPosition(worldGeomMousePos));
-				selectedVertices.translate(camera.getLocalPosition(initClickPoint),
-										   camera.getLocalPosition(worldGeomMousePos));
+				selectedVertices.translate(initClickPoint, worldGeomMousePos);
 			}
 			public void mouseReleased() {
 				// TODO Auto-generated method stub

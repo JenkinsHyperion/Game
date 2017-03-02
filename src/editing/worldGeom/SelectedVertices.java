@@ -54,7 +54,6 @@ public class SelectedVertices {
 	}
 	
 	public void translate(Point initClickPoint, Point worldGeomMousePos) {
-		System.out.println("Camera is null?: " + camera == null);
 		int deltaX = initClickPoint.x - worldGeomMousePos.x;
 		int deltaY = initClickPoint.y - worldGeomMousePos.y;
 		for (int i = 0; i < selectedVertices.size(); i++) {

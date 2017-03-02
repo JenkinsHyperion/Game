@@ -56,7 +56,7 @@ public class WorldGeometry {
 	
 
 	public WorldGeometry(EditorPanel editorPanelRef, BoardAbstract board2) { 
-
+		this.worldGeomMousePos = new Point();
 		this.editorPanel = editorPanelRef;
 		this.board = board2;
 		this.camera = board2.getCamera();
@@ -67,7 +67,7 @@ public class WorldGeometry {
 		vertexSelectMode = new VertexSelectMode();
 		worldGeomMode = vertexSelectMode;
 
-		worldGeomMousePos = new Point();
+
 		//keypressALT = false;
 		ghostVertexPic = (BufferedImage)Vertex.createVertexPic(0.5f);
 	}
@@ -309,6 +309,7 @@ public class WorldGeometry {
 			//the -3 accounts for the offset
 
 			g2.drawImage(ghostVertexPic, worldGeomMousePos.x - 3, worldGeomMousePos.y - 3, null);
+			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
 			if (vertexList.size() > 0) {	
 				//Line2D.Double ghostLine = new Line2D.Double(vertexPoints.get(vertexPoints.size()-1), worldGeomMousePos);
 				//offset by a pixel because it was always intersecting with previous line in list
@@ -386,21 +387,28 @@ public class WorldGeometry {
 		//protected VertexAbstract currentSelectedVertex;
 		
 		protected SelectedVertices selectedVertices;
-		
+		protected SelectionRectangleAbstract selectionRectangle;
+		protected SelectionRectangleAbstract selectionRectangleState;
 		// will use this list for when there's multiple selection possible
 		//protected ArrayList<VertexAbstract> currentVertexList = new ArrayList<>();
-		private VertexAbstract nullVertex = VertexNull.getNullVertex();
+		//private VertexAbstract nullVertex = VertexNull.getNullVertex();
+		private SelectionRectangleAbstract nullSelectionRectangle;
 		private Point initClickPoint;
 		//worldGeomRef is inherited
 		
 		public VertexSelectMode() {
-			selectedVertices = new SelectedVertices(camera);
 			initClickPoint = new Point();
+			selectedVertices = new SelectedVertices(camera);
+			nullSelectionRectangle = SelectionRectangleNull.getNullSelectionRectangle();
+			selectionRectangle = new SelectionRectangle(Color.BLUE, Color.cyan, camera, initClickPoint);
+			selectionRectangleState = nullSelectionRectangle;
+			
 			inputController = new InputController();
-			TranslateEvent translateEvent = new TranslateEvent();
 			this.inputController.createMouseBinding(MouseEvent.BUTTON1, new VertexSelectLClickEvent());
 			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new CtrlVertexSelectLClickEvent());
-			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON2, translateEvent);
+			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON2, new TranslateEvent());
+			this.inputController.createMouseBinding(MouseEvent.ALT_MASK, MouseEvent.BUTTON2, new SelectionRectEvent());
+			
 			this.inputController.createKeyBinding(KeyEvent.VK_ESCAPE, new EscapeEvent());
 			
 			//this.inputController.createMouseBinding(MouseEvent.ALT_DOWN_MASK, MouseEvent.BUTTON1, new ShiftVertexSelectLClickEvent());
@@ -446,6 +454,8 @@ public class WorldGeometry {
 			//currentSelectedVertex.drawClickableBox(g2, camera);
 			selectedVertices.drawClickableBox(g2, camera);
 			g2.setColor(Color.BLUE);
+			// vvvv section to draw selection rectangle
+			selectionRectangleState.draw(g2, camera);
 			
 		}
 		/*public void setCurrentSelectedVertex(VertexAbstract newSelectedVertex){
@@ -480,6 +490,15 @@ public class WorldGeometry {
 			}
 			/*if (atLeastOneVertexFound == false)
 				selectedVertices.clearSelectedVertices();*/
+		}
+		public void checkForVertexInSelectionRect(Rectangle selectionRect) {
+			for (Vertex vertex: vertexList) {
+				if (selectionRect.contains(vertex.getClickableZone())){
+					if(selectedVertices.contains(vertex) == false) {
+						selectedVertices.addSelectedVertex(vertex);
+					}
+				}
+			}
 		}
 		
 		// ***** inner-inner classes for mouse behavior classes specific to vertex selecting
@@ -534,6 +553,32 @@ public class WorldGeometry {
 			}
 			public void mouseReleased() {
 				// TODO Auto-generated method stub
+			}
+			
+		}
+		public class SelectionRectEvent implements MouseCommand {
+
+			@Override
+			public void mousePressed() {
+				// TODO Auto-generated method stub
+				selectionRectangleState = selectionRectangle;
+				initClickPoint.setLocation(camera.getLocalPosition(worldGeomMousePos));
+				selectionRectangleState.setInitialRectPoint();
+			}
+
+			@Override
+			public void mouseDragged() {
+				// TODO Auto-generated method stub
+				selectionRectangleState.translateEndPoint(camera.getLocalPosition(worldGeomMousePos));
+			}
+
+			@Override
+			public void mouseReleased() {
+				// TODO Auto-generated method stub
+				//command to select vertices underneath box
+				checkForVertexInSelectionRect(selectionRectangleState.getWrekt());
+				selectionRectangleState.resetRect();
+				selectionRectangleState = nullSelectionRectangle;
 			}
 			
 		}

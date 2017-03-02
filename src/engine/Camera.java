@@ -1,9 +1,12 @@
 package engine;
 
+import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
@@ -128,6 +131,19 @@ public class Camera extends EntityDynamic{
 		g2.drawRect(vertex.getClickableZone().x - (int)this.x + boardHalfWidth,
 				vertex.getClickableZone().y - (int)this.y + boardHalfHeight, 
 				vertex.getClickableZone().width, vertex.getClickableZone().height);				 
+	}
+	public void drawRect(Rectangle rect, Graphics g, Color outlineColor, Color fillColor) {
+		Color originalColor = g.getColor();
+		Graphics2D g2 = (Graphics2D)g;
+		g2.setColor(outlineColor);
+		g2.drawRect(rect.x - (int)this.x + boardHalfWidth, 
+					rect.y - (int)this.y + boardHalfHeight, rect.width, rect.height);
+		g2.setColor(fillColor);
+		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .5f));
+		g2.fillRect(rect.x - (int)this.x + boardHalfWidth,
+					rect.y - (int)this.y + boardHalfHeight, rect.width-1, rect.height-1);
+		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+		g2.setColor(originalColor);
 	}
 	/**
 	 * Draws sprite image relative to camera position

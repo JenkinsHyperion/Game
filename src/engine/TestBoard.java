@@ -150,7 +150,7 @@ public class TestBoard extends BoardAbstract{
     	
     	drawObjects(g);
     	
-    	this.editorPanel.getWorldGeom().render(g);
+    	this.editorPanel.render(g);
     	
     	g.setColor( Color.CYAN );
     	//camera.drawCrossInWorld( ((TestHinge)dynamicEntitiesList.get(0)).getPointLocal() , g);
@@ -244,7 +244,7 @@ public class TestBoard extends BoardAbstract{
   			dragLine.setLine( e.getPoint() , e.getPoint() );
   			
   			editorPanel.mousePressed(e);
-  			editorPanel.getWorldGeom().mousePressed(e);
+  			//editorPanel.getWorldGeom().mousePressed(e);
   		}
   		@Override
   		public void mouseDragged(MouseEvent e) 
@@ -252,18 +252,18 @@ public class TestBoard extends BoardAbstract{
   			dragLine.setLine( dragLine.getP1(), e.getPoint());
   			
   			editorPanel.mouseDragged(e);
-  			editorPanel.getWorldGeom().mouseDragged(e);
+  			//editorPanel.getWorldGeom().mouseDragged(e);
   		}
   		@Override
   		public void mouseMoved(MouseEvent e){
   			editorPanel.mouseMoved(e);
-  			editorPanel.getWorldGeom().mouseMoved(e);
+  			//editorPanel.getWorldGeom().mouseMoved(e);
   		}
   		@Override
   		public void mouseReleased(MouseEvent e) 
   		{	
   			editorPanel.mouseReleased(e);
-  			editorPanel.getWorldGeom().mouseReleased(e);
+  			//editorPanel.getWorldGeom().mouseReleased(e);
   			
   			PlantTwigSegment sprout = buildSprout( (int)dragLine.getX1(), (int)dragLine.getY1() );
   			

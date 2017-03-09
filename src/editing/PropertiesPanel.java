@@ -103,7 +103,7 @@ public class PropertiesPanel extends JPanel implements ActionListener,ItemListen
 	//this will handle the radio buttons and text fields
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		String command = e.getActionCommand();
+		/*String command = e.getActionCommand();
 		//for the radio button panels
 		if (command.equals("COL_TRUE")) {
 			ep.getThisProperty(Property.COL_STATE).setEntityCollidableState(ep.getCurrentSelectedEntity(), true);
@@ -114,20 +114,20 @@ public class PropertiesPanel extends JPanel implements ActionListener,ItemListen
 			updateCurrentStatusLabel(Property.COL_STATE);
 		}
 		else if(e.getSource() == xPosTextField){
-			/*
-			 * Here, set the xPosition field of the current propertyList's xPos property */
+			
+			 * Here, set the xPosition field of the current propertyList's xPos property 
 			ep.getThisProperty(Property.XPOS).setEntityXpos(ep.getCurrentSelectedEntity(), Integer.parseInt(command));
 			updateCurrentStatusLabel(Property.XPOS);
 		}
 		else if(e.getSource() == yPosTextField){
-			/*
-			 * Here, set the yPosition field of the current propertyList's yPos property */
+			
+			 * Here, set the yPosition field of the current propertyList's yPos property 
 			ep.getThisProperty(Property.YPOS).setEntityYpos(ep.getCurrentSelectedEntity(), Integer.parseInt(command));
 			updateCurrentStatusLabel(Property.YPOS);
 		}
 		else if(e.getSource() == entNameTextField){
-			/*
-			 * Here, set the name field of the current propertyList's yPos property */
+			
+			 * Here, set the name field of the current propertyList's yPos property 
 			//INPUT VALIDATION: IF DUPLICATE NAME FOUND, DON'T TAKE INPUT
 			if (checkDuplicateName(ep.listOfPropLists, command) == true) {  //found duplicate name
 				JOptionPane.showMessageDialog(null, "Entity name already taken. Try again.");				
@@ -139,7 +139,7 @@ public class PropertiesPanel extends JPanel implements ActionListener,ItemListen
 			}
 		}
 		revalidate();
-		repaint(); 
+		repaint(); */
 	}
 	private boolean checkDuplicateName(ArrayList<PropertiesList> propList, String nameCheck) {
 		int duplicatesFound = 0;
@@ -158,7 +158,7 @@ public class PropertiesPanel extends JPanel implements ActionListener,ItemListen
 			return false;
 	}
 	public void updateCurrentStatusLabel(int propType) {
-		if (propType == Property.COL_STATE) {
+		/*if (propType == Property.COL_STATE) {
 			collisionStatusLabel.setText(String.valueOf(ep.getThisProperty(propType).getEntityCollidableState(ep.getCurrentSelectedEntity())) );
 		}
 		else if (propType == Property.XPOS)
@@ -166,13 +166,13 @@ public class PropertiesPanel extends JPanel implements ActionListener,ItemListen
 		else if (propType == Property.YPOS)
 			yPosStatusLabel.setText(Integer.toString(ep.getThisProperty(propType).getEntityYpos(ep.getCurrentSelectedEntity())) );
 		else if (propType == Property.ENTNAME)
-			entNameStatusLabel.setText(ep.getThisProperty(propType).getEntityName(ep.getCurrentSelectedEntity()) );
+			entNameStatusLabel.setText(ep.getThisProperty(propType).getEntityName(ep.getCurrentSelectedEntity()) );*/
 	}
 // ###### Panel creation section  ###########
 	// will create true/false (radiobutton), text field, and others here:
 	protected JPanel createRadioPanel(){
 		JPanel radioPanel = new JPanel(new BorderLayout());
-		ButtonGroup buttonGroup = new ButtonGroup();			
+		/*ButtonGroup buttonGroup = new ButtonGroup();			
 		JRadioButton rbTrue = new JRadioButton("True");
 		JRadioButton rbFalse = new JRadioButton("False");
 		buttonGroup.add(rbTrue);
@@ -194,7 +194,7 @@ public class PropertiesPanel extends JPanel implements ActionListener,ItemListen
 		labelPanel.add(collisionStatusLabel);
 		radioPanel.add(rbTrue, BorderLayout.WEST);
 		radioPanel.add(rbFalse, BorderLayout.CENTER);
-		radioPanel.add(labelPanel, BorderLayout.PAGE_END); 
+		radioPanel.add(labelPanel, BorderLayout.PAGE_END); */
 		return radioPanel;
 	}
 	protected JPanel createXPosPanel(){
@@ -232,9 +232,9 @@ public class PropertiesPanel extends JPanel implements ActionListener,ItemListen
 	}
 	protected JPanel createEntTypePanel(){
 		JPanel entTypePanel = new JPanel();
-		collisionStatusLabelcursed = new JLabel();
+		/*collisionStatusLabelcursed = new JLabel();
 		String entTypeString = ep.getThisProperty(Property.ENTTYPE).getEntityType(ep.getCurrentSelectedEntity());
-		entTypePanel.add(new JLabel(entTypeString), BorderLayout.PAGE_END);
+		entTypePanel.add(new JLabel(entTypeString), BorderLayout.PAGE_END);*/
 		return entTypePanel;
 	}
 } // end of PropertiesPanel class

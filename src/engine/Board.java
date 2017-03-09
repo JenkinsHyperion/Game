@@ -195,11 +195,7 @@ public class Board extends BoardAbstract {
         
         drawObjects(g);
         
-        drawGhostSprite(g, editorPanel.getGhostSprite(), editorPanel.getEditorMousePos());
-        if (editorPanel.mode == EditorPanel.WORLDGEOM_MODE) {
-        	editorPanel.getWorldGeom().render(g);
-        	
-        }
+       
     }
     
    
@@ -310,7 +306,8 @@ public class Board extends BoardAbstract {
 	        	//		stat.getSpriteOffsetX() + stat.getX(), 
 	        	//		stat.getSpriteOffsetY() + stat.getY(), this);	        	
 	        	stat.getEntitySprite().drawSprite(g,camera);
-	        	editorPanel.drawEditorSelectedRectangle(stat, g);
+	        	//TODO: ASDF
+	        	//editorPanel.drawEditorSelectedRectangle(stat, g);
 	    }
         //Draw all dynamic (moving) entities from list (ex. bullets)
         for (EntityDynamic dynamic : dynamicEntitiesList) {
@@ -334,7 +331,16 @@ public class Board extends BoardAbstract {
             		player.getY() - player.getEntitySprite().getOffsetY(), this);
         }*/
         player.getEntitySprite().drawSprite(g,camera);
-
+        
+        //####################################################
+        /* Will turn into:
+         * editorPanel.render(g);
+         */
+        drawGhostSprite(g, editorPanel.getGhostSprite(), editorPanel.getEditorMousePos()); //migrate this to EditorPanel, inside of render()
+       // if (editorPanel.mode == EditorPanel.WORLDGEOM_MODE) 
+        editorPanel.render(g);
+        	
+        //####################################################
         
         //laser.setxEndPoint(B_WIDTH);
        // laser.setyEndPoint(physicsEntitiesList.get(0).getY()+10);
@@ -366,25 +372,25 @@ public class Board extends BoardAbstract {
   		{  	
   			player.inputController.mousePressed(e);
   			editorPanel.mousePressed(e);
-  			editorPanel.getWorldGeom().mousePressed(e);
+  			//editorPanel.getWorldGeom().mousePressed(e);
   		}
   		@Override
   		public void mouseDragged(MouseEvent e) 
   		{ 		
   			editorPanel.mouseDragged(e);
-  			editorPanel.getWorldGeom().mouseDragged(e);
+  			//editorPanel.getWorldGeom().mouseDragged(e);
   		}
   		@Override
   		public void mouseMoved(MouseEvent e){
   			editorPanel.mouseMoved(e);
-  			editorPanel.getWorldGeom().mouseMoved(e);
+  			//editorPanel.getWorldGeom().mouseMoved(e);
   		}
   		@Override
   		public void mouseReleased(MouseEvent e) 
   		{	
   			player.inputController.mouseReleased(e);
   			editorPanel.mouseReleased(e);
-  			editorPanel.getWorldGeom().mouseReleased(e);
+  			//editorPanel.getWorldGeom().mouseReleased(e);
   		}
   			
   	}
@@ -426,8 +432,8 @@ public class Board extends BoardAbstract {
             }
             else if (key == KeyEvent.VK_ESCAPE) {
             	//editorPanel.entityPlacementMode = false;
-            	editorPanel.mode = EditorPanel.DEFAULT_MODE;
-            	editorPanel.nullifyGhostSprite();
+            	//editorPanel.mode = EditorPanel.DEFAULT_MODE;
+            	//editorPanel.nullifyGhostSprite();
             	//editorPanel.nullifyGhostVertex();
             }   
         }

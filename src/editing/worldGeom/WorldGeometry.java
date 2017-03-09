@@ -4,6 +4,7 @@ import engine.*;
 import entities.*;
 import Input.*;
 import editing.EditorPanel;
+import editing.ModeAbstract;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,12 +15,13 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.*;
 
-/** WorldGeometry.java will contain 
+/** WorldGeometry mode for Editor Panel
  * 
  * @author Dave
  *
  */
 //steps that need to be done
+// EDIT: DONE!
 /* 1)import many methods (I think nearly all) from Editor that select entities
  * ---actually, if it can be ascertained that the functionality for clicking vertices and sprites are similar enough,
  * ---just add variability to the parameters that check sprites to include checking vertices too.
@@ -32,7 +34,7 @@ import java.util.*;
  *    have it draw it every time. It will be just like MissingIcon's method
  */
 
-public class WorldGeometry {
+public class WorldGeometry extends ModeAbstract{
 	
 	private EditorPanel editorPanel;
 	private BoardAbstract board;
@@ -40,7 +42,7 @@ public class WorldGeometry {
 	//private ArrayList<Point> vertexPoints = new ArrayList<>();
 
 	// World Geometry Modes:
-	private WorldGeomMode worldGeomMode;
+	private ModeAbstract worldGeomMode;
 	private final VertexPlaceMode vertexPlaceMode;
 	private final VertexSelectMode vertexSelectMode;
 	
@@ -144,7 +146,7 @@ public class WorldGeometry {
 	
 	//KEY EVENTS PASSED IN FROM BOARD
 	public void keyPressed(KeyEvent e){
-		this.worldGeomMode.inputController.keyPressed(e);
+		this.worldGeomMode.keyPressed(e);
 		//int key = e.getKeyCode();
 		/*if (key == KeyEvent.VK_ALT && !keypressALT) {  // holding ALT when placing vertices will lock the y axis to the last placed point
 			keypressALT = true;*/
@@ -158,7 +160,7 @@ public class WorldGeometry {
 		}*/
 	}
 	public void keyReleased(KeyEvent e) {
-		this.worldGeomMode.inputController.keyReleased(e);
+		this.worldGeomMode.keyReleased(e);
 		//int key = e.getKeyCode();
 		/*if (key == KeyEvent.VK_ALT && keypressALT)
 			keypressALT = false;*/
@@ -186,7 +188,7 @@ public class WorldGeometry {
 		//keypressALT = false;
 	}
 	*/
-	public void setMode(WorldGeomMode newMode) {
+	public void setMode(ModeAbstract newMode) {
 		this.worldGeomMode = newMode;
 	}
 	public VertexPlaceMode getVertexPlaceMode() {
@@ -202,7 +204,7 @@ public class WorldGeometry {
 	
 /////////   INNER CLASS VERTEXPLACEMODE   //////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
-	public class VertexPlaceMode extends WorldGeomMode {	
+	private class VertexPlaceMode extends ModeAbstract {	
 		/* Will need to create some booleans states here possibly */
 		// area for states, to handle lots of different key presses
 		private boolean vertexPlacementAllowed = true;
@@ -265,8 +267,7 @@ public class WorldGeometry {
 				public void onReleased() {
 				}
 				@Override
-				public void onHeld() {
-				}
+				public void onHeld() {}
 			});
 			// #######  left click event  #######
 			inputController.createMouseBinding(MouseEvent.BUTTON1, new MouseCommand(){ 
@@ -290,9 +291,6 @@ public class WorldGeometry {
 		}
 		public void mousePressed(MouseEvent e) {
 			inputController.mousePressed(e);
-			// vvvv Will be the actual commands I want
-			// this.inputController.mousePressed(e);
-			
 		}
 		public void mouseDragged(MouseEvent e) {
 			inputController.mouseDragged(e);
@@ -302,6 +300,11 @@ public class WorldGeometry {
 			keyState.mouseMoved(e);
 		}
 		public void mouseReleased(MouseEvent e) {inputController.mouseReleased(e);}
+		@Override
+		public void keyPressed(KeyEvent e) { inputController.keyPressed(e);	}
+		@Override
+		public void keyReleased(KeyEvent e) {inputController.keyReleased(e); }
+		
 		public void render(Graphics g) {
 			//old drawghostvertex
 			Graphics2D g2 = (Graphics2D)g.create();
@@ -374,13 +377,14 @@ public class WorldGeometry {
 					}
 				}
 			} // end if inner inner class KeyStateAlt
+
 	}
 	// end of inner class VertexPlaceMode
 	
 	
 /////////   INNER CLASS VERTEXSELECTMODE   //////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
-	public class VertexSelectMode extends WorldGeomMode {
+	private class VertexSelectMode extends ModeAbstract {
 		
 		//private WorldGeomMode subMode;
 		
@@ -432,6 +436,10 @@ public class WorldGeometry {
 		public void mouseReleased(MouseEvent e) {
 			// TODO Auto-generated method stub
 			inputController.mouseReleased(e); }
+		@Override
+		public void keyPressed(KeyEvent e) { inputController.keyPressed(e);	}
+		@Override
+		public void keyReleased(KeyEvent e) {inputController.keyReleased(e); }
 		@Override
 		public void render(Graphics g) {
 			Graphics2D g2 = (Graphics2D)g.create();			

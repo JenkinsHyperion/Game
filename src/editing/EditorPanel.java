@@ -108,13 +108,12 @@ public class EditorPanel extends JPanel {
 	private JPanel buttonPanel;
 	private JPanel propertyPanelTest;
 	private JPanel iconBar;
-
-	public FlowLayout layout;
     //private JList entitiesJList;
-
 	private SavingLoading saveLoad;
-
-	public EditorPanel( BoardAbstract board2) {
+	
+// ##################### CONSTRUCTOR #################################################################
+// ##################### CONSTRUCTOR #################################################################
+	public EditorPanel( BoardAbstract board2) {   
 		//initializing some of the fields
 		this.board = board2;
 		this.camera = board.getCamera();
@@ -138,8 +137,7 @@ public class EditorPanel extends JPanel {
         //setCurrentSelectedEntity( this.board.getStaticEntities().get(0) ); 
 		
 		//set the editor's layout
-		layout = new FlowLayout(FlowLayout.LEADING, 3, 3);
-		setLayout(layout);
+		setLayout(new FlowLayout(FlowLayout.LEADING, 3, 3));
 		setBackground(Color.GRAY);
 		
 		//there will be as many property lists as there are entities, and they will directly correspond.
@@ -226,8 +224,7 @@ public class EditorPanel extends JPanel {
 		allEntitiesComboBox.setPreferredSize(allEntitiesComboBoxDefSize);
 		allEntitiesComboBox.setFocusable(false);
 		
-		//allEntitiesComboBox.setSelectedIndex(0); //give it a default value     //TO DO ####################################
-		//######################################################################################################################
+		allEntitiesComboBox.setSelectedIndex(0); //give it a default value
 		
 		allEntitiesComboBox.addActionListener(new EntitiesComboBoxActionHandler());
 
@@ -280,7 +277,8 @@ public class EditorPanel extends JPanel {
 		//setGhostSprite(ASSET_PATH + PF1 );
 		//revalidate();
 		
-	} // #### end of constructor ####
+	} // #### end of constructor #### #####################################################################################
+	 // #### end of constructor #### #####################################################################################
 	
 	//Handler for the allEntitiesComboBox drop down panel
 	public class EntitiesComboBoxActionHandler implements ActionListener{

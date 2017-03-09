@@ -18,7 +18,9 @@ import engine.TestBoard;
 import entityComposites.Collidable;
 import physics.Collision;
 import physics.Force;
+import physics.Side;
 import physics.Vector;
+import physics.Vertex;
 import physics.BoundaryFeature;
 import misc.CollisionEvent;
 import misc.DefaultCollisionEvent;
@@ -37,6 +39,8 @@ public class PlayerCharacter extends Player {
 	
 	private Force movementForce ;
 	private Force gravity ;
+	
+	private Side ground;
 	
 	private boolean climbing = false;
     
@@ -129,10 +133,23 @@ public class PlayerCharacter extends Player {
         //Boundary boundarytemp =  new Boundary.Box( 24,76 ,-12,-38, (Collidable) this.collisionType );
 		((Collidable) collisionType).setBoundary( boundarytemp ); 
 		storedBounds = new Boundary.Box(24,76 ,-12,-38, (Collidable) this.collisionType );   //OPTIMIZE move to child RotationalCollidable that can store boundary 
+		
+		CollisionEvent cornerCollision = new CollisionEvent(){
+			
+			@Override
+			public void run(BoundaryFeature source, BoundaryFeature collidingWith) {
+				System.out.println("CORENR HIT++++++++++++++++++=");
+			}
+		};
+		
+		for ( Vertex corner : boundarytemp.getCornersVertex() ){
+			corner.setCollisionEvent( cornerCollision );
+		}
+		
+		
 		boundarytemp = null;
 		floorCollisionEvent = null;
 		eventList = null;
-		
 		
 		this.inputController.createKeyBinding( KeyEvent.VK_W , new UpKey() );
 		this.inputController.createKeyBinding( KeyEvent.VK_A , new LeftKey() ) ;
@@ -196,6 +213,7 @@ public class PlayerCharacter extends Player {
 		public void run( BoundaryFeature source , BoundaryFeature collidingWith ) {
 			playerState.onCollision();
 			changePlayerState( playerStateBuffer );
+			ground = (Side)source;
 		}
 		@Override
 		public String toString() {
@@ -316,7 +334,7 @@ public class PlayerCharacter extends Player {
 		
 		@Override
 		public void uponChange() {
-			state = accelerate;
+			//state = accelerate;
 		}
 		
 		@Override
@@ -329,7 +347,7 @@ public class PlayerCharacter extends Player {
 		
 		@Override
 		public void onJump() {
-			setDY(-5);
+			addVelocity(ground.getSlopeVector().normal().unitVector().multiply(5));
 			playerStateBuffer = running;
 			changePlayerState(fallingLeft); //later to be jum;ping
 		}
@@ -478,6 +496,11 @@ public class PlayerCharacter extends Player {
 		}
 		
 		@Override
+		public void onForward() {
+			playerStateBuffer = running;
+		}
+		@Override
+		
 		public void holdingForward() {
 			playerStateBuffer = running;
 			accX=(float)playerDirection.normalize( hangAccelerationForward );
@@ -520,7 +543,8 @@ public class PlayerCharacter extends Player {
 		
 		@Override
 		public void uponChange() {
-			clinging = true;
+			clinging = false;
+			playerStateBuffer = standing;
 		}
 		
 		@Override
@@ -533,6 +557,7 @@ public class PlayerCharacter extends Player {
 		@Override
 		public void onJump() { // wall jump reverse direction 
 			
+
 			changeDirection();
 			dx = playerDirection.normalize(2);
 			dy = dy-5;

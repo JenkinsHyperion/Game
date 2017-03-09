@@ -79,7 +79,7 @@ public class EntityRotationalDynamic extends EntityDynamic{
         	if ((int)angle>180){angle=-180;} //constrain range from -180 to 180 degrees for convenience
         	else if ((int)angle<-180){angle=180;}
     	
-        	this.setAngle(angle);
+        	this.setAngleInDegrees(angle);
     	}
     	
     	angularVelocity = angularVelocity + angularAcc;
@@ -90,19 +90,19 @@ public class EntityRotationalDynamic extends EntityDynamic{
 		double angleRadians = (angle * ((Math.PI)/180) ) ;
 		this.orientation = new Vector( Math.cos(angleRadians) , Math.sin(angleRadians) );
 		((SpriteStillframe)this.getEntitySprite() ).setAngle((int)angle);
+		
+		
 	}
 	
 	public void setAngleInDegrees( float angle ){
 		double angleRadians = (angle * ((Math.PI)/180) ) ;
-		this.angle = (float) angleRadians;
-		//this.getBoundary().rotateBoundaryFromTemplate( new Point(0,0) , angleRadians , storedBounds ); 
+		this.getBoundary().rotateBoundaryFromTemplate( new Point(0,0) , angleRadians , storedBounds ); 
 		this.orientation = new Vector( Math.cos(angleRadians) , Math.sin(angleRadians) );
 		((SpriteStillframe)this.getEntitySprite() ).setAngle((int)angle);
 	}
 	
 	public void setAngleInRadians( double angle ){
 		System.out.println("Setting angle " +angle);
-		this.angle = (float) angle;
 		this.getBoundary().rotateBoundaryFromTemplate( new Point(0,0) , angle , storedBounds ); 
 		this.orientation = new Vector( Math.cos(angle) , Math.sin(angle) );
 		

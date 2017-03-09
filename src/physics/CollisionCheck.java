@@ -97,11 +97,11 @@ public class CollisionCheck {
 
 	    	if (centerDistanceY>0){
 	    		//centerDistanceY -= 1;
-	    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY ; 
+	    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY+1; 
 	    	}
 	    	else if (centerDistanceY<0){
 	    		//centerDistanceY += 1; 
-	    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY ; 
+	    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY-1; 
 	    	}else
 	    		penetrationY = Math.abs(playerProjectionY) + Math.abs(statProjectionY);
 

@@ -56,6 +56,10 @@ public class Vertex extends BoundaryFeature{
 
 	}
 	
+	public void setCollisionEvent( CollisionEvent collisionEvent ){
+		this.collisionEvent = collisionEvent;
+	}
+	
 	@Override
 	public void collisionTrigger(){
 		//TO DO

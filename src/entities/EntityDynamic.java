@@ -65,6 +65,17 @@ public class EntityDynamic extends EntityStatic{
     public void setDY(float setdy) {
     	dy = setdy;
     }
+    
+    public void setVelocity( Vector vector){
+    	dx = (float)vector.getX();
+    	dy = (float)vector.getY();
+    }
+    
+    public void addVelocity( Vector vector){
+    	dx += (float)vector.getX();
+    	dy += (float)vector.getY();
+    }
+    
     @Override
     public float getDeltaX(){
     	return (x + dx + accX);
@@ -115,6 +126,50 @@ public class EntityDynamic extends EntityStatic{
     		}
     	}
     }
+    
+    
+    public void clipAccX(float clipAccX) {
+    	if ( accX > 0 ) {
+    	    
+    		if ( clipAccX < 0 ){ 
+    			if ( clipAccX + accX > 0)
+    				accX = (accX + clipAccX);
+    			else
+    				accX = 0;
+    		}
+    	}
+    	else if ( accX < 0 ) {
+    		
+    		if ( clipAccX > 0 ){ 
+    			if ( clipAccX + accX < 0)
+    				accX = accX + clipAccX;
+    			else
+    				accX = 0;
+    		}
+    	}
+    }
+    
+    public void clipAccY(float clipAccY) { 
+    	if ( accY > 0 ) {
+    
+    		if ( clipAccY < 0 ){ 
+    			if ( clipAccY + accY > 0)
+    				accY = accY + clipAccY;
+    			else
+    				accY = 0;
+    		}
+    	}
+    	else if ( accY < 0 ) {
+    		
+    		if ( clipAccY > 0 ){ 
+    			if ( clipAccY + accY < 0)
+    				accY = (accY + clipAccY);
+    			else
+    				accY = 0;
+    		}
+    	}
+    }
+    
     
     public void setAccX(float setAX) {
     	accX = setAX;

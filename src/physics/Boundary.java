@@ -524,11 +524,12 @@ public class Boundary implements Serializable {
 	private boolean duplicateSideExists( Side side , ArrayList<Line2D> array ){
 		//checks if axis already exists in previous array indexes before adding a new one
 		
-		if ( (side.getP1().getX() - side.getP2().getX() > -.00001) &&
-			 (side.getP1().getX() - side.getP2().getX() < .00001) ) {//line is vertical, slope is undefined
+		if ( (side.getP1().getX() - side.getP2().getX() > -0.01) &&
+			 (side.getP1().getX() - side.getP2().getX() < 0.01) ) {//line is vertical, slope is undefined
+			
 			for ( int j = 0 ; j < array.size() ; j++){
-				if ( (array.get(j).getP1().getX() - array.get(j).getP2().getX() > -.00001) &&
-						(array.get(j).getP1().getX() - array.get(j).getP2().getX() < .00001) ){ // other vertical sides exist
+				if ( (array.get(j).getP1().getX() - array.get(j).getP2().getX() > -0.01) &&
+						(array.get(j).getP1().getX() - array.get(j).getP2().getX() < 0.01) ){ // other vertical sides exist
 					return true;
 				}
 			}
@@ -538,16 +539,27 @@ public class Boundary implements Serializable {
 		else { // line has defined slope
 			for ( int j = 0 ; j < array.size() ; j++){
 				if (array.get(j).getX1() - array.get(j).getX2() != 0) { //discard vertical lines  OPTIMIZATION 
-					if ( 
-						Math.abs(
-							( ( side.getY1() - side.getY2()  ) / ( side.getX1() - side.getX2() ) )
-							-
-							( (array.get(j).getY1() - array.get(j).getY2()  ) / ( array.get(j).getX1() - array.get(j).getX2() ) )
-						)
-							< 0.1
-					){ //error
-						return true;
+					
+					double slope1 = ( side.getY1() - side.getY2()  ) / ( side.getX1() - side.getX2() );
+					double slope2 = ( (array.get(j).getY1() - array.get(j).getY2()  ) / ( array.get(j).getX1() - array.get(j).getX2() ) );
+					
+					if ( ( slope1 - slope2 ) > 0 ){//slope1 is greater
+							
+						if( Math.abs( slope1 - slope2 ) < 0.1 )
+							return true;
+						else
+							return false;
+						
 					}
+					else{ // slope2 is greater
+					
+						if( Math.abs( slope2 - slope1 ) < 0.1 )
+							return true;
+						else
+							return false;
+						
+					}
+		
 				}
 			}
 			return false;
@@ -780,22 +792,26 @@ public class Boundary implements Serializable {
 				Point2D cornerProjection = getProjectionPoint( getCornersPoint()[i] , axis ); 
 				Point2D farthestPointProjection = getProjectionPoint( farthestVertices.get(0).toPoint() , axis );
 				
-				if (cornerProjection.distance( originProjection ) < farthestPointProjection.distance( originProjection )  ){
-					//discard this vertex
+				double distanceFarthest = farthestPointProjection.distance( originProjection );
+				double distanceTest = cornerProjection.distance( originProjection );
+
+				if ( distanceFarthest - distanceTest > 2 ){
+						//discard
 				}
-				else {
-					if ( Math.abs(cornerProjection.distance( originProjection )) -
-							Math.abs(farthestPointProjection.distance( originProjection ) ) 
-							< 2
-							){
-						//duplicate
+				else { // within margin of 2
+					
+					if ( Math.abs( distanceTest - distanceFarthest ) < 1 ) //within 1, add duplicate
+						
 						farthestVertices.add( getCornersVertex()[i] );
-					}
-					else {
+					
+					else { // outside of 1, farthest
+						
 						farthestVertices.removeAll(farthestVertices);
 						farthestVertices.add( getCornersVertex()[i] );
 					}
+
 				}
+					
 			}
 			Vertex[] returnFarthestPoints = new Vertex[ farthestVertices.size() ];
 			for (int i = 0 ; i < returnFarthestPoints.length ; i++){

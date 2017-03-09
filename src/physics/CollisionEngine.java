@@ -76,11 +76,24 @@ public class CollisionEngine implements Serializable{
     //THIS IS THE MAIN BODY OF THE COLLISION ENGINE
     public void checkCollisions() { 
 	    	
-    	for ( Collidable dynamicCollidable : dynamicCollidablesList ){
-    		for ( Collidable staticCollidable : staticCollidablesList ){
+    	for ( int i = 0 ; i < dynamicCollidablesList.size() ; i++ ){
+    		
+    		Collidable dynamicCollidablePrimary = dynamicCollidablesList.get(i);
+    		
+    		for ( int j = 0 ; j < staticCollidablesList.size(); j++ ){
     			
-    			staticCollidable.checkForInteractionWith( dynamicCollidable , CollisionCheck.SAT, this);
+    			Collidable staticCollidable = staticCollidablesList.get(j);
+    			
+    			staticCollidable.checkForInteractionWith( dynamicCollidablePrimary , CollisionCheck.SAT, this);
     		}
+    		
+    		/*for ( int k = i+1 ; k < dynamicCollidablesList.size(); k++ ){
+    			
+    			Collidable dynamicCollidableSecondary = dynamicCollidablesList.get(k);
+    			
+    			dynamicCollidableSecondary.checkForInteractionWith( dynamicCollidablePrimary , CollisionCheck.SAT, this);
+    		}*/
+    		
     	}
     	
     	

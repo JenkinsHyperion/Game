@@ -101,12 +101,14 @@ public class CollisionPlayerStaticSAT extends Collision {
 			
 			//TESTING ANGLE SNAPPING
 			
-			if ( closestResolution.FeaturePrimary().debugIsVertex() ){
+			if ( closestResolution.FeaturePrimary().debugIsVertex() && !closestResolution.FeatureSecondary().debugIsVertex()){
 				
 				double angle =  ((Side)closestResolution.FeatureSecondary()).getSlopeVector().calculateAngleFromVector();
 				
 				System.out.println("Snapping angle to "+(float)(angle*180/Math.PI ));
 				((EntityRotationalDynamic)entityPrimary).setAngleInRadians( (float)angle );
+				
+				closestResolution.FeaturePrimary().collisionEvent.run(closestResolution.FeaturePrimary(), closestResolution.FeatureSecondary() );
 			}
 			
 			//###
@@ -114,10 +116,14 @@ public class CollisionPlayerStaticSAT extends Collision {
 			if ( depthX != 0){ 
 				System.out.println(" Clamping DX");
 				entityPrimary.setDX(0);
+				//entityPrimary.clipDX((int)depthX);
+				//entityPrimary.clipAccX((int)depthX);
 			}
 			if ( depthY != 0){ 
 				System.out.println(" Clamping DY");
 				entityPrimary.setDY(0);
+				//entityPrimary.clipDY((int)depthY);
+				//entityPrimary.clipAccY((int)depthX);
 			}
 			
 		}
@@ -131,7 +137,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 				Vector playerDP = new Vector( entityPrimary.getDX(), entityPrimary.getDY() );
 						
 							//friction.setVector(   surface.unitVector().multiply( playerDP.unitVector().multiply(0.1) )   );	
-						friction.setVector(   playerDP.projectedOver( surface.unitVector() ).multiply(0.1).inverse()   );	
+						friction.setVector(   playerDP.projectedOver( surface.unitVector() ).multiply(0.05).inverse()   );	
 
 			}
 			else{
@@ -456,8 +462,8 @@ public class CollisionPlayerStaticSAT extends Collision {
     		penetrationX = unshiftedX+1;
     	}
     	else {
-    		penetrationX = Math.abs(playerProjectionX) + Math.abs(statProjectionX);
-    		unshiftedX = penetrationX;
+    		unshiftedX = Math.abs(playerProjectionX) + Math.abs(statProjectionX);
+    		penetrationX = unshiftedX;
     	}
 
 		
@@ -470,8 +476,8 @@ public class CollisionPlayerStaticSAT extends Collision {
     		penetrationY = unshiftedY+1;
     	}
     	else {
-    		penetrationY = Math.abs(playerProjectionY) + Math.abs(statProjectionY);
-    		unshiftedY = penetrationY;
+    		unshiftedY = Math.abs(playerProjectionY) + Math.abs(statProjectionY);
+    		penetrationY = unshiftedY;
     	}
     	
     		
@@ -486,17 +492,20 @@ public class CollisionPlayerStaticSAT extends Collision {
 		if ( penetrationY * centerDistanceY < 0 ) // 
 				penetrationY = 0;
 		
+		int square = 0;
 		
-		if ( unshiftedX * centerDistanceX < 0 ) //
-			unshiftedX = 0;
+		if ( unshiftedX * centerDistanceX < square ) //
+			unshiftedX = square;
 
-		if ( unshiftedY * centerDistanceY < 0 ) // 
-			unshiftedY = 0;
+		if ( unshiftedY * centerDistanceY < square ) // 
+			unshiftedY = square;
 		
 		
-		if ( unshiftedX==0 && unshiftedY==0 ){
+		if ( unshiftedX==square && unshiftedY==square ){
 			this.isComplete = true;
+			System.out.println("Collision Dropped on " + (axis.getY2()-axis.getY1())/(axis.getX2()-axis.getX1()) );
 		}
+	
 		
 		
 		

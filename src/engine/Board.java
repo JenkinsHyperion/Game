@@ -151,8 +151,12 @@ public class Board extends BoardAbstract {
         staticEntitiesList.add( testEntity );
         
       	physicsEntitiesList.add(new EntityPhysics(120,260,"box.png"));
-        dynamicEntitiesList.add(new Bullet(100,100,1,1));
+        //dynamicEntitiesList.add(new Bullet(100,100,1,1));
         
+      	EntityRotationalDynamic rotationTest = new TestRotation(-400,400);
+      	dynamicEntitiesList.add( rotationTest );
+      	this.collisionEngine.addDynamicCollidable( ((Collidable)rotationTest.getCollisionType()) );
+      	
         //test for LaserTest entity
         laser = new Tracer(143,260, physicsEntitiesList.get(0) , this ); //later will be parent system
         //dynamicEntitiesList.add(new LaserTest(400,60));  <-- can't add as long as I don't have a sprite for it
@@ -227,12 +231,7 @@ public class Board extends BoardAbstract {
     		dynamicEntity.getEntitySprite().updateSprite();
     		
     		//wrap objects around screen
-    		if ( dynamicEntity.getY() > 300){
-    			dynamicEntity.setY(0);
-    		}
-    		if ( dynamicEntity.getX() < 0){
-    			dynamicEntity.setX(400);
-    		}
+
     		
     		//CHECK IF ALIVE. IF NOT, REMOVE. 
     		if ( !dynamicEntity.isAlive()){
@@ -262,9 +261,9 @@ public class Board extends BoardAbstract {
 
     public void initBullets() {
 
-        for (int[] p : pos) {
+        /*for (int[] p : pos) {
             dynamicEntitiesList.add(new Bullet(p[0], p[1],-1,1)); 
-        }
+        }*/
         
     }
     
@@ -482,9 +481,10 @@ public class Board extends BoardAbstract {
 	    	
 	    }
 	    
-	    for (EntityStatic entity : physicsEntitiesList){
+	    for (EntityStatic entity : dynamicEntitiesList){
 	    	
 	    	entity.getCollisionType().debugDrawBoundary(camera , g2);
+	    	camera.drawCrossOnCamera( entity.getPos() , g2);
 	    	
 	    }
 	    
@@ -576,7 +576,7 @@ public class Board extends BoardAbstract {
 	    	Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
 	    	
 	    	g2.setColor(Color.GRAY);
-	    	g2.draw(centerProjection);
+	    	camera.draw(centerProjection,g2);
 	    	//CLOSEST SIDE TESTING
 	    	g2.setColor(Color.YELLOW);
 	    	//selected entity

@@ -223,8 +223,9 @@ public class WorldGeometry extends ModeAbstract{
 				public void onPressed() {
 					Line2D[] lines = new Line2D[surfaceLines.size()]; 
 					surfaceLines.toArray( lines );
-					System.out.println("adding");
-					((Board)board).addStaticEntity( EntityFactory.createEntityFromBoundary(0, 0, lines) );
+					EntityStatic newEntity = EntityFactory.createEntityFromBoundary(lines);
+					((Board)board).addStaticEntity( newEntity );
+					editorPanel.setCurrentSelectedEntity( newEntity );
 					
 				}
 				@Override

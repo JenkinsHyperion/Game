@@ -204,6 +204,14 @@ public class Camera extends EntityDynamic{
 		);
 	}
 	
+	public void drawCrossOnCamera( int worldX, int worldY , Graphics g ){
+		drawCross( this.getRelativeX(worldX) , this.getRelativeY(worldY) , g);
+	}
+	
+	public void drawCrossOnCamera( Point point , Graphics g ){
+		drawCross( (int)this.getRelativeX( point.getX() ) , (int)this.getRelativeY( point.getY() ) , g);
+	}
+	
 	public void drawCrossInWorld( int worldX, int worldY , Graphics g ){
 		drawCross( worldX , worldY , g);
 	}

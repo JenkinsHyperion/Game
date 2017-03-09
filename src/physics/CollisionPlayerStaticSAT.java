@@ -103,7 +103,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 			
 			if ( closestResolution.FeaturePrimary().debugIsVertex() ){
 				
-				double angle =  ((Side)closestResolution.FeatureSecondary()).getSlopeVector().unitVector().calculateAngleFromVector();
+				double angle =  ((Side)closestResolution.FeatureSecondary()).getSlopeVector().calculateAngleFromVector();
 				
 				System.out.println("Snapping angle to "+(float)(angle*180/Math.PI ));
 				((EntityRotationalDynamic)entityPrimary).setAngleInRadians( (float)angle );
@@ -233,7 +233,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 		ArrayList<Resolution> penetrations = new ArrayList<>();
     	
     	// Get penetration vectors along all separating axes for primary entity and add to list
-    	for (int i = 0 ; i < collidingPrimary.getBoundaryLocal().getSeparatingSides().length ; i++ ){
+    	/*for (int i = 0 ; i < collidingPrimary.getBoundaryLocal().getSeparatingSides().length ; i++ ){
     		
     		if (getSeparationDistance(collidingPrimary.getBoundaryLocal().getSeparatingSides()[i]) != null){
     			
@@ -258,8 +258,15 @@ public class CollisionPlayerStaticSAT extends Collision {
 
 	    	}
 	    	
-		}
+		}*/
     	 
+		Line2D[] separatingSides = collidingSecondary.getBoundaryLocal().getSpearatingSidesBetween(collidingPrimary.getBoundaryDelta());
+		
+		for ( Line2D side : separatingSides ){
+
+		    	penetrations.add( getSeparationDistance(side) );
+		    	
+		}
     	
     	
     	double penetrationX = 0;
@@ -437,51 +444,59 @@ public class CollisionPlayerStaticSAT extends Collision {
 		
 		// Get penetration vector
 
-
+		double unshiftedX;
+		double unshiftedY;
 		
 		if (centerDistanceX>0){
-			penetrationX = playerProjectionX + statProjectionX - centerDistanceX+1 ;
-			
-
+			unshiftedX = playerProjectionX + statProjectionX - centerDistanceX+2 ;
+			penetrationX = unshiftedX-1;
 		}
     	else if (centerDistanceX<0){
-    		penetrationX = playerProjectionX + statProjectionX - centerDistanceX-1;
-    		
-
+    		unshiftedX = playerProjectionX + statProjectionX - centerDistanceX-2;
+    		penetrationX = unshiftedX+1;
     	}
     	else {
     		penetrationX = Math.abs(playerProjectionX) + Math.abs(statProjectionX);
+    		unshiftedX = penetrationX;
     	}
 
 		
     	if (centerDistanceY>0){
-    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY+1 ;	
-    		
- 
+    		unshiftedY = playerProjectionY + statProjectionY - centerDistanceY+2;	
+    		penetrationY = unshiftedY-1;
     	}
     	else if (centerDistanceY<0){
-    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY-1 ;	
-    		
-
+    		unshiftedY = playerProjectionY + statProjectionY - centerDistanceY-2;
+    		penetrationY = unshiftedY+1;
     	}
-    	else 
+    	else {
     		penetrationY = Math.abs(playerProjectionY) + Math.abs(statProjectionY);
+    		unshiftedY = penetrationY;
+    	}
+    	
+    		
 
     	
 		double rawDistanceX = penetrationX;
 		double rawDistanceY = penetrationY; //Store raw distances before clamping
 		
-		
-		if ( rawDistanceX*Math.signum(centerDistanceX) < -2 || rawDistanceY*Math.signum(centerDistanceY) < -2 )
-			this.isComplete = true;
-		
 		if ( penetrationX * centerDistanceX < 0 ) //
-			
 				penetrationX = 0;
 	
 		if ( penetrationY * centerDistanceY < 0 ) // 
-			
 				penetrationY = 0;
+		
+		
+		if ( unshiftedX * centerDistanceX < 0 ) //
+			unshiftedX = 0;
+
+		if ( unshiftedY * centerDistanceY < 0 ) // 
+			unshiftedY = 0;
+		
+		
+		if ( unshiftedX==0 && unshiftedY==0 ){
+			this.isComplete = true;
+		}
 		
 		
 		

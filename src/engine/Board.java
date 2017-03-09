@@ -478,6 +478,7 @@ public class Board extends BoardAbstract {
 	    for (EntityStatic entity : staticEntitiesList){
 	    	
 	    	entity.getCollisionType().debugDrawBoundary(camera , g2);
+	    	camera.drawCrossOnCamera( entity.getPos() , g2);
 	    	
 	    }
 	    
@@ -722,6 +723,7 @@ public class Board extends BoardAbstract {
     
     public void addStaticEntity(EntityStatic entity){
     	this.staticEntitiesList.add( entity );
+    	this.collisionEngine.addStaticCollidable( (Collidable)entity.getCollisionType() );
     }
     
     @Override

@@ -51,6 +51,8 @@ public final class Collidable extends CollisionProperty{
 	
 	public Collidable( EntityStatic owner , Line2D[] lines){
 		
+		lines[lines.length-1].setLine( lines[lines.length-1].getP1() , lines[0].getP1() );
+		
 		this.boundary = new Boundary( lines , this ) ;
 		this.owner = owner; 
 		

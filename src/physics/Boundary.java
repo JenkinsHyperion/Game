@@ -786,7 +786,7 @@ public class Boundary implements Serializable {
 				else {
 					if ( Math.abs(cornerProjection.distance( originProjection )) -
 							Math.abs(farthestPointProjection.distance( originProjection ) ) 
-							< 1
+							< 2
 							){
 						//duplicate
 						farthestVertices.add( getCornersVertex()[i] );

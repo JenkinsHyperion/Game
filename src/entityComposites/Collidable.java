@@ -26,6 +26,8 @@ public final class Collidable extends CollisionProperty{
 	
 	protected Boundary boundary;
 	
+	private float friction = 1;
+	
     private float mass = 1;
 	
 	protected ArrayList<CollidingPair> collisionInteractions = new ArrayList<>();
@@ -157,6 +159,7 @@ public final class Collidable extends CollisionProperty{
 	    		collisionInteractions.get(i).collision().indexShift(collisionInteractions.get(i).pairID());
 	    	} 
     	}
+    	
     }
 	
 	public Collision[] getCollisions(){

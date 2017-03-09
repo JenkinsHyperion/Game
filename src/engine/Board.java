@@ -122,8 +122,8 @@ public class Board extends BoardAbstract {
         EntityStatic testEntity;
         
         Line2D[] triangleBounds = new Line2D[]{
-			new Line2D.Double( -25 , -50 , 500 , 500 ),
-			new Line2D.Double( 500 , 500 , -25 , 500 ),
+			new Line2D.Double( -25 , -50 , 2000 , 500 ),
+			new Line2D.Double( 2000 , 500 , -25 , 500 ),
 			new Line2D.Double( -25 , 500 , -25 , -50 )
 		};
 
@@ -606,8 +606,8 @@ public class Board extends BoardAbstract {
 	    	g2.setColor(Color.GREEN);
 	    	g2.draw(statHalf );
 
-	    	int centerDistanceX = (int)(centerDistance.getX1() -  centerDistance.getX2()  );
-	    	int centerDistanceY = (int)(centerDistance.getY1() -  centerDistance.getY2()  );
+	    	int centerDistanceX = (int)(centerProjection.getX1() -  centerProjection.getX2()  );
+	    	int centerDistanceY = (int)(centerProjection.getY1() -  centerProjection.getY2()  );
 
 	    	int playerProjectionX = (int)(playerHalf.getX1() -  playerHalf.getX2());
 	    	int playerProjectionY = (int)(playerHalf.getY1() -  playerHalf.getY2());

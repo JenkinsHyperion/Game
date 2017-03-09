@@ -51,12 +51,13 @@ public class CollisionEngine implements Serializable{
 	    for ( int i = 0 ; i < collisionsList.size() ; i++ ){
 	    		
 	    	//if collision is complete, remove from active list
-	    	if (collisionsList.get(i).isComplete() ) {
-	    		collisionsList.remove(i);
+	    	if (!collisionsList.get(i).isComplete() ) {
+	    		collisionsList.get(i).updateCollision(); //Run commands from inside collision object
+	    		
 	    	}
 	    	else {
 	    			
-    			collisionsList.get(i).updateCollision(); //Run commands from inside collision object
+	    		collisionsList.remove(i);
 	    			
     		}
 	  		

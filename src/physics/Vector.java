@@ -18,11 +18,15 @@ public class Vector implements Serializable{
 		public double getY(){ return y; }
 
 		public Vector unitVector(){  
-			Point2D origin = new Point2D.Double(0,0);
-			Point2D endpoint = new Point2D.Double(x,y);
-			double unitX = x /  origin.distance( endpoint );
-			double unitY = y / origin.distance( endpoint );
-			return new Vector( unitX, unitY );
+			if ( x+y != 0 ){
+				Point2D origin = new Point2D.Double(0,0);
+				Point2D endpoint = new Point2D.Double(x,y);
+				double unitX = x /  origin.distance( endpoint );
+				double unitY = y / origin.distance( endpoint );
+				return new Vector( unitX, unitY );
+			}
+			else	
+				return new Vector(0,0);
 		}
 		
 		public boolean isShorterThan( Vector compare ){

@@ -56,10 +56,16 @@ public class MouseBinding {
 		
 		@Override
 		protected boolean mouseMatches( MouseEvent e ){ //
-			if ( e.getButton() == mouseButton )
-				return true;
-			else
+
+			if ( (e.getModifiers() & (e.CTRL_MASK|e.SHIFT_MASK|e.ALT_MASK) ) == 0 ){
+				if (e.getButton() == mouseButton)
+					return true;
+				else
+					return false;
+			}
+			else 
 				return false;
+			
 		}
 	
 	}

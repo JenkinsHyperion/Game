@@ -130,6 +130,7 @@ public class Collision implements Serializable{
 	
 	public boolean isComplete(){ // Check if entities are no longer colliding
 		
+		
 		/*if (entityPrimary.getBoundary().boundaryIntersects( entitySecondary.getBoundaryLocal() ) ) {
 			return false;
 		}

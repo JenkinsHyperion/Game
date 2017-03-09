@@ -168,19 +168,21 @@ public class EntityDynamic extends EntityStatic{
 	 * @return
 	 */
     public Force addForce( Vector vector ){
-
+    	
     	int indexID = forces.size();     	
     	Force newForce = new Force( vector , indexID );
     	forces.add( newForce ) ;
+    	System.out.println("Adding Force "+ indexID);
     	return newForce;
     }
     
     public void removeForce(int index){ 
-    	
+    	System.out.println("Removing Force "+ index);
     	forces.remove(index); 
 	    for ( int i = index ; i < forces.size() ; i++) {
 	    	forces.get(i).indexShift();
 	    } 
+	    
     }
     
     //MOVE TO ROTATIONAL BODY

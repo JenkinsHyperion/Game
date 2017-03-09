@@ -13,12 +13,12 @@ import physics.Collision;
 
 public class CollisionPlayerStaticSAT extends Collision {
 	
-	Force normalForce = entityPrimary.addForce( new Vector( 0 , 0 ) );
-	Force friction = entityPrimary.addForce( new Vector( 0 , 0 ) );
+	private Force normalForce;
+	private Force friction;
 	
-	Resolution currentResolution;
+	private Resolution currentResolution;
 	
-	ResolutionEvent resolutionEvent = new ResolutionEvent();
+	private ResolutionEvent resolutionEvent = new ResolutionEvent();
 	
 	public CollisionPlayerStaticSAT(Collidable collidable1, Collidable collidable2){
 		
@@ -30,8 +30,6 @@ public class CollisionPlayerStaticSAT extends Collision {
 		collidingPrimary = collidable1; // TAKE COLLIDABLE IN COSNTRUCTOR INSTEAD OF ENTITY
 		collidingSecondary = collidable2;
 		
-		collisionDebugTag = collidable1.getOwnerEntity().name + " + " + collidable2.getOwnerEntity().name;
-		
 		initCollision();
 		
 	}
@@ -41,6 +39,9 @@ public class CollisionPlayerStaticSAT extends Collision {
 	public void initCollision(){
 		
 		this.resolutionState = resolutionEvent;
+		
+		this.normalForce = entityPrimary.addForce( new Vector( 0 , 0 ) );
+		this.friction = entityPrimary.addForce( new Vector( 0 , 0 ) );
 		
 		//updateCollision(); //Run math for first time OPTIMIZE, Add new code block for first time math
 
@@ -125,13 +126,16 @@ public class CollisionPlayerStaticSAT extends Collision {
 			
 			entityPrimary.setColliding(true); //MOVE TO RESOLVED UPDATE CLASS JUST LIKE RESOLUTION EVENT
 
-			if ( closestResolution.FeaturePrimary().debugIsSide() ){
-				Side surface = (Side)closestResolution.FeaturePrimary();
+			if ( closestResolution.FeatureSecondary().debugIsSide() ){
+				Vector surface = ((Side)closestResolution.FeatureSecondary()).getSlopeVector();
 				Vector playerDP = new Vector( entityPrimary.getDX(), entityPrimary.getDY() );
-				
-					if ( entityPrimary.getDX() + entityPrimary.getDY() != 0 )
-						friction.setVector(   surface.unitVector().multiply( playerDP.unitVector().multiply(0.1) )   );
+						
+							//friction.setVector(   surface.unitVector().multiply( playerDP.unitVector().multiply(0.1) )   );	
+						friction.setVector(   playerDP.projectedOver( surface.unitVector() ).multiply(0.1).inverse()   );	
 
+			}
+			else{
+				//System.out.println("dropped side");
 			}
 			
 			
@@ -147,8 +151,8 @@ public class CollisionPlayerStaticSAT extends Collision {
 		@Override
 		protected void triggerEvent( Resolution resolution ) { //One time event upon resolution of collision
 			
-			collisionDebugTag = "("+resolution.FeaturePrimary()+" of "+entityPrimary.toString()+") contacting ("+
-					resolution.FeatureSecondary()+" of "+entitySecondary.toString()+")";
+			collisionDebugTag = "("+resolution.FeaturePrimary()+" of "+entityPrimary.name+") contacting ("+
+					resolution.FeatureSecondary()+" of "+entitySecondary.name+")";
 			
 			if (resolution.FeatureSecondary().debugIsSide()){ 
 				Vector slope = ((Side)resolution.FeatureSecondary()).getSlopeVector();
@@ -199,6 +203,8 @@ public class CollisionPlayerStaticSAT extends Collision {
 		//Remove collision from involved entities lists
 		collidingPrimary.removeCollision( entityPairIndex[0] );
 		collidingSecondary.removeCollision(entityPairIndex[1] );
+		
+		isComplete = true;
 	}
 	
 	/* ######################
@@ -476,6 +482,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 		if ( penetrationY * centerDistanceY < 0 ) // 
 			
 				penetrationY = 0;
+		
 		
 		
 		BoundaryFeature featurePrimary = playerInnerVertices[0];

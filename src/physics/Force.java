@@ -35,7 +35,11 @@ public class Force {
 	}
 	
 	public void indexShift(){
-		this.ID--;
+		this.ID = this.ID - 1;
+	}
+	
+	public void setIndex( int index ){
+		this.ID = index;
 	}
 	
 	public Vector getVector(){

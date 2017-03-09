@@ -54,10 +54,11 @@ public class KeyBinding {
 		@Override
 		protected boolean keyCodeMatches( KeyEvent e ){ //class
 			
-			if ( keyCode == e.getKeyCode() )
-				return true;
-			else
-				return false;
+				if ( ( e.getKeyCode() | e.getModifiers() ) == keyCode)
+					return true;
+				else
+					return false;
+				
 		}
 	
 	}
@@ -72,8 +73,8 @@ public class KeyBinding {
 		
 		protected boolean keyCodeMatches( KeyEvent e ){ //class
 			
-			if ( e.getModifiers() == modKeyCode ){
-				if ( keyCode == e.getKeyCode() )
+			if ( (e.getModifiers() & modKeyCode ) != 0 ){
+				if ( e.getKeyCode() == keyCode )
 					return true;
 				else
 					return false;

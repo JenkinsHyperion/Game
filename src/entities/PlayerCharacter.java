@@ -35,7 +35,8 @@ public class PlayerCharacter extends Player {
 	private final int spriteOffsetX=-35;
 	private final int spriteOffsetY=-35;
 	
-	private Force movementForce = this.addForce( new Vector(0,0) );
+	private Force movementForce ;
+	private Force gravity ;
 	
 	private boolean climbing = false;
     
@@ -109,7 +110,9 @@ public class PlayerCharacter extends Player {
         loadAnimatedSprite(IDLE_LEFT); 
         //setAngle(0);
         //setAccY( 0.2f ); // Force initialize gravity (temporary)
-        this.addForce( new Vector( 0 , 0.2 ) );
+        gravity = this.addForce( new Vector( 0 , 0.2 ) );
+        
+        movementForce = this.addForce( new Vector(0,0) );
         
         CollisionEvent floorCollisionEvent = new DefaultCollisionEvent(  );
         CollisionEvent[] eventList = new CollisionEvent[]{
@@ -130,8 +133,6 @@ public class PlayerCharacter extends Player {
 		floorCollisionEvent = null;
 		eventList = null;
 		
-
-		this.inputController.createMouseBinding( MouseEvent.ALT_MASK , MouseEvent.BUTTON3 , new ClickTest() ); 
 		
 		this.inputController.createKeyBinding( KeyEvent.VK_W , new UpKey() );
 		this.inputController.createKeyBinding( KeyEvent.VK_A , new LeftKey() ) ;
@@ -194,6 +195,7 @@ public class PlayerCharacter extends Player {
 		@Override
 		public void run( BoundaryFeature source , BoundaryFeature collidingWith ) {
 			playerState.onCollision();
+			changePlayerState( playerStateBuffer );
 		}
 		@Override
 		public String toString() {
@@ -284,6 +286,8 @@ public class PlayerCharacter extends Player {
     			
     			float runningForce = 0.1f * ( 3 - Math.abs(dx) ) ;
     			
+    			if (runningForce < 0){ runningForce = 0;}
+    			
     			movementForce.setVector(
     				(float) getOrientationVector().multiply(  playerDirection.normalize( 0.1 + runningForce  )  ).getX() ,
     				(float) getOrientationVector().multiply(  playerDirection.normalize( 0.1 + runningForce )  ).getY()  
@@ -296,7 +300,7 @@ public class PlayerCharacter extends Player {
     		@Override
     		public void update(){
     			movementForce.setVector(0,0);
-    			if (dx == 0){
+    			if ( Math.abs(dx) < 0.1 ){
     				changePlayerState(standing);
     			}
     		} 
@@ -312,7 +316,7 @@ public class PlayerCharacter extends Player {
 		
 		@Override
 		public void uponChange() {
-			
+			state = accelerate;
 		}
 		
 		@Override
@@ -326,6 +330,7 @@ public class PlayerCharacter extends Player {
 		@Override
 		public void onJump() {
 			setDY(-5);
+			playerStateBuffer = running;
 			changePlayerState(fallingLeft); //later to be jum;ping
 		}
 		
@@ -515,7 +520,7 @@ public class PlayerCharacter extends Player {
 		
 		@Override
 		public void uponChange() {
-			clinging = false;
+			clinging = true;
 		}
 		
 		@Override

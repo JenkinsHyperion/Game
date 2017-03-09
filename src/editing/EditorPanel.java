@@ -145,8 +145,8 @@ public class EditorPanel extends JPanel {
 
 		//setSelectedEntityThruEditor(board.getStaticEntities().get(0)); //NEEDS ZERO ARRAY SIZE CHECK
 
-		//setCurrentSelectedEntity( NullEntitySelection.getNullEntity() ); 
-        //setCurrentSelectedEntity( this.board.getStaticEntities().get(0) ); 
+		//setCurrentSelectedEntity( EntityNull.getNullEntity() ); 
+        setCurrentSelectedEntity( this.board.getStaticEntities().get(0) ); 
 		
 		//set the editor's layout
 		setLayout(new FlowLayout(FlowLayout.LEADING, 3, 3));
@@ -205,6 +205,8 @@ public class EditorPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {						
 				setMode(getEditorSelectMode());
+				vertexPlaceModeButton.setEnabled(false);
+				vertexSelectModeButton.setEnabled(false);
 			} 		
 		});
 		
@@ -214,10 +216,13 @@ public class EditorPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				setMode(getWorldGeomMode());
+				vertexPlaceModeButton.setEnabled(true);
+				vertexSelectModeButton.setEnabled(true);
 			}
 		});
 		vertexPlaceModeButton = new JButton("VtxPlace");
 		vertexPlaceModeButton.setFocusable(false);
+		vertexPlaceModeButton.setEnabled(false);
 		vertexPlaceModeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -226,6 +231,7 @@ public class EditorPanel extends JPanel {
 		});
 		vertexSelectModeButton = new JButton("VtxSelect");
 		vertexSelectModeButton.setFocusable(false);
+		vertexSelectModeButton.setEnabled(false);
 		vertexSelectModeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -832,42 +838,37 @@ public class EditorPanel extends JPanel {
 		@Override
 		public void mousePressed(MouseEvent e) {
 			// old version:  vvvvvvvv 
-			/*if (mode == EditorPanel.DEFAULT_MODE) 
-			{
-				deselectAllEntities();
-				//MainWindow.getEditorPanel().setEntityCoordsLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
-				setEntityCoordsLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));			
-				checkForSelection(clickPosition);  			  		
-				if (currentSelectedEntity != null) {  	// there is entity under cursor
-	  				selectedBox.setSize(currentSelectedEntity.getEntitySprite().getImage().getWidth(null),
-	  									currentSelectedEntity.getEntitySprite().getImage().getHeight(null) ); 	  				
-					//SidePanel.setSelectedEntityName("Selected: " + currentSelectedEntity.name);
-					setSelectedEntityNameLabel("Selected: " + currentSelectedEntity.name);
-					setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
-					//get offsets
-					clickPositionXOffset = e.getX() - currentSelectedEntity.getX() ;
-					clickPositionYOffset = e.getY() - currentSelectedEntity.getY() ;
-				}
-				// WILL TRIGGER DESELECTING THE CURRENT ENTITY
-				// CODE FIRES WHEN YOU CLICK AND NOTHING IS UNDER CURSOR
-				else {   				
-					setSelectedEntityNameLabel("Nothing Selected");
-					setEntityCoordsLabel("Coords. of selected entity: N/A");
-				}
-			}*/
+			deselectAllEntities();
+			//MainWindow.getEditorPanel().setEntityCoordsLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
+			setEntityCoordsLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));			
+			checkForSelection(clickPosition);  			  		
+			if (currentSelectedEntity != null) {  	// there is entity under cursor
+				selectedBox.setSize(currentSelectedEntity.getEntitySprite().getImage().getWidth(null),
+						currentSelectedEntity.getEntitySprite().getImage().getHeight(null) ); 	  				
+				//SidePanel.setSelectedEntityName("Selected: " + currentSelectedEntity.name);
+				setSelectedEntityNameLabel("Selected: " + currentSelectedEntity.name);
+				setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
+				//get offsets
+				clickPositionXOffset = e.getX() - currentSelectedEntity.getX() ;
+				clickPositionYOffset = e.getY() - currentSelectedEntity.getY() ;
+			}
+			// WILL TRIGGER DESELECTING THE CURRENT ENTITY
+			// CODE FIRES WHEN YOU CLICK AND NOTHING IS UNDER CURSOR
+			else {   				
+				setSelectedEntityNameLabel("Nothing Selected");
+				setEntityCoordsLabel("Coords. of selected entity: N/A");
+			}
 		}
 		@Override
 		public void mouseDragged(MouseEvent e) {
 			//old version: vvvvvvvv
-			/*if (mode == EditorPanel.DEFAULT_MODE) {
-			setMousePosLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
+			//setMousePosLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
 
 			if (currentSelectedEntity != null) {
 				currentSelectedEntity.setX(e.getX() - clickPositionXOffset);
 				currentSelectedEntity.setY(e.getY() - clickPositionYOffset);
 				setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
 			}
-		}*/
 		}
 		@Override
 		public void mouseMoved(MouseEvent e) {
@@ -895,9 +896,9 @@ public class EditorPanel extends JPanel {
 		  			if (selectedBox.contains(click)) 
 		  			{
 		  				//entity.isSelected = true;
-		  				enableEditPropertiesButton(true); //might not need
+		  				//enableEditPropertiesButton(true); //might not need
 		  				restorePanels();
-		  				setAllEntitiesComboBoxIndex(counter);
+		  				//setAllEntitiesComboBoxIndex(counter);
 		  	  			setSelectedEntityNameLabel("Selected: " + entity.name);
 		  	  			setEntityCoordsLabel("Coords. of selected entity: " + entity.getX() + ", " + entity.getY());
 		  				return entity;

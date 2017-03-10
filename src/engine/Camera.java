@@ -132,18 +132,18 @@ public class Camera extends EntityDynamic{
 				vertex.getClickableZone().y - (int)this.y + boardHalfHeight, 
 				vertex.getClickableZone().width, vertex.getClickableZone().height);				 
 	}
-	public void drawRect(Rectangle rect, Graphics g, Color outlineColor, Color fillColor) {
-		Color originalColor = g.getColor();
+	public void drawRect(Rectangle rect, Graphics g, Color outlineColor, Color fillColor, float alpha) {
+		//Color originalColor = g.getColor();
 		Graphics2D g2 = (Graphics2D)g;
 		g2.setColor(outlineColor);
 		g2.drawRect(rect.x - (int)this.x + boardHalfWidth, 
 					rect.y - (int)this.y + boardHalfHeight, rect.width, rect.height);
 		g2.setColor(fillColor);
-		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .5f));
+		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
 		g2.fillRect(rect.x - (int)this.x + boardHalfWidth,
 					rect.y - (int)this.y + boardHalfHeight, rect.width-1, rect.height-1);
-		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
-		g2.setColor(originalColor);
+		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+		//g2.setColor(originalColor);
 	}
 	/**
 	 * Draws sprite image relative to camera position

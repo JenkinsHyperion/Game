@@ -8,7 +8,7 @@ import engine.Camera;
 
 public class SelectedVertices {
 	private ArrayList<Vertex> selectedVertices = new ArrayList<>();
-	private ArrayList<Point> clonedList = new ArrayList<>();
+	private ArrayList<Point> oldVertexPositions = new ArrayList<>();
 	private Camera camera;
 	//private Point worldGeomMousePos;
 	// vvvv probably won't need
@@ -20,10 +20,10 @@ public class SelectedVertices {
 	public void clearSelectedVertices() {
 		selectedVertices.clear();
 	}
-	public void cloneList(){
-		clonedList.clear();
+	public void updateOldVertexPositions(){
+		oldVertexPositions.clear();
 		for (Vertex vertex: selectedVertices) {
-			clonedList.add(new Point(vertex.getPoint()));
+			oldVertexPositions.add(new Point(vertex.getPoint()));
 		}
 	}
 	public boolean contains(Vertex vertex) {
@@ -46,7 +46,8 @@ public class SelectedVertices {
 		return selectedVertices.size();
 	}
 	public void addSelectedVertex(Vertex vertex) {
-		selectedVertices.add(vertex);
+		if (!selectedVertices.contains(vertex))
+			selectedVertices.add(vertex);
 	}
 	
 	public void removeSelectedVertex (Vertex vertex) {
@@ -57,8 +58,8 @@ public class SelectedVertices {
 		int deltaX = initClickPoint.x - worldGeomMousePos.x;
 		int deltaY = initClickPoint.y - worldGeomMousePos.y;
 		for (int i = 0; i < selectedVertices.size(); i++) {
-			selectedVertices.get(i).translate(camera.getLocalX(clonedList.get(i).x - deltaX), 
-											 camera.getLocalY(clonedList.get(i).y - deltaY));
+			selectedVertices.get(i).translate(camera.getLocalX(oldVertexPositions.get(i).x - deltaX), 
+											 camera.getLocalY(oldVertexPositions.get(i).y - deltaY));
 		}
 	}
 	public void removeSelectedVertex(int i) {

@@ -225,8 +225,9 @@ public class WorldGeometry extends ModeAbstract{
 					surfaceLines.toArray( lines );
 					EntityStatic newEntity = EntityFactory.createEntityFromBoundary(lines);
 					((Board)board).addStaticEntity( newEntity );
-					editorPanel.setCurrentSelectedEntity( newEntity );
-					
+					editorPanel.addSelectedEntity( newEntity );
+					editorPanel.setMode(editorPanel.getEditorSelectMode());
+					clearAllVertices();
 				}
 				@Override
 				public void onReleased() {
@@ -502,7 +503,7 @@ public class WorldGeometry extends ModeAbstract{
 		}
 		public void checkForVertexInSelectionRect(Rectangle selectionRect) {
 			for (Vertex vertex: vertexList) {
-				if (selectionRect.contains(vertex.getClickableZone())){
+				if (selectionRect.intersects(vertex.getClickableZone())){
 					if(selectedVertices.contains(vertex) == false) {
 						selectedVertices.addSelectedVertex(vertex);
 					}
@@ -555,7 +556,7 @@ public class WorldGeometry extends ModeAbstract{
 			public void mousePressed() {
 				// TODO Auto-generated method stub
 				initClickPoint.setLocation(camera.getLocalPosition(worldGeomMousePos));
-				selectedVertices.cloneList();
+				selectedVertices.updateOldVertexPositions();
 			}
 			public void mouseDragged() {
 				selectedVertices.translate(initClickPoint, worldGeomMousePos);

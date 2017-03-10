@@ -509,7 +509,12 @@ public class Board extends BoardAbstract {
     private void drawDebugSAT( EntityStatic playerRef , EntityStatic entitySecondary , Graphics2D g2 ){
   	
 	    //EntityStatic stat = entitySecondary;
-	    EntityStatic stat = editorPanel.getCurrentSelectedEntity();
+	   // EntityStatic stat = editorPanel.getCurrentSelectedEntity();
+    	//TODO Matt this is the new method to use to access selected entities:
+    	ArrayList<EntityStatic> selectedEntities = editorPanel.getSelectedEntities();
+    	
+    	@Deprecated
+    	EntityStatic stat = this.staticEntitiesList.get(0);
 	    
 	    //EntityStatic stat = staticEntitiesList.get(1);
 	    //EntityStatic playerRef = this.playerRef;

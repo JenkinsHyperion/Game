@@ -32,7 +32,7 @@ public class SelectionRectangle implements SelectionRectangleAbstract{
 
 	@Override
 	public void draw(Graphics g, Camera camera) {
-		camera.drawRect(selectionRectangle, g, outlineColor, fillColor);
+		camera.drawRect(selectionRectangle, g, outlineColor, fillColor, .3f);
 	}
 
 	public void setInitialRectPoint(){

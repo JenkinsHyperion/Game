@@ -15,13 +15,13 @@ public class Vertex extends BoundaryFeature{
 	private Vertex( Point position , int ID , CollisionEvent collisionEvent ){
 		this.position = position;
 		this.ID = ID;
-		this.collisionEvent = collisionEvent;
+		this.setCollisionEvent( collisionEvent );
 	}
 	
 	public Vertex( Point2D position , int ID , CollisionEvent collisionEvent ){
 		this.position = new Point( (int)position.getX(), (int)position.getY() );
 		this.ID = ID;
-		this.collisionEvent = collisionEvent;
+		this.setCollisionEvent( collisionEvent );
 	}
 	
 	public Vertex( Point2D position , Side CW_side , Side CCW_side , int ID , CollisionEvent collisionEvent ){
@@ -29,7 +29,7 @@ public class Vertex extends BoundaryFeature{
 		this.startingSide = CW_side;
 		this.endingSide = CCW_side;
 		this.ID = ID;
-		this.collisionEvent = collisionEvent;
+		this.setCollisionEvent( collisionEvent );
 	}
 	
 	public Point toPoint(){
@@ -54,10 +54,6 @@ public class Vertex extends BoundaryFeature{
 			return null;		
 		}
 
-	}
-	
-	public void setCollisionEvent( CollisionEvent collisionEvent ){
-		this.collisionEvent = collisionEvent;
 	}
 	
 	@Override

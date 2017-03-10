@@ -131,10 +131,8 @@ public class PlayerCharacter extends Player {
         
         Boundary boundarytemp =  new Boundary.EnhancedBox( 24,76 ,-12,-38, eventList , (Collidable) this.collisionType );
         //Boundary boundarytemp =  new Boundary.Box( 24,76 ,-12,-38, (Collidable) this.collisionType );
-		((Collidable) collisionType).setBoundary( boundarytemp ); 
-		storedBounds = new Boundary.Box(24,76 ,-12,-38, (Collidable) this.collisionType );   //OPTIMIZE move to child RotationalCollidable that can store boundary 
-		
-		CollisionEvent cornerCollision = new CollisionEvent(){
+        
+        CollisionEvent cornerCollision = new CollisionEvent(){
 			
 			@Override
 			public void run(BoundaryFeature source, BoundaryFeature collidingWith) {
@@ -145,6 +143,10 @@ public class PlayerCharacter extends Player {
 		for ( Vertex corner : boundarytemp.getCornersVertex() ){
 			corner.setCollisionEvent( cornerCollision );
 		}
+        
+		((Collidable) collisionType).setBoundary( boundarytemp ); 
+		storedBounds = new Boundary.Box(24,76 ,-12,-38, (Collidable) this.collisionType );   //OPTIMIZE move to child RotationalCollidable that can store boundary 
+
 		
 		
 		boundarytemp = null;

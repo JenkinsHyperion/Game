@@ -108,7 +108,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 				System.out.println("Snapping angle to "+(float)(angle*180/Math.PI ));
 				((EntityRotationalDynamic)entityPrimary).setAngleInRadians( (float)angle );
 				
-				closestResolution.FeaturePrimary().collisionEvent.run(closestResolution.FeaturePrimary(), closestResolution.FeatureSecondary() );
+				closestResolution.FeaturePrimary().getEvent().run(closestResolution.FeaturePrimary(), closestResolution.FeatureSecondary() );
 			}
 			
 			//###
@@ -172,9 +172,9 @@ public class CollisionPlayerStaticSAT extends Collision {
 			else
 				normalForce.setVector( 0 , -0.2 );
 			
-			System.out.println("\n### Collision Resolved, event on "+ entityPrimary +" triggered: "+resolution.FeaturePrimary().collisionEvent +" =================\n"  );
+			System.out.println("\n### Collision Resolved, event on "+ entityPrimary +" triggered: "+resolution.FeaturePrimary().getEvent() +" =================\n"  );
 			
-			resolution.FeaturePrimary().collisionEvent.run( resolution.FeaturePrimary() , resolution.FeatureSecondary() );
+			resolution.FeaturePrimary().getEvent().run( resolution.FeaturePrimary() , resolution.FeatureSecondary() );
 			
 		}
 
@@ -383,7 +383,6 @@ public class CollisionPlayerStaticSAT extends Collision {
 	    EntityStatic stat = entitySecondary;
 	    
 	    Boundary statBounds = collidingSecondary.getBoundaryLocal() ;
-	    Boundary playerBoundsDelta = collidingPrimary.getBoundaryLocal() ;
 	    Boundary playerBounds = collidingPrimary.getBoundaryDelta() ;
 	    
 	    double deltaX = entityPrimary.getDeltaX() ;
@@ -427,8 +426,8 @@ public class CollisionPlayerStaticSAT extends Collision {
 	    //
 	    
     	Line2D playerHalf = new Line2D.Float( 
-    			playerBoundsDelta.getProjectionPoint(centerPlayer,axis) ,
-    			playerBoundsDelta.getProjectionPoint(nearPlayerCorner[0].toPoint(),axis)
+    			playerBounds.getProjectionPoint(centerPlayer,axis) ,
+    			playerBounds.getProjectionPoint(nearPlayerCorner[0].toPoint(),axis)
     			);
     	Line2D statHalf = new Line2D.Float( 
     			statBounds.getProjectionPoint(centerStat,axis) ,

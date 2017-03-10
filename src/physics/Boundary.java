@@ -110,26 +110,17 @@ public class Boundary implements Serializable {
 
 		}	
 	}
-	
-	protected void linkBoundary(){
-		
-		sides[0].setStartPoint(corners[0]);
-		sides[0].setEndPoint(corners[1]);
-		
-		for (int i = 1 ; i < sides.length-1 ; i++) {	
-			sides[i].setStartPoint( corners[i] ); 
-			corners[i].setStartingSide(sides[i]);
-			sides[i].setEndPoint( corners[ i+1 ] );
-			corners[i].setEndingSide(sides[i-1]);
-		}
-		
-		
-	}
-	
-	
-	@Override
-	public Boundary clone(){  
 
+	private Boundary temporaryClone(){  
+
+		/*Side[] newSides = new Side[this.sides.length];
+		for ( int i = 0 ; i < newSides.length ; i++ ){
+			newSides[i] = new Side( this.sides[i].toLine() ,   , this.sides[i].getID() );
+		}*/
+		
+		
+		
+		
 		Boundary returnBounds = new Boundary(this.sides , this.corners , this.ownerCollidable);
 		
 		return returnBounds;
@@ -441,7 +432,7 @@ public class Boundary implements Serializable {
 					sides[i].getX2()+pos.x, sides[i].getY2()+pos.y ) ,
 					this ,
 					i,
-					sides[i].collisionEvent
+					sides[i].getEvent()
 				);
 		}
 
@@ -459,7 +450,7 @@ public class Boundary implements Serializable {
 					sides[i].getX2()+x, sides[i].getY2()+y ) ,
 					this,
 					i ,
-					sides[i].collisionEvent
+					sides[i].getEvent()
 				);
 		}
 		

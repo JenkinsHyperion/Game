@@ -23,7 +23,7 @@ public class Side extends BoundaryFeature{
 		this.owner = owner;
 		this.ID = ID;
 		calculateSlope(line);
-		this.collisionEvent = collisionEvent;
+		this.setCollisionEvent(collisionEvent);
 	}
 	
 	public Side( Line2D line , Point2D startpoint , Point2D endpoint , Boundary owner , int ID, CollisionEvent collisionEvent){
@@ -31,7 +31,7 @@ public class Side extends BoundaryFeature{
 		this.owner = owner;
 		this.ID = ID;
 		calculateSlope(line);
-		this.collisionEvent = collisionEvent;
+		this.setCollisionEvent(collisionEvent);
 	}
 	
 	private void calculateSlope(Line2D line){

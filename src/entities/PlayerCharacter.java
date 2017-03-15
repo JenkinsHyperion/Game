@@ -1,10 +1,8 @@
 package entities;
 
 
+import java.awt.Point;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-
-import Input.KeyBinding;
 import Input.KeyCommand;
 import Input.MouseCommand;
 
@@ -12,11 +10,9 @@ import Input.MouseCommand;
 //import javax.swing.Timer;
 
 import animation.*;
-import engine.Board;
 import engine.BoardAbstract;
-import engine.TestBoard;
-import entityComposites.Collidable;
-import physics.Collision;
+import entityComposites.Collider;
+import entityComposites.SpriteComposite;
 import physics.Force;
 import physics.Side;
 import physics.Vector;
@@ -30,7 +26,6 @@ import misc.PlayerDirection.PlayerDirection;
 import physics.Boundary;
 import sprites.Sprite;
 import sprites.SpriteAnimated;
-import utility.Trigger;
 
 public class PlayerCharacter extends Player {
 	
@@ -46,7 +41,7 @@ public class PlayerCharacter extends Player {
     
     private final SpriteAnimated RUN_RIGHT = new SpriteAnimated(
     		new AnimationEnhanced(LoadAnimation.buildAnimation(16, 0, 75, "RunRight.png") , 2 ),
-    		this , spriteOffsetX , spriteOffsetY );
+    		this , spriteOffsetX , spriteOffsetY ); 
     private final SpriteAnimated RUN_LEFT = new SpriteAnimated(
     		new Animation(LoadAnimation.buildAnimation(16, 0, 75, "Run_75px.png") , 2 ),
     		this , spriteOffsetX , spriteOffsetY );
@@ -111,13 +106,12 @@ public class PlayerCharacter extends Player {
 
     private void initPlayer() {
         
-        loadAnimatedSprite(IDLE_LEFT); 
-        //setAngle(0);
-        //setAccY( 0.2f ); // Force initialize gravity (temporary)
-        gravity = this.addForce( new Vector( 0 , 0.2 ) );
-        
-        movementForce = this.addForce( new Vector(0,0) );
-        
+        // MANUAL SPRITE COMPOSITE
+        SpriteComposite spirteComp = new SpriteComposite( IDLE_LEFT , this);
+        this.setSpriteType(spirteComp);
+
+        // COLLIDER COMPOSITE
+        // Making many custom events for player contexts
         CollisionEvent floorCollisionEvent = new DefaultCollisionEvent(  );
         CollisionEvent[] eventList = new CollisionEvent[]{
         		floorCollisionEvent, //top
@@ -125,18 +119,39 @@ public class PlayerCharacter extends Player {
         		new FloorCollisionEvent(),
         		onSideCollision
         };
-        
-        ((Collidable) getCollisionType() ).setLeavingCollisionEvent( new OnLeavingCollision() );
+        // Creating actual composite
+        Collider collisionMesh = new Collider( this );
+        setCollisionProperties( collisionMesh );
+        collisionMesh.setLeavingCollisionEvent( new OnLeavingCollision() );
         // Find better method for casting
         
-        Boundary boundarytemp =  new Boundary.EnhancedBox( 24,76 ,-12,-38, eventList , (Collidable) this.collisionType );
+        Boundary boundarytemp =  new Boundary.EnhancedBox( 24,76 ,-12,-38, eventList , (Collider) this.collisionType );
         //Boundary boundarytemp =  new Boundary.Box( 24,76 ,-12,-38, (Collidable) this.collisionType );
         
         CollisionEvent cornerCollision = new CollisionEvent(){
 			
-			@Override
+			@Override 
 			public void run(BoundaryFeature source, BoundaryFeature collidingWith) {
-				System.out.println("CORENR HIT++++++++++++++++++=");
+
+				ground = (Side) collidingWith;
+				//System.out.println("Player snapping to angle "+(float)(angle*180/Math.PI )+" degrees");
+
+				Vertex corner = ((Vertex)source);
+				
+				Vector sub = corner.getStartingSide().getSlopeVector().subtract( corner.getEndingSide().getSlopeVector() );
+				
+				double dist1 = corner.getStartingSide().getSlopeVector().unitVector().dotProduct(ground.getSlopeVector());
+				double dist2 = corner.getEndingSide().getSlopeVector().unitVector().dotProduct(ground.getSlopeVector());
+				
+				Vertex rawCorner = getColliderComposite().getBoundary().getRawVertex( corner.getID() );
+				
+					if ( dist2 > dist1 ){ //only works for rectangles
+						PlayerCharacter.this.setAngleFromVector( ground.getSlopeVector() );
+					}
+					else
+						PlayerCharacter.this.setAngleFromVector( ground.getSlopeVector()  );
+				
+	
 			}
 		};
 		
@@ -144,21 +159,26 @@ public class PlayerCharacter extends Player {
 			corner.setCollisionEvent( cornerCollision );
 		}
         
-		((Collidable) collisionType).setBoundary( boundarytemp ); 
-		storedBounds = new Boundary.Box(24,76 ,-12,-38, (Collidable) this.collisionType );   //OPTIMIZE move to child RotationalCollidable that can store boundary 
+		((Collider) collisionType).setBoundary( boundarytemp ); 
+		storedBounds = new Boundary.Box(24,76 ,-12,-38, (Collider) this.collisionType );   //OPTIMIZE move to child RotationalCollidable that can store boundary 
 
 		
-		
+		//dispose of all the temp stuff
 		boundarytemp = null;
 		floorCollisionEvent = null;
 		eventList = null;
 		
+		// PLAYER INPUT 
 		this.inputController.createKeyBinding( KeyEvent.VK_W , new UpKey() );
 		this.inputController.createKeyBinding( KeyEvent.VK_A , new LeftKey() ) ;
 		this.inputController.createKeyBinding( KeyEvent.VK_S , new DownKey() ) ;
 		this.inputController.createKeyBinding( KeyEvent.VK_D , new RightKey()) ;
 		this.inputController.createKeyBinding( KeyEvent.VK_SPACE , new JumpKey() ) ;
 		this.inputController.createKeyBinding( KeyEvent.VK_SHIFT , new ModKey() ) ;
+		
+		// ADD FORCES // TO BE MOVED TO EXTERNAL BOARD AND OR FEILDS
+		this.gravity = addForce( new Vector( 0 , 0.2 ) );
+		this.movementForce = addForce( new Vector( 0 , 0 ) );
 		
     }
     
@@ -178,13 +198,15 @@ public class PlayerCharacter extends Player {
     
     private void changePlayerState( PlayerState state ){
     	
-    	System.out.println("Changing state to "+state.getName());
+    	//System.out.println("Changing state to "+state.getName());
     	
 		playerState = state;
 		
-		entitySprite = playerDirection.getDirectionalSprite(state) ;
+		Sprite sprite = playerDirection.getDirectionalSprite(state);
 		
-		((SpriteAnimated) playerDirection.getDirectionalSprite(state) ).getAnimation().start();
+		sprite.getAnimation().start();
+		
+		setEntitySprite( sprite );
 		
 		//inputController.runReleased();
 
@@ -219,7 +241,7 @@ public class PlayerCharacter extends Player {
 		}
 		@Override
 		public String toString() {
-			return "Floor";
+			return "Floor Event";
 		}
     }
     
@@ -233,7 +255,7 @@ public class PlayerCharacter extends Player {
 		
 		@Override
 		public String toString() {
-			return "Side";
+			return "Side Event";
 		}
     }
     
@@ -277,7 +299,10 @@ public class PlayerCharacter extends Player {
 
 		@Override
 		public void onJump() {
-			setDY(-5);
+			//setDY(-5);
+			addVelocity(ground.getSlopeVector().normal().unitVector().multiply(5));
+			playerStateBuffer = running;
+			//changePlayerState(fallingLeft); //later to be jum;ping
 		}
 
 		@Override
@@ -292,6 +317,7 @@ public class PlayerCharacter extends Player {
 			changeDirection();
 			changePlayerState( running );
 		}
+
     	
     }
     
@@ -308,10 +334,13 @@ public class PlayerCharacter extends Player {
     			
     			if (runningForce < 0){ runningForce = 0;}
     			
+    			Vector groundVector = ground.getSlopeVector().unitVector().inverse();
+    			
     			movementForce.setVector(
-    				(float) getOrientationVector().multiply(  playerDirection.normalize( 0.1 + runningForce  )  ).getX() ,
-    				(float) getOrientationVector().multiply(  playerDirection.normalize( 0.1 + runningForce )  ).getY()  
+    				getOrientationVector().multiply(  playerDirection.normalize( 0.1 + runningForce  )  ) 
     			);
+    			
+    			//movementForce.setVector( groundVector.multiply(  playerDirection.normalize( 0.1 + runningForce  ) ) );
     			
     		}
     	}
@@ -457,7 +486,7 @@ public class PlayerCharacter extends Player {
     		
     		if (counter < 0){
     			changeDirection();
-    			changePlayerState( sprintingRight );
+    			changePlayerState( sprintingRight );  
     		}
     		else 
     			counter--;
@@ -483,8 +512,13 @@ public class PlayerCharacter extends Player {
 		}
 		
 		@Override
+		public void updateState() {
+			//System.out.println(getAngle()+"angles");
+			//addAngle( -getAngle()/100 );
+		}
+		
+		@Override
 		public void onUp() {
-			
 		}
 		
 		@Override

@@ -1,56 +1,52 @@
 package physics;
 
-import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.io.Serializable;
 import java.util.ArrayList;
 
-import entities.EntityStatic;
-import entityComposites.Collidable;
-import misc.CollisionEvent;
-import misc.DefaultCollisionEvent;
+import entityComposites.Collider;
+import misc.*;
 
-public class Boundary implements Serializable {
+public class Boundary {
 	
 	//protected Shape boundaryShape;
-	protected Collidable ownerCollidable;
+	protected Collider ownerCollidable;
 	protected Side[] sides = new Side[1]; 
-	protected Vertex[] corners;
+	private Vertex[] corners;
 	
 	protected CollisionEvent defaultCollisionEvent;
 
-	@Deprecated
-	public Boundary(){
+	public Boundary( Collider ownerCollidable ){
 		sides = new Side[0];
 		corners = new Vertex[0];
+		this.ownerCollidable = ownerCollidable;
 	} //use cloning instead
-	
-	private Boundary( Side[] sides , Vertex[] corners , Collidable owner ){
+	//FOR CLONING ONLY
+	private Boundary( Side[] sides , Vertex[] corners , Collider owner ){
 		this.sides = sides;
 		this.corners = corners;
 		this.ownerCollidable = owner;
 	}
 	
-	public Boundary(Line2D line , Collidable owner){
+	public Boundary(Line2D line , Collider owner){
 		
 		this.ownerCollidable = owner;
 		
 		sides[0] = new Side(line , this , 0, defaultCollisionEvent); 
-		corners = new Vertex[]{ new Vertex(line.getP1() , 0 , defaultCollisionEvent) 
-				, new Vertex(line.getP2() , 1 , defaultCollisionEvent) };
+		corners = new Vertex[]{ new Vertex(line.getP1() , this , 0 , defaultCollisionEvent) 
+				, new Vertex(line.getP2() , this , 1 , defaultCollisionEvent) };
 
 		compileBoundaryMap( new DefaultCollisionEvent( ) );
 	}
 	
-	public Boundary(Side[] bounds , Collidable owner) {
+	public Boundary(Side[] bounds , Collider owner) {
 		sides = bounds;
 		this.ownerCollidable = owner;
 		compileBoundaryMap( new DefaultCollisionEvent( ) );
 	}
 	
-	public Boundary(Line2D[] bounds , Collidable owner) {
+	public Boundary(Line2D[] bounds , Collider owner) {
 		
 		this.ownerCollidable = owner;
 
@@ -64,8 +60,8 @@ public class Boundary implements Serializable {
 	
 	public static class Box extends Boundary{
 
-		public Box(int width, int height, int xOffset, int yOffset , Collidable owner ){
-			
+		public Box(int width, int height, int xOffset, int yOffset , Collider owner ){
+			super(owner);
 			sides = new Side[4];
 			
 			sides[0] = new Side( new Line2D.Float(xOffset , yOffset , xOffset+width , yOffset ) , this, 0 , defaultCollisionEvent);
@@ -79,9 +75,9 @@ public class Boundary implements Serializable {
 	
 	public static class EnhancedBox extends Boundary{
 
-		public EnhancedBox(int width, int height, int xOffset, int yOffset, CollisionEvent[] eventList , Collidable owner){
+		public EnhancedBox(int width, int height, int xOffset, int yOffset, CollisionEvent[] eventList , Collider owner){
 			
-			//this.ownerCollidable = owner;
+			super(owner);
 			
 			sides = new Side[4];
 			
@@ -97,13 +93,13 @@ public class Boundary implements Serializable {
 	protected void compileBoundaryMap( CollisionEvent cornerEvent ){
 		
 		corners = new Vertex[ sides.length  ];
-		corners[0] = new Vertex( sides[0].getP1() , 0 , cornerEvent );
+		corners[0] = new Vertex( sides[0].getP1() , this , 0 , cornerEvent );
 		
 		for (int i = 0 ; i < sides.length ; i++) {
 			
 			int iNext = (i+1) % sides.length;
 			
-			corners[ iNext ]  = new Vertex( sides[i].getP2() , sides[i] , sides[iNext] , iNext , cornerEvent);
+			corners[ iNext ]  = new Vertex( sides[i].getP2() , sides[i] , sides[iNext] , this , iNext , cornerEvent);
 			
 			sides[i].setStartPoint( corners[i] ); 
 			sides[i].setEndPoint( corners[ iNext ] );
@@ -113,15 +109,30 @@ public class Boundary implements Serializable {
 
 	private Boundary temporaryClone(){  
 
-		/*Side[] newSides = new Side[this.sides.length];
+		Side[] newSides = new Side[this.sides.length];
 		for ( int i = 0 ; i < newSides.length ; i++ ){
-			newSides[i] = new Side( this.sides[i].toLine() ,   , this.sides[i].getID() );
-		}*/
+			Side oldSide = sides[i];
+			newSides[i] = new Side( oldSide.toLine() , this , oldSide.getID() , oldSide.getEvent() );
+		}
 		
+		Vertex[] newCorners = new Vertex[this.corners.length];
+		for ( int i = 0 ; i < newCorners.length ; i++ ){
+			Vertex oldCorner = corners[i] ;
+			newCorners[i] = new Vertex( oldCorner.toPoint() , this, oldCorner.getID() , oldCorner.getEvent() );
+		}
 		
+		Boundary returnBounds = new Boundary( newSides , newCorners , this.ownerCollidable); // Make clone with identical positions and events
 		
-		
-		Boundary returnBounds = new Boundary(this.sides , this.corners , this.ownerCollidable);
+		for ( int i = 0 ; i < returnBounds.sides.length ; i++){ //Connect the pointers for the new clone
+			
+			int iNext = (i+1) % this.sides.length;
+			
+			returnBounds.corners[iNext].setStartingSide( returnBounds.sides[i] );
+			returnBounds.corners[iNext].setEndingSide( returnBounds.sides[iNext] );
+
+			returnBounds.sides[i].setStartPoint( returnBounds.corners[i] );
+			returnBounds.sides[i].setEndPoint( returnBounds.corners[iNext] );
+		}
 		
 		return returnBounds;
 	}
@@ -132,30 +143,72 @@ public class Boundary implements Serializable {
 		// with fast trig approximations
 		//THIS IS DOUBLING EVERY VERTEX BY DOING LINES, DO BY VERTEX INSTEAD!!!
 		
-		for ( int i = 0 ; i < template.sides.length ; i++ ) {
+		for ( int i = 0 ; i < template.corners.length ; i++ ) {
 			
 			Side side = template.sides[i];
+			Vertex corner = template.corners[i];
 			Point origin = new Point(center.x,center.y);
 			
-			double r = side.getP1().distance(origin); 
-			double a = -Math.acos( (side.getX1()-center.x) / r );
-			if (side.getY1() > center.y){ a = (2*Math.PI) - a ;}
+			double r = corner.toPoint().distance(origin); 
+			double a = -Math.acos( (corner.getX()-center.x) / r );
+			if (corner.getY() > center.y){ a = (2*Math.PI) - a ;} //clamp range to 0-2pi
 			
 			Point2D p1 = new Point2D.Double( 
 					Math.round(r * Math.cos( a + angle  ) ) , 
 					Math.round(r * Math.sin( a + angle ) )    );
 			
-			double r2 = side.getP2().distance(origin);
-			double a2 = -Math.acos( (side.getX2()-center.x) / r );
-			if (side.getY2() > center.y){ a2 = (2*Math.PI) - a2 ;}
+			this.corners[i].setPos( p1 );
+		}
+		
+		for (int i = 0 ; i < this.sides.length ; i++){ //Connect the vertex pairs with their corresponding side
 			
-			Point2D p2 = new Point2D.Double( 
-					Math.round(r2 * Math.cos( a2 + angle  ) ) , 
-					Math.round(r2 * Math.sin( a2 + angle  ) )  );
+			int indexNext = (i+1) % template.sides.length; //indexNext wraps to 0 if past array length
 			
-			this.sides[i].setLine( p1, p2 );
+			this.sides[i].setLine( this.corners[i].toPoint() , this.corners[indexNext].toPoint() );
 			
 		}
+
+	}
+	
+	public Point rotateBoundaryFromTemplatePoint(Point center, double angle , Boundary template){ //OPTIMIZATION TRIG FUNCTIONS ARE NOTORIOUSLY EXPENSIVE Look into performing some trig magic
+
+		for ( int i = 0 ; i < template.corners.length ; i++ ) {
+			
+			Point corner = template.corners[i].toPoint();
+			
+			double r = corner.distance(center); 
+			
+			if ( r != 0 ){ // otherwise the new point = the old point and nothing needs to be done
+				double a = Math.acos( (corner.getX()-center.x) / r ); 
+				//if (corner.getY() > center.y){ a = (2*Math.PI) - a ;} //clamp range to 0-2pi
+				
+				Point2D p1 = new Point2D.Double( 
+						( r * Math.cos( a + angle ) + center.x ) , 
+						( r * Math.sin( a + angle ) + center.y  )   );
+				
+				this.corners[i].setPos( p1 );
+				
+			}
+		}
+		
+		for (int i = 0 ; i < this.sides.length ; i++){ //Connect the vertex pairs with their corresponding side //CONDENSE WITH ABOVE
+			
+			int indexNext = (i+1) % template.sides.length; //indexNext wraps to 0 if past array length
+			
+			this.sides[i].setLine( this.corners[i].toPoint() , this.corners[indexNext].toPoint() );
+			
+		}
+		
+		double r = new Point2D.Double(0,0).distance(center); 
+		
+		double a = Math.acos( ( /* 0 */ - center.x) / r ); 
+		//if (corner.getY() > center.y){ a = (2*Math.PI) - a ;} //clamp range to 0-2pi
+			
+		Point p = new Point( 
+				(int)( r * Math.cos( a + angle ) + center.x ) , 
+				(int)( r * Math.sin( a + angle ) + center.y  )   );
+			
+		return p;
 
 	}
 	
@@ -417,13 +470,25 @@ public class Boundary implements Serializable {
 		return sides;
 	}
 	
+	public Side getSides( int ID){
+		return sides[ID];
+	}
+	
+	public Vertex[] getVertecies() {
+		return this.corners;
+	}
+	
+	public Vertex getRawVertex( int ID) {
+		return this.corners[ID];
+	}
+	
 	public void constructSides(Side[] sidesC){
 		sides = sidesC;
 	}
 
 	// Returns boundary shifted to some position, usually the position of the entity that owns the boundary
-	public Boundary atPosition(Point pos) {
-
+	public Boundary atPosition2(Point pos) {
+		
 		Side[] shiftedSides = new Side[sides.length];
 		
 		for ( int i = 0 ; i < sides.length ; i++ ){
@@ -440,26 +505,36 @@ public class Boundary implements Serializable {
 		
 	};
 	
-	public Boundary atPosition(int x , int y) {
+	public Boundary atPosition( Point position) {
 
-		Side[] shiftedSides = new Side[sides.length];
+		Boundary returnBoundary = this.temporaryClone();
+		int x = (int)position.x;
+		int y = (int)position.y;
 		
-		for ( int i = 0 ; i < sides.length ; i++ ){
-			shiftedSides[i] = new Side (
-					new Line2D.Double(sides[i].getX1()+x, sides[i].getY1()+y , 
-					sides[i].getX2()+x, sides[i].getY2()+y ) ,
-					this,
-					i ,
-					sides[i].getEvent()
-				);
+		for ( int i = 0 ; i < this.sides.length ; i++ ){
+			
+			Side oldSide = this.sides[i];
+			Line2D shiftedLine = new Line2D.Float( oldSide.getX1()+x, oldSide.getY1()+y , oldSide.getX2()+x, oldSide.getY2()+y );
+	
+			returnBoundary.sides[i].setLine( shiftedLine );
+			//returnBoundary.sides[i] = new Side( shiftedLine , oldSide.owner , oldSide.ID , oldSide.getEvent() );
 		}
 		
-		return new Boundary(shiftedSides , this.ownerCollidable);
+		for ( int i = 0 ; i < this.corners.length ; i++ ){
+			
+			Vertex oldCorner = this.corners[i];
+			Point shiftedPosition = new Point( oldCorner.getX()+x , oldCorner.getY()+y );
+			
+			returnBoundary.corners[i].setPos( shiftedPosition );
+			//returnBoundary.corners[i] = new Vertex( shiftedPosition , oldCorner.getStartingSide() , oldCorner.getEndingSide() , oldCorner.owner , oldCorner.ID , oldCorner.getEvent() );
+		}
 		
+		//No problem with sides[]
+		return returnBoundary;
 	};
 	
 	
-	public Collidable getOwnerCollidable(){
+	public Collider getOwnerCollidable(){
 		return this.ownerCollidable;
 	}
 	
@@ -536,7 +611,7 @@ public class Boundary implements Serializable {
 					
 					if ( ( slope1 - slope2 ) > 0 ){//slope1 is greater
 							
-						if( Math.abs( slope1 - slope2 ) < 0.1 )
+						if( Math.abs( slope1 - slope2 ) < 0.11 ) //precision angle is arcSine of this, so ArcSine(0.2) = 11 degrees
 							return true;
 						else
 							return false;
@@ -603,18 +678,20 @@ public class Boundary implements Serializable {
 	}
 
 	
-	public Line2D getSeparatingAxis( Line2D separatingSide ){ //OPTIMIZATION CHANGE TO SLOPE ONLY##DONE
+	public static Line2D getSeparatingAxis( Line2D separatingSide ){ //OPTIMIZATION CHANGE TO SLOPE ONLY##DONE
 		
 		if ( separatingSide.getP1().getX() == separatingSide.getP2().getX() ) { //line is vertical
 			
-				return new Line2D.Double( 0 , 0 , 100 , 0 ); //return normal line which is horizontal with slope 0
+				return new Line2D.Double( 0 , separatingSide.getY1() , 100 , separatingSide.getY1() ); //return normal line which is horizontal with slope 0
 			}
 		else {// line is not vertical, so it has a defined slope and can be in form y=mx+b
 
 			//return normal line, whose slope is inverse reciprocal of line.   -(1/slope)
-			return new Line2D.Double( 0 , 0 , 
-					- (separatingSide.getP1().getY() - separatingSide.getP2().getY() ), 
-						separatingSide.getP1().getX() - separatingSide.getP2().getX() 
+			return new Line2D.Double( 
+					0 , 
+					0 , 
+					(separatingSide.getY2() - separatingSide.getY1() ), 
+					-(separatingSide.getX2() - separatingSide.getX1() )
 					);
 			
 		}
@@ -622,11 +699,11 @@ public class Boundary implements Serializable {
 	}
 	
 	
-	public Line2D debugGetSeparatingAxis( Line2D separatingSide , int xMax, int yMax ){ //OPTIMIZATION CHANGE TO SLOPE ONLY##DONE
+	public static Line2D debugGetSeparatingAxis( Line2D separatingSide , int xMax, int yMax , Point intersect){ //OPTIMIZATION CHANGE TO SLOPE ONLY##DONE
 		
 		if ( separatingSide.getP1().getX() == separatingSide.getP2().getX() ) { //line is vertical
 			
-				return new Line2D.Double( 0 , 20 , xMax , 20 ); //return normal line which is horizontal with slope 0
+				return new Line2D.Double( 0 , intersect.y , xMax , intersect.y ); //return normal line which is horizontal with slope 0
 			}
 		else {// line is not vertical, so it has a defined slope and can be in form y=mx+b
 
@@ -635,7 +712,7 @@ public class Boundary implements Serializable {
 			int b = (int)( separatingSide.getY1() - ( m*separatingSide.getX1() ) );
 			
 			if ( (m > -.00001) && (m < .00001))
-				return new Line2D.Float( 20 , 0 , 20 , yMax );
+				return new Line2D.Float( intersect.x , 0 , intersect.x , yMax );
 	
 			else { // y=mx+b    y = m*(x - Xoffset ) + yOffset    (y-b)/( x-Xoffset )
 				
@@ -654,7 +731,7 @@ public class Boundary implements Serializable {
 		Line2D[] axes = new Line2D[getSeparatingSides().length];
 		
 		for ( int i = 0; i < getSeparatingSides().length ; i++){
-			axes[i] = debugGetSeparatingAxis( getSeparatingSides()[i], xMax, yMax);
+			axes[i] = debugGetSeparatingAxis( getSeparatingSides()[i], xMax, yMax , new Point(20,20) );
 		}
 		return axes;
 	}
@@ -884,9 +961,10 @@ public class Boundary implements Serializable {
 		return sides[i].toLine();
 	}
 
-	public Collidable ownerEntity(){
+	public Collider ownerEntity(){
 		return ownerCollidable;
 	}
+
 	
 	
 

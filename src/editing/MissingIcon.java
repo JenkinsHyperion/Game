@@ -36,7 +36,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 
 import javax.swing.Icon;
@@ -73,7 +72,7 @@ public class MissingIcon implements Icon{
         
         g2d.dispose();
     }
-    public Image paintMissingSprite() {
+    public BufferedImage paintMissingSprite() {
     	placeHolder = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = placeHolder.createGraphics();
         

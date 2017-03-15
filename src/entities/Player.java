@@ -1,14 +1,11 @@
 package entities;
 
 
-import java.awt.event.KeyEvent;
-
 import Input.InputController;
 
 //import javax.swing.Action;
 //import javax.swing.Timer;
 
-import engine.Board;
 import engine.BoardAbstract;
 
 public class Player extends EntityRotationalDynamic {

@@ -1,7 +1,7 @@
 package testEntities;
 
 import entities.*;
-import entityComposites.Collidable;
+import entityComposites.Collider;
 import physics.*;
 
 import java.awt.geom.Line2D;
@@ -132,7 +132,7 @@ public class Tracer extends EntityDynamic{ // Can extend either EntityStatic or 
     	//beam = new Line2D.Float(originPoint,endPoint);
        	
     	g2.draw(beam); 
-    	aim.getEntitySprite().drawSprite(g2); //draw crosshair
+    	aim.getEntitySprite().drawSprite(); //draw crosshair
 
     }
     
@@ -152,7 +152,9 @@ public class Tracer extends EntityDynamic{ // Can extend either EntityStatic or 
     	//Rough testing collision blocking
     	beam = new Line2D.Float(getPos(),new Point(xEndPoint,yEndPoint));
     	
-    	for (Collision collision : ((Collidable) this.getCollisionType()).getCollisions() ){
+    	Collider collisionMesh = new Collider(this);
+    	
+    	for (Collision collision : collisionMesh.getCollisions() ){
     		CollisionPositioning laserBlock = (CollisionPositioning) collision;
     		beam = new Line2D.Float ( getPos() , laserBlock.getClosestIntersection() );
     	}

@@ -9,7 +9,7 @@ import engine.Camera;
  * 
  */
 
-public class Entity implements Serializable { 
+public class Entity { 
 	//some static fields to indicate the type of entity
 	//will be heavily fleshed out later when organizing large amounts of entities becomes an issue
 	public static final int PLATFORM = 10;

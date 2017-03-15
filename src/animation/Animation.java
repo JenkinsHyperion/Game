@@ -110,6 +110,7 @@ public class Animation {
 	}
 
 	public void update() {
+		
 		if (!stopped) {
 			frameCount++;
 
@@ -124,6 +125,7 @@ public class Animation {
 				}
 			}
 		}
+
 
 	}
 

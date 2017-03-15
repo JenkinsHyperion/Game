@@ -1,7 +1,6 @@
 package entities;
 
-import entityComposites.Collidable;
-import entityComposites.NonCollidable;
+import entityComposites.*;
 import physics.Boundary;
 
 public class EntityPhysics extends EntityDynamic{
@@ -21,7 +20,7 @@ public class EntityPhysics extends EntityDynamic{
     	
     	loadSprite(path);
     	
-    	Collidable collidable = new Collidable(this);
+    	Collider collidable = new Collider(this);
     	collidable.setBoundary( new Boundary.Box(24, 24, 0, 0 , collidable) );
     	this.setCollisionProperties( collidable );
     	

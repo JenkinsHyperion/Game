@@ -1,9 +1,9 @@
 package sprites;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 
 import animation.Animation;
 import engine.Camera;
@@ -13,15 +13,6 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
 
     private Animation spriteAnimation;
 
-    private SpriteAnimated(Animation animation , EntityStatic owner) {
-
-    	spriteAnimation = animation;
-    	this.owner = owner;
-    	//spriteOffsetX = animation.getAnimationOffsetX();
-    	//spriteOffsetY = animation.getAnimationOffsetY();
-    	
-        setVisible(true);
-    }
     
     public SpriteAnimated(Animation animation, EntityStatic owner , int offset_x, int offset_y) {
     	spriteAnimation = animation;
@@ -34,20 +25,33 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
     // IMPLEMENTED METHODS
 
     @Override
-    public void drawSprite(Graphics g){
-    	g.drawImage(this.getImage(), this.owner.getX() + spriteOffsetX, this.owner.getY() + spriteOffsetY, null);
+    public void drawSprite(){
+    	//g.drawImage(this.getImage(), this.owner.getX() + spriteOffsetX, this.owner.getY() + spriteOffsetY, null);
     }
     @Override
-    public void drawSprite(Graphics g , Camera camera){
-    	camera.draw(this, (Graphics2D)g);
+    public void drawSprite(Camera camera){
+
+    	AffineTransform entityTransformation = new AffineTransform();
+
+    	//entityTransformation.scale( (double)this.spriteSizePercent/100 , (double)this.spriteSizePercent/100 );
+    	//entityTransformation.rotate( Math.toRadians(this.spriteAngle) );
+    	entityTransformation.translate(spriteOffsetX, spriteOffsetY); 
+
+    	camera.draw(this , entityTransformation );
+    	
     }
     @Override
-    public void editorDraw(Graphics g, Point pos){
+    public void editorDraw(Point pos){
     	//do nothing
     }
-    @Override
+    @Override@Deprecated
     public Image getImage() {
         return spriteAnimation.getAnimationFrame();
+    }
+    
+    @Override
+    public BufferedImage getBufferedImage() {
+    	return spriteAnimation.getAnimationFrame();
     }
 
     @Override
@@ -58,7 +62,11 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
     public Animation getAnimation() {
     	return spriteAnimation;
     }
-    
+    /**
+     * USE GETIMAGE INSTEAD
+     * @return
+     */
+    @Deprecated
     public Image getSpriteFrame() {
         return spriteAnimation.getAnimationFrame();
     }

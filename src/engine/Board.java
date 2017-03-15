@@ -4,24 +4,16 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 import java.util.*;
-import javax.swing.Timer;
-import javax.swing.*;
 import javax.swing.event.*;
 
 import editing.EditorPanel;
 import entities.*; //local imports
-import entityComposites.Collidable;
-import entityComposites.CollisionProperty;
-import entityComposites.NonCollidable;
+import entityComposites.Collider;
+import entityComposites.SpriteComposite;
 import physics.*;
 import physics.Vector;
-import sprites.Background;
-import sprites.RenderingLayer;
-import sprites.Sprite;
-import sprites.SpriteAnimated;
-import sprites.SpriteStillframe;
+import sprites.*;
 import testEntities.*;
-import misc.*;
 
 
 
@@ -32,16 +24,21 @@ public class Board extends BoardAbstract {
 	
 	private java.util.Timer updateEntitiesTimer;
 	
-	private CollisionEngine collisionEngine = new CollisionEngine(this); //Refactor to a better name
+	private CollisionEngine collisionEngine = new CollisionEngine(this); //Refactor to a better names
 
+	public RenderingEngine renderingEngine = new RenderingEngine( this );
+	private Camera camera = renderingEngine.getCamera();
+	
+    private OverlayComposite debugBoundaries = renderingEngine.addOverlay( new DebugBoundaryOverlay() );
+    private OverlayComposite debugCollisions;
+	
     public Player player;
     public Tracer laser;
     protected ArrayList<EntityStatic> staticEntitiesList; 
     protected static ArrayList<EntityDynamic> dynamicEntitiesList; 
     protected static ArrayList<EntityPhysics> physicsEntitiesList; 
     
-    //RENDERING
-    public Camera camera;
+    // RENDERING DECLARATION
     private RenderingLayer[] layer = {
     		
     		new RenderingLayer(1,1),
@@ -52,7 +49,7 @@ public class Board extends BoardAbstract {
     		new RenderingLayer(3, 3),
     		new RenderingLayer(5, 5)
     };
-    
+
     protected Point clickPosition;
     protected boolean mouseClick = false;
 
@@ -60,19 +57,8 @@ public class Board extends BoardAbstract {
     protected MouseHandlerClass myMouseHandler;
     public final int ICRAFT_X = 170;
     public final int ICRAFT_Y = 100;
-    public static int B_WIDTH;// = 400;
-    public static int B_HEIGHT;// = 300;
-    private boolean debug1On = false; 
-    private boolean debug2On = false; 
 
     public EntityStatic currentDebugEntity;
-    
-    private final int DELAY = 10;
-    
-    private int[] speedLogDraw = new int[300];
-    private int[] speedLog = new int[300];
-    private static int counter=0;
-    
 
     private final int[][] pos = {
         {2380, 29}, {2500, 59}, {1380, 89},
@@ -87,9 +73,7 @@ public class Board extends BoardAbstract {
     };
 
     public Board(int width , int height ) {
-    	
-    	B_WIDTH = width ;
-    	B_HEIGHT = height ;
+    	super(width,height);
     	
     	initBoard();
     	initializeBoard();
@@ -97,6 +81,8 @@ public class Board extends BoardAbstract {
     //over loaded board constructor to accept SidePanel (editor) if editor is to be enabled
 
     private void initBoard() {
+    	
+    	this.diagnosticsOverlay = renderingEngine.addOverlay( new DiagnosticsOverlay() );
     	
         myMouseHandler = new MouseHandlerClass();
   		addMouseListener(myMouseHandler);
@@ -110,14 +96,25 @@ public class Board extends BoardAbstract {
         dynamicEntitiesList = new ArrayList<>();
         physicsEntitiesList = new ArrayList<>();
 
+        clickPosition = new Point(0,0);
+        
+        /* ####################################
+        
+        	In progress of factorization. For now each collidable and sprite are manually added to the
+        	Collision and Rendering Engines, respectively. 
+        	
+        	Eventually the factory will take care of this upon construction of the composites, and/or the decorators will
+        	take the rendering and collision engines as arguments.
+        
+        #################################### */
+        
+        
         // initialize player
         player = new PlayerCharacter(ICRAFT_X, ICRAFT_Y,this);
-        player.getEntitySprite().setVisible(true);
-
         
-        clickPosition = new Point(0,0);
+        collisionEngine.addDynamicCollidable( (Collider)player.getCollisionType() );
+        renderingEngine.addSpriteComposite( (SpriteComposite) player.getSpriteType() );
 
-        
   
         EntityStatic testEntity;
         
@@ -128,26 +125,27 @@ public class Board extends BoardAbstract {
 		};
 
 		testEntity = EntityFactory.createEntityFromBoundary(300, 500, triangleBounds );
-		testEntity.loadSprite("bullet.png" , 0 , 0 );
+		testEntity.name = "Test Slope";
 		staticEntitiesList.add( testEntity );    
-        
+		renderingEngine.addSpriteComposite( testEntity.getSpriteType() );
         
         
         testEntity = new EntityStatic("Test Ground1",50,500);     
-        Collidable collidable = new Collidable( testEntity );
+        Collider collidable = new Collider( testEntity );
         testEntity.setCollisionProperties( collidable );
         collidable.setBoundary( new Boundary.Box(446,100,-223,-50 , collidable ) );
 
         testEntity.loadSprite("ground_1.png" , -223 , -53 );
-
+        renderingEngine.addSpriteComposite( testEntity.getSpriteType() );
         staticEntitiesList.add( testEntity );
         
         
         testEntity = new EntityStatic("Test Ground",700,500);     
-        collidable = new Collidable( testEntity );
+        collidable = new Collider( testEntity );
         collidable.setBoundary( new Boundary.Box(446,100,-223,-50 , collidable ) );
         testEntity.setCollisionProperties( collidable );
         testEntity.loadSprite("ground_1.png" , -223 , -53 );
+        renderingEngine.addSpriteComposite( testEntity.getSpriteType() );
         staticEntitiesList.add( testEntity );
         
       	physicsEntitiesList.add(new EntityPhysics(120,260,"box.png"));
@@ -155,7 +153,8 @@ public class Board extends BoardAbstract {
         
       	EntityRotationalDynamic rotationTest = new TestRotation(-400,400);
       	dynamicEntitiesList.add( rotationTest );
-      	this.collisionEngine.addDynamicCollidable( ((Collidable)rotationTest.getCollisionType()) );
+      	collisionEngine.addDynamicCollidable( ((Collider)rotationTest.getCollisionType()) );
+      	renderingEngine.addSpriteComposite(rotationTest.getSpriteType());
       	
         //test for LaserTest entity
         laser = new Tracer(143,260, physicsEntitiesList.get(0) , this ); //later will be parent system
@@ -177,28 +176,29 @@ public class Board extends BoardAbstract {
         
         
         //############################################### CAMERA #######################
-    	camera = new Camera(this,player );
+    	//camera = new Camera(this,player,g2 );
+        camera.setTarget( player );
 
         initBullets();
     
-        //ADD COLLIDABLES TO COLLISION ENGINE
+        //ADD COLLIDABLES TO COLLISION ENGINE\
+        //TO BE MOVED TO MASTER ADDING FACTOR THAT SORTS COMPOSITES AND PASSES THEM TO RESPECTIVE ENGINES
         
         for ( EntityStatic stat : staticEntitiesList ){
-        	collisionEngine.addStaticCollidable( (Collidable) stat.getCollisionType() );
+        	collisionEngine.addStaticCollidable( (Collider) stat.getCollisionType() );
         }
-        
-        	collisionEngine.addDynamicCollidable( (Collidable)player.getCollisionType() );
+
         
     } 
     //END INITIALIZE #############################################################################
     
     @Override
     protected void graphicsThreadPaint(Graphics g) {
-    	background.drawBackground( g , camera );
+    	camera.repaint(g);
+    	background.drawBackground( camera );
  		//System.out.println("Graphics running");
         
-        drawObjects(g);
-        
+        drawObjects( (Graphics2D) g );
        
     }
     
@@ -289,77 +289,28 @@ public class Board extends BoardAbstract {
  * 		RENDERING
  * ########################################################################################################################
  */
-    public void drawObjects(Graphics g) {
-    	
-    	//Draw all static entities from list (ex. platforms)
-    	
-    	//Draw ghostSprite for editor using null-object pattern
-    	//
+    public void drawObjects(Graphics2D g2) {
+
+    	//TO BE MOVED TO RENDERING ENGINE
     	for ( int i = 6 ; i > -1 ; i-- ) {	        	
-    		layer[i].drawLayer(g, camera);
+
+    		layer[i].renderLayer(camera);
     	}
     	
-
-	    for (EntityStatic stat : staticEntitiesList) {
-	        	//g.drawImage(stat.getEntitySprite().getImage(), 
-	        	//		stat.getSpriteOffsetX() + stat.getX(), 
-	        	//		stat.getSpriteOffsetY() + stat.getY(), this);	        	
-	        	stat.getEntitySprite().drawSprite(g,camera);
-	        	//TODO: ASDF
-	        	//editorPanel.drawEditorSelectedRectangle(stat, g);
-	    }
-        //Draw all dynamic (moving) entities from list (ex. bullets)
-        for (EntityDynamic dynamic : dynamicEntitiesList) {
-        	
-                //g.drawImage(dynamic.getEntitySprite().getImage(), dynamic.getX(), dynamic.getY(), this);
-        	dynamic.getEntitySprite().drawSprite(g,camera);
-                
-        }
-        
-        //Draw physics entities
-        for (EntityDynamic physics : physicsEntitiesList) {
-        	
-                //g.drawImage(physics.getEntitySprite().getImage(), physics.getX(), physics.getY(), this);
-        	physics.getEntitySprite().drawSprite(g,camera);
-        }
-
-		//Draw player
-        /*if (player.getEntitySprite().isVisible()) {
-            ((Graphics2D) g).drawImage(player.getEntitySprite().getImage(), 
-            		player.getX() - player.getEntitySprite().getOffsetX() , 
-            		player.getY() - player.getEntitySprite().getOffsetY(), this);
-        }*/
-        player.getEntitySprite().drawSprite(g,camera);
+    	// TESTING RENDERING ENGINE
+    	
+    	this.renderingEngine.draw(g2);
+    	
+    	
         
         //####################################################
-        /* Will turn into:
-         * editorPanel.render(g);
-         */
-        drawGhostSprite(g, editorPanel.getGhostSprite(), editorPanel.getEditorMousePos()); //migrate this to EditorPanel, inside of render()
-       // if (editorPanel.mode == EditorPanel.WORLDGEOM_MODE) 
-        editorPanel.render(g);
-        	
-        //####################################################
+
+        editorPanel.render( camera.getGraphics() ); 
         
-        //laser.setxEndPoint(B_WIDTH);
-       // laser.setyEndPoint(physicsEntitiesList.get(0).getY()+10);
-        laser.pewpew(g);
-                
-        if (debug1On){ drawDebugBoundaries(g); }
-        if (debug2On){ drawDebugCollisions(g); }
+        //####################################################
 
     }
-
     
-   
-    public void drawGhostSprite(Graphics g, Sprite ghost, Point mousePos) {
-    	ghost.editorDraw(g, mousePos);
-    }
-    
-    
-    
-
-
     
   //MOUSE INPUT
   	protected class MouseHandlerClass extends MouseInputAdapter  { 		
@@ -415,19 +366,16 @@ public class Board extends BoardAbstract {
             }  
             
             else if (key == KeyEvent.VK_F2) {
-            	if (debug1On){
-            		debug1On = false;
-            	} else {
-            		debug1On = true;
-            	}
+
+            	debugBoundaries.toggle();
+            	
             }  
 
             else if (key == KeyEvent.VK_F3) {
-            	if (debug2On){
-            		debug2On = false;
-            	} else {
-            		debug2On = true;
-            	}
+            	
+            }
+            else if (key == KeyEvent.VK_F4) {
+            	this.diagnosticsOverlay.toggle();
             }
             else if (key == KeyEvent.VK_ESCAPE) {
             	//editorPanel.entityPlacementMode = false;
@@ -450,71 +398,55 @@ public class Board extends BoardAbstract {
  * ########################################################################################################################
  */
     
-    private void drawDebugBoundaries(Graphics g){ // DEBUG GUI
+	private class DebugBoundaryOverlay implements Overlay{
+		
+			public void paintOverlay(Graphics2D g2, Camera cam){ // DEBUG GUI
+		
+		    	g2.setColor(new Color(0, 0, 0, 150));
+		        g2.fillRect(0, 0, B_WIDTH, B_HEIGHT);
+		        
+		        g2.setColor(Color.GRAY);
+			    g2.drawString(player.name,5,15);
+			    g2.drawString("DX: "+player.getDX() + " DY: " + player.getDY(),5,30);
+			    g2.drawString("AccX: " + player.getAccX() + "  AccY: " + player.getAccY(),5,45);
+			    g2.drawString("Rotation: " + (int)player.getAngle() + " degrees " + player.getAngularVel() + " " + player.getAngularAcc(),5,60);
+			    g2.drawString("State: "+ ((PlayerCharacter)player).printState() + "Colliding: " + player.isColliding(),5,75);
+			    g2.drawString( ((PlayerCharacter)player).printBufferState() ,5,90 );
+			        
+			    //Draw player bounding box
+		
+			    g2.setColor(Color.CYAN);
+			    
+			    collisionEngine.debugPrintCollisionList(5, 105, g2);
+			    
+			    
+			    
+			    player.getCollisionType().debugDrawBoundary(camera , g2);
+			    
+			    for (EntityStatic entity : staticEntitiesList){
+			    	
+			    	entity.getCollisionType().debugDrawBoundary(camera , g2);
+			    	camera.drawCrossOnCamera( entity.getPos());
+			    	
+			    }
+			    
+			    for (EntityStatic entity : dynamicEntitiesList){
+			    	
+			    	entity.getCollisionType().debugDrawBoundary(camera , g2);
+			    	camera.drawCrossOnCamera( entity.getPos());
+			    	
+			    }
 
-    	g.setColor(new Color(0, 0, 0, 150));
-        g.fillRect(0, 0, B_WIDTH, B_HEIGHT);
-        
-        g.setColor(Color.GRAY);
-	    g.drawString(player.name,5,15);
-	    g.drawString("DX: "+player.getDX() + " DY: " + player.getDY(),5,30);
-	    g.drawString("AccX: " + player.getAccX() + "  AccY: " + player.getAccY(),5,45);
-	    g.drawString("Rotation: " + (int)player.getAngle() + " degrees " + player.getAngularVel() + " " + player.getAngularAcc(),5,60);
-	    g.drawString("State: "+ ((PlayerCharacter)player).printState() + "Colliding: " + player.isColliding(),5,75);
-	    g.drawString( ((PlayerCharacter)player).printBufferState() ,5,90 );
-	        
-	    //Draw player bounding box
-	    Graphics2D g2 = (Graphics2D) g;
-
-	    g2.setColor(Color.CYAN);
-	    
-	    collisionEngine.debugPrintCollisionList(5, 105, g);
-	    
-	    
-	    
-	    player.getCollisionType().debugDrawBoundary(camera , g2);
-	    
-	    for (EntityStatic entity : staticEntitiesList){
-	    	
-	    	entity.getCollisionType().debugDrawBoundary(camera , g2);
-	    	camera.drawCrossOnCamera( entity.getPos() , g2);
-	    	
-	    }
-	    
-	    for (EntityStatic entity : dynamicEntitiesList){
-	    	
-	    	entity.getCollisionType().debugDrawBoundary(camera , g2);
-	    	camera.drawCrossOnCamera( entity.getPos() , g2);
-	    	
-	    }
-	    
-	    //DIAGNOSTIC GRAPH
-	    for (int i = 0 ; i < 320 ; i += 20){
-	    	g2.drawLine(45, 600-i , 1280, 600-i); //make better overlay class
-	    	g2.drawString( i/20 + " ms" , 10,603-i);
-    	}	
+		    }
     
-	    for (int i = 0 ; i < speedLog.length ; i++){
-	    	
-	    		int speed = speedLogDraw[i]/50; //1ms = 20px
-	    		g2.setColor(Color.MAGENTA);
-	    		g2.drawLine(3*i + 50 , 600 , 3*i + 50 , 600 - speed );
-	    		g2.setColor(Color.CYAN);
-	    		g2.drawLine(3*i + 50 , 600 - speed , 3*i + 50 , 600 - speed-(speedLog[i]/50) );
-	    }
-	    
-
-    }
+	}
     
     private void drawDebugSAT( EntityStatic playerRef , EntityStatic entitySecondary , Graphics2D g2 ){
   	
 	    //EntityStatic stat = entitySecondary;
 	   // EntityStatic stat = editorPanel.getCurrentSelectedEntity();
-    	//TODO Matt this is the new method to use to access selected entities:
-    	ArrayList<EntityStatic> selectedEntities = editorPanel.getSelectedEntities();
     	
-    	@Deprecated
-    	EntityStatic stat = this.staticEntitiesList.get(0);
+    	EntityStatic stat = entitySecondary;
 	    
 	    //EntityStatic stat = staticEntitiesList.get(1);
 	    //EntityStatic playerRef = this.playerRef;
@@ -525,7 +457,7 @@ public class Board extends BoardAbstract {
 	    	Vector force = ((EntityDynamic)playerRef).debugForceArrows()[i];
 	    	Line2D forceArrow = new Line2D.Double( player.getPos() , new Point2D.Double(player.getX() + force.getX()*200 , player.getY() + force.getY()*200 ) );
 	    	
-	    	camera.draw( forceArrow , g2);
+	    	camera.draw( forceArrow );
 	    
 	    	g2.drawString( "Force "+i+" "+force.getX()+" , "+force.getY() ,800,50+i*10);
 	    }
@@ -537,7 +469,7 @@ public class Board extends BoardAbstract {
 	    drawCross( stat.getX() , stat.getY() , g2);
 	    
 	    Boundary statBounds = stat.getCollisionType().getBoundaryLocal() ;
-	    Boundary playerBounds = ((Collidable) playerRef.getCollisionType()).getBoundaryLocal();
+	    Boundary playerBounds = ((Collider) playerRef.getCollisionType()).getBoundaryLocal();
 	    
 	    Point2D playerCenter = new Point2D.Double(playerRef.getX(), playerRef.getY());
 	    Point2D statCenter = new Point2D.Double(stat.getX(), stat.getY());
@@ -548,11 +480,13 @@ public class Board extends BoardAbstract {
 
 	    	Line2D side = statBounds.getSpearatingSidesBetween(playerBounds)[i];
 
-	    	Line2D axis = statBounds.debugGetSeparatingAxis(side, B_WIDTH, B_HEIGHT);
+	    	Line2D axis2 = Boundary.debugGetSeparatingAxis(side, B_WIDTH, B_HEIGHT , new Point(20,20));
+	    	
+	    	Line2D axis = Boundary.getSeparatingAxis( side );
 
 	    	g2.setColor(Color.DARK_GRAY);
 
-	    	g2.draw(axis);
+	    	camera.drawInFrame(axis);
 
 
 
@@ -581,27 +515,27 @@ public class Board extends BoardAbstract {
 	    	Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
 	    	
 	    	g2.setColor(Color.GRAY);
-	    	camera.draw(centerProjection,g2);
+	    	camera.drawInFrame(centerProjection);
 	    	//CLOSEST SIDE TESTING
 	    	g2.setColor(Color.YELLOW);
 	    	//selected entity
 	    	if ( nearStatCorner.length > 1 ){ 
 	    		Side closest = nearStatCorner[0].getSharedSide(nearStatCorner[1]);
-	    		camera.draw(closest.toLine(), g2);
+	    		camera.draw(closest.toLine());
 	    		camera.drawString( closest.toString() , closest.getX1(), closest.getY1(), g2);
 	    	}
 	    	else 
-	    		drawCross(nearStatCorner[0], g2);
+	    		camera.drawCrossInWorld(nearStatCorner[0].toPoint());
 
 	    	//make verticesFromPoint
 	    	//playerRef
 	    	if ( nearPlayerCorner.length > 1 ){
 	    		Side closest = nearPlayerCorner[0].getSharedSide(nearPlayerCorner[1]);
-	    		camera.draw(closest.toLine(), g2);
+	    		camera.draw(closest.toLine());
 	    		camera.drawString( closest.toString() , closest.getX1(), closest.getY1(), g2);
 	    	}
 	    	else 
-	    		drawCross(nearPlayerCorner[0], g2);
+	    		camera.drawCrossInWorld( nearPlayerCorner[0].toPoint() );
 
 	    	// -----------------
 
@@ -614,9 +548,9 @@ public class Board extends BoardAbstract {
 	    			statBounds.getProjectionPoint(nearStatCorner[0].toPoint(),axis) 
 	    			);
 
-	    	g2.draw(playerHalf);
+	    	camera.drawInFrame(playerHalf);
 	    	g2.setColor(Color.GREEN);
-	    	g2.draw(statHalf );
+	    	camera.drawInFrame(statHalf );
 
 	    	int centerDistanceX = (int)(centerProjection.getX1() -  centerProjection.getX2()  );
 	    	int centerDistanceY = (int)(centerProjection.getY1() -  centerProjection.getY2()  );
@@ -699,7 +633,7 @@ public class Board extends BoardAbstract {
     	
 
 	    
-	    drawDebugSAT( player , staticEntitiesList.get(0) , g2);
+	    drawDebugSAT( player , editorPanel.getSelectedEntities().get(0) , g2);
 
     }
     
@@ -707,16 +641,7 @@ public class Board extends BoardAbstract {
     	g.drawLine( x-3, y-3, x+3, y+3 );
 		g.drawLine( x-3, y+3, x+3, y-3 );
     }
-    
-    private void drawCross(Point2D point , Graphics g){
-    	camera.draw( new Line2D.Float( (int)point.getX()-3, (int)point.getY()-3, (int)point.getX()+3, (int)point.getY()+3 ) , g);
-    	camera.draw( new Line2D.Float( (int)point.getX()-3, (int)point.getY()+3, (int)point.getX()+3, (int)point.getY()-3) , g);
-    }
-    
-    private void drawCross(Vertex vertex , Graphics g){
-    	camera.draw( new Line2D.Float( (int)vertex.getX()-3, (int)vertex.getY()-3, (int)vertex.getX()+3, (int)vertex.getY()+3 ) , g);
-		camera.draw( new Line2D.Float( (int)vertex.getX()-3, (int)vertex.getY()+3, (int)vertex.getX()+3, (int)vertex.getY()-3 ) , g);
-    }
+
 
     
 /* ########################################################################################################################
@@ -728,7 +653,8 @@ public class Board extends BoardAbstract {
     
     public void addStaticEntity(EntityStatic entity){
     	this.staticEntitiesList.add( entity );
-    	this.collisionEngine.addStaticCollidable( (Collidable)entity.getCollisionType() );
+    	this.collisionEngine.addStaticCollidable( (Collider)entity.getCollisionType() );
+    	this.renderingEngine.addSpriteComposite(entity.getSpriteType());
     }
     
     @Override

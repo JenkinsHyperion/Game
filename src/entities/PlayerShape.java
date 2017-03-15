@@ -7,8 +7,7 @@ import java.awt.event.KeyEvent;
 //import javax.swing.Timer;
 
 import animation.*;
-import engine.Board;
-import engine.BoardAbstract;
+import engine.*;
 
 public class PlayerShape extends Player {
 	

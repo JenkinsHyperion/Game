@@ -1,7 +1,6 @@
 package physics;
 
 import java.awt.Rectangle;
-import java.awt.geom.Line2D;
 
 import entities.EntityDynamic;
 
@@ -15,9 +14,9 @@ public class CollisionPlayerDynamic extends Collision {
 	
 	private int distance = 0;
 	
-	public CollisionPlayerDynamic(EntityDynamic entity1, EntityDynamic entity2){ 
+	public CollisionPlayerDynamic(EntityDynamic entity1, EntityDynamic entity2 , CollisionEngine ownerEngine){ 
 		
-		super(entity1, entity2);
+		super(entity1, entity2, ownerEngine);
 		
 		entityPrimary = entity1;
 		entitySecondary = entity2;

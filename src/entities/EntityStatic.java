@@ -1,17 +1,11 @@
 package entities;
 
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.io.File;
-import java.util.ArrayList;
-
 import animation.Animation;
 import entityComposites.*;
 import physics.Boundary;
-import physics.CollidingPair;
-import physics.Collision;
 import sprites.SpriteAnimated;
-import sprites.SpriteNull;
 import sprites.SpriteStillframe;
 import sprites.Sprite;
 
@@ -21,15 +15,16 @@ import sprites.Sprite;
 public class EntityStatic extends Entity{
 
 
-	public transient boolean isSelected;
+	public boolean isSelected;
     //protected transient ArrayList<CollidingPair> collisions = new ArrayList<>(); //moving to composit
 	//protected transient Rectangle boundingBox = new Rectangle(0,0); //moving to composite
 	//protected transient Boundary boundary = new BoundingBox(new Rectangle(2,2)); //moving to composite
 
 	//COMPOSITE TESTING
-	protected Sprite entitySprite = SpriteNull.getNullSprite(); //might want to put into super class unless Entity without image is useful
-	protected CollisionProperty collisionType = new Collidable(this);
-   
+	protected SpriteProperty spriteType = SpriteNull.getNullSprite(); //might want to put into super class unless Entity without image is useful
+	//protected CollisionProperty collisionType = new Collidable(this);
+	protected CollisionProperty collisionType = NonCollidable.getNonCollidable();
+	
 	public EntityStatic(int x, int y) {
 
     	super(x,y);
@@ -43,47 +38,63 @@ public class EntityStatic extends Entity{
     	
     }
 
-	public void setSpriteType(Sprite spriteType){ this.entitySprite = spriteType; }
+	public void setSpriteType(SpriteProperty spriteType){ this.spriteType = spriteType; }
+	public SpriteProperty getSpriteType(){ return this.spriteType; }
 	public void setCollisionProperties(CollisionProperty collisionType){ this.collisionType = collisionType; }
-	public Sprite getSpriteType(){ return entitySprite; }
 
 	
+	public Collider getColliderComposite(){
+		
+		return ((Collider)this.collisionType);			
+	}
+	
+	
+	
+	@Deprecated
     public void loadSprite(String path){ // needs handling if failed. Also needs to be moved out of object class into sprites
 
-    	entitySprite = new SpriteStillframe(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path, this);
+		SpriteComposite composite = new SpriteComposite(
+    			new SpriteStillframe(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path, this),
+    			this
+    			);
+		this.setSpriteType(composite);
+    	
     }
-    
+    @Deprecated
     public void loadSprite(String path, int offset_x , int offset_y){ // needs handling if failed. Also needs to be moved out of object class into sprites
     	
-    	entitySprite = new SpriteStillframe(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path, offset_x,offset_y, this);
+    	
+    	SpriteComposite composite = new SpriteComposite(
+    			new SpriteStillframe(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path, offset_x,offset_y, this),
+    			this
+    			);
+    	this.setSpriteType(composite);
     }
-    
-    /*protected void loadAnimatedSprite(String path){ // needs handling if failed. 
-    	graphic = new SpriteAnimatedTest(System.getProperty("user.dir").replace( "\\", "//" ) + "//Assets//" +path + ".png");
-    }*/
 
-    
-    protected void loadAnimatedSprite(SpriteAnimated a){ // needs handling if failed. 
-    	entitySprite = a; 
-    }
     
     //OPTIONAL INIT WITH OFFSET
     protected void loadAnimatedSprite(Animation a, int offsetX, int offsetY){ // needs handling if failed. 
-    	entitySprite = new SpriteAnimated(a,this,offsetX,offsetY); 
+    	((SpriteComposite)this.spriteType).setSprite( new SpriteAnimated(a,this,offsetX,offsetY)); 
     }
-    
+    @Deprecated
     protected void setEntitySpriteOffset(int x , int y){
-    	entitySprite.setOffset(x, y); 
+    	((SpriteComposite)this.spriteType).getSprite().setOffset(x, y); 
     }
-    
-    public Sprite getEntitySprite(){ // gets the Object's sprite, still image or animation
-    	return entitySprite;
+    @Deprecated
+    public Sprite getEntitySprite(){ // gets the Object's sprite, still image or animation MOVE TO SPRITEPROPERTY
+    	return ((SpriteComposite)this.spriteType).getSprite();
     }
+    @Deprecated
+    public void setEntitySprite( Sprite entitySprite ){
+    	 ((SpriteComposite)this.spriteType).setSprite( entitySprite );
+    }
+    @Deprecated
     public int getSpriteOffsetX(){
-    	return entitySprite.getOffsetX(); 
+    	return ((SpriteComposite)this.spriteType).getSprite().getOffsetX(); 
     }
+    @Deprecated
     public int getSpriteOffsetY() {
-    	return entitySprite.getOffsetY();
+    	return ((SpriteComposite)this.spriteType).getSprite().getOffsetY();
     }
     /**
      * 
@@ -125,7 +136,7 @@ public class EntityStatic extends Entity{
 	
 	public Boundary getBoundary(){
 		
-	    return ((Collidable)collisionType).getBoundary();
+	    return ((Collider)collisionType).getBoundary();
 	}
 
 	@Override
@@ -143,7 +154,7 @@ public class EntityStatic extends Entity{
 	
 	public String toString()
 	{
-		return "entity";
+		return name;
 	}
 	
 	/**

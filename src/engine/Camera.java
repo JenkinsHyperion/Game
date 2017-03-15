@@ -8,19 +8,24 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
-
+import java.awt.geom.Point2D;
+import java.awt.image.ImageObserver;
 import editing.worldGeom.*;
-import entities.Entity;
 import entities.EntityDynamic;
 import entities.EntityStatic;
 import misc.*;
+import physics.Boundary;
 import sprites.Sprite;
 
 public class Camera extends EntityDynamic{
 	
 	BoardAbstract currentBoard;
+	Graphics2D graphics;
+	ImageObserver observer;
+	
 	final static int boardHalfWidth = Board.B_WIDTH/2;
 	final static int boardHalfHeight = Board.B_HEIGHT/2;
 	
@@ -32,24 +37,32 @@ public class Camera extends EntityDynamic{
 	
 	private boolean lockState = false;
 	
-	public Camera(BoardAbstract testBoard  ){
+	public Camera(BoardAbstract testBoard , Graphics2D g2 , ImageObserver observer ){
 		super(boardHalfWidth,boardHalfHeight);
 		
+		this.graphics = g2;
+		this.observer = observer;
 		this.currentBoard = testBoard;
 		this.setPos(0, 0);
 		behaviorActive = new InactiveBehavior();
 		behaviorCurrent = behaviorActive;
 	}
 	
-	public Camera(BoardAbstract testBoard , EntityStatic targetEntity){
+	public Camera(BoardAbstract testBoard , EntityStatic targetEntity , Graphics2D g2 ,ImageObserver observer ){
 		super(boardHalfWidth,boardHalfHeight);
 		
+		this.graphics = g2;
+		this.observer = observer;
 		this.currentBoard = testBoard;
 		target = targetEntity;
 		this.x = target.getX();
 		this.y = target.getY();
 		behaviorActive = new LinearFollow(this,target);
 		behaviorCurrent = behaviorActive;
+	}
+	
+	public void repaint(Graphics g){
+		this.graphics = (Graphics2D) g;
 	}
 	
 	public void updatePosition(){
@@ -145,40 +158,58 @@ public class Camera extends EntityDynamic{
 		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
 		//g2.setColor(originalColor);
 	}
+
 	/**
-	 * Draws sprite image relative to camera position
+	 * Draws input sprite, first applying camera relative translation, and then calling on input sprite's \n
+	 * getBufferedImage()
 	 * @param sprite
-	 * @param g
+	 * @param entityTransform
 	 */
-	public void draw(Sprite sprite , Graphics2D g2){
+	public void draw(Sprite sprite , AffineTransform entityTransform){
 		
-		//g2.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		AffineTransform cameraTransform = new AffineTransform();
+		this.graphics.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 		
-		g2.drawImage(sprite.getImage(), 
-				sprite.owner.getX() + sprite.getOffsetX() - (int)this.x + boardHalfWidth , 
-				sprite.owner.getY() + sprite.getOffsetY() - (int)this.y + boardHalfHeight , 
-				//100,
-				//100,
-				null);
+		cameraTransform.translate( this.getRelativeX( sprite.owner.getX()) , this.getRelativeY( sprite.owner.getY()) );
+		cameraTransform.concatenate(entityTransform);
+		
+		this.graphics.drawImage(sprite.getBufferedImage(), 
+				cameraTransform,
+				this.observer);
 	}
-	
-	public void drawModded(Sprite sprite , AffineTransform transform , Graphics2D g2){
+
+	public void draw(Image image , int worldX, int worldY ){
 		
-		g2.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-		
-		transform.translate( - (int)this.x + boardHalfWidth  ,  - (int)this.y + boardHalfHeight  );
-		
-		g2.drawImage(sprite.getImage(), 
-				transform,
-				null);
-	}
-	
-	public void draw(Image image , Graphics g , int worldX, int worldY ){
-		
-		g.drawImage(image, 
+		this.graphics.drawImage(image, 
 				worldX - (int)this.x + boardHalfWidth , 
 				worldY - (int)this.y + boardHalfHeight , 
-				null);
+				this.observer);
+	}
+	
+	public void drawPolygon( Shape polygon, Color color, EntityStatic owner , AffineTransform entityTransform ){ //OPTIMIZE 
+		
+		AffineTransform cameraTransform = new AffineTransform();
+		Graphics2D g2Temp = (Graphics2D) this.graphics.create();
+		
+		this.graphics.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		
+		cameraTransform.translate( this.getRelativeX( owner.getX()) , this.getRelativeY( owner.getY()) );
+		cameraTransform.concatenate(entityTransform);
+		
+		g2Temp.transform(cameraTransform);
+		
+		g2Temp.setColor(color);
+		g2Temp.fill( polygon );
+		g2Temp.dispose();
+	}
+
+	
+	public void draw(Image image , Point world_position ){
+		
+		this.graphics.drawImage(image, 
+				world_position.x - (int)this.x + boardHalfWidth , 
+				world_position.y - (int)this.y + boardHalfHeight , 
+				this.observer);
 	}
 	
 	/**
@@ -186,9 +217,9 @@ public class Camera extends EntityDynamic{
 	 * @param line
 	 * @param g
 	 */
-	public void draw(Line2D line , Graphics g){
+	public void draw(Line2D line){
 		
-		g.drawLine( 
+		this.graphics.drawLine( 
 				(int)line.getX1() - (int)this.x + boardHalfWidth ,  
 				(int)line.getY1() - (int)this.y + boardHalfHeight ,  
 				(int)line.getX2() - (int)this.x + boardHalfWidth ,  
@@ -197,6 +228,13 @@ public class Camera extends EntityDynamic{
 		
 	}
 	
+	public void drawInFrame(Line2D line){
+		
+		this.graphics.draw( line );
+		
+	}
+	
+	
 	public void drawString( String string , int x, int y , Graphics g) {
 		g.drawString(string, 
 				x - (int)this.x + boardHalfWidth, 
@@ -204,20 +242,20 @@ public class Camera extends EntityDynamic{
 		);
 	}
 	
-	public void drawCrossOnCamera( int worldX, int worldY , Graphics g ){
-		drawCross( this.getRelativeX(worldX) , this.getRelativeY(worldY) , g);
+	public void drawCrossOnCamera( int worldX, int worldY){
+		drawCross( this.getRelativeX(worldX) , this.getRelativeY(worldY) , graphics);
 	}
 	
-	public void drawCrossOnCamera( Point point , Graphics g ){
-		drawCross( (int)this.getRelativeX( point.getX() ) , (int)this.getRelativeY( point.getY() ) , g);
+	public void drawCrossOnCamera( Point point ){
+		drawCross( (int)this.getRelativeX( point.getX() ) , (int)this.getRelativeY( point.getY() ) , graphics);
 	}
 	
 	public void drawCrossInWorld( int worldX, int worldY , Graphics g ){
 		drawCross( worldX , worldY , g);
 	}
 	
-	public void drawCrossInWorld( Point point , Graphics g ){
-		drawCross( (int)point.getX() , (int)point.getY() , g);
+	public void drawCrossInWorld( Point point){
+		drawCross( (int)point.getX() , (int)point.getY() , this.graphics);
 	}
 	
 	/**
@@ -270,10 +308,43 @@ public class Camera extends EntityDynamic{
 		return y_relative_to_world -  (int)this.y + boardHalfHeight  ;
 	}
 	
+	public Point getRelativePoint( Point point_in_world ){
+		return new Point( 
+			point_in_world.x -  (int)this.x + boardHalfWidth ,
+			point_in_world.y -  (int)this.y + boardHalfHeight 
+		);
+	}
+	
+	public Point getRelativePoint( Point2D point_in_world ){
+		return new Point( 
+			(int)point_in_world.getX() -  (int)this.x + boardHalfWidth ,
+			(int)point_in_world.getY() -  (int)this.y + boardHalfHeight 
+		);
+	}
+	
 	
     private void drawCross(int x, int y , Graphics g){
     	g.drawLine( x-3, y-3, x+3, y+3 );
 		g.drawLine( x-3, y+3, x+3, y-3 );
     }
+
+	public void setTarget( EntityStatic targetEntity ) {
+
+		this.target = targetEntity;
+		this.x = target.getX();
+		this.y = target.getY();
+		behaviorActive = new LinearFollow(this,target);
+		behaviorCurrent = behaviorActive;
+	}
+	
+	public Graphics getGraphics(){
+		return this.graphics;
+	}
+	
+	@Deprecated
+	public BoardAbstract getOwnerBoard(){
+		return this.currentBoard;
+	}
+
 	
 }

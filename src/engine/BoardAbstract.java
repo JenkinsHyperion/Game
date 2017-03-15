@@ -1,25 +1,26 @@
 package engine;
 
+import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseListener;
-import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.awt.Graphics2D;
+import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.JPanel;
 
 import editing.EditorPanel;
-import editing.PropertiesList;
 import entities.EntityStatic;
 import misc.PaintOverlay;
 
 public abstract class BoardAbstract extends JPanel implements KeyListener {
 
+    public static int B_WIDTH;// = 400;
+    public static int B_HEIGHT;// = 300;
+	
 	Timer updateEntitiesTimer;
 	int counter;
+	
+	protected OverlayComposite diagnosticsOverlay;
 	
 	private ArrayList<EntityStatic> entitiesList; 
 	
@@ -30,8 +31,10 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
     
 	protected EditorPanel editorPanel;
 	
-	public BoardAbstract(){
-
+	public BoardAbstract( int width , int height ){
+		
+		B_WIDTH = width;
+	    B_HEIGHT = height;
 	     // PAINT RENDERING THREAD #############################################
 	     
 	     ActionListener repaintUpdateTaskSwing = new ActionListener() {
@@ -92,7 +95,11 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	public void paintComponent(Graphics g) {  
         super.paintComponent(g);
         
+        //camera.repaint(g);
+        
         graphicsThreadPaint(g);
+        
+        //camera.overlay.drawOverlay();
     }
 	
 	protected abstract void graphicsThreadPaint( Graphics g);
@@ -104,7 +111,6 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	}
 	
 	public Camera getCamera() {
-		System.err.println(" ERROR: Concrete Board does not have a getCamera(). Please override. ");
 		return null;
 	}
 
@@ -115,5 +121,33 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	public void transferEditorPanel(EditorPanel instance){
 		this.editorPanel = instance; 
 	}
+	
+	
+	protected class DiagnosticsOverlay implements Overlay{
+		
+		@Override
+		public void paintOverlay(Graphics2D g2 , Camera cam) {
+
+			g2.setColor(new Color(0, 0, 0, 150));
+	        g2.fillRect(0, 0, B_WIDTH, B_HEIGHT);
+		    //DIAGNOSTIC GRAPH
+		    for (int i = 0 ; i < 320 ; i += 20){
+		    	g2.drawLine(45, 600-i , 1280, 600-i); //make better overlay class
+		    	g2.drawString( i/20 + " ms" , 10,603-i);
+	    	}	
+	    
+		    for (int i = 0 ; i < speedLog.length ; i++){
+		    	
+		    		int speed = speedLogDraw[i]/50; //1ms = 20px
+		    		g2.setColor(Color.MAGENTA);
+		    		g2.drawLine(3*i + 50 , 600 , 3*i + 50 , 600 - speed );
+		    		g2.setColor(Color.CYAN);
+		    		g2.drawLine(3*i + 50 , 600 - speed , 3*i + 50 , 600 - speed-(speedLog[i]/50) );
+		    }
+		    
+		}
+		
+	}
+	
 	
 }

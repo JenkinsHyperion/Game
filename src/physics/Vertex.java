@@ -11,24 +11,30 @@ public class Vertex extends BoundaryFeature{
 	private Point position;
 	private Side endingSide; //Side ending on this vertex (Side whose P2 is this vertex)
 	private Side startingSide; // Side starting from this vertex (Side whose P1 is this vertex)
+
 	
-	private Vertex( Point position , int ID , CollisionEvent collisionEvent ){
-		this.position = position;
-		this.ID = ID;
-		this.setCollisionEvent( collisionEvent );
-	}
-	
-	public Vertex( Point2D position , int ID , CollisionEvent collisionEvent ){
+	protected Vertex( Point2D position , Boundary owner ,int ID , CollisionEvent collisionEvent ){
 		this.position = new Point( (int)position.getX(), (int)position.getY() );
 		this.ID = ID;
+		this.owner = owner;
 		this.setCollisionEvent( collisionEvent );
 	}
 	
-	public Vertex( Point2D position , Side CW_side , Side CCW_side , int ID , CollisionEvent collisionEvent ){
+	protected Vertex( Point2D position , Side CW_side , Side CCW_side , Boundary owner , int ID , CollisionEvent collisionEvent ){
 		this.position = new Point( (int)position.getX(), (int)position.getY() );
 		this.startingSide = CW_side;
 		this.endingSide = CCW_side;
 		this.ID = ID;
+		this.owner = owner;
+		this.setCollisionEvent( collisionEvent );
+	}
+	@Deprecated
+	private Vertex( Point position , Side CW_side , Side CCW_side , Boundary owner , int ID , CollisionEvent collisionEvent ){
+		this.position = new Point( (int)position.getX(), (int)position.getY() );
+		this.startingSide = CW_side;
+		this.endingSide = CCW_side;
+		this.ID = ID;
+		this.owner = owner;
 		this.setCollisionEvent( collisionEvent );
 	}
 	
@@ -73,6 +79,7 @@ public class Vertex extends BoundaryFeature{
 	protected void setX(int x) { this.position.x = x; }
 	protected void setY(int y) { this.position.y = y; }
 	protected void setPos(Point point) { this.position = point; }
+	protected void setPos(Point2D point) { this.position = new Point( (int)point.getX() , (int)point.getY() ); }
 
 	public int getID() { return this.ID; }
 	

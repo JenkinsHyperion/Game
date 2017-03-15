@@ -1,7 +1,6 @@
 package misc.PlayerDirection;
 
-import misc.EntityState;
-import misc.PlayerState;
+import misc.*;
 import sprites.Sprite;
 
 public class PlayerDirection{

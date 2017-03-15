@@ -2,18 +2,11 @@ package editing;
 
 import javax.swing.*;
 
-import Input.InputController;
-import Input.KeyCommand;
-import Input.MouseCommand;
+import Input.*;
 import editing.worldGeom.*;
 import sprites.*;
 import entities.*;
-import entityComposites.Collidable;
-import entityComposites.NonCollidable;
-import physics.Boundary;
 import engine.*;
-import testEntities.*;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -140,7 +133,7 @@ public class EditorPanel extends JPanel {
 		selectedBox = new Rectangle();
 		//entityPlacementMode = false;
 		editorMousePos = new Point();
-		ghostSprite = SpriteNull.getNullSprite();
+		ghostSprite = null; 							//FIXME
         //clickPosition = new Point(0,0);
         
 
@@ -780,7 +773,7 @@ public class EditorPanel extends JPanel {
 	}
 	//sets the ghostSprite to "null" using null-object pattern
 	public void nullifyGhostSprite(){
-		ghostSprite = SpriteNull.getNullSprite();
+		ghostSprite = null; //FIXME
 	}
 	public Sprite getGhostSprite(){
 		return ghostSprite;
@@ -817,7 +810,11 @@ public class EditorPanel extends JPanel {
 	}
 	*/
 	public void render(Graphics g) {
+		
 		this.editorMode.render(g);
+		
+		//this.getGhostSprite().editorDraw(getEditorMousePos());
+		
 	}
 	public void defaultRender(Graphics g) {
 		//will contain a render procedure for modes that certainly don't need their own rendering implementation 

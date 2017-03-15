@@ -4,23 +4,14 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 import java.util.*;
-import javax.swing.Timer;
-import javax.swing.*;
 import javax.swing.event.*;
 
 import editing.EditorPanel;
-import engine.Board.MouseHandlerClass;
 import entities.*; //local imports
-import entityComposites.Collidable;
-import entityComposites.CollisionProperty;
-import entityComposites.NonCollidable;
+import entityComposites.Collider;
 import physics.*;
-import physics.Vector;
 import sprites.Background;
-import sprites.RenderingLayer;
-import sprites.Sprite;
-import sprites.SpriteAnimated;
-import sprites.SpriteStillframe;
+import sprites.RenderingEngine;
 import testEntities.*;
 import misc.*;
 
@@ -36,6 +27,9 @@ public class TestBoard extends BoardAbstract{
 	MouseHandlerClass myMouseHandler;
 	
 	private CollisionEngine collisionEngine = new CollisionEngine(this); //Refactor to a better name
+	private RenderingEngine renderer = new RenderingEngine( this );
+	private Camera camera = renderer.getCamera();
+	
 	private EditorPanel editorPanel;
     public Player player;
     private  PaintOverlay p;
@@ -45,8 +39,6 @@ public class TestBoard extends BoardAbstract{
     protected static ArrayList<EntityPhysics> physicsEntitiesList; 
     
     private Line2D dragLine = new Line2D.Double();
-    
-    public Camera camera;
 
     public static int B_WIDTH;// = 400;
     public static int B_HEIGHT;// = 300;
@@ -61,18 +53,12 @@ public class TestBoard extends BoardAbstract{
     private int[] speedLog = new int[300];
 
     public TestBoard(int width , int height ) {
-    	B_WIDTH = width ;
-    	B_HEIGHT = height ;
+    	super(width,height);
     	
     	initBoard();
     	initializeBoard();
     }
-    //over loaded board constructor to accept SidePanel (editor) if editor is to be enabled
-    public TestBoard(){
-    	
-    	initBoard();
-    	initializeBoard();
-    }
+
 
     private void initBoard() {
     	
@@ -87,13 +73,13 @@ public class TestBoard extends BoardAbstract{
 
         //dynamicEntitiesList.add( new PlantTwigSegment(300,300,this) );
 
-    	camera = new Camera(this);
+    	//camera = new Camera(this);
     	
     	
     	
     	TestHinge testEntity = new TestHinge(300,300, new Point( 100 , 5 ));     
     	
-    	Collidable mesh = new Collidable( testEntity );
+    	Collider mesh = new Collider( testEntity );
     	
         testEntity.setCollisionProperties( mesh );
 
@@ -164,7 +150,7 @@ public class TestBoard extends BoardAbstract{
 	    for (EntityStatic stat : staticEntitiesList) {
 	    	
 	        	//stat.getEntitySprite().drawSprite(g2,camera);
-	    	stat.getEntitySprite().drawSprite(g2, camera);
+	    	stat.getEntitySprite().drawSprite(camera);
 	    	
 	    }
 	    
@@ -173,7 +159,7 @@ public class TestBoard extends BoardAbstract{
 	    for (EntityDynamic dynamic : dynamicEntitiesBuffer) {
 	    	
         	//stat.getEntitySprite().drawSprite(g2,camera);
-	    	dynamic.getEntitySprite().drawSprite(g2, camera);
+	    	dynamic.getEntitySprite().drawSprite(camera);
     	
 	    }
 

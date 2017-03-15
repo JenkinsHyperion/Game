@@ -1,14 +1,16 @@
 package physics;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
-import engine.Board;
-import entities.EntityDynamic;
+import engine.*;
+import engine.Overlay;
 import entities.*;
-import entityComposites.Collidable;
+import entityComposites.Collider;
 import physics.Collision;
 
 public class CollisionPlayerStaticSAT extends Collision {
@@ -16,13 +18,14 @@ public class CollisionPlayerStaticSAT extends Collision {
 	private Force normalForce;
 	private Force friction;
 	
-	private Resolution currentResolution;
+	private Resolver resolver = new ResolverSAT_1();
+	private OverlayComposite overlay;
 	
 	private ResolutionEvent resolutionEvent = new ResolutionEvent();
 	
-	public CollisionPlayerStaticSAT(Collidable collidable1, Collidable collidable2){
+	public CollisionPlayerStaticSAT(Collider collidable1, Collider collidable2 , CollisionEngine ownerEngine){
 		
-		super( (EntityDynamic)collidable1.getOwnerEntity() , collidable2.getOwnerEntity());
+		super( (EntityDynamic)collidable1.getOwnerEntity() , collidable2.getOwnerEntity() , ownerEngine);
 		
 		entityPrimary = (EntityDynamic)collidable1.getOwnerEntity();
 		entitySecondary = collidable2.getOwnerEntity();
@@ -38,6 +41,8 @@ public class CollisionPlayerStaticSAT extends Collision {
 	@Override
 	public void initCollision(){
 		
+		overlay = ((Board)this.ownerEngine.getBoard()).renderingEngine.quickAddOverlay( ((Overlay)resolver) );
+		
 		this.resolutionState = resolutionEvent;
 		
 		this.normalForce = entityPrimary.addForce( new Vector( 0 , 0 ) );
@@ -45,7 +50,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 		
 		//updateCollision(); //Run math for first time OPTIMIZE, Add new code block for first time math
 
-		System.out.println("\n### Collision Start between "+entityPrimary + " and " + entitySecondary + " ===============");
+		System.out.print("\n=============== Collision Start between "+entityPrimary + " and " + entitySecondary + " ===============");
 		
 		// Things like bullets won't need to go any futher than the initial method
 		
@@ -56,7 +61,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 	public void updateCollision(){ 
 		
 		Resolution closestResolution = getClosestResolution();
-		
+
 
 		if ( 
 				(	(int)closestResolution.getDistanceVector().getY()-(int)entityPrimary.getDY() != 0  
@@ -70,7 +75,9 @@ public class CollisionPlayerStaticSAT extends Collision {
 		) { //Primary Entity is clipping by closestResolution.vector() 
 					
 			entityPrimary.setColliding(false);
-			System.out.println( ""+closestResolution.FeaturePrimary().toString() + " colliding with " + closestResolution.FeatureSecondary().toString() );
+			System.out.println( "\n[ "+closestResolution.FeaturePrimary() + " on " + closestResolution.FeaturePrimary().getOwnerEntity() +
+					" ] colliding with [ " + closestResolution.FeatureSecondary() + " on " + closestResolution.FeatureSecondary().getOwnerEntity() 
+					+" ]");
 			
 			Vector resolution = closestResolution.getClippingVector();
 			Vector rawDistance = closestResolution.getDistanceVector();
@@ -78,7 +85,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 			depthX = resolution.getX();
 			depthY = resolution.getY();
 			
-			System.out.println("Clipping resolution chosen "+ depthX +" , "+ depthY );
+			System.out.print("Snapping entity by "+ depthX +" , "+ depthY + " ... ");
 
 			
 			//Resolution will not resolve
@@ -87,44 +94,30 @@ public class CollisionPlayerStaticSAT extends Collision {
 			//Resolution will resolve
 			
 			
-			System.out.println("Snapping entity by "+(int)depthX + " , " + (int)depthY );
 			entityPrimary.setX( entityPrimary.getDeltaX() + (int)depthX  );
 			entityPrimary.setY( entityPrimary.getDeltaY()  + (int)depthY );
-	
 			
-			/*if ( closestResolution.FeaturePrimary().debugIsVertex() ){
-				collidingPrimary.applyPointMomentum( 
-						new Vector(entityPrimary.getDX(),entityPrimary.getDY()), 
-						closestResolution.FeaturePrimary().getP1() 
-					);	
-			}*/
-			
-			//TESTING ANGLE SNAPPING
-			
+			// NO NEED TO CHECK VERTEX ANYMORE
 			if ( closestResolution.FeaturePrimary().debugIsVertex() && !closestResolution.FeatureSecondary().debugIsVertex()){
-				
-				double angle =  ((Side)closestResolution.FeatureSecondary()).getSlopeVector().calculateAngleFromVector();
-				
-				System.out.println("Snapping angle to "+(float)(angle*180/Math.PI ));
-				((EntityRotationalDynamic)entityPrimary).setAngleInRadians( (float)angle );
-				
+
 				closestResolution.FeaturePrimary().getEvent().run(closestResolution.FeaturePrimary(), closestResolution.FeatureSecondary() );
 			}
 			
 			//###
 			
 			if ( depthX != 0){ 
-				System.out.println(" Clamping DX");
+				System.out.print("Clamping DX ... ");
 				entityPrimary.setDX(0);
 				//entityPrimary.clipDX((int)depthX);
 				//entityPrimary.clipAccX((int)depthX);
 			}
 			if ( depthY != 0){ 
-				System.out.println(" Clamping DY");
+				System.out.print("Clamping DY ... ");
 				entityPrimary.setDY(0);
 				//entityPrimary.clipDY((int)depthY);
 				//entityPrimary.clipAccY((int)depthX);
 			}
+			
 			
 		}
 		
@@ -135,13 +128,15 @@ public class CollisionPlayerStaticSAT extends Collision {
 			if ( closestResolution.FeatureSecondary().debugIsSide() ){
 				Vector surface = ((Side)closestResolution.FeatureSecondary()).getSlopeVector();
 				Vector playerDP = new Vector( entityPrimary.getDX(), entityPrimary.getDY() );
-						
-							//friction.setVector(   surface.unitVector().multiply( playerDP.unitVector().multiply(0.1) )   );	
-						friction.setVector(   playerDP.projectedOver( surface.unitVector() ).multiply(0.05).inverse()   );	
+
+				//friction.setVector(   playerDP.projectedOver( surface.unitVector() ).multiply(0.1).inverse()   );
+				double frictionCoefficient = normalForce.force.getLength() * 0.5 ;
+				
+				friction.setVector( playerDP.inverse().signVector().multiply( surface.unitVector().abs().multiply( frictionCoefficient ) ).projectedOver(surface) );
 
 			}
 			else{
-				//System.out.println("dropped side");
+				System.out.println("$#$#%#$ DROPPED SIDE");
 			}
 			
 			
@@ -170,9 +165,9 @@ public class CollisionPlayerStaticSAT extends Collision {
 				normalForce.setVector( test );
 			}
 			else
-				normalForce.setVector( 0 , -0.2 );
+				//normalForce.setVector( 0 , -0.2 );
 			
-			System.out.println("\n### Collision Resolved, event on "+ entityPrimary +" triggered: "+resolution.FeaturePrimary().getEvent() +" =================\n"  );
+			System.out.println("[ Collision Resolved, event '"+resolution.FeaturePrimary().getEvent()+ "' on "+ entityPrimary +" triggered ] "  );
 			
 			resolution.FeaturePrimary().getEvent().run( resolution.FeaturePrimary() , resolution.FeatureSecondary() );
 			
@@ -184,7 +179,6 @@ public class CollisionPlayerStaticSAT extends Collision {
 	protected void triggerResolutionEvent( Resolution resolution ) { 
 					
 		this.resolutionState.triggerEvent( resolution );
-		this.currentResolution = resolution ;
 		this.resolutionState = ResolvedState.resolved();
 			
 	}
@@ -210,6 +204,8 @@ public class CollisionPlayerStaticSAT extends Collision {
 		collidingPrimary.removeCollision( entityPairIndex[0] );
 		collidingSecondary.removeCollision(entityPairIndex[1] );
 		
+		overlay.remove();
+		
 		isComplete = true;
 	}
 	
@@ -234,44 +230,16 @@ public class CollisionPlayerStaticSAT extends Collision {
 	}
 	
 	//Resolution calculation
-	private Resolution getClosestResolution() {
+	private Resolution getClosestResolution() { //FIXME RETURNING NULL
 		//System.out.println("Checking best resolution"); 
 		ArrayList<Resolution> penetrations = new ArrayList<>();
     	
-    	// Get penetration vectors along all separating axes for primary entity and add to list
-    	/*for (int i = 0 ; i < collidingPrimary.getBoundaryLocal().getSeparatingSides().length ; i++ ){
-    		
-    		if (getSeparationDistance(collidingPrimary.getBoundaryLocal().getSeparatingSides()[i]) != null){
-    			
-    			penetrations.add( getSeparationDistance(collidingPrimary.getBoundaryLocal().getSeparatingSides()[i]) );
-    			
-    		}
-    	}
-    	
-    	// Get penetration vectors along all separating axes for other collision and add to list
-    	//research if boundarylocal is needed
-    	for ( EntityStatic entitySecondary : collidingPrimary.getCollidingPartners()){
-    		
-	    	for (int i = 0 ; i < ((Collidable) entitySecondary.getCollisionType()).getBoundaryLocal().getSeparatingSides().length ; i++ ){
-	    		
-	    		if (getSeparationDistance(((Collidable) entitySecondary.getCollisionType()).getBoundaryLocal().getSeparatingSides()[i]) != null){
-	    			
-	    			penetrations.add( getSeparationDistance(((Collidable) entitySecondary.getCollisionType()).getBoundaryLocal().getSeparatingSides()[i]) );
-	    			
-	    		}
-	    		else
-	    			System.out.println( "Axis Dropped" );
-
-	    	}
-	    	
-		}*/
     	 
 		Line2D[] separatingSides = collidingSecondary.getBoundaryLocal().getSpearatingSidesBetween(collidingPrimary.getBoundaryDelta());
 		
 		for ( Line2D side : separatingSides ){
-
-		    	penetrations.add( getSeparationDistance(side) );
-		    	
+			
+		    	penetrations.add( this.resolver.resolveAxis(side) );
 		}
     	
     	
@@ -372,161 +340,212 @@ public class CollisionPlayerStaticSAT extends Collision {
 		return true;
 	}
 
-	/**
-	 * 
-	 * @param separatingSide
-	 * @return Depth of intersection along given axis of separation.
-	 * 
-	 */
-	private Resolution getSeparationDistance( Line2D separatingSide ){
-		
-	    EntityStatic stat = entitySecondary;
-	    
-	    Boundary statBounds = collidingSecondary.getBoundaryLocal() ;
-	    Boundary playerBounds = collidingPrimary.getBoundaryDelta() ;
-	    
-	    double deltaX = entityPrimary.getDeltaX() ;
-	    double deltaY = entityPrimary.getDeltaY() ;
-	    
-	    Point2D playerCenterDelta = new Point2D.Double(deltaX, deltaY);
-	    Point2D playerCenter = new Point2D.Double(entityPrimary.getX(), entityPrimary.getY());
-	    Point2D statCenter = new Point2D.Double(stat.getX(), stat.getY());
-		
-		
-		Line2D axis = statBounds.getSeparatingAxis(separatingSide); //OPTIMIZE TO SLOPE ONLY CALCULATIONS
-   
-	    
-		Vertex[] statOuterVertices= statBounds.getFarthestVertices(playerBounds,axis);
-    	Vertex[] playerOuterVertices= playerBounds.getFarthestVertices(statBounds,axis);
-	    																					// [0] needs to be for loop
-	    Vertex[] statInnerVertices = statBounds.farthestVerticesFromPoint( statOuterVertices[0] , axis ); 
-	    Vertex[] playerInnerVertices = playerBounds.farthestVerticesFromPoint( playerOuterVertices[0] , axis );
-
-	    
-	    
-	    Vertex[] statOuter= statBounds.getFarthestVertices(playerBounds,axis);
-    	Vertex[] playerOuter= playerBounds.getFarthestVertices(statBounds,axis);
-
-    	Vertex[] nearStatCorner = statBounds.farthestVerticesFromPoint( statOuter[0] , axis ); //merge below
-    	Vertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( playerOuter[0] , axis );
-    	
-    	Vertex farStatCorner = statBounds.farthestVerticesFromPoint(nearStatCorner[0] , axis)[0];
-    	Vertex farPlayerCorner = playerBounds.farthestVerticesFromPoint(nearPlayerCorner[0] , axis)[0];
-    	
-    	Point2D centerStat = statOuter[0].getCenter(nearStatCorner[0]);
-    	Point2D centerPlayer = playerOuter[0].getCenter(nearPlayerCorner[0]);
-
-    	Line2D centerDistance = new Line2D.Double( centerPlayer , centerStat );
-    	Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
-	    
-	    //CLOSEST FEATURE
-	    
-	    
-	    
-	    //
-	    
-    	Line2D playerHalf = new Line2D.Float( 
-    			playerBounds.getProjectionPoint(centerPlayer,axis) ,
-    			playerBounds.getProjectionPoint(nearPlayerCorner[0].toPoint(),axis)
-    			);
-    	Line2D statHalf = new Line2D.Float( 
-    			statBounds.getProjectionPoint(centerStat,axis) ,
-    			statBounds.getProjectionPoint(nearStatCorner[0].toPoint(),axis) 
-    			);
-		
-		
-		double centerDistanceX = centerProjection.getX1() -  centerProjection.getX2()  ;
-		double centerDistanceY = centerProjection.getY1() -  centerProjection.getY2()  ;
-		
-		double playerProjectionX = (playerHalf.getX1() -  playerHalf.getX2());
-		double playerProjectionY = (playerHalf.getY1() -  playerHalf.getY2());
-		
-		double statProjectionX = (statHalf.getX2() -  statHalf.getX1());
-		double statProjectionY = (statHalf.getY2() -  statHalf.getY1());
-		
-		double penetrationX = 0;
-		double penetrationY = 0;
-		
-		// Get penetration vector
-
-		double unshiftedX;
-		double unshiftedY;
-		
-		if (centerDistanceX>0){
-			unshiftedX = playerProjectionX + statProjectionX - centerDistanceX+2 ;
-			penetrationX = unshiftedX-1;
-		}
-    	else if (centerDistanceX<0){
-    		unshiftedX = playerProjectionX + statProjectionX - centerDistanceX-2;
-    		penetrationX = unshiftedX+1;
-    	}
-    	else {
-    		unshiftedX = Math.abs(playerProjectionX) + Math.abs(statProjectionX);
-    		penetrationX = unshiftedX;
-    	}
-
-		
-    	if (centerDistanceY>0){
-    		unshiftedY = playerProjectionY + statProjectionY - centerDistanceY+2;	
-    		penetrationY = unshiftedY-1;
-    	}
-    	else if (centerDistanceY<0){
-    		unshiftedY = playerProjectionY + statProjectionY - centerDistanceY-2;
-    		penetrationY = unshiftedY+1;
-    	}
-    	else {
-    		unshiftedY = Math.abs(playerProjectionY) + Math.abs(statProjectionY);
-    		penetrationY = unshiftedY;
-    	}
-    	
-    		
-
-    	
-		double rawDistanceX = penetrationX;
-		double rawDistanceY = penetrationY; //Store raw distances before clamping
-		
-		if ( penetrationX * centerDistanceX < 0 ) //
-				penetrationX = 0;
 	
-		if ( penetrationY * centerDistanceY < 0 ) // 
-				penetrationY = 0;
-		
-		int square = 0;
-		
-		if ( unshiftedX * centerDistanceX < square ) //
-			unshiftedX = square;
-
-		if ( unshiftedY * centerDistanceY < square ) // 
-			unshiftedY = square;
-		
-		
-		if ( unshiftedX==square && unshiftedY==square ){
-			this.isComplete = true;
-			System.out.println("Collision Dropped on " + (axis.getY2()-axis.getY1())/(axis.getX2()-axis.getX1()) );
-		}
+	private abstract class Resolver{
+		abstract Resolution resolveAxis( Line2D separatingSide );
+	}
 	
+	private class ResolverSAT_1 extends Resolver implements Overlay{
 		
+		public Resolution resolveAxis( Line2D separatingSide ){
 		
-		
-		BoundaryFeature featurePrimary = playerInnerVertices[0];
-		BoundaryFeature featureSecondary = statInnerVertices[0];
-		
-		if ( playerInnerVertices.length > 1 ){ 
-			featurePrimary = playerInnerVertices[0].getSharedSide(playerInnerVertices[1]);
-	    }
-		
-		if ( statInnerVertices.length > 1 ){ 
-			featureSecondary = statInnerVertices[0].getSharedSide(statInnerVertices[1]);
-	    }
-		
-			//System.out.println(""+featurePrimary.toString()+" : "+featureSecondary.toString() );
-			return new Resolution( 
-					featurePrimary, //construct sides
-					featureSecondary,
-					new Vector( penetrationX , penetrationY ),
-					new Vector( rawDistanceX , rawDistanceY )
-			);
+		    EntityStatic stat = entitySecondary;
+		    
+		    Boundary statBounds = collidingSecondary.getBoundaryLocal() ;
+		    Boundary playerBounds = collidingPrimary.getBoundaryDelta() ;
+		    
+		    double deltaX = entityPrimary.getDeltaX() ;
+		    double deltaY = entityPrimary.getDeltaY() ;
+		    
+		    Point2D playerCenterDelta = new Point2D.Double(deltaX, deltaY);
+		    Point2D statCenter = new Point2D.Double(stat.getX(), stat.getY());
 			
+			
+			Line2D axis = Boundary.getSeparatingAxis(separatingSide); //OPTIMIZE TO SLOPE ONLY CALCULATIONS
+			
+			
+			//DRAW AXIS
+			
+			Vertex[] statOuterVertices= statBounds.getFarthestVertices(playerBounds,axis);
+	    	Vertex[] playerOuterVertices= playerBounds.getFarthestVertices(statBounds,axis);
+		    																					// [0] needs to be for loop
+		    Vertex[] statInnerVertices = statBounds.farthestVerticesFromPoint( statOuterVertices[0] , axis ); 
+		    Vertex[] playerInnerVertices = playerBounds.farthestVerticesFromPoint( playerOuterVertices[0] , axis );
+	
+		    
+		    
+		    Vertex[] statOuter= statBounds.getFarthestVertices(playerBounds,axis);
+	    	Vertex[] playerOuter= playerBounds.getFarthestVertices(statBounds,axis);
+	
+	    	Vertex[] nearStatCorner = statBounds.farthestVerticesFromPoint( statOuter[0] , axis ); //merge below
+	    	Vertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( playerOuter[0] , axis );
+	    	
+	    	Vertex farStatCorner = statBounds.farthestVerticesFromPoint(nearStatCorner[0] , axis)[0];
+	    	Vertex farPlayerCorner = playerBounds.farthestVerticesFromPoint(nearPlayerCorner[0] , axis)[0];
+	    	
+	    	Point2D centerStat = statOuter[0].getCenter(nearStatCorner[0]);
+	    	Point2D centerPlayer = playerOuter[0].getCenter(nearPlayerCorner[0]);
+	
+	    	Line2D centerDistance = new Line2D.Double( centerPlayer , centerStat );
+	    	Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
+		    
+		    //CLOSEST FEATURE
+		    
+		    
+		    
+		    //
+		    
+	    	Line2D playerHalf = new Line2D.Float( 
+	    			playerBounds.getProjectionPoint(centerPlayer,axis) ,
+	    			playerBounds.getProjectionPoint(nearPlayerCorner[0].toPoint(),axis)
+	    			);
+	    	Line2D statHalf = new Line2D.Float( 
+	    			statBounds.getProjectionPoint(centerStat,axis) ,
+	    			statBounds.getProjectionPoint(nearStatCorner[0].toPoint(),axis) 
+	    			);
+			
+	    	//DebugCamera.getOverlay().setColor(Color.DARK_GRAY); 
+	    	//DebugCamera.getOverlay().drawLine(playerHalf);
+			
+			double centerDistanceX = centerProjection.getX1() -  centerProjection.getX2()  ;
+			double centerDistanceY = centerProjection.getY1() -  centerProjection.getY2()  ;
+			
+			double playerProjectionX = (playerHalf.getX1() -  playerHalf.getX2());
+			double playerProjectionY = (playerHalf.getY1() -  playerHalf.getY2());
+			
+			double statProjectionX = (statHalf.getX2() -  statHalf.getX1());
+			double statProjectionY = (statHalf.getY2() -  statHalf.getY1());
+			
+			double penetrationX = 0;
+			double penetrationY = 0;
+			
+			// Get penetration vector
+	
+			double unshiftedX;
+			double unshiftedY;
+			
+			double rawDistanceX;
+			double rawDistanceY;
+	
+			
+			if (centerDistanceX>1){
+				unshiftedX = playerProjectionX + statProjectionX - centerDistanceX +2;
+				penetrationX = unshiftedX-1;
+				rawDistanceX = penetrationX;
+				
+				if (penetrationX < 0)
+	    			penetrationX=0;
+				if (unshiftedX < 0)
+	    			unshiftedX=0;
+			}
+	    	else if (centerDistanceX<-1){
+	    		unshiftedX = playerProjectionX + statProjectionX - centerDistanceX -2;
+	    		penetrationX = unshiftedX+1;
+				rawDistanceX = -penetrationX;
+				
+				unshiftedX = -unshiftedX;
+				
+				if (penetrationX > 0)
+	    			penetrationX=0;
+				if (unshiftedX < 0)
+	    			unshiftedX=0;
+				
+	    	}
+	    	else {
+	    		unshiftedX = Math.abs(playerProjectionX) + Math.abs(statProjectionX);
+	    		penetrationX = unshiftedX;
+	    		rawDistanceX = unshiftedX;
+	    	}
+	
+			// ------------- Y
+			
+	    	if (centerDistanceY>1){
+	    		unshiftedY = playerProjectionY + statProjectionY - centerDistanceY+2;	
+	    		penetrationY = unshiftedY-1;
+	    		rawDistanceY = unshiftedY;
+	    		
+	    		if (penetrationY < 0)
+	    			penetrationY=0;
+	    		if (unshiftedY < 0)
+	    			unshiftedY=0;
+	    	}
+	    	else if (centerDistanceY<-1){ // player on top of platform
+	    		unshiftedY = playerProjectionY + statProjectionY - centerDistanceY-2;
+	    		penetrationY = unshiftedY+1;
+	    		rawDistanceY = -unshiftedY;
+	    		
+	    		unshiftedY = -unshiftedY;
+	    		
+	    		if (penetrationY > 0)
+	    			penetrationY=0;
+	    		if (unshiftedY < 0)
+	    			unshiftedY=0;
+	    	}
+	    	else {
+	    		unshiftedY = Math.abs(playerProjectionY) + Math.abs(statProjectionY);
+	    		penetrationY = unshiftedY;
+	    		rawDistanceY = unshiftedY;
+	    	}
+			
+			
+			int square = 0;
+			
+			if ( unshiftedX==square && unshiftedY==square ){
+				isComplete = true;
+				System.out.println("Collision Dropped on " + (axis.getY2()-axis.getY1())/(axis.getX2()-axis.getX1()) +
+						" "+rawDistanceX+ " - " +rawDistanceY );
+			}
+		
+			//g2.draw( unshiftedX + " , " + unshiftedY , (int)separatingSide.getX1(), (int)separatingSide.getY1());
+			
+			
+			BoundaryFeature featurePrimary = nearPlayerCorner[0];
+			BoundaryFeature featureSecondary = nearStatCorner[0];
+			
+			/*if ( playerInnerVertices.length > 1 ){ 
+				featurePrimary = playerInnerVertices[0].getSharedSide(playerInnerVertices[1]);
+		    }
+			
+			if ( statInnerVertices.length > 1 ){ 
+				featureSecondary = statInnerVertices[0].getSharedSide(statInnerVertices[1]);
+		    }*/
+			
+			if ( nearStatCorner.length > 1 ){ 
+				featureSecondary = nearStatCorner[0].getSharedSide(nearStatCorner[1]);
+	    	}
+			
+			if ( nearPlayerCorner.length > 1 ){ 
+				featurePrimary = nearPlayerCorner[0].getSharedSide(nearPlayerCorner[1]);
+	    	}
+	    		
+	    		
+				//System.out.println(""+featurePrimary.toString()+" : "+featureSecondary.toString() );
+				return new Resolution( 
+						featurePrimary, //construct sides
+						featureSecondary,
+						new Vector( penetrationX , penetrationY ),
+						new Vector( rawDistanceX , rawDistanceY )
+				);
+				
+		}
+
+		@Override
+		public void paintOverlay(Graphics2D g2 , Camera cam) {
+			
+			for ( int i = 0 ; i < entityPrimary.debugForceArrows().length ; i++ ){
+				
+				Vector force = entityPrimary.debugForceArrows()[i];
+				Line2D forceArrow = new Line2D.Double( entityPrimary.getPos() , 
+					new Point2D.Double(entityPrimary.getX() + force.getX()*200 , entityPrimary.getY() + force.getY()*200 ) );
+	    	
+				cam.draw( forceArrow );
+				
+				
+				
+			}
+			
+			
+		}
 	}
 	
 

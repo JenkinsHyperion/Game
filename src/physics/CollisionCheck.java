@@ -1,14 +1,10 @@
 package physics;
 
-import java.awt.Color;
-import java.awt.Point;
+
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 
-import entities.EntityDynamic;
-import entities.EntityStatic;
-import entityComposites.Collidable;
-import physics.Collision.Resolution;
+import entityComposites.*;
 
 public class CollisionCheck {
 	
@@ -24,7 +20,7 @@ public class CollisionCheck {
 	}
 	
 	
-	public boolean check( Collidable collidablePrimary , Collidable collidableSecondary ) {
+	public boolean check( Collider collidablePrimary , Collider collidableSecondary ) {
 	        
 		
 		Boundary statBounds = collidableSecondary.getBoundaryLocal() ;

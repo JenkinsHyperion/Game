@@ -1,11 +1,13 @@
 package entities;
 
+import java.awt.Color;
 import java.awt.geom.Line2D;
 
-import entityComposites.Collidable;
+import entityComposites.Collider;
 import entityComposites.NonCollidable;
-import physics.Boundary;
-import sprites.SpriteNull;
+import entityComposites.SpriteComposite;
+import entityComposites.SpriteNull;
+import sprites.SpriteFilledShape;
 
 public class EntityFactory {
 	
@@ -35,8 +37,14 @@ public class EntityFactory {
 	public static EntityStatic createEntityFromBoundary(int x, int y, Line2D[] lines) {
 		EntityStatic testEntity = new EntityStatic(x,y);
 		
-		testEntity.setCollisionProperties( new Collidable( testEntity , lines ) );
-		testEntity.setSpriteType( SpriteNull.getNullSprite() );
+		Collider collider = new Collider( testEntity , lines );
+		testEntity.setCollisionProperties( collider );
+		
+		SpriteComposite spriteComposite = new SpriteComposite( 
+				new SpriteFilledShape( collider.getBoundary() , Color.WHITE , testEntity),
+				testEntity
+		);
+		testEntity.setSpriteType( spriteComposite );
 		
 		return testEntity;
 	}
@@ -70,9 +78,14 @@ public class EntityFactory {
 		/*for ( int i = 0 ; i < lines.length ; i++ ){
 			finalLines[i].setLine( lines[i].getX1() , lines[i].getY1()  , lines[i].getX2() , lines[i].getY2() );
 		}*/
-		
-		testEntity.setCollisionProperties( new Collidable( testEntity , finalLines ) );
-		testEntity.loadSprite("missing.png" , 0 , 0 );
+		Collider collidable = new Collider( testEntity , finalLines );
+		testEntity.setCollisionProperties( collidable );	
+		//testEntity.loadSprite("missing.png" , 0 , 0 );
+		SpriteComposite spriteComposite = new SpriteComposite( 
+				new SpriteFilledShape( collidable.getBoundary() , Color.WHITE , testEntity),
+				testEntity
+		);
+		testEntity.setSpriteType( spriteComposite );
 		
 		testEntity.setPos( centerX, centerY);
 		

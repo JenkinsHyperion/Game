@@ -1,15 +1,11 @@
 package testEntities;
 
-import java.awt.Event;
-import java.awt.Point;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import engine.BoardAbstract;
 import engine.TestBoard;
 import entities.*;
 import entityComposites.NonCollidable;
+import entityComposites.SpriteComposite;
 import sprites.SpriteStillframe;
 //import sun.management.counter.Counter;
 import utility.Trigger;
@@ -43,7 +39,7 @@ public class PlantTwigSegment extends EntityDynamic {
 		this.setCollisionProperties( NonCollidable.getNonCollidable() );
         this.loadSprite("Prototypes/twig.png" , -4 , -40 );
         
-        ((SpriteStillframe)this.getSpriteType()).setResizeFactor(0); //start initial segment at size 0
+        ((SpriteStillframe) ((SpriteComposite)this.spriteType).getSprite()).setResizeFactor(0); //start initial segment at size 0
 	}
 	
 	public int getNumberFromBranch(){ return this.numberFromLastBranch; }
@@ -54,7 +50,7 @@ public class PlantTwigSegment extends EntityDynamic {
 	
 	public void setAngle( int angle ){
 		
-		((SpriteStillframe)this.getSpriteType()).setAngle(angle);
+		((SpriteComposite)this.spriteType).getSprite().setAngle(angle);
 		this.angle = angle;
 	}
 	

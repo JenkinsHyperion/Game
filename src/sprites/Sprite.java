@@ -1,9 +1,9 @@
 package sprites;
 
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.io.Serializable;
 
 import animation.Animation;
@@ -13,14 +13,14 @@ import entities.EntityStatic;
 /*
  * This is the base Sprite class. 
  */
-public abstract class Sprite implements Serializable {
+public abstract class Sprite{
 	
 	public EntityStatic owner;
     protected boolean visibility;
     protected int spriteOffsetX = 0;
     protected int spriteOffsetY = 0;
     protected int spriteSizePercent = 100;
-    protected int spriteAngle = 0;
+    protected double spriteAngle = 0;
     protected String fileName;
     
 	AffineTransform spriteTransform = new AffineTransform();
@@ -28,11 +28,12 @@ public abstract class Sprite implements Serializable {
 //ABSTRACT FUNCTIONS 
 	//This is a getImage() that works for both still and animated sprites, so draw functions in Board 
     //can call a generalized format.
-    public abstract void drawSprite(Graphics g , Camera camera);
-    public abstract void drawSprite(Graphics g );
-    public abstract void editorDraw(Graphics g, Point pos);
+    public abstract void drawSprite(Camera camera);
+    public abstract void drawSprite();
+    public abstract void editorDraw(Point pos);
     
 	public abstract Image getImage(); 
+	public abstract BufferedImage getBufferedImage();
 	
 	public abstract Animation getAnimation(); 
 	
@@ -68,5 +69,9 @@ public abstract class Sprite implements Serializable {
     	spriteOffsetX = x;
     	spriteOffsetY = y;
     }
+    
+    public void setAngle( double angle){
+		this.spriteAngle = angle;
+	}
     
 }

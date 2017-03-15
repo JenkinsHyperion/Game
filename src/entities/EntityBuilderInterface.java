@@ -1,6 +1,5 @@
 package entities;
 
-import physics.Boundary;
 
 public interface EntityBuilderInterface {
 

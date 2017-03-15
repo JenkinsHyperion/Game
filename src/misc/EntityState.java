@@ -1,8 +1,5 @@
 package misc;
 
-import sprites.Sprite;
-import sprites.SpriteAnimated;
-
 public class EntityState {
 
 	private String stateName;

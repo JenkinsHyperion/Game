@@ -50,7 +50,7 @@ public class LoadAnimation {
 	 */
 	public static BufferedImage[] buildAnimation(int length, int row, int tileSize, String file) {
 
-		if (length < 1){System.out.println("WARNING");}
+		if (length < 1){System.out.println("WARNING BUILD ANIMATION IN LOAD ANIMATION CLASS");}
 		
 		BufferedImage[] b = new BufferedImage[length];
 

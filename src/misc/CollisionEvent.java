@@ -1,9 +1,6 @@
 package misc;
 
-import entities.EntityStatic;
-import entityComposites.Collidable;
 import physics.BoundaryFeature;
-import physics.Collision;
 
 public abstract class CollisionEvent {
 	

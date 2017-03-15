@@ -1,8 +1,5 @@
 package physics;
 
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
@@ -10,9 +7,10 @@ import java.util.ArrayList;
 
 import entities.*;
 import entityComposites.*;
-import physics.Collision.Resolution;
 
-public class Collision implements Serializable{
+public class Collision {
+	
+	protected CollisionEngine ownerEngine; //REMOVE LATER
 	
 	protected boolean isComplete = false;
 	
@@ -21,8 +19,8 @@ public class Collision implements Serializable{
 	protected EntityDynamic entityPrimary;
 	protected EntityStatic entitySecondary;
 	
-	protected Collidable collidingPrimary ;
-	protected Collidable collidingSecondary; 
+	protected Collider collidingPrimary ;
+	protected Collider collidingSecondary; 
 	
 	public String collisionDebugTag = "-";
 	
@@ -39,19 +37,21 @@ public class Collision implements Serializable{
 	protected Point2D[] contactPoints = new Point2D[2];
 	protected ArrayList<Point2D> debugIntersectionPoints = new ArrayList<>();
 	
-	public Collision(EntityDynamic e1, EntityStatic e2){
+	public Collision(EntityDynamic e1, EntityStatic e2, CollisionEngine ownerEngine){
+		
+		this.ownerEngine = ownerEngine;
 		
 		entityPrimary = e1;
 		entitySecondary = e2;
 		
-		collidingPrimary = (Collidable) e1.getCollisionType(); //TRACE ALL CASTS BACK TO PASSING COLLIDABLE IN CONSTRUCTOR
-		collidingSecondary = (Collidable) e2.getCollisionType();
+		collidingPrimary = (Collider) e1.getCollisionType(); //TRACE ALL CASTS BACK TO PASSING COLLIDABLE IN CONSTRUCTOR
+		collidingSecondary = (Collider) e2.getCollisionType();
 		
 		collisionDebugTag = e1.name + " + " + e2.name;
 		
 		//THIS TEST COLLISION IS A NORMAL SURFACE SUCH AS A FLAT PLATFORM
-		entityPairIndex[0] = ((Collidable) e1.getCollisionType()).addCollision(this,true); 
-		entityPairIndex[1] = ((Collidable) e2.getCollisionType()).addCollision(this,false); 
+		entityPairIndex[0] = ((Collider) e1.getCollisionType()).addCollision(this,true); 
+		entityPairIndex[1] = ((Collider) e2.getCollisionType()).addCollision(this,false); 
 		//initCollision();
 	}
 	
@@ -212,4 +212,6 @@ public class Collision implements Serializable{
 	protected void triggerResolutionEvent(Resolution closest) {
 				
 	}
+	
+
 }

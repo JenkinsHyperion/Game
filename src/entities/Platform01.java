@@ -1,15 +1,5 @@
 package entities;
 
-import java.io.File;
-
-import javax.swing.BorderFactory;
-
-import entityComposites.*;
-import physics.Boundary;
-import sprites.Sprite;
-import sprites.SpriteNull;
-import sprites.SpriteStillframe;
-
 public class Platform01 implements EntityBuilderInterface {
 	
 	public Platform01( ){	

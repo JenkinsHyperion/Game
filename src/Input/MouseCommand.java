@@ -1,7 +1,5 @@
 package Input;
 
-import java.awt.event.MouseEvent;
-
 public interface MouseCommand {
 
 	public void mousePressed();

@@ -1,18 +1,7 @@
 package entities;
 
 import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
-
-import physics.Boundary;
-import physics.Force;
-import physics.PointForce;
-import physics.Side;
-import physics.Vector;
-import sprites.SpriteStillframe;
-import entityComposites.*;
-import misc.CollisionEvent;
+import physics.*;
 
 public class EntityRotationalDynamic extends EntityDynamic{
 	
@@ -29,10 +18,10 @@ public class EntityRotationalDynamic extends EntityDynamic{
 	
 	
 	
-	public Boundary getBoundaryAtAngle(double angle){ //OPTIMIZATION TRIG FUNCTIONS ARE NOTORIOUSLY EXPENSIVE Look into performing some trig magic
+	/*public Boundary getBoundaryAtAngle(double angle){ //OPTIMIZATION TRIG FUNCTIONS ARE NOTORIOUSLY EXPENSIVE Look into performing some trig magic
 		// with fast trig approximations
 
-		/*Side[] newSides = new Side[storedBounds.getSides().length];
+		Side[] newSides = new Side[storedBounds.getSides().length];
 		
 		for ( int i = 0 ; i < storedBounds.getSides().length ; i++ ) {
 			
@@ -55,12 +44,12 @@ public class EntityRotationalDynamic extends EntityDynamic{
 			
 		}
 		
-		return new Boundary(newSides);*/
+		return new Boundary(newSides);
 		//return storedBounds.atPosition( this.getPos() ).rotateBoundaryAround( this.getPos() , angle);
 		
 		return this.getBoundary();
 		
-	}
+	}*/
 	
 	@Override
 	public void updatePosition() {
@@ -78,6 +67,7 @@ public class EntityRotationalDynamic extends EntityDynamic{
 
         	if ((int)angle>180){angle=-180;} //constrain range from -180 to 180 degrees for convenience
         	else if ((int)angle<-180){angle=180;}
+        	//else if ( Math.abs(angle)<1 ){angle = 0;}
     	
         	this.setAngleInDegrees(angle);
     	}
@@ -89,23 +79,45 @@ public class EntityRotationalDynamic extends EntityDynamic{
 	private void setAngle(double angle){
 		double angleRadians = (angle * ((Math.PI)/180) ) ;
 		this.orientation = new Vector( Math.cos(angleRadians) , Math.sin(angleRadians) );
-		((SpriteStillframe)this.getEntitySprite() ).setAngle((int)angle);
-		
-		
+		//((SpriteStillframe)this.getEntitySprite() ).setAngle((int)angle);
+
 	}
 	
-	public void setAngleInDegrees( float angle ){
+	protected void addAngle(float angle){
+		this.angle = this.angle + angle;
+		double angleRadians = (this.angle * ((Math.PI)/180) ) ;
+		this.getBoundary().rotateBoundaryFromTemplate( new Point(0,0) , angleRadians , storedBounds ); 
+		this.orientation = new Vector( Math.cos(angleRadians) , Math.sin(angleRadians) );
+	}
+	
+	public void setAngleInDegrees( double angle ){
 		double angleRadians = (angle * ((Math.PI)/180) ) ;
 		this.getBoundary().rotateBoundaryFromTemplate( new Point(0,0) , angleRadians , storedBounds ); 
 		this.orientation = new Vector( Math.cos(angleRadians) , Math.sin(angleRadians) );
-		((SpriteStillframe)this.getEntitySprite() ).setAngle((int)angle);
+		this.getEntitySprite().setAngle(angle);
 	}
 	
 	public void setAngleInRadians( double angle ){
-		System.out.println("Setting angle " +angle);
 		this.getBoundary().rotateBoundaryFromTemplate( new Point(0,0) , angle , storedBounds ); 
 		this.orientation = new Vector( Math.cos(angle) , Math.sin(angle) );
+		//this.getEntitySprite().setAngle((int)angle);
+	}
+	
+	public void setAngleFromVector( Vector slope ){
 		
+		double angleRadians = slope.calculateAngleFromVector() ;
+		System.out.println( "------------------------ANGLE "+angleRadians*180/Math.PI );
+		this.getBoundary().rotateBoundaryFromTemplate( new Point(0,0) , angleRadians , storedBounds ); 
+		this.orientation = slope.unitVector().clamp();
+	}
+	
+	public void setAngleFromVector( Vector slope , Vertex rawCorner ){
+		
+		double angleRadians = slope.calculateAngleFromVector() ;
+		Point translation = this.getBoundary().rotateBoundaryFromTemplatePoint( new Point(0,0)  , angleRadians , storedBounds ); 	
+		this.move(translation);
+		
+		this.orientation = slope.unitVector().clamp();
 	}
 	
 	public void setAngularVelocity( double angularVelocity ){
@@ -116,7 +128,7 @@ public class EntityRotationalDynamic extends EntityDynamic{
 		this.angularAcc = angularAcc;
 	}
 	
-	public float getAngle(){ return (float) (angle ); }
+	public float getAngle(){ return (float) angle ; }
 	
 	public Vector getOrientationVector(){ return orientation; }
 	

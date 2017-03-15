@@ -1,24 +1,22 @@
 package physics;
 
 import java.awt.Point;
-import java.awt.geom.Line2D;
-import entities.EntityDynamic;
-import entities.EntityStatic;
-import entityComposites.Collidable;
+import entities.*;
+import entityComposites.*;
 
 public class CollisionPositioning extends Collision { //TO BE MOVED TO ITS OWN INTERFACE
 	
-	private Collidable collisionPrimary;
-	private Collidable collisionSecondary;
+	private Collider collisionPrimary;
+	private Collider collisionSecondary;
 	
 	private Point[] intersections = new Point[0];
 	
-	public CollisionPositioning(EntityDynamic entity1, EntityStatic entity2){
+	public CollisionPositioning(EntityDynamic entity1, EntityStatic entity2 ,  CollisionEngine ownerEngine){
 		
-		super(entity1,entity2);
+		super(entity1,entity2, ownerEngine);
 		
-		collisionPrimary = (Collidable) entity1.getCollisionType(); // TAKE COLLIDABLE IN COSNTRUCTOR INSTEAD OF ENTITY
-		collisionSecondary = (Collidable) entity2.getCollisionType();
+		collisionPrimary = (Collider) entity1.getCollisionType(); // TAKE COLLIDABLE IN COSNTRUCTOR INSTEAD OF ENTITY
+		collisionSecondary = (Collider) entity2.getCollisionType();
 		
 		initCollision();
 		

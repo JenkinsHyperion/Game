@@ -29,6 +29,13 @@ public class Vector implements Serializable{
 				return new Vector(0,0);
 		}
 		
+		/**
+		 * Returns sign Vector with components -1 , 0 , or 1 that correspond to the input Vector's components. Vector equivalent of Math.signum()
+		 */
+		public Vector signVector() {
+			return new Vector( Math.signum(this.x) , Math.signum(this.y) );
+		}
+		
 		public boolean isShorterThan( Vector compare ){
 			
 			if ( 
@@ -63,15 +70,42 @@ public class Vector implements Serializable{
 			return new Vector( returnX , returnY );
 		}
 		
+		public Vector absX(){
+			double returnX = Math.abs(this.x);
+			return new Vector( returnX , this.y );
+		}
+		
+		public Vector absY(){
+			double returnY = Math.abs(this.y);
+			return new Vector( this.x , returnY );
+		}
+		
 		public Vector inverse(){
 			double returnX = -this.x;
 			double returnY = -this.y;
 			return new Vector( returnX , returnY );
 		}
 		
+		public Vector inverseX(){
+			double returnX = -this.x;
+			return new Vector( returnX , this.y );
+		}
+		
+		public Vector inverseY(){
+			double returnY = -this.y;
+			return new Vector( this.x , returnY );
+		}
+		
 		public Vector add( Vector input ){
 			double returnX = this.x + input.getX();
 			double returnY = this.y + input.getY();
+			return new Vector( returnX , returnY );
+		}
+		
+
+		public Vector subtract(Vector input) {
+			double returnX = this.x - input.getX();
+			double returnY = this.y - input.getY();
 			return new Vector( returnX , returnY );
 		}
 		
@@ -99,7 +133,7 @@ public class Vector implements Serializable{
 		}
 		
 		public Vector projectedOver( Vector base ){
-			return base.unitVector().multiply( this.dotProduct(base) );
+			return base.unitVector().multiply( this.dotProduct(base.unitVector()) );
 		}
 		
 		/**Returns new directional Unit Vector (magnitude of 1) from given Line2D
@@ -117,6 +151,13 @@ public class Vector implements Serializable{
 			else //if ( vector.getX() < 0 )
 				return -Math.PI/2 - Math.atan2( this.getX(), this.getY() );  
 
+		}
+		
+		public Vector clamp(){ // OPTIMIZE FIND POSSIBLE MATH SOLUTION FOT THIS
+			if ( this.getX() > 0){
+				return new Vector( this.x , this.y );
+			}
+			return new Vector( -this.x , -this.y );
 		}
 		
 		public static Vector unitVectorFromAngle( double angle ){
@@ -147,6 +188,14 @@ public class Vector implements Serializable{
 		public String toString(){
 			return "Vector("+ x + "," + y +")";
 		}
+
+		public double getLength() {
+			return new Point2D.Double(0,0).distance( new Point2D.Double( this.x, this.y ) ) ;
+		}
+
+
+
+
 
 	
 }

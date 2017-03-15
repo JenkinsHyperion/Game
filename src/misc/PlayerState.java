@@ -1,7 +1,5 @@
 package misc;
 
-import java.awt.event.KeyEvent;
-
 import misc.PlayerDirection.*;
 import sprites.Sprite;
 

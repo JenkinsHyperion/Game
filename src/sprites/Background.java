@@ -1,6 +1,5 @@
 package sprites;
 
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -13,8 +12,6 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
-import javax.swing.ImageIcon;
-
 import engine.Camera;
 
 
@@ -42,7 +39,7 @@ public class Background {
 		
 	}
 	
-	public void drawBackground( Graphics g , Camera camera ){ 
+	public void drawBackground( Camera camera ){ 
 		
 		int cameraPosition = camera.getX()/PARALLAX_X ;
 		
@@ -57,7 +54,7 @@ public class Background {
 			// index will wrap instead of going out of bounds. (so 4 iterations of index starting at 10 would be 10, 11, 0, 1 ) 
 			//the %12 +12 %12 is some magical crap that I didn't know about but it returns absolute value without using abs()
 			
-			camera.draw( tiles.get( index ) , g , 
+			camera.draw( tiles.get( index ) , 
 					-192 + (i*192) - camera.getRelativeX( positionModulo ) , 
 					-camera.getRelativeY( camera.getY()/PARALLAX_Y ) 
 					); //change constant to variable camera halfwidth

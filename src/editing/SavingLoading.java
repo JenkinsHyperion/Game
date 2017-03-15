@@ -4,7 +4,6 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 
-import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 import entities.*;

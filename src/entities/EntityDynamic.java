@@ -4,11 +4,7 @@ package entities;
 import java.awt.Point;
 import java.util.ArrayList;
 
-import entityComposites.Collidable;
-import physics.Boundary;
-import physics.Force;
-import physics.PointForce;
-import physics.Vector;
+import physics.*;
 
 public class EntityDynamic extends EntityStatic{
 
@@ -227,12 +223,12 @@ public class EntityDynamic extends EntityStatic{
     	int indexID = forces.size();     	
     	Force newForce = new Force( vector , indexID );
     	forces.add( newForce ) ;
-    	System.out.println("Adding Force "+ indexID);
+    	//System.out.print("Adding Force "+ indexID+" ... ");
     	return newForce;
     }
     
     public void removeForce(int index){ 
-    	System.out.println("Removing Force "+ index);
+    	//System.out.print("Removing Force "+ index+" ... ");
     	forces.remove(index); 
 	    for ( int i = index ; i < forces.size() ; i++) {
 	    	forces.get(i).indexShift();

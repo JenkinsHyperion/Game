@@ -2,27 +2,18 @@ package entityComposites;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 import engine.Camera;
-import entities.EntityDynamic;
 import entities.EntityRotationalDynamic;
 import entities.EntityStatic;
 import misc.CollisionEvent;
 import misc.NullCollisionEvent;
-import physics.Boundary;
-import physics.CollidingPair;
-import physics.Collision;
-import physics.CollisionCheck;
-import physics.CollisionEngine;
-import physics.Force;
-import physics.Side;
-import physics.Vector;
+import physics.*;
 
-public final class Collidable extends CollisionProperty{
+public final class Collider extends CollisionProperty{
 	
 	protected Boundary boundary;
 	
@@ -36,20 +27,20 @@ public final class Collidable extends CollisionProperty{
 
 	private CollisionEvent uponLeavingCollision = new NullCollisionEvent();
 	
-	public Collidable( EntityStatic owner ){
+	public Collider( EntityStatic owner ){
 		
 		this.owner = owner;
 		this.boundary = null;
 	}
 	
-	public Collidable( EntityStatic owner , Boundary boundary){
+	public Collider( EntityStatic owner , Boundary boundary){
 		
 		this.boundary = boundary;
 		this.owner = owner; 
 		
 	}
 	
-	public Collidable( EntityStatic owner , Line2D[] lines){
+	public Collider( EntityStatic owner , Line2D[] lines){
 		
 		lines[lines.length-1].setLine( lines[lines.length-1].getP1() , lines[0].getP1() );
 		
@@ -81,7 +72,7 @@ public final class Collidable extends CollisionProperty{
 		
 	}
 	@Override
-	public void passInteraction( Collidable entity, CollisionCheck checkType , CollisionEngine engine ){ 
+	public void passInteraction( Collider entity, CollisionCheck checkType , CollisionEngine engine ){ 
 		//entity is collidable because if it wasn't it non-collidable would have terminated and returned WARNING to console.
 		//Both entities have passed through null object pattern, so now we can perform the actual
 		// check for interaction. For now we only have the SEPARATING AXIS THEOREM SAT check.
@@ -112,7 +103,8 @@ public final class Collidable extends CollisionProperty{
 	}
 	
 	public Boundary getBoundaryDelta(){
-		return boundary.atPosition( (int)owner.getDeltaX(),(int)owner.getDeltaY() );
+		Point positionDelta = new Point( (int)owner.getDeltaX() , (int)owner.getDeltaY() );
+		return boundary.atPosition( positionDelta );
 	}
 	
 	/* #################################################################################
@@ -195,7 +187,7 @@ public final class Collidable extends CollisionProperty{
 		
 		for ( Side side : this.getBoundaryLocal().getSides() ){
 			//g.draw(side);
-			camera.draw( side.toLine() , g);
+			camera.draw( side.toLine() );
 			camera.drawString(side.toString(), side.getX1()+(side.getX2()-side.getX1())/2 , side.getY1()+(side.getY2()-side.getY1())/2 , g);
 		}
 		

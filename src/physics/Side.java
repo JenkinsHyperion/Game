@@ -25,8 +25,8 @@ public class Side extends BoundaryFeature{
 		calculateSlope(line);
 		this.setCollisionEvent(collisionEvent);
 	}
-	
-	public Side( Line2D line , Point2D startpoint , Point2D endpoint , Boundary owner , int ID, CollisionEvent collisionEvent){
+	//For cloning only
+	protected Side( Line2D line , Point2D startpoint , Point2D endpoint , Boundary owner , int ID, CollisionEvent collisionEvent){
 		this.line = line;
 		this.owner = owner;
 		this.ID = ID;
@@ -50,6 +50,11 @@ public class Side extends BoundaryFeature{
 	protected void setEndPoint( Vertex vertex ){ 
 		this.endpoint = vertex; 
 		line = new Line2D.Float( (int)line.getX1() , (int)line.getY1() ,vertex.getX(), vertex.getY() );
+		calculateSlope(line);
+	}
+	
+	protected void setLine( Line2D line ){ 
+		this.line = line; 
 		calculateSlope(line);
 	}
 	

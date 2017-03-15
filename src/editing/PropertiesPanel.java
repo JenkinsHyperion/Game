@@ -6,8 +6,7 @@ import java.util.ArrayList;
 
 import javax.swing.*;
 
-import engine.Board;
-import engine.BoardAbstract;
+import engine.*;
 
 
 

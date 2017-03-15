@@ -6,12 +6,9 @@ import Input.*;
 import editing.EditorPanel;
 import editing.ModeAbstract;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.*;
 
@@ -339,7 +336,7 @@ public class WorldGeometry extends ModeAbstract{
 				//g2.draw(new Line2D.Double(board.camera.getLocalPosition((Point) ghostLine.getP1()), ghostLine.getP2()));
 				//g2.drawLine(board.camera.getRelativeX((int)ghostLine.getX1()), board.camera.getRelativeY((int)ghostLine.getY1()),
 				//board.camera.getRelativeX((int)ghostLine.getX2()), board.camera.getRelativeY((int)ghostLine.getY2()));
-				camera.draw(ghostLine, g2);
+				camera.draw(ghostLine);
 			}
 
 			//old drawVertexPoints vvvvvvv
@@ -353,7 +350,7 @@ public class WorldGeometry extends ModeAbstract{
 			for (int i = 0; i < vertexList.size()-1; i++) {
 				Line2D.Double tempLine = new Line2D.Double(vertexList.get(i).getPoint(), vertexList.get(i+1).getPoint());
 				//g2.draw(tempLine);
-				camera.draw(tempLine, g2);
+				camera.draw(tempLine);
 			}
 		}
 		/** True if any intersection is found across all lines in the surfaceLines arrayList<> 
@@ -456,7 +453,7 @@ public class WorldGeometry extends ModeAbstract{
 			for (int i = 0; i < vertexList.size()-1; i++) {
 				Line2D.Double tempLine = new Line2D.Double(vertexList.get(i).getPoint(), vertexList.get(i+1).getPoint());
 				// abstract world geometry surface lines later on
-				camera.draw(tempLine, g2);
+				camera.draw(tempLine);
 			}
 			
 			// section to draw selected Vertex (if one is selected)

@@ -1,15 +1,9 @@
 package engine;
 
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 
-public class Overlay {
+public interface Overlay {
 	
-	public Overlay(){
-		
-	}
-	
-	public void drawOverlay( Graphics g2 ){
-		
-	}
+	public abstract void paintOverlay( Graphics2D g2 , Camera cam );
 	
 }

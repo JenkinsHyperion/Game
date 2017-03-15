@@ -2,30 +2,27 @@ package physics;
 
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-import engine.Board;
 import engine.BoardAbstract;
-import engine.TestBoard;
-import entities.EntityDynamic;
+import engine.Overlay;
+import engine.OverlayComposite;
 import entities.EntityStatic;
-import entities.Player;
 import entityComposites.*;
 
-public class CollisionEngine implements Serializable{
+public class CollisionEngine {
 
 	private BoardAbstract currentBoard;
 	
-	private ArrayList<Collidable> staticCollidablesList = new ArrayList<>(); 
-	private ArrayList<Collidable> dynamicCollidablesList = new ArrayList<>(); 
+	private ArrayList<Collider> staticCollidablesList = new ArrayList<>(); 
+	private ArrayList<Collider> dynamicCollidablesList = new ArrayList<>(); 
 	
     private LinkedList<Collision> collisionsList = new LinkedList<Collision>(); 
-	
+
 	public CollisionEngine(BoardAbstract testBoard){
 		currentBoard = testBoard;
 		
@@ -65,11 +62,11 @@ public class CollisionEngine implements Serializable{
 	    	
     }
 	
-	public void addStaticCollidable( Collidable collidable ){
+	public void addStaticCollidable( Collider collidable ){
 		staticCollidablesList.add(collidable);
 	}
 	
-	public void addDynamicCollidable( Collidable collidable ){
+	public void addDynamicCollidable( Collider collidable ){
 		dynamicCollidablesList.add(collidable);
 	}
 	    
@@ -78,21 +75,21 @@ public class CollisionEngine implements Serializable{
 	    	
     	for ( int i = 0 ; i < dynamicCollidablesList.size() ; i++ ){
     		
-    		Collidable dynamicCollidablePrimary = dynamicCollidablesList.get(i);
+    		Collider dynamicCollidablePrimary = dynamicCollidablesList.get(i);
     		
     		for ( int j = 0 ; j < staticCollidablesList.size(); j++ ){
     			
-    			Collidable staticCollidable = staticCollidablesList.get(j);
+    			Collider staticCollidable = staticCollidablesList.get(j);
     			
     			staticCollidable.checkForInteractionWith( dynamicCollidablePrimary , CollisionCheck.SAT, this);
     		}
     		
-    		/*for ( int k = i+1 ; k < dynamicCollidablesList.size(); k++ ){
+    		for ( int k = i+1 ; k < dynamicCollidablesList.size(); k++ ){
     			
-    			Collidable dynamicCollidableSecondary = dynamicCollidablesList.get(k);
+    			Collider dynamicCollidableSecondary = dynamicCollidablesList.get(k);
     			
     			dynamicCollidableSecondary.checkForInteractionWith( dynamicCollidablePrimary , CollisionCheck.SAT, this);
-    		}*/
+    		}
     		
     	}
     	
@@ -115,7 +112,7 @@ public class CollisionEngine implements Serializable{
     }
     
     
-    public void registerCollision( boolean bool , Collidable collidable1 , Collidable collidable2){
+    public void registerCollision( boolean bool , Collider collidable1 , Collider collidable2){
     	
     	if ( bool ) { 
 		 //check to see if collision isn't already occurring
@@ -123,7 +120,7 @@ public class CollisionEngine implements Serializable{
 			// if not, add new collision event
 			//int index = currentBoard.getStaticEntities().size() + 1 ;
     			//System.out.println( "Collision detected" );
-    			collisionsList.add(new CollisionPlayerStaticSAT( collidable1 , collidable2 ) ); 
+    			collisionsList.add(new CollisionPlayerStaticSAT( collidable1 , collidable2 , this ) ); 
 			
 			} 	
     	}
@@ -159,7 +156,7 @@ public class CollisionEngine implements Serializable{
     }*/
     
     
-    private Point getDistanceSAT( Line2D separatingSide , Collidable entityPrimary , Collidable stat ){
+    private Point getDistanceSAT( Line2D separatingSide , Collider entityPrimary , Collider stat ){
 	    
 	    Boundary bounds = stat.getBoundaryLocal() ;
 	    Boundary playerBounds = entityPrimary.getBoundaryDelta();
@@ -249,8 +246,8 @@ public class CollisionEngine implements Serializable{
      */
     private Vector getDistanceSAT2( Line2D separatingSide , EntityStatic entityA , EntityStatic entityB ){
 	    
-	    Boundary boundsB = ((Collidable) entityB.getCollisionType()).getBoundaryLocal(); 
-	    Boundary boundsA = ((Collidable) entityA.getCollisionType()).getBoundaryLocal();
+	    Boundary boundsB = ((Collider) entityB.getCollisionType()).getBoundaryLocal(); 
+	    Boundary boundsA = ((Collider) entityA.getCollisionType()).getBoundaryLocal();
 	    
 	    Point2D centerA = new Point2D.Double(entityA.getX(), entityA.getY());
 	    Point2D centerB = new Point2D.Double(entityB.getX(), entityB.getY());
@@ -357,6 +354,8 @@ public class CollisionEngine implements Serializable{
 	    }
     	
     }
+    
+    protected BoardAbstract getBoard(){ return currentBoard; }
 	    
 }
 	   

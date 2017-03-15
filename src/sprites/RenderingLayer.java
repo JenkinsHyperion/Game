@@ -1,10 +1,8 @@
 package sprites;
 
-import java.awt.Graphics;
 import java.util.ArrayList;
 
 import engine.Camera;
-import entities.EntityPhysics;
 import entities.EntityStatic;
 
 public class RenderingLayer {
@@ -24,11 +22,11 @@ public class RenderingLayer {
 		entitiesList.add(entity);
 	}
 	
-	public void drawLayer( Graphics g , Camera camera ){ 
+	public void renderLayer( Camera camera ){ 
 		
 		for ( EntityStatic entity : entitiesList  ){ 
 
-			camera.draw( entity.getEntitySprite().getImage() , g , 
+			camera.draw( entity.getEntitySprite().getImage(),
 					(int)( entity.getX() - camera.getRelativeX( camera.getX()/PARALLAX_X ) ), 
 					(int)( entity.getY() - camera.getRelativeY( camera.getY()/PARALLAX_Y ) )
 			);
@@ -36,5 +34,7 @@ public class RenderingLayer {
 		}
 			
 	}
+	
+	
 	
 }

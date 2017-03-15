@@ -3,11 +3,8 @@ package entityComposites;
 import java.awt.Graphics2D;
 
 import engine.Camera;
-import entities.EntityStatic;
-import physics.Boundary;
 import physics.CollisionCheck;
 import physics.CollisionEngine;
-import sprites.SpriteNull;
 
 public final class NonCollidable extends CollisionProperty{
 	
@@ -28,7 +25,7 @@ public final class NonCollidable extends CollisionProperty{
 		//MOVE THAT ENTITY TO NONCOLLIDING ARRAY AUTOMATICALLY
 	}
 	@Override
-	public void passInteraction( Collidable entity , CollisionCheck checkType, CollisionEngine engine ){
+	public void passInteraction( Collider entity , CollisionCheck checkType, CollisionEngine engine ){
 		//System.out.println("WARNING: Interactions were checked on "+entity.owner.name+", a non-colliding entity");
 		//MOVE THAT ENTITY TO NONCOLLIDING ARRAY AUTOMATICALLY
 	}
@@ -36,9 +33,6 @@ public final class NonCollidable extends CollisionProperty{
 	@Override
 	public void debugDrawBoundary(Camera camera , Graphics2D g){}
 	
-	@Override
-	public Boundary getBoundaryLocal(){
-		return new Boundary();
-	}
+	
 	
 }

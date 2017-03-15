@@ -4,7 +4,6 @@ import java.awt.geom.Point2D;
 
 import entities.EntityStatic;
 import misc.CollisionEvent;
-import misc.DefaultCollisionEvent;
 
 abstract public class BoundaryFeature {
 	
@@ -26,7 +25,7 @@ abstract public class BoundaryFeature {
 	public String toString(){ return "null"; } //check for further abstraction
 
 	public EntityStatic getOwnerEntity() {
-		return null;
+		return this.owner.ownerCollidable.getOwnerEntity();
 	}
 
 	public Boundary getOwnerBoundary() {

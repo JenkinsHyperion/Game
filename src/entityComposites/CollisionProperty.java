@@ -19,7 +19,7 @@ public abstract class CollisionProperty {
 	// this shouldn't happen since collidables are in their own array, so this might be unoptimal
 	public void checkForInteractionWith(CollisionProperty entity , CollisionCheck checkType ,CollisionEngine engine) {} 
 
-	public void passInteraction(Collidable entity , CollisionCheck checkType, CollisionEngine engine) {}
+	public void passInteraction(Collider entity , CollisionCheck checkType, CollisionEngine engine) {}
 	
 	public void debugDrawBoundary(Camera camera, Graphics2D g){}
 	

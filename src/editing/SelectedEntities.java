@@ -6,7 +6,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
-import editing.worldGeom.Vertex;
 import engine.Camera;
 import entities.EntityStatic;
 
@@ -43,8 +42,8 @@ public class SelectedEntities {
 			Rectangle rect = new Rectangle();
 			//rect.setLocation(entity.getXRelativeTo(camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(camera) + entity.getSpriteOffsetY());
 			rect.setLocation(entity.getX() + entity.getSpriteOffsetX(), entity.getY() + entity.getSpriteOffsetY());
-			rect.setSize(entity.getEntitySprite().getImage().getWidth(null),
-					entity.getEntitySprite().getImage().getHeight(null) );
+			rect.setSize(entity.getEntitySprite().getBufferedImage().getWidth(null),
+					entity.getEntitySprite().getBufferedImage().getHeight(null) );
 			camera.drawRect(rect, g, Color.BLUE, Color.CYAN, .05f);
 			
 		}

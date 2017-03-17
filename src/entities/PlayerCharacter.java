@@ -125,7 +125,7 @@ public class PlayerCharacter extends Player {
         collisionMesh.setLeavingCollisionEvent( new OnLeavingCollision() );
         // Find better method for casting
         
-        Boundary boundarytemp =  new Boundary.EnhancedBox( 24,76 ,-12,-38, eventList , (Collider) this.collisionType );
+        Boundary boundarytemp =  new Boundary.EnhancedBox( 24,76 ,-12,-38, eventList , this.getColliderComposite() );
         //Boundary boundarytemp =  new Boundary.Box( 24,76 ,-12,-38, (Collidable) this.collisionType );
         
         CollisionEvent cornerCollision = new CollisionEvent(){

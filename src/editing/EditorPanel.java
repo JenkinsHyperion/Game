@@ -6,6 +6,7 @@ import Input.*;
 import editing.worldGeom.*;
 import sprites.*;
 import entities.*;
+import saving_loading.SavingLoading;
 import engine.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -166,8 +167,11 @@ public class EditorPanel extends JPanel {
 		saveButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				/*String levelName = JOptionPane.showInputDialog("Enter level name");
-				new SavingLoading(board).writeLevel(board.getStaticEntities(), levelName);*/
+				
+				String levelName = JOptionPane.showInputDialog("Enter level name");
+				//new SavingLoading(board).writeLevel(board.getStaticEntities(), levelName);
+				new SavingLoading(board).writeLevel( board.listCurrentSceneEntities(), levelName );
+				
 			}
 		});
 		loadButton = new JButton("Load");
@@ -178,9 +182,12 @@ public class EditorPanel extends JPanel {
 		loadButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				/*String levelName = JOptionPane.showInputDialog("Enter level name to load");
-				if (levelName != null)
-					new SavingLoading(board).loadLevel(board.getStaticEntities(), levelName);*/
+				String levelName = JOptionPane.showInputDialog("Enter level name to load");
+				if (levelName != null){ //TESTING LOADING WORLDS
+					
+					EntityFactory.deserializeEntityData(  new SavingLoading(board).loadLevelEntities( levelName ) , board );
+
+				}
 			}
 		});
 		deleteEntButton = new JButton("Delete");
@@ -658,7 +665,9 @@ public class EditorPanel extends JPanel {
 	}*/
 	public void deleteEntity(int index) {
 		//deselectAllEntities();
-		board.getStaticEntities().remove(index);
+		
+		//board.listEntities().remove(index); //CHANGE TO DELETE FUNCTION IN BOARD
+		
 		//removeEntryFromListOfPropLists(index); 	//must remove corresponding property of deleted entity
 		//updateAllEntitiesComboBox();
 		//deselectAllEntities();
@@ -973,7 +982,7 @@ public class EditorPanel extends JPanel {
 		 * @param click
 		 */
 		public void checkForEntityShiftClick(Point click) {
-			for(EntityStatic entity: board.getStaticEntities()) {
+			for(EntityStatic entity: board.listCurrentSceneEntities()) {
 				Rectangle clickableRect = new Rectangle();
 				//clickableRect.setLocation(entity.getXRelativeTo(camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(camera) + entity.getSpriteOffsetY());
 				clickableRect.setLocation(entity.getX() + entity.getSpriteOffsetX(), entity.getY() + entity.getSpriteOffsetY());
@@ -996,7 +1005,7 @@ public class EditorPanel extends JPanel {
 			if (selectedEntities.size() > 0)
 				selectedEntities.clearSelectedEntities();
 			
-			for (EntityStatic entity: board.getStaticEntities()) {
+			for (EntityStatic entity: board.listCurrentSceneEntities()) {
 				Rectangle clickableRect = new Rectangle();
 				//clickableRect.setLocation(entity.getXRelativeTo(camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(camera) + entity.getSpriteOffsetY());
 				clickableRect.setLocation(entity.getX() + entity.getSpriteOffsetX(), entity.getY() + entity.getSpriteOffsetY());
@@ -1013,7 +1022,7 @@ public class EditorPanel extends JPanel {
 			}
 		}
 		public void checkForEntityInSelectionRect(Rectangle selectionRect) {
-			for (EntityStatic entity: board.getStaticEntities()) {
+			for (EntityStatic entity: board.listCurrentSceneEntities()) {
 				Rectangle clickableRect = new Rectangle();
 				//clickableRect.setLocation(entity.getXRelativeTo(camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(camera) + entity.getSpriteOffsetY());
 				clickableRect.setLocation(entity.getX() + entity.getSpriteOffsetX(), entity.getY() + entity.getSpriteOffsetY());

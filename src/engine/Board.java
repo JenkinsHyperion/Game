@@ -24,19 +24,13 @@ public class Board extends BoardAbstract {
 	
 	private java.util.Timer updateEntitiesTimer;
 	
-	private CollisionEngine collisionEngine = new CollisionEngine(this); //Refactor to a better names
-
-	public RenderingEngine renderingEngine = new RenderingEngine( this );
-	private Camera camera = renderingEngine.getCamera();
-	
-    private OverlayComposite debugBoundaries = renderingEngine.addOverlay( new DebugBoundaryOverlay() );
+    private OverlayComposite debugBoundaries;
     private OverlayComposite debugCollisions;
 	
     public Player player;
     public Tracer laser;
-    protected ArrayList<EntityStatic> staticEntitiesList; 
-    protected static ArrayList<EntityDynamic> dynamicEntitiesList; 
-    protected static ArrayList<EntityPhysics> physicsEntitiesList; 
+    
+    protected static ArrayList<EntityDynamic> dynamicEntitiesList;  
     
     // RENDERING DECLARATION
     private RenderingLayer[] layer = {
@@ -82,7 +76,16 @@ public class Board extends BoardAbstract {
 
     private void initBoard() {
     	
+    	//INITIALIZE RENDERING
+    	this.renderingEngine = new RenderingEngine( this );
+    	
+    	this.camera = renderingEngine.getCamera();
+    	this.debugBoundaries = renderingEngine.addOverlay( new DebugBoundaryOverlay() );
     	this.diagnosticsOverlay = renderingEngine.addOverlay( new DiagnosticsOverlay() );
+    	
+    	
+    	collisionEngine = new CollisionEngine(this); 
+    	
     	
         myMouseHandler = new MouseHandlerClass();
   		addMouseListener(myMouseHandler);
@@ -91,10 +94,8 @@ public class Board extends BoardAbstract {
         setFocusable(true);
         
         setBackground(Color.BLACK);
-        
-        staticEntitiesList = new ArrayList<>();
+
         dynamicEntitiesList = new ArrayList<>();
-        physicsEntitiesList = new ArrayList<>();
 
         clickPosition = new Point(0,0);
         
@@ -111,7 +112,7 @@ public class Board extends BoardAbstract {
         
         // initialize player
         player = new PlayerCharacter(ICRAFT_X, ICRAFT_Y,this);
-        
+  
         collisionEngine.addDynamicCollidable( (Collider)player.getCollisionType() );
         renderingEngine.addSpriteComposite( (SpriteComposite) player.getSpriteType() );
 
@@ -126,8 +127,8 @@ public class Board extends BoardAbstract {
 
 		testEntity = EntityFactory.createEntityFromBoundary(300, 500, triangleBounds );
 		testEntity.name = "Test Slope";
-		staticEntitiesList.add( testEntity );    
-		renderingEngine.addSpriteComposite( testEntity.getSpriteType() );
+		currentScene.addEntity( testEntity );    
+		//renderingEngine.addSpriteComposite( testEntity.getSpriteType() );
         
         
         testEntity = new EntityStatic("Test Ground1",50,500);     
@@ -136,8 +137,8 @@ public class Board extends BoardAbstract {
         collidable.setBoundary( new Boundary.Box(446,100,-223,-50 , collidable ) );
 
         testEntity.loadSprite("ground_1.png" , -223 , -53 );
-        renderingEngine.addSpriteComposite( testEntity.getSpriteType() );
-        staticEntitiesList.add( testEntity );
+        //renderingEngine.addSpriteComposite( testEntity.getSpriteType() );
+        currentScene.addEntity( testEntity );
         
         
         testEntity = new EntityStatic("Test Ground",700,500);     
@@ -145,34 +146,35 @@ public class Board extends BoardAbstract {
         collidable.setBoundary( new Boundary.Box(446,100,-223,-50 , collidable ) );
         testEntity.setCollisionProperties( collidable );
         testEntity.loadSprite("ground_1.png" , -223 , -53 );
-        renderingEngine.addSpriteComposite( testEntity.getSpriteType() );
-        staticEntitiesList.add( testEntity );
+        //renderingEngine.addSpriteComposite( testEntity.getSpriteType() );
+        currentScene.addEntity( testEntity );
         
-      	physicsEntitiesList.add(new EntityPhysics(120,260,"box.png"));
+        currentScene.addEntity(new EntityPhysics(120,260,"box.png"));
         //dynamicEntitiesList.add(new Bullet(100,100,1,1));
         
       	EntityRotationalDynamic rotationTest = new TestRotation(-400,400);
-      	dynamicEntitiesList.add( rotationTest );
-      	collisionEngine.addDynamicCollidable( ((Collider)rotationTest.getCollisionType()) );
-      	renderingEngine.addSpriteComposite(rotationTest.getSpriteType());
+      	//dynamicEntitiesList.add( rotationTest );
+      	//collisionEngine.addDynamicCollidable( ((Collider)rotationTest.getCollisionType()) );
+      	//renderingEngine.addSpriteComposite(rotationTest.getSpriteType());
+      	currentScene.addEntity( rotationTest );
       	
         //test for LaserTest entity
-        laser = new Tracer(143,260, physicsEntitiesList.get(0) , this ); //later will be parent system
+        //laser = new Tracer(143,260, physicsEntitiesList.get(0) , this ); //later will be parent system
         //dynamicEntitiesList.add(new LaserTest(400,60));  <-- can't add as long as I don't have a sprite for it
         //		--- for now will just draw in the drawObjects() method
         
         //############################################## TESTING BACKGROUND SPRITES #######################
         
-        int offset_x = 500;
-        int offset_y = 100;
+        int offset_x = 400;
+        int offset_y = 0;
         
-        layer[6].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L7.png", 350-offset_x, 600-offset_y) );
-        layer[5].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L6.png", 200-offset_x, -200-offset_y) );//bass
-        layer[4].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L5.png", 590-offset_x, 700-offset_y) );
-        layer[3].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L4.png", 220-offset_x, -200-offset_y) );//base
-        layer[2].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L3.png", 200-offset_x, 820-offset_y) );
-        layer[1].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L2.png", 250-offset_x, -200-offset_y) );
-        layer[0].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L1.png", 300-offset_x, -200-offset_y) );//base
+        layer[6].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L7.png", 280-offset_x, 300-offset_y) );
+        layer[5].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L6.png", 260-offset_x, -60-offset_y) );//bass
+        layer[4].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L5.png", 550-offset_x, 400-offset_y) );
+        layer[3].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L4.png", 300-offset_x, -320-offset_y) );//base
+        layer[2].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L3.png", 260-offset_x, 600-offset_y) ); //forest
+        layer[1].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L2.png", 200-offset_x, -160-offset_y) );//pipe
+        layer[0].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L1.png", 300-offset_x, -160-offset_y) );//base
         
         
         //############################################### CAMERA #######################
@@ -181,12 +183,12 @@ public class Board extends BoardAbstract {
 
         initBullets();
     
-        //ADD COLLIDABLES TO COLLISION ENGINE\
+        /*//ADD COLLIDABLES TO COLLISION ENGINE\
         //TO BE MOVED TO MASTER ADDING FACTOR THAT SORTS COMPOSITES AND PASSES THEM TO RESPECTIVE ENGINES
         
-        for ( EntityStatic stat : staticEntitiesList ){
+        for ( EntityStatic stat : this.currentScene. ){
         	collisionEngine.addStaticCollidable( (Collider) stat.getCollisionType() );
-        }
+        }*/
 
         
     } 
@@ -215,9 +217,6 @@ public class Board extends BoardAbstract {
     	
 		          updatePlayer();    
 		          updateDynamicEntities();
-		          updatePhysicsEntities();
-		          
-			      laser.updatePosition();	
 			      
 			      camera.updatePosition();   
       }
@@ -249,7 +248,7 @@ public class Board extends BoardAbstract {
 		player.getEntitySprite().getAnimation().update();
     }
     
-    private void updatePhysicsEntities() {
+    /*private void updatePhysicsEntities() {
     	//for (EntityDynamic dynamicEntity : dynamicObjects) {     	
     	for (int i = 0 ; i < physicsEntitiesList.size() ; i++){
     		EntityDynamic physicsEntity = physicsEntitiesList.get(i);
@@ -257,7 +256,7 @@ public class Board extends BoardAbstract {
     		physicsEntity.getEntitySprite().updateSprite();
         }
     	
-    }
+    }*/
 
     public void initBullets() {
 
@@ -406,7 +405,8 @@ public class Board extends BoardAbstract {
 		        g2.fillRect(0, 0, B_WIDTH, B_HEIGHT);
 		        
 		        g2.setColor(Color.GRAY);
-			    g2.drawString(player.name,5,15);
+			    g2.drawString("Entities: "+ currentScene.listEntities().length + " , Collidables:"+
+			    		collisionEngine.debugNumberofCollidables() ,5,15);
 			    g2.drawString("DX: "+player.getDX() + " DY: " + player.getDY(),5,30);
 			    g2.drawString("AccX: " + player.getAccX() + "  AccY: " + player.getAccY(),5,45);
 			    g2.drawString("Rotation: " + (int)player.getAngle() + " degrees " + player.getAngularVel() + " " + player.getAngularAcc(),5,60);
@@ -423,7 +423,7 @@ public class Board extends BoardAbstract {
 			    
 			    player.getCollisionType().debugDrawBoundary(camera , g2);
 			    
-			    for (EntityStatic entity : staticEntitiesList){
+			    for (EntityStatic entity : currentScene.listEntities() ){
 			    	
 			    	entity.getCollisionType().debugDrawBoundary(camera , g2);
 			    	camera.drawCrossOnCamera( entity.getPos());
@@ -652,7 +652,7 @@ public class Board extends BoardAbstract {
  */
     
     public void addStaticEntity(EntityStatic entity){
-    	this.staticEntitiesList.add( entity );
+    	this.currentScene.addEntity( entity );
     	this.collisionEngine.addStaticCollidable( (Collider)entity.getCollisionType() );
     	this.renderingEngine.addSpriteComposite(entity.getSpriteType());
     }
@@ -665,12 +665,28 @@ public class Board extends BoardAbstract {
 	
 	public Player getPlayer(){ return player; }
 	
-	public ArrayList<EntityStatic> getStaticEntities(){ return staticEntitiesList; }
+	//public ArrayList<EntityStatic> getStaticEntities(){ return entitiesList; }
 	public ArrayList<EntityDynamic> getDynamicEntities(){ return dynamicEntitiesList; }
-	public ArrayList<EntityPhysics> getPhysicsEntities(){ return physicsEntitiesList; }
 
 	public void transferEditorPanel(EditorPanel instance){
 		this.editorPanel = instance; 
 	}
     
+	
+	public void testingDeconstructScene(){
+		
+		this.renderingEngine.debugClearRenderer();
+		this.collisionEngine.degubClearCollidables();
+		
+	}
+	
+	public void testingCreateNewScene(  ){ //NOT DEREFFED YET
+		
+		this.renderingEngine.debugClearRenderer();
+		this.collisionEngine.degubClearCollidables();
+		
+		this.currentScene = new Scene(this);
+	}
+	
+	
 }

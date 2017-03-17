@@ -9,6 +9,7 @@ import engine.Overlay;
 import engine.OverlayComposite;
 import entityComposites.SpriteComposite;
 import entityComposites.SpriteProperty;
+import utility.*;
 
 public class RenderingEngine {
 	
@@ -16,7 +17,9 @@ public class RenderingEngine {
 	
 	private Graphics2D graphics;
 
-	private LinkedHead layer1Head;
+	//private LinkedHead layer1Head;
+	
+	private DoubleLinkedList< SpriteComposite > spriteCompositeList = new DoubleLinkedList< SpriteComposite >();
 	
 	private ArrayList<Overlay> overlayList = new ArrayList<Overlay>();
 	private ArrayList<OverlayComposite> visibleOverlayList = new ArrayList<OverlayComposite>();
@@ -29,7 +32,7 @@ public class RenderingEngine {
 	}
 	
 	private void init(){
-		layer1Head = new LinkedHead();
+		//layer1Head = new LinkedHead();
 	}
 
 	public void draw( Graphics2D g2 ){ //ENTRY POINT OF RENDERING ENGINE FROM BOARD PAINTCOMPONENT(g)
@@ -39,7 +42,11 @@ public class RenderingEngine {
 		camera.repaint(g2); 
 		
 		//Layers
-		layer1Head.beginDraw(); 
+		//layer1Head.beginDraw(); 
+		
+		while ( spriteCompositeList.hasNext() ){
+			spriteCompositeList.get().getSprite().drawSprite( camera );
+		}
 		
 		//Overlays
 		for ( OverlayComposite overlay : visibleOverlayList ){
@@ -52,10 +59,11 @@ public class RenderingEngine {
 		
 	}
 	
-	public LinkedNodeElement addSpriteComposite( SpriteProperty sprite ){
+	public Ticket addSpriteComposite( SpriteProperty sprite ){
 		
 		try{
-			return layer1Head.addElement( (SpriteComposite) sprite );
+			//return layer1Head.addElement( (SpriteComposite) sprite );
+			return spriteCompositeList.add( (SpriteComposite) sprite );
 		}
 		
 		catch( ClassCastException exc ){
@@ -69,10 +77,16 @@ public class RenderingEngine {
 		return this.camera;
 	}
 	
-	
+	public void debugClearRenderer(){
+		
+		while ( spriteCompositeList.hasNext() ){
+			spriteCompositeList.remove();
+		}
+		
+	}
 	
 	//#### TESTING DOUBLE LINKED LIST #####
-	
+/*	
 	private abstract class LinkedNode{ // make interface?
 		
 		LinkedNode nextNode;
@@ -151,7 +165,7 @@ public class RenderingEngine {
 			this.nextNode.setPreviousNode( this.prevNode );
 		}
 		
-	}
+	}*/
 	
 	public OverlayComposite addOverlay( Overlay overlay) {
 		

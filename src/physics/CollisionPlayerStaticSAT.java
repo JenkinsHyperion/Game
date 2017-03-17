@@ -63,13 +63,13 @@ public class CollisionPlayerStaticSAT extends Collision {
 		Resolution closestResolution = getClosestResolution();
 
 
-		if ( 
-				(	(int)closestResolution.getDistanceVector().getY()-(int)entityPrimary.getDY() != 0  
-					&& (int)closestResolution.getClippingVector().getY() != 0 
+		if ( //NOT RESOLVING ON SLOPE, PROBLEM IN CLIPPINMG VECTOR
+				(	/*(int)closestResolution.getDistanceVector().getY()-(int)entityPrimary.getDY() != 0  
+					&&*/ (int)closestResolution.getClippingVector().getY() != 0 
 				)
 				||
-				(	(int)closestResolution.getDistanceVector().getX()-(int)entityPrimary.getDX() != 0
-					&& (int)closestResolution.getClippingVector().getX() != 0 
+				(	/*(int)closestResolution.getDistanceVector().getX()-(int)entityPrimary.getDX() != 0
+					&&*/ (int)closestResolution.getClippingVector().getX() != 0 
 				)
 				
 		) { //Primary Entity is clipping by closestResolution.vector() 
@@ -147,15 +147,15 @@ public class CollisionPlayerStaticSAT extends Collision {
 		 
 	}
 	
-	protected class ResolutionEvent extends ResolutionState{
+	protected class ResolutionEvent extends ResolutionState{ //ONE TIME EVENT THAT TRIGGERS UPON RESOLUTION
 		
 		@Override
-		protected void triggerEvent( Resolution resolution ) { //One time event upon resolution of collision
+		protected void triggerEvent( Resolution resolution ) { 
 			
 			collisionDebugTag = "("+resolution.FeaturePrimary()+" of "+entityPrimary.name+") contacting ("+
 					resolution.FeatureSecondary()+" of "+entitySecondary.name+")";
 			
-			if (resolution.FeatureSecondary().debugIsSide()){ 
+			if ( resolution.FeatureSecondary().debugIsSide() ){ 
 				Vector slope = ((Side)resolution.FeatureSecondary()).getSlopeVector();
 				Vector normal = slope.normal().unitVector().scaledBy( -0.2 );
 				
@@ -164,13 +164,13 @@ public class CollisionPlayerStaticSAT extends Collision {
 				System.out.println( " Slope " + slope + " Normal "+test );
 				normalForce.setVector( test );
 			}
-			else
-				//normalForce.setVector( 0 , -0.2 );
-			
-			System.out.println("[ Collision Resolved, event '"+resolution.FeaturePrimary().getEvent()+ "' on "+ entityPrimary +" triggered ] "  );
-			
+			else{
+
+				System.out.println("[ Collision Resolved, event '"+resolution.FeaturePrimary().getEvent()+ "' on "+ entityPrimary +" triggered ] "  );
+			}
+			System.out.println("Triggering "+resolution.FeaturePrimary().getEvent() + " of "+ resolution.FeaturePrimary() );
+			//Trigger Boundary Collision Event on relevant side/vertex
 			resolution.FeaturePrimary().getEvent().run( resolution.FeaturePrimary() , resolution.FeatureSecondary() );
-			
 		}
 
 	}
@@ -230,7 +230,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 	}
 	
 	//Resolution calculation
-	private Resolution getClosestResolution() { //FIXME RETURNING NULL
+	private Resolution getClosestResolution() { 
 		//System.out.println("Checking best resolution"); 
 		ArrayList<Resolution> penetrations = new ArrayList<>();
     	
@@ -285,22 +285,8 @@ public class CollisionPlayerStaticSAT extends Collision {
 	    	}
 	    	//System.out.println( "Accepted "+ closestResolution.getClippingVector().getX() + " , " + closestResolution.getClippingVector().getY());
     	}
-    	
-    	
-    	/*if (penetrationX == 0 && penetrationY == 0 ){ //Passed to updateCollision() for collisions where side is flush
-    		//System.out.println(" Null resolution 0,0 ");
-    		return new Resolution(
-    					closestResolution.FeaturePrimary(),
-    					closestResolution.FeatureSecondary(),
-    					null,
-    					new Vector( distanceX , distanceY )
-    				);
-    	}
-    	else {*/
-    		//return new Point(penetrationX,penetrationY); //return chosen best resolution
-    		return closestResolution;
-    		
-    	//}
+
+    	return closestResolution;
 
 	}
 	

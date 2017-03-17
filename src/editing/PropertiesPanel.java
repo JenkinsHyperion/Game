@@ -144,8 +144,8 @@ public class PropertiesPanel extends JPanel implements ActionListener,ItemListen
 		int duplicatesFound = 0;
 		int index = 0;
 		for (PropertiesList prop : propList) {
-			System.out.println(prop.getProperty(Property.ENTNAME).getEntityName(board.getStaticEntities().get(index)));
-			if (prop.getProperty(Property.ENTNAME).getEntityName(board.getStaticEntities().get(index)).equals(nameCheck)){
+			System.out.println(prop.getProperty(Property.ENTNAME).getEntityName(board.listCurrentSceneEntities()[index] ));
+			if (prop.getProperty(Property.ENTNAME).getEntityName(board.listCurrentSceneEntities()[index] ).equals(nameCheck)){
 				duplicatesFound++;
 				System.out.println("In checkDuplicateName(): found duplicate " + duplicatesFound + " times");
 			}

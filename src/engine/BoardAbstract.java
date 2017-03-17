@@ -11,6 +11,9 @@ import javax.swing.JPanel;
 import editing.EditorPanel;
 import entities.EntityStatic;
 import misc.PaintOverlay;
+import physics.CollisionEngine;
+import saving_loading.EntityData;
+import sprites.RenderingEngine;
 
 public abstract class BoardAbstract extends JPanel implements KeyListener {
 
@@ -22,7 +25,16 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	
 	protected OverlayComposite diagnosticsOverlay;
 	
-	private ArrayList<EntityStatic> entitiesList; 
+	//protected ArrayList<EntityStatic> entitiesList; 
+	
+	public RenderingEngine renderingEngine;
+	protected Camera camera;
+	
+	public CollisionEngine collisionEngine; 
+	
+	
+	
+	protected Scene currentScene =  new Scene(this);
 	
 	protected int[] speedLogDraw = new int[300];
 	protected int[] speedLog = new int[300];
@@ -106,20 +118,20 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	
 	protected abstract void entityThreadRun();
 
-	public ArrayList<EntityStatic> getEntities(){
-		return entitiesList;
+	public EntityStatic[] listCurrentSceneEntities(){
+		return this.currentScene.listEntities();
 	}
 	
 	public Camera getCamera() {
 		return null;
 	}
-
-	public ArrayList<EntityStatic> getStaticEntities() {
-		return entitiesList;
-	}
 	
 	public void transferEditorPanel(EditorPanel instance){
 		this.editorPanel = instance; 
+	}
+	
+	public void createNewScene(Scene scene){
+		this.currentScene = scene;
 	}
 	
 	

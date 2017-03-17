@@ -5,8 +5,10 @@ import java.io.File;
 import animation.Animation;
 import entityComposites.*;
 import physics.Boundary;
+import physics.CollisionEngine;
 import sprites.SpriteAnimated;
 import sprites.SpriteStillframe;
+import sprites.RenderingEngine;
 import sprites.Sprite;
 
 /*
@@ -16,13 +18,9 @@ public class EntityStatic extends Entity{
 
 
 	public boolean isSelected;
-    //protected transient ArrayList<CollidingPair> collisions = new ArrayList<>(); //moving to composit
-	//protected transient Rectangle boundingBox = new Rectangle(0,0); //moving to composite
-	//protected transient Boundary boundary = new BoundingBox(new Rectangle(2,2)); //moving to composite
 
-	//COMPOSITE TESTING
-	protected SpriteProperty spriteType = SpriteNull.getNullSprite(); //might want to put into super class unless Entity without image is useful
-	//protected CollisionProperty collisionType = new Collidable(this);
+	protected SpriteProperty spriteType = SpriteNull.getNullSprite(); 
+	
 	protected CollisionProperty collisionType = NonCollidable.getNonCollidable();
 	
 	public EntityStatic(int x, int y) {
@@ -38,8 +36,13 @@ public class EntityStatic extends Entity{
     	
     }
 
+	public EntityStatic(Point entityPosition) {
+		super( entityPosition.x , entityPosition.y );
+	}
+
 	public void setSpriteType(SpriteProperty spriteType){ this.spriteType = spriteType; }
 	public SpriteProperty getSpriteType(){ return this.spriteType; }
+	public SpriteComposite getSpriteComposite(){ return (SpriteComposite) this.spriteType; }
 	public void setCollisionProperties(CollisionProperty collisionType){ this.collisionType = collisionType; }
 
 	

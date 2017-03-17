@@ -1,4 +1,4 @@
-package editing;
+package saving_loading;
 
 import java.io.*;
 import java.nio.file.*;
@@ -67,28 +67,59 @@ public class SavingLoading {
 	 * @param staticEntities The ArrayList to operate on. Will save(serialize) the state of each element.
 	 * @param levelFolderName Your level's name
 	 */
-	public void writeLevel(ArrayList<EntityStatic> staticEntities, String levelFolderName) {
+	public void writeLevel( EntityStatic[] staticEntities, String levelFolderName) {
 		FileOutputStream fileOut = null;
 		//PrintWriter printout = null;
 		ObjectOutputStream serialOut = null;
 		String finalDirectory = rootPath + File.separator + levelFolderName + File.separator;
 		//initial check makes sure levels aren't overwritten
-		if ( new File(rootPath + File.separator + levelFolderName).exists() )
+		if ( new File(rootPath + File.separator + levelFolderName).exists() ){
 			//folder already exists; don't want to overwrite it.
-			JOptionPane.showMessageDialog(null, "Level folder already exists. Skipping...");
+			//JOptionPane.showMessageDialog(null, "Level folder already exists. Skipping...");
+			int overwriteLevel = JOptionPane.showConfirmDialog( null , "Level already exists. Overwrite?");
+			if ( overwriteLevel == JOptionPane.OK_OPTION ){
+				try {
+					//Delete old directory to make room for new
+					File levelFolder = new File(rootPath + File.separator + levelFolderName);
+					File[] contents = levelFolder.listFiles(); //get entity files in old level folder
+					if (contents != null) {
+						for (File f : contents) {
+							f.delete(); //delete each file before you can delete the folder
+						}
+					}
+					levelFolder.delete(); //now you can delete the folder
+					
+					//The rest of this is same as unhindered save
+					Files.createDirectories(Paths.get(finalDirectory));
+					for (int i = 0; i < staticEntities.length; i++) {
+						fileOut = new FileOutputStream(finalDirectory + staticEntities[i].name + ".ser");
+						serialOut = new ObjectOutputStream(fileOut);
+						serialOut.writeObject( EntitySerializer.Serialize( staticEntities[i] ) );
+						fileOut.close();
+						serialOut.close();
+					}
+					fileOut.close();
+					serialOut.close();
+					
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
 		else // path doesn't exist, OK to create new one
 		{
-			if (staticEntities.size() == 0) { //can't save if there are no entities in list
+			if (staticEntities.length == 0) { //can't save if there are no entities in list
 				JOptionPane.showMessageDialog(null, "Nothing to save!");
 			}
 			else //everything's good, OK to serialize entities to new path
 			{
 				try {
 					Files.createDirectories(Paths.get(finalDirectory));
-					for (int i = 0; i < staticEntities.size(); i++) {
-						fileOut = new FileOutputStream(finalDirectory + staticEntities.get(i).name + ".ser");
+					for (int i = 0; i < staticEntities.length; i++) {
+						fileOut = new FileOutputStream(finalDirectory + staticEntities[i].name + ".ser");
 						serialOut = new ObjectOutputStream(fileOut);
-						serialOut.writeObject(staticEntities.get(i));
+						serialOut.writeObject( EntitySerializer.Serialize( staticEntities[i] ) );
 						fileOut.close();
 						serialOut.close();
 					}
@@ -104,8 +135,10 @@ public class SavingLoading {
 		}	
 	}
 	
-	public void loadLevel(ArrayList<EntityStatic> staticEntities, String levelFolderName) {
+	public EntityData[] loadLevelEntities( String levelFolderName ) {
 		//int fileCount = 0; //amount of files in the folder
+		ArrayList<EntityData> returnDataList = new ArrayList<EntityData>();
+		
 		File fileArray[] = null;
 		FileInputStream fileIn = null;
 		ObjectInputStream serialIn = null;
@@ -118,15 +151,15 @@ public class SavingLoading {
 				//fileCount = (int)Files.list(Paths.get(finalDirectory)).count();
 				fileArray = new File(finalDirectory).listFiles(); //an array that contains each file in the current folder
 				//clear out the old entity list first
-				staticEntities.clear();
+				returnDataList.clear();
 
 				for (int i = 0; i < fileArray.length; i++) 
 				{
 					fileIn = new FileInputStream(finalDirectory + fileArray[i].getName() );
 					serialIn = new ObjectInputStream(fileIn);
-					EntityStatic temp = null;
-					temp = (EntityStatic)serialIn.readObject();
-					staticEntities.add(temp);
+					EntityData temp = null;
+					temp = (EntityData)serialIn.readObject();
+					returnDataList.add(temp);
 					fileIn.close();
 					serialIn.close();
 				}
@@ -142,6 +175,10 @@ public class SavingLoading {
 		}
 		else
 			JOptionPane.showMessageDialog(null, "No files to load");
+		
+		EntityData[] returnData = new EntityData[ returnDataList.size() ];
+		returnDataList.toArray(returnData);
+		return returnData;
 	}
 	/*
 	public static void main(String[] aaa) {

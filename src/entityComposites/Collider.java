@@ -22,8 +22,6 @@ public final class Collider extends CollisionProperty{
     private float mass = 1;
 	
 	protected ArrayList<CollidingPair> collisionInteractions = new ArrayList<>();
-	
-	protected Collision collisionMath;
 
 	private CollisionEvent uponLeavingCollision = new NullCollisionEvent();
 	
@@ -217,6 +215,11 @@ public final class Collider extends CollisionProperty{
 		
 		thisEntity.setAngularVelocity( torque * 0.1 );
 		
+	}
+	
+	
+	public void addCompositeToPhysicsEngine( CollisionEngine engine ){ //TODO COLLISION ENGINE DOUBEL LINKED LIST like renderer
+		engine.addStaticCollidable( this );
 	}
 	
     

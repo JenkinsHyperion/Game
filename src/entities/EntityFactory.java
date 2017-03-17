@@ -1,12 +1,16 @@
 package entities;
 
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.geom.Line2D;
 
+import engine.BoardAbstract;
+import engine.Scene;
 import entityComposites.Collider;
 import entityComposites.NonCollidable;
 import entityComposites.SpriteComposite;
 import entityComposites.SpriteNull;
+import saving_loading.EntityData;
 import sprites.SpriteFilledShape;
 
 public class EntityFactory {
@@ -91,5 +95,60 @@ public class EntityFactory {
 		
 		return testEntity;
 	}
+	
+	/*#######################################################################
+	 * 
+	 *   ENTITY DESERIALIZATION should maybe be in a class separate
+	 * 				from the more client based methods, will always be more powerful
+	 ########################################################################*/
+	
+	
+	public static void deserializeEntityData( EntityData[] dataArray , BoardAbstract board ){
+		
+		EntityStatic[] newEntityList = new EntityStatic[ dataArray.length ];
+		
+		for ( int i = 0 ; i < dataArray.length ; i++ ){
+
+			//CONSTRUCT SPRITE
+			
+				Point[] corners = dataArray[i].getColliderData().getCornerPositions();
+				Line2D[] sideLines = new Line2D[ corners.length ];
+				for ( int j = 0 ; j < corners.length ; j++ ){
+					int jNext = (j+1) % corners.length;
+					sideLines[j] = new Line2D.Float( corners[j] , corners[jNext] );
+				}
+				
+				Point pos = dataArray[i].getEntityPosition();
+				
+				newEntityList[i] = createEntityFromBoundary( pos.x , pos.y , sideLines );
+			
+			//CONSTRUCT COLLIDER
+			
+			
+			
+			//CONSTRUCT UPDATEABLE
+			
+			
+		}
+		
+		createNewSceneFromEntities( newEntityList , board );
+
+	}
+	
+	private static void createNewSceneFromEntities( EntityStatic[] entities , BoardAbstract board ){
+		
+		Scene newScene = new Scene(board);
+		
+		board.renderingEngine.debugClearRenderer();
+		board.collisionEngine.degubClearCollidables();
+		
+		for ( EntityStatic addedEntity : entities )
+			newScene.addEntity(addedEntity);
+		
+		board.createNewScene(newScene);
+
+		
+	}
+	
 	
 }

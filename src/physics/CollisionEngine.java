@@ -28,6 +28,11 @@ public class CollisionEngine {
 		
 	}
 	
+	public void degubClearCollidables(){
+		staticCollidablesList.clear();
+		//dynamicCollidablesList.clear(); //keep player temporarily while scenes are under construction
+	}
+	
 	//check collision list and return true if two entities are already colliding
 	private boolean hasActiveCollision(EntityStatic entity1, EntityStatic entity2){
 		    	
@@ -356,6 +361,10 @@ public class CollisionEngine {
     }
     
     protected BoardAbstract getBoard(){ return currentBoard; }
+
+    public int debugNumberofCollidables(){ 
+    	return this.staticCollidablesList.size();
+    }
 	    
 }
 	   

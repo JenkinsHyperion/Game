@@ -10,6 +10,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import animation.*;
 import entities.*;
+import entityComposites.GraphicComposite;
 import editing.*;
 import engine.*;
 
@@ -20,54 +21,54 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     protected BufferedImage image;
 
     public SpriteStillframe(String path, EntityStatic owner) { 
-    	if (!checkPath(path)) {
+    	if (!checkPath(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path)) {
     		fileName = null;
     		image = new MissingIcon().paintMissingSprite();
     		System.err.println("Image file '"+path +"' not found; using placeholder");
     	}
     	else {
-	    	fileName = path;	    	
+	    	fileName = System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path;	    	
 	    	loadImage(fileName);
     	}
-    	this.owner = owner;
+    	
     	}
     //another constructor only for owner-less sprite (such as the ghostSprite in Editor)
     public SpriteStillframe(String path){
-    	if (!checkPath(path)) {
+    	if (!checkPath(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path)) {
     		fileName = null;
     		image = new MissingIcon().paintMissingSprite();
     		System.err.println("Image file '"+path +"' not found; using placeholder");
     	}
     	else {
-	    	fileName = path;	    	
+	    	fileName = System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path;	    	
 	    	loadImage(fileName);
     	}
     	visibility = true;
     }
     public SpriteStillframe(String path, int offset_x, int offset_y , EntityStatic owner) { 
-    	if (!checkPath(path)) {
+    	if (!checkPath(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path)) {
     		fileName = null;
     		image = new MissingIcon().paintMissingSprite();
-    		System.err.println("Image file '"+path +"' not found for '"+owner.name+"', using placeholder");
+    		System.err.println("Image file '"+path +"' not found for '"+ownerComposite.ownerEntity().name+"', using placeholder");
     	}
     	else {
-	    	fileName = path;	    	
+	    	fileName = System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path;	    	
 	    	loadImage(fileName);
     	}
-    	this.owner = owner;
+
     	visibility = true;
     	this.spriteOffsetX = offset_x;
     	this.spriteOffsetY = offset_y;
     }
     
     public SpriteStillframe(String path, int offset_x, int offset_y) { 
-    	if (!checkPath(path)) {
+    	if (!checkPath(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path)) {
     		fileName = null;
     		image = new MissingIcon().paintMissingSprite();
-    		System.err.println("Image file '"+path +"' not found for '"+owner.name+"', using placeholder");
+    		System.err.println("Image file '"+path +"' not found for '"+ownerComposite.ownerEntity().name+"', using placeholder");
     	}
     	else {
-	    	fileName = path;	    	
+	    	fileName = System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path;	    	
 	    	loadImage(fileName);
     	}
     	visibility = true;

@@ -6,12 +6,10 @@ import java.awt.geom.Line2D;
 
 import engine.BoardAbstract;
 import engine.Scene;
-import entityComposites.Collider;
-import entityComposites.NonCollidable;
-import entityComposites.SpriteComposite;
-import entityComposites.SpriteNull;
+import entityComposites.*;
 import saving_loading.EntityData;
 import sprites.SpriteFilledShape;
+import sprites.SpriteStillframe;
 
 public class EntityFactory {
 	
@@ -33,8 +31,9 @@ public class EntityFactory {
 	
 	public static EntityStatic createBackgroundSprite( String path, int x, int y ){
 		EntityStatic testEntity = new EntityStatic(x,y);
-        testEntity.setCollisionProperties( NonCollidable.getNonCollidable() );
-        testEntity.loadSprite( path , 0 , 0 );
+        testEntity.setCollisionProperties( ColliderNull.getNonCollidable() );
+        SpriteStillframe sprite = new SpriteStillframe(path);
+        EntityComposite.addGraphicTo(testEntity, sprite);
         return testEntity;
 	}
 
@@ -44,11 +43,7 @@ public class EntityFactory {
 		Collider collider = new Collider( testEntity , lines );
 		testEntity.setCollisionProperties( collider );
 		
-		SpriteComposite spriteComposite = new SpriteComposite( 
-				new SpriteFilledShape( collider.getBoundary() , Color.WHITE , testEntity),
-				testEntity
-		);
-		testEntity.setSpriteType( spriteComposite );
+		EntityComposite.addGraphicFromCollider(testEntity, collider);
 		
 		return testEntity;
 	}
@@ -82,16 +77,18 @@ public class EntityFactory {
 		/*for ( int i = 0 ; i < lines.length ; i++ ){
 			finalLines[i].setLine( lines[i].getX1() , lines[i].getY1()  , lines[i].getX2() , lines[i].getY2() );
 		}*/
-		Collider collidable = new Collider( testEntity , finalLines );
+		Collider collidable = new Collider( testEntity , finalLines ); 
 		testEntity.setCollisionProperties( collidable );	
 		//testEntity.loadSprite("missing.png" , 0 , 0 );
-		SpriteComposite spriteComposite = new SpriteComposite( 
-				new SpriteFilledShape( collidable.getBoundary() , Color.WHITE , testEntity),
+		/*SpriteComposite spriteComposite = new SpriteComposite( 
+				new SpriteFilledShape( collidable.getBoundary() , Color.WHITE ),
 				testEntity
-		);
-		testEntity.setSpriteType( spriteComposite );
+		);*/
 		
-		testEntity.setPos( centerX, centerY);
+		//testEntity.setSpriteType( NullSpriteComposite.getNullSprite() );
+		EntityComposite.addGraphicFromCollider(testEntity, collidable);
+		
+		testEntity.setPos( centerX , centerY );
 		
 		return testEntity;
 	}

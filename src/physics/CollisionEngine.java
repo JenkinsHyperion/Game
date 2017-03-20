@@ -30,6 +30,10 @@ public class CollisionEngine {
 	
 	public void degubClearCollidables(){
 		staticCollidablesList.clear();
+		for (Collision collision : collisionsList){
+			collision.completeCollision();
+		}
+		collisionsList.clear();
 		//dynamicCollidablesList.clear(); //keep player temporarily while scenes are under construction
 	}
 	
@@ -58,9 +62,8 @@ public class CollisionEngine {
 	    		
 	    	}
 	    	else {
-	    			
-	    		collisionsList.remove(i);
-	    			
+	    		collisionsList.get(i).completeCollision();
+	    		collisionsList.remove(i);	
     		}
 	  		
     	}
@@ -251,8 +254,8 @@ public class CollisionEngine {
      */
     private Vector getDistanceSAT2( Line2D separatingSide , EntityStatic entityA , EntityStatic entityB ){
 	    
-	    Boundary boundsB = ((Collider) entityB.getCollisionType()).getBoundaryLocal(); 
-	    Boundary boundsA = ((Collider) entityA.getCollisionType()).getBoundaryLocal();
+	    Boundary boundsB = entityB.getColliderComposite().getBoundaryLocal(); 
+	    Boundary boundsA = entityA.getColliderComposite().getBoundaryLocal();
 	    
 	    Point2D centerA = new Point2D.Double(entityA.getX(), entityA.getY());
 	    Point2D centerB = new Point2D.Double(entityB.getX(), entityB.getY());

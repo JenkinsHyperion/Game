@@ -109,6 +109,10 @@ public class CollisionPlayerDynamic extends Collision {
 			return true;
 		}
 	}
+	@Override
+	public boolean isComplete() {
+		return false;
+	}
 	
 
 }

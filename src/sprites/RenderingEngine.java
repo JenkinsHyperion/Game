@@ -7,8 +7,7 @@ import engine.BoardAbstract;
 import engine.Camera;
 import engine.Overlay;
 import engine.OverlayComposite;
-import entityComposites.SpriteComposite;
-import entityComposites.SpriteProperty;
+import entityComposites.GraphicComposite;
 import utility.*;
 
 public class RenderingEngine {
@@ -19,7 +18,7 @@ public class RenderingEngine {
 
 	//private LinkedHead layer1Head;
 	
-	private DoubleLinkedList< SpriteComposite > spriteCompositeList = new DoubleLinkedList< SpriteComposite >();
+	private DoubleLinkedList< GraphicComposite > spriteCompositeList = new DoubleLinkedList< GraphicComposite >();
 	
 	private ArrayList<Overlay> overlayList = new ArrayList<Overlay>();
 	private ArrayList<OverlayComposite> visibleOverlayList = new ArrayList<OverlayComposite>();
@@ -59,11 +58,11 @@ public class RenderingEngine {
 		
 	}
 	
-	public Ticket addSpriteComposite( SpriteProperty sprite ){
+	public Ticket addSpriteComposite( GraphicComposite sprite ){
 		
 		try{
 			//return layer1Head.addElement( (SpriteComposite) sprite );
-			return spriteCompositeList.add( (SpriteComposite) sprite );
+			return spriteCompositeList.add( sprite );
 		}
 		
 		catch( ClassCastException exc ){
@@ -202,6 +201,10 @@ public class RenderingEngine {
 		
 		visibleOverlayList.remove(hashID);
 		
+	}
+
+	public Graphics2D getGraphics() {
+		return graphics;
 	}
 	
 }

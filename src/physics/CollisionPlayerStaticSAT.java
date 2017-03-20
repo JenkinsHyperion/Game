@@ -8,12 +8,16 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 import engine.*;
-import engine.Overlay;
 import entities.*;
 import entityComposites.Collider;
 import physics.Collision;
+import sprites.RenderingEngine;
 
 public class CollisionPlayerStaticSAT extends Collision {
+	
+	RenderingEngine debugRenderer;
+	
+	boolean isComplete = false;
 	
 	private Force normalForce;
 	private Force friction;
@@ -32,6 +36,8 @@ public class CollisionPlayerStaticSAT extends Collision {
 		
 		collidingPrimary = collidable1; // TAKE COLLIDABLE IN COSNTRUCTOR INSTEAD OF ENTITY
 		collidingSecondary = collidable2;
+		
+		debugRenderer = ownerEngine.getBoard().renderingEngine;
 		
 		initCollision();
 		
@@ -61,7 +67,6 @@ public class CollisionPlayerStaticSAT extends Collision {
 	public void updateCollision(){ 
 		
 		Resolution closestResolution = getClosestResolution();
-
 
 		if ( //NOT RESOLVING ON SLOPE, PROBLEM IN CLIPPINMG VECTOR
 				(	/*(int)closestResolution.getDistanceVector().getY()-(int)entityPrimary.getDY() != 0  
@@ -136,7 +141,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 
 			}
 			else{
-				System.out.println("$#$#%#$ DROPPED SIDE");
+				//System.out.println("DROPPED SIDE");
 			}
 			
 			
@@ -196,17 +201,15 @@ public class CollisionPlayerStaticSAT extends Collision {
 		collidingPrimary.onLeavingCollisionEvent();
 		collidingSecondary.onLeavingCollisionEvent();
 		
-		entityPrimary.setColliding(false); // unset entity collision flag. 
+		
 		entityPrimary.removeForce(normalForce.getID());              //turn gravity back on
 		entityPrimary.removeForce(friction.getID());     //remove friction
 		
 		//Remove collision from involved entities lists
 		collidingPrimary.removeCollision( entityPairIndex[0] );
 		collidingSecondary.removeCollision(entityPairIndex[1] );
-		
+
 		overlay.remove();
-		
-		isComplete = true;
 	}
 	
 	/* ######################
@@ -219,14 +222,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 	public boolean isComplete(){ // Check if entities are no longer colliding //OPTIMIZATION - HANDLE AS EVENT RATEHR THAN CHECK
 		//CHECK FOR COLLISIONS IS BEING DOUBLE CHECKED IN COLLISION ENGINE
 		
-		//if (CollisionEngine.checkForCollisionsSAT(entityPrimary, entitySecondary) ) )
-		
-		if ( isComplete ) { // entities are no longer colliding
-			completeCollision(); // run final commands
-			return true; // return true for scanning loop in Board to delete this collision
-		}
-		else 
-			return false;
+		return isComplete;
 	}
 	
 	//Resolution calculation
@@ -239,9 +235,8 @@ public class CollisionPlayerStaticSAT extends Collision {
 		
 		for ( Line2D side : separatingSides ){
 			
-		    	penetrations.add( this.resolver.resolveAxis(side) );
+		    	penetrations.add( this.resolver.resolveAxis( side ));
 		}
-    	
     	
     	double penetrationX = 0;
     	double penetrationY = 0;
@@ -289,51 +284,30 @@ public class CollisionPlayerStaticSAT extends Collision {
     	return closestResolution;
 
 	}
-	
-
-	
-	private boolean vectorOpposesVelocity(Vector vector) {
-		
-		if ( entityPrimary.getDX() > 0 ) {
-			if ( vector.getX() > entityPrimary.getDX() ){
-				return false;
-			}
-		}
-		else if ( entityPrimary.getDX() < 0 ) {
-			if ( vector.getX() < entityPrimary.getDX() ){
-				return false;
-			}
-		}
-		else { // if velocity is zero reject any non 0 vector 
-			//if ( vector.getX() != 0)
-				//return false;
-		}
-		
-		if ( entityPrimary.getDY() > 0 ) {
-			if ( vector.getY() > entityPrimary.getDY() ){
-				return false;
-			}
-		}
-		else if ( entityPrimary.getDY() < 0 ) {
-			if ( vector.getY() < entityPrimary.getDY() ){
-				return false;
-			}
-		}
-		else {
-			//if ( vector.getY() != 0)
-				//return false;
-		}
-		return true;
-	}
 
 	
 	private abstract class Resolver{
-		abstract Resolution resolveAxis( Line2D separatingSide );
+		abstract Resolution resolveAxis( Line2D separatingSide);
 	}
 	
 	private class ResolverSAT_1 extends Resolver implements Overlay{
 		
-		public Resolution resolveAxis( Line2D separatingSide ){
+		ArrayList<Line2D> axes = new ArrayList<Line2D>();
+		ArrayList<Line2D> playerProj = new ArrayList<Line2D>();
+		ArrayList<Line2D> statProj = new ArrayList<Line2D>();
+		
+		ArrayList<Point2D> unshifted = new ArrayList<Point2D>();
+		
+		
+		ArrayList<Point2D> raw = new ArrayList<Point2D>();
+		
+		
+		ArrayList<Point2D> clip = new ArrayList<Point2D>();
+		ArrayList<Point2D> clipPos = new ArrayList<Point2D>();
+		
+		ArrayList<BoundaryFeature> closestSides = new ArrayList<BoundaryFeature>();
+		
+		public Resolution resolveAxis( Line2D separatingSide){
 		
 		    EntityStatic stat = entitySecondary;
 		    
@@ -349,8 +323,9 @@ public class CollisionPlayerStaticSAT extends Collision {
 			
 			Line2D axis = Boundary.getSeparatingAxis(separatingSide); //OPTIMIZE TO SLOPE ONLY CALCULATIONS
 			
-			
 			//DRAW AXIS
+			axes.add(axis);
+	    	//
 			
 			Vertex[] statOuterVertices= statBounds.getFarthestVertices(playerBounds,axis);
 	    	Vertex[] playerOuterVertices= playerBounds.getFarthestVertices(statBounds,axis);
@@ -390,8 +365,8 @@ public class CollisionPlayerStaticSAT extends Collision {
 	    			statBounds.getProjectionPoint(nearStatCorner[0].toPoint(),axis) 
 	    			);
 			
-	    	//DebugCamera.getOverlay().setColor(Color.DARK_GRAY); 
-	    	//DebugCamera.getOverlay().drawLine(playerHalf);
+	    	playerProj.add(playerHalf);
+	    	statProj.add(statHalf);
 			
 			double centerDistanceX = centerProjection.getX1() -  centerProjection.getX2()  ;
 			double centerDistanceY = centerProjection.getY1() -  centerProjection.getY2()  ;
@@ -474,13 +449,11 @@ public class CollisionPlayerStaticSAT extends Collision {
 	    	}
 			
 			
-			int square = 0;
-			
-			if ( unshiftedX==square && unshiftedY==square ){
-				isComplete = true;
-				System.out.println("Collision Dropped on " + (axis.getY2()-axis.getY1())/(axis.getX2()-axis.getX1()) +
-						" "+rawDistanceX+ " - " +rawDistanceY );
-			}
+	    	unshifted.add( new Point2D.Double( unshiftedX , unshiftedY ) );
+	    	clip.add( new Point2D.Double( unshiftedX , unshiftedY ) );
+	    	clipPos.add( playerHalf.getP1() );
+	    	
+
 		
 			//g2.draw( unshiftedX + " , " + unshiftedY , (int)separatingSide.getX1(), (int)separatingSide.getY1());
 			
@@ -503,8 +476,26 @@ public class CollisionPlayerStaticSAT extends Collision {
 			if ( nearPlayerCorner.length > 1 ){ 
 				featurePrimary = nearPlayerCorner[0].getSharedSide(nearPlayerCorner[1]);
 	    	}
-	    		
-	    		
+			
+			closestSides.add( featurePrimary );
+			closestSides.add( featureSecondary );
+			
+			int square = 0;
+			
+			if ( (int)unshiftedX==square && (int)unshiftedY==square ){ //DROPPING OF COLLISION
+				isComplete = true;
+				System.out.println("Collision Dropped on " + (axis.getY2()-axis.getY1())/(axis.getX2()-axis.getX1()) +
+						" "+rawDistanceX+ " - " +rawDistanceY );
+				
+				return new Resolution( 
+						featurePrimary, //construct sides
+						featureSecondary,
+						new Vector( 0 , 0 ),
+						new Vector( 0 , 0 )
+				);
+			}
+			else {
+
 				//System.out.println(""+featurePrimary.toString()+" : "+featureSecondary.toString() );
 				return new Resolution( 
 						featurePrimary, //construct sides
@@ -512,26 +503,56 @@ public class CollisionPlayerStaticSAT extends Collision {
 						new Vector( penetrationX , penetrationY ),
 						new Vector( rawDistanceX , rawDistanceY )
 				);
-				
+			}
 		}
 
 		@Override
-		public void paintOverlay(Graphics2D g2 , Camera cam) {
+		public void paintOverlay(Graphics2D g2, Camera cam) {
 			
-			for ( int i = 0 ; i < entityPrimary.debugForceArrows().length ; i++ ){
-				
-				Vector force = entityPrimary.debugForceArrows()[i];
-				Line2D forceArrow = new Line2D.Double( entityPrimary.getPos() , 
-					new Point2D.Double(entityPrimary.getX() + force.getX()*200 , entityPrimary.getY() + force.getY()*200 ) );
-	    	
-				cam.draw( forceArrow );
-				
-				
-				
+			/*g2.setColor(Color.DARK_GRAY);
+			
+			Line2D[] buffer = new Line2D[ axes.size() ];
+			axes.toArray(buffer);
+			
+			for ( Line2D axis : buffer )
+	    		cam.drawAxis(axis , new Point(300,300));
+			
+			axes.clear();
+			g2.setColor(Color.GREEN);
+			buffer = new Line2D[ playerProj.size() ];
+			playerProj.toArray(buffer);
+			for (Line2D player : buffer )
+				cam.draw(player);
+			
+			playerProj.clear();
+			g2.setColor(Color.RED);
+			buffer = new Line2D[ statProj.size() ];
+			statProj.toArray(buffer);
+			for (Line2D stat : buffer )
+				cam.draw(stat);
+			
+			statProj.clear();
+			
+			g2.setColor(Color.YELLOW);
+			Point2D[] bufferP = new Point2D[ clip.size() ];
+			clip.toArray(bufferP);
+			for ( int i = 0 ; i < bufferP.length ; i++){
+				cam.drawString( (int)bufferP[i].getX() + " , " + (int)bufferP[i].getY() , (int)clipPos.get(i).getX() , (int)clipPos.get(i).getY() );
 			}
 			
+			clip.clear();
+			clipPos.clear();
 			
+			g2.setColor(Color.YELLOW);
+			BoundaryFeature[] buffer3 = new BoundaryFeature[ closestSides.size() ];
+			closestSides.toArray(buffer3);
+			for (BoundaryFeature statFeature : buffer3 )
+				cam.draw( new Line2D.Float( statFeature.getP1() , statFeature.getP2() ) );
+			
+			closestSides.clear();
+			*/
 		}
+
 	}
 	
 

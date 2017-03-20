@@ -9,7 +9,9 @@ import javax.swing.event.*;
 import editing.EditorPanel;
 import entities.*; //local imports
 import entityComposites.Collider;
-import entityComposites.SpriteComposite;
+import entityComposites.Collider;
+import entityComposites.EntityComposite;
+import entityComposites.GraphicComposite;
 import physics.*;
 import physics.Vector;
 import sprites.*;
@@ -113,8 +115,8 @@ public class Board extends BoardAbstract {
         // initialize player
         player = new PlayerCharacter(ICRAFT_X, ICRAFT_Y,this);
   
-        collisionEngine.addDynamicCollidable( (Collider)player.getCollisionType() );
-        renderingEngine.addSpriteComposite( (SpriteComposite) player.getSpriteType() );
+        collisionEngine.addDynamicCollidable( player.getColliderComposite() );
+        renderingEngine.addSpriteComposite( player.getGraphicComposite() );
 
   
         EntityStatic testEntity;
@@ -136,7 +138,8 @@ public class Board extends BoardAbstract {
         testEntity.setCollisionProperties( collidable );
         collidable.setBoundary( new Boundary.Box(446,100,-223,-50 , collidable ) );
 
-        testEntity.loadSprite("ground_1.png" , -223 , -53 );
+        Sprite graphic = new SpriteStillframe("ground_1.png" , -223 , -53 );
+        EntityComposite.addGraphicTo(testEntity, graphic);
         //renderingEngine.addSpriteComposite( testEntity.getSpriteType() );
         currentScene.addEntity( testEntity );
         
@@ -145,17 +148,16 @@ public class Board extends BoardAbstract {
         collidable = new Collider( testEntity );
         collidable.setBoundary( new Boundary.Box(446,100,-223,-50 , collidable ) );
         testEntity.setCollisionProperties( collidable );
-        testEntity.loadSprite("ground_1.png" , -223 , -53 );
+        graphic = new SpriteStillframe("ground_1.png" , -223 , -53 );
+        EntityComposite.addGraphicTo(testEntity, graphic);
         //renderingEngine.addSpriteComposite( testEntity.getSpriteType() );
         currentScene.addEntity( testEntity );
         
-        currentScene.addEntity(new EntityPhysics(120,260,"box.png"));
+        //currentScene.addEntity(new EntityPhysics(120,260,"box.png"));
         //dynamicEntitiesList.add(new Bullet(100,100,1,1));
         
       	EntityRotationalDynamic rotationTest = new TestRotation(-400,400);
-      	//dynamicEntitiesList.add( rotationTest );
-      	//collisionEngine.addDynamicCollidable( ((Collider)rotationTest.getCollisionType()) );
-      	//renderingEngine.addSpriteComposite(rotationTest.getSpriteType());
+
       	currentScene.addEntity( rotationTest );
       	
         //test for LaserTest entity
@@ -421,18 +423,18 @@ public class Board extends BoardAbstract {
 			    
 			    
 			    
-			    player.getCollisionType().debugDrawBoundary(camera , g2);
+			    player.getColliderComposite().debugDrawBoundary(camera , g2);
 			    
 			    for (EntityStatic entity : currentScene.listEntities() ){
 			    	
-			    	entity.getCollisionType().debugDrawBoundary(camera , g2);
+			    	entity.getColliderComposite().debugDrawBoundary(camera , g2);
 			    	camera.drawCrossOnCamera( entity.getPos());
 			    	
 			    }
 			    
 			    for (EntityStatic entity : dynamicEntitiesList){
 			    	
-			    	entity.getCollisionType().debugDrawBoundary(camera , g2);
+			    	entity.getColliderComposite().debugDrawBoundary(camera , g2);
 			    	camera.drawCrossOnCamera( entity.getPos());
 			    	
 			    }
@@ -468,8 +470,8 @@ public class Board extends BoardAbstract {
 	    drawCross( playerRef.getX() , playerRef.getY() , g2);
 	    drawCross( stat.getX() , stat.getY() , g2);
 	    
-	    Boundary statBounds = stat.getCollisionType().getBoundaryLocal() ;
-	    Boundary playerBounds = ((Collider) playerRef.getCollisionType()).getBoundaryLocal();
+	    Boundary statBounds = stat.getColliderComposite().getBoundaryLocal() ;
+	    Boundary playerBounds = playerRef.getColliderComposite().getBoundaryLocal();
 	    
 	    Point2D playerCenter = new Point2D.Double(playerRef.getX(), playerRef.getY());
 	    Point2D statCenter = new Point2D.Double(stat.getX(), stat.getY());
@@ -522,7 +524,7 @@ public class Board extends BoardAbstract {
 	    	if ( nearStatCorner.length > 1 ){ 
 	    		Side closest = nearStatCorner[0].getSharedSide(nearStatCorner[1]);
 	    		camera.draw(closest.toLine());
-	    		camera.drawString( closest.toString() , closest.getX1(), closest.getY1(), g2);
+	    		camera.drawString( closest.toString() , closest.getX1(), closest.getY1());
 	    	}
 	    	else 
 	    		camera.drawCrossInWorld(nearStatCorner[0].toPoint());
@@ -532,7 +534,7 @@ public class Board extends BoardAbstract {
 	    	if ( nearPlayerCorner.length > 1 ){
 	    		Side closest = nearPlayerCorner[0].getSharedSide(nearPlayerCorner[1]);
 	    		camera.draw(closest.toLine());
-	    		camera.drawString( closest.toString() , closest.getX1(), closest.getY1(), g2);
+	    		camera.drawString( closest.toString() , closest.getX1(), closest.getY1());
 	    	}
 	    	else 
 	    		camera.drawCrossInWorld( nearPlayerCorner[0].toPoint() );
@@ -653,8 +655,8 @@ public class Board extends BoardAbstract {
     
     public void addStaticEntity(EntityStatic entity){
     	this.currentScene.addEntity( entity );
-    	this.collisionEngine.addStaticCollidable( (Collider)entity.getCollisionType() );
-    	this.renderingEngine.addSpriteComposite(entity.getSpriteType());
+    	this.collisionEngine.addStaticCollidable( entity.getColliderComposite() );
+    	this.renderingEngine.addSpriteComposite(entity.getGraphicComposite());
     }
     
     @Override
@@ -673,19 +675,21 @@ public class Board extends BoardAbstract {
 	}
     
 	
-	public void testingDeconstructScene(){
+	/*public void testingDeconstructScene(){
 		
 		this.renderingEngine.debugClearRenderer();
 		this.collisionEngine.degubClearCollidables();
 		
 	}
-	
-	public void testingCreateNewScene(  ){ //NOT DEREFFED YET
+	*/
+	@Override
+	public void createNewScene(Scene scene){ //NOT DEREFFED YET
+
+		this.currentScene = scene;
+
+		//put player back into rendering
+		renderingEngine.addSpriteComposite(player.getGraphicComposite() );
 		
-		this.renderingEngine.debugClearRenderer();
-		this.collisionEngine.degubClearCollidables();
-		
-		this.currentScene = new Scene(this);
 	}
 	
 	

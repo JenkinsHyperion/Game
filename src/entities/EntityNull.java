@@ -1,6 +1,6 @@
 package entities;
 
-import entityComposites.NonCollidable;
+import entityComposites.ColliderNull;
 
 public final class EntityNull extends EntityStatic {
 	
@@ -8,7 +8,7 @@ public final class EntityNull extends EntityStatic {
 
 	private EntityNull() {
 		super(0,0);
-		this.collisionType = NonCollidable.getNonCollidable();
+		this.collisionType = ColliderNull.getNonCollidable();
 	}
 	
 	public static EntityStatic getNullEntity(){

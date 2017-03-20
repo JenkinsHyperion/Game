@@ -9,6 +9,7 @@ import javax.swing.event.*;
 import editing.EditorPanel;
 import entities.*; //local imports
 import entityComposites.Collider;
+import entityComposites.Collider;
 import physics.*;
 import sprites.Background;
 import sprites.RenderingEngine;

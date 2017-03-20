@@ -23,8 +23,9 @@ public class SavingLoading {
 	public void makeLevelFolder() {	
 		try {
 			//test for if folder exists or not:
-			if (new File(rootPath).exists())
-				System.out.println("Already exists!");
+			if (new File(rootPath).exists()){
+				//System.out.println("Already exists!");
+			}
 			else
 				Files.createDirectories(Paths.get(rootPath));
 		} catch (IOException e) {
@@ -37,7 +38,7 @@ public class SavingLoading {
 	 * but could later be modified to enable you to copy levels.
 	 * @param levelFolderName specified level name. Level name is the folder.
 	 * @param size 
-	 */
+	 **//*
 	public void writeSeriesOfLevels(String levelFolderName, int levelCount) {
 		for (int i = 0; i < levelCount; i++)
 		{
@@ -60,7 +61,7 @@ public class SavingLoading {
 				}
 			}
 		}
-	}
+	}*/
 	
 	/**Main level-creating function. Will create a folder with your level name,
 	 * and populate(serialize) it with all the current entities in the list provided as an argument

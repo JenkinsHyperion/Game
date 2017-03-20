@@ -1,17 +1,17 @@
 package entityComposites;
 
-public class SpriteNull extends SpriteProperty{
+public class GraphicCompositeNull extends GraphicComposite{
 	
-	private final static SpriteNull nullSprite = new SpriteNull();
+	private final static GraphicCompositeNull nullSprite = new GraphicCompositeNull();
 	
 	//constructor
-	private SpriteNull() {
-		
+	private GraphicCompositeNull() {
+		super( null );
 	}
 	
 	//OPTIMIZATION - Look into better handling, this is a static factory that returns the static singleton nullSprite, which
 	//apparently is difficult to substitute test without breaking everything
-	public static SpriteNull getNullSprite(){ 
+	public static GraphicComposite getNullSprite(){ 
 		return nullSprite;
 	}
 	

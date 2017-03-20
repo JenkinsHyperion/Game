@@ -1,5 +1,6 @@
 package physics;
 
+import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
@@ -12,6 +13,11 @@ public class Vector implements Serializable{
 		public Vector( double setX, double setY ){
 			x = setX;
 			y = setY;
+		}
+		
+		public Vector( Point2D p1 , Point2D p2 ){
+			this.x = p2.getX() - p1.getX();
+			this.y = p2.getY() - p1.getY();
 		}
 		
 		public double getX(){ return x; }

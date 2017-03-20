@@ -15,8 +15,8 @@ public class CollisionPositioning extends Collision { //TO BE MOVED TO ITS OWN I
 		
 		super(entity1,entity2, ownerEngine);
 		
-		collisionPrimary = (Collider) entity1.getCollisionType(); // TAKE COLLIDABLE IN COSNTRUCTOR INSTEAD OF ENTITY
-		collisionSecondary = (Collider) entity2.getCollisionType();
+		collisionPrimary = entity1.getColliderComposite(); // TAKE COLLIDABLE IN COSNTRUCTOR INSTEAD OF ENTITY
+		collisionSecondary = entity2.getColliderComposite();
 		
 		initCollision();
 		

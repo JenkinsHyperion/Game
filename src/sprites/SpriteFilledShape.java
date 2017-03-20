@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 import animation.Animation;
 import engine.Camera;
 import entities.EntityStatic;
+import entityComposites.GraphicComposite;
 import physics.Boundary;
 
 public class SpriteFilledShape extends Sprite {
@@ -18,9 +19,8 @@ public class SpriteFilledShape extends Sprite {
 	private Polygon shape;
 	private Color color;
 	
-	public SpriteFilledShape( Boundary bounds , Color color, EntityStatic owner){
-		
-		this.owner = owner;
+	public SpriteFilledShape( Boundary bounds , Color color ){
+
 		this.color = color;
 		
 		int nCorners = bounds.getCornersVertex().length ;
@@ -44,7 +44,7 @@ public class SpriteFilledShape extends Sprite {
     	entityTransformation.scale( (double)this.spriteSizePercent/100 , (double)this.spriteSizePercent/100 );
     	entityTransformation.rotate( Math.toRadians(this.spriteAngle) ); 
 
-    	camera.drawPolygon(this.shape , this.color , this.owner , entityTransformation );
+    	camera.drawPolygon(this.shape , this.color , this.ownerEntity() , entityTransformation );
 		
 	}
 

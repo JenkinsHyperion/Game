@@ -2,6 +2,8 @@ package physics;
 
 import java.util.ArrayList;
 
+import com.sun.xml.internal.bind.v2.runtime.RuntimeUtil.ToStringAdapter;
+
 public class Force {
 
 	protected int ID;
@@ -34,12 +36,12 @@ public class Force {
 		this.force = new Vector(x,y);
 	}
 	
-	public void indexShift(){
-		this.ID = this.ID - 1;
+	public void addVector( Vector input ){
+		this.force = this.force.add( input );
 	}
 	
-	public void setIndex( int index ){
-		this.ID = index;
+	public void indexShift(){
+		this.ID = this.ID - 1;
 	}
 	
 	public Vector getVector(){
@@ -48,6 +50,11 @@ public class Force {
 
 	public Vector getLinearForce() {
 		return new Vector ( force.getX() , force.getY() );
+	}
+	
+	@Override
+	public String toString() {
+		return "FORCE";
 	}
 	
 }

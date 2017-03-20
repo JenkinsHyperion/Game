@@ -8,11 +8,9 @@ import java.util.ArrayList;
 import entities.*;
 import entityComposites.*;
 
-public class Collision {
+public abstract class Collision {
 	
 	protected CollisionEngine ownerEngine; //REMOVE LATER
-	
-	protected boolean isComplete = false;
 	
 	protected ResolutionState resolutionState;
 	
@@ -44,14 +42,14 @@ public class Collision {
 		entityPrimary = e1;
 		entitySecondary = e2;
 		
-		collidingPrimary = (Collider) e1.getCollisionType(); //TRACE ALL CASTS BACK TO PASSING COLLIDABLE IN CONSTRUCTOR
-		collidingSecondary = (Collider) e2.getCollisionType();
+		collidingPrimary = e1.getColliderComposite(); //TRACE ALL CASTS BACK TO PASSING COLLIDABLE IN CONSTRUCTOR
+		collidingSecondary = e2.getColliderComposite();
 		
 		collisionDebugTag = e1.name + " + " + e2.name;
 		
 		//THIS TEST COLLISION IS A NORMAL SURFACE SUCH AS A FLAT PLATFORM
-		entityPairIndex[0] = ((Collider) e1.getCollisionType()).addCollision(this,true); 
-		entityPairIndex[1] = ((Collider) e2.getCollisionType()).addCollision(this,false); 
+		entityPairIndex[0] = e1.getColliderComposite().addCollision(this,true); 
+		entityPairIndex[1] = e2.getColliderComposite().addCollision(this,false); 
 		//initCollision();
 	}
 	
@@ -92,13 +90,7 @@ public class Collision {
 	}
 	
 	//FINAL COLLISION COMMANDS - Last commands before this collision object self destructs
-	public void completeCollision(){
-		//((Collidable) entityPrimary.getCollisionProperty()).removeCollision( entityPairIndex[0] );
-		//((Collidable) entitySecondary.getCollisionProperty()).removeCollision( entityPairIndex[1] );
-		
-		
-		
-	}
+	public abstract void completeCollision();
 	
 	public void indexShift( boolean pairIndex ){
 		if (!pairIndex)
@@ -128,18 +120,7 @@ public class Collision {
 	}*/
 	
 	
-	public boolean isComplete(){ // Check if entities are no longer colliding
-		
-		
-		/*if (entityPrimary.getBoundary().boundaryIntersects( entitySecondary.getBoundaryLocal() ) ) {
-			return false;
-		}
-		else { // entities are no longer colliding
-			completeCollision(); // run final commands
-			return true; // return true for scanning loop in Board to delete this collision
-		}*/
-		return false;
-	}
+	public abstract boolean isComplete();
 	
 	
 	//When Board detects collision, check to see if it's already in the list of active collisions

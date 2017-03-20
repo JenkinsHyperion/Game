@@ -9,13 +9,14 @@ import java.io.Serializable;
 import animation.Animation;
 import engine.Camera;
 import entities.EntityStatic;
+import entityComposites.GraphicComposite;
 
 /*
  * This is the base Sprite class. 
  */
 public abstract class Sprite{
 	
-	public EntityStatic owner;
+	protected GraphicComposite ownerComposite;
     protected boolean visibility;
     protected int spriteOffsetX = 0;
     protected int spriteOffsetY = 0;
@@ -31,6 +32,10 @@ public abstract class Sprite{
     public abstract void drawSprite(Camera camera);
     public abstract void drawSprite();
     public abstract void editorDraw(Point pos);
+    
+    public EntityStatic ownerEntity(){
+    	return this.ownerComposite.ownerEntity();
+    }
     
 	public abstract Image getImage(); 
 	public abstract BufferedImage getBufferedImage();
@@ -49,8 +54,12 @@ public abstract class Sprite{
         return visibility;
     }
     
-    public void setOwner( EntityStatic entity){
-    	this.owner = entity;
+    public void setOwner( GraphicComposite spriteComposite){
+    	this.ownerComposite = spriteComposite;
+    }
+    
+    public GraphicComposite ownerComposite(){
+    	return this.ownerComposite;
     }
 
     public void setVisible(Boolean visible) {

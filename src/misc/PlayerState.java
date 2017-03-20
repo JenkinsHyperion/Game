@@ -8,7 +8,7 @@ public abstract class PlayerState extends EntityState{
 	private Sprite stateSpriteRight;
 	private Sprite stateSpriteLeft;
 	
-	public PlayerState( String name , Sprite spriteRight , Sprite spriteLeft){
+	public PlayerState( String name , Sprite spriteRight , Sprite spriteLeft ){
 		super( name );
 		this.stateSpriteRight = spriteRight;
 		this.stateSpriteLeft = spriteLeft;
@@ -16,7 +16,8 @@ public abstract class PlayerState extends EntityState{
 
 	public void updateState(){}
 	
-	public void uponChange(){}
+	public void onEnteringState(){}
+	public void onLeavingState(){}
 	
 	//public abstract void onKeyEvent( int key );
 	

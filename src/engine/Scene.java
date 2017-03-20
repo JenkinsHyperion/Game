@@ -20,13 +20,13 @@ public class Scene {
 		//ADD ENTITY TO SCENES MASTER ENTITY LIST
 		entityList.add(entity);
 		
-		if ( entity.getSpriteType() instanceof SpriteComposite ){
+		if ( entity.getGraphicComposite() instanceof GraphicComposite ){
 			
-			entity.getSpriteComposite().addCompositeToRenderer( ownerBoard.renderingEngine );
+			entity.getGraphicComposite().addCompositeToRenderer( ownerBoard.renderingEngine );
 			
 		}
 		
-		if ( entity.getCollisionType() instanceof Collider ){
+		if ( entity.getColliderComposite() instanceof Collider ){
 			
 			entity.getColliderComposite().addCompositeToPhysicsEngine( ownerBoard.collisionEngine );
 			

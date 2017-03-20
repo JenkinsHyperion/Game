@@ -8,17 +8,17 @@ import java.awt.image.BufferedImage;
 import animation.Animation;
 import engine.Camera;
 import entities.EntityStatic;
+import entityComposites.GraphicComposite;
 
 public class SpriteAnimated extends Sprite {  // Sprite with animation
 
     private Animation spriteAnimation;
 
     
-    public SpriteAnimated(Animation animation, EntityStatic owner , int offset_x, int offset_y) {
+    public SpriteAnimated(Animation animation, int offset_x, int offset_y) {
     	spriteAnimation = animation;
     	this.spriteOffsetX = offset_x;
     	this.spriteOffsetY = offset_y;
-    	this.owner = owner;
         setVisible(true);
     }
     
@@ -35,7 +35,7 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
 
     	//entityTransformation.scale( (double)this.spriteSizePercent/100 , (double)this.spriteSizePercent/100 );
     	//entityTransformation.rotate( Math.toRadians(this.spriteAngle) );
-    	entityTransformation.translate(spriteOffsetX, spriteOffsetY); 
+    	entityTransformation.translate(this.spriteOffsetX, this.spriteOffsetY); 
 
     	camera.draw(this , entityTransformation );
     	

@@ -170,7 +170,8 @@ public class Camera extends EntityDynamic{
 		AffineTransform cameraTransform = new AffineTransform();
 		this.graphics.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 		
-		cameraTransform.translate( this.getRelativeX( sprite.owner.getX()) , this.getRelativeY( sprite.owner.getY()) );
+		cameraTransform.translate( this.getRelativeX( sprite.ownerComposite().ownerEntity().getX()) , 
+				this.getRelativeY( sprite.ownerComposite().ownerEntity().getY()) );
 		cameraTransform.concatenate(entityTransform);
 		
 		this.graphics.drawImage(sprite.getBufferedImage(), 
@@ -234,9 +235,41 @@ public class Camera extends EntityDynamic{
 		
 	}
 	
+	public void drawAxis(Line2D line , Point intersect){
+		
+		int xMax = this.currentBoard.getHeight();
+		int yMax = this.currentBoard.getHeight();
+		
+		if ( line.getP1().getX() == line.getP2().getX() ) { //line is vertical
+				
+				this.graphics.draw( new Line2D.Double( 0 , intersect.y , this.currentBoard.getWidth() , intersect.y ) ); //return normal line which is horizontal with slope 0
+			}
+		else {// line is not vertical, so it has a defined slope and can be in form y=mx+b
 	
-	public void drawString( String string , int x, int y , Graphics g) {
-		g.drawString(string, 
+			//return normal line, whose slope is inverse reciprocal of line.   -(1/slope)
+			double m = ( line.getY1() - line.getY2() )/( line.getX1() - line.getX2() );
+			int b = (int)( line.getY1() - ( m*line.getX1() ) );
+			
+			if ( (m > -.00001) && (m < .00001))
+				this.graphics.draw( new Line2D.Float( intersect.x , 0 , intersect.x , this.currentBoard.getHeight() ) );
+	
+			else { // y=mx+b    y = m*(x - Xoffset ) + yOffset    (y-b)/( x-Xoffset )
+				
+				this.graphics.draw( new Line2D.Double( 0 , 
+						( -(1/m) * (-(xMax/2) ) ) + (yMax/2) ,
+						( -(1/m) * (xMax/2) ) + (yMax/2),
+						-xMax 
+						
+						));
+			}
+		}
+		
+	}
+	
+	
+	
+	public void drawString( String string , int x, int y ) {
+		graphics.drawString(string, 
 				x - (int)this.x + boardHalfWidth, 
 				y - (int)this.y + boardHalfHeight
 		);

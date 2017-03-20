@@ -16,12 +16,9 @@ import sprites.Sprite;
  */
 public class EntityStatic extends Entity{
 
-
-	public boolean isSelected;
-
-	protected SpriteProperty spriteType = SpriteNull.getNullSprite(); 
+	protected GraphicComposite spriteType = GraphicCompositeNull.getNullSprite(); 
 	
-	protected CollisionProperty collisionType = NonCollidable.getNonCollidable();
+	protected Collider collisionType = ColliderNull.getNonCollidable();
 	
 	public EntityStatic(int x, int y) {
 
@@ -40,11 +37,17 @@ public class EntityStatic extends Entity{
 		super( entityPosition.x , entityPosition.y );
 	}
 
-	public void setSpriteType(SpriteProperty spriteType){ this.spriteType = spriteType; }
-	public SpriteProperty getSpriteType(){ return this.spriteType; }
-	public SpriteComposite getSpriteComposite(){ return (SpriteComposite) this.spriteType; }
-	public void setCollisionProperties(CollisionProperty collisionType){ this.collisionType = collisionType; }
+	public void setSpriteType(GraphicComposite spriteType){ 
+		this.spriteType = spriteType; 
+		}
+	
+	public void setCollisionProperties(Collider collisionType){ this.collisionType = collisionType; }
 
+	
+	public GraphicComposite getGraphicComposite(){ 
+		
+		return (GraphicComposite) this.spriteType; 
+	}
 	
 	public Collider getColliderComposite(){
 		
@@ -56,48 +59,40 @@ public class EntityStatic extends Entity{
 	@Deprecated
     public void loadSprite(String path){ // needs handling if failed. Also needs to be moved out of object class into sprites
 
-		SpriteComposite composite = new SpriteComposite(
-    			new SpriteStillframe(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path, this),
-    			this
-    			);
-		this.setSpriteType(composite);
+		EntityComposite.addGraphicTo( this , new SpriteStillframe( path , this) );
     	
     }
     @Deprecated
     public void loadSprite(String path, int offset_x , int offset_y){ // needs handling if failed. Also needs to be moved out of object class into sprites
     	
-    	
-    	SpriteComposite composite = new SpriteComposite(
-    			new SpriteStillframe(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path, offset_x,offset_y, this),
-    			this
-    			);
-    	this.setSpriteType(composite);
+    	EntityComposite.addGraphicTo( this , new SpriteStillframe( path , this) );
     }
 
     
     //OPTIONAL INIT WITH OFFSET
     protected void loadAnimatedSprite(Animation a, int offsetX, int offsetY){ // needs handling if failed. 
-    	((SpriteComposite)this.spriteType).setSprite( new SpriteAnimated(a,this,offsetX,offsetY)); 
+    	this.getGraphicComposite().setSprite( new SpriteAnimated(a , offsetX,offsetY)); 
+    	
     }
     @Deprecated
     protected void setEntitySpriteOffset(int x , int y){
-    	((SpriteComposite)this.spriteType).getSprite().setOffset(x, y); 
+    	((GraphicComposite)this.spriteType).getSprite().setOffset(x, y); 
     }
     @Deprecated
     public Sprite getEntitySprite(){ // gets the Object's sprite, still image or animation MOVE TO SPRITEPROPERTY
-    	return ((SpriteComposite)this.spriteType).getSprite();
+    	return ((GraphicComposite)this.spriteType).getSprite();
     }
     @Deprecated
     public void setEntitySprite( Sprite entitySprite ){
-    	 ((SpriteComposite)this.spriteType).setSprite( entitySprite );
+    	 ((GraphicComposite)this.spriteType).setSprite( entitySprite );
     }
     @Deprecated
     public int getSpriteOffsetX(){
-    	return ((SpriteComposite)this.spriteType).getSprite().getOffsetX(); 
+    	return ((GraphicComposite)this.spriteType).getSprite().getOffsetX(); 
     }
     @Deprecated
     public int getSpriteOffsetY() {
-    	return ((SpriteComposite)this.spriteType).getSprite().getOffsetY();
+    	return ((GraphicComposite)this.spriteType).getSprite().getOffsetY();
     }
     /**
      * 
@@ -126,11 +121,6 @@ public class EntityStatic extends Entity{
 	//public Rectangle getBoundingBox(){ //move position to override in dynamic entity since static doesnt need position calc.
 	//	return new Rectangle (getX() + boundingBox.x , getY() + boundingBox.y , boundingBox.width , boundingBox.height);
 	//}
-	
-    public CollisionProperty getCollisionType(){
-    	
-    	return collisionType;
-    }
 
 	//public Boundary getBoundaryLocal(){
 		
@@ -212,5 +202,13 @@ public class EntityStatic extends Entity{
 
 	public float getDeltaX() { return this.getX(); }
 	public float getDeltaY() { return this.getY(); }
+	
+	public boolean hasCollider(){
+		return !( this.collisionType instanceof ColliderNull );
+	}
+	
+	public boolean hasGraphics(){
+		return !( this.spriteType instanceof GraphicComposite );
+	}
 	
 }

@@ -551,10 +551,10 @@ public class Boundary {
 		//projected on the line
 		
 		if (line.getX1() == line.getX2()){ //Good ol' undefined slope check
-			return new Point2D.Double( line.getX1() , point.getY() );
+			return new Point2D.Double( line.getX1() , point.getY() ); // if projection base is vertical, y on line is just y of point
 		}
 		if (line.getY1() == line.getY2()){ //Slope of zero saves some calculation
-			return new Point2D.Double( point.getX() , line.getY1() );
+			return new Point2D.Double( point.getX() , line.getY1() ); // same as above but for x
 		}
 		
 		double m1 = (line.getY1() -  line.getY2())/(line.getX1() -  line.getX2());
@@ -657,14 +657,14 @@ public class Boundary {
 		
 		for ( int i = 0 ; i < sides.length ; i++ ){ // Sides of primary boundary
 
-			if ( !duplicateSideExists(sides[i], axes) ){
+			if ( true ){//!duplicateSideExists(sides[i], axes) ){
 				axes.add(sides[i].toLine() );
 			}
 		}
 		
 		for ( int i = 0 ; i < bounds.getSides().length ; i++ ){ // Sides of target boundary
 
-			if ( !duplicateSideExists(bounds.getSides()[i], axes ) ){
+			if ( true ){//!duplicateSideExists(bounds.getSides()[i], axes ) ){
 				axes.add(bounds.getSides()[i].toLine() );
 			}
 		}

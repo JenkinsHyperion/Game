@@ -11,10 +11,18 @@ import entities.EntityRotationalDynamic;
 import entities.EntityStatic;
 import misc.CollisionEvent;
 import misc.NullCollisionEvent;
-import physics.*;
+import physics.Boundary;
+import physics.CollidingPair;
+import physics.Collision;
+import physics.CollisionCheck;
+import physics.CollisionEngine;
+import physics.Side;
+import physics.Vector;
 
-public final class Collider extends CollisionProperty{
-	
+public class Collider{
+
+	protected EntityStatic owner;
+
 	protected Boundary boundary;
 	
 	private float friction = 1;
@@ -58,8 +66,8 @@ public final class Collider extends CollisionProperty{
 	 * 		ENGINE FUNCTIONALITY
 	 * #################################################################
 	 */
-	@Override
-	public void checkForInteractionWith( CollisionProperty entity, CollisionCheck checkType ,CollisionEngine engine){ 
+
+	public void checkForInteractionWith( Collider entity, CollisionCheck checkType ,CollisionEngine engine){ 
 		//We know owner entity has composite collidable, which is THIS instance of collidable, so pass owner's physical
 		// information to the other entity
 		
@@ -69,7 +77,7 @@ public final class Collider extends CollisionProperty{
 		// to collisionEngine here:
 		
 	}
-	@Override
+
 	public void passInteraction( Collider entity, CollisionCheck checkType , CollisionEngine engine ){ 
 		//entity is collidable because if it wasn't it non-collidable would have terminated and returned WARNING to console.
 		//Both entities have passed through null object pattern, so now we can perform the actual
@@ -146,11 +154,9 @@ public final class Collider extends CollisionProperty{
     	if ( collisionInteractions.size() == 0 ){
     		onLeavingAllCollisionsEvent();
     	}
-    	else{
-	    	for ( int i = index ; i < collisionInteractions.size() ; i++) {
-	    		collisionInteractions.get(i).collision().indexShift(collisionInteractions.get(i).pairID());
-	    	} 
-    	}
+    	for ( int i = index ; i < collisionInteractions.size() ; i++) {
+    		collisionInteractions.get(i).collision().indexShift(collisionInteractions.get(i).pairID());
+    	} 
     	
     }
 	
@@ -180,13 +186,12 @@ public final class Collider extends CollisionProperty{
 		return this.owner;
 	}
 
-	@Override
 	public void debugDrawBoundary(Camera camera , Graphics2D g){
 		
 		for ( Side side : this.getBoundaryLocal().getSides() ){
 			//g.draw(side);
 			camera.draw( side.toLine() );
-			camera.drawString(side.toString(), side.getX1()+(side.getX2()-side.getX1())/2 , side.getY1()+(side.getY2()-side.getY1())/2 , g);
+			camera.drawString(side.toString(), side.getX1()+(side.getX2()-side.getX1())/2 , side.getY1()+(side.getY2()-side.getY1())/2 );
 		}
 		
 	}
@@ -222,6 +227,5 @@ public final class Collider extends CollisionProperty{
 		engine.addStaticCollidable( this );
 	}
 	
-    
-	
 }
+

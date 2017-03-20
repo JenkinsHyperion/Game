@@ -38,6 +38,13 @@ public class EntityDynamic extends EntityStatic{
     	
     }   
     
+    public void halt(){
+    	dx=0;
+    	dy=0;
+    	accX=0;
+    	accY=0;
+    }
+    
     public void AccelerateY() {
 
         y += 1;
@@ -223,16 +230,17 @@ public class EntityDynamic extends EntityStatic{
     	int indexID = forces.size();     	
     	Force newForce = new Force( vector , indexID );
     	forces.add( newForce ) ;
-    	//System.out.print("Adding Force "+ indexID+" ... ");
+    	System.out.print("Adding Force "+ indexID+" ... ");
     	return newForce;
     }
     
     public void removeForce(int index){ 
-    	//System.out.print("Removing Force "+ index+" ... ");
-    	forces.remove(index); 
-	    for ( int i = index ; i < forces.size() ; i++) {
+    	System.out.print("Removing Force "+ index+" ... ");
+
+	    for ( int i = index+1 ; i < forces.size() ; i++) {
 	    	forces.get(i).indexShift();
 	    } 
+    	forces.remove(index); 
 	    
     }
     

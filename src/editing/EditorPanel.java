@@ -1,15 +1,20 @@
 package editing;
 
+import javax.annotation.Generated;
 import javax.swing.*;
 
 import Input.*;
 import editing.worldGeom.*;
+import editing.worldGeom.WorldGeometry.VertexPlaceMode;
+import editing.worldGeom.WorldGeometry.VertexSelectMode;
 import sprites.*;
 import entities.*;
 import saving_loading.SavingLoading;
 import engine.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -37,7 +42,9 @@ public class EditorPanel extends JPanel {
 	private EditorSelectMode editorSelectMode;
 	private EditorPlaceMode editorPlaceMode;
 	private WorldGeometry worldGeomMode;
-	private CameraPanMode cameraPanMode;
+	private CameraPanEvent cameraPanEvent;
+	private SpriteEditorMode spriteEditorMode;
+	private BoundaryEditorMode boundaryEditorMode;
 	private ModeAbstract editorMode;
 	/*@Deprecated
 	public static final int DEFAULT_MODE = 0;
@@ -105,6 +112,9 @@ public class EditorPanel extends JPanel {
 	protected JButton entitySelectButton;
 	protected JButton vertexPlaceModeButton;
 	protected JButton vertexSelectModeButton;
+	//protected JButton entidorModeButton;
+	protected JButton spriteEditorButton;
+	protected JButton boundaryEditorButton;
 
 //	Panels
 	private JPanel entitiesComboBoxPanel;
@@ -119,20 +129,19 @@ public class EditorPanel extends JPanel {
 // ##################### CONSTRUCTOR #################################################################
 	public EditorPanel( BoardAbstract board2) {   
 		//initializing some of the fields
+	
 		this.board = board2;
 		this.camera = board.getCamera();
 		oldMousePanPos = new Point();
 		//worldMousePos = new Point();
 		oldCameraPos = new Point();
-		//mode = EditorPanel.DEFAULT_MODE;
 		editorSelectMode = new EditorSelectMode();
 		editorPlaceMode = new EditorPlaceMode();
-		cameraPanMode = new CameraPanMode();
+		cameraPanEvent = new CameraPanEvent();
 		worldGeomMode = new WorldGeometry(this, board2);
 		this.editorMode = editorSelectMode;
 		newEntityPath = "";
 		selectedBox = new Rectangle();
-		//entityPlacementMode = false;
 		editorMousePos = new Point();
 		ghostSprite = null; 							//FIXME
         //clickPosition = new Point(0,0);
@@ -152,7 +161,7 @@ public class EditorPanel extends JPanel {
 		//there will be as many property lists as there are entities, and they will directly correspond.
 		//make sure updateEntityStringArr() is called whenever entities are added or removed. 
 		// populateListOfPropLists will only be called once, right here.
-		//updateEntityStringArr(); //populates the entity string array representation with elements from Board's static entity arraylist
+		updateEntityStringArr(); //populates the entity string array representation with elements from Board's static entity arraylist
 		//populateListOfPropLists();
 		
 		mousePosLabel = new JLabel("Mouse Click: ");
@@ -197,7 +206,7 @@ public class EditorPanel extends JPanel {
 		deleteEntButton.addActionListener(new ActionListener() {	
 			@Override
 			public void actionPerformed(ActionEvent e) {						
-				//deleteEntity(allEntitiesComboBox.getSelectedIndex());
+				deleteEntity(allEntitiesComboBox.getSelectedIndex());
 			} 		
 		});
 
@@ -241,31 +250,51 @@ public class EditorPanel extends JPanel {
 				worldGeomMode.setMode(worldGeomMode.getVertexSelectMode());
 			}
 		});
+		spriteEditorButton = new JButton("SpriteEditor");
+		spriteEditorButton.setFocusable(false);
+		spriteEditorButton.setEnabled(false);
+		spriteEditorButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+			}
+		});
+		boundaryEditorButton = new JButton("BoundEditor");
+		boundaryEditorButton.setFocusable(false);
+		boundaryEditorButton.setEnabled(false);
+		boundaryEditorButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
 		// inline panel for button
 		buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		buttonPanel.setBackground(Color.GRAY);
 	    buttonPanel.setBorder(BorderFactory.createTitledBorder("buttonPanelTest"));
-		buttonPanel.setPreferredSize(new Dimension(190, 180));		
+		buttonPanel.setPreferredSize(new Dimension(190, 250));		
 		buttonPanel.add(deleteEntButton);
 		buttonPanel.add(worldGeomButton);
 		buttonPanel.add(entitySelectButton);
 		buttonPanel.add(vertexPlaceModeButton);
 		buttonPanel.add(vertexSelectModeButton);
+		buttonPanel.add(spriteEditorButton);
+		buttonPanel.add(boundaryEditorButton);
 
 		// ## The drop down box for the list of all entities in board ###	
-		/*allEntitiesComboBox = new JComboBox<>(staticEntityStringArr);
+		allEntitiesComboBox = new JComboBox<>(staticEntityStringArr);
 		allEntitiesComboBox.setPreferredSize(allEntitiesComboBoxDefSize);
 		allEntitiesComboBox.setFocusable(false);
 		
 		allEntitiesComboBox.setSelectedIndex(0); //give it a default value
 		
-		allEntitiesComboBox.addActionListener(new EntitiesComboBoxActionHandler());*/
+		allEntitiesComboBox.addActionListener(new EntitiesComboBoxActionHandler());
+		
 
 		// Panel to contain allEntitiesComboBox drop down panel
-		/*entitiesComboBoxPanel = new JPanel(new BorderLayout());
+		entitiesComboBoxPanel = new JPanel(new BorderLayout());
 		entitiesComboBoxPanel.setBackground(Color.GRAY);
 		entitiesComboBoxPanel.setPreferredSize(allEntitiesComboBox.getPreferredSize());
-		entitiesComboBoxPanel.add(allEntitiesComboBox);*/
+		entitiesComboBoxPanel.add(allEntitiesComboBox);
 		
 		// ###### adding the components to the Editor window		
 		//inline panel for text messages
@@ -284,7 +313,7 @@ public class EditorPanel extends JPanel {
 		
 		// #### add everything to the editor
 		
-		//add(entitiesComboBoxPanel);
+		add(entitiesComboBoxPanel);
 		add(saveButton);
 		add(loadButton);
 		add(labelsPanel);
@@ -314,13 +343,13 @@ public class EditorPanel extends JPanel {
 	 // #### end of constructor #### #####################################################################################
 	
 	//Handler for the allEntitiesComboBox drop down panel
-	/**
-	 *  Out of date because I need to completely rework how this class handles multiple selections
+	// Out of date because I need to completely rework how this class handles multiple selections
 
 	public class EntitiesComboBoxActionHandler implements ActionListener{
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			editorMode = editorSelectMode;
 			//JComboBox cb = (JComboBox)e.getSource();
 			//cb.getSelectedIndex());
 			restorePanels();
@@ -330,120 +359,36 @@ public class EditorPanel extends JPanel {
 			currentEntIndex = allEntitiesComboBox.getSelectedIndex();
 			System.out.println(currentEntIndex);
 			try{					
-				deselectAllEntities();
+				editorSelectMode.selectedEntities.clearSelectedEntities();
 				deleteEntButton.setEnabled(true);
 				
 				//sets Board's current entity
-				setCurrentSelectedEntity(board.getEntities().get(currentEntIndex));
-				//board.
+				//setCurrentSelectedEntity(board.getEntities().get(currentEntIndex));
+				editorSelectMode.addSelectedEntity(board.listCurrentSceneEntities()[currentEntIndex]);
+				//editorSelectMode.addSelectedEntity(board.list);
 				createAndShowPropertiesPanel(board);
-				setSelectedEntityNameLabel("Selected: " + currentSelectedEntity.name);
-				setEntityCoordsLabel(String.format("Coords of Selected Entity: %s,%s", currentSelectedEntity.getX(), currentSelectedEntity.getY()));
-				//sends code from here over to Board to let it draw this entity's selection box
-				selectedBox.setSize(currentSelectedEntity.getEntitySprite().getImage().getWidth(null),
-															currentSelectedEntity.getEntitySprite().getImage().getHeight(null) );
+				setSelectedEntityNameLabel("Selected: " + board.listCurrentSceneEntities()[currentEntIndex].name);
+				setEntityCoordsLabel(String.format("Coords of Selected Entity: %s,%s", editorSelectMode.selectedEntities.get(0).getX(), editorSelectMode.getSelectedEntities().get(0).getY()));
 			}
 			catch (NullPointerException exception){
 				exception.printStackTrace();
 				System.err.println("nullpointerexception"); 
 			}
 		}	
-	} //end of inner class */
+	} //end of inner class
+	
+	
+	
 	
 	public void mousePressed(MouseEvent e) {
 		setEditorMousePos(e.getX(), e.getY());
 		//clickPosition.setLocation(e.getX(),e.getY());
 		this.editorMode.mousePressed(e);
-		/*if (!mouseClick) {
-			
-			mouseClick = true;*/
-			/*
-			 * if (mode == EditorPanel.DEFAULT_MODE) 
-			{
-				deselectAllEntities();
-				//MainWindow.getEditorPanel().setEntityCoordsLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
-				setEntityCoordsLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));			
-				checkForSelection(clickPosition);  			  		
-				if (currentSelectedEntity != null) {  	// there is entity under cursor
-	  				selectedBox.setSize(currentSelectedEntity.getEntitySprite().getImage().getWidth(null),
-	  									currentSelectedEntity.getEntitySprite().getImage().getHeight(null) ); 	  				
-					//SidePanel.setSelectedEntityName("Selected: " + currentSelectedEntity.name);
-					setSelectedEntityNameLabel("Selected: " + currentSelectedEntity.name);
-					setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
-					//get offsets
-					clickPositionXOffset = e.getX() - currentSelectedEntity.getX() ;
-					clickPositionYOffset = e.getY() - currentSelectedEntity.getY() ;
-				}
-				// WILL TRIGGER DESELECTING THE CURRENT ENTITY
-				// CODE FIRES WHEN YOU CLICK AND NOTHING IS UNDER CURSOR
-				else {   				
-					setSelectedEntityNameLabel("Nothing Selected");
-					setEntityCoordsLabel("Coords. of selected entity: N/A");
-				}
-			}*/
-			
-			/*
-			//entity placement mode is ON
-			else if (mode == EditorPanel.ENTPLACEMENT_MODE) {
-				clickPositionXOffset =( (ghostSprite.getImage().getWidth(null)) / 2);
-				clickPositionYOffset =  ( (ghostSprite.getImage().getHeight(null)) / 2);
-				addEntity(e.getX(), e.getY(), 0, 0, newEntityPath);
-				nullifyGhostSprite();
-				//editorPanel.entityPlacementMode = false;
-				deselectAllEntities();
-			}*/
-			/*else if (mode == EditorPanel.CAMERAPAN_MODE) {
-				
-			oldMousePanPos.setLocation(editorMousePos); // sets temporary old mouse position reference
-			oldCameraPos.setLocation( this.camera.getFocus() );
-			//Set start positions 
-			
-			
-				//this.camera.setFocusForEditor(oldMousePanPos.getX(), oldMousePanPos.getY());
-				mousePanDX = (e.getX() - oldMousePanPos.getX());
-				mousePanDY = (e.getY() - oldMousePanPos.getY());
-			}*/
+		
 	}
 	public void mouseDragged(MouseEvent e) {
 		setEditorMousePos(e.getX(), e.getY());
 		this.editorMode.mouseDragged(e);
-		/*if (mode == EditorPanel.DEFAULT_MODE) {
-			setMousePosLabel(String.format("Mouse Click: %s, %s", e.getX(), e.getY()));
-
-			if (currentSelectedEntity != null) {
-				currentSelectedEntity.setX(e.getX() - clickPositionXOffset);
-				currentSelectedEntity.setY(e.getY() - clickPositionYOffset);
-				setEntityCoordsLabel("Coords. of selected entity: " + currentSelectedEntity.getX() + ", " + currentSelectedEntity.getY());
-			}
-		}*/
-		
-		/*
-		else if (mode == EditorPanel.CAMERAPAN_MODE) {//keypressSHIFT == true: holding down shift key, ready to pan
-			//mousePanDX = e.getX() - oldMousePanPos.getX()
-			//mousePanDY = e.getY() - oldMousePanPos.getY()
-			//camera.translate (-mousePanDX, -mousePanDY) or something
-			// ^^^ must be negative because camera will pan in direction opposite the mouse drag
-			//mousePanDX = (e.getX() - oldMousePanPos.getX());
-			//mousePanDY = (e.getY() - oldMousePanPos.getY());
-			//this.camera.translate(mousePanDX, mousePanDY);
-			//this.camera.setFocus(e.getPoint());
-			this.camera.setFocusForEditor( oldCameraPos.getX() + ( oldMousePanPos.getX() - editorMousePos.getX() ), 
-										    oldCameraPos.getY() + ( oldMousePanPos.getY() - editorMousePos.getY() )
-										);// camera start pos   - (   distance dragged relative to screen         )
-			
-			// I changed this to screen relative positions (editorMousePos) since we want the distance between two points, 
-			// which in this case is the same distance between world points because the camera is at x1 zoom. 
-			
-			//testing automatic mouse return
-			//oldMousePanPos.setLocation( editorMousePos );
-			//oldCameraPos.setLocation( this.camera.getFocus() );
-			//automaticMouseReturn.mouseMove( 500 , 250 );
-			
-			//this.camera.setFocusForEditor(worldMousePos.x , worldMousePos.y );
-			//oldMousePanPos.setLocation(e.getPoint());
-			
-		}
-		*/
 	}
 	public void mouseMoved(MouseEvent e){
 		setEditorMousePos(e.getX(), e.getY());
@@ -452,18 +397,7 @@ public class EditorPanel extends JPanel {
 	public void mouseReleased(MouseEvent e) {	
 		setEditorMousePos(e.getX(), e.getY());
 		this.editorMode.mouseReleased(e);
-		/*
-		if ( currentSelectedEntity == null) {
-			deselectAllEntities();
-		}
-		if (mode == EditorPanel.ENTPLACEMENT_MODE) {
-			mode = EditorPanel.DEFAULT_MODE;
-		}
-		else if (mode == EditorPanel.CAMERAPAN_MODE) {
-			//oldMousePanPos.setLocation(worldMousePos);
-		}
-*/
-		//mouseClick = false;
+
 	}
 	
 	// ############ KEY HANDLING SECTION ###########
@@ -525,70 +459,11 @@ public class EditorPanel extends JPanel {
 		this.camera.translate(pan_dx, pan_dy);*/
 	}
     //END OF KEYHANDLING SECTION 
-   /* @Deprecated
-  	 public void drawEditorSelectedRectangle(EntityStatic stat, Graphics g) {
- 	    if (currentSelectedEntity != null) {	
- 	    	if (stat == currentSelectedEntity) {
- 	    		int width = stat.getEntitySprite().getImage().getWidth(null);
- 	        	int height = stat.getEntitySprite().getImage().getHeight(null);
- 	    		Graphics2D g2 = (Graphics2D)g;
- 	        	g2.setColor(Color.BLUE);
- 	        	Stroke oldStroke = g2.getStroke();
- 	        	float thickness = 2;
- 	        	g2.setStroke(new BasicStroke(thickness));
- 	    		g2.drawRect(stat.getXRelativeTo(this.camera) + stat.getSpriteOffsetX(), stat.getYRelativeTo(this.camera) + stat.getSpriteOffsetY(),width,height);
- 	    		g2.setStroke(oldStroke);
- 	    	}
- 	    }
- 	    g.fillOval((int)this.camera.getRelativeX(oldMousePanPos.getX()), (int)this.camera.getRelativeY(oldMousePanPos.getY()), 5, 5);
- 	    g.drawString("Camera Pos: " + this.camera.getX() + "," + this.camera.getY(), 10, 10);
- 	    g.drawString("Editor Mouse Pos: " + editorMousePos.x + "," + editorMousePos.y, 10, 20);
- 	    g.drawString("oldMousePanPos: " + oldMousePanPos.x + "," + oldMousePanPos.y, 10, 30);
-  	 }*/
-   /*	public void checkForSelection(Point click) { //redundant
-  		setCurrentSelectedEntity(clickedOnEntity(click));
-  		//currentSelectedEntity = clickedOnEntity(click);
-
-  		if (currentSelectedEntity != null){
-  			//board.currentDebugEntity = currentSelectedEntity;
-  		}
-
-  	}*/
-  	/*public EntityStatic clickedOnEntity(Point click) {
-  		int counter = 0;
-  		for (EntityStatic entity : board.getStaticEntities()) 
-  		{
-  			
-	 		if (entity.getEntitySprite().hasSprite()){ //if entity has sprite, select by using sprite dimensions
-	  			selectedBox.setLocation(entity.getXRelativeTo(this.camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(this.camera) + entity.getSpriteOffsetY());
-
-	  			selectedBox.setSize(entity.getEntitySprite().getImage().getWidth(null), entity.getEntitySprite().getImage().getHeight(null) );
-	  			if (selectedBox.contains(click)) 
-	  			{
-	  				//entity.isSelected = true;
-	  				enableEditPropertiesButton(true); //might not need
-	  				restorePanels();
-	  				setAllEntitiesComboBoxIndex(counter);
-	  	  			setSelectedEntityNameLabel("Selected: " + entity.name);
-	  	  			setEntityCoordsLabel("Coords. of selected entity: " + entity.getX() + ", " + entity.getY());
-	  				return entity;
-	  			}
-	  			counter++;
-	  			
-	 		}
-	 		else {
-	 			//Entity has no sprite, so selection needs some other method, like by boundary
-	 		} 			
-  		}
-  		//nothing was found under cursor: 
+	@Deprecated
+	public void deselectAllEntities() {
+  		//setCurrentSelectedEntity( EntityNull.getNullEntity() );
   		enableEditPropertiesButton(false);
-  		minimizePanels();
-  		return null;
-  	}*/
-	/*public void deselectAllEntities() {
-  		setCurrentSelectedEntity( EntityNull.getNullEntity() );
-  		enableEditPropertiesButton(false);
-  	}*/
+  	}
 	//this class will be the stand-in for my current shitty JOptionPane popup.
 	// will be created when createPropertiesFrame() is called.
 	@Deprecated	
@@ -645,6 +520,7 @@ public class EditorPanel extends JPanel {
 	}
 ///	*/
 	//helper function to transfer data from ArrayList into a regular array
+	@Deprecated
 	public void populateArrayFromList(String[] arr, ArrayList<EntityStatic> arrayList)
 	{
 		try {
@@ -658,11 +534,26 @@ public class EditorPanel extends JPanel {
 		catch(Exception e) {
 		}
 	}
+	public void populateArrayNamesFromArray(String[] arr, EntityStatic[] arraySource)
+	{
+		try {
+			/*System.out.println("Array size " + arr.length);
+			System.out.println("ArraySource size " + arraySource.length);*/
+			for (int i = 0; i < arraySource.length; i++)
+			{
+				arr[i] = arraySource[i].name;
+			}
+		}
+		catch(Exception e) {
+		}
+	}
 	// #### Section for adding or removing actual entities
-	/*public void updateEntityStringArr() {
-		staticEntityStringArr = new String[(board.getStaticEntities().size())];	
-		populateArrayFromList(staticEntityStringArr, board.getStaticEntities());
-	}*/
+	public void updateEntityStringArr() {
+		//staticEntityStringArr = new String[(board.getStaticEntities().size())];	
+		staticEntityStringArr = new String[(board.listCurrentSceneEntities().length)];	
+		//populateArrayFromList(staticEntityStringArr, board.getStaticEntities());
+		populateArrayNamesFromArray(staticEntityStringArr, board.listCurrentSceneEntities());
+	}
 	public void deleteEntity(int index) {
 		//deselectAllEntities();
 		
@@ -710,13 +601,13 @@ public class EditorPanel extends JPanel {
 	}
 	//will refresh(create a new one of)staticEntityStringArr, remove old comboBox and then create & add a new updated one
 	//PROBLEM AREA, still a problem. Thought was fixed but has an issue when deleting entities
-	/*public void updateAllEntitiesComboBox() {
+	public void updateAllEntitiesComboBox() {
 		System.out.println("item count: "+ allEntitiesComboBox.getItemCount());
 		int prevIndex = allEntitiesComboBox.getSelectedIndex();
 		int prevMax = allEntitiesComboBox.getItemCount();
 		updateEntityStringArr();
 		entitiesComboBoxPanel.remove(allEntitiesComboBox);
-		allEntitiesComboBox = null;
+		//allEntitiesComboBox = null;
 		allEntitiesComboBox = new JComboBox<>(staticEntityStringArr);
 		allEntitiesComboBox.setFocusable(false);
 		allEntitiesComboBox.addActionListener(new EntitiesComboBoxActionHandler());
@@ -725,7 +616,7 @@ public class EditorPanel extends JPanel {
 		entitiesComboBoxPanel.add(allEntitiesComboBox);
 		revalidate();
 		repaint();
-	}*/
+	}
 	// #############
 	// #### End of entity add/removal section
 	// ----------------------------------------------------------------------------------
@@ -849,8 +740,14 @@ public class EditorPanel extends JPanel {
 	public WorldGeometry getWorldGeomMode() {
 		return this.worldGeomMode;
 	}
-	public CameraPanMode getCameraPanMode() {
-		return this.cameraPanMode;
+	public CameraPanEvent getCameraPanMode() {
+		return this.cameraPanEvent;
+	}
+	public SpriteEditorMode getSpriteEditorMode() {
+		return this.spriteEditorMode;
+	}
+	public BoundaryEditorMode getBoundaryEditorMode() {
+		return this.boundaryEditorMode;
 	}
 	// ######################################### INNER CLASS MODES #######################################
 	// ######################################### INNER CLASS MODES #######################################
@@ -861,7 +758,7 @@ public class EditorPanel extends JPanel {
 	private class EditorSelectMode extends ModeAbstract {
 		protected SelectedEntities selectedEntities;
 		protected SelectionRectangleAbstract selectionRectangle;
-		private SelectionRectangleAbstract nullSelectionRectangle;
+		protected SelectionRectangleAbstract nullSelectionRectangle;
 		protected SelectionRectangleAbstract selectionRectangleState;
 		private Point initClickPoint;
 		private EditorSelectMode() {
@@ -876,9 +773,11 @@ public class EditorPanel extends JPanel {
 			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new CtrlEntitySelectLClickEvent());
 			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON2, new TranslateEvent());
 			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON1, new SelectionRectEvent());
+			this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());
 			
 			this.inputController.createKeyBinding(KeyEvent.VK_ESCAPE, new EscapeEvent());
 		}
+		
 		@Override
 		public void mousePressed(MouseEvent e) {
 			inputController.mousePressed(e);
@@ -929,59 +828,13 @@ public class EditorPanel extends JPanel {
 		public void keyReleased(KeyEvent e) {inputController.keyReleased(e); }
 		@Override
 		public void render(Graphics g) {
-			// TODO Auto-generated method stub
 			Graphics2D g2 = (Graphics2D)g;
 			g2.setColor(Color.BLUE);
 			selectedEntities.drawClickableBox(g2, camera);
 			selectionRectangleState.draw(g2, camera);
 		}
-		/*@Deprecated
-		public EntityStatic clickedOnEntity(Point click) {
-	  		int counter = 0;
-	  		for (EntityStatic entity : board.getStaticEntities()) 
-	  		{
-	  			
-		 		if (entity.getEntitySprite().hasSprite()){ //if entity has sprite, select by using sprite dimensions
-		  			selectedBox.setLocation(entity.getXRelativeTo(camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(camera) + entity.getSpriteOffsetY());
-
-		  			selectedBox.setSize(entity.getEntitySprite().getImage().getWidth(null), entity.getEntitySprite().getImage().getHeight(null) );
-		  			if (selectedBox.contains(click)) 
-		  			{
-		  				//entity.isSelected = true;
-		  				//enableEditPropertiesButton(true); //might not need
-		  				restorePanels();
-		  				//setAllEntitiesComboBoxIndex(counter);
-		  	  			setSelectedEntityNameLabel("Selected: " + entity.name);
-		  	  			setEntityCoordsLabel("Coords. of selected entity: " + entity.getX() + ", " + entity.getY());
-		  				return entity;
-		  			}
-		  			counter++;
-		  			
-		 		}
-		 		else {
-		 			//Entity has no sprite, so selection needs some other method, like by boundary
-		 		} 			
-	  		}
-	  		//nothing was found under cursor: 
-	  		enableEditPropertiesButton(false);
-	  		minimizePanels();
-	  		return null;
-	  	}*/
-		/*@Deprecated
-		public void checkForSelection(Point click) { //redundant
-	  		setCurrentSelectedEntity(clickedOnEntity(click));
-	  		//currentSelectedEntity = clickedOnEntity(click);
-
-	  		if (currentSelectedEntity != null){
-	  			//board.currentDebugEntity = currentSelectedEntity;
-	  		}
-
-	  	}*/
-		/** 
-		 * Will be run on mouseRelease() event inside of SelectionRectEvent
-		 * @param click
-		 */
-		public void checkForEntityShiftClick(Point click) {
+		@SuppressWarnings("deprecation")
+		public void checkForEntityCtrlClick(Point click) {
 			for(EntityStatic entity: board.listCurrentSceneEntities()) {
 				Rectangle clickableRect = new Rectangle();
 				//clickableRect.setLocation(entity.getXRelativeTo(camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(camera) + entity.getSpriteOffsetY());
@@ -997,12 +850,23 @@ public class EditorPanel extends JPanel {
 				//if (selectedEntities.contains(entity))
 					//selectedEntities.add
 			}
+			if (selectedEntities.size() == 1) {
+				spriteEditorButton.setEnabled(true);
+				boundaryEditorButton.setEnabled(true);
+				System.out.println("reached");
+			}
+			else {
+				spriteEditorButton.setEnabled(false);
+				boundaryEditorButton.setEnabled(false);
+			}
 		}
+		@SuppressWarnings("deprecation")
 		public void checkForEntity(Point click) {
 			//boolean atLeastOneVertexFound = false;
-			//since this is the regular click method, would want to make sure any selected vertices are deselected first
-			//TODO: DON'T USE THIS METHOD WITH THE SELECTION BOX PROCEDURE
+			//since this is the regular click method, would want to make sure any selected entities are deselected first
 			if (selectedEntities.size() > 0)
+				spriteEditorButton.setEnabled(false);
+				boundaryEditorButton.setEnabled(false);
 				selectedEntities.clearSelectedEntities();
 			
 			for (EntityStatic entity: board.listCurrentSceneEntities()) {
@@ -1016,11 +880,14 @@ public class EditorPanel extends JPanel {
 					if (selectedEntities.contains(entity) == false) {
 						//atLeastOneVertexFound = true;
 						selectedEntities.addSelectedEntity(entity);
+						spriteEditorButton.setEnabled(true);
+						boundaryEditorButton.setEnabled(true);
 						break;
 					}
 				}
 			}
 		}
+		@SuppressWarnings("deprecation")
 		public void checkForEntityInSelectionRect(Rectangle selectionRect) {
 			for (EntityStatic entity: board.listCurrentSceneEntities()) {
 				Rectangle clickableRect = new Rectangle();
@@ -1034,6 +901,15 @@ public class EditorPanel extends JPanel {
 						selectedEntities.addSelectedEntity(entity);
 					}
 				}
+			}
+			if (selectedEntities.size() == 1) {
+				//TODO return to this once synced with matt's new Sprite composite system
+				spriteEditorButton.setEnabled(true);
+				boundaryEditorButton.setEnabled(true);
+			}
+			else {
+				spriteEditorButton.setEnabled(false);
+				boundaryEditorButton.setEnabled(false);
 			}
 		}
 		public void addSelectedEntity(EntityStatic entity) {
@@ -1049,7 +925,6 @@ public class EditorPanel extends JPanel {
 
 			@Override
 			public void mousePressed() {
-				// TODO Auto-generated method stub
 				checkForEntity(camera.getLocalPosition(editorMousePos));
 				selectedEntities.printSelectedEntities();
 			}
@@ -1064,7 +939,7 @@ public class EditorPanel extends JPanel {
 
 			@Override
 			public void mousePressed() {
-				checkForEntityShiftClick(camera.getLocalPosition(editorMousePos));
+				checkForEntityCtrlClick(camera.getLocalPosition(editorMousePos));
 			}
 			@Override
 			public void mouseDragged() {}
@@ -1074,7 +949,6 @@ public class EditorPanel extends JPanel {
 		public class TranslateEvent implements MouseCommand{
 
 			public void mousePressed() {
-				// TODO Auto-generated method stub
 				initClickPoint.setLocation(camera.getLocalPosition(editorMousePos));
 				selectedEntities.updateOldEntityPositions();
 			}
@@ -1088,7 +962,6 @@ public class EditorPanel extends JPanel {
 
 			@Override
 			public void mousePressed() {
-				// TODO Auto-generated method stub
 				selectionRectangleState = selectionRectangle;
 				initClickPoint.setLocation(camera.getLocalPosition(editorMousePos));
 				selectionRectangleState.setInitialRectPoint();
@@ -1096,13 +969,11 @@ public class EditorPanel extends JPanel {
 
 			@Override
 			public void mouseDragged() {
-				// TODO Auto-generated method stub
 				selectionRectangleState.translateEndPoint(camera.getLocalPosition(editorMousePos));
 			}
 
 			@Override
 			public void mouseReleased() {
-				// TODO Auto-generated method stub
 				//command to select vertices underneath box
 				checkForEntityInSelectionRect(selectionRectangleState.getWrekt());
 				selectionRectangleState.resetRect();
@@ -1113,8 +984,9 @@ public class EditorPanel extends JPanel {
 		public class EscapeEvent implements KeyCommand {
 			@Override
 			public void onPressed() {
-				// TODO Auto-generated method stub
 				selectedEntities.clearSelectedEntities();
+				spriteEditorButton.setEnabled(false);
+				boundaryEditorButton.setEnabled(false);
 			}
 			public void onReleased() {}
 			public void onHeld() {}
@@ -1125,7 +997,11 @@ public class EditorPanel extends JPanel {
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 	private class EditorPlaceMode extends ModeAbstract {
-
+		public EditorPlaceMode() {
+			inputController = new InputController();
+			this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());			
+		}
+		
 		@Override
 		public void mousePressed(MouseEvent e) {
 			//old version: vvvvvv 
@@ -1167,36 +1043,186 @@ public class EditorPanel extends JPanel {
 	}  // end of EditorPlaceMode inner class
 	
 	
-	private class CameraPanMode extends ModeAbstract {
+	
+	
+/////////   INNER CLASS SPRITEEDITORMODE   //////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+	private class SpriteEditorMode extends ModeAbstract {
+		public SpriteEditorMode(){
+			inputController = new InputController();
+			this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());			
+		
+		}
+
 		@Override
 		public void mousePressed(MouseEvent e) {
-			//old version: vvvvvvv
-			/*else if (mode == EditorPanel.CAMERAPAN_MODE) {
-
-				oldMousePanPos.setLocation(editorMousePos); // sets temporary old mouse position reference
-				oldCameraPos.setLocation( this.camera.getFocus() );
-				//Set start positions 
-
-
-				//this.camera.setFocusForEditor(oldMousePanPos.getX(), oldMousePanPos.getY());
-				mousePanDX = (e.getX() - oldMousePanPos.getX());
-				mousePanDY = (e.getY() - oldMousePanPos.getY());
-			}*/
+			
 		}
 		@Override
 		public void mouseDragged(MouseEvent e) {
+			
+		}
+		@Override
+		public void mouseMoved(MouseEvent e) {
+			
+		}
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			
+		}
+		@Override
+		public void keyPressed(KeyEvent e) {
+			
+		}
+		@Override
+		public void keyReleased(KeyEvent e) {
+			
+		}
+		@Override
+		public void render(Graphics g) {
+			
+		}
+		
+	}
+/////////   INNER CLASS BOUNDARYEDITORMODE   //////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+	public class BoundaryEditorMode extends ModeAbstract {
+		private ArrayList<EntityStatic> selectedEntitiesRef = getSelectedEntities();
+
+		private BoundaryVertexPlaceMode boundaryVertexPlaceMode;
+		private BoundaryVertexSelectMode boundaryVertexSelectMode;
+		private ModeAbstract boundaryMode;
+		public BoundaryEditorMode() {
+			boundaryVertexPlaceMode = new BoundaryVertexPlaceMode();
+			boundaryVertexSelectMode = new BoundaryVertexSelectMode();
+			boundaryMode = boundaryVertexSelectMode;
+		}
+		public BoundaryVertexPlaceMode getVertexPlaceMode() {
+			return this.boundaryVertexPlaceMode;
+		}
+		public BoundaryVertexSelectMode getVertexSelectMode() {
+			return this.boundaryVertexSelectMode;
+		}
+		
+		@Override
+		public void mousePressed(MouseEvent e) {
+		}
+		@Override
+		public void mouseDragged(MouseEvent e) {
+		}
+		@Override
+		public void mouseMoved(MouseEvent e) {
+		}
+		@Override
+		public void mouseReleased(MouseEvent e) {
+		}
+		@Override
+		public void keyPressed(KeyEvent e) {
+		}
+		@Override
+		public void keyReleased(KeyEvent e) {
+		}
+		@Override
+		public void render(Graphics g) {
+		}
+		public class BoundaryVertexSelectMode extends ModeAbstract {
+			public BoundaryVertexSelectMode() {
+				inputController = new InputController();
+				this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());			
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseDragged(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseMoved(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+
+			}
+
+			@Override
+			public void render(Graphics g) {
+			}
+		}
+		public class BoundaryVertexPlaceMode extends ModeAbstract {
+			public BoundaryVertexPlaceMode() {
+				inputController = new InputController();
+				this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());			
+			}
+			@Override
+			public void mousePressed(MouseEvent e) {
+			}
+			@Override
+			public void mouseDragged(MouseEvent e) {
+			}
+			@Override
+			public void mouseMoved(MouseEvent e) {
+			}
+			@Override
+			public void mouseReleased(MouseEvent e) {
+			}
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+			@Override
+			public void render(Graphics g) {
+			}
+		}
+	} // end of BoundaryMode inner class 
+//////////////////////////////////////////////////////////////////////	
+	public class CameraPanEvent implements MouseCommand {
+		public CameraPanEvent(){
+		}
+		@Override
+		public void mousePressed() {
+			//old version: vvvvvvv
+			//else if (mode == EditorPanel.CAMERAPAN_MODE) {
+
+			oldMousePanPos.setLocation(editorMousePos); // sets temporary old mouse position reference
+			oldCameraPos.setLocation( camera.getFocus() );
+			//Set start positions 
+
+
+			//this.camera.setFocusForEditor(oldMousePanPos.getX(), oldMousePanPos.getY());
+			mousePanDX = (editorMousePos.getX() - oldMousePanPos.getX());
+			mousePanDY = (editorMousePos.getY() - oldMousePanPos.getY());
+			//
+		}
+		@Override
+		public void mouseDragged() {
 			//old version: vvvvvvvvvvvvvvvv
-			/*
-			else if (mode == EditorPanel.CAMERAPAN_MODE) {//keypressSHIFT == true: holding down shift key, ready to pan
-				//mousePanDX = e.getX() - oldMousePanPos.getX()
-				//mousePanDY = e.getY() - oldMousePanPos.getY()
+			
+			//else if (mode == EditorPanel.CAMERAPAN_MODE) {//keypressSHIFT == true: holding down shift key, ready to pan
+				mousePanDX = editorMousePos.getX() - oldMousePanPos.getX();
+				mousePanDY = editorMousePos.getY() - oldMousePanPos.getY();
 				//camera.translate (-mousePanDX, -mousePanDY) or something
 				// ^^^ must be negative because camera will pan in direction opposite the mouse drag
-				//mousePanDX = (e.getX() - oldMousePanPos.getX());
-				//mousePanDY = (e.getY() - oldMousePanPos.getY());
-				//this.camera.translate(mousePanDX, mousePanDY);
-				//this.camera.setFocus(e.getPoint());
-				this.camera.setFocusForEditor( oldCameraPos.getX() + ( oldMousePanPos.getX() - editorMousePos.getX() ), 
+				mousePanDX = (editorMousePos.getX() - oldMousePanPos.getX());
+				mousePanDY = (editorMousePos.getY() - oldMousePanPos.getY());
+				camera.translate((float)mousePanDX, (float)mousePanDY);
+				camera.setFocus(editorMousePos);
+				camera.setFocusForEditor( oldCameraPos.getX() + ( oldMousePanPos.getX() - editorMousePos.getX() ), 
 											    oldCameraPos.getY() + ( oldMousePanPos.getY() - editorMousePos.getY() )
 											);// camera start pos   - (   distance dragged relative to screen         )
 				
@@ -1209,25 +1235,12 @@ public class EditorPanel extends JPanel {
 				//automaticMouseReturn.mouseMove( 500 , 250 );
 				
 				//this.camera.setFocusForEditor(worldMousePos.x , worldMousePos.y );
-				//oldMousePanPos.setLocation(e.getPoint());
-				
-			}
-			*/
+				//oldMousePanPos.setLocation(e.getPoint());				
+		//	}
 		}
-
 		@Override
-		public void mouseMoved(MouseEvent e) {}
-		@Override
-		public void mouseReleased(MouseEvent e) {
+		public void mouseReleased() {
 			
 		}
-		@Override
-		public void keyPressed(KeyEvent e) {}
-		@Override
-		public void keyReleased(KeyEvent e) {}
-		@Override
-		public void render(Graphics g) {}	
 	} // end of CameraPanMode inner class
-
-
 }

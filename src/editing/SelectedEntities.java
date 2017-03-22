@@ -27,6 +27,9 @@ public class SelectedEntities {
 			oldEntityPositions.add(new Point(entity.getPos()));
 		}
 	}
+	public EntityStatic get(int index) {
+		return selectedEntities.get(index);
+	}
 	public ArrayList<EntityStatic> getSelectedEntities () {
 		return selectedEntities;
 	}

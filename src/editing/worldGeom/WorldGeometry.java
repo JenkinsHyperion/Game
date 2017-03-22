@@ -5,6 +5,7 @@ import entities.*;
 import Input.*;
 import editing.EditorPanel;
 import editing.ModeAbstract;
+import editing.EditorPanel.CameraPanEvent;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -70,7 +71,6 @@ public class WorldGeometry extends ModeAbstract{
 		//keypressALT = false;
 		ghostVertexPic = (BufferedImage)Vertex.createVertexPic(0.5f);
 	}
-
 /*	public void drawSurfaceLines(Graphics g) {
 		Graphics2D g2 = (Graphics2D)g;
 		g2.setColor(Color.MAGENTA);
@@ -201,7 +201,7 @@ public class WorldGeometry extends ModeAbstract{
 	
 /////////   INNER CLASS VERTEXPLACEMODE   //////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
-	private class VertexPlaceMode extends ModeAbstract {	
+	public class VertexPlaceMode extends ModeAbstract {	
 		/* Will need to create some booleans states here possibly */
 		// area for states, to handle lots of different key presses
 		private boolean vertexPlacementAllowed = true;
@@ -209,6 +209,7 @@ public class WorldGeometry extends ModeAbstract{
 			inputController = new InputController();
 			KeyStateNull keyStateNull = new KeyStateNull();
 			KeyStateCtrl keyStateCtrl = new KeyStateCtrl();
+			this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, editorPanel.new CameraPanEvent());
 			//set initial condition for keyState
 			keyState = keyStateNull;
 			
@@ -236,7 +237,7 @@ public class WorldGeometry extends ModeAbstract{
 			});
 			
 			// ###### ALIGN TO X-AXIS BUTTON  #######
-			inputController.createKeyBinding(KeyEvent.VK_CONTROL, new KeyCommand() {
+			inputController.createKeyBinding(KeyEvent.VK_X, new KeyCommand() {
 				@Override
 				public void onPressed() {
 					keyState = keyStateCtrl;
@@ -249,7 +250,8 @@ public class WorldGeometry extends ModeAbstract{
 				}
 				@Override
 				public void onHeld() {
-					worldGeomMousePos.setLocation(worldGeomMousePos.x, camera.getRelativeY((vertexList.get(vertexList.size()-1).getPoint().y)));
+					if (vertexList.size() > 0)
+						worldGeomMousePos.setLocation(worldGeomMousePos.x, camera.getRelativeY((vertexList.get(vertexList.size()-1).getPoint().y)));
 					//keyState = keyStateAlt;
 				}
 			});
@@ -282,7 +284,7 @@ public class WorldGeometry extends ModeAbstract{
 				public void mousePressed() {
 					if (vertexPlacementAllowed == true) 
 						//addVertex(camera.getLocalX(worldGeomMousePos.x), camera.getLocalY(worldGeomMousePos.y));
-					addVertex(camera.getLocalX(worldGeomMousePos.x), vertexList.get(vertexList.size()-1).getPoint().y);
+						addVertex(camera.getLocalX(worldGeomMousePos.x), vertexList.get(vertexList.size()-1).getPoint().y);
 				}
 				public void mouseDragged() {}
 				public void mouseReleased() {}
@@ -383,7 +385,7 @@ public class WorldGeometry extends ModeAbstract{
 	
 /////////   INNER CLASS VERTEXSELECTMODE   //////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
-	private class VertexSelectMode extends ModeAbstract {
+	public class VertexSelectMode extends ModeAbstract {
 		
 		//private WorldGeomMode subMode;
 		
@@ -395,8 +397,8 @@ public class WorldGeometry extends ModeAbstract{
 		// will use this list for when there's multiple selection possible
 		//protected ArrayList<VertexAbstract> currentVertexList = new ArrayList<>();
 		//private VertexAbstract nullVertex = VertexNull.getNullVertex();
-		private SelectionRectangleAbstract nullSelectionRectangle;
-		private Point initClickPoint;
+		protected SelectionRectangleAbstract nullSelectionRectangle;
+		protected Point initClickPoint;
 		//worldGeomRef is inherited
 		
 		public VertexSelectMode() {
@@ -411,6 +413,7 @@ public class WorldGeometry extends ModeAbstract{
 			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new CtrlVertexSelectLClickEvent());
 			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON2, new TranslateEvent());
 			this.inputController.createMouseBinding(MouseEvent.ALT_MASK, MouseEvent.BUTTON2, new SelectionRectEvent());
+			this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, editorPanel.new CameraPanEvent());
 			
 			this.inputController.createKeyBinding(KeyEvent.VK_ESCAPE, new EscapeEvent());
 			

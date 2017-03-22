@@ -10,6 +10,8 @@ import editing.worldGeom.KeyState;
 public abstract class ModeAbstract {
 	protected InputController inputController;
 	protected KeyState keyState;
+	protected MouseCommand cameraPanMode;
+	//protected CameraMode cameraMode;
 	/*public abstract void mouseInput(MouseEvent m);
 	public abstract void keyInput(KeyEvent e);
 	*/
@@ -20,5 +22,4 @@ public abstract class ModeAbstract {
 	public abstract void keyPressed(KeyEvent e);
 	public abstract void keyReleased(KeyEvent e);
 	public abstract void render(Graphics g);
-	
 }

@@ -2,7 +2,7 @@ package physics;
 
 import java.util.ArrayList;
 
-import com.sun.xml.internal.bind.v2.runtime.RuntimeUtil.ToStringAdapter;
+//import com.sun.xml.internal.bind.v2.runtime.RuntimeUtil.ToStringAdapter;
 
 public class Force {
 

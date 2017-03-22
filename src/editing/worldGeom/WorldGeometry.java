@@ -71,108 +71,81 @@ public class WorldGeometry extends ModeAbstract{
 		//keypressALT = false;
 		ghostVertexPic = (BufferedImage)Vertex.createVertexPic(0.5f);
 	}
-/*	public void drawSurfaceLines(Graphics g) {
-		Graphics2D g2 = (Graphics2D)g;
-		g2.setColor(Color.MAGENTA);
-		for (int i = 0; i < vertexList.size()-1; i++) {
-			Line2D.Double tempLine = new Line2D.Double(vertexList.get(i), vertexList.get(i+1));
-			//g2.draw(tempLine);
-			this.camera.draw(tempLine, g2);
-		}
-	}*/
-	public void updateSurfaceLines(int startingIndex) {
-		//TODO this might be really flawed going through the entire
-		// loop every time this method is called, but might be ok. Check up on this.
-		for (int i = startingIndex; i < vertexList.size()-1; i++) {
-			Line2D.Double tempLine = new Line2D.Double(vertexList.get(i).getPoint(), vertexList.get(i+1).getPoint());
-			surfaceLines.add(tempLine);
-			
-		}
-	}
-	public Image getGhostVertexPic() {
-		return ghostVertexPic;
-	}
 
-	/**Adds vertex to the arrayList
-	 * Should take input from MouseEvent e that is passed in from board into this class's mousePressed(e) method
-	 */
-	public void addVertex(int x, int y) {
-		//deselectAllVertices()   (for when vertices can be selected)
-		
-		//vertexList.add(new Vertex(this.camera.getLocalX(x), this.camera.getLocalY(y)));
-		vertexList.add(new Vertex(x,y));
-		if (vertexList.size() > 1) 
-			updateSurfaceLines(vertexList.size()-2);
-	}
-	public void removeVertex(Vertex vertexToRemove) {
-		
-	}
-	public void clearAllVertices() {
-		vertexList.clear();
-		surfaceLines.clear();
-	}
-	
 	//// WORLD GEOM'S MOUSE HANDLING SECTION  ////////////
 	public void mousePressed(MouseEvent e) {
 		setWorldGeomMousePos(e.getPoint());
 		this.worldGeomMode.mousePressed(e);
-		// TODO Auto-generated method stub
-		
-		// (idea) would maybe want something like:
-		// this.mode.mousePressed(MouseEvent e), 
-		//	 where there would be different implementations of the press
 	}
 	public void mouseDragged(MouseEvent e) {
-		// TODO Auto-generated method stub
 		setWorldGeomMousePos(e.getPoint());
 		this.worldGeomMode.mouseDragged(e);
-		
 	}
 	public void mouseMoved(MouseEvent e) {
 		setWorldGeomMousePos(e.getPoint());
 		this.worldGeomMode.mouseMoved(e);	
 	}
-
 	public void mouseReleased(MouseEvent e) {
 		setWorldGeomMousePos(e.getPoint());
 		this.worldGeomMode.mouseReleased(e);
-		// TODO Auto-generated method stub
-		
 	}
 	//END OF MOUSE HANDLING //////
 	
 	//KEY EVENTS PASSED IN FROM BOARD
 	public void keyPressed(KeyEvent e){
 		this.worldGeomMode.keyPressed(e);
-		//int key = e.getKeyCode();
-		/*if (key == KeyEvent.VK_ALT && !keypressALT) {  // holding ALT when placing vertices will lock the y axis to the last placed point
-			keypressALT = true;*/
-			//yClampGate = true;
-			//setYClamp(worldGeomMousePos.getY();
-			//yClampGate = false;
-		//}
-		/*if (key == KeyEvent.VK_ESCAPE) {
-			resetStates();
-        	clearAllVertices();
-		}*/
 	}
 	public void keyReleased(KeyEvent e) {
 		this.worldGeomMode.keyReleased(e);
-		//int key = e.getKeyCode();
-		/*if (key == KeyEvent.VK_ALT && keypressALT)
-			keypressALT = false;*/
 	}
-	/* public void setYClamp(int yClamp){
-		this.yClamp = yClamp;
-		yClampGate = false;
-	} */
-/*	public void setShiftHeld(boolean state){
-		this.keypressALT = state;
-	}*/
-	/*public boolean getShiftHeld() {
-		return this.keypressALT;
-	}*/
 	//// END OF KEY HANDLING SECTION /////
+	
+	public void render(Graphics g) {
+		worldGeomMode.render(g);
+	}
+	@Deprecated
+	public void updateSurfaceLinesUponChange(int startingIndex) {
+		for (int i = startingIndex; i < vertexList.size()-1; i++) {
+			Line2D.Double tempLine = new Line2D.Double(vertexList.get(i).getPoint(), vertexList.get(i+1).getPoint());
+			surfaceLines.add(tempLine);
+		}
+	}
+	public void refreshAllSurfaceLines() {
+		surfaceLines.clear();
+		for (int i = 0; i < vertexList.size()-1; i++) {
+			Line2D.Double tempLine = new Line2D.Double(vertexList.get(i).getPoint(), vertexList.get(i+1).getPoint());
+			surfaceLines.add(tempLine);
+		}
+	}
+	public Image getGhostVertexPic() {
+		return ghostVertexPic;
+	}
+	/**Adds vertex to the arrayList
+	 * Should take input from MouseEvent e that is passed in from board into this class's mousePressed(e) method
+	 */
+	public void addVertex(int x, int y) {
+		//vertexList.add(new Vertex(this.camera.getLocalX(x), this.camera.getLocalY(y)));
+		vertexList.add(new Vertex(x,y));
+		if (vertexList.size() > 1) 
+			//updateSurfaceLinesUponChange(vertexList.size()-2);
+			refreshAllSurfaceLines();
+	}
+	public void removeVertex(SelectedVertices selectedVertices) {
+		if (selectedVertices.size() == 1){
+			for (Vertex verts: vertexList) {
+				if (verts == selectedVertices.getVertices().get(0)) {
+					vertexList.remove(verts);
+					selectedVertices.clearSelectedVertices();
+					break;
+				}
+			}
+			refreshAllSurfaceLines();
+		}
+	}
+	public void clearAllVerticesAndLines() {
+		vertexList.clear();
+		surfaceLines.clear();
+	}
 	public Point getWorldGeomMousePos() {
 		return worldGeomMousePos;
 	}
@@ -180,11 +153,6 @@ public class WorldGeometry extends ModeAbstract{
 	public void setWorldGeomMousePos(Point pos) {
 		this.worldGeomMousePos = pos;
 	}
-	/*public void resetStates() {
-		vertexPlacementAllowed = true;
-		//keypressALT = false;
-	}
-	*/
 	public void setMode(ModeAbstract newMode) {
 		this.worldGeomMode = newMode;
 	}
@@ -193,10 +161,6 @@ public class WorldGeometry extends ModeAbstract{
 	}
 	public VertexSelectMode getVertexSelectMode() {
 		return this.vertexSelectMode;
-	}
-	//will be implemented by one of the below states
-	public void render(Graphics g) {
-		worldGeomMode.render(g);
 	}
 	
 /////////   INNER CLASS VERTEXPLACEMODE   //////////////////////////////////////////////////////
@@ -225,7 +189,7 @@ public class WorldGeometry extends ModeAbstract{
 					((Board)board).addStaticEntity( newEntity );
 					editorPanel.addSelectedEntity( newEntity );
 					editorPanel.setMode(editorPanel.getEditorSelectMode());
-					clearAllVertices();
+					clearAllVerticesAndLines();
 				}
 				@Override
 				public void onReleased() {
@@ -261,7 +225,9 @@ public class WorldGeometry extends ModeAbstract{
 				public void onPressed() {
 					if (vertexList.size() > 0) {
 						vertexList.remove(vertexList.size()-1);
-						surfaceLines.remove(surfaceLines.size()-1);
+						//surfaceLines.remove(surfaceLines.size()-1); << PROBABLY THE BETTER WAY
+						//another way of doing it: 
+						refreshAllSurfaceLines();
 					}
 				}
 				@Override
@@ -412,10 +378,11 @@ public class WorldGeometry extends ModeAbstract{
 			this.inputController.createMouseBinding(MouseEvent.BUTTON1, new VertexSelectLClickEvent());
 			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new CtrlVertexSelectLClickEvent());
 			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON2, new TranslateEvent());
-			this.inputController.createMouseBinding(MouseEvent.ALT_MASK, MouseEvent.BUTTON2, new SelectionRectEvent());
+			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON1, new SelectionRectEvent());
 			this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, editorPanel.new CameraPanEvent());
 			
 			this.inputController.createKeyBinding(KeyEvent.VK_ESCAPE, new EscapeEvent());
+			this.inputController.createKeyBinding(KeyEvent.VK_DELETE, new DeleteVerticesEvent());
 			
 			//this.inputController.createMouseBinding(MouseEvent.ALT_DOWN_MASK, MouseEvent.BUTTON1, new ShiftVertexSelectLClickEvent());
 			//this.inputController.createMouseBinding(MouseEvent.ALT_MASK, MouseEvent.BUTTON1, new VertexSelectLClickEvent());
@@ -504,9 +471,8 @@ public class WorldGeometry extends ModeAbstract{
 		public void checkForVertexInSelectionRect(Rectangle selectionRect) {
 			for (Vertex vertex: vertexList) {
 				if (selectionRect.intersects(vertex.getClickableZone())){
-					if(selectedVertices.contains(vertex) == false) {
+					if(selectedVertices.contains(vertex) == false) 
 						selectedVertices.addSelectedVertex(vertex);
-					}
 				}
 			}
 		}
@@ -598,9 +564,16 @@ public class WorldGeometry extends ModeAbstract{
 					// TODO Auto-generated method stub
 					selectedVertices.clearSelectedVertices();
 				}
-				public void onReleased() {}
-				public void onHeld() {}
+				public void onReleased(){} public void onHeld() {}
+		}
+		public class DeleteVerticesEvent implements KeyCommand {
+			@Override
+			public void onPressed() {
+				// TODO Auto-generated method stub
+				removeVertex(selectedVertices);
 			}
+			public void onReleased() {} public void onHeld() {}
+		}
 	}
 	//end of VertexSelectMode inner class
 	

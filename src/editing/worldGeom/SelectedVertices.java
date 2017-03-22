@@ -20,6 +20,9 @@ public class SelectedVertices {
 	public void clearSelectedVertices() {
 		selectedVertices.clear();
 	}
+	public ArrayList<Vertex> getVertices(){
+		return this.selectedVertices;
+	}
 	public void updateOldVertexPositions(){
 		oldVertexPositions.clear();
 		for (Vertex vertex: selectedVertices) {

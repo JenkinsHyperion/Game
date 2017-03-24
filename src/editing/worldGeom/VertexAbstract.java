@@ -3,16 +3,16 @@ package editing.worldGeom;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
-import engine.Camera;
+import engine.MovingCamera;
 
 public abstract class VertexAbstract {
 	
 	
 	public abstract Point getPoint();
 
-	public abstract void draw(Graphics g, Camera camera);
+	public abstract void draw(Graphics g, MovingCamera camera);
 	
-	public abstract void drawClickableBox(Graphics g, Camera camera);
+	public abstract void drawClickableBox(Graphics g, MovingCamera camera);
 	
 	public abstract Rectangle getClickableZone();
 	

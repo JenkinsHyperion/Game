@@ -4,7 +4,7 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 
 import engine.BoardAbstract;
-import engine.Camera;
+import engine.MovingCamera;
 import engine.Overlay;
 import engine.OverlayComposite;
 import entityComposites.GraphicComposite;
@@ -12,7 +12,7 @@ import utility.*;
 
 public class RenderingEngine {
 	
-	private Camera camera;
+	private MovingCamera camera;
 	
 	private Graphics2D graphics;
 
@@ -20,18 +20,30 @@ public class RenderingEngine {
 	
 	private DoubleLinkedList< GraphicComposite > spriteCompositeList = new DoubleLinkedList< GraphicComposite >();
 	
+	public RenderingLayer[] layersList;
+	
 	private ArrayList<Overlay> overlayList = new ArrayList<Overlay>();
 	private ArrayList<OverlayComposite> visibleOverlayList = new ArrayList<OverlayComposite>();
 	
 	private ArrayList<Sprite> spriteListTEMPORARY_USEAGE_ONLY = new ArrayList<Sprite>();
 	
 	public RenderingEngine( BoardAbstract board){
-		this.camera = new Camera( board , this.graphics , null  );
+		this.camera = new MovingCamera( board , this.graphics , null  );
 		init();
 	}
 	
 	private void init(){
-		//layer1Head = new LinkedHead();
+
+		layersList = new RenderingLayer[]{
+			new RenderingLayer(1,1,camera),
+			new RenderingLayer(1.1,1.1 ,camera), //nearest
+			new RenderingLayer(1.2,1.2 ,camera),
+			new RenderingLayer(1.8, 1.8 ,camera),
+			new RenderingLayer(3.0, 3.0 ,camera ),
+			new RenderingLayer(5, 5 ,camera),
+			new RenderingLayer(10, 10 ,camera),
+			new RenderingLayer(100, 100 ,camera) //farthest
+		};
 	}
 
 	public void draw( Graphics2D g2 ){ //ENTRY POINT OF RENDERING ENGINE FROM BOARD PAINTCOMPONENT(g)
@@ -40,16 +52,20 @@ public class RenderingEngine {
 		this.graphics = g2;
 		camera.repaint(g2); 
 		
+		for ( int i = layersList.length-1 ; i > -1  ; i-- ){
+			layersList[i].draw(camera);
+		}
+		
 		//Layers
 		//layer1Head.beginDraw(); 
 		
 		while ( spriteCompositeList.hasNext() ){
-			spriteCompositeList.get().getSprite().drawSprite( camera );
+			spriteCompositeList.get().getSprite().draw( camera );
 		}
 		
 		//Overlays
 		for ( OverlayComposite overlay : visibleOverlayList ){
-			overlay.paintOverlay(g2,this.camera);
+			overlay.paintOverlay(g2,this.camera); 
 		}
 		
 	}
@@ -72,7 +88,7 @@ public class RenderingEngine {
 			
 	}
 	
-	public Camera getCamera(){
+	public MovingCamera getCamera(){
 		return this.camera;
 	}
 	

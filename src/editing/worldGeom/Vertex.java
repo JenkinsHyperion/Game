@@ -9,7 +9,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
-import engine.Camera;
+import engine.MovingCamera;
 
 public class Vertex extends VertexAbstract {
 	
@@ -42,12 +42,12 @@ public class Vertex extends VertexAbstract {
 	}
 	
 	@Override
-	public void draw(Graphics g, Camera camera) {
+	public void draw(Graphics g, MovingCamera camera) {
 		// TODO Auto-generated method stub
 		camera.drawVertex(this, g); 
 		
 	}
-	public void drawClickableBox(Graphics g, Camera camera) {
+	public void drawClickableBox(Graphics g, MovingCamera camera) {
 		camera.drawVertexClickableBox(this, g);
 	}
 	@Override

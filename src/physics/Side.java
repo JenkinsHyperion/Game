@@ -4,7 +4,7 @@ import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 
-import entities.EntityStatic;
+import entityComposites.EntityStatic;
 import misc.CollisionEvent;
 
 public class Side extends BoundaryFeature{
@@ -79,16 +79,6 @@ public class Side extends BoundaryFeature{
 	@Override 
 	protected void onCollision(){
 		
-	}
-	
-	@Override
-	public Boundary getOwnerBoundary(){
-		return this.owner;
-	}
-	
-	@Override
-	public EntityStatic getOwnerEntity(){
-		return this.owner.getOwnerCollidable().getOwnerEntity();
 	}
 	
 	@Override

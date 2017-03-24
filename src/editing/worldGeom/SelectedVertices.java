@@ -4,16 +4,16 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.util.ArrayList;
 
-import engine.Camera;
+import engine.MovingCamera;
 
 public class SelectedVertices {
 	private ArrayList<Vertex> selectedVertices = new ArrayList<>();
 	private ArrayList<Point> oldVertexPositions = new ArrayList<>();
-	private Camera camera;
+	private MovingCamera camera;
 	//private Point worldGeomMousePos;
 	// vvvv probably won't need
 	//private VertexNull vertexNull = VertexNull.getNullVertex();
-	public SelectedVertices(Camera camera) {
+	public SelectedVertices(MovingCamera camera) {
 		this.camera = camera;
 		//this.worldGeomMousePos = worldGeomMousePosRef;
 	}
@@ -36,7 +36,7 @@ public class SelectedVertices {
 			return false;
 	}
 	
-	public void drawClickableBox(Graphics g, Camera camera) {
+	public void drawClickableBox(Graphics g, MovingCamera camera) {
 		// should only run if there are any items inside the array
 		for(Vertex vertex: selectedVertices) {
 			vertex.drawClickableBox(g, camera);

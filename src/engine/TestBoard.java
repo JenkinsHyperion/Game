@@ -9,6 +9,7 @@ import javax.swing.event.*;
 import editing.EditorPanel;
 import entities.*; //local imports
 import entityComposites.Collider;
+import entityComposites.EntityStatic;
 import entityComposites.Collider;
 import physics.*;
 import sprites.Background;
@@ -21,15 +22,13 @@ import misc.*;
 @SuppressWarnings("serial")
 public class TestBoard extends BoardAbstract{
 	
-	private Background background = new Background("Prototypes/Sky.png"); //move to rendering later
-	
 	private java.util.Timer updateEntitiesTimer;
 	
 	MouseHandlerClass myMouseHandler;
 	
 	private CollisionEngine collisionEngine = new CollisionEngine(this); //Refactor to a better name
 	private RenderingEngine renderer = new RenderingEngine( this );
-	private Camera camera = renderer.getCamera();
+	private MovingCamera camera = renderer.getCamera();
 	
 	private EditorPanel editorPanel;
     public Player player;
@@ -78,11 +77,11 @@ public class TestBoard extends BoardAbstract{
     	
     	
     	
-    	TestHinge testEntity = new TestHinge(300,300, new Point( 100 , 5 ));     
+    	/*TestHinge testEntity = new TestHinge(300,300, new Point( 100 , 5 ));     
     	
     	Collider mesh = new Collider( testEntity );
     	
-        testEntity.setCollisionProperties( mesh );
+        testEntity.setCollisionComposite( mesh );
 
         testEntity.loadSprite("ground01.png" , -150 , 0);
 
@@ -90,7 +89,7 @@ public class TestBoard extends BoardAbstract{
         //testEntity.setAngleInDegrees(45);
         //testEntity.setAngularAcceleration(0.1);
         
-        dynamicEntitiesList.add( testEntity );
+        dynamicEntitiesList.add( testEntity );*/
     	
     }
     
@@ -151,7 +150,7 @@ public class TestBoard extends BoardAbstract{
 	    for (EntityStatic stat : staticEntitiesList) {
 	    	
 	        	//stat.getEntitySprite().drawSprite(g2,camera);
-	    	stat.getEntitySprite().drawSprite(camera);
+	    	stat.getEntitySprite().draw(camera);
 	    	
 	    }
 	    
@@ -160,7 +159,7 @@ public class TestBoard extends BoardAbstract{
 	    for (EntityDynamic dynamic : dynamicEntitiesBuffer) {
 	    	
         	//stat.getEntitySprite().drawSprite(g2,camera);
-	    	dynamic.getEntitySprite().drawSprite(camera);
+	    	dynamic.getEntitySprite().draw(camera);
     	
 	    }
 
@@ -214,7 +213,7 @@ public class TestBoard extends BoardAbstract{
 	}
 	
 	@Override
-	public Camera getCamera() {
+	public MovingCamera getCamera() {
 		return this.camera;
 	}
 	

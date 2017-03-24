@@ -7,6 +7,7 @@ import java.util.*;
 import javax.swing.JOptionPane;
 
 import entities.*;
+import entityComposites.EntityStatic;
 import engine.*;
 
 public class SavingLoading {

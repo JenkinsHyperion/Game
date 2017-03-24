@@ -5,17 +5,17 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-import engine.Camera;
+import engine.MovingCamera;
 
 public class SelectionRectangle implements SelectionRectangleAbstract{
 	private Rectangle selectionRectangle;
 	private Point initClickPoint;
 	//private Point worldGeomMousePos;
-	private Camera camera;
+	private MovingCamera camera;
 	private Color outlineColor;
 	private Color fillColor;
 
-	public SelectionRectangle(Color outlineColor, Color fillColor, Camera camera, Point initClickPointRef) {
+	public SelectionRectangle(Color outlineColor, Color fillColor, MovingCamera camera, Point initClickPointRef) {
 		this.outlineColor = outlineColor;
 		this.fillColor = fillColor;
 		this.camera = camera;
@@ -31,7 +31,7 @@ public class SelectionRectangle implements SelectionRectangleAbstract{
 	}
 
 	@Override
-	public void draw(Graphics g, Camera camera) {
+	public void draw(Graphics g, MovingCamera camera) {
 		camera.drawRect(selectionRectangle, g, outlineColor, fillColor, .3f);
 	}
 

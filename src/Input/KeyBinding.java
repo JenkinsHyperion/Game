@@ -86,5 +86,9 @@ public class KeyBinding {
 	
 	}
 	
+	@Override
+	public String toString() {
+		return "Key "+this.keyCode;
+	}
 	
 }

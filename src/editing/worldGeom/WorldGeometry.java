@@ -2,6 +2,8 @@ package editing.worldGeom;
 
 import engine.*;
 import entities.*;
+import entityComposites.EntityFactory;
+import entityComposites.EntityStatic;
 import Input.*;
 import editing.EditorPanel;
 import editing.ModeAbstract;
@@ -36,7 +38,7 @@ public class WorldGeometry extends ModeAbstract{
 	
 	private EditorPanel editorPanel;
 	private BoardAbstract board;
-	protected Camera camera;
+	protected MovingCamera camera;
 	//private ArrayList<Point> vertexPoints = new ArrayList<>();
 
 	// World Geometry Modes:

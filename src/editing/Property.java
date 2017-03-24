@@ -1,6 +1,7 @@
 package editing;
 
 import entities.*;
+import entityComposites.Entity;
 
 public class Property {
 

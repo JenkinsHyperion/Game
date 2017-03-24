@@ -1,7 +1,7 @@
 package misc;
 
 import entities.EntityDynamic;
-import entities.EntityStatic;
+import entityComposites.EntityStatic;
 
 public class LinearFollow extends MovementBehavior{
 	

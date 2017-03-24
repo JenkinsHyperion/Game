@@ -36,7 +36,7 @@ public class PlantTwigSegment extends EntityDynamic {
 		
 		lifespan = new Counter(Counter.COUNT_DOWN_FROM , 10*percentMax , new Dead() );
 		
-		this.setCollisionProperties( ColliderNull.getNonCollidable() );
+		this.setCollisionComposite( ColliderNull.getNonCollidable() );
         this.loadSprite("Prototypes/twig.png" , -4 , -40 );
         
         ((SpriteStillframe) ((GraphicComposite)this.spriteType).getSprite()).setResizeFactor(0); //start initial segment at size 0

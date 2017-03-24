@@ -1,5 +1,10 @@
 package entityComposites;
 
+import editing.MissingIcon;
+import sprites.RenderingEngine;
+import sprites.Sprite;
+import sprites.SpriteStillframe;
+
 public class GraphicCompositeNull extends GraphicComposite{
 	
 	private final static GraphicCompositeNull nullSprite = new GraphicCompositeNull();
@@ -7,6 +12,7 @@ public class GraphicCompositeNull extends GraphicComposite{
 	//constructor
 	private GraphicCompositeNull() {
 		super( null );
+		this.currentSprite = new SpriteStillframe("missing");//new MissingIcon().paintMissingSprite();
 	}
 	
 	//OPTIMIZATION - Look into better handling, this is a static factory that returns the static singleton nullSprite, which
@@ -15,7 +21,24 @@ public class GraphicCompositeNull extends GraphicComposite{
 		return nullSprite;
 	}
 	
+	public EntityStatic ownerEntity(){
+		return null;
+	}
 	
+	public Sprite getSprite(){
+		//System.err.println("Attempting to get sprite on null graphics composite");
+		return currentSprite;
+	}
+	
+	public void setSprite(Sprite sprite){
+		System.err.println("Attempting to set sprite on null graphics composite");
+	}
+	
+	
+	public void addCompositeToRenderer( RenderingEngine engine ){
+		System.err.println("Attempting to add null graphics composite to rendering engine");
+		//This should catch null composites from getting into the renderer list 
+	}
 	
 	
 }

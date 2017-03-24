@@ -1,5 +1,6 @@
 package Input;
 
+import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -222,6 +223,18 @@ public class InputController {
 		}
 		
 	}
+	
+    public void debugPrintInputList( int x, int y ,Graphics g){
+
+    	for ( int i = 0 ; i < this.keysHeld.size() ; i++ ) {
+	    	g.drawString( keysHeld.get(i).toString() , x , y+(10*i) );
+	    }	
+    	
+    	for ( int i = 0 ; i < this.mouseHeld.size() ; i++ ) {
+	    	g.drawString( mouseHeld.get(i).toString() , x+50 , y+(10*i) );
+	    }	
+
+    }
 	
 	
 }

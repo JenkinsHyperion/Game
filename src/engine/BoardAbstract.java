@@ -9,18 +9,23 @@ import java.util.*;
 import javax.swing.JPanel;
 
 import editing.EditorPanel;
-import entities.EntityStatic;
+import entityComposites.EntityStatic;
+import entityComposites.UpdateableComposite;
 import misc.PaintOverlay;
 import physics.CollisionEngine;
 import saving_loading.EntityData;
 import sprites.RenderingEngine;
+import utility.DoubleLinkedList;
 
 public abstract class BoardAbstract extends JPanel implements KeyListener {
 
-    public static int B_WIDTH;// = 400;
+    public static int B_WIDTH;// = 400;	
     public static int B_HEIGHT;// = 300;
 	
 	Timer updateEntitiesTimer;
+	
+	public final DoubleLinkedList<UpdateableComposite> updateablesList = new DoubleLinkedList<UpdateableComposite>();
+	
 	int counter;
 	
 	protected OverlayComposite diagnosticsOverlay;
@@ -28,7 +33,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	//protected ArrayList<EntityStatic> entitiesList; 
 	
 	public RenderingEngine renderingEngine;
-	protected Camera camera;
+	protected MovingCamera camera;
 	
 	public CollisionEngine collisionEngine; 
 	
@@ -86,7 +91,11 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	     		
 	     		time = System.nanoTime();
 	     		
-	     		entityThreadRun();
+	     		while ( updateablesList.hasNext() ){
+	     			updateablesList.get().update();
+	     		}
+	     		
+	     		entityThreadRun();  
 	     		
 	     		deltaTime = System.nanoTime() ;
 	     		speed = deltaTime - time;
@@ -122,7 +131,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 		return this.currentScene.listEntities();
 	}
 	
-	public Camera getCamera() {
+	public MovingCamera getCamera() {
 		return null;
 	}
 	
@@ -138,7 +147,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	protected class DiagnosticsOverlay implements Overlay{
 		
 		@Override
-		public void paintOverlay(Graphics2D g2 , Camera cam) {
+		public void paintOverlay(Graphics2D g2 , MovingCamera cam) {
 
 			g2.setColor(new Color(0, 0, 0, 150));
 	        g2.fillRect(0, 0, B_WIDTH, B_HEIGHT);

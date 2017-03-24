@@ -17,7 +17,7 @@ public final class VertexNull extends VertexAbstract {
 	}
 	
 	@Override
-	public void draw(Graphics g, Camera camera) {
+	public void draw(Graphics g, MovingCamera camera) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -26,7 +26,7 @@ public final class VertexNull extends VertexAbstract {
 		return new Point();
 		// TODO Auto-generated method stub
 	}
-	public void drawClickableBox(Graphics g, Camera camera) {
+	public void drawClickableBox(Graphics g, MovingCamera camera) {
 	}
 	@Override
 	public Rectangle getClickableZone() {

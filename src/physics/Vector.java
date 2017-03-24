@@ -92,6 +92,18 @@ public class Vector implements Serializable{
 			return new Vector( returnX , returnY );
 		}
 		
+		public Vector absSlope(){
+			if ( this.x * this.y >= 0 ){ //both x and y are + or -
+				return this.abs();
+			}
+			else if ( this.x < 0 ){
+				return new Vector( -this.x , -this.y );
+			}
+			else{
+				return new Vector(this.x , this.y);
+			}
+		}
+		
 		public Vector inverseX(){
 			double returnX = -this.x;
 			return new Vector( returnX , this.y );

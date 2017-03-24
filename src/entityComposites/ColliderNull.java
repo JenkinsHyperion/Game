@@ -4,9 +4,8 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 
-import engine.Camera;
+import engine.MovingCamera;
 import entities.EntityRotationalDynamic;
-import entities.EntityStatic;
 import misc.CollisionEvent;
 import physics.Boundary;
 import physics.CollidingPair;
@@ -121,7 +120,7 @@ public final class ColliderNull extends Collider{
 		return this.owner;
 	}
 	@Override
-	public void debugDrawBoundary(Camera camera , Graphics2D g){
+	public void debugDrawBoundary(MovingCamera camera , Graphics2D g){
 		System.err.println("Warning: Attempted to draw Boundary of NonCollidable ");
 	}
 	@Override

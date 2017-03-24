@@ -53,11 +53,11 @@ public class MouseBinding {
 	}
 
 	private class UnmodifiedMouse extends Type{
-		
+	
 		@Override
 		protected boolean mouseMatches( MouseEvent e ){ //
-
-			if ( (e.getModifiers() & (e.CTRL_MASK|e.SHIFT_MASK|e.ALT_MASK) ) == 0 ){
+			
+			if ( (e.getModifiers() & (MouseEvent.CTRL_MASK|MouseEvent.SHIFT_MASK|MouseEvent.ALT_MASK) ) == 0 ){
 				if (e.getButton() == mouseButton)
 					return true;
 				else
@@ -93,5 +93,9 @@ public class MouseBinding {
 	
 	}
 	
+	@Override
+	public String toString() {
+		return "Button "+this.mouseButton;
+	}
 	
 }

@@ -2,7 +2,7 @@ package testEntities;
 
 import entities.*;
 import entityComposites.Collider;
-import entityComposites.EntityComposite;
+import entityComposites.CompositeFactory;
 import physics.Boundary;
 import sprites.SpriteStillframe;
 
@@ -12,15 +12,15 @@ public class TestRotation extends EntityRotationalDynamic{
 		super(x, y);
 
 		Collider collidable = new Collider( this );
-        this.setCollisionProperties( collidable );
+        this.setCollisionComposite( collidable );
         
-        collidable.setBoundary( new Boundary.Box(446,100,-223,-50 , collidable) );
+        collidable.setBoundary( new Boundary.Box(446,100,-223,-50) );
 
-        this.storedBounds = new Boundary.Box(446,100,-223,-50 , collidable);
+        this.storedBounds = new Boundary.Box(446,100,-223,-50 );
         
         SpriteStillframe sprite = new SpriteStillframe("ground_1.png" , -223 , -53 );
 		
-        EntityComposite.addGraphicTo( this , sprite);
+        CompositeFactory.addGraphicTo( this , sprite);
         
         this.angularVelocity = 0.05;
 		

@@ -13,6 +13,9 @@ import editing.worldGeom.WorldGeometry.VertexSelectMode.TranslateEvent;
 import editing.worldGeom.WorldGeometry.VertexSelectMode.VertexSelectLClickEvent;
 import sprites.*;
 import entities.*;
+import entityComposites.EntityFactory;
+import entityComposites.EntityStatic;
+import entityComposites.GraphicComposite;
 import saving_loading.SavingLoading;
 import engine.*;
 import java.awt.*;
@@ -91,7 +94,7 @@ public class EditorPanel extends JPanel {
 	protected int currentEntIndex;
 
 	protected BoardAbstract board;
-	protected Camera camera;
+	protected MovingCamera camera;
 	private Sprite ghostSprite; 
 
     //protected EntityStatic currentSelectedEntity;
@@ -815,11 +818,14 @@ public class EditorPanel extends JPanel {
 		@SuppressWarnings("deprecation")
 		public void checkForEntityCtrlClick(Point click) {
 			for(EntityStatic entity: board.listCurrentSceneEntities()) {
+				
 				Rectangle clickableRect = new Rectangle();
+				
+				Sprite graphic = entity.getGraphicComposite().getSprite();
 				//clickableRect.setLocation(entity.getXRelativeTo(camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(camera) + entity.getSpriteOffsetY());
-				clickableRect.setLocation(entity.getX() + entity.getSpriteOffsetX(), entity.getY() + entity.getSpriteOffsetY());
-				clickableRect.setSize(entity.getEntitySprite().getImage().getWidth(null),
-						entity.getEntitySprite().getImage().getHeight(null) );
+				clickableRect.setLocation(entity.getX() + graphic.getOffsetX(), entity.getY() + graphic.getOffsetY());
+				clickableRect.setSize(graphic.getImage().getWidth(null),
+						graphic.getImage().getHeight(null) );
 				if (clickableRect.contains(click)) {
 					if (selectedEntities.contains(entity))
 						selectedEntities.removeSelectedEntity(entity);

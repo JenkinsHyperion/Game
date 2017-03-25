@@ -81,10 +81,7 @@ public class EntityStatic extends Entity{
     	this.getGraphicComposite().setSprite( new SpriteAnimated(a , offsetX,offsetY)); 
     	
     }
-    @Deprecated
-    protected void setEntitySpriteOffset(int x , int y){
-    	((GraphicComposite)this.spriteType).getSprite().setOffset(x, y); 
-    }
+
     @Deprecated
     public Sprite getEntitySprite(){ // gets the Object's sprite, still image or animation MOVE TO SPRITEPROPERTY
     	return ((GraphicComposite)this.spriteType).getSprite();
@@ -216,6 +213,10 @@ public class EntityStatic extends Entity{
 	
 	public boolean hasGraphics(){
 		return !( this.spriteType instanceof GraphicComposite );
+	}
+	
+	public void deconstruct(){
+		//
 	}
 	
 }

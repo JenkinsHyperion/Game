@@ -37,8 +37,8 @@ public class RenderingEngine {
 		layersList = new RenderingLayer[]{
 			new RenderingLayer(1,1,camera),
 			new RenderingLayer(1.1,1.1 ,camera), //nearest
-			new RenderingLayer(1.2,1.2 ,camera),
-			new RenderingLayer(1.8, 1.8 ,camera),
+			new RenderingLayer(1.6,1.4 ,camera),
+			new RenderingLayer(2.0, 1.6 ,camera),
 			new RenderingLayer(3.0, 3.0 ,camera ),
 			new RenderingLayer(5, 5 ,camera),
 			new RenderingLayer(10, 10 ,camera),

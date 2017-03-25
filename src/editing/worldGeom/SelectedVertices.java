@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import engine.Camera;
 
 public class SelectedVertices {
-	private ArrayList<Vertex> selectedVertices = new ArrayList<>();
+	private ArrayList<EditorVertex> selectedVertices = new ArrayList<>();
 	private ArrayList<Point> oldVertexPositions = new ArrayList<>();
 	private Camera camera;
 	//private Point worldGeomMousePos;
@@ -20,17 +20,17 @@ public class SelectedVertices {
 	public void clearSelectedVertices() {
 		selectedVertices.clear();
 	}
-	public ArrayList<Vertex> getVertices(){
+	public ArrayList<EditorVertex> getVertices(){
 		return this.selectedVertices;
 	}
 	public void updateOldVertexPositions(){
 		oldVertexPositions.clear();
-		for (Vertex vertex: selectedVertices) {
-			oldVertexPositions.add(new Point(vertex.getPoint()));
+		for (EditorVertex editorVertex: selectedVertices) {
+			oldVertexPositions.add(new Point(editorVertex.getPoint()));
 		}
 	}
-	public boolean contains(Vertex vertex) {
-		if (selectedVertices.contains(vertex)) 
+	public boolean contains(EditorVertex editorVertex) {
+		if (selectedVertices.contains(editorVertex)) 
 			return true;
 		else
 			return false;
@@ -38,8 +38,8 @@ public class SelectedVertices {
 	
 	public void drawClickableBox(Graphics g, Camera camera) {
 		// should only run if there are any items inside the array
-		for(Vertex vertex: selectedVertices) {
-			vertex.drawClickableBox(g, camera);
+		for(EditorVertex editorVertex: selectedVertices) {
+			editorVertex.drawClickableBox(g, camera);
 		}
 		/*for (int i = 0; i < selectedVertices.size(); i++){
 			selectedVertices.get(i).drawClickableBox(g, camera);
@@ -48,13 +48,13 @@ public class SelectedVertices {
 	public int size() {
 		return selectedVertices.size();
 	}
-	public void addSelectedVertex(Vertex vertex) {
-		if (!selectedVertices.contains(vertex))
-			selectedVertices.add(vertex);
+	public void addSelectedVertex(EditorVertex editorVertex) {
+		if (!selectedVertices.contains(editorVertex))
+			selectedVertices.add(editorVertex);
 	}
 	
-	public void removeSelectedVertex (Vertex vertex) {
-		selectedVertices.remove(vertex);
+	public void removeSelectedVertex (EditorVertex editorVertex) {
+		selectedVertices.remove(editorVertex);
 	}
 	
 	public void translate(Point initClickPoint, Point worldGeomMousePos) {

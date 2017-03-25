@@ -94,8 +94,7 @@ public class EntityStatic extends Entity{
     public int getSpriteOffsetY() {
     	return ((GraphicComposite)this.spriteType).getSprite().getOffsetY();
     }
-    /**
-     * 
+    /**@deprecated
      * @param x_offset
      * @param y_offset
      * @param width

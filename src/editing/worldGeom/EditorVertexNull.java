@@ -5,15 +5,15 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import engine.*;
 
-public final class VertexNull extends VertexAbstract {
+public final class EditorVertexNull extends EditorVertexAbstract {
 
-	private static VertexNull vertexNull = new VertexNull();
+	private static EditorVertexNull editorVertexNull = new EditorVertexNull();
 
-	public VertexNull() {
+	public EditorVertexNull() {
 		// TODO Auto-generated constructor stub
 	}
-	public static VertexNull getNullVertex() {
-		return vertexNull;
+	public static EditorVertexNull getNullVertex() {
+		return editorVertexNull;
 	}
 	
 	@Override

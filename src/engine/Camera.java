@@ -131,14 +131,14 @@ public class Camera extends EntityDynamic{
 		behaviorCurrent = behaviorActive;
 		lockState = false;
 	}
-	public void drawVertex(VertexAbstract vertex, Graphics g)
+	public void drawVertex(EditorVertexAbstract vertex, Graphics g)
 	{
 		Graphics2D g2 = (Graphics2D)g;
-		g2.drawImage(Vertex.vertexPicture, 
+		g2.drawImage(EditorVertex.vertexPicture, 
 				vertex.getPoint().x-3 - (int)this.x + boardHalfWidth,
 				vertex.getPoint().y-3 - (int)this.y + boardHalfHeight, null);				 
 	}
-	public void drawVertexClickableBox(VertexAbstract vertex, Graphics g)
+	public void drawVertexClickableBox(EditorVertexAbstract vertex, Graphics g)
 	{
 		Graphics2D g2 = (Graphics2D)g;
 		g2.drawRect(vertex.getClickableZone().x - (int)this.x + boardHalfWidth,

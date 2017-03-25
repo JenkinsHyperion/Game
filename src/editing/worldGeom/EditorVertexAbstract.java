@@ -5,7 +5,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import engine.Camera;
 
-public abstract class VertexAbstract {
+public abstract class EditorVertexAbstract {
 	
 	
 	public abstract Point getPoint();

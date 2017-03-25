@@ -501,14 +501,14 @@ public class Board extends BoardAbstract {
 
 	    	
 
-	    	Vertex[] statOuter= statBounds.getFarthestVertices(playerBounds,axis);
-	    	Vertex[] playerOuter= playerBounds.getFarthestVertices(statBounds,axis);
+	    	BoundaryVertex[] statOuter= statBounds.getFarthestVertices(playerBounds,axis);
+	    	BoundaryVertex[] playerOuter= playerBounds.getFarthestVertices(statBounds,axis);
 
-	    	Vertex[] nearStatCorner = statBounds.farthestVerticesFromPoint( statOuter[0] , axis ); //merge below
-	    	Vertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( playerOuter[0] , axis );
+	    	BoundaryVertex[] nearStatCorner = statBounds.farthestVerticesFromPoint( statOuter[0] , axis ); //merge below
+	    	BoundaryVertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( playerOuter[0] , axis );
 	    	
-	    	Vertex farStatCorner = statBounds.farthestVerticesFromPoint(nearStatCorner[0] , axis)[0];
-	    	Vertex farPlayerCorner = playerBounds.farthestVerticesFromPoint(nearPlayerCorner[0] , axis)[0];
+	    	BoundaryVertex farStatCorner = statBounds.farthestVerticesFromPoint(nearStatCorner[0] , axis)[0];
+	    	BoundaryVertex farPlayerCorner = playerBounds.farthestVerticesFromPoint(nearPlayerCorner[0] , axis)[0];
 	    	
 	    	Point2D centerStat = statOuter[0].getCenter(nearStatCorner[0]);
 	    	Point2D centerPlayer = playerOuter[0].getCenter(nearPlayerCorner[0]);

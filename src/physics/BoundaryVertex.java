@@ -5,7 +5,7 @@ import java.awt.geom.Point2D;
 
 import misc.CollisionEvent;
 
-public class Vertex extends BoundaryFeature{
+public class BoundaryVertex extends BoundaryFeature{
 
 	//private int ID;
 	private Point position;
@@ -13,14 +13,14 @@ public class Vertex extends BoundaryFeature{
 	private Side startingSide; // Side starting from this vertex (Side whose P1 is this vertex)
 
 	
-	protected Vertex( Point2D position , Boundary owner ,int ID , CollisionEvent collisionEvent ){
+	protected BoundaryVertex( Point2D position , Boundary owner ,int ID , CollisionEvent collisionEvent ){
 		this.position = new Point( (int)position.getX(), (int)position.getY() );
 		this.ID = ID;
 		this.owner = owner;
 		this.setCollisionEvent( collisionEvent );
 	}
 	
-	protected Vertex( Point2D position , Side CW_side , Side CCW_side , Boundary owner , int ID , CollisionEvent collisionEvent ){
+	protected BoundaryVertex( Point2D position , Side CW_side , Side CCW_side , Boundary owner , int ID , CollisionEvent collisionEvent ){
 		this.position = new Point( (int)position.getX(), (int)position.getY() );
 		this.startingSide = CW_side;
 		this.endingSide = CCW_side;
@@ -29,7 +29,7 @@ public class Vertex extends BoundaryFeature{
 		this.setCollisionEvent( collisionEvent );
 	}
 	@Deprecated
-	private Vertex( Point position , Side CW_side , Side CCW_side , Boundary owner , int ID , CollisionEvent collisionEvent ){
+	private BoundaryVertex( Point position , Side CW_side , Side CCW_side , Boundary owner , int ID , CollisionEvent collisionEvent ){
 		this.position = new Point( (int)position.getX(), (int)position.getY() );
 		this.startingSide = CW_side;
 		this.endingSide = CCW_side;
@@ -42,7 +42,7 @@ public class Vertex extends BoundaryFeature{
 		return position;
 	}
 	
-	public Side getSharedSide( Vertex vertex2 ){ //LOOK FOR OPTIMIZATION
+	public Side getSharedSide( BoundaryVertex vertex2 ){ //LOOK FOR OPTIMIZATION
 
 		if ( this.startingSide.getID() == vertex2.startingSide.getID() ) {
 			return this.startingSide;
@@ -96,8 +96,8 @@ public class Vertex extends BoundaryFeature{
 		return position;
 	}
 	
-	public Point2D getCenter(Vertex vertex){ 
-		return new Point2D.Double( (this.getX() + vertex.getX())/2 , (this.getY() + vertex.getY())/2 );
+	public Point2D getCenter(BoundaryVertex boundaryVertex){ 
+		return new Point2D.Double( (this.getX() + boundaryVertex.getX())/2 , (this.getY() + boundaryVertex.getY())/2 );
 		
 	}
 

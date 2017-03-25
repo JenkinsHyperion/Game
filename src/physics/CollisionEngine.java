@@ -186,9 +186,9 @@ public class CollisionEngine {
 	    Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
 	 
 	    
-	    Vertex[] nearStatCorner = bounds.farthestVerticesFromPoint( bounds.getFarthestVertices(playerBounds,axis)[0].toPoint() , axis );
+	    BoundaryVertex[] nearStatCorner = bounds.farthestVerticesFromPoint( bounds.getFarthestVertices(playerBounds,axis)[0].toPoint() , axis );
 	      
-	    Vertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( playerBounds.getFarthestVertices(bounds,axis)[0].toPoint() , axis );
+	    BoundaryVertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( playerBounds.getFarthestVertices(bounds,axis)[0].toPoint() , axis );
 
 
 	    
@@ -265,8 +265,8 @@ public class CollisionEngine {
 	    Line2D centerDistance = new Line2D.Float(entityA.getPos() , entityB.getPos() );
 	    Line2D centerProjection = boundsA.getProjectionLine(centerDistance, axis);
 	    
-	    Vertex[] nearStatCorner = boundsB.farthestVerticesFromPoint( boundsB.getFarthestVertices(boundsA,axis)[0].toPoint() , axis );
-	    Vertex[] nearPlayerCorner = boundsA.farthestVerticesFromPoint( boundsA.getFarthestVertices(boundsB,axis)[0].toPoint() , axis );
+	    BoundaryVertex[] nearStatCorner = boundsB.farthestVerticesFromPoint( boundsB.getFarthestVertices(boundsA,axis)[0].toPoint() , axis );
+	    BoundaryVertex[] nearPlayerCorner = boundsA.farthestVerticesFromPoint( boundsA.getFarthestVertices(boundsB,axis)[0].toPoint() , axis );
 
 
 	    

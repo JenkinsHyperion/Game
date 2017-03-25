@@ -16,7 +16,7 @@ public class ColliderData implements Serializable{
 	
 	//Add events possibly?
 	
-	protected ColliderData( Vertex[] cornerList ){
+	protected ColliderData( BoundaryVertex[] cornerList ){
 		
 		xCornerList = new int[cornerList.length];
 		yCornerList = new int[cornerList.length];

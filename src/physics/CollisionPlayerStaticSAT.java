@@ -327,22 +327,22 @@ public class CollisionPlayerStaticSAT extends Collision {
 			axes.add(axis);
 	    	//
 			
-			Vertex[] statOuterVertices= statBounds.getFarthestVertices(playerBounds,axis);
-	    	Vertex[] playerOuterVertices= playerBounds.getFarthestVertices(statBounds,axis);
+			BoundaryVertex[] statOuterVertices= statBounds.getFarthestVertices(playerBounds,axis);
+	    	BoundaryVertex[] playerOuterVertices= playerBounds.getFarthestVertices(statBounds,axis);
 		    																					// [0] needs to be for loop
-		    Vertex[] statInnerVertices = statBounds.farthestVerticesFromPoint( statOuterVertices[0] , axis ); 
-		    Vertex[] playerInnerVertices = playerBounds.farthestVerticesFromPoint( playerOuterVertices[0] , axis );
+		    BoundaryVertex[] statInnerVertices = statBounds.farthestVerticesFromPoint( statOuterVertices[0] , axis ); 
+		    BoundaryVertex[] playerInnerVertices = playerBounds.farthestVerticesFromPoint( playerOuterVertices[0] , axis );
 	
 		    
 		    
-		    Vertex[] statOuter= statBounds.getFarthestVertices(playerBounds,axis);
-	    	Vertex[] playerOuter= playerBounds.getFarthestVertices(statBounds,axis);
+		    BoundaryVertex[] statOuter= statBounds.getFarthestVertices(playerBounds,axis);
+	    	BoundaryVertex[] playerOuter= playerBounds.getFarthestVertices(statBounds,axis);
 	
-	    	Vertex[] nearStatCorner = statBounds.farthestVerticesFromPoint( statOuter[0] , axis ); //merge below
-	    	Vertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( playerOuter[0] , axis );
+	    	BoundaryVertex[] nearStatCorner = statBounds.farthestVerticesFromPoint( statOuter[0] , axis ); //merge below
+	    	BoundaryVertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( playerOuter[0] , axis );
 	    	
-	    	Vertex farStatCorner = statBounds.farthestVerticesFromPoint(nearStatCorner[0] , axis)[0];
-	    	Vertex farPlayerCorner = playerBounds.farthestVerticesFromPoint(nearPlayerCorner[0] , axis)[0];
+	    	BoundaryVertex farStatCorner = statBounds.farthestVerticesFromPoint(nearStatCorner[0] , axis)[0];
+	    	BoundaryVertex farPlayerCorner = playerBounds.farthestVerticesFromPoint(nearPlayerCorner[0] , axis)[0];
 	    	
 	    	Point2D centerStat = statOuter[0].getCenter(nearStatCorner[0]);
 	    	Point2D centerPlayer = playerOuter[0].getCenter(nearPlayerCorner[0]);

@@ -11,8 +11,8 @@ public class Side extends BoundaryFeature{
 
 	//private int ID;
 	Line2D line;
-	private Vertex startpoint;
-	private Vertex endpoint;
+	private BoundaryVertex startpoint;
+	private BoundaryVertex endpoint;
 	private int slopeX; 
 	private int slopeY;
 
@@ -41,15 +41,15 @@ public class Side extends BoundaryFeature{
 	
 	//PROTECTED METHODS
 	
-	protected void setStartPoint( Vertex vertex ){ 
-		this.startpoint = vertex; 
-		line = new Line2D.Float( vertex.getX(), vertex.getY(), (int)line.getX2() , (int)line.getY2() );
+	protected void setStartPoint( BoundaryVertex boundaryVertex ){ 
+		this.startpoint = boundaryVertex; 
+		line = new Line2D.Float( boundaryVertex.getX(), boundaryVertex.getY(), (int)line.getX2() , (int)line.getY2() );
 		calculateSlope(line);
 	} //assign this side to vertex 
 	
-	protected void setEndPoint( Vertex vertex ){ 
-		this.endpoint = vertex; 
-		line = new Line2D.Float( (int)line.getX1() , (int)line.getY1() ,vertex.getX(), vertex.getY() );
+	protected void setEndPoint( BoundaryVertex boundaryVertex ){ 
+		this.endpoint = boundaryVertex; 
+		line = new Line2D.Float( (int)line.getX1() , (int)line.getY1() ,boundaryVertex.getX(), boundaryVertex.getY() );
 		calculateSlope(line);
 	}
 	
@@ -101,8 +101,8 @@ public class Side extends BoundaryFeature{
 	public int getSlopeY(){ return slopeY; }
 	public Vector getSlopeVector(){ return new Vector(slopeX , slopeY); }
 	
-	public Vertex getStartPoint(){ return startpoint; }
-	public Vertex getEndPoint(){ return endpoint; }
+	public BoundaryVertex getStartPoint(){ return startpoint; }
+	public BoundaryVertex getEndPoint(){ return endpoint; }
 	
 	public Line2D toLine(){ return line; }
 	

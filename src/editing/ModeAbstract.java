@@ -17,7 +17,7 @@ public abstract class ModeAbstract {
 	*/
 	public abstract void mousePressed(MouseEvent e);
 	public abstract void mouseDragged(MouseEvent e);	
-	public abstract void mouseMoved(MouseEvent e);
+	public void mouseMoved(MouseEvent e){}
 	public abstract void mouseReleased(MouseEvent e);
 	public abstract void keyPressed(KeyEvent e);
 	public abstract void keyReleased(KeyEvent e);

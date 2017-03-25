@@ -44,8 +44,9 @@ public class WorldGeometry extends ModeAbstract{
 	private final VertexPlaceMode vertexPlaceMode;
 	private final VertexSelectMode vertexSelectMode;
 	
-	private ArrayList<Vertex> vertexList = new ArrayList<>();
+	private ArrayList<EditorVertex> vertexList = new ArrayList<>();
 	private ArrayList<Line2D.Double> surfaceLines = new ArrayList<>();
+	protected SelectedVertices selectedVertices;
 	//private ArrayList<WorldGeometry> worldGeometryEntities = new ArrayList<>();
 	
 	protected BufferedImage ghostVertexPic;
@@ -69,7 +70,7 @@ public class WorldGeometry extends ModeAbstract{
 
 
 		//keypressALT = false;
-		ghostVertexPic = (BufferedImage)Vertex.createVertexPic(0.5f);
+		ghostVertexPic = (BufferedImage)EditorVertex.createVertexPic(0.5f);
 	}
 
 	//// WORLD GEOM'S MOUSE HANDLING SECTION  ////////////
@@ -103,6 +104,20 @@ public class WorldGeometry extends ModeAbstract{
 	public void render(Graphics g) {
 		worldGeomMode.render(g);
 	}
+	public void defaultRender(Graphics g) {
+		Graphics2D g2 = (Graphics2D)g;			
+		//old drawVertexPoints vvvvvvv
+		for (EditorVertex editorVertex: vertexList) {
+			//g2.drawImage(vertexPic, board.camera.getLocalX(point.x)-3, board.camera.getLocalY(point.y)-3, null);
+			//camera.drawVertex(vertex, g);
+			editorVertex.draw(g2, camera);
+		}
+		// old drawsurfacelines vvvvvv
+		g2.setColor(Color.MAGENTA);
+		for (Line2D.Double lineToDraw: surfaceLines) {
+			camera.draw(lineToDraw);
+		}
+	}
 	@Deprecated
 	public void updateSurfaceLinesUponChange(int startingIndex) {
 		for (int i = startingIndex; i < vertexList.size()-1; i++) {
@@ -125,14 +140,14 @@ public class WorldGeometry extends ModeAbstract{
 	 */
 	public void addVertex(int x, int y) {
 		//vertexList.add(new Vertex(this.camera.getLocalX(x), this.camera.getLocalY(y)));
-		vertexList.add(new Vertex(x,y));
+		vertexList.add(new EditorVertex(x,y));
 		if (vertexList.size() > 1) 
 			//updateSurfaceLinesUponChange(vertexList.size()-2);
 			refreshAllSurfaceLines();
 	}
 	public void removeVertex(SelectedVertices selectedVertices) {
 		if (selectedVertices.size() == 1){
-			for (Vertex verts: vertexList) {
+			for (EditorVertex verts: vertexList) {
 				if (verts == selectedVertices.getVertices().get(0)) {
 					vertexList.remove(verts);
 					selectedVertices.clearSelectedVertices();
@@ -274,52 +289,31 @@ public class WorldGeometry extends ModeAbstract{
 		
 		public void render(Graphics g) {
 			//old drawghostvertex
-			Graphics2D g2 = (Graphics2D)g.create();
+			Graphics2D g2 = (Graphics2D)g;
 			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .5f));
 			//the -3 accounts for the offset
-
 			g2.drawImage(ghostVertexPic, worldGeomMousePos.x - 3, worldGeomMousePos.y - 3, null);
 			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
 			if (vertexList.size() > 0) {	
-				//Line2D.Double ghostLine = new Line2D.Double(vertexPoints.get(vertexPoints.size()-1), worldGeomMousePos);
 				//offset by a pixel because it was always intersecting with previous line in list
 				Line2D.Double ghostLine = new Line2D.Double(vertexList.get(vertexList.size()-1).getPoint().x +3, vertexList.get(vertexList.size()-1).getPoint().y,
 						camera.getLocalX(worldGeomMousePos.x), camera.getLocalY(worldGeomMousePos.y));
 				// if checkForIntersection(ghostLine, new Line2D.Double(vertexPoints(size()-2, vertexPoints(size()-1)
 				if (vertexList.size() > 1) { //there exists at least one line already drawn:
-
-					if (checkIfLinesIntersect(ghostLine)) {  //one of the lines are crossing
+					if (checkIfLinesIntersect(ghostLine))  //one of the lines are crossing
 						g2.setColor(Color.RED);
-						//canCreateVertices(false) <---do later EDIT: done
-						
-					}
-					else {								// nothing's intersecting, ready to place another point
+					else 							// nothing's intersecting, ready to place another point
 						g2.setColor(Color.PINK);
-					}
 				}
-				else {
+				else
 					g2.setColor(Color.PINK);
-				}
 				//######  first point is the world (local) position, and the second point is the relative position under cursor. #####
 				//g2.draw(new Line2D.Double(board.camera.getLocalPosition((Point) ghostLine.getP1()), ghostLine.getP2()));
 				//g2.drawLine(board.camera.getRelativeX((int)ghostLine.getX1()), board.camera.getRelativeY((int)ghostLine.getY1()),
 				//board.camera.getRelativeX((int)ghostLine.getX2()), board.camera.getRelativeY((int)ghostLine.getY2()));
 				camera.draw(ghostLine);
 			}
-
-			//old drawVertexPoints vvvvvvv
-			for (Vertex vertex: vertexList) {
-				//g2.drawImage(vertexPic, board.camera.getLocalX(point.x)-3, board.camera.getLocalY(point.y)-3, null);
-				vertex.draw(g2, camera);
-			}
-
-			// old drawsurfacelines vvvvvv
-			g2.setColor(Color.MAGENTA);
-			for (int i = 0; i < vertexList.size()-1; i++) {
-				Line2D.Double tempLine = new Line2D.Double(vertexList.get(i).getPoint(), vertexList.get(i+1).getPoint());
-				//g2.draw(tempLine);
-				camera.draw(tempLine);
-			}
+			defaultRender(g2);
 		}
 		/** True if any intersection is found across all lines in the surfaceLines arrayList<> 
 		 */
@@ -357,7 +351,7 @@ public class WorldGeometry extends ModeAbstract{
 		
 		//protected VertexAbstract currentSelectedVertex;
 		
-		protected SelectedVertices selectedVertices;
+
 		protected SelectionRectangleAbstract selectionRectangle;
 		protected SelectionRectangleAbstract selectionRectangleState;
 		// will use this list for when there's multiple selection possible
@@ -411,21 +405,8 @@ public class WorldGeometry extends ModeAbstract{
 		public void keyReleased(KeyEvent e) {inputController.keyReleased(e); }
 		@Override
 		public void render(Graphics g) {
-			Graphics2D g2 = (Graphics2D)g.create();			
-			//old drawVertexPoints vvvvvvv
-			for (Vertex vertex: vertexList) {
-				//g2.drawImage(vertexPic, board.camera.getLocalX(point.x)-3, board.camera.getLocalY(point.y)-3, null);
-				//camera.drawVertex(vertex, g);
-				vertex.draw(g2, camera);
-			}
-			// old drawsurfacelines vvvvvv
-			g2.setColor(Color.MAGENTA);
-			for (int i = 0; i < vertexList.size()-1; i++) {
-				Line2D.Double tempLine = new Line2D.Double(vertexList.get(i).getPoint(), vertexList.get(i+1).getPoint());
-				// abstract world geometry surface lines later on
-				camera.draw(tempLine);
-			}
-			
+			Graphics2D g2 = (Graphics2D)g;	
+			defaultRender(g2);
 			// section to draw selected Vertex (if one is selected)
 			g2.setColor(Color.GREEN);
 			//currentSelectedVertex.drawClickableBox(g2, camera);
@@ -433,18 +414,19 @@ public class WorldGeometry extends ModeAbstract{
 			g2.setColor(Color.BLUE);
 			// vvvv section to draw selection rectangle
 			selectionRectangleState.draw(g2, camera);
-			
+
 		}
+		
 		/*public void setCurrentSelectedVertex(VertexAbstract newSelectedVertex){
 			currentSelectedVertex = newSelectedVertex;
 		}*/
 		public void checkForVertexShiftClick(Point click) {
-			for (Vertex vertex: vertexList) {
-				if (vertex.getClickableZone().contains(click)) {
-					if (selectedVertices.contains(vertex)) 
-						selectedVertices.removeSelectedVertex(vertex);
+			for (EditorVertex editorVertex: vertexList) {
+				if (editorVertex.getClickableZone().contains(click)) {
+					if (selectedVertices.contains(editorVertex)) 
+						selectedVertices.removeSelectedVertex(editorVertex);
 					else
-						selectedVertices.addSelectedVertex(vertex);
+						selectedVertices.addSelectedVertex(editorVertex);
 				}
 			}
 		}
@@ -455,12 +437,12 @@ public class WorldGeometry extends ModeAbstract{
 			if (selectedVertices.size() > 0)
 				selectedVertices.clearSelectedVertices();
 			
-			for (Vertex vertex: vertexList) {
-				if (vertex.getClickableZone().contains(click)) 
+			for (EditorVertex editorVertex: vertexList) {
+				if (editorVertex.getClickableZone().contains(click)) 
 				{
-					if (selectedVertices.contains(vertex) == false) {
+					if (selectedVertices.contains(editorVertex) == false) {
 						//atLeastOneVertexFound = true;
-						selectedVertices.addSelectedVertex(vertex);
+						selectedVertices.addSelectedVertex(editorVertex);
 						break;
 					}
 				}
@@ -469,10 +451,10 @@ public class WorldGeometry extends ModeAbstract{
 				selectedVertices.clearSelectedVertices();*/
 		}
 		public void checkForVertexInSelectionRect(Rectangle selectionRect) {
-			for (Vertex vertex: vertexList) {
-				if (selectionRect.intersects(vertex.getClickableZone())){
-					if(selectedVertices.contains(vertex) == false) 
-						selectedVertices.addSelectedVertex(vertex);
+			for (EditorVertex editorVertex: vertexList) {
+				if (selectionRect.intersects(editorVertex.getClickableZone())){
+					if(selectedVertices.contains(editorVertex) == false) 
+						selectedVertices.addSelectedVertex(editorVertex);
 				}
 			}
 		}
@@ -526,6 +508,7 @@ public class WorldGeometry extends ModeAbstract{
 			}
 			public void mouseDragged() {
 				selectedVertices.translate(initClickPoint, worldGeomMousePos);
+				refreshAllSurfaceLines();
 			}
 			public void mouseReleased() {
 				// TODO Auto-generated method stub

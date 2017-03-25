@@ -20,7 +20,7 @@ import entityComposites.GraphicComposite;
 import physics.Force;
 import physics.Side;
 import physics.Vector;
-import physics.Vertex;
+import physics.BoundaryVertex;
 import physics.BoundaryFeature;
 import misc.CollisionEvent;
 import misc.DefaultCollisionEvent;
@@ -140,14 +140,14 @@ public class PlayerCharacter extends Player {
 				ground = (Side) collidingWith;
 				
 
-				Vertex corner = ((Vertex)source);
+				BoundaryVertex corner = ((BoundaryVertex)source);
 				
 				Vector sub = corner.getStartingSide().getSlopeVector().subtract( corner.getEndingSide().getSlopeVector() );
 				
 				double dist1 = corner.getStartingSide().getSlopeVector().unitVector().dotProduct(ground.getSlopeVector());
 				double dist2 = corner.getEndingSide().getSlopeVector().unitVector().dotProduct(ground.getSlopeVector());
 				
-				Vertex rawCorner = getColliderComposite().getBoundary().getRawVertex( corner.getID() );
+				BoundaryVertex rawCorner = getColliderComposite().getBoundary().getRawVertex( corner.getID() );
 				
 					if ( dist2 > dist1 ){ //only works for rectangles
 						PlayerCharacter.this.setAngleFromVector( ground.getSlopeVector() );
@@ -159,7 +159,7 @@ public class PlayerCharacter extends Player {
 			}
 		};
 		
-		for ( Vertex corner : boundarytemp.getCornersVertex() ){
+		for ( BoundaryVertex corner : boundarytemp.getCornersVertex() ){
 			corner.setCollisionEvent( cornerCollision );
 		}
         

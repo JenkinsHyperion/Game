@@ -13,17 +13,17 @@ public class Boundary {
 	//protected Shape boundaryShape;
 	protected Collider ownerCollidable;
 	protected Side[] sides = new Side[1]; 
-	private Vertex[] corners;
+	private BoundaryVertex[] corners;
 	
 	protected CollisionEvent defaultCollisionEvent;
 
 	public Boundary( Collider ownerCollidable ){
 		sides = new Side[0];
-		corners = new Vertex[0];
+		corners = new BoundaryVertex[0];
 		this.ownerCollidable = ownerCollidable;
 	} //use cloning instead
 	//FOR CLONING ONLY
-	private Boundary( Side[] sides , Vertex[] corners , Collider owner ){
+	private Boundary( Side[] sides , BoundaryVertex[] corners , Collider owner ){
 		this.sides = sides;
 		this.corners = corners;
 		this.ownerCollidable = owner;
@@ -34,8 +34,8 @@ public class Boundary {
 		this.ownerCollidable = owner;
 		
 		sides[0] = new Side(line , this , 0, defaultCollisionEvent); 
-		corners = new Vertex[]{ new Vertex(line.getP1() , this , 0 , defaultCollisionEvent) 
-				, new Vertex(line.getP2() , this , 1 , defaultCollisionEvent) };
+		corners = new BoundaryVertex[]{ new BoundaryVertex(line.getP1() , this , 0 , defaultCollisionEvent) 
+				, new BoundaryVertex(line.getP2() , this , 1 , defaultCollisionEvent) };
 
 		compileBoundaryMap( new DefaultCollisionEvent( ) );
 	}
@@ -92,14 +92,14 @@ public class Boundary {
 	
 	protected void compileBoundaryMap( CollisionEvent cornerEvent ){
 		
-		corners = new Vertex[ sides.length  ];
-		corners[0] = new Vertex( sides[0].getP1() , this , 0 , cornerEvent );
+		corners = new BoundaryVertex[ sides.length  ];
+		corners[0] = new BoundaryVertex( sides[0].getP1() , this , 0 , cornerEvent );
 		
 		for (int i = 0 ; i < sides.length ; i++) {
 			
 			int iNext = (i+1) % sides.length;
 			
-			corners[ iNext ]  = new Vertex( sides[i].getP2() , sides[i] , sides[iNext] , this , iNext , cornerEvent);
+			corners[ iNext ]  = new BoundaryVertex( sides[i].getP2() , sides[i] , sides[iNext] , this , iNext , cornerEvent);
 			
 			sides[i].setStartPoint( corners[i] ); 
 			sides[i].setEndPoint( corners[ iNext ] );
@@ -115,10 +115,10 @@ public class Boundary {
 			newSides[i] = new Side( oldSide.toLine() , this , oldSide.getID() , oldSide.getEvent() );
 		}
 		
-		Vertex[] newCorners = new Vertex[this.corners.length];
+		BoundaryVertex[] newCorners = new BoundaryVertex[this.corners.length];
 		for ( int i = 0 ; i < newCorners.length ; i++ ){
-			Vertex oldCorner = corners[i] ;
-			newCorners[i] = new Vertex( oldCorner.toPoint() , this, oldCorner.getID() , oldCorner.getEvent() );
+			BoundaryVertex oldCorner = corners[i] ;
+			newCorners[i] = new BoundaryVertex( oldCorner.toPoint() , this, oldCorner.getID() , oldCorner.getEvent() );
 		}
 		
 		Boundary returnBounds = new Boundary( newSides , newCorners , this.ownerCollidable); // Make clone with identical positions and events
@@ -146,7 +146,7 @@ public class Boundary {
 		for ( int i = 0 ; i < template.corners.length ; i++ ) {
 			
 			Side side = template.sides[i];
-			Vertex corner = template.corners[i];
+			BoundaryVertex corner = template.corners[i];
 			Point origin = new Point(center.x,center.y);
 			
 			double r = corner.toPoint().distance(origin); 
@@ -474,18 +474,18 @@ public class Boundary {
 		return sides[ID];
 	}
 	
-	public Vertex[] getVertecies() {
+	public BoundaryVertex[] getVertices() {
 		return this.corners;
 	}
 	
-	public Vertex getRawVertex( int ID) {
+	public BoundaryVertex getRawVertex( int ID) {
 		return this.corners[ID];
 	}
 	
 	public void constructSides(Side[] sidesC){
 		sides = sidesC;
 	}
-
+/*
 	// Returns boundary shifted to some position, usually the position of the entity that owns the boundary
 	public Boundary atPosition2(Point pos) {
 		
@@ -503,7 +503,7 @@ public class Boundary {
 
 		return new Boundary(shiftedSides , this.ownerCollidable);
 		
-	};
+	};*/
 	
 	public Boundary atPosition( Point position) {
 
@@ -522,7 +522,7 @@ public class Boundary {
 		
 		for ( int i = 0 ; i < this.corners.length ; i++ ){
 			
-			Vertex oldCorner = this.corners[i];
+			BoundaryVertex oldCorner = this.corners[i];
 			Point shiftedPosition = new Point( oldCorner.getX()+x , oldCorner.getY()+y );
 			
 			returnBoundary.corners[i].setPos( shiftedPosition );
@@ -751,7 +751,7 @@ public class Boundary {
 	 * Returns array of corners of type (Vertex) for this boundary, which contains pointers to adjacent sides.
 	 * @return
 	 */
-	public Vertex[] getCornersVertex(){
+	public BoundaryVertex[] getCornersVertex(){
 
 		return this.corners;
 	}
@@ -775,9 +775,9 @@ public class Boundary {
 	}
 	
 	
-	public Vertex[] getFarthestVertices(Boundary bounds , Line2D axis){
+	public BoundaryVertex[] getFarthestVertices(Boundary bounds , Line2D axis){
 		
-		Vertex[] farthestPoints = new Vertex[]{ getCornersVertex()[0] , bounds.getCornersVertex()[0] }; //store the first pair ahead
+		BoundaryVertex[] farthestPoints = new BoundaryVertex[]{ getCornersVertex()[0] , bounds.getCornersVertex()[0] }; //store the first pair ahead
 		
 		for ( int i = 0 ; i < getCornersPoint().length ; i++ ){
 			
@@ -817,9 +817,9 @@ public class Boundary {
 	}
 	
 	@Deprecated
-	private Vertex[] farthestPointsFromPoint(Point2D origin , Line2D axis){ //TESTING
+	private BoundaryVertex[] farthestPointsFromPoint(Point2D origin , Line2D axis){ //TESTING
 		
-		ArrayList<Vertex> farthestPoints = new ArrayList<>();
+		ArrayList<BoundaryVertex> farthestPoints = new ArrayList<>();
 		farthestPoints.add(getCornersVertex()[0]);
 		
 		for ( int i = 0 ; i < getCornersPoint().length ; i++ ){ //check to start i at 1
@@ -842,16 +842,16 @@ public class Boundary {
 					}
 				}
 		}
-		Vertex[] returnFarthestPoints = new Vertex[ farthestPoints.size() ];
+		BoundaryVertex[] returnFarthestPoints = new BoundaryVertex[ farthestPoints.size() ];
 		for (int i = 0 ; i < returnFarthestPoints.length ; i++){
 			returnFarthestPoints[i] = farthestPoints.get(i);
 		}
 		return returnFarthestPoints;
 	}
 	
-	private Vertex[] farthest( Point2D origin , Line2D axis ){	
+	private BoundaryVertex[] farthest( Point2D origin , Line2D axis ){	
 		
-			ArrayList<Vertex> farthestVertices = new ArrayList<>();
+			ArrayList<BoundaryVertex> farthestVertices = new ArrayList<>();
 			farthestVertices.add(getCornersVertex()[0]);
 		
 			for ( int i = 1 ; i < getCornersVertex().length ; i++ ){ //check to start i at 1
@@ -881,7 +881,7 @@ public class Boundary {
 				}
 					
 			}
-			Vertex[] returnFarthestPoints = new Vertex[ farthestVertices.size() ];
+			BoundaryVertex[] returnFarthestPoints = new BoundaryVertex[ farthestVertices.size() ];
 			for (int i = 0 ; i < returnFarthestPoints.length ; i++){
 				returnFarthestPoints[i] = farthestVertices.get(i);
 			}
@@ -889,22 +889,22 @@ public class Boundary {
 		
 	}
 	
-	public Vertex[] farthestVerticesFromPoint(Vertex vertex , Line2D axis){
+	public BoundaryVertex[] farthestVerticesFromPoint(BoundaryVertex boundaryVertex , Line2D axis){
 		
-		return farthest( vertex.toPoint() , axis);
+		return farthest( boundaryVertex.toPoint() , axis);
 		
 	}
 	
-	public Vertex[] farthestVerticesFromPoint(Point2D origin , Line2D axis){ //RETURNING DUPLICATES?
+	public BoundaryVertex[] farthestVerticesFromPoint(Point2D origin , Line2D axis){ //RETURNING DUPLICATES?
 		
 		return farthest(origin, axis);
 		
 	}
 
 	
-	public Vertex[] nearestVerticesFromPoint(Point2D origin , Line2D axis){ //RETURNING DUPLICATES?
+	public BoundaryVertex[] nearestVerticesFromPoint(Point2D origin , Line2D axis){ //RETURNING DUPLICATES?
 		
-		ArrayList<Vertex> farthestVertices = new ArrayList<>();
+		ArrayList<BoundaryVertex> farthestVertices = new ArrayList<>();
 		farthestVertices.add(getCornersVertex()[0]);
 		
 		for ( int i = 1 ; i < getCornersPoint().length ; i++ ){ //check to start i at 1
@@ -927,7 +927,7 @@ public class Boundary {
 					}
 				}
 		}
-		Vertex[] returnFarthestPoints = new Vertex[ farthestVertices.size() ];
+		BoundaryVertex[] returnFarthestPoints = new BoundaryVertex[ farthestVertices.size() ];
 		for (int i = 0 ; i < returnFarthestPoints.length ; i++){
 			returnFarthestPoints[i] = farthestVertices.get(i);
 		}

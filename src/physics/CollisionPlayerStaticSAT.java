@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import engine.*;
 import entities.*;
 import entityComposites.Collider;
+import entityComposites.EntityStatic;
 import physics.Collision;
 import sprites.RenderingEngine;
 
@@ -80,8 +81,8 @@ public class CollisionPlayerStaticSAT extends Collision {
 		) { //Primary Entity is clipping by closestResolution.vector() 
 					
 			entityPrimary.setColliding(false);
-			System.out.println( "\n[ "+closestResolution.FeaturePrimary() + " on " + closestResolution.FeaturePrimary().getOwnerEntity() +
-					" ] colliding with [ " + closestResolution.FeatureSecondary() + " on " + closestResolution.FeatureSecondary().getOwnerEntity() 
+			System.out.println( "\n[ "+closestResolution.FeaturePrimary() + " on " + entityPrimary +
+					" ] colliding with [ " + closestResolution.FeatureSecondary() + " on " + entitySecondary
 					+" ]");
 			
 			Vector resolution = closestResolution.getClippingVector();
@@ -92,12 +93,6 @@ public class CollisionPlayerStaticSAT extends Collision {
 			
 			System.out.print("Snapping entity by "+ depthX +" , "+ depthY + " ... ");
 
-			
-			//Resolution will not resolve
-
-			
-			//Resolution will resolve
-			
 			
 			entityPrimary.setX( entityPrimary.getDeltaX() + (int)depthX  );
 			entityPrimary.setY( entityPrimary.getDeltaY()  + (int)depthY );
@@ -113,7 +108,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 			if ( depthX != 0){ 
 				System.out.print("Clamping DX ... ");
 				entityPrimary.setDX(0);
-				//entityPrimary.clipDX((int)depthX);
+				entityPrimary.clipDX((int)depthX);
 				//entityPrimary.clipAccX((int)depthX);
 			}
 			if ( depthY != 0){ 
@@ -507,7 +502,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 		}
 
 		@Override
-		public void paintOverlay(Graphics2D g2, Camera cam) {
+		public void paintOverlay(Graphics2D g2, MovingCamera cam) {
 			
 			/*g2.setColor(Color.DARK_GRAY);
 			

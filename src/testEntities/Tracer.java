@@ -2,6 +2,7 @@ package testEntities;
 
 import entities.*;
 import entityComposites.Collider;
+import entityComposites.EntityStatic;
 import physics.*;
 
 import java.awt.geom.Line2D;
@@ -132,7 +133,7 @@ public class Tracer extends EntityDynamic{ // Can extend either EntityStatic or 
     	//beam = new Line2D.Float(originPoint,endPoint);
        	
     	g2.draw(beam); 
-    	aim.getEntitySprite().drawSprite(); //draw crosshair
+    	//aim.getEntitySprite().draw(); //draw crosshair
 
     }
     

@@ -10,7 +10,8 @@ import java.awt.image.BufferedImage;
 
 import animation.Animation;
 import engine.Camera;
-import entities.EntityStatic;
+import engine.MovingCamera;
+import entityComposites.EntityStatic;
 import entityComposites.GraphicComposite;
 import physics.Boundary;
 
@@ -37,28 +38,17 @@ public class SpriteFilledShape extends Sprite {
 	}
 
 	@Override
-	public void drawSprite(Camera camera) {
+	public void draw(Camera camera) {
 		
 		AffineTransform entityTransformation = new AffineTransform();
 
     	entityTransformation.scale( (double)this.spriteSizePercent/100 , (double)this.spriteSizePercent/100 );
     	entityTransformation.rotate( Math.toRadians(this.spriteAngle) ); 
 
-    	camera.drawPolygon(this.shape , this.color , this.ownerEntity() , entityTransformation );
-		
+    	camera.debugDrawPolygon(this.shape , this.color , this.ownerEntity() , entityTransformation );
+		//camera.drawOnCamera(this, entityTransformation);
 	}
 
-	@Override
-	public void drawSprite() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void editorDraw(Point pos) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public Image getImage() {
@@ -90,10 +80,5 @@ public class SpriteFilledShape extends Sprite {
 		
 	}
 
-	@Override
-	public boolean hasSprite() {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 }

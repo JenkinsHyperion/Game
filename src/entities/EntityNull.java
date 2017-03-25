@@ -1,6 +1,7 @@
 package entities;
 
 import entityComposites.ColliderNull;
+import entityComposites.EntityStatic;
 
 public final class EntityNull extends EntityStatic {
 	

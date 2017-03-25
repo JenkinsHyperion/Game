@@ -3,33 +3,43 @@ package sprites;
 import java.util.ArrayList;
 
 import engine.Camera;
-import entities.EntityStatic;
+import engine.CameraParallax;
+import engine.MovingCamera;
+import entityComposites.EntityStatic;
+import entityComposites.GraphicComposite;
 
-public class RenderingLayer {
+public class RenderingLayer implements Graphic {
 
 	private final double PARALLAX_X; // 1 = background moves as fast as entities, 100 = background nearly static relative to camera 
 	 // negative = parallax moves in opposite direction, 0 = divide by zero error so can you just not
 	private final double PARALLAX_Y;
 	
-	protected ArrayList<EntityStatic> entitiesList = new ArrayList<>(); 
+	private MovingCamera camera1;
+	private final CameraParallax cam = new CameraParallax();
 	
-	public RenderingLayer( double parallax_x , double parallax_y ) {
+	protected ArrayList<GraphicComposite> entitiesList = new ArrayList<>(); 
+	
+	public RenderingLayer( double parallax_x , double parallax_y , MovingCamera camera) {
 		PARALLAX_X = parallax_x;
 		PARALLAX_Y = parallax_y;
+		this.camera1 = camera;
 	}
 	
 	public void addEntity( EntityStatic entity ){
-		entitiesList.add(entity);
+		entitiesList.add( entity.getGraphicComposite() );
 	}
 	
-	public void renderLayer( Camera camera ){ 
+	public void draw( Camera camera ){ 
 		
-		for ( EntityStatic entity : entitiesList  ){ 
+		cam.setPosition( (int) ( camera1.getX()/PARALLAX_X ), 
+				(int) ( camera1.getY()/PARALLAX_Y ), 
+				camera1.getGraphics(), 
+				camera1.getObserver()
+				);
+		
+		for ( GraphicComposite composite : entitiesList  ){ 
 
-			camera.draw( entity.getEntitySprite().getImage(),
-					(int)( entity.getX() - camera.getRelativeX( camera.getX()/PARALLAX_X ) ), 
-					(int)( entity.getY() - camera.getRelativeY( camera.getY()/PARALLAX_Y ) )
-			);
+			composite.getSprite().draw(cam);
 
 		}
 			

@@ -10,28 +10,25 @@ import misc.*;
 
 public class Boundary {
 	
-	//protected Shape boundaryShape;
-	protected Collider ownerCollidable;
+
 	protected Side[] sides = new Side[1]; 
 	private BoundaryVertex[] corners;
 	
 	protected CollisionEvent defaultCollisionEvent;
 
-	public Boundary( Collider ownerCollidable ){
+	public Boundary(){
 		sides = new Side[0];
 		corners = new BoundaryVertex[0];
-		this.ownerCollidable = ownerCollidable;
+		//this.ownerCollidable = ownerCollidable;
 	} //use cloning instead
 	//FOR CLONING ONLY
-	private Boundary( Side[] sides , BoundaryVertex[] corners , Collider owner ){
+	private Boundary( Side[] sides , BoundaryVertex[] corners){
 		this.sides = sides;
 		this.corners = corners;
-		this.ownerCollidable = owner;
 	}
 	
-	public Boundary(Line2D line , Collider owner){
-		
-		this.ownerCollidable = owner;
+	public Boundary(Line2D line){
+
 		
 		sides[0] = new Side(line , this , 0, defaultCollisionEvent); 
 		corners = new BoundaryVertex[]{ new BoundaryVertex(line.getP1() , this , 0 , defaultCollisionEvent) 
@@ -40,15 +37,13 @@ public class Boundary {
 		compileBoundaryMap( new DefaultCollisionEvent( ) );
 	}
 	
-	public Boundary(Side[] bounds , Collider owner) {
+	public Boundary(Side[] bounds ) {
 		sides = bounds;
-		this.ownerCollidable = owner;
 		compileBoundaryMap( new DefaultCollisionEvent( ) );
 	}
 	
-	public Boundary(Line2D[] bounds , Collider owner) {
+	public Boundary(Line2D[] bounds) {
 		
-		this.ownerCollidable = owner;
 
 		sides = new Side[ bounds.length ];
 		
@@ -60,8 +55,7 @@ public class Boundary {
 	
 	public static class Box extends Boundary{
 
-		public Box(int width, int height, int xOffset, int yOffset , Collider owner ){
-			super(owner);
+		public Box(int width, int height, int xOffset, int yOffset){
 			sides = new Side[4];
 			
 			sides[0] = new Side( new Line2D.Float(xOffset , yOffset , xOffset+width , yOffset ) , this, 0 , defaultCollisionEvent);
@@ -75,9 +69,7 @@ public class Boundary {
 	
 	public static class EnhancedBox extends Boundary{
 
-		public EnhancedBox(int width, int height, int xOffset, int yOffset, CollisionEvent[] eventList , Collider owner){
-			
-			super(owner);
+		public EnhancedBox(int width, int height, int xOffset, int yOffset, CollisionEvent[] eventList ){
 			
 			sides = new Side[4];
 			
@@ -121,7 +113,7 @@ public class Boundary {
 			newCorners[i] = new BoundaryVertex( oldCorner.toPoint() , this, oldCorner.getID() , oldCorner.getEvent() );
 		}
 		
-		Boundary returnBounds = new Boundary( newSides , newCorners , this.ownerCollidable); // Make clone with identical positions and events
+		Boundary returnBounds = new Boundary( newSides , newCorners); // Make clone with identical positions and events
 		
 		for ( int i = 0 ; i < returnBounds.sides.length ; i++){ //Connect the pointers for the new clone
 			
@@ -482,6 +474,10 @@ public class Boundary {
 		return this.corners[ID];
 	}
 	
+	public Side getRawSide( int ID) {
+		return this.sides[ID];
+	}
+	
 	public void constructSides(Side[] sidesC){
 		sides = sidesC;
 	}
@@ -501,7 +497,7 @@ public class Boundary {
 				);
 		}
 
-		return new Boundary(shiftedSides , this.ownerCollidable);
+		return new Boundary(shiftedSides);
 		
 	};*/
 	
@@ -517,7 +513,6 @@ public class Boundary {
 			Line2D shiftedLine = new Line2D.Float( oldSide.getX1()+x, oldSide.getY1()+y , oldSide.getX2()+x, oldSide.getY2()+y );
 	
 			returnBoundary.sides[i].setLine( shiftedLine );
-			//returnBoundary.sides[i] = new Side( shiftedLine , oldSide.owner , oldSide.ID , oldSide.getEvent() );
 		}
 		
 		for ( int i = 0 ; i < this.corners.length ; i++ ){
@@ -526,17 +521,11 @@ public class Boundary {
 			Point shiftedPosition = new Point( oldCorner.getX()+x , oldCorner.getY()+y );
 			
 			returnBoundary.corners[i].setPos( shiftedPosition );
-			//returnBoundary.corners[i] = new Vertex( shiftedPosition , oldCorner.getStartingSide() , oldCorner.getEndingSide() , oldCorner.owner , oldCorner.ID , oldCorner.getEvent() );
 		}
 		
 		//No problem with sides[]
 		return returnBoundary;
 	};
-	
-	
-	public Collider getOwnerCollidable(){
-		return this.ownerCollidable;
-	}
 	
 	
 	//SEPARATING AXIS THEORM METHODS
@@ -959,10 +948,6 @@ public class Boundary {
 	
 	public Line2D getTestSide(int i){
 		return sides[i].toLine();
-	}
-
-	public Collider ownerEntity(){
-		return ownerCollidable;
 	}
 
 	

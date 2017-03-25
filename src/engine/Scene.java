@@ -20,11 +20,21 @@ public class Scene {
 		//ADD ENTITY TO SCENES MASTER ENTITY LIST
 		entityList.add(entity);
 		
-		if ( entity.getGraphicComposite() instanceof GraphicComposite ){
+		//RUN THROUGH AND ADD UPDATEABLE COMPOSITES TO UPDATER LIST right now only translation for testing
+		
+		if ( (entity.getTranslationComposite() instanceof UpdateableComposite) ){
+			
+			ownerBoard.updateablesList.add( entity.getTranslationComposite() );
+			
+		}
+		
+		//
+		
+		if ( !(entity.getGraphicComposite() instanceof GraphicCompositeNull) ){
 			
 			entity.getGraphicComposite().addCompositeToRenderer( ownerBoard.renderingEngine );
 			
-		}
+		}else{System.err.println("Couldn't add ["+entity+"] to renderer because it's missing a Graphic Composite ");}
 		
 		if ( entity.getColliderComposite() instanceof Collider ){
 			

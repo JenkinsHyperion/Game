@@ -11,7 +11,6 @@ import java.util.LinkedList;
 import engine.BoardAbstract;
 import engine.Overlay;
 import engine.OverlayComposite;
-import entities.EntityStatic;
 import entityComposites.*;
 
 public class CollisionEngine {

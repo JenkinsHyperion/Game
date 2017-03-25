@@ -7,7 +7,8 @@ import java.awt.image.BufferedImage;
 
 import animation.Animation;
 import engine.Camera;
-import entities.EntityStatic;
+import engine.MovingCamera;
+import entityComposites.EntityStatic;
 import entityComposites.GraphicComposite;
 
 public class SpriteAnimated extends Sprite {  // Sprite with animation
@@ -24,12 +25,9 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
     
     // IMPLEMENTED METHODS
 
+
     @Override
-    public void drawSprite(){
-    	//g.drawImage(this.getImage(), this.owner.getX() + spriteOffsetX, this.owner.getY() + spriteOffsetY, null);
-    }
-    @Override
-    public void drawSprite(Camera camera){
+    public void draw(Camera camera){
 
     	AffineTransform entityTransformation = new AffineTransform();
 
@@ -37,13 +35,10 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
     	//entityTransformation.rotate( Math.toRadians(this.spriteAngle) );
     	entityTransformation.translate(this.spriteOffsetX, this.spriteOffsetY); 
 
-    	camera.draw(this , entityTransformation );
+    	camera.drawOnCamera(this , entityTransformation );
     	
     }
-    @Override
-    public void editorDraw(Point pos){
-    	//do nothing
-    }
+
     @Override@Deprecated
     public Image getImage() {
         return spriteAnimation.getAnimationFrame();
@@ -71,10 +66,6 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
         return spriteAnimation.getAnimationFrame();
     }
 
-	@Override
-	public boolean hasSprite() {
-		return true;
-	}
 
     
 }

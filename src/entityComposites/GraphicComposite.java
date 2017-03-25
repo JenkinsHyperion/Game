@@ -1,6 +1,5 @@
 package entityComposites;
 
-import entities.EntityStatic;
 import sprites.*;
 import utility.Ticket;
 
@@ -18,7 +17,7 @@ public class GraphicComposite{
 	protected GraphicComposite( EntityStatic ownerEntity ){
 		this.ownerEntity = ownerEntity;
 	}
-	
+
 	public EntityStatic ownerEntity(){
 		return this.ownerEntity;
 	}

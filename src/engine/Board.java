@@ -10,7 +10,9 @@ import editing.EditorPanel;
 import entities.*; //local imports
 import entityComposites.Collider;
 import entityComposites.Collider;
-import entityComposites.EntityComposite;
+import entityComposites.CompositeFactory;
+import entityComposites.EntityFactory;
+import entityComposites.EntityStatic;
 import entityComposites.GraphicComposite;
 import physics.*;
 import physics.Vector;
@@ -21,8 +23,6 @@ import testEntities.*;
 
 @SuppressWarnings("serial")
 public class Board extends BoardAbstract {
-	
-	private Background background = new Background("Prototypes/Sky.png"); //move to rendering later
 	
 	private java.util.Timer updateEntitiesTimer;
 	
@@ -35,16 +35,6 @@ public class Board extends BoardAbstract {
     protected static ArrayList<EntityDynamic> dynamicEntitiesList;  
     
     // RENDERING DECLARATION
-    private RenderingLayer[] layer = {
-    		
-    		new RenderingLayer(1,1),
-    		new RenderingLayer(1.15,1.15),
-    		new RenderingLayer(1.3, 1.3),
-    		new RenderingLayer(1.6, 1.6 ),
-    		new RenderingLayer(1.8, 1.8),
-    		new RenderingLayer(3, 3),
-    		new RenderingLayer(5, 5)
-    };
 
     protected Point clickPosition;
     protected boolean mouseClick = false;
@@ -129,30 +119,29 @@ public class Board extends BoardAbstract {
 
 		testEntity = EntityFactory.createEntityFromBoundary(300, 500, triangleBounds );
 		testEntity.name = "Test Slope";
-		currentScene.addEntity( testEntity );    
+		CompositeFactory.addGraphicFromCollider( testEntity , testEntity.getColliderComposite() );
+		currentScene.addEntity( testEntity );   
+
 		//renderingEngine.addSpriteComposite( testEntity.getSpriteType() );
         
+        Collider collidable;
         
         testEntity = new EntityStatic("Test Ground1",50,500);     
-        Collider collidable = new Collider( testEntity );
-        testEntity.setCollisionProperties( collidable );
-        collidable.setBoundary( new Boundary.Box(446,100,-223,-50 , collidable ) );
+        CompositeFactory.addColliderTo( testEntity , new Boundary.Box(446,100,-223,-50 ) );
 
-        Sprite graphic = new SpriteStillframe("ground_1.png" , -223 , -53 );
-        EntityComposite.addGraphicTo(testEntity, graphic);
+
+        CompositeFactory.addGraphicTo(testEntity, new SpriteStillframe("ground_1.png" , -223 , -53 ) );
         //renderingEngine.addSpriteComposite( testEntity.getSpriteType() );
         currentScene.addEntity( testEntity );
         
         
-        testEntity = new EntityStatic("Test Ground",700,500);     
-        collidable = new Collider( testEntity );
-        collidable.setBoundary( new Boundary.Box(446,100,-223,-50 , collidable ) );
-        testEntity.setCollisionProperties( collidable );
-        graphic = new SpriteStillframe("ground_1.png" , -223 , -53 );
-        EntityComposite.addGraphicTo(testEntity, graphic);
+        testEntity = new EntityStatic("Test Ground",700,500);  
+        CompositeFactory.addColliderTo( testEntity , new Boundary.Box(446,100,-223,-50 ) );
+        CompositeFactory.addGraphicTo(testEntity, new SpriteStillframe("ground_1.png" , -223 , -53 ));
+        CompositeFactory.addTranslationTo( testEntity );
         //renderingEngine.addSpriteComposite( testEntity.getSpriteType() );
         currentScene.addEntity( testEntity );
-        
+        testEntity.getTranslationComposite().setDY(-0.1f);
         //currentScene.addEntity(new EntityPhysics(120,260,"box.png"));
         //dynamicEntitiesList.add(new Bullet(100,100,1,1));
         
@@ -170,15 +159,18 @@ public class Board extends BoardAbstract {
         int offset_x = 400;
         int offset_y = 0;
         
-        layer[6].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L7.png", 280-offset_x, 300-offset_y) );
-        layer[5].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L6.png", 260-offset_x, -60-offset_y) );//bass
-        layer[4].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L5.png", 550-offset_x, 400-offset_y) );
-        layer[3].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L4.png", 300-offset_x, -320-offset_y) );//base
-        layer[2].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L3.png", 260-offset_x, 600-offset_y) ); //forest
-        layer[1].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L2.png", 200-offset_x, -160-offset_y) );//pipe
-        layer[0].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L1.png", 300-offset_x, -160-offset_y) );//base
+        renderingEngine.layersList[7].addEntity( EntityFactory.createBackgroundSprite("Prototypes/Sky.png", 0,0 ) );
         
+        renderingEngine.layersList[6].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L7.png", 400-offset_x, 150-offset_y) );
+        renderingEngine.layersList[5].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L6.png", 260-offset_x, -450-offset_y) );//bass
+        renderingEngine.layersList[4].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L5.png", 600-offset_x, 300-offset_y) );
+        renderingEngine.layersList[3].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L4.png", 300-offset_x, -300-offset_y) );//base
+        renderingEngine.layersList[2].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L3.png", 450-offset_x, 680-offset_y) ); //forest
+        renderingEngine.layersList[1].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L2.png", 250-offset_x, -160-offset_y) );//pipe
+        renderingEngine.layersList[0].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L1.png", 300-offset_x, -160-offset_y) );//base
         
+        //renderingEngine.layersList[4].addEntity( EntityFactory.createBackgroundScroll( "Prototypes/shader_rain01.png", getBoardWidth() ,getBoardHeight() ,0,-3  ) );
+        renderingEngine.layersList[1].addEntity( EntityFactory.createBackgroundScroll( "Prototypes/shader_rain03.png", getBoardWidth() ,getBoardHeight() ,0,-8  ) );
         //############################################### CAMERA #######################
     	//camera = new Camera(this,player,g2 );
         camera.setTarget( player );
@@ -199,11 +191,10 @@ public class Board extends BoardAbstract {
     @Override
     protected void graphicsThreadPaint(Graphics g) {
     	camera.repaint(g);
-    	background.drawBackground( camera );
  		//System.out.println("Graphics running");
         
         drawObjects( (Graphics2D) g );
-       
+        
     }
     
    
@@ -291,12 +282,6 @@ public class Board extends BoardAbstract {
  * ########################################################################################################################
  */
     public void drawObjects(Graphics2D g2) {
-
-    	//TO BE MOVED TO RENDERING ENGINE
-    	for ( int i = 6 ; i > -1 ; i-- ) {	        	
-
-    		layer[i].renderLayer(camera);
-    	}
     	
     	// TESTING RENDERING ENGINE
     	
@@ -363,7 +348,7 @@ public class Board extends BoardAbstract {
             	if (camera.isLocked())
             		camera.unlock();
             	else
-            		camera.lockAtPosition(Camera.ORIGIN);
+            		camera.lockAtPosition(MovingCamera.ORIGIN);
             }  
             
             else if (key == KeyEvent.VK_F2) {
@@ -401,7 +386,7 @@ public class Board extends BoardAbstract {
     
 	private class DebugBoundaryOverlay implements Overlay{
 		
-			public void paintOverlay(Graphics2D g2, Camera cam){ // DEBUG GUI
+			public void paintOverlay(Graphics2D g2, MovingCamera cam){ // DEBUG GUI
 		
 		    	g2.setColor(new Color(0, 0, 0, 150));
 		        g2.fillRect(0, 0, B_WIDTH, B_HEIGHT);
@@ -419,8 +404,8 @@ public class Board extends BoardAbstract {
 		
 			    g2.setColor(Color.CYAN);
 			    
-			    collisionEngine.debugPrintCollisionList(5, 105, g2);
-			    
+			    player.inputController.debugPrintInputList(5, 105, g2);
+			    //collisionEngine.debugPrintCollisionList(5, 105, g2);
 			    
 			    
 			    player.getColliderComposite().debugDrawBoundary(camera , g2);
@@ -660,7 +645,7 @@ public class Board extends BoardAbstract {
     }
     
     @Override
-    public Camera getCamera() { return this.camera; }
+    public MovingCamera getCamera() { return this.camera; }
 	
 	public int getboundaryX(){ return B_WIDTH ;}
 	public int getboundaryY(){ return B_HEIGHT ;}

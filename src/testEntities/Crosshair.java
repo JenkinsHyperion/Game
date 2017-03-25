@@ -1,6 +1,7 @@
 package testEntities;
 
 import entities.*;
+import entityComposites.EntityStatic;
 import misc.*;
 
 public class Crosshair extends EntityDynamic{

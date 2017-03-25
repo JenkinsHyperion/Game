@@ -3,6 +3,7 @@ package editing;
 
 import java.util.ArrayList;
 import entities.*;
+import entityComposites.Entity;
 public class PropertiesList {
 	/* WILL USE THESE LATER ON WHEN THERE ARE MORE PROPERTIES TO HANDLE
 	private ArrayList entityStaticPropsList; // make array list

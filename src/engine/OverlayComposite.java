@@ -42,7 +42,7 @@ public class OverlayComposite {
 		}
 	}
 
-	public void paintOverlay( Graphics2D g2 , Camera cam ){
+	public void paintOverlay( Graphics2D g2 , MovingCamera cam ){
 		this.component.paintOverlay(g2,cam);
 	}
 	

@@ -1,5 +1,7 @@
 package entities;
 
+import entityComposites.EntityStatic;
+
 public class EntityAssembler {
 
 	private Platform01 builder;

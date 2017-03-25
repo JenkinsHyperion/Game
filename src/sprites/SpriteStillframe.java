@@ -1,5 +1,6 @@
 package sprites;
 
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.geom.AffineTransform;
@@ -10,6 +11,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import animation.*;
 import entities.*;
+import entityComposites.EntityStatic;
 import entityComposites.GraphicComposite;
 import editing.*;
 import engine.*;
@@ -75,13 +77,9 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     	this.spriteOffsetX = offset_x;
     	this.spriteOffsetY = offset_y;
     }
-    
-    @Override @Deprecated
-    public void drawSprite(){
-    	//DONT USE
-    }
+
     @Override
-    public void drawSprite(Camera camera){
+    public void draw(Camera camera){
 
     	AffineTransform entityTransformation = new AffineTransform();
 
@@ -89,17 +87,10 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     	entityTransformation.rotate( Math.toRadians(this.spriteAngle) ); 
     	entityTransformation.translate(spriteOffsetX, spriteOffsetY);
 
-    	camera.draw(this, entityTransformation );
+    	camera.drawOnCamera(this, entityTransformation );
     	
     }
-    @Override
-    public void editorDraw( Point pos){ //FIXME TODO 
-    	/*float opacity = 0.5f;
-    	Graphics2D g2 = (Graphics2D) g.create();
-    	g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
-    	g2.drawImage(this.getImage(), pos.x, pos.y, null);
-    	g2.dispose();*/
-    }
+
     protected void getImageDimensions() { 
         width = image.getWidth(null);
         height = image.getHeight(null); 
@@ -141,10 +132,6 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     
     public void updateSprite(){} //Need to figure out a better way of avoiding this redundancy
 
-	@Override
-	public boolean hasSprite() {
-		return true;
-	}
 	
 	public void setResizeFactor( int percent ){
 		this.spriteSizePercent = percent;

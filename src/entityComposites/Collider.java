@@ -6,9 +6,8 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
-import engine.Camera;
+import engine.MovingCamera;
 import entities.EntityRotationalDynamic;
-import entities.EntityStatic;
 import misc.CollisionEvent;
 import misc.NullCollisionEvent;
 import physics.Boundary;
@@ -50,16 +49,13 @@ public class Collider{
 		
 		lines[lines.length-1].setLine( lines[lines.length-1].getP1() , lines[0].getP1() );
 		
-		this.boundary = new Boundary( lines , this ) ;
+		this.boundary = new Boundary( lines ) ;
 		this.owner = owner; 
 		
 	}
 
 	public void setBoundary( Boundary boundary ){
-		
-		
 		this.boundary = boundary;
-		
 	}
 	
 	/* #################################################################
@@ -186,7 +182,7 @@ public class Collider{
 		return this.owner;
 	}
 
-	public void debugDrawBoundary(Camera camera , Graphics2D g){
+	public void debugDrawBoundary(MovingCamera camera , Graphics2D g){
 		
 		for ( Side side : this.getBoundaryLocal().getSides() ){
 			//g.draw(side);

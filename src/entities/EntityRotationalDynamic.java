@@ -100,6 +100,7 @@ public class EntityRotationalDynamic extends EntityDynamic{
 	public void setAngleInRadians( double angle ){
 		this.getBoundary().rotateBoundaryFromTemplate( new Point(0,0) , angle , storedBounds ); 
 		this.orientation = new Vector( Math.cos(angle) , Math.sin(angle) );
+		//this.angle = (float) angle;
 		//this.getEntitySprite().setAngle((int)angle);
 	}
 	

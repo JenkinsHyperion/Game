@@ -6,15 +6,15 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
-import engine.Camera;
-import entities.EntityStatic;
+import engine.MovingCamera;
+import entityComposites.EntityStatic;
 
 public class SelectedEntities {
 	private ArrayList<EntityStatic> selectedEntities = new ArrayList<>();
 	private ArrayList<Point> oldEntityPositions = new ArrayList<>();
-	private Camera camera;
+	private MovingCamera camera;
 	
-	public SelectedEntities(Camera camera) {
+	public SelectedEntities(MovingCamera camera) {
 		this.camera = camera;
 		//this.worldGeomMousePos = worldGeomMousePosRef;
 	}
@@ -39,7 +39,7 @@ public class SelectedEntities {
 		else
 			return false;
 	}
-	public void drawClickableBox(Graphics g, Camera camera) {
+	public void drawClickableBox(Graphics g, MovingCamera camera) {
 		for(EntityStatic entity: selectedEntities) {
 			//vertex.drawClickableBox(g, camera);
 			Rectangle rect = new Rectangle();

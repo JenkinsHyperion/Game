@@ -1,7 +1,7 @@
 package saving_loading;
 
-import entities.EntityStatic;
 import entityComposites.Collider;
+import entityComposites.EntityStatic;
 
 public class EntitySerializer {
 	

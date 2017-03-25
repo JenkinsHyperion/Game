@@ -1,5 +1,6 @@
 package sprites;
 
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.geom.AffineTransform;
@@ -7,14 +8,14 @@ import java.awt.image.BufferedImage;
 import java.io.Serializable;
 
 import animation.Animation;
-import engine.Camera;
-import entities.EntityStatic;
+import engine.MovingCamera;
+import entityComposites.EntityStatic;
 import entityComposites.GraphicComposite;
 
 /*
  * This is the base Sprite class. 
  */
-public abstract class Sprite{
+public abstract class Sprite implements Graphic{
 	
 	protected GraphicComposite ownerComposite;
     protected boolean visibility;
@@ -29,22 +30,19 @@ public abstract class Sprite{
 //ABSTRACT FUNCTIONS 
 	//This is a getImage() that works for both still and animated sprites, so draw functions in Board 
     //can call a generalized format.
-    public abstract void drawSprite(Camera camera);
-    public abstract void drawSprite();
-    public abstract void editorDraw(Point pos);
+    //public abstract void draw(Camera camera);
+    //public abstract void draw();
     
     public EntityStatic ownerEntity(){
     	return this.ownerComposite.ownerEntity();
     }
-    
+
 	public abstract Image getImage(); 
 	public abstract BufferedImage getBufferedImage();
 	
 	public abstract Animation getAnimation(); 
 	
 	public abstract void updateSprite();
-	
-	public abstract boolean hasSprite();
 	
 //PUBLIC FUNCTIONS	
 	public void setSprite(Animation a){}

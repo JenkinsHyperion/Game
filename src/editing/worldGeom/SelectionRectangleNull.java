@@ -4,7 +4,7 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-import engine.Camera;
+import engine.MovingCamera;
 
 public class SelectionRectangleNull implements SelectionRectangleAbstract {
 
@@ -24,7 +24,7 @@ public class SelectionRectangleNull implements SelectionRectangleAbstract {
 	}
 
 	@Override
-	public void draw(Graphics g, Camera camera) {
+	public void draw(Graphics g, MovingCamera camera) {
 		// TODO Auto-generated method stub
 		
 	}

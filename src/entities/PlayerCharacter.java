@@ -3,6 +3,7 @@ package entities;
 
 import java.awt.Point;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 
 import Input.KeyCommand;
@@ -15,7 +16,7 @@ import animation.*;
 import engine.BoardAbstract;
 import entityComposites.Collider;
 import entityComposites.Collider;
-import entityComposites.EntityComposite;
+import entityComposites.CompositeFactory;
 import entityComposites.GraphicComposite;
 import physics.Force;
 import physics.Side;
@@ -112,7 +113,7 @@ public class PlayerCharacter extends Player {
         // MANUAL SPRITE COMPOSITE
         //SpriteComposite spirteComp = new SpriteComposite( IDLE_LEFT , this);
         //this.setSpriteType(spirteComp);
-        EntityComposite.addGraphicTo( this , IDLE_LEFT);
+        CompositeFactory.addGraphicTo( this , IDLE_LEFT);
 
         // COLLIDER COMPOSITE
         // Making many custom events for player contexts
@@ -125,11 +126,11 @@ public class PlayerCharacter extends Player {
         };
         // Creating actual composite
         Collider collisionMesh = new Collider( this );
-        setCollisionProperties( collisionMesh );
+        setCollisionComposite( collisionMesh );
         collisionMesh.setLeavingCollisionEvent( new OnLeavingCollision() );
         // Find better method for casting
         
-        Boundary boundarytemp =  new Boundary.EnhancedBox( 24,76 ,-12,-38, eventList , this.getColliderComposite() );
+        Boundary boundarytemp =  new Boundary.EnhancedBox( 24,76 ,-12,-38, eventList );
         //Boundary boundarytemp =  new Boundary.Box( 24,76 ,-12,-38, (Collidable) this.collisionType );
         
         CollisionEvent cornerCollision = new CollisionEvent(){
@@ -137,6 +138,7 @@ public class PlayerCharacter extends Player {
 			@Override 
 			public void run(BoundaryFeature source, BoundaryFeature collidingWith) {
 
+				//SNAPPING ANGLE TO SIDE
 				ground = (Side) collidingWith;
 				
 
@@ -144,17 +146,33 @@ public class PlayerCharacter extends Player {
 				
 				Vector sub = corner.getStartingSide().getSlopeVector().subtract( corner.getEndingSide().getSlopeVector() );
 				
-				double dist1 = corner.getStartingSide().getSlopeVector().unitVector().dotProduct(ground.getSlopeVector());
-				double dist2 = corner.getEndingSide().getSlopeVector().unitVector().dotProduct(ground.getSlopeVector());
+				Vector slope1 = corner.getStartingSide().getSlopeVector();
+				Vector slope2 = corner.getEndingSide().getSlopeVector();
 				
 				BoundaryVertex rawCorner = getColliderComposite().getBoundary().getRawVertex( corner.getID() );
+
+				Vector slopeGround = ground.getSlopeVector();
+
 				
-					if ( dist2 > dist1 ){ //only works for rectangles
-						PlayerCharacter.this.setAngleFromVector( ground.getSlopeVector() );
+				double dist1 = slope1.unitVector().dotProduct(ground.getSlopeVector());
+				double dist2 = slope2.unitVector().dotProduct(ground.getSlopeVector());
+	
+				double ground = slopeGround.calculateAngleFromVector();
+							
+					if ( Math.abs(dist2) > Math.abs(dist1) ){ //only works for rectangles
+						//Counterclockwise side is leaning at a closer angle to the surface
+						double rawSide2 = storedBounds.getRawSide( corner.getEndingSide().getID() ).getSlopeVector().absSlope().calculateAngleFromVector();
+						//System.out.println("snapping CCW to "+Math.toDegrees(ground) );
+						//System.out.println("snapping CCW to "+Math.toDegrees(rawSide2) );
+						PlayerCharacter.this.setAngleInRadians( ground + rawSide2 );
 					}
-					else
-						PlayerCharacter.this.setAngleFromVector( ground.getSlopeVector()  );
-				
+					else{
+						//Clockwise side is leaning at a closer angle to the surface
+						double rawSide1 = storedBounds.getRawSide( corner.getStartingSide().getID() ).getSlopeVector().absSlope().calculateAngleFromVector();
+						//System.out.println("snapping CW to "+Math.toDegrees(ground));
+						//System.out.println("snapping CW to "+Math.toDegrees(rawSide1) );
+						PlayerCharacter.this.setAngleInRadians( ground + rawSide1 );
+					}
 	
 			}
 		};
@@ -164,7 +182,7 @@ public class PlayerCharacter extends Player {
 		}
         
 		((Collider) collisionType).setBoundary( boundarytemp ); 
-		storedBounds = new Boundary.Box(24,76 ,-12,-38, (Collider) this.collisionType );   //OPTIMIZE move to child RotationalCollidable that can store boundary 
+		storedBounds = new Boundary.Box(24,76 ,-12,-38 );   //OPTIMIZE move to child RotationalCollidable that can store boundary 
 
 		
 		//dispose of all the temp stuff
@@ -179,6 +197,8 @@ public class PlayerCharacter extends Player {
 		this.inputController.createKeyBinding( KeyEvent.VK_D , new RightKey()) ;
 		this.inputController.createKeyBinding( KeyEvent.VK_SPACE , new JumpKey() ) ;
 		this.inputController.createKeyBinding( KeyEvent.VK_SHIFT , new ModKey() ) ;
+		
+		this.inputController.createMouseBinding(MouseEvent.ALT_MASK , MouseEvent.BUTTON1, new ClickTest() );
 		
 		// ADD FORCES // TO BE MOVED TO EXTERNAL BOARD AND OR FEILDS
 		this.gravity = addForce( new Vector( 0 , 0.2 ) );
@@ -263,8 +283,7 @@ public class PlayerCharacter extends Player {
 			
 			//CLIMBING MECHANIC
 			/*
-				Point2D projected1 = (source.getOwnerBoundary().getProjectionPoint( collidingWith.getP1() , ((Side)source).toLine()  ));
-				Point2D projected2 = (source.getOwnerBoundary().getProjectionPoint( collidingWith.getP2() , ((Side)source).toLine()  ));
+				
 				
 				Vector AB = new Vector( source.getP1() , projected1 );
 				Vector AC = new Vector( source.getP1() , source.getP2() );
@@ -281,6 +300,7 @@ public class PlayerCharacter extends Player {
 				}
 				else
 					changePlayerState( wallSliding );*/
+				changePlayerState( wallSliding );
 		}
 		
 		@Override

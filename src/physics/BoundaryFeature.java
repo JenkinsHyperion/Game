@@ -2,7 +2,7 @@ package physics;
 
 import java.awt.geom.Point2D;
 
-import entities.EntityStatic;
+import entityComposites.EntityStatic;
 import misc.CollisionEvent;
 
 abstract public class BoundaryFeature {
@@ -23,14 +23,6 @@ abstract public class BoundaryFeature {
 	protected void onCollision(){}
 	
 	public String toString(){ return "null"; } //check for further abstraction
-
-	public EntityStatic getOwnerEntity() {
-		return this.owner.ownerCollidable.getOwnerEntity();
-	}
-
-	public Boundary getOwnerBoundary() {
-		return null;
-	}
 	
 	public void collisionTrigger(){}
 	

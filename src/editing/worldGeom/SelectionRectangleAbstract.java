@@ -4,14 +4,14 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-import engine.Camera;
+import engine.MovingCamera;
 
 public interface SelectionRectangleAbstract {
 	public Rectangle getWrekt();
 	/**
 	 * Will go through camera.drawRect()
 	 */
-	public void draw(Graphics g, Camera camera);
+	public void draw(Graphics g, MovingCamera camera);
 	public void setInitialRectPoint();
 	public void translateEndPoint(Point worldGeomMousePosRef);
 	public void setInitialX(int newInitialX);

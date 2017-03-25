@@ -44,6 +44,11 @@ public class Scene {
 		
 	}
 	
+	public void addBackgroundSprite( int layer , EntityStatic entity ){
+		entityList.add(entity);
+		ownerBoard.renderingEngine.layersList[layer].addEntity(entity);
+	}
+	
 	public EntityStatic[] listEntities(){
 		EntityStatic[] returnList = new EntityStatic[ this.entityList.size() ];
 		this.entityList.toArray( returnList );

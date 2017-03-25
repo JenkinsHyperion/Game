@@ -16,7 +16,7 @@ public class Boundary {
 	
 	protected CollisionEvent defaultCollisionEvent;
 
-	public Boundary(){
+	private Boundary(){
 		sides = new Side[0];
 		corners = new BoundaryVertex[0];
 		//this.ownerCollidable = ownerCollidable;
@@ -481,25 +481,7 @@ public class Boundary {
 	public void constructSides(Side[] sidesC){
 		sides = sidesC;
 	}
-/*
-	// Returns boundary shifted to some position, usually the position of the entity that owns the boundary
-	public Boundary atPosition2(Point pos) {
-		
-		Side[] shiftedSides = new Side[sides.length];
-		
-		for ( int i = 0 ; i < sides.length ; i++ ){
-			shiftedSides[i] = new Side (
-					new Line2D.Double(sides[i].getX1()+pos.x, sides[i].getY1()+pos.y , 
-					sides[i].getX2()+pos.x, sides[i].getY2()+pos.y ) ,
-					this ,
-					i,
-					sides[i].getEvent()
-				);
-		}
 
-		return new Boundary(shiftedSides);
-		
-	};*/
 	
 	public Boundary atPosition( Point position) {
 

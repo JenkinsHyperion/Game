@@ -22,6 +22,10 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     protected int height;
     protected BufferedImage image;
 
+    public SpriteStillframe( BufferedImage image ){
+    	this.image = image;
+    }
+    
     public SpriteStillframe(String path, EntityStatic owner) { 
     	if (!checkPath(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path)) {
     		fileName = null;

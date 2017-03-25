@@ -12,7 +12,7 @@ public class GraphicCompositeNull extends GraphicComposite{
 	//constructor
 	private GraphicCompositeNull() {
 		super( null );
-		this.currentSprite = new SpriteStillframe("missing");//new MissingIcon().paintMissingSprite();
+		this.currentSprite = new SpriteStillframe( new MissingIcon().paintMissingSprite() );//new MissingIcon().paintMissingSprite();
 	}
 	
 	//OPTIMIZATION - Look into better handling, this is a static factory that returns the static singleton nullSprite, which

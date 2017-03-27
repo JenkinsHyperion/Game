@@ -504,7 +504,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 		@Override
 		public void paintOverlay(Graphics2D g2, MovingCamera cam) {
 			
-			g2.setColor(Color.DARK_GRAY);
+			/*g2.setColor(Color.DARK_GRAY);
 			
 			Line2D[] buffer = new Line2D[ axes.size() ];
 			axes.toArray(buffer);
@@ -544,7 +544,7 @@ public class CollisionPlayerStaticSAT extends Collision {
 			for (BoundaryFeature statFeature : buffer3 )
 				cam.draw( new Line2D.Float( statFeature.getP1() , statFeature.getP2() ) );
 			
-			closestSides.clear();
+			closestSides.clear();*/
 			
 		}
 

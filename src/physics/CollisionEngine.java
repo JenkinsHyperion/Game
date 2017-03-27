@@ -367,6 +367,12 @@ public class CollisionEngine {
     public int debugNumberofCollidables(){ 
     	return this.staticCollidablesList.size();
     }
+    
+    public Collider[] debugListActiveColliders(){
+    	Collider[] activeColliders = new Collider[ this.staticCollidablesList.size() ];
+    	this.staticCollidablesList.toArray( activeColliders );
+    	return activeColliders;
+    }
 	    
 }
 	   

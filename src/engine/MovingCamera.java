@@ -224,8 +224,8 @@ public class MovingCamera extends EntityDynamic implements Camera{
 		
 		this.graphics.drawLine( 
 				(int)line.getX1() - (int)this.x + boardHalfWidth ,  
-				(int)line.getY1() - (int)this.y + boardHalfHeight ,  
-				(int)line.getX2() - (int)this.x + boardHalfWidth ,  
+				(int)line.getY1() - (int)this.y + boardHalfHeight,  
+				(int)line.getX2() - (int)this.x + boardHalfWidth,  
 				(int)line.getY2() - (int)this.y + boardHalfHeight   
 		);
 		

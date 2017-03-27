@@ -147,9 +147,9 @@ public class Board extends BoardAbstract {
         //currentScene.addEntity(new EntityPhysics(120,260,"box.png"));
         //dynamicEntitiesList.add(new Bullet(100,100,1,1));
         
-      	EntityRotationalDynamic rotationTest = new TestRotation(-400,400);
+      	//EntityRotationalDynamic rotationTest = new TestRotation(-400,400);
 
-      	currentScene.addEntity( rotationTest );
+      	//currentScene.addEntity( rotationTest );
       	
         //test for LaserTest entity
         //laser = new Tracer(143,260, physicsEntitiesList.get(0) , this ); //later will be parent system
@@ -423,19 +423,13 @@ public class Board extends BoardAbstract {
 			    
 			    player.getColliderComposite().debugDrawBoundary(camera , g2);
 			    
-			    for (EntityStatic entity : currentScene.listEntities() ){
+			    for (Collider collider : collisionEngine.debugListActiveColliders() ){
 			    	
-			    	entity.getColliderComposite().debugDrawBoundary(camera , g2);
-			    	camera.drawCrossOnCamera( entity.getPos());
-			    	
-			    }
-			    
-			    for (EntityStatic entity : dynamicEntitiesList){
-			    	
-			    	entity.getColliderComposite().debugDrawBoundary(camera , g2);
-			    	camera.drawCrossOnCamera( entity.getPos());
+			    	collider.debugDrawBoundary(camera , g2);
+			    	camera.drawCrossOnCamera( collider.getOwnerEntity().getPos());
 			    	
 			    }
+
 
 		    }
     

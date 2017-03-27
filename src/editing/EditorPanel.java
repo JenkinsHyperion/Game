@@ -1312,7 +1312,7 @@ public class EditorPanel extends JPanel {
 				inputController = new InputController();
 				this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());			
 				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new TranslateOffsetEvent());			
-				this.inputController.createKeyBinding(KeyEvent.VK_EQUALS, new SwapSpriteEvent());			
+				this.inputController.createKeyBinding(KeyEvent.VK_ENTER, new SwapSpriteEvent());			
 				//this.inputController.createKeyBinding(KeyEvent.VK_O, new SetOffsetEvent());			
 			
 			}
@@ -1495,14 +1495,16 @@ public class EditorPanel extends JPanel {
 																lineArray.get(0).getP1()));
 		}
 		public void closeShape(ArrayList<Line2D.Double> lineArray) {
-			//if (isClosedShape == false){
-				if (lineArray.size() > 0) {
+			if (lineArray.size() > 2) {
+				if (lineArray.get(0).getP1() != lineArray.get(lineArray.size()-1).getP2()) {
 					lineArray.add(new Line2D.Double(lineArray.get(lineArray.size()-1).getP2(),
 							lineArray.get(0).getP1()));
+					System.out.println("Was able to close shape");
 				}
-				/*if (lineArray == surfaceLines)
+			}
+			/*if (lineArray == surfaceLines)
 					isClosedShape = true;*/
-				isClosedShape = true;
+			isClosedShape = true;
 			//}
 		}
 		public void addVertex(int x, int y) {
@@ -1518,15 +1520,19 @@ public class EditorPanel extends JPanel {
 		}
 		public void removeVertex(SelectedVertices selectedVertices) {
 			if (selectedVertices.size() == 1){
-				for (EditorVertex verts: vertexList) {
-					if (verts == selectedVertices.getVertices().get(0)) {
-						vertexList.remove(verts);
-						selectedVertices.clearSelectedVertices();
-						break;
+				if ( vertexList.size() > 3 ) {
+					for (EditorVertex verts: vertexList) {
+						if (verts == selectedVertices.getVertices().get(0)) {
+							vertexList.remove(verts);
+							selectedVertices.clearSelectedVertices();
+							break;
+						}
 					}
+					closeShape(surfaceLines);
+					refreshAllSurfaceLines(surfaceLines);
+					
 				}
-				refreshAllSurfaceLines(surfaceLines);
-				isClosedShape = false;
+				
 			}
 		}
 		public void clearAllVerticesAndLines() {
@@ -1551,8 +1557,9 @@ public class EditorPanel extends JPanel {
 			this.vertexList.clear();
 			for (EditorVertex newVert: oldVertexListForReset)
 				vertexList.add(new EditorVertex((int)newVert.getPoint().getX(), (int)newVert.getPoint().getY()));
-			refreshAllSurfaceLines(surfaceLines);
 			closeShape(surfaceLines);
+			refreshAllSurfaceLines(surfaceLines);
+			
 			getVertexSelectMode().selectedVertices.clearSelectedVertices();
 		}
 		public void setUpBackUpVerts() {
@@ -1568,10 +1575,11 @@ public class EditorPanel extends JPanel {
 			for (Point2D vertexToAdd: sourceCollider.getBoundaryLocal().getCornersPoint()){
 				vertexList.add(new EditorVertex( (int)vertexToAdd.getX(),(int)vertexToAdd.getY()) );
 			}
-			refreshAllSurfaceLines(surfaceLines);
-			refreshAllSurfaceLines(oldBoundary);
 			closeShape(surfaceLines);
 			closeShape(oldBoundary);
+			refreshAllSurfaceLines(surfaceLines);
+			refreshAllSurfaceLines(oldBoundary);
+			
 			/*surfaceLines.get(surfaceLines.size()-1).setLine(surfaceLines.get(surfaceLines.size()-1).getP2(),
 																			 surfaceLines.get(0).getP1());*/
 		}
@@ -1622,6 +1630,7 @@ public class EditorPanel extends JPanel {
 									 surfaceLines.get(i).getX2()-currentSelectedEntity.getX(),
 									 surfaceLines.get(i).getY2()-currentSelectedEntity.getY());
 				}
+				
 				lines[lines.length-1].setLine( lines[lines.length-1].getP1() , lines[0].getP1() );
 				//Boundary newBoundary = new Boundary(lines, currentSelectedEntity.getColliderComposite());
 				Boundary newBoundary = new Boundary(lines);
@@ -1648,7 +1657,6 @@ public class EditorPanel extends JPanel {
 				selectionRectangle = new SelectionRectangle(Color.BLUE, Color.cyan, camera, initClickPoint);
 				selectionRectangleState = nullSelectionRectangle;
 				
-				
 				inputController = new InputController();
 				this.inputController.createMouseBinding(MouseEvent.BUTTON1, new VertexSelectLClickEvent());
 				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new CtrlVertexSelectLClickEvent());
@@ -1656,7 +1664,7 @@ public class EditorPanel extends JPanel {
 				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON1, new SelectionRectEvent());
 				this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());
 				//this.inputController.createKeyBinding(KeyEvent.VK_N, new RetrieveVertsFromBoundaryEvent());
-				this.inputController.createKeyBinding(KeyEvent.VK_EQUALS, new ReplaceAndFinalizeBoundaryEvent());
+				this.inputController.createKeyBinding(KeyEvent.VK_ENTER, new ReplaceAndFinalizeBoundaryEvent());
 				this.inputController.createKeyBinding(KeyEvent.CTRL_MASK, KeyEvent.VK_Z, new ResetBoundaryVerticesToDefaultEvent());
 				this.inputController.createKeyBinding(KeyEvent.VK_DELETE, new DeleteVerticesEvent());
 				this.inputController.createKeyBinding(KeyEvent.VK_C, new CloseShapeEvent());

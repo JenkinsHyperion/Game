@@ -5,13 +5,17 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
-import javax.swing.AbstractAction;
+
 import javax.swing.border.BevelBorder;
 import javax.swing.*;
 
 @SuppressWarnings("serial")
-public class IconLoader extends JFrame {
+public class SpriteIconLoader extends JFrame {
    
   
     private String iconsDir = System.getProperty("user.dir") + "\\Assets\\Icons\\";
@@ -19,23 +23,55 @@ public class IconLoader extends JFrame {
     private JPanel iconBarRef;
     private EditorPanel editorPanelRef;
     private MissingIcon placeholderIcon = new MissingIcon();
-    private String[] iconFileNames = { "platformIcon.png" , "platform02Icon.png", "ground01Icon.png",
-    		"grass01Icon.png", "boxIcon.png" }; 
-    private String[] realImageFileNames = { "platform.png" , "platform02.png", "ground01.png",
-    		"grass01.png", "box.png" }; 
+    private String[] iconFileNames = { 
+    		"boxIcon.png" , 
+    		"bulletIcon.png", 
+    		"grass01Icon.png",
+    		"ground01Icon.png",
+    		"ground_1Icon.png", 
+    		"platformIcon.png",
+    		"platform02Icon.png" }; 
+    private String[] realImageFileNames = new String[iconFileNames.length];
+//    private String[] realImageFileNames = { "platform.png" , "platform02.png", "ground01.png",
+//    		"grass01.png", "box.png" }; 
     /**
      * Helper class to load buttons into preview Icon display for creating new entities.
      * @param editorPanelRef Reference to EditorPanel to use its methods and fields
      * @param ibRef Reference to the IconBar panel inside of EditorPanel
      */
-    public IconLoader(JPanel edPanRef, JPanel ibRef) {
+    public SpriteIconLoader(JPanel edPanRef, JPanel ibRef) {
     	editorPanelRef = (EditorPanel)edPanRef;
-    	iconBarRef = ibRef;  	
+    	iconBarRef = ibRef;  
+    	populateRealFileNamesArray("SpriteHotSwap", realImageFileNames);
+    	populateRealFileNamesArray("Icons", iconFileNames);
     	//iconBarRef.add(Box.createGlue());
     	// iconBarRef.add(Box.createGlue());   
 
     	// start the image loading SwingWorker in a background thread
     	loadimages.execute();
+    }
+    private void populateRealFileNamesArray(String path, String[] destArray) {
+    	File fileArray[] = null;
+//    	FileInputStream fileIn = null;
+    	if (new File(realImagesDir + File.separator + path).exists()) {
+    		try {
+    			fileArray = new File(realImagesDir + File.separator + path + File.separator).listFiles();
+    			for (int i = 0; i < fileArray.length; i++) {
+    				/*fileIn = new FileInputStream(realImagesDir + File.separator + "SpriteHotSwap" + File.separator +
+    						fileArray[i].getName());
+    				fileIn.close();*/
+    				destArray[i] = fileArray[i].getName();
+    				
+    				System.out.println(fileArray[i].getName());
+    			}
+    			Arrays.sort(destArray);
+    		}
+    		 catch (Exception f) {
+ 				f.printStackTrace();
+ 			}  
+    	}
+    	else
+			JOptionPane.showMessageDialog(null, "No files to load");
     }
 
     /**
@@ -46,7 +82,6 @@ public class IconLoader extends JFrame {
      * anything from doInBackground().
      */
     private SwingWorker<Void, ThumbnailAction> loadimages = new SwingWorker<Void, ThumbnailAction>() {
-        
         /**
          * Creates full size and thumbnail versions of the target image files.
          */
@@ -55,7 +90,7 @@ public class IconLoader extends JFrame {
             for (int i = 0; i < iconFileNames.length; i++) {
                 ImageIcon icon; //picture that will be set on top of each button
                 String iconPath = iconsDir + iconFileNames[i];
-                String realImagePath = realImagesDir + realImageFileNames[i];
+                //String realImagePath = realImagesDir + realImageFileNames[i];
                 icon = createImageIcon(iconPath);
                 
                 ThumbnailAction thumbAction;
@@ -87,7 +122,7 @@ public class IconLoader extends JFrame {
                 thumbButton.setPreferredSize(new Dimension(40,40));
                 thumbButton.setBackground(Color.BLACK);
                 thumbButton.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.LIGHT_GRAY, Color.DARK_GRAY));
-                iconBarRef.add(thumbButton, iconBarRef.getComponentCount() - 1);
+                iconBarRef.add(thumbButton);
             }
         }
     };
@@ -129,11 +164,14 @@ public class IconLoader extends JFrame {
          * Shows the full image in the main area and sets the application title.
          */
         public void actionPerformed(ActionEvent e) {
+           	//editorPanelRef.setMode(editorPanelRef.getSpriteEditorMode());
         	String path = e.getActionCommand();
-        	editorPanelRef.setGhostSprite(path);
-        	editorPanelRef.setNewEntityPath(path);
+        	editorPanelRef.getSpriteEditorMode().setSpritePath(path);
+        	editorPanelRef.tempSpriteName.setText(path);
+        	//editorPanelRef.setGhostSprite(path);
+        	//editorPanelRef.setNewEntityPath(path);
         	//editorPanelRef.mode = EditorPanel.ENTPLACEMENT_MODE;
-        	editorPanelRef.setMode(editorPanelRef.getEditorPlaceMode());
+ 
            //System.out.println(e.getActionCommand().toString());
         }
     }

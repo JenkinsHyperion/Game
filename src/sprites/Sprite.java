@@ -71,7 +71,9 @@ public abstract class Sprite implements Graphic{
     public int getOffsetY(){
     	return spriteOffsetY;
     }
-    
+    public Point getOffsetPoint() {
+    	return new Point(spriteOffsetX, spriteOffsetY);
+    }
     public void setOffset(int x , int y){
     	spriteOffsetX = x;
     	spriteOffsetY = y;

@@ -114,6 +114,8 @@ public class EditorPanel extends JPanel {
 	private JLabel mousePosLabel;
 	private JLabel entityCoordsLabel;
 	private JLabel selectedEntityNameLabel;
+	protected JLabel tempSpriteName = new JLabel("");
+	protected JLabel spriteHotSwapLabel = new JLabel();
 	protected JComboBox<String> allEntitiesComboBox;
 	
 	protected JButton loadButton;
@@ -121,8 +123,10 @@ public class EditorPanel extends JPanel {
 	protected JButton deleteEntButton;
 	protected JButton worldGeomButton;
 	protected JButton entitySelectButton;
-	protected JButton vertexPlaceModeButton;
-	protected JButton vertexSelectModeButton;
+	protected JRadioButton selectViaSpriteRB;
+	protected JRadioButton selectViaBoundaryRB;
+	protected JButton wgVertexPlaceModeButton;
+	protected JButton wgVertexSelectModeButton;
 	//protected JButton entidorModeButton;
 	protected JButton spriteEditorButton;
 	protected JButton boundaryEditorButton;
@@ -134,7 +138,11 @@ public class EditorPanel extends JPanel {
 	private JPanel labelsPanel;
 	private JPanel buttonPanel;
 	private JPanel propertyPanelTest;
-	private JPanel iconBar;
+	private JPanel iconBarForEntPlacement;
+	private JPanel iconBarForSpriteSwap;
+	
+	JScrollPane iconBarScrollPaneEntPlacement;
+	JScrollPane iconBarScrollPaneSpriteSwap;
     //private JList entitiesJList;
 	private SavingLoading saveLoad;
 	
@@ -155,20 +163,13 @@ public class EditorPanel extends JPanel {
 		deleteEntButton = new JButton("Delete");
 		entitySelectButton = new JButton("Entity Select");
 		worldGeomButton = new JButton("World Geom");
-		vertexPlaceModeButton = new JButton("VtxPlace");
-		vertexSelectModeButton = new JButton("VtxSelect");
+		wgVertexPlaceModeButton = new JButton("VtxPlace");
+		wgVertexSelectModeButton = new JButton("VtxSelect");
 		spriteEditorButton = new JButton("SpriteEditor");
 		boundaryEditorButton = new JButton("BoundEditor");
 		boundaryVertexSelectButton = new JButton("BoundVertSelect");
 		boundaryVertexPlaceButton = new JButton("BoundVertPlace");
 		
-		editorSelectMode = new EditorSelectMode();
-		editorPlaceMode = new EditorPlaceMode();
-		cameraPanEvent = new CameraPanEvent();
-		worldGeomMode = new WorldGeometry(this, board2);
-		boundaryEditorMode = new BoundaryEditorMode();
-		
-		this.editorMode = editorSelectMode;
 		newEntityPath = "";
 		selectedBox = new Rectangle();
 		editorMousePos = new Point();
@@ -197,7 +198,49 @@ public class EditorPanel extends JPanel {
 		entityCoordsLabel = new JLabel("Coords of selected entity: ");
 		selectedEntityNameLabel = new JLabel("Nothing Selected");
 		
+		
+	    iconBarForEntPlacement = new JPanel(new FlowLayout(FlowLayout.LEADING));
+	    iconBarScrollPaneEntPlacement = new JScrollPane(iconBarForEntPlacement);
+	    IconLoader iconLoaderForEntPlacement = new IconLoader(this, iconBarForEntPlacement);
+		
+	    iconBarForSpriteSwap = new JPanel(new FlowLayout(FlowLayout.LEADING)); 
+		iconBarScrollPaneSpriteSwap = new JScrollPane(iconBarForSpriteSwap);
+	    SpriteIconLoader iconLoaderForSpriteSwap = new SpriteIconLoader(this, iconBarForSpriteSwap);
+	
+	    editorSelectMode = new EditorSelectMode();
+		editorPlaceMode = new EditorPlaceMode();
+		cameraPanEvent = new CameraPanEvent();
+		worldGeomMode = new WorldGeometry(this, board2);
+		boundaryEditorMode = new BoundaryEditorMode();
+		spriteEditorMode = new SpriteEditorMode();
+		
+		this.editorMode = getEditorSelectMode();
 
+		
+		selectViaSpriteRB = new JRadioButton("S");
+		selectViaSpriteRB.setFocusable(false);
+		selectViaSpriteRB.setEnabled(true);
+		selectViaSpriteRB.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				editorSelectMode.setSelectViaSprite(true);
+			}
+		});
+		selectViaBoundaryRB = new JRadioButton("B");
+		selectViaBoundaryRB.setFocusable(false);
+		selectViaBoundaryRB.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				editorSelectMode.setSelectViaSprite(false);
+			}
+		});
+		
+		ButtonGroup rbgroup = new ButtonGroup();
+		rbgroup.add(selectViaSpriteRB);
+		rbgroup.add(selectViaBoundaryRB);
+		selectViaSpriteRB.setEnabled(true);
+		
 		saveButton.setPreferredSize(new Dimension(40,22));
 		saveButton.setMargin(new Insets(0,0,0,0));
 		saveButton.setFocusable(false);
@@ -235,7 +278,7 @@ public class EditorPanel extends JPanel {
 		deleteEntButton.addActionListener(new ActionListener() {	
 			@Override
 			public void actionPerformed(ActionEvent e) {						
-				deleteEntity(allEntitiesComboBox.getSelectedIndex());
+				//deleteEntity(allEntitiesComboBox.getSelectedIndex());
 			} 		
 		});
 
@@ -247,8 +290,7 @@ public class EditorPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {						
 				setMode(getEditorSelectMode());
 				getEditorSelectMode().selectedEntities.clearSelectedEntities();
-				vertexPlaceModeButton.setEnabled(false);
-				vertexSelectModeButton.setEnabled(false);
+				
 			} 		
 		});
 		
@@ -258,23 +300,21 @@ public class EditorPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				setMode(getWorldGeomMode());
-				vertexPlaceModeButton.setEnabled(true);
-				vertexSelectModeButton.setEnabled(true);
 			}
 		});
 
-		vertexPlaceModeButton.setFocusable(false);
-		vertexPlaceModeButton.setEnabled(false);
-		vertexPlaceModeButton.addActionListener(new ActionListener() {
+		wgVertexPlaceModeButton.setFocusable(false);
+		wgVertexPlaceModeButton.setEnabled(false);
+		wgVertexPlaceModeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				worldGeomMode.setMode(worldGeomMode.getVertexPlaceMode());
 			}
 		});
 
-		vertexSelectModeButton.setFocusable(false);
-		vertexSelectModeButton.setEnabled(false);
-		vertexSelectModeButton.addActionListener(new ActionListener() {
+		wgVertexSelectModeButton.setFocusable(false);
+		wgVertexSelectModeButton.setEnabled(false);
+		wgVertexSelectModeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				worldGeomMode.setMode(worldGeomMode.getVertexSelectMode());
@@ -286,6 +326,8 @@ public class EditorPanel extends JPanel {
 		spriteEditorButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				spriteEditorMode.setCurrentEntity(getEditorSelectMode().getSingleSelectedEntity());
+				setMode(getSpriteEditorMode());
 				
 			}
 		});
@@ -336,11 +378,13 @@ public class EditorPanel extends JPanel {
 		buttonPanel.add(deleteEntButton);
 		buttonPanel.add(separators[0]); //divider
 		buttonPanel.add(entitySelectButton);
+		buttonPanel.add(selectViaSpriteRB, FlowLayout.RIGHT);
+		buttonPanel.add(selectViaBoundaryRB, FlowLayout.RIGHT);
 		buttonPanel.add(separators[2]); //divider
 		buttonPanel.add(worldGeomButton);
 		buttonPanel.add(separators[1]); //divider
-		buttonPanel.add(vertexPlaceModeButton);
-		buttonPanel.add(vertexSelectModeButton);
+		buttonPanel.add(wgVertexSelectModeButton);
+		buttonPanel.add(wgVertexPlaceModeButton);
 		buttonPanel.add(separators[3]); //divider
 		buttonPanel.add(spriteEditorButton);
 		buttonPanel.add(separators[4]); //divider
@@ -374,12 +418,21 @@ public class EditorPanel extends JPanel {
 		labelsPanel.add(mousePosLabel);
 		labelsPanel.add(entityCoordsLabel);
 		labelsPanel.add(selectedEntityNameLabel);
-		
 		/*propertyPanelTest = new JPanel();
 		propertyPanelTest.setPreferredSize(minimizedSize);
 		propertyPanelTest.setBackground(Color.GRAY);
-		propertyPanelTest.setBorder(BorderFactory.createTitledBorder("propertyPanelTest"));
-		*/
+		propertyPanelTest.setBorder(BorderFactory.createTitledBorder("propertyPanelTest")); */
+	   
+	    iconBarForEntPlacement.setBackground(Color.GRAY);
+	    iconBarForEntPlacement.setPreferredSize(new Dimension(195,200));
+	    iconBarForEntPlacement.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		iconBarScrollPaneEntPlacement.setVerticalScrollBarPolicy((JScrollPane.VERTICAL_SCROLLBAR_ALWAYS));
+
+		iconBarForSpriteSwap.setBackground(Color.GRAY);
+		iconBarForSpriteSwap.setPreferredSize(new Dimension(195,200));
+		iconBarForSpriteSwap.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		iconBarScrollPaneSpriteSwap.setVerticalScrollBarPolicy((JScrollPane.VERTICAL_SCROLLBAR_ALWAYS));
+		iconBarScrollPaneSpriteSwap.setVisible(true);
 		// #### add everything to the editor
 		
 		add(entitiesComboBoxPanel);
@@ -388,18 +441,13 @@ public class EditorPanel extends JPanel {
 		add(labelsPanel);
 		add(buttonPanel);	
 		//add(propertyPanelTest);
-		
-	    iconBar = new JPanel(new FlowLayout(FlowLayout.LEADING)); 
-	    iconBar.setBackground(Color.GRAY);
-	    iconBar.setPreferredSize(new Dimension(195,200));
-	    iconBar.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-		IconLoader iconLoader = new IconLoader(this, iconBar);
-
-		
-		JScrollPane iconBarScrollPane = new JScrollPane(iconBar);
-		iconBarScrollPane.setVerticalScrollBarPolicy((JScrollPane.VERTICAL_SCROLLBAR_ALWAYS));
-		add(iconBarScrollPane, FlowLayout.TRAILING);
-		
+		add(new JLabel("        EntityPlacement         "));
+		add(iconBarScrollPaneEntPlacement);
+		spriteHotSwapLabel.setText("SpriteHotSwap: ");
+		add(spriteHotSwapLabel);
+		add(tempSpriteName);
+		add(iconBarScrollPaneSpriteSwap);
+		//iconBarScrollPaneSpriteSwap.setVisible(false);
 	/*	try {
 			automaticMouseReturn = new Robot();
 		} catch (AWTException e) {}
@@ -418,7 +466,7 @@ public class EditorPanel extends JPanel {
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			editorMode = editorSelectMode;
+			setMode(getEditorSelectMode());
 			//JComboBox cb = (JComboBox)e.getSource();
 			//cb.getSelectedIndex());
 			
@@ -430,13 +478,16 @@ public class EditorPanel extends JPanel {
 			currentEntIndex = allEntitiesComboBox.getSelectedIndex();
 			System.out.println(currentEntIndex);
 			try{					
-				editorSelectMode.selectedEntities.clearSelectedEntities();
+				getEditorSelectMode().selectedEntities.clearSelectedEntities();
 				deleteEntButton.setEnabled(true);
 				
 				//sets Board's current entity
 				//setCurrentSelectedEntity(board.getEntities().get(currentEntIndex));
 				editorSelectMode.addSelectedEntity(board.listCurrentSceneEntities()[currentEntIndex]);
-				
+				spriteEditorButton.setEnabled(true);
+				boundaryEditorButton.setEnabled(true);
+				boundaryVertexSelectButton.setEnabled(true);
+				boundaryVertexPlaceButton.setEnabled(true);
 				//createAndShowPropertiesPanel(board);   ##### IMPORTANT LINE, UNCOMMENT LATER
 				
 				setSelectedEntityNameLabel("Selected: " + board.listCurrentSceneEntities()[currentEntIndex].name);
@@ -447,11 +498,8 @@ public class EditorPanel extends JPanel {
 				System.err.println("nullpointerexception"); 
 			}
 		}	
-	} //end of inner class
-	
-	
-	
-	
+	} //end of EntitiesComboBoxActionHandler inner class
+	  //end of EntitiesComboBoxActionHandler inner class
 	public void mousePressed(MouseEvent e) {
 		setEditorMousePos(e.getX(), e.getY());
 		//clickPosition.setLocation(e.getX(),e.getY());
@@ -475,60 +523,9 @@ public class EditorPanel extends JPanel {
 	// ############ KEY HANDLING SECTION ###########
 	public void keyPressed(KeyEvent e) {
 		this.editorMode.keyPressed(e);
-		//worldGeomMode.keyPressed(e);
-		/*int key = e.getKeyCode();
-		if (key == KeyEvent.VK_UP && !keypressUP ) {
-			keypressUP = true; 
-			pan_dy = -8f;
-		}
-		else if (key == KeyEvent.VK_DOWN && !keypressDOWN) {
-			keypressDOWN = true;
-			pan_dy = 8f;
-		}
-		else if (key == KeyEvent.VK_LEFT && !keypressLEFT) {
-
-			keypressLEFT = true; 	
-			pan_dx = -8f;
-		}
-		else if (key == KeyEvent.VK_RIGHT && !keypressRIGHT ) { 
-
-			keypressRIGHT= true;
-			pan_dx = 8f;
-		}	
-		else if (key == KeyEvent.VK_SHIFT && !keypressSHIFT) {
-			keypressSHIFT = true;
-			//modeBuffer = mode; // save the most recent mode, will switch back when shift is released
-			mode = CAMERAPAN_MODE;
-		}*/
-		
-		
-		//this.camera.translate(pan_dx, pan_dy);
 	}	
 	public void keyReleased(KeyEvent e) {
 		this.editorMode.keyReleased(e);
-		//worldGeomMode.keyReleased(e);
-		/*int key = e.getKeyCode();
-		if (key == KeyEvent.VK_UP && keypressUP ) {
-			keypressUP = false; 
-			pan_dy = 0f;
-		}
-		else if (key == KeyEvent.VK_DOWN && keypressDOWN) {
-			keypressDOWN = false;
-			pan_dy = 0f;
-		}
-		else if (key == KeyEvent.VK_LEFT && keypressLEFT) {
-			keypressLEFT = false;				
-			pan_dx = 0f;
-		}
-		else if (key == KeyEvent.VK_RIGHT && keypressRIGHT) { 
-			keypressRIGHT= false;
-			pan_dx = 0f;
-		}
-		else if (key == KeyEvent.VK_SHIFT && keypressSHIFT) {
-			keypressSHIFT = false;
-			mode = modeBuffer; //sets mode back to most recent mode before shift was pressed
-		}
-		this.camera.translate(pan_dx, pan_dy);*/
 	}
     //END OF KEYHANDLING SECTION 
 	@Deprecated
@@ -804,17 +801,26 @@ public class EditorPanel extends JPanel {
 		this.editorMode = newMode;
 	}
 	public EditorSelectMode getEditorSelectMode() {
+		worldGeomButton.setEnabled(true);
+		iconBarScrollPaneSpriteSwap.setVisible(false);
 		spriteEditorButton.setEnabled(false);
+		wgVertexSelectModeButton.setEnabled(false);
+		wgVertexPlaceModeButton.setEnabled(false);
 		boundaryEditorButton.setEnabled(false);
 		boundaryVertexPlaceButton.setEnabled(false);
 		boundaryVertexSelectButton.setEnabled(false);
 		return this.editorSelectMode;
 	}
 	public EditorPlaceMode getEditorPlaceMode() {
+		iconBarScrollPaneSpriteSwap.setVisible(false);
 		return this.editorPlaceMode;
 	}
 	public WorldGeometry getWorldGeomMode() {
+		iconBarScrollPaneSpriteSwap.setVisible(false);
 		spriteEditorButton.setEnabled(false);
+		wgVertexPlaceModeButton.setEnabled(true);
+		wgVertexSelectModeButton.setEnabled(true);
+		
 		boundaryEditorButton.setEnabled(false);
 		boundaryVertexPlaceButton.setEnabled(false);
 		boundaryVertexSelectButton.setEnabled(false);
@@ -824,11 +830,21 @@ public class EditorPanel extends JPanel {
 		return this.cameraPanEvent;
 	}
 	public SpriteEditorMode getSpriteEditorMode() {
+		spriteEditorButton.setEnabled(true);
+		iconBarScrollPaneSpriteSwap.setVisible(true);
+		wgVertexPlaceModeButton.setEnabled(false);
+		wgVertexSelectModeButton.setEnabled(false);
+		boundaryEditorButton.setEnabled(false);
+		boundaryVertexPlaceButton.setEnabled(false);
+		boundaryVertexSelectButton.setEnabled(false);
 		return this.spriteEditorMode;
 	}
 	public BoundaryEditorMode getBoundaryEditorMode() {
+		iconBarScrollPaneSpriteSwap.setVisible(false);
 		boundaryVertexPlaceButton.setEnabled(true);
 		boundaryVertexSelectButton.setEnabled(true);
+		wgVertexSelectModeButton.setEnabled(false);
+		wgVertexPlaceModeButton.setEnabled(false);
 		return this.boundaryEditorMode;
 	}
 	// ######################################### INNER CLASS MODES #######################################
@@ -843,8 +859,10 @@ public class EditorPanel extends JPanel {
 		protected SelectionRectangleAbstract nullSelectionRectangle;
 		protected SelectionRectangleAbstract selectionRectangleState;
 		protected boolean oneEntitySelected;
+		private boolean selectViaSprite;
 		private Point initClickPoint;
 		public EditorSelectMode() {
+			selectViaSprite = true;
 			oneEntitySelected = false;
 			initClickPoint = new Point();
 			selectedEntities = new SelectedEntities(camera);
@@ -855,11 +873,11 @@ public class EditorPanel extends JPanel {
 			inputController = new InputController();
 			this.inputController.createMouseBinding(MouseEvent.BUTTON1, new EntitySelectLClickEvent());
 			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new CtrlEntitySelectLClickEvent());
-			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON2, new TranslateEvent());
+			this.inputController.createMouseBinding(MouseEvent.BUTTON3, new TranslateEvent());
 			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON1, new SelectionRectEvent());
 			this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());
 			
-			this.inputController.createKeyBinding(KeyEvent.VK_ESCAPE, new EscapeEvent());
+			this.inputController.createKeyBinding(KeyEvent.VK_ESCAPE, new DeselectEntitiesEvent());
 		}
 		
 		@Override
@@ -889,26 +907,55 @@ public class EditorPanel extends JPanel {
 			selectedEntities.drawClickableBox(g2, camera);
 			selectionRectangleState.draw(g2, camera);
 		}
-		@SuppressWarnings("deprecation")
+		/**Option of whether select mode will choose based on entity's sprite or boundary
+		 * @param choice - If true, select based on sprite. If false, select based on boundary
+		 */
+		public void setSelectViaSprite(boolean choice){
+			this.selectViaSprite = choice;
+		}
 		public void checkForEntityCtrlClick(Point click) {
-			for(EntityStatic entity: board.listCurrentSceneEntities()) {
-				
-				Rectangle clickableRect = new Rectangle();
-				
-				Sprite graphic = entity.getGraphicComposite().getSprite();
-				//clickableRect.setLocation(entity.getXRelativeTo(camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(camera) + entity.getSpriteOffsetY());
-				clickableRect.setLocation(entity.getX() + graphic.getOffsetX(), entity.getY() + graphic.getOffsetY());
-				clickableRect.setSize(graphic.getImage().getWidth(null),
-						graphic.getImage().getHeight(null) );
-				if (clickableRect.contains(click)) {
-					if (selectedEntities.contains(entity))
-						selectedEntities.removeSelectedEntity(entity);
-					else
-						selectedEntities.addSelectedEntity(entity);
+			if (selectViaSprite == true) {
+				for(EntityStatic entity: board.listCurrentSceneEntities()) {
+					Rectangle clickableRect = new Rectangle();
+					Sprite graphic = entity.getGraphicComposite().getSprite();
+					//clickableRect.setLocation(entity.getXRelativeTo(camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(camera) + entity.getSpriteOffsetY());
+					clickableRect.setLocation(entity.getX() + graphic.getOffsetX(), entity.getY() + graphic.getOffsetY());
+					clickableRect.setSize(graphic.getImage().getWidth(null), graphic.getImage().getHeight(null) );
+					if (clickableRect.contains(click)) {
+						if (selectedEntities.contains(entity))
+							selectedEntities.removeSelectedEntity(entity);
+						else
+							selectedEntities.addSelectedEntity(entity);
+					}
 				}
-				//if (selectedEntities.contains(entity))
-					//selectedEntities.add
 			}
+			else {
+				for(EntityStatic entity: board.listCurrentSceneEntities()) {
+					//polygonTest.
+					if (entity.getColliderComposite() instanceof ColliderNull ){
+					}
+					else {
+						Boundary bound = entity.getColliderComposite().getBoundaryLocal();
+						int[] xpoints;
+						int[] ypoints;
+						xpoints = new int[bound.getCornersPoint().length];
+						ypoints = new int[bound.getCornersPoint().length];
+						
+						for (int i = 0; i < bound.getCornersPoint().length; i++ ) {
+							xpoints[i] = (int)bound.getCornersPoint()[i].getX();
+							ypoints[i] = (int)bound.getCornersPoint()[i].getY();
+						}
+						Polygon polygonTest = new Polygon(xpoints, ypoints, bound.getCornersPoint().length);
+						Rectangle rect = polygonTest.getBounds();
+						if (polygonTest.contains(click)) {
+							if (selectedEntities.contains(entity))
+								selectedEntities.removeSelectedEntity(entity);
+							else
+								selectedEntities.addSelectedEntity(entity);
+						}
+					}
+				}// end of for loop
+			} //end of else
 			if (selectedEntities.size() == 1) {
 				spriteEditorButton.setEnabled(true);
 				boundaryEditorButton.setEnabled(true);
@@ -923,7 +970,6 @@ public class EditorPanel extends JPanel {
 				boundaryVertexPlaceButton.setEnabled(false);
 			}
 		}
-		@SuppressWarnings("deprecation")
 		public void checkForEntity(Point click) {
 			//boolean atLeastOneVertexFound = false;
 			//since this is the regular click method, would want to make sure any selected entities are deselected first
@@ -934,39 +980,100 @@ public class EditorPanel extends JPanel {
 				boundaryVertexPlaceButton.setEnabled(false);
 				selectedEntities.clearSelectedEntities();
 			}
-			for (EntityStatic entity: board.listCurrentSceneEntities()) {
-				Rectangle clickableRect = new Rectangle();
-				//clickableRect.setLocation(entity.getXRelativeTo(camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(camera) + entity.getSpriteOffsetY());
-				clickableRect.setLocation(entity.getX() + entity.getSpriteOffsetX(), entity.getY() + entity.getSpriteOffsetY());
-				clickableRect.setSize(entity.getEntitySprite().getImage().getWidth(null),
-						entity.getEntitySprite().getImage().getHeight(null) );
-				if (clickableRect.contains(click))
-				{
-					if (selectedEntities.contains(entity) == false) {
-						selectedEntities.addSelectedEntity(entity);
-						spriteEditorButton.setEnabled(true);
-						boundaryEditorButton.setEnabled(true);
-						boundaryVertexSelectButton.setEnabled(true);
-						boundaryVertexPlaceButton.setEnabled(true);
-						break;
+			if (selectViaSprite == true) {
+				for (EntityStatic entity: board.listCurrentSceneEntities()) {
+					Rectangle clickableRect = new Rectangle();
+					//clickableRect.setLocation(entity.getXRelativeTo(camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(camera) + entity.getSpriteOffsetY());
+					Sprite graphic = entity.getGraphicComposite().getSprite();
+					clickableRect.setLocation(entity.getX() + graphic.getOffsetX(), entity.getY() + graphic.getOffsetY());
+					clickableRect.setSize(graphic.getImage().getWidth(null), graphic.getImage().getHeight(null) );
+					if (clickableRect.contains(click))
+					{
+						if (selectedEntities.contains(entity) == false) {
+							selectedEntities.addSelectedEntity(entity);
+							spriteEditorButton.setEnabled(true);
+							boundaryEditorButton.setEnabled(true);
+							boundaryVertexSelectButton.setEnabled(true);
+							boundaryVertexPlaceButton.setEnabled(true);
+							break;
+						}
 					}
 				}
 			}
+			else {
+				for(EntityStatic entity: board.listCurrentSceneEntities()) {
+					//polygonTest.
+					if (entity.getColliderComposite() instanceof ColliderNull ){
+					}
+					else {
+						Boundary bound = entity.getColliderComposite().getBoundaryLocal();
+						int[] xpoints;
+						int[] ypoints;
+						xpoints = new int[bound.getCornersPoint().length];
+						ypoints = new int[bound.getCornersPoint().length];
+						
+						for (int i = 0; i < bound.getCornersPoint().length; i++ ) {
+							xpoints[i] = (int)bound.getCornersPoint()[i].getX();
+							ypoints[i] = (int)bound.getCornersPoint()[i].getY();
+						}
+						Polygon polygonTest = new Polygon(xpoints, ypoints, bound.getCornersPoint().length);
+						//Rectangle rect = polygonTest.getBounds();
+						if (polygonTest.contains(click)) {
+							if (selectedEntities.contains(entity) == false) {
+								selectedEntities.addSelectedEntity(entity);
+								spriteEditorButton.setEnabled(true);
+								boundaryEditorButton.setEnabled(true);
+								boundaryVertexSelectButton.setEnabled(true);
+								boundaryVertexPlaceButton.setEnabled(true);
+								break;
+							}
+						}
+					}
+				}// end of for loop
+			} // end of else
 		}
-		@SuppressWarnings("deprecation")
 		public void checkForEntityInSelectionRect(Rectangle selectionRect) {
-			for (EntityStatic entity: board.listCurrentSceneEntities()) {
-				Rectangle clickableRect = new Rectangle();
-				//clickableRect.setLocation(entity.getXRelativeTo(camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(camera) + entity.getSpriteOffsetY());
-				clickableRect.setLocation(entity.getX() + entity.getSpriteOffsetX(), entity.getY() + entity.getSpriteOffsetY());
-				clickableRect.setSize(entity.getEntitySprite().getImage().getWidth(null),
-						entity.getEntitySprite().getImage().getHeight(null) );
-				//if(selectionRect.contains(clickableRect)) {
-				if(selectionRect.intersects(clickableRect)) {
-					if(selectedEntities.contains(entity) == false) {
-						selectedEntities.addSelectedEntity(entity);
+			if (selectViaSprite == true) {
+				
+				for (EntityStatic entity: board.listCurrentSceneEntities()) {
+					Rectangle clickableRect = new Rectangle();
+					Sprite graphic = entity.getGraphicComposite().getSprite();
+					//clickableRect.setLocation(entity.getXRelativeTo(camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(camera) + entity.getSpriteOffsetY());
+					clickableRect.setLocation(entity.getX() + graphic.getOffsetX(), entity.getY() + graphic.getOffsetY());
+					clickableRect.setSize(graphic.getImage().getWidth(null), graphic.getImage().getHeight(null) );
+					//if(selectionRect.contains(clickableRect)) {
+					if(selectionRect.intersects(clickableRect)) {
+						if(selectedEntities.contains(entity) == false) {
+							selectedEntities.addSelectedEntity(entity);
+						}
 					}
 				}
+			}
+			else {
+				for(EntityStatic entity: board.listCurrentSceneEntities()) {
+					//polygonTest.
+					if (entity.getColliderComposite() instanceof ColliderNull ){
+					}
+					else {
+						Boundary bound = entity.getColliderComposite().getBoundaryLocal();
+						int[] xpoints;
+						int[] ypoints;
+						xpoints = new int[bound.getCornersPoint().length];
+						ypoints = new int[bound.getCornersPoint().length];
+						
+						for (int i = 0; i < bound.getCornersPoint().length; i++ ) {
+							xpoints[i] = (int)bound.getCornersPoint()[i].getX();
+							ypoints[i] = (int)bound.getCornersPoint()[i].getY();
+						}
+						Polygon polygonTest = new Polygon(xpoints, ypoints, bound.getCornersPoint().length);
+						Rectangle rect = polygonTest.getBounds();
+						if (polygonTest.intersects(selectionRect)) {
+							if (selectedEntities.contains(entity) == false) {
+								selectedEntities.addSelectedEntity(entity);
+							}
+						}
+					}
+				}// end of for loop
 			}
 			if (selectedEntities.size() == 1) {
 				//TODO return to this once synced with matt's new Sprite composite system
@@ -1057,7 +1164,7 @@ public class EditorPanel extends JPanel {
 			}
 			
 		}
-		public class EscapeEvent implements KeyCommand {
+		public class DeselectEntitiesEvent implements KeyCommand {
 			@Override
 			public void onPressed() {
 				selectedEntities.clearSelectedEntities();
@@ -1124,42 +1231,162 @@ public class EditorPanel extends JPanel {
 /////////   INNER CLASS SPRITEEDITORMODE   //////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private class SpriteEditorMode extends ModeAbstract {
-		public SpriteEditorMode(){
-			inputController = new InputController();
-			this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());			
+	public class SpriteEditorMode extends ModeAbstract {
+		protected EntityStatic currentSelectedEntity;
+		private ArrayList<EntityStatic> selectedEntitiesRef = getSelectedEntities();
+		private String spritePath;
 		
+		protected ModeAbstract spriteEditorMode;
+		//protected SpriteOffSetMode spriteOffsetMode;
+		protected DefaultSpriteEditorMode defaultSpriteEditorMode;
+		
+		
+		public SpriteEditorMode(){
+			spritePath = "";
+			defaultSpriteEditorMode = new DefaultSpriteEditorMode();
+			spriteEditorMode = defaultSpriteEditorMode;
+			
 		}
-
+		public void setCurrentEntity(EntityStatic newEntity) {
+			this.currentSelectedEntity = newEntity;
+		}
+		public EntityStatic getCurrentEntity(){
+			return this.currentSelectedEntity;
+		}
 		@Override
 		public void mousePressed(MouseEvent e) {
-			
+			this.spriteEditorMode.mousePressed(e);
 		}
 		@Override
 		public void mouseDragged(MouseEvent e) {
-			
+			this.spriteEditorMode.mouseDragged(e);
 		}
 		@Override
 		public void mouseMoved(MouseEvent e) {
-			
+			this.spriteEditorMode.mouseMoved(e);
 		}
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			
+			this.spriteEditorMode.mouseReleased(e);
 		}
 		@Override
 		public void keyPressed(KeyEvent e) {
-			
+			this.spriteEditorMode.keyPressed(e);
 		}
 		@Override
 		public void keyReleased(KeyEvent e) {
-			
+			this.spriteEditorMode.keyReleased(e);
 		}
 		@Override
 		public void render(Graphics g) {
-			
+			this.spriteEditorMode.render(g);
 		}
-		
+		public void replaceAndFinalizeSprite(String path) {
+/*			Boundary newBoundary = new Boundary(lines);
+			this.currentSelectedEntity.getColliderComposite().setBoundary(newBoundary);
+			getVertexSelectMode().selectedVertices.clearSelectedVertices();*/
+			
+			SpriteStillframe replacementSprite = new SpriteStillframe("SpriteHotSwap\\" + path);
+//			replacementSprite.setOffset(replacementSprite.getBufferedImage().getWidth() - (replacementSprite.getBufferedImage().getWidth() / 2), 
+//										replacementSprite.getBufferedImage().getHeight() - (replacementSprite.getBufferedImage().getHeight() / 2));
+			//replacementSprite.setOffset(replacementSprite.getBufferedImage().getWidth() / 2, replacementSprite.getBufferedImage().getHeight() / 2);
+			replacementSprite.setOffset(-(replacementSprite.getBufferedImage().getWidth() / 2), -(replacementSprite.getBufferedImage().getHeight() / 2));
+			this.currentSelectedEntity.getGraphicComposite().setSprite(replacementSprite);
+		}
+		public void setSpritePath(String newPath) {
+			this.spritePath = newPath;
+		}
+		public String getSpritePath() {
+			return this.spritePath;
+		}
+		public class DefaultSpriteEditorMode extends ModeAbstract {
+			Point initClick;
+			//Point spriteInitialPosition;
+			Point spriteOriginalOffset;
+			
+			public DefaultSpriteEditorMode() {
+				initClick = new Point();
+				//spriteInitialPosition = new Point();
+				spriteOriginalOffset = new Point();
+				inputController = new InputController();
+				this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());			
+				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new TranslateOffsetEvent());			
+				this.inputController.createKeyBinding(KeyEvent.VK_EQUALS, new SwapSpriteEvent());			
+				//this.inputController.createKeyBinding(KeyEvent.VK_O, new SetOffsetEvent());			
+			
+			}
+			@Override
+			public void mousePressed(MouseEvent e) {
+				inputController.mousePressed(e);			
+			}
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				inputController.mouseDragged(e);
+			}
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+				inputController.mouseReleased(e); }
+			@Override
+			public void keyPressed(KeyEvent e) {
+				this.inputController.keyPressed(e);
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {
+				this.inputController.keyReleased(e);
+			}
+			@Override
+			public void render(Graphics g) {
+			}
+			public class TranslateOffsetEvent implements MouseCommand {
+				@Override
+				public void mousePressed() {
+				/*	spriteOriginalOffset.setLocation(currentSelectedEntity.getGraphicComposite().getSprite().getOffsetX(),
+							 currentSelectedEntity.getGraphicComposite().getSprite().getOffsetX());*/
+					initClick.setLocation(camera.getLocalPosition(editorMousePos)); // sets temporary old mouse position reference
+					spriteOriginalOffset.setLocation(currentSelectedEntity.getGraphicComposite().getSprite().getOffsetPoint());;
+				}
+
+				@Override
+				public void mouseDragged() {
+					int mousePanDX = (initClick.x - editorMousePos.x);
+					int mousePanDY = (initClick.y - editorMousePos.y);
+					/*currentSelectedEntity.getGraphicComposite().getSprite().setOffset(
+							(int)(spriteInitialPosition.x + mousePanDX),
+							(int)(spriteInitialPosition.y + mousePanDY)
+							);*/
+					currentSelectedEntity.getGraphicComposite().getSprite().setOffset(
+							(int)(camera.getLocalX(spriteOriginalOffset.x - mousePanDX)),
+							(int)(camera.getLocalY(spriteOriginalOffset.y - mousePanDY))
+							);
+				}
+				@Override
+				public void mouseReleased() {}
+			}
+			public class SwapSpriteEvent implements KeyCommand {
+				@Override
+				public void onPressed() {
+					replaceAndFinalizeSprite(spritePath);
+				}
+				@Override
+				public void onReleased() {}
+				@Override
+				public void onHeld() {}
+			}
+			public class SetOffsetEvent implements KeyCommand {
+				@Override
+				public void onPressed() {
+					int x = Integer.parseInt(JOptionPane.showInputDialog("Enter x offset"));
+					int y = Integer.parseInt(JOptionPane.showInputDialog("Enter y offset"));
+					currentSelectedEntity.getGraphicComposite().getSprite().setOffset(x, y);
+				}
+				@Override
+				public void onReleased() {}
+				@Override
+				public void onHeld() {}
+			}
+		}
+
 	}
 /////////   INNER CLASS BOUNDARYEDITORMODE   //////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1186,7 +1413,6 @@ public class EditorPanel extends JPanel {
 			boundaryVertexSelectMode = new BoundaryVertexSelectMode();
 			boundaryMode = boundaryVertexSelectMode;
 			ghostVertexPic = (BufferedImage)EditorVertex.createVertexPic(0.5f);
-			
 		}
 
 		@Override
@@ -1419,7 +1645,7 @@ public class EditorPanel extends JPanel {
 				inputController = new InputController();
 				this.inputController.createMouseBinding(MouseEvent.BUTTON1, new VertexSelectLClickEvent());
 				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new CtrlVertexSelectLClickEvent());
-				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON2, new TranslateEvent());
+				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new TranslateEvent());
 				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON1, new SelectionRectEvent());
 				this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());
 				//this.inputController.createKeyBinding(KeyEvent.VK_N, new RetrieveVertsFromBoundaryEvent());
@@ -1721,8 +1947,8 @@ public class EditorPanel extends JPanel {
 			//old version: vvvvvvvvvvvvvvvv
 			
 			//else if (mode == EditorPanel.CAMERAPAN_MODE) {//keypressSHIFT == true: holding down shift key, ready to pan
-				mousePanDX = editorMousePos.getX() - oldMousePanPos.getX();
-				mousePanDY = editorMousePos.getY() - oldMousePanPos.getY();
+				/*mousePanDX = editorMousePos.getX() - oldMousePanPos.getX();
+				mousePanDY = editorMousePos.getY() - oldMousePanPos.getY();*/
 				//camera.translate (-mousePanDX, -mousePanDY) or something
 				// ^^^ must be negative because camera will pan in direction opposite the mouse drag
 				mousePanDX = (editorMousePos.getX() - oldMousePanPos.getX());

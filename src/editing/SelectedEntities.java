@@ -21,12 +21,7 @@ public class SelectedEntities {
 	public void clearSelectedEntities() {
 		selectedEntities.clear();
 	}
-	public void updateOldEntityPositions(){
-		oldEntityPositions.clear();
-		for (EntityStatic entity: selectedEntities) {
-			oldEntityPositions.add(new Point(entity.getPos()));
-		}
-	}
+	
 	public EntityStatic get(int index) {
 		return selectedEntities.get(index);
 	}
@@ -76,6 +71,12 @@ public class SelectedEntities {
 		for (int i = 0; i < selectedEntities.size(); i++) {
 			selectedEntities.get(i).setPos(camera.getLocalX(oldEntityPositions.get(i).x - deltaX), 
 											 camera.getLocalY(oldEntityPositions.get(i).y - deltaY));
+		}
+	}
+	public void updateOldEntityPositions(){
+		oldEntityPositions.clear();
+		for (EntityStatic entity: selectedEntities) {
+			oldEntityPositions.add(new Point(entity.getPos()));
 		}
 	}
 	public void removeSelectedVertex(int i) {

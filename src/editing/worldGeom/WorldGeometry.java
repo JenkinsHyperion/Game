@@ -8,10 +8,12 @@ import Input.*;
 import editing.EditorPanel;
 import editing.ModeAbstract;
 import editing.EditorPanel.CameraPanEvent;
+import editing.EditorPanel.BoundaryEditorMode.BoundaryVertexPlaceMode.RectangleBoundDrawEvent;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.*;
 
@@ -56,6 +58,7 @@ public class WorldGeometry extends ModeAbstract{
 	
 	private int offsetX; //actual point will be within the square's center, so square must be offset.
 	private int offsetY;
+	protected boolean isClosedShape;
 	
 
 	public WorldGeometry(EditorPanel editorPanelRef, BoardAbstract board2) { 
@@ -63,6 +66,7 @@ public class WorldGeometry extends ModeAbstract{
 		this.editorPanel = editorPanelRef;
 		this.board = board2;
 		this.camera = board2.getCamera();
+		this.isClosedShape = false;
 		// ########### initalize modes for world geometry  ##########
 		// default to placement mode
 		//worldGeomMode = vertexPlaceMode;
@@ -127,15 +131,23 @@ public class WorldGeometry extends ModeAbstract{
 			surfaceLines.add(tempLine);
 		}
 	}
-	public void refreshAllSurfaceLines() {
+	public void refreshAllSurfaceLines(ArrayList<Line2D.Double> lineArray) {
 		surfaceLines.clear();
 		for (int i = 0; i < vertexList.size()-1; i++) {
 			Line2D.Double tempLine = new Line2D.Double(vertexList.get(i).getPoint(), vertexList.get(i+1).getPoint());
-			surfaceLines.add(tempLine);
+			lineArray.add(tempLine);
 		}
 	}
 	public Image getGhostVertexPic() {
 		return ghostVertexPic;
+	}
+	public void closeShape(ArrayList<Line2D.Double> lineArray) {
+		if (lineArray.size() > 0) {
+			lineArray.add(new Line2D.Double(lineArray.get(lineArray.size()-1).getP2(),
+					lineArray.get(0).getP1()));
+		}
+		if (lineArray == surfaceLines)
+			isClosedShape = true;
 	}
 	/**Adds vertex to the arrayList
 	 * Should take input from MouseEvent e that is passed in from board into this class's mousePressed(e) method
@@ -145,7 +157,7 @@ public class WorldGeometry extends ModeAbstract{
 		vertexList.add(new EditorVertex(x,y));
 		if (vertexList.size() > 1) 
 			//updateSurfaceLinesUponChange(vertexList.size()-2);
-			refreshAllSurfaceLines();
+			refreshAllSurfaceLines(surfaceLines);
 	}
 	public void removeVertex(SelectedVertices selectedVertices) {
 		if (selectedVertices.size() == 1){
@@ -156,17 +168,45 @@ public class WorldGeometry extends ModeAbstract{
 					break;
 				}
 			}
-			refreshAllSurfaceLines();
+			refreshAllSurfaceLines(surfaceLines);
 		}
+	}
+	public void retrieveVertsFromRect(Rectangle rect) {
+		this.vertexList.clear();
+		Point2D p1 = new Point2D.Double(rect.getMinX(), rect.getMinY());
+		Point2D p2 = new Point2D.Double(rect.getMaxX(), rect.getMinY());
+		Point2D p3 = new Point2D.Double(rect.getMaxX(), rect.getMaxY());
+		Point2D p4 = new Point2D.Double(rect.getMinX(), rect.getMaxY());
+		/*vertexList.add(new EditorVertex((int)camera.getLocalX(p1.getX()), (int)camera.getLocalY(p1.getY())) );
+		vertexList.add(new EditorVertex((int)camera.getLocalX(p2.getX()), (int)camera.getLocalY(p2.getY())) );
+		vertexList.add(new EditorVertex((int)camera.getLocalX(p3.getX()), (int)camera.getLocalY(p3.getY())) );
+		vertexList.add(new EditorVertex((int)camera.getLocalX(p4.getX()), (int)camera.getLocalY(p4.getY())) );*/
+		vertexList.add(new EditorVertex((int)p1.getX(), (int)p1.getY()) );
+		vertexList.add(new EditorVertex((int)p2.getX(), (int)p2.getY()) );
+		vertexList.add(new EditorVertex((int)p3.getX(), (int)p3.getY()) );
+		vertexList.add(new EditorVertex((int)p4.getX(), (int)p4.getY()) );
+		refreshAllSurfaceLines(surfaceLines);
+		closeShape(surfaceLines);
 	}
 	public void clearAllVerticesAndLines() {
 		vertexList.clear();
 		surfaceLines.clear();
+		selectedVertices.clearSelectedVertices();
 	}
 	public Point getWorldGeomMousePos() {
 		return worldGeomMousePos;
 	}
-
+	public void createEntityFromWorldGeom() {
+		if (surfaceLines.size() > 0) {
+			Line2D[] lines = new Line2D[surfaceLines.size()]; 
+			surfaceLines.toArray( lines );
+			EntityStatic newEntity = EntityFactory.createEntityFromBoundary(lines);
+			((Board)board).addStaticEntity( newEntity );
+			editorPanel.addSelectedEntity( newEntity );
+			//editorPanel.setMode(editorPanel.getEditorSelectMode());
+			clearAllVerticesAndLines();
+		}
+	}
 	public void setWorldGeomMousePos(Point pos) {
 		this.worldGeomMousePos = pos;
 	}
@@ -186,11 +226,21 @@ public class WorldGeometry extends ModeAbstract{
 		/* Will need to create some booleans states here possibly */
 		// area for states, to handle lots of different key presses
 		private boolean vertexPlacementAllowed = true;
+		protected SelectionRectangleAbstract tempRectBoundary;
+		protected SelectionRectangleAbstract tempRectBoundaryState;
+		protected SelectionRectangleAbstract nullTempRectBoundary;
+		protected Point initClickPoint;
 		public VertexPlaceMode() {
+			initClickPoint = new Point();
+			nullTempRectBoundary = SelectionRectangleNull.getNullSelectionRectangle();
+			tempRectBoundary = new SelectionRectangle(Color.BLUE, Color.cyan, camera, initClickPoint);
+			tempRectBoundaryState = nullTempRectBoundary;
+			
 			inputController = new InputController();
 			KeyStateNull keyStateNull = new KeyStateNull();
 			KeyStateCtrl keyStateCtrl = new KeyStateCtrl();
 			this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, editorPanel.new CameraPanEvent());
+			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON1, new RectangleBoundDrawEvent());
 			//set initial condition for keyState
 			keyState = keyStateNull;
 			
@@ -200,13 +250,14 @@ public class WorldGeometry extends ModeAbstract{
 
 				@Override
 				public void onPressed() {
-					Line2D[] lines = new Line2D[surfaceLines.size()]; 
+					createEntityFromWorldGeom();
+					/*Line2D[] lines = new Line2D[surfaceLines.size()]; 
 					surfaceLines.toArray( lines );
 					EntityStatic newEntity = EntityFactory.createEntityFromBoundary(lines);
 					((Board)board).addStaticEntity( newEntity );
 					editorPanel.addSelectedEntity( newEntity );
 					editorPanel.setMode(editorPanel.getEditorSelectMode());
-					clearAllVerticesAndLines();
+					clearAllVerticesAndLines();*/
 				}
 				@Override
 				public void onReleased() {
@@ -244,7 +295,7 @@ public class WorldGeometry extends ModeAbstract{
 						vertexList.remove(vertexList.size()-1);
 						//surfaceLines.remove(surfaceLines.size()-1); << PROBABLY THE BETTER WAY
 						//another way of doing it: 
-						refreshAllSurfaceLines();
+						refreshAllSurfaceLines(surfaceLines);
 					}
 				}
 				@Override
@@ -261,16 +312,16 @@ public class WorldGeometry extends ModeAbstract{
 				}
 				public void mouseDragged() {
 				}
-				public void mouseReleased() {}
+				public void mouseReleased() {
+				}
 			});
 			inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON1, new MouseCommand(){ //test drag event
 				public void mousePressed() {
-					if (vertexPlacementAllowed == true) 
-						//addVertex(camera.getLocalX(worldGeomMousePos.x), camera.getLocalY(worldGeomMousePos.y));
-						addVertex(camera.getLocalX(worldGeomMousePos.x), vertexList.get(vertexList.size()-1).getPoint().y);
+					
 				}
 				public void mouseDragged() {}
-				public void mouseReleased() {}
+				public void mouseReleased() {
+				}
 			});
 		}
 		public void mousePressed(MouseEvent e) {
@@ -288,7 +339,7 @@ public class WorldGeometry extends ModeAbstract{
 		public void keyPressed(KeyEvent e) { inputController.keyPressed(e);	}
 		@Override
 		public void keyReleased(KeyEvent e) {inputController.keyReleased(e); }
-		
+
 		public void render(Graphics g) {
 			//old drawghostvertex
 			Graphics2D g2 = (Graphics2D)g;
@@ -316,6 +367,7 @@ public class WorldGeometry extends ModeAbstract{
 				camera.draw(ghostLine);
 			}
 			defaultRender(g2);
+			tempRectBoundaryState.draw(g2, camera);
 		}
 		/** True if any intersection is found across all lines in the surfaceLines arrayList<> 
 		 */
@@ -329,18 +381,44 @@ public class WorldGeometry extends ModeAbstract{
 			vertexPlacementAllowed = true;
 			return false;
 		}
-		
-			public class KeyStateCtrl extends KeyState {
-				@Override
-				public void mouseMoved(MouseEvent e) {
-					//implementation of mouseMoved for when ctrl is pressed. Will be triggered
-					// by inputController
-					if (vertexList.size() > 0) {
-						worldGeomMousePos.setLocation(e.getX(), camera.getRelativeY((vertexList.get(vertexList.size()-1).getPoint().y)));
-					}
-				}
-			} // end if inner inner class KeyStateAlt
 
+		public class KeyStateCtrl extends KeyState {
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				//implementation of mouseMoved for when ctrl is pressed. Will be triggered
+				// by inputController
+				if (vertexList.size() > 0) {
+					worldGeomMousePos.setLocation(e.getX(), camera.getRelativeY((vertexList.get(vertexList.size()-1).getPoint().y)));
+				}
+			}
+		} // end if inner inner class KeyStateAlt
+		public class RectangleBoundDrawEvent implements MouseCommand {
+
+			@Override
+			public void mousePressed() {
+				// TODO Auto-generated method stub
+				tempRectBoundaryState = tempRectBoundary;
+				initClickPoint.setLocation(camera.getLocalPosition(worldGeomMousePos));
+				tempRectBoundaryState.setInitialRectPoint();
+			}
+
+			@Override
+			public void mouseDragged() {
+				// TODO Auto-generated method stub
+				tempRectBoundaryState.translateEndPoint(camera.getLocalPosition(worldGeomMousePos));
+			}
+
+			@Override
+			public void mouseReleased() {
+				// TODO Auto-generated method stub
+				//command to select vertices underneath box
+				retrieveVertsFromRect(tempRectBoundary.getWrekt());
+				tempRectBoundaryState.resetRect();
+				tempRectBoundaryState = nullTempRectBoundary;
+				//setMode(getVertexSelectMode());
+			}
+
+		}
 	}
 	// end of inner class VertexPlaceMode
 	
@@ -373,7 +451,7 @@ public class WorldGeometry extends ModeAbstract{
 			inputController = new InputController();
 			this.inputController.createMouseBinding(MouseEvent.BUTTON1, new VertexSelectLClickEvent());
 			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new CtrlVertexSelectLClickEvent());
-			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON2, new TranslateEvent());
+			this.inputController.createMouseBinding(MouseEvent.BUTTON3, new TranslateEvent());
 			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON1, new SelectionRectEvent());
 			this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, editorPanel.new CameraPanEvent());
 			
@@ -510,7 +588,7 @@ public class WorldGeometry extends ModeAbstract{
 			}
 			public void mouseDragged() {
 				selectedVertices.translate(initClickPoint, worldGeomMousePos);
-				refreshAllSurfaceLines();
+				refreshAllSurfaceLines(surfaceLines);
 			}
 			public void mouseReleased() {
 				// TODO Auto-generated method stub

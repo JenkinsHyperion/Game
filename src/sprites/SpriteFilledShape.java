@@ -1,6 +1,7 @@
 package sprites;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Polygon;
@@ -54,10 +55,22 @@ public class SpriteFilledShape extends Sprite {
 	public Image getImage() {
 		Rectangle r = this.shape.getBounds();
 		BufferedImage image = new BufferedImage(r.width, r.height, BufferedImage.TYPE_BYTE_BINARY);
-
+		Graphics2D g2 = image.createGraphics();
+		g2.translate(-r.x, -r.y);
+		g2.draw(shape);
+		g2.dispose();
 	    return image;
 	}
-
+/*	public Image makeImage(Shape s) {
+	    Rectangle r = s.getBounds();
+	    Image image = new BufferedImage(r.width, r.height, BufferedImage.TYPE_BYTE_BINARY);
+	    Graphics2D gr = image.createGraphics();
+	    // move the shape in the region of the image
+	    gr.translate(-r.x, -r.y);
+	    gr.draw(s);
+	    gr.dispose();
+	    return image;
+	}*/
 	@Override
 	public BufferedImage getBufferedImage() {
 		

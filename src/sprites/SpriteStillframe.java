@@ -110,6 +110,7 @@ public class SpriteStillframe extends Sprite {  // Object with still image
 		try {
 
 			image = ImageIO.read(new File(imageName));
+			//image = ImageIO.read(new File(System.getProperty("user.dir") + "\\Assets\\" +));
 
 		} catch (IOException e) {;
 			e.printStackTrace();

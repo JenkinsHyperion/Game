@@ -8,6 +8,7 @@ import editing.worldGeom.*;
 import editing.worldGeom.WorldGeometry.VertexPlaceMode;
 import editing.worldGeom.WorldGeometry.VertexSelectMode;
 import editing.worldGeom.WorldGeometry.VertexSelectMode.CtrlVertexSelectLClickEvent;
+import editing.worldGeom.WorldGeometry.VertexSelectMode.DeleteVerticesEvent;
 import editing.worldGeom.WorldGeometry.VertexSelectMode.SelectionRectEvent;
 import editing.worldGeom.WorldGeometry.VertexSelectMode.TranslateEvent;
 import editing.worldGeom.WorldGeometry.VertexSelectMode.VertexSelectLClickEvent;
@@ -1494,20 +1495,25 @@ public class EditorPanel extends JPanel {
 																lineArray.get(0).getP1()));
 		}
 		public void closeShape(ArrayList<Line2D.Double> lineArray) {
-			if (lineArray.size() > 0) {
-				lineArray.add(new Line2D.Double(lineArray.get(lineArray.size()-1).getP2(),
-						lineArray.get(0).getP1()));
-			}
-			if (lineArray == surfaceLines)
+			//if (isClosedShape == false){
+				if (lineArray.size() > 0) {
+					lineArray.add(new Line2D.Double(lineArray.get(lineArray.size()-1).getP2(),
+							lineArray.get(0).getP1()));
+				}
+				/*if (lineArray == surfaceLines)
+					isClosedShape = true;*/
 				isClosedShape = true;
+			//}
 		}
 		public void addVertex(int x, int y) {
-			//vertexList.add(new Vertex(this.camera.getLocalX(x), this.camera.getLocalY(y)));
-			vertexList.add(new EditorVertex(x,y));
-			if (vertexList.size() > 1) {
-				//updateSurfaceLinesUponChange(vertexList.size()-2);
-				refreshAllSurfaceLines(surfaceLines);
-				isClosedShape = false;
+			if (isClosedShape == false) {
+				//vertexList.add(new Vertex(this.camera.getLocalX(x), this.camera.getLocalY(y)));
+				vertexList.add(new EditorVertex(x,y));
+				if (vertexList.size() > 1) {
+					//updateSurfaceLinesUponChange(vertexList.size()-2);
+					refreshAllSurfaceLines(surfaceLines);
+					isClosedShape = false;
+				}
 			}
 		}
 		public void removeVertex(SelectedVertices selectedVertices) {
@@ -1622,6 +1628,7 @@ public class EditorPanel extends JPanel {
 				this.currentSelectedEntity.getColliderComposite().setBoundary(newBoundary);
 				clearAllVerticesAndLines();
 				clearOldBoundary();
+				isClosedShape = false;
 				getVertexSelectMode().selectedVertices.clearSelectedVertices();
 			}
 		}
@@ -1651,7 +1658,8 @@ public class EditorPanel extends JPanel {
 				//this.inputController.createKeyBinding(KeyEvent.VK_N, new RetrieveVertsFromBoundaryEvent());
 				this.inputController.createKeyBinding(KeyEvent.VK_EQUALS, new ReplaceAndFinalizeBoundaryEvent());
 				this.inputController.createKeyBinding(KeyEvent.CTRL_MASK, KeyEvent.VK_Z, new ResetBoundaryVerticesToDefaultEvent());
-				
+				this.inputController.createKeyBinding(KeyEvent.VK_DELETE, new DeleteVerticesEvent());
+				this.inputController.createKeyBinding(KeyEvent.VK_C, new CloseShapeEvent());
 			}
 
 			@Override
@@ -1827,6 +1835,14 @@ public class EditorPanel extends JPanel {
 				public void onPressed() {
 					// TODO Auto-generated method stub
 					removeVertex(selectedVertices);
+				}
+				public void onReleased() {} public void onHeld() {}
+			}
+			public class CloseShapeEvent implements KeyCommand {
+				@Override
+				public void onPressed() {
+					// TODO Auto-generated method stub
+					closeShape(surfaceLines);
 				}
 				public void onReleased() {} public void onHeld() {}
 			}

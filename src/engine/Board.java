@@ -180,12 +180,12 @@ public class Board extends BoardAbstract {
         currentScene.addBackgroundSprite( 5 , EntityFactory.createBackgroundSprite("Prototypes/L6.png", 260-offset_x, -450-offset_y) );//bass
         currentScene.addBackgroundSprite( 4 , EntityFactory.createBackgroundSprite("Prototypes/L5_02.png", 650-offset_x, 400-offset_y) );
         currentScene.addBackgroundSprite( 3 , EntityFactory.createBackgroundSprite("Prototypes/L4.png", 300-offset_x, -300-offset_y) );//base
-        currentScene.addBackgroundSprite( 2 , EntityFactory.createBackgroundSprite("Prototypes/L3_01.png", 650-offset_x, 500-offset_y) ); //forest
+        currentScene.addBackgroundSprite( 2 , EntityFactory.createBackgroundSprite("Prototypes/L5_03.png", 650-offset_x, 500-offset_y) ); //forest
         currentScene.addBackgroundSprite( 1 , EntityFactory.createBackgroundSprite("Prototypes/L2.png", 250-offset_x, -160-offset_y) );//pipe
-        currentScene.addBackgroundSprite( 0 , EntityFactory.createBackgroundSprite("Prototypes/L1.png", 300-offset_x, -160-offset_y) );//base
+        currentScene.addBackgroundSprite( 0 , EntityFactory.createBackgroundSprite("Prototypes/L1_01.png", 300-offset_x, -160-offset_y) );//base
         
-       // renderingEngine.layersList[4].addEntity( EntityFactory.createBackgroundScroll( "Prototypes/shader_rain01.png", getBoardWidth() ,getBoardHeight() ,0,-3  ) );
-        //renderingEngine.layersList[1].addEntity( EntityFactory.createBackgroundScroll( "Prototypes/shader_rain03.png", getBoardWidth() ,getBoardHeight() ,0,-8  ) );
+        //renderingEngine.layersList[4].addEntity( EntityFactory.createBackgroundScroll( "Prototypes/shader_rain01.png", getBoardWidth() ,getBoardHeight() ,0,-3  ) );
+        renderingEngine.layersList[1].addEntity( EntityFactory.createBackgroundScroll( "Prototypes/shader_rain03.png", getBoardWidth() ,getBoardHeight() ,0,-8  ) );
        
         
         initBullets();

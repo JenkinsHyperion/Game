@@ -137,8 +137,8 @@ public class PlayerCharacter extends Player {
 			
 			@Override 
 			public void run(BoundaryFeature source, BoundaryFeature collidingWith) {
-
-				//SNAPPING ANGLE TO SIDE
+			/*
+				//SNAPPING ANGLE TO SIDE 
 				ground = (Side) collidingWith;
 				
 
@@ -173,7 +173,7 @@ public class PlayerCharacter extends Player {
 						//System.out.println("snapping CW to "+Math.toDegrees(rawSide1) );
 						PlayerCharacter.this.setAngleInRadians( ground + rawSide1 );
 					}
-	
+			 */	
 			}
 		};
 		

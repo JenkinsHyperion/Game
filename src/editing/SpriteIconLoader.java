@@ -23,15 +23,16 @@ public class SpriteIconLoader extends JFrame {
     private JPanel iconBarRef;
     private EditorPanel editorPanelRef;
     private MissingIcon placeholderIcon = new MissingIcon();
-    private String[] iconFileNames = { 
+    /*private String[] iconFileNames = { 
     		"boxIcon.png" , 
     		"bulletIcon.png", 
     		"grass01Icon.png",
     		"ground01Icon.png",
     		"ground_1Icon.png", 
     		"platformIcon.png",
-    		"platform02Icon.png" }; 
-    private String[] realImageFileNames = new String[iconFileNames.length];
+    		"platform02Icon.png" }; */
+    //private String[] realImageFileNames = new String[iconFileNames.length];
+    private String[] realImageFileNames;
 //    private String[] realImageFileNames = { "platform.png" , "platform02.png", "ground01.png",
 //    		"grass01.png", "box.png" }; 
     /**
@@ -42,36 +43,42 @@ public class SpriteIconLoader extends JFrame {
     public SpriteIconLoader(JPanel edPanRef, JPanel ibRef) {
     	editorPanelRef = (EditorPanel)edPanRef;
     	iconBarRef = ibRef;  
-    	populateRealFileNamesArray("SpriteHotSwap", realImageFileNames);
-    	populateRealFileNamesArray("Icons", iconFileNames);
+    	populateRealFileNamesArray("SpriteHotSwap");
+    	//populateRealFileNamesArray("Icons", iconFileNames);
     	//iconBarRef.add(Box.createGlue());
     	// iconBarRef.add(Box.createGlue());   
 
     	// start the image loading SwingWorker in a background thread
     	loadimages.execute();
     }
-    private void populateRealFileNamesArray(String path, String[] destArray) {
+    private void populateRealFileNamesArray(String path) {
     	File fileArray[] = null;
 //    	FileInputStream fileIn = null;
     	if (new File(realImagesDir + File.separator + path).exists()) {
     		try {
     			fileArray = new File(realImagesDir + File.separator + path + File.separator).listFiles();
+    			realImageFileNames = new String[fileArray.length];
+    			System.out.println("fileArray's length: " + fileArray.length);
     			for (int i = 0; i < fileArray.length; i++) {
     				/*fileIn = new FileInputStream(realImagesDir + File.separator + "SpriteHotSwap" + File.separator +
     						fileArray[i].getName());
     				fileIn.close();*/
-    				destArray[i] = fileArray[i].getName();
-    				
+    				realImageFileNames[i] = fileArray[i].getName();
     				System.out.println(fileArray[i].getName());
     			}
-    			Arrays.sort(destArray);
     		}
     		 catch (Exception f) {
  				f.printStackTrace();
- 			}  
+ 			}
+    		System.out.println("Realimagefilenames[]: \n");
+    		 for (int i = 0; i < realImageFileNames.length; i++) {
+    			 System.out.println(realImageFileNames[i]);
+    		 }
     	}
-    	else
+    	else {
 			JOptionPane.showMessageDialog(null, "No files to load");
+			realImageFileNames = new String[0];
+    	}
     }
 
     /**
@@ -87,11 +94,13 @@ public class SpriteIconLoader extends JFrame {
          */
         @Override
         protected Void doInBackground() throws Exception {
-            for (int i = 0; i < iconFileNames.length; i++) {
+            for (int i = 0; i < realImageFileNames.length; i++) {
                 ImageIcon icon; //picture that will be set on top of each button
-                String iconPath = iconsDir + iconFileNames[i];
+               // String iconPath = iconsDir + iconFileNames[i];
+                String iconPath = realImagesDir + realImageFileNames[i];
                 //String realImagePath = realImagesDir + realImageFileNames[i];
                 icon = createImageIcon(iconPath);
+                //put logic for resizing image for the icon here:
                 
                 ThumbnailAction thumbAction;
                 if(icon != null){
@@ -134,6 +143,7 @@ public class SpriteIconLoader extends JFrame {
      */
     protected ImageIcon createImageIcon(String path) {
         if (new File(path).exists()) {
+        	System.out.println("This path exists: " + path);
             return new ImageIcon(path);
         } else {
             System.err.println("Couldn't find file: " + path);

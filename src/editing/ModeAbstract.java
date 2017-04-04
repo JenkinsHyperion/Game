@@ -5,11 +5,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
 import Input.*;
-import editing.worldGeom.KeyState;
+import editing.worldGeom.MouseMovedKeyState;
 
 public abstract class ModeAbstract {
 	protected InputController inputController;
-	protected KeyState keyState;
+	protected MouseMovedKeyState mouseMovedKeyState;
 	protected MouseCommand cameraPanMode;
 	//protected CameraMode cameraMode;
 	/*public abstract void mouseInput(MouseEvent m);

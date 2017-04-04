@@ -8,7 +8,7 @@ import java.awt.event.MouseEvent;
  * @author Dave
  *
  */
-public abstract class KeyState {
+public interface MouseMovedKeyState {
 	
 	public abstract void mouseMoved(MouseEvent e);
 

@@ -1,11 +1,13 @@
 package physics;
 
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 import entityComposites.Collider;
+import entityComposites.EntityStatic;
 import misc.*;
 
 public class Boundary {
@@ -508,8 +510,25 @@ public class Boundary {
 		//No problem with sides[]
 		return returnBoundary;
 	};
-	
-	
+	/** 
+	 * @param boundaryRaw - The real(raw) boundary to pass in. Inside this method it will deal with Local offset.
+	 * @param ent Entity to get boundary from
+	 * @return Polygon that hopefully is the same shape as the boundary
+	 */
+	public static Polygon getPolygonFromBoundary(Boundary boundaryRaw, EntityStatic ent) {
+		Boundary boundaryLocal = boundaryRaw.atPosition(ent.getPos());
+		int[] xpoints;
+		int[] ypoints;
+		xpoints = new int[boundaryLocal.getCornersPoint().length];
+		ypoints = new int[boundaryLocal.getCornersPoint().length];
+		
+		for (int i = 0; i < boundaryLocal.getCornersPoint().length; i++ ) {
+			xpoints[i] = (int)boundaryLocal.getCornersPoint()[i].getX();
+			ypoints[i] = (int)boundaryLocal.getCornersPoint()[i].getY();
+		}
+		Polygon polygonTest = new Polygon(xpoints, ypoints, boundaryLocal.getCornersPoint().length);
+		return polygonTest;
+	}
 	//SEPARATING AXIS THEORM METHODS
 	
 	public double dotProduct(Line2D line1 , Line2D line2){ //Returns the magnitude of the projection vector

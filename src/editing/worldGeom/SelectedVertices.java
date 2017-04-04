@@ -29,6 +29,44 @@ public class SelectedVertices {
 			oldVertexPositions.add(new Point(editorVertex.getPoint()));
 		}
 	}
+	public void alignToXAxis() {
+		if (selectedVertices.size() > 1) {
+			int xMin = selectedVertices.get(0).getPoint().x;
+			int xMax = selectedVertices.get(selectedVertices.size()-1).getPoint().x;
+			//find min and max first
+			for (int i = 0; i < selectedVertices.size(); i++) {
+				if (selectedVertices.get(i).getPoint().x < xMin)
+					xMin = selectedVertices.get(i).getPoint().x;
+				if (selectedVertices.get(i).getPoint().x > xMax)
+					xMax = selectedVertices.get(i).getPoint().x;
+			}
+			int average = Math.abs( (xMax - xMin) / 2);
+			int newMidPoint = xMin + average;
+			for (int i = 0; i < selectedVertices.size(); i++) {
+				selectedVertices.get(i).translate(newMidPoint, selectedVertices.get(i).getPoint().y);
+			}
+			clearSelectedVertices();
+		}
+	}
+	public void alignToYAxis() {
+		if (selectedVertices.size() > 1) {
+			int yMin = selectedVertices.get(0).getPoint().y;
+			int yMax = selectedVertices.get(selectedVertices.size()-1).getPoint().y;
+			//find min and max first
+			for (int i = 0; i < selectedVertices.size(); i++) {
+				if (selectedVertices.get(i).getPoint().y < yMin)
+					yMin = selectedVertices.get(i).getPoint().y;
+				if (selectedVertices.get(i).getPoint().y > yMax)
+					yMax = selectedVertices.get(i).getPoint().y;
+			}
+			int average = (yMax - yMin) / 2;
+			int newMidPoint = yMin + average;
+			for (int i = 0; i < selectedVertices.size(); i++) {
+				selectedVertices.get(i).translate(selectedVertices.get(i).getPoint().x, newMidPoint);
+			}
+			clearSelectedVertices();
+		}
+	}
 	public boolean contains(EditorVertex editorVertex) {
 		if (selectedVertices.contains(editorVertex)) 
 			return true;

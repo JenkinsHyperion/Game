@@ -167,6 +167,31 @@ public class EditorPanel extends JPanel {
 			public void onPressed() { setMode(getEditorSelectMode());	}
 			public void onReleased() {} public void onHeld() {}
 		});
+		inputController.createKeyBinding(KeyEvent.VK_F6, new KeyCommand() {
+			@Override
+			public void onPressed() { setMode(getWorldGeomMode());	}
+			public void onReleased() {} public void onHeld() {}
+		});
+		inputController.createKeyBinding(KeyEvent.VK_F7, new KeyCommand() {
+			@Override
+			public void onPressed() { 
+				if (editorMode == worldGeomMode) 
+					getWorldGeomMode().setMode(worldGeomMode.getVertexSelectMode());
+				else if (editorMode == boundaryEditorMode) 
+					getBoundaryEditorMode().setMode(boundaryEditorMode.getVertexSelectMode());
+			}
+			public void onReleased() {} public void onHeld() {}
+		});
+		inputController.createKeyBinding(KeyEvent.VK_F8, new KeyCommand() {
+			@Override
+			public void onPressed() { 
+				if (editorMode == worldGeomMode) 
+					getWorldGeomMode().setMode(worldGeomMode.getVertexPlaceMode());
+				else if (editorMode == boundaryEditorMode) 
+					getBoundaryEditorMode().setMode(boundaryEditorMode.getVertexPlaceMode());
+			}
+			public void onReleased() {} public void onHeld() {}
+		});
 		inputController.createKeyBinding(KeyEvent.VK_S, new KeyCommand() {
 			@Override
 			public void onPressed() { getEditorSelectMode().setSelectViaSprite(true);
@@ -243,7 +268,6 @@ public class EditorPanel extends JPanel {
 		
 		selectViaSpriteRB = new JRadioButton("S");
 		selectViaSpriteRB.setFocusable(false);
-		selectViaSpriteRB.setSelected(true);
 		selectViaSpriteRB.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -253,6 +277,7 @@ public class EditorPanel extends JPanel {
 		});
 		selectViaBoundaryRB = new JRadioButton("B");
 		selectViaBoundaryRB.setFocusable(false);
+		selectViaBoundaryRB.setSelected(true);
 		selectViaBoundaryRB.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -262,7 +287,6 @@ public class EditorPanel extends JPanel {
 		ButtonGroup rbgroup = new ButtonGroup();
 		rbgroup.add(selectViaSpriteRB);
 		rbgroup.add(selectViaBoundaryRB);
-		selectViaSpriteRB.setEnabled(true);
 		
 		saveButton.setPreferredSize(new Dimension(40,22));
 		saveButton.setMargin(new Insets(0,0,0,0));
@@ -455,7 +479,6 @@ public class EditorPanel extends JPanel {
 		iconBarScrollPaneSpriteSwap.setVerticalScrollBarPolicy((JScrollPane.VERTICAL_SCROLLBAR_ALWAYS));
 		iconBarScrollPaneSpriteSwap.setVisible(true);
 		// #### add everything to the editor
-		
 		add(entitiesComboBoxPanel);
 		add(saveButton);
 		add(loadButton);
@@ -469,13 +492,6 @@ public class EditorPanel extends JPanel {
 		add(tempSpriteName);
 		add(iconBarScrollPaneSpriteSwap);
 		//iconBarScrollPaneSpriteSwap.setVisible(false);
-	/*	try {
-			automaticMouseReturn = new Robot();
-		} catch (AWTException e) {}
-		*/
-		//testing setting the ghostSprite
-		//setGhostSprite(ASSET_PATH + PF1 );
-		//revalidate();
 		
 	} // #### end of constructor #### #####################################################################################
 	 // #### end of constructor #### #####################################################################################

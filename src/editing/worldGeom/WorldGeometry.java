@@ -9,6 +9,7 @@ import editing.EditorPanel;
 import editing.ModeAbstract;
 import editing.EditorPanel.CameraPanEvent;
 import editing.EditorPanel.BoundaryEditorMode.BoundaryVertexPlaceMode.RectangleBoundDrawEvent;
+import editing.EditorPanel.BoundaryEditorMode.BoundaryVertexSelectMode.CloseShapeEvent;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -232,6 +233,8 @@ public class WorldGeometry extends ModeAbstract{
 	}
 	public void createEntityFromWorldGeom() {
 		if (surfaceLines.size() > 0) {
+			refreshAllSurfaceLines(surfaceLines);
+			closeShape(surfaceLines);
 			Line2D[] lines = new Line2D[surfaceLines.size()]; 
 			surfaceLines.toArray( lines );
 			EntityStatic newEntity = EntityFactory.createEntityFromBoundary(lines);
@@ -284,6 +287,7 @@ public class WorldGeometry extends ModeAbstract{
 			inputController.createKeyBinding(KeyEvent.VK_X, new SetXHeldEvent()); 
 			inputController.createKeyBinding(KeyEvent.CTRL_MASK, KeyEvent.VK_Z, new UndoEvent());
 			inputController.createMouseBinding(MouseEvent.BUTTON1, new LeftClickEvent());
+			this.inputController.createKeyBinding(KeyEvent.VK_C, new CloseShapeEvent());
 			/// done refactoring ^^^^^^^
 			
 			//set initial condition for keyState
@@ -410,26 +414,6 @@ public class WorldGeometry extends ModeAbstract{
 
 		}
 		
-		//CREATE ENTITY FROM WORLD GEOMETRY
-		public class CreateEntityEvent implements KeyCommand {
-			@Override
-			public void onPressed() {
-				createEntityFromWorldGeom();
-				/*Line2D[] lines = new Line2D[surfaceLines.size()]; 
-				surfaceLines.toArray( lines );
-				EntityStatic newEntity = EntityFactory.createEntityFromBoundary(lines);
-				((Board)board).addStaticEntity( newEntity );
-				editorPanel.addSelectedEntity( newEntity );
-				editorPanel.setMode(editorPanel.getEditorSelectMode());
-				clearAllVerticesAndLines();*/
-			}
-			@Override
-			public void onReleased() {
-			}
-			@Override
-			public void onHeld() {
-			}
-		}
 		// ###### ALIGN TO X-AXIS BUTTON  #######
 		//inputController.createKeyBinding(KeyEvent.VK_X, new KeyCommand() {
 		public class SetXHeldEvent implements KeyCommand {
@@ -516,10 +500,12 @@ public class WorldGeometry extends ModeAbstract{
 			this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, editorPanel.new CameraPanEvent());
 
 			this.inputController.createKeyBinding(KeyEvent.VK_ESCAPE, new EscapeEvent());
+			this.inputController.createKeyBinding(KeyEvent.VK_ENTER, new CreateEntityEvent());
 			this.inputController.createKeyBinding(KeyEvent.VK_DELETE, new DeleteVerticesEvent());
 			this.inputController.createKeyBinding(KeyEvent.VK_X, new AlignToXAxisEvent());
 			this.inputController.createKeyBinding(KeyEvent.VK_Y, new AlignToYAxisEvent());
 			this.inputController.createKeyBinding(KeyEvent.VK_SLASH, new SplitLineEvent());
+			this.inputController.createKeyBinding(KeyEvent.VK_C, new CloseShapeEvent());
 			
 
 			//this.inputController.createMouseBinding(MouseEvent.ALT_DOWN_MASK, MouseEvent.BUTTON1, new ShiftVertexSelectLClickEvent());
@@ -720,5 +706,23 @@ public class WorldGeometry extends ModeAbstract{
 	}
 	//end of VertexSelectMode inner class
 	
+	//common to all of WorldGeometry vvvvv 
+	public class CloseShapeEvent implements KeyCommand {
+		@Override
+		public void onPressed() {
+			// TODO Auto-generated method stub
+			refreshAllSurfaceLines(surfaceLines);
+			closeShape(surfaceLines);
+		}
+		public void onReleased() {} public void onHeld() {}
+	}
+	//CREATE ENTITY FROM WORLD GEOMETRY
+	public class CreateEntityEvent implements KeyCommand {
+		@Override
+		public void onPressed() {
+			createEntityFromWorldGeom();
+		}
+		public void onReleased() {} public void onHeld() {}
+	}
 }
 // end of entire class

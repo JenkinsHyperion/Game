@@ -27,6 +27,12 @@ public abstract class Sprite implements Graphic{
     
 	AffineTransform spriteTransform = new AffineTransform();
 
+	protected Sprite( String fileName , int xOffset, int yOffset  ){
+		this.fileName = fileName;
+		this.spriteOffsetX = xOffset;
+		this.spriteOffsetY = yOffset;
+	}
+	
 //ABSTRACT FUNCTIONS 
 	//This is a getImage() that works for both still and animated sprites, so draw functions in Board 
     //can call a generalized format.
@@ -82,5 +88,9 @@ public abstract class Sprite implements Graphic{
     public void setAngle( double angle){
 		this.spriteAngle = angle;
 	}
+    
+    public String getPathName(){
+    	return this.fileName;
+    }
     
 }

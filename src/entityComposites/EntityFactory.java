@@ -10,7 +10,12 @@ import entities.EntityAssembler;
 import entities.Platform01;
 import entityComposites.*;
 import saving_loading.EntityData;
+import saving_loading.GraphicData;
+import saving_loading.GraphicData.AnimatedSprite;
+import saving_loading.GraphicData.SpriteData;
 import sprites.Background;
+import sprites.Sprite;
+import sprites.SpriteAnimated;
 import sprites.SpriteFilledShape;
 import sprites.SpriteStillframe;
 
@@ -110,12 +115,21 @@ public class EntityFactory {
 	
 	public static void deserializeEntityData( EntityData[] dataArray , BoardAbstract board ){
 		
+		System.out.println("\nSTARTING ENTITY DESERIALIZATION ####################");
+		
 		EntityStatic[] newEntityList = new EntityStatic[ dataArray.length ];
 		
 		for ( int i = 0 ; i < dataArray.length ; i++ ){
-
-			//CONSTRUCT SPRITE
 			
+			//CONSTRUCT ENTITY
+			System.out.println("  Entity "+i);
+			Point pos = dataArray[i].getEntityPosition();
+			
+			EntityStatic newEntity = new EntityStatic(pos);
+			
+			//CONSTRUCT COLLIDER
+			if ( dataArray[i].getColliderData() != null ){
+				System.out.println("     Collider Constructed");
 				Point[] corners = dataArray[i].getColliderData().getCornerPositions();
 				Line2D[] sideLines = new Line2D[ corners.length ];
 				for ( int j = 0 ; j < corners.length ; j++ ){
@@ -123,19 +137,50 @@ public class EntityFactory {
 					sideLines[j] = new Line2D.Float( corners[j] , corners[jNext] );
 				}
 				
-				Point pos = dataArray[i].getEntityPosition();
+				//newEntityList[i] = createEntityFromBoundary( pos.x , pos.y , sideLines );
+				CompositeFactory.addColliderTo( newEntity , sideLines );
+			}else
+				System.out.println("     Collider failed");
+			//CONSTRUCT GRAPHIC
+			
+			if ( dataArray[i].getGraphicData() != null ){
 				
-				newEntityList[i] = createEntityFromBoundary( pos.x , pos.y , sideLines );
+				GraphicData data =  dataArray[i].getGraphicData();
+				
+				if ( data.getSpriteData() instanceof GraphicData.AnimatedSprite ){
+					AnimatedSprite anim = (AnimatedSprite) data.getSpriteData();
+					Sprite sprite = new SpriteAnimated(
+							anim.getPath(),
+							anim.getOffsetX(),
+							anim.getOffsetY(),
+							anim.getFrameCount(),
+							anim.getRow(),
+							anim.getTileWidth(),
+							anim.getTileHeight(),
+							anim.getDelay()
+							);
+					CompositeFactory.addGraphicTo( newEntity , sprite );
+				}
+				else if ( data.getSpriteData() instanceof GraphicData.SpriteData ){
+					SpriteData spriteData = data.getSpriteData();
+					System.out.println("     Constructing sprite "+spriteData.getPath());
+					SpriteStillframe sprite = new SpriteStillframe(
+							spriteData.getPath(),
+							spriteData.getOffsetX(),
+							spriteData.getOffsetY()
+							);
+					CompositeFactory.addGraphicTo( newEntity , sprite );
+				}
+				else {
+					System.out.println("     Failed to construct sprite");
+				}
+				
+			}
 			
-			//CONSTRUCT COLLIDER
-			
-			
-			
-			//CONSTRUCT UPDATEABLE
-			
-			
+			//FINALIZE ENTITY
+			newEntityList[i] = newEntity;
 		}
-		
+		System.out.println("ENTITY DESERIALIZATION COMPELTE ##################\n");
 		createNewSceneFromEntities( newEntityList , board );
 
 	}
@@ -146,6 +191,7 @@ public class EntityFactory {
 		
 		board.renderingEngine.debugClearRenderer();
 		board.collisionEngine.degubClearCollidables();
+		//TODO REMOVE UPDATEABLES
 		
 		for ( EntityStatic addedEntity : entities )
 			newScene.addEntity(addedEntity);

@@ -44,7 +44,7 @@ public class Background extends Sprite{
     private int yOffset = 0;
 	
 	private Background(String name){
-		
+		super(name , 0 , 0);
 		try {
 			splitBackground(name);
 		} catch (IOException e) {
@@ -55,7 +55,7 @@ public class Background extends Sprite{
 	}
 	
 	public Background(String name, int boardW, int boardH , float xScroll ,float yScroll){
-		
+		super(name,0,0);
 		this.boardWidth = boardW;
 		this.boardHeight = boardH;
 		

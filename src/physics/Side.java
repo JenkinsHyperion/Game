@@ -95,6 +95,7 @@ public class Side extends BoundaryFeature{
 	public BoundaryVertex getEndPoint(){ return endpoint; }
 	
 	public Line2D toLine(){ return line; }
+	public Vector toVector(){ return new Vector(slopeX,slopeY); }
 	
 	@Override
 	public Point2D getP1(){ return line.getP1(); }

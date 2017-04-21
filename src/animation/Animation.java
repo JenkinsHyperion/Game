@@ -128,5 +128,10 @@ public class Animation {
 
 
 	}
+	
+	public int getFrameCount(){return this.totalFrames; }
+	public int getDelay(){return this.frameDelay; }
+	public int getDirection(){return this.animationDirection; }
+	
 
 }

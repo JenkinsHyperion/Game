@@ -4,12 +4,13 @@ import java.awt.geom.Point2D;
 
 import entityComposites.EntityStatic;
 import misc.CollisionEvent;
+import misc.DefaultCollisionEvent;
 
 abstract public class BoundaryFeature {
 	
 	protected Boundary owner;
 	protected int ID;
-	private CollisionEvent collisionEvent;
+	private CollisionEvent collisionEvent = new DefaultCollisionEvent();
 
 	
 	public void setCollisionEvent( CollisionEvent event){

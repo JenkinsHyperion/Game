@@ -5,6 +5,7 @@ import java.io.File;
 import animation.Animation;
 import entityComposites.*;
 import physics.Boundary;
+import physics.BoundaryPolygonal;
 import physics.CollisionEngine;
 import sprites.SpriteAnimated;
 import sprites.SpriteStillframe;
@@ -17,8 +18,8 @@ import sprites.Sprite;
 public class EntityStatic extends Entity{
 
 	//COMPOSITE VARIABLES, LATER TO BE LIST OF COMPOSITES
-	protected TranslationComposite translationType;
-	protected GraphicComposite spriteType = GraphicCompositeNull.getNullSprite(); 
+	protected TranslationComposite translationType = new TranslationComposite(this);
+	protected GraphicComposite graphicsComposite = GraphicCompositeNull.getNullSprite(); 
 	protected Collider collisionType = ColliderNull.getNonCollidable();
 	
 	public EntityStatic(int x, int y) {
@@ -39,11 +40,11 @@ public class EntityStatic extends Entity{
 	}
 
 	protected void setGraphicComposite(GraphicComposite spriteType){ 
-		this.spriteType = spriteType; 
+		this.graphicsComposite = spriteType; 
 		}
 	
 	public GraphicComposite getGraphicComposite(){ 	
-		return this.spriteType; 
+		return this.graphicsComposite; 
 	}
 	
 	protected void setTranslationComposite( TranslationComposite translationType ){ 
@@ -75,28 +76,23 @@ public class EntityStatic extends Entity{
     	CompositeFactory.addGraphicTo( this , new SpriteStillframe( path , this) );
     }
 
-    
-    //OPTIONAL INIT WITH OFFSET
-    protected void loadAnimatedSprite(Animation a, int offsetX, int offsetY){ // needs handling if failed. 
-    	this.getGraphicComposite().setSprite( new SpriteAnimated(a , offsetX,offsetY)); 
-    	
-    }
+
 
     @Deprecated
     public Sprite getEntitySprite(){ // gets the Object's sprite, still image or animation MOVE TO SPRITEPROPERTY
-    	return ((GraphicComposite)this.spriteType).getSprite();
+    	return ((GraphicComposite)this.graphicsComposite).getSprite();
     }
     @Deprecated
     public void setEntitySprite( Sprite entitySprite ){
-    	 ((GraphicComposite)this.spriteType).setSprite( entitySprite );
+    	 ((GraphicComposite)this.graphicsComposite).setSprite( entitySprite );
     }
     @Deprecated
     public int getSpriteOffsetX(){
-    	return ((GraphicComposite)this.spriteType).getSprite().getOffsetX(); 
+    	return ((GraphicComposite)this.graphicsComposite).getSprite().getOffsetX(); 
     }
     @Deprecated
     public int getSpriteOffsetY() {
-    	return ((GraphicComposite)this.spriteType).getSprite().getOffsetY();
+    	return ((GraphicComposite)this.graphicsComposite).getSprite().getOffsetY();
     }
     /**@deprecated
      * @param x_offset
@@ -153,69 +149,41 @@ public class EntityStatic extends Entity{
 		return name;
 	}
 	
-	/**
-	 * @param collision
-	 * @return Adds collision to this entity's current collisions and return the index where it was put
-	 */
-    /*public int addCollision(Collision collision , boolean pairIndex){
-    	collisions.add( new CollidingPair(collision , pairIndex) );
-    	//printCollisions();
-    	onCollisionEvent();
-    	return ( collisions.size() - 1 );
-    }
-    
-    public void removeCollision(int index){ //Remove collision 
-    	//System.out.println("Removing " + index + " from "+name );
-    	collisions.remove(index);
-    	//decrement indexes for all following collisions involving this entity
-	    for ( int i = index ; i < collisions.size() ; i++) {
-	    	collisions.get(i).collision().indexShift(collisions.get(i).pairID());
-	    } 
-
-    	//printCollisions();
-    }
-	
-	public Collision[] getCollisions(){
-		Collision[] returnCollisions = new Collision[collisions.size()];
-		for ( int i = 0 ; i < collisions.size() ; i++ ){
-			returnCollisions[i] = collisions.get(i).collision();
-		}
-		return returnCollisions;
-    }
-	
-	public EntityStatic[] getCollidingPartners(){
-		EntityStatic[] partners = new EntityStatic[ collisions.size() ];
-		for (int i = 0 ; i < collisions.size() ; i++){
-			partners[i] = collisions.get(i).collision().getEntityInvolved( collisions.get(i).partnerID() ) ;
-		}
-		return partners;
+	public int xRelativeTo( EntityStatic entity ){
+		return ( this.getX() - entity.getX() );
 	}
-	
-	private void printCollisions() {
-		System.out.println("\nCollisions on "+ name );
-		for ( int i = 0 ; i < collisions.size() ; i++) 
-		System.out.println("---" + i + " " + collisions.get(i).collision().collisionName);
-	}*/
+	public int yRelativeTo( EntityStatic entity ){
+		return ( this.getY() - entity.getY() );
+	}
+	public Point positionRelativeTo( EntityStatic entity ){
+		return new Point( 
+				this.getX() - entity.getX() , 
+				this.getY() - entity.getY() 
+				);
+	}
 
 	public void move(Point distance) { //MAKE VECTOR LATER
 
 		x=x+(float)distance.getX();
 		y=y+(float)distance.getY();
 	}
-
-	public float getDeltaX() { return this.getX(); }
-	public float getDeltaY() { return this.getY(); }
 	
 	public boolean hasCollider(){
 		return !( this.collisionType instanceof ColliderNull );
 	}
 	
 	public boolean hasGraphics(){
-		return !( this.spriteType instanceof GraphicComposite );
+		return !( this.graphicsComposite instanceof GraphicComposite );
 	}
 	
-	public void deconstruct(){
-		//
+	public void disable(){
+		
+		this.graphicsComposite.disable();
+		this.collisionType.disable();
+		
+		this.graphicsComposite = null;
+		this.collisionType = null;
+		
 	}
 	
 }

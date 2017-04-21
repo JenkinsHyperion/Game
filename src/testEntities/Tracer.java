@@ -151,14 +151,14 @@ public class Tracer extends EntityDynamic{ // Can extend either EntityStatic or 
        	this.setyEndPoint(currentBoard.player.getY());
     	
     	//Rough testing collision blocking
-    	beam = new Line2D.Float(getPos(),new Point(xEndPoint,yEndPoint));
+    	beam = new Line2D.Float(getPosition(),new Point(xEndPoint,yEndPoint));
     	
     	Collider collisionMesh = new Collider(this);
     	
-    	for (Collision collision : collisionMesh.getCollisions() ){
+    	/*for (CollisionNEW collision : collisionMesh.getCollisions() ){
     		CollisionPositioning laserBlock = (CollisionPositioning) collision;
-    		beam = new Line2D.Float ( getPos() , laserBlock.getClosestIntersection() );
-    	}
+    		beam = new Line2D.Float ( getPosition() , laserBlock.getClosestIntersection() );
+    	}*/
     	
     	//((Collidable) collisionType).setBoundary( new Boundary(tracer , null ) );
        	

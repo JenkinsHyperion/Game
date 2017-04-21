@@ -1,99 +1,96 @@
-package entities;
-
+package entityComposites;
 
 import java.awt.Point;
 import java.util.ArrayList;
 
-import entityComposites.EntityStatic;
-import physics.*;
+import physics.Force;
+import physics.PointForce;
+import physics.Vector;
+import utility.Ticket;
 
-public class EntityDynamic extends EntityStatic{
+public class TranslationCompositeActive extends TranslationComposite implements UpdateableComposite{
+	
+	private Ticket updaterSlot;	
+	protected double dx=0;
+    protected double dy=0;
+    protected double accY=0;
+    protected double accX=0;
+	
+	protected TranslationCompositeActive( EntityStatic owner ){
+		super(owner);
+	}
 
-	protected float dx;
-    protected float dy;
-    protected float accY;
-    protected float accX;
-    
-    
 	protected ArrayList<Force> forces = new ArrayList<>();
 	protected ArrayList<PointForce> pointForces = new ArrayList<>();
     
     protected boolean isColliding;
-	
-    public EntityDynamic(int x, int y) {
-    	super(x,y);
-        //this.x = x;
-        //this.y = y;
-        //visibility = true;
-    	//setX(x);
-    	//setY(y);
-    }
-    
-    public void updatePosition() {
+
+    @Override
+    public void update() {
     	
-    	x += dx;
-    	y += dy;
+    	owner.x = (float) (owner.x + this.dx) ;
+    	owner.y = (float) (owner.y + this.dy) ;
     	
     	dx += accX; 
     	dy += accY;
     	
     }   
-    
+    @Override
     public void halt(){
     	dx=0;
     	dy=0;
     	accX=0;
     	accY=0;
     }
-    
+    @Override
     public void AccelerateY() {
 
-        y += 1;
-        if (y > 300){
-        	y = 0;
+    	owner.y += 1;
+        if (owner.y > 300){
+        	owner.y = 0;
         }
     }
-
-    public float getDX() {
+    @Override
+    public double getDX() {
     	return dx;
     }
-    
-    public float getDY() {
+    @Override
+    public double getDY() {
     	return dy;
     }
-    
-    public void setDX(float setdx) {
+    @Override
+    public void setDX(double setdx) {
     	dx = setdx;
     }
-    
-    public void setDY(float setdy) {
+    @Override
+    public void setDY(double setdy) {
     	dy = setdy;
     }
-    
+    @Override
     public void setVelocity( Vector vector){
     	dx = (float)vector.getX();
     	dy = (float)vector.getY();
     }
-    
+    @Override
     public void addVelocity( Vector vector){
     	dx += (float)vector.getX();
     	dy += (float)vector.getY();
     }
-    
-    public float getDeltaX(){
-    	return (x + dx + accX);
+    @Override
+    public double getDeltaX(){
+    	return (owner.x + dx + accX);
     }
-
-    public float getDeltaY(){
-    	return (y + dy + accY);
+    @Override
+    public double getDeltaY(){
+    	return (owner.y + dy + accY);
     }
-    
-    public void clipDX(float clipDX) {
+    @Override
+    public void clipDX(double clipDX) {
     	if ( dx > 0 ) {
     	    
     		if ( clipDX < 0 ){ 
     			if ( clipDX + dx > 0)
-    				dx = (dx + clipDX);
+    				dx = (float) (dx + clipDX);
     			else
     				dx = 0;
     		}
@@ -102,19 +99,19 @@ public class EntityDynamic extends EntityStatic{
     		
     		if ( clipDX > 0 ){ 
     			if ( clipDX + dx < 0)
-    				dx = dx + clipDX;
+    				dx = (float) (dx + clipDX);
     			else
     				dx = 0;
     		}
     	}
     }
-    
-    public void clipDY(float clipDY) { 
+    @Override
+    public void clipDY(double clipDY) { 
     	if ( dy > 0 ) {
     
     		if ( clipDY < 0 ){ 
     			if ( clipDY + dy > 0)
-    				dy = dy + clipDY;
+    				dy = (float) (dy + clipDY);
     			else
     				dy = 0;
     		}
@@ -123,14 +120,14 @@ public class EntityDynamic extends EntityStatic{
     		
     		if ( clipDY > 0 ){ 
     			if ( clipDY + dy < 0)
-    				dy = (dy + clipDY);
+    				dy = (float) (dy + clipDY);
     			else
     				dy = 0;
     		}
     	}
     }
     
-    
+    @Override
     public void clipAccX(float clipAccX) {
     	if ( accX > 0 ) {
     	    
@@ -151,7 +148,7 @@ public class EntityDynamic extends EntityStatic{
     		}
     	}
     }
-    
+    @Override
     public void clipAccY(float clipAccY) { 
     	if ( accY > 0 ) {
     
@@ -172,24 +169,24 @@ public class EntityDynamic extends EntityStatic{
     		}
     	}
     }
-    
+    @Override
     
     public void setAccX(float setAX) {
     	accX = setAX;
     }
-    
+    @Override
     public void setAccY(float setAY) {
     	accY = setAY;
     }
-    
-    public float getAccY() {
+    @Override
+    public double getAccY() {
     	return accY;
     }
-    
-    public float getAccX() {
+    @Override
+    public double getAccX() {
     	return accX;
     }
-    
+    @Override
     public void setDampeningX(float decceleration) { 
     	if (dx > (0.1))
     	{
@@ -205,21 +202,22 @@ public class EntityDynamic extends EntityStatic{
     		dx=0;
     	}
     }
-    
+    @Override
     public void applyAccelerationX(float accX){
     	accX =+ accX;
     }
-    
+    @Override
     public void applyAccelerationY(float accY){
     	accY =+ accY;
     }
 
-    
+    @Override
     public boolean isColliding(){ return isColliding; }
+    @Override
     public void setColliding( boolean state ){ isColliding = state;}
     
 
-    
+    @Override
 	/** Creates new Force on this Collidable out of input Vector, and returns the Force that was added
 	 * 
 	 * @param vector
@@ -230,12 +228,12 @@ public class EntityDynamic extends EntityStatic{
     	int indexID = forces.size();     	
     	Force newForce = new Force( vector , indexID );
     	forces.add( newForce ) ;
-    	//System.out.print("Adding Force "+ indexID+" ... ");
+    	System.out.print("Adding Force "+ indexID+" ... ");
     	return newForce;
     }
-    
+    @Override
     public void removeForce(int index){ 
-    	//.out.print("Removing Force "+ index+" ... ");
+    	System.out.print("Removing Force "+ index+" ... ");
 
 	    for ( int i = index+1 ; i < forces.size() ; i++) {
 	    	forces.get(i).indexShift();
@@ -243,7 +241,7 @@ public class EntityDynamic extends EntityStatic{
     	forces.remove(index); 
 	    
     }
-    
+    @Override
     //MOVE TO ROTATIONAL BODY
     public PointForce addPointForce( Vector vector , Point point ){
 
@@ -252,7 +250,7 @@ public class EntityDynamic extends EntityStatic{
     	pointForces.add( newForce ) ;
     	return newForce;
     }
-    
+    @Override
     public void removePointForce(int index){ 
     	
     	pointForces.remove(index); 
@@ -261,7 +259,7 @@ public class EntityDynamic extends EntityStatic{
 	    } 
     }
     
-    
+    @Override
     public Vector[] debugForceArrows(){
     	Vector[] returnVectors = new Vector[ forces.size() ];
     	for ( int i = 0 ; i < forces.size() ; i++ ){
@@ -269,18 +267,7 @@ public class EntityDynamic extends EntityStatic{
     	}
     	return returnVectors;
     }
-	
-    @Deprecated
-    public Vector sumOfForces(){
-    	
-    	Vector returnVector = new Vector(0,0);
-    	for ( Force force : forces ){
-    		returnVector = returnVector.add( force.getVector() );
-    	}
-    	
-    	return returnVector;
-    }
-    
+    @Override
     public void applyAllForces(){
     	for ( Force force : forces ){
 
@@ -289,8 +276,4 @@ public class EntityDynamic extends EntityStatic{
     		accY = (float)acc.getY();
     	}
     }
-    
-    
-    
-    
 }

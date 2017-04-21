@@ -6,6 +6,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 import animation.Animation;
+import animation.LoadAnimation;
 import engine.Camera;
 import engine.MovingCamera;
 import entityComposites.EntityStatic;
@@ -14,13 +15,13 @@ import entityComposites.GraphicComposite;
 public class SpriteAnimated extends Sprite {  // Sprite with animation
 
     private Animation spriteAnimation;
-
+    private int tileWidth;
+    private int tileHeight;
+    private int row;
     
-    public SpriteAnimated(Animation animation, int offset_x, int offset_y) {
-    	spriteAnimation = animation;
-    	this.spriteOffsetX = offset_x;
-    	this.spriteOffsetY = offset_y;
-        setVisible(true);
+    public SpriteAnimated( String path ,int offset_x, int offset_y , int length , int row, int tileWidth, int tileHeight , int delay ){
+    	super( path, offset_x, offset_y );
+    	spriteAnimation = new Animation( LoadAnimation.buildAnimation(length, row, tileWidth, path) , delay );
     }
     
     // IMPLEMENTED METHODS
@@ -66,6 +67,22 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
         return spriteAnimation.getAnimationFrame();
     }
 
+    public int getRow(){
+    	return this.row;
+    }
+    
+    public int getFrameCount(){
+    	return this.spriteAnimation.getFrameCount();
+    }
+    public int getFrameWidth(){
+    	return this.tileWidth;
+    }
+    public int getFrameHeight(){
+    	return this.tileHeight;
+    }
 
+	public int getDelay() {
+		return this.spriteAnimation.getDelay();
+	}
     
 }

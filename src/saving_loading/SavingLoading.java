@@ -93,6 +93,7 @@ public class SavingLoading {
 					
 					//The rest of this is same as unhindered save
 					Files.createDirectories(Paths.get(finalDirectory));
+					System.out.println("\nSERIALIZING ENTITIES #########################################");
 					for (int i = 0; i < staticEntities.length; i++) {
 						fileOut = new FileOutputStream(finalDirectory + staticEntities[i].name + ".ser");
 						serialOut = new ObjectOutputStream(fileOut);
@@ -107,6 +108,7 @@ public class SavingLoading {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				System.out.println("SERIALIZATION COMPLETE #########################################");
 			}
 		}
 		else // path doesn't exist, OK to create new one

@@ -65,7 +65,7 @@ public class WorldGeometry extends ModeAbstract{
 		this.worldGeomMousePos = new Point();
 		this.editorPanel = editorPanelRef;
 		this.board = board2;
-		this.camera = board2.getCamera();
+		this.camera = board2.getCamera(); 
 		this.isClosedShape = false;
 		// ########### initalize modes for world geometry  ##########
 		// default to placement mode
@@ -201,7 +201,7 @@ public class WorldGeometry extends ModeAbstract{
 			Line2D[] lines = new Line2D[surfaceLines.size()]; 
 			surfaceLines.toArray( lines );
 			EntityStatic newEntity = EntityFactory.createEntityFromBoundary(lines);
-			((Board)board).addStaticEntity( newEntity );
+			((BoardAbstract)board).addStaticEntity( newEntity );
 			editorPanel.addSelectedEntity( newEntity );
 			//editorPanel.setMode(editorPanel.getEditorSelectMode());
 			clearAllVerticesAndLines();

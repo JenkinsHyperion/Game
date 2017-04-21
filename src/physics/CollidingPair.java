@@ -7,9 +7,9 @@ public class CollidingPair implements Serializable {
 	Collision collision;
 	boolean pairID;
 	
-	public CollidingPair(Collision invovledCollision , boolean pairIndex){
+	public CollidingPair(Collision collision2 , boolean pairIndex){
 		
-		collision = invovledCollision;
+		collision = collision2;
 		pairID = pairIndex;	
 	}
 	

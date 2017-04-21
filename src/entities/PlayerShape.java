@@ -8,6 +8,7 @@ import java.awt.event.KeyEvent;
 
 import animation.*;
 import engine.*;
+import sprites.SpriteAnimated;
 
 public class PlayerShape extends Player {
 	
@@ -18,7 +19,8 @@ public class PlayerShape extends Player {
 	private boolean keypressE = false;
 	private boolean keypressQ = false;
 
-	private Animation IDLE_LEFT = new Animation(LoadAnimation.buildAnimation(4, 0, 14, "bullet.png") , 4 ); 
+	private SpriteAnimated IDLE_LEFT = new SpriteAnimated( "player_sheet.png" , -7 , -7 ,
+			4, 0, 14, 14, 4);
 
     public PlayerShape(int x, int y , BoardAbstract currentBoard) {
         super(x, y , currentBoard);
@@ -32,9 +34,9 @@ public class PlayerShape extends Player {
         
         //setBoundingBox(14,0,4,32);
         setBoundingBox(-12,-40,24,80);
-        loadAnimatedSprite(IDLE_LEFT,-7,-7);
+        //loadAnimatedSprite(IDLE_LEFT,-7,-7);
         //setAccY(0.1f); //override gravity
-        IDLE_LEFT.start();
+        //IDLE_LEFT.start();
     }
 	
     //INPUT CONTROL

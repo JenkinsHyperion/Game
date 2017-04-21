@@ -14,7 +14,7 @@ public abstract class Collision {
 	
 	protected ResolutionState resolutionState;
 	
-	protected EntityDynamic entityPrimary;
+	protected EntityStatic entityPrimary;
 	protected EntityStatic entitySecondary;
 	
 	protected Collider collidingPrimary ;
@@ -35,7 +35,7 @@ public abstract class Collision {
 	protected Point2D[] contactPoints = new Point2D[2];
 	protected ArrayList<Point2D> debugIntersectionPoints = new ArrayList<>();
 	
-	public Collision(EntityDynamic e1, EntityStatic e2, CollisionEngine ownerEngine){
+	public Collision(EntityStatic e1, EntityStatic e2, CollisionEngine ownerEngine){
 		
 		this.ownerEngine = ownerEngine;
 		

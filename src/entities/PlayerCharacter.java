@@ -21,14 +21,18 @@ import entityComposites.GraphicComposite;
 import physics.Force;
 import physics.Side;
 import physics.Vector;
-import physics.BoundaryVertex;
+import physics.BoundaryCorner;
+import physics.Boundary;
+import physics.BoundaryCircular;
 import physics.BoundaryFeature;
 import misc.CollisionEvent;
 import misc.DefaultCollisionEvent;
 import misc.EntityState;
 import misc.PlayerState;
 import misc.PlayerDirection.PlayerDirection;
-import physics.Boundary;
+import physics.BoundaryPolygonal;
+import physics.BoundarySingular;
+import physics.BoundaryVertex;
 import sprites.Sprite;
 import sprites.SpriteAnimated;
 
@@ -42,40 +46,32 @@ public class PlayerCharacter extends Player {
 	
 	private Side ground;
 	
+    private final SpriteAnimated RUN_RIGHT = new SpriteAnimated( "RunRight.png", spriteOffsetX , spriteOffsetY,
+    		16, 0, 75, 75, 2 );
+    		
+    private final SpriteAnimated RUN_LEFT = new SpriteAnimated( "Run_75px.png" , spriteOffsetX , spriteOffsetY,
+    		16, 0, 75, 75 ,2 );
     
-    private final SpriteAnimated RUN_RIGHT = new SpriteAnimated(
-    		new AnimationEnhanced(LoadAnimation.buildAnimation(16, 0, 75, "RunRight.png") , 2 ),
-    		spriteOffsetX , spriteOffsetY ); 
-    private final SpriteAnimated RUN_LEFT = new SpriteAnimated(
-    		new Animation(LoadAnimation.buildAnimation(16, 0, 75, "Run_75px.png") , 2 ),
-    		spriteOffsetX , spriteOffsetY );
+    private final SpriteAnimated SPRINT_LEFT = new SpriteAnimated( "SprintLeft2.png" , spriteOffsetX , spriteOffsetY,
+    		10, 0, 75, 75 , 3);
+    private final SpriteAnimated SPRINT_RIGHT = new SpriteAnimated( "SprintRight2.png" , spriteOffsetX , spriteOffsetY,
+    		10, 0, 75, 75 , 3);
     
-    private final SpriteAnimated SPRINT_LEFT = new SpriteAnimated(
-    		new Animation(LoadAnimation.buildAnimation(10, 0, 75, "SprintLeft2.png") , 3 ),
-    		spriteOffsetX , spriteOffsetY );
-    private final SpriteAnimated SPRINT_RIGHT = new SpriteAnimated(
-    		new Animation(LoadAnimation.buildAnimation(10, 0, 75, "SprintRight2.png") , 3 ),
-    		spriteOffsetX , spriteOffsetY ); 
-    
-    private final SpriteAnimated IDLE_RIGHT = new SpriteAnimated(
-    		new Animation(LoadAnimation.buildAnimation(2, 0, 75, "IdleLeft.png") , 18 ),
-    		spriteOffsetX , spriteOffsetY );
+    private final SpriteAnimated IDLE_RIGHT = new SpriteAnimated( "IdleLeft.png" , spriteOffsetX , spriteOffsetY,
+    		2, 0, 75, 75, 18);
     
     //
-    private final SpriteAnimated IDLE_LEFT = new SpriteAnimated(
-    		new Animation(LoadAnimation.buildAnimation(2, 0, 75, "IdleLeft.png") , 18 ),
-    		spriteOffsetX , spriteOffsetY );
+    private final SpriteAnimated IDLE_LEFT = new SpriteAnimated("IdleLeft.png" , spriteOffsetX , spriteOffsetY,
+    		2, 0, 75, 75 , 18);
     
-    private final SpriteAnimated CLIMB_LEFT = new SpriteAnimated(
-    		new Animation(LoadAnimation.getAnimation(18, 0, 100,165 , "climbSpritesheet.png") , 3 ),
-    		spriteOffsetX-40 , spriteOffsetY-55 );
-    private final SpriteAnimated CLIMB_RIGHT = new SpriteAnimated(
-    		new Animation(LoadAnimation.getAnimation(18, 0, 100,165 , "climbSpritesheet.png") , 2 ),
-    		spriteOffsetX , spriteOffsetY );
+    private final SpriteAnimated CLIMB_LEFT = new SpriteAnimated( "climbSpritesheet.png" , spriteOffsetX-40 , spriteOffsetY-55,
+    		18, 0, 100,165,3);
     
-    private SpriteAnimated JUMP_LEFT = new SpriteAnimated(
-    		new Animation(LoadAnimation.buildAnimation(2, 5, 32, "player_sheet.png") , 18 ),
-    		spriteOffsetX , spriteOffsetY );
+    private final SpriteAnimated CLIMB_RIGHT = new SpriteAnimated( "climbSpritesheet.png", spriteOffsetX , spriteOffsetY,
+    		18, 0, 100,165,2);
+    
+    private SpriteAnimated JUMP_LEFT = new SpriteAnimated( "player_sheet.png" , spriteOffsetX , spriteOffsetY ,
+    		2, 5, 32 , 32 ,16);
 
     //private PlayerState climbingRight= new EntityState("climbing_left",CLIMB_RIGHT);
     //private PlayerState climbingLeft= new EntityState("climbing_left",CLIMB_LEFT);
@@ -130,8 +126,9 @@ public class PlayerCharacter extends Player {
         collisionMesh.setLeavingCollisionEvent( new OnLeavingCollision() );
         // Find better method for casting
         
-        Boundary boundarytemp =  new Boundary.EnhancedBox( 24,76 ,-12,-38, eventList );
-        //Boundary boundarytemp =  new Boundary.Box( 24,76 ,-12,-38, (Collidable) this.collisionType );
+        Boundary boundarytemp =  new BoundaryPolygonal.EnhancedBox( 24,76 ,-12,-38, eventList );
+        //Boundary boundarytemp2 = new BoundarySingular();
+        Boundary boundarytemp3 = new BoundaryCircular(40,this);
         
         CollisionEvent cornerCollision = new CollisionEvent(){
 			
@@ -142,14 +139,14 @@ public class PlayerCharacter extends Player {
 				ground = (Side) collidingWith;
 				
 
-				BoundaryVertex corner = ((BoundaryVertex)source);
+				BoundaryCorner corner = ((BoundaryCorner)source);
 				
 				Vector sub = corner.getStartingSide().getSlopeVector().subtract( corner.getEndingSide().getSlopeVector() );
 				
 				Vector slope1 = corner.getStartingSide().getSlopeVector();
 				Vector slope2 = corner.getEndingSide().getSlopeVector();
 				
-				BoundaryVertex rawCorner = getColliderComposite().getBoundary().getRawVertex( corner.getID() );
+				//BoundaryVertex rawCorner = ((BoundaryPolygonal)getColliderComposite().getBoundary()).getRawVertex( corner.getID() );
 
 				Vector slopeGround = ground.getSlopeVector();
 
@@ -181,8 +178,10 @@ public class PlayerCharacter extends Player {
 			corner.setCollisionEvent( cornerCollision );
 		}
         
-		((Collider) collisionType).setBoundary( boundarytemp ); 
-		storedBounds = new Boundary.Box(24,76 ,-12,-38 );   //OPTIMIZE move to child RotationalCollidable that can store boundary 
+		CompositeFactory.addColliderTo( this , boundarytemp3 );
+
+		//((Collider) collisionType).setBoundary( boundarytemp3 ); 
+		storedBounds = new BoundaryPolygonal.Box(24,76 ,-12,-38 );   //OPTIMIZE move to child RotationalCollidable that can store boundary 
 
 		
 		//dispose of all the temp stuff
@@ -346,7 +345,7 @@ public class PlayerCharacter extends Player {
 		@Override
 		public void onJump() {
 			//setDY(-5);
-			addVelocity(ground.getSlopeVector().normal().inverse().unitVector().multiply(5));
+			addVelocity(ground.getSlopeVector().normalRight().inverse().unitVector().multiply(5));
 			playerStateBuffer = running;
 			//changePlayerState(fallingLeft); //later to be jum;ping
 		}
@@ -429,7 +428,7 @@ public class PlayerCharacter extends Player {
 		
 		@Override
 		public void onJump() {
-			addVelocity(ground.getSlopeVector().normal().inverse().unitVector().multiply(5));
+			addVelocity(ground.getSlopeVector().normalRight().inverse().unitVector().multiply(5));
 			playerStateBuffer = running;
 			changePlayerState(fallingLeft); //later to be jum;ping
 			movementForce.setVector(0,0);
@@ -592,7 +591,7 @@ public class PlayerCharacter extends Player {
 		
 		@Override
 		public void holdingJump() {
-			this.adjustUpForce.setVector( orientation.unitVector().normal().multiply( hangAccelerationUp) );
+			this.adjustUpForce.setVector( orientation.unitVector().normalRight().multiply( hangAccelerationUp) );
 		}
 		
 		@Override

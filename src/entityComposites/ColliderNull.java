@@ -8,10 +8,11 @@ import engine.MovingCamera;
 import entities.EntityRotationalDynamic;
 import misc.CollisionEvent;
 import physics.Boundary;
+import physics.BoundaryPolygonal;
 import physics.CollidingPair;
-import physics.Collision;
 import physics.CollisionCheck;
 import physics.CollisionEngine;
+import physics.Collision;
 import physics.Side;
 import physics.Vector;
 
@@ -117,7 +118,7 @@ public final class ColliderNull extends Collider{
 	@Override
 	public EntityStatic getOwnerEntity(){
 		System.err.println("Warning: Attempted to get owner Entity of NonCollidable ");
-		return this.owner;
+		return this.ownerEntity;
 	}
 	@Override
 	public void debugDrawBoundary(MovingCamera camera , Graphics2D g){
@@ -139,10 +140,13 @@ public final class ColliderNull extends Collider{
 	}
 	
 	@Override
-	public void addCompositeToPhysicsEngine( CollisionEngine engine ){ 
+	public void addCompositeToPhysicsEngineStatic( CollisionEngine engine ){ 
 		System.err.println("Warning: Attempted to add NonCollidable to Collision Engine ");
 	}
 	
-	
+	@Override
+	public boolean exists(){
+		return false;
+	}
 	
 }

@@ -41,7 +41,7 @@ public class Crosshair extends EntityDynamic{
     
     public void deactivate(){ 
     	behaviorCurrent = idleBehavior; 
-    	this.setPos(parent.getPos());
+    	this.setPos(parent.getPosition());
     	this.setDX(0);
     	this.setDY(0);
     }

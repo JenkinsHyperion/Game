@@ -164,7 +164,7 @@ public class TestBoard extends BoardAbstract{
 	    }
 
 	    
-	    camera.drawCrossInWorld(300, 300, g2);
+	    camera.drawCrossInFrame(300, 300, g2);
 	    
 	    g2.draw( dragLine );
 

@@ -1,41 +1,59 @@
 package physics;
 
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 
+import engine.Camera;
+import engine.MovingCamera;
 import entityComposites.*;
+import sprites.RenderingEngine;
 
-public class CollisionCheck {
+public class VisualCollisionCheck {
 	
-	public static CollisionCheck SAT = new CollisionCheck();
+	public static VisualCollisionCheck SAT = new VisualCollisionCheck();
 	
-	private CollisionCheck( ){
+	private VisualCollisionCheck(  ){
 		
 	}
 	
-	public static CollisionCheck SAT(){
-		
+	public static VisualCollisionCheck SAT(){
 		return SAT;
 	}
 	
 	
-	public boolean check( Collider collidablePrimary , Collider collidableSecondary ) {
-	        
-		
-		Boundary statBounds = collidableSecondary.getBoundaryLocal() ;
-	    Boundary playerBounds = collidablePrimary.getBoundaryLocal();
+	public boolean check( Collider collidablePrimary , Collider collidableSecondary , MovingCamera camera , Graphics2D g2 ) {
+		boolean isColliding = true;
+		Boundary statBounds = collidableSecondary.getBoundaryLocal();
+	    Boundary playerBounds = collidablePrimary.getBoundaryDelta();
+	    
+	    /*for ( Side side : ((BoundaryPolygonal)statBounds).sides ){
+	    	VoronoiRegion test = VoronoiRegion.getVoronoiRegion(side);
+	    	test.debugDrawRegion( collidablePrimary.getOwnerEntity() , camera, g2);
+	    }*/
+	    ((BoundaryPolygonal)statBounds).drawVoronoiRegions(collidablePrimary.getOwnerEntity(),camera,g2);
+
 	    
 	    Point2D playerCenter = new Point2D.Double(collidablePrimary.getOwnerEntity().getX(), collidablePrimary.getOwnerEntity().getY());
 	    Point2D statCenter = new Point2D.Double(collidableSecondary.getOwnerEntity().getX(), collidableSecondary.getOwnerEntity().getY());
 
 
-	   Line2D[] separatingSides = Boundary.getSeparatingSidesBetween(playerBounds,statBounds);
+	    //Line2D[] separatingSides = Boundary.getSeparatingSidesBetween(playerBounds,statBounds);
+	    Line2D[] separatingSides = playerBounds.getSeparatingSidesBetween(statBounds);
+	    
+	    g2.setColor(Color.CYAN);
+	    g2.drawString("Axes of Separations: "+separatingSides.length, 300, 20);
+	    
 	    for ( int i = 0 ; i < separatingSides.length ; i++ ){
 	    	
 	    	Line2D axis = BoundaryPolygonal.getSeparatingAxis( separatingSides[i] );
-	    	
 
+	    	//g2.setColor(Color.CYAN);
+	    	//g2.draw(separatingSides[i]);
+	    	
 	    	Point2D[] outerPoints = Boundary.getFarthestPointsBetween(playerBounds, statBounds, axis);
 
 	    	//BoundaryVertex[] statOuter= statBounds.getFarthestVertices(playerBounds,axis);
@@ -59,14 +77,13 @@ public class CollisionCheck {
 	    	// -----------------
 
 	    	Line2D playerHalf = new Line2D.Float( 
-	    			Boundary.getProjectionPoint(playerCenter,axis) ,
+	    			Boundary.getProjectionPoint(centerPlayer,axis) ,
 	    			Boundary.getProjectionPoint(nearPlayerCorner,axis)
 	    			);
 	    	Line2D statHalf = new Line2D.Float( 
 	    			Boundary.getProjectionPoint(centerStat,axis) ,
 	    			Boundary.getProjectionPoint(nearStatCorner,axis) 
 	    			);
-
 
 	    	int centerDistanceX = (int)(centerProjection.getX1() -  centerProjection.getX2()  );
 	    	int centerDistanceY = (int)(centerProjection.getY1() -  centerProjection.getY2()  );
@@ -75,7 +92,7 @@ public class CollisionCheck {
 	    	int playerProjectionY = (int)(playerHalf.getY1() -  playerHalf.getY2());
 
 	    	int statProjectionX = (int)(statHalf.getX2() -  statHalf.getX1());
-	    	int statProjectionY = (int)(statHalf.getY2() -  statHalf.getY1());
+	    	int statProjectionY = (int)(statHalf.getY2() -  statHalf.getY1()); 
 
 	    	int penetrationX = 0;
 	    	int penetrationY = 0;  
@@ -83,11 +100,11 @@ public class CollisionCheck {
 
 	    	if (centerDistanceX>0){
 	    		//centerDistanceX -= 1;
-	    		penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
+	    		penetrationX = playerProjectionX + statProjectionX - centerDistanceX +1;
 	    	}
 	    	else if (centerDistanceX<0){
 	    		//centerDistanceX += 1;  //NEEDS HIGHER LEVEL SOLUTION
-	    		penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
+	    		penetrationX = playerProjectionX + statProjectionX - centerDistanceX -1;
 	    	}
 	    	else
 	    		penetrationX = Math.abs(playerProjectionX) + Math.abs(statProjectionX);
@@ -109,13 +126,63 @@ public class CollisionCheck {
 	    	if ( penetrationY * centerDistanceY < 0 )
 				penetrationY = 0;
 			
+	    	
+	    	g2.setColor(Color.DARK_GRAY);
+	    	camera.drawDebugAxis(axis , g2 );    	
+	    	
 	    	if ( penetrationX + penetrationY == 0 ){
-	    		return false;
+	    		//return false;
+	    		isColliding = false;
+		    	g2.setColor(Color.YELLOW);
+	    	}else{
+		    	g2.setColor(Color.CYAN);
 	    	}
+		    	
+	    	camera.drawDebugAxis(statHalf , g2 );
+	    	
+	    	g2.setColor(Color.GREEN);
+	    	camera.drawDebugAxis(playerHalf , g2 );
+	    	
+	    	camera.drawString( "   Depth: "+penetrationX+","+penetrationY , playerHalf.getP1() , g2);
+	    	
+	    	camera.drawCrossInWorld(outerPoints[0] , g2);
+	    	
+	    	//camera.drawCrossInWorld(outerPoints[1] , g2);
+	    	
+	    	Line2D projCenter = new Line2D.Double( 
+	    			playerHalf.getX1() , 
+	    			playerHalf.getY1() , 
+	    			playerCenter.getX() , 
+	    			playerCenter.getY()
+	    	);
+	    	Line2D projOuter = new Line2D.Double( 
+	    			playerHalf.getX2() , 
+	    			playerHalf.getY2() , 
+	    			nearPlayerCorner.getX() , 
+	    			nearPlayerCorner.getY()
+	    	);
+	    	Line2D projCenterStat = new Line2D.Double( 
+	    			statHalf.getX1() , 
+	    			statHalf.getY1() , 
+	    			centerStat.getX() , 
+	    			centerStat.getY()
+	    	);
+	    	Line2D projOuterStat = new Line2D.Double( 
+	    			statHalf.getX2() , 
+	    			statHalf.getY2() , 
+	    			nearStatCorner.getX() , 
+	    			nearStatCorner.getY()
+	    	);
+	    	
+	    	g2.setColor(Color.DARK_GRAY);
+	    	camera.drawDebugAxis(projCenter, g2);
+	    	camera.drawDebugAxis(projOuter, g2);
+	    	camera.drawDebugAxis(projCenterStat, g2);
+	    	camera.drawDebugAxis(projOuterStat, g2);
 	
 	    }
-	    
-	    return true;
+	    return isColliding;
+	    //return false;
 	    
 	}
 }

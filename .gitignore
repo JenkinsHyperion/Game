@@ -1,10 +1,11 @@
-﻿
+
 .metadata
 **bin/
 **tmp/
 *bin/
 bin/
 tmp/
+*.ser
 *.class
 *.tmp
 *.bak

@@ -15,12 +15,12 @@ import entityComposites.*;
 
 public class CollisionEngine {
 
-	private BoardAbstract currentBoard;
+	protected BoardAbstract currentBoard;
 	
-	private ArrayList<Collider> staticCollidablesList = new ArrayList<>(); 
-	private ArrayList<Collider> dynamicCollidablesList = new ArrayList<>(); 
+	protected ArrayList<Collider> staticCollidablesList = new ArrayList<>(); 
+	protected ArrayList<Collider> dynamicCollidablesList = new ArrayList<>(); 
 	
-    private LinkedList<Collision> collisionsList = new LinkedList<Collision>(); 
+	protected LinkedList<Collision> collisionsList = new LinkedList<Collision>(); 
 
 	public CollisionEngine(BoardAbstract testBoard){
 		currentBoard = testBoard;
@@ -29,6 +29,7 @@ public class CollisionEngine {
 	
 	public void degubClearCollidables(){
 		staticCollidablesList.clear();
+		dynamicCollidablesList.clear();
 		for (Collision collision : collisionsList){
 			collision.completeCollision();
 		}
@@ -37,7 +38,7 @@ public class CollisionEngine {
 	}
 	
 	//check collision list and return true if two entities are already colliding
-	private boolean hasActiveCollision(EntityStatic entity1, EntityStatic entity2){
+	protected boolean hasActiveCollision(EntityStatic entity1, EntityStatic entity2){
 		    	
 		for ( Collision activeCollision : collisionsList){
 					
@@ -51,7 +52,7 @@ public class CollisionEngine {
 	    
 	//Update status of collisions, run ongoing commands in collision, and destroy collisions that have completed
 	//USE ARRAY LIST ITTERATOR INSTEAD OF FOR LOOP SINCE REMOVING INDEX CHANGES SIZE
-	private void updateCollisions(){
+	protected void updateCollisions(){
 	    	
 	    for ( int i = 0 ; i < collisionsList.size() ; i++ ){
 	    		
@@ -69,12 +70,29 @@ public class CollisionEngine {
 	    	
     }
 	
-	public void addStaticCollidable( Collider collidable ){
+	public int addStaticCollidable( Collider collidable ){ //returns hashID index to collider composite
 		staticCollidablesList.add(collidable);
+		System.out.println( "added "+ -staticCollidablesList.size() );
+		return -( staticCollidablesList.size() );
 	}
 	
-	public void addDynamicCollidable( Collider collidable ){
+	public int addDynamicCollidable( Collider collidable ){
 		dynamicCollidablesList.add(collidable);
+		return dynamicCollidablesList.size();
+	}
+	/**Removes collider from collision engine. Positive index removes from dynamic colliders, negative removes from
+	 * static colliders
+	 * @param engineHashID
+	 */
+	public void removeCollidable( int engineHashID){
+		if (engineHashID<0){
+			staticCollidablesList.remove( (-engineHashID) - 1 );
+		}
+		else if (engineHashID>0){
+			dynamicCollidablesList.remove( engineHashID-1 );
+		}
+		else
+			System.err.println("0 is not a valid index for removing Collider from engine.");
 	}
 	    
     //THIS IS THE MAIN BODY OF THE COLLISION ENGINE
@@ -127,7 +145,7 @@ public class CollisionEngine {
 			// if not, add new collision event
 			//int index = currentBoard.getStaticEntities().size() + 1 ;
     			//System.out.println( "Collision detected" );
-    			collisionsList.add(new CollisionPlayerStaticSAT( collidable1 , collidable2 , this ) ); 
+    			collisionsList.add(new CollisionDynamicStatic( collidable1 , collidable2 , this ) ); 
 			
 			} 	
     	}
@@ -163,175 +181,13 @@ public class CollisionEngine {
     }*/
     
     
-    private Point getDistanceSAT( Line2D separatingSide , Collider entityPrimary , Collider stat ){
-	    
-	    Boundary bounds = stat.getBoundaryLocal() ;
-	    Boundary playerBounds = entityPrimary.getBoundaryDelta();
-	    //Boundary playerBounds = entityPrimary.getBoundaryLocal();
-	    
-	    int deltaX = (int) (entityPrimary.getOwnerEntity().getDeltaX() );
-	    int deltaY = (int) (entityPrimary.getOwnerEntity().getDeltaY() );
-	    
-	    Point2D playerCenter = new Point2D.Double(deltaX, deltaY);
-	    //Point2D playerCenter = new Point2D.Double(entityPrimary.getX(), entityPrimary.getY());
-	    
-	    Point2D statCenter = new Point2D.Double(stat.getOwnerEntity().getX(), stat.getOwnerEntity().getY());
-		
-		
-		Line2D axis = bounds.getSeparatingAxis(separatingSide); //OPTIMIZE TO SLOPE ONLY CALCULATIONS
-	    
-	    Line2D centerDistance = new Line2D.Float(deltaX , deltaY,
-	    		stat.getOwnerEntity().getX() , stat.getOwnerEntity().getY() );
-	    Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
-	 
-	    
-	    BoundaryVertex[] nearStatCorner = bounds.farthestVerticesFromPoint( bounds.getFarthestVertices(playerBounds,axis)[0].toPoint() , axis );
-	      
-	    BoundaryVertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( playerBounds.getFarthestVertices(bounds,axis)[0].toPoint() , axis );
-
-
-	    
-	    Line2D playerHalf = new Line2D.Float( 
-				playerBounds.getProjectionPoint(playerCenter,axis) ,
-				playerBounds.getProjectionPoint(nearPlayerCorner[0].toPoint(),axis)
-						);
-		Line2D statHalf = new Line2D.Float( 
-				bounds.getProjectionPoint(statCenter,axis) ,
-				bounds.getProjectionPoint(nearStatCorner[0].toPoint(),axis)
-						);
-		
-		
-		int centerDistanceX = (int)(centerProjection.getX1() -  centerProjection.getX2()  );
-		int centerDistanceY = (int)(centerProjection.getY1() -  centerProjection.getY2()  );
-		
-		if (centerDistanceX>0){ centerDistanceX -= 1; } 
-		else if (centerDistanceX<0){ centerDistanceX += 1; } //NEEDS HIGHER LEVEL SOLUTION
-		
-		if (centerDistanceY>0){ centerDistanceY -= 1; } 
-		else if (centerDistanceY<0){ centerDistanceY += 1; }
-		
-		int playerProjectionX = (int)(playerHalf.getX1() -  playerHalf.getX2());
-		int playerProjectionY = (int)(playerHalf.getY1() -  playerHalf.getY2());
-		
-		int statProjectionX = (int)(statHalf.getX2() -  statHalf.getX1());
-		int statProjectionY = (int)(statHalf.getY2() -  statHalf.getY1());
-		
-		int penetrationX = 0;
-		int penetrationY = 0;
-		
-		// Get penetration vector
-		penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
-		penetrationY = playerProjectionY + statProjectionY - centerDistanceY ;
-		
-		if ( penetrationX * centerDistanceX < 0  || penetrationY * centerDistanceY < 0  ) //SIGNS ARE NOT THE SAME
-		{
-			penetrationX = 0;
-			penetrationY = 0;
-			
-		}
-
-		// Handling of exception where centered collisions always have penetration of 0
-		if (centerDistanceX*centerDistanceX + centerDistanceY*centerDistanceY == 0){ //LOOK INTO BETTER CONDITIONALS
-			penetrationX = -(playerProjectionX + statProjectionX) ;
-		}
-		if (centerDistanceX*centerDistanceX + centerDistanceY*centerDistanceY == 0){ //Merge with above checks
-			penetrationY = -(playerProjectionY + statProjectionY) ;
-		}
-
-		return new Point( penetrationX , penetrationY );
-
-	}
-    
-    
-    //### REDUNDANCY FOR TESTING
-    /**
-     * 
-     * @param separatingSide
-     * @param entityA
-     * @param entityB
-     * @return Returns vector to closest separating side in range, or NULL if entity is out of range
-     */
-    private Vector getDistanceSAT2( Line2D separatingSide , EntityStatic entityA , EntityStatic entityB ){
-	    
-	    Boundary boundsB = entityB.getColliderComposite().getBoundaryLocal(); 
-	    Boundary boundsA = entityA.getColliderComposite().getBoundaryLocal();
-	    
-	    Point2D centerA = new Point2D.Double(entityA.getX(), entityA.getY());
-	    Point2D centerB = new Point2D.Double(entityB.getX(), entityB.getY());
-		
-		Line2D axis = boundsB.getSeparatingAxis(separatingSide); //OPTIMIZE TO SLOPE ONLY CALCULATIONS
-	    
-	    Line2D centerDistance = new Line2D.Float(entityA.getPos() , entityB.getPos() );
-	    Line2D centerProjection = boundsA.getProjectionLine(centerDistance, axis);
-	    
-	    BoundaryVertex[] nearStatCorner = boundsB.farthestVerticesFromPoint( boundsB.getFarthestVertices(boundsA,axis)[0].toPoint() , axis );
-	    BoundaryVertex[] nearPlayerCorner = boundsA.farthestVerticesFromPoint( boundsA.getFarthestVertices(boundsB,axis)[0].toPoint() , axis );
-
-
-	    
-	    Line2D playerHalf = new Line2D.Float( 
-				boundsA.getProjectionPoint(centerA,axis) ,
-				boundsA.getProjectionPoint(nearPlayerCorner[0].toPoint(),axis)
-						);
-		Line2D statHalf = new Line2D.Float( 
-				boundsB.getProjectionPoint(centerB,axis) ,
-				boundsB.getProjectionPoint(nearStatCorner[0].toPoint(),axis)
-						);
-		
-		
-		int centerDistanceX = (int)(centerProjection.getX1() -  centerProjection.getX2()  );
-		int centerDistanceY = (int)(centerProjection.getY1() -  centerProjection.getY2()  );
-		
-		int playerProjectionX = (int)(playerHalf.getX1() -  playerHalf.getX2());
-		int playerProjectionY = (int)(playerHalf.getY1() -  playerHalf.getY2());
-		
-		int statProjectionX = (int)(statHalf.getX2() -  statHalf.getX1());
-		int statProjectionY = (int)(statHalf.getY2() -  statHalf.getY1());
-		
-		int penetrationX = 0;
-		int penetrationY = 0;
-		
-		// Get penetration vector
-		
-		
-		penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
-		penetrationY = playerProjectionY + statProjectionY - centerDistanceY ;
-
-		if (centerDistanceX>0){ 
-			penetrationX += 1; 
-				//if ( penetrationX > 0 )
-				//	penetrationX = 0;
-			} 
-		else if (centerDistanceX<0){ 
-			penetrationX -= 1; 
-				//if ( penetrationX < 0 )
-				//	penetrationX = 0;
-			} //NEEDS HIGHER LEVEL SOLUTION merge with later checks
-		
-		if (centerDistanceY>0){ 
-			penetrationY += 1; 
-				//if ( penetrationY > 0 )
-				//penetrationY = 0;
-			} 
-		else if (centerDistanceY<0){ 
-			penetrationY -= 1; 
-				//if ( penetrationY < 0 )
-				//	penetrationY = 0;
-			}
-		
-		
-		
-
-		return new Vector( penetrationX , penetrationY ); 
-
-	}
-    
+ 
    
     //#### EDITOR METHODS ###################################
     
 
     
-    private Vector[] getSATVectors( EntityStatic entityA, EntityStatic entityB ) {
+    /*private Vector[] getSATVectors( EntityStatic entityA, EntityStatic entityB ) {
     	
     	Line2D[] axes = entityA.getBoundary().getSpearatingSidesBetween( entityB.getBoundary() );
     	Vector[] vectors = new Vector[axes.length];
@@ -346,7 +202,7 @@ public class CollisionEngine {
 
     	return vectors;
     	
-    }
+    }*/
     
 
     
@@ -364,13 +220,33 @@ public class CollisionEngine {
     
     protected BoardAbstract getBoard(){ return currentBoard; }
 
-    public int debugNumberofCollidables(){ 
+    public int debugNumberofStaticCollidables(){ 
     	return this.staticCollidablesList.size();
     }
     
+    public int debugNumberofDynamicCollidables(){ 
+    	return this.dynamicCollidablesList.size();
+    }
+    
+    public int debugNumberOfCollisions(){
+    	return this.collisionsList.size();
+    }
+    
     public Collider[] debugListActiveColliders(){
-    	Collider[] activeColliders = new Collider[ this.staticCollidablesList.size() ];
-    	this.staticCollidablesList.toArray( activeColliders );
+    	
+    	Collider[] activeColliders = new Collider[ this.staticCollidablesList.size() + this.dynamicCollidablesList.size() ];
+    	
+    	int index;
+    	
+    	for ( index=0 ; index < staticCollidablesList.size() ; index++){
+    		activeColliders[index] = staticCollidablesList.get(index);
+    	}
+    	
+    	for ( int i = 0 ; i < dynamicCollidablesList.size() ; i++){
+    		activeColliders[index] = dynamicCollidablesList.get(i);
+    		index++;
+    	}
+    	
     	return activeColliders;
     }
 	    

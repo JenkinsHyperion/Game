@@ -142,7 +142,8 @@ public class SpriteIconLoader extends JFrame {
      * @param String - description of the file
      */
     protected ImageIcon createImageIcon(String path) {
-        if (new File(path).exists()) {
+    	File newFile = new File(path);
+        if ( newFile.exists() ) {
         	System.out.println("This path exists: " + path);
             return new ImageIcon(path);
         } else {

@@ -1,9 +1,13 @@
 package sprites;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+import engine.Board;
 import engine.BoardAbstract;
+import engine.Camera;
 import engine.MovingCamera;
 import engine.Overlay;
 import engine.OverlayComposite;
@@ -13,6 +17,7 @@ import utility.*;
 public class RenderingEngine {
 	
 	private MovingCamera camera;
+	private BoardAbstract ownerBoard;
 	
 	private Graphics2D graphics;
 
@@ -22,13 +27,16 @@ public class RenderingEngine {
 	
 	public RenderingLayer[] layersList;
 	
+	private BufferedImage image = new BufferedImage( ownerBoard.B_WIDTH, ownerBoard.B_HEIGHT , BufferedImage.TYPE_INT_ARGB );
+	
 	private ArrayList<Overlay> overlayList = new ArrayList<Overlay>();
 	private ArrayList<OverlayComposite> visibleOverlayList = new ArrayList<OverlayComposite>();
 	
 	private ArrayList<Sprite> spriteListTEMPORARY_USEAGE_ONLY = new ArrayList<Sprite>();
 	
 	public RenderingEngine( BoardAbstract board){
-		this.camera = new MovingCamera( board , this.graphics , null  );
+		this.camera = new MovingCamera( board , this.graphics , null  ); 
+		this.ownerBoard = board;
 		init();
 	}
 	
@@ -44,9 +52,20 @@ public class RenderingEngine {
 			new RenderingLayer(10, 10 ,camera),
 			new RenderingLayer(100, 100 ,camera) //farthest
 		};
+		
+	}
+	
+	public Graphics2D debugGetOverlayGraphics(){
+		image = new BufferedImage( ownerBoard.B_WIDTH, ownerBoard.B_HEIGHT , BufferedImage.TYPE_INT_ARGB );
+		//image.
+		return (Graphics2D) image.getGraphics();
+	}
+	
+	public Camera debugGetOverlayCamera(){
+		return camera;
 	}
 
-	public void draw( Graphics2D g2 ){ //ENTRY POINT OF RENDERING ENGINE FROM BOARD PAINTCOMPONENT(g)
+	public void render( Graphics2D g2 ){ //ENTRY POINT OF RENDERING ENGINE FROM BOARD PAINTCOMPONENT(g)
 		
 		//Repainting
 		this.graphics = g2;
@@ -54,19 +73,25 @@ public class RenderingEngine {
 		
 		for ( int i = layersList.length-1 ; i > -1  ; i-- ){
 			layersList[i].draw(camera);
-		}
-		
+		}	
 		//Layers
 		//layer1Head.beginDraw(); 
 		
+		int spriteNumber = 0;
+		
 		while ( spriteCompositeList.hasNext() ){
 			spriteCompositeList.get().getSprite().draw( camera );
+			spriteNumber++;
 		}
+		g2.setColor(Color.CYAN);
+		g2.drawString( "Sprites: "+ spriteNumber , 20, 300);
 		
 		//Overlays
-		for ( OverlayComposite overlay : visibleOverlayList ){
-			overlay.paintOverlay(g2,this.camera); 
-		}
+		
+		g2.drawImage(image,0,0,ownerBoard );
+		
+		/*for ( OverlayComposite overlay : visibleOverlayList ){
+		}*/
 		
 	}
 	
@@ -77,7 +102,7 @@ public class RenderingEngine {
 	public Ticket addSpriteComposite( GraphicComposite sprite ){
 		
 		try{
-			//return layer1Head.addElement( (SpriteComposite) sprite );
+			System.out.print("adding");
 			return spriteCompositeList.add( sprite );
 		}
 		

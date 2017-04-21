@@ -38,7 +38,6 @@ public class Board extends BoardAbstract {
     
     // RENDERING DECLARATION
 
-    protected Point clickPosition;
     protected boolean mouseClick = false;
 
     
@@ -90,8 +89,6 @@ public class Board extends BoardAbstract {
         setBackground(Color.BLACK);
 
         dynamicEntitiesList = new ArrayList<>();
-
-        clickPosition = new Point(0,0);
         
         /* ####################################
         
@@ -129,7 +126,7 @@ public class Board extends BoardAbstract {
         Collider collidable;
         
         testEntity = new EntityStatic("Test Ground1",50,500);     
-        CompositeFactory.addColliderTo( testEntity , new Boundary.Box(446,100,-223,-50 ) );
+        CompositeFactory.addColliderTo( testEntity , new BoundaryPolygonal.Box(446,100,-223,-50 ) );
 
 
         CompositeFactory.addGraphicTo(testEntity, new SpriteStillframe("ground_1.png" , -223 , -53 ) );
@@ -138,7 +135,7 @@ public class Board extends BoardAbstract {
         
         
         testEntity = new EntityStatic("Test Ground",700,500);  
-        CompositeFactory.addColliderTo( testEntity , new Boundary.Box(446,100,-223,-50 ) );
+        CompositeFactory.addColliderTo( testEntity , new BoundaryPolygonal.Box(446,100,-223,-50 ) );
         CompositeFactory.addGraphicTo(testEntity, new SpriteStillframe("ground_1.png" , -223 , -53 ));
         CompositeFactory.addTranslationTo( testEntity );
         //renderingEngine.addSpriteComposite( testEntity.getSpriteType() );
@@ -298,7 +295,7 @@ public class Board extends BoardAbstract {
     	
     	// TESTING RENDERING ENGINE
     	
-    	this.renderingEngine.draw(g2);
+    	this.renderingEngine.render(g2);
     	
     	
         
@@ -406,7 +403,7 @@ public class Board extends BoardAbstract {
 		        
 		        g2.setColor(Color.GRAY);
 			    g2.drawString("Entities: "+ currentScene.listEntities().length + " , Collidables:"+
-			    		collisionEngine.debugNumberofCollidables() ,5,15);
+			    		collisionEngine.debugNumberofStaticCollidables() ,5,15);
 			    g2.drawString("DX: "+player.getDX() + " DY: " + player.getDY(),5,30);
 			    g2.drawString("AccX: " + player.getAccX() + "  AccY: " + player.getAccY(),5,45);
 			    g2.drawString("Rotation: " + (int)player.getAngle() + " degrees " + player.getAngularVel() + " " + player.getAngularAcc(),5,60);
@@ -421,12 +418,12 @@ public class Board extends BoardAbstract {
 			    //collisionEngine.debugPrintCollisionList(5, 105, g2);
 			    
 			    
-			    player.getColliderComposite().debugDrawBoundary(camera , g2);
+			    player.getColliderComposite().getBoundaryLocal().debugDrawBoundary(camera , g2, player);
 			    
 			    for (Collider collider : collisionEngine.debugListActiveColliders() ){
 			    	
-			    	collider.debugDrawBoundary(camera , g2);
-			    	camera.drawCrossOnCamera( collider.getOwnerEntity().getPos());
+			    	collider.getBoundaryLocal().debugDrawBoundary(camera , g2, null);
+			    	camera.drawCrossInWorld( collider.getOwnerEntity().getPosition());
 			    	
 			    }
 
@@ -437,198 +434,7 @@ public class Board extends BoardAbstract {
     
     private void drawDebugSAT( EntityStatic playerRef , EntityStatic entitySecondary , Graphics2D g2 ){
   	
-	    //EntityStatic stat = entitySecondary;
-	   // EntityStatic stat = editorPanel.getCurrentSelectedEntity();
-    	
-    	EntityStatic stat = entitySecondary;
 	    
-	    //EntityStatic stat = staticEntitiesList.get(1);
-	    //EntityStatic playerRef = this.playerRef;
-	    
-	    g2.setColor(Color.RED);
-	    for ( int i = 0 ; i < ((EntityDynamic)playerRef).debugForceArrows().length ; i++ ){
-	    	
-	    	Vector force = ((EntityDynamic)playerRef).debugForceArrows()[i];
-	    	Line2D forceArrow = new Line2D.Double( player.getPos() , new Point2D.Double(player.getX() + force.getX()*200 , player.getY() + force.getY()*200 ) );
-	    	
-	    	camera.draw( forceArrow );
-	    
-	    	g2.drawString( "Force "+i+" "+force.getX()+" , "+force.getY() ,800,50+i*10);
-	    }
-	    
-	    g2.setColor(Color.BLUE);
-	    
-	    
-	    drawCross( playerRef.getX() , playerRef.getY() , g2);
-	    drawCross( stat.getX() , stat.getY() , g2);
-	    
-	    Boundary statBounds = stat.getColliderComposite().getBoundaryLocal() ;
-	    Boundary playerBounds = playerRef.getColliderComposite().getBoundaryLocal();
-	    
-	    Point2D playerCenter = new Point2D.Double(playerRef.getX(), playerRef.getY());
-	    Point2D statCenter = new Point2D.Double(stat.getX(), stat.getY());
-
-
-	    //for ( Line2D axis : bounds.debugSeparatingAxes(B_WIDTH, B_HEIGHT) ){
-	    for ( int i = 0 ; i < statBounds.getSpearatingSidesBetween(playerBounds).length ; i++ ){
-
-	    	Line2D side = statBounds.getSpearatingSidesBetween(playerBounds)[i];
-
-	    	Line2D axis2 = Boundary.debugGetSeparatingAxis(side, B_WIDTH, B_HEIGHT , new Point(20,20));
-	    	
-	    	Line2D axis = Boundary.getSeparatingAxis( side );
-
-	    	g2.setColor(Color.DARK_GRAY);
-
-	    	camera.drawInFrame(axis);
-
-
-
-
-	    	//Line2D centerDistance = new Line2D.Float(playerRef.getX() , playerRef.getY(),
-	    	//		stat.getX() , stat.getY());
-	    	//Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
-
-	    	//g2.draw(centerProjection);
-
-	    	
-
-	    	BoundaryVertex[] statOuter= statBounds.getFarthestVertices(playerBounds,axis);
-	    	BoundaryVertex[] playerOuter= playerBounds.getFarthestVertices(statBounds,axis);
-
-	    	BoundaryVertex[] nearStatCorner = statBounds.farthestVerticesFromPoint( statOuter[0] , axis ); //merge below
-	    	BoundaryVertex[] nearPlayerCorner = playerBounds.farthestVerticesFromPoint( playerOuter[0] , axis );
-	    	
-	    	BoundaryVertex farStatCorner = statBounds.farthestVerticesFromPoint(nearStatCorner[0] , axis)[0];
-	    	BoundaryVertex farPlayerCorner = playerBounds.farthestVerticesFromPoint(nearPlayerCorner[0] , axis)[0];
-	    	
-	    	Point2D centerStat = statOuter[0].getCenter(nearStatCorner[0]);
-	    	Point2D centerPlayer = playerOuter[0].getCenter(nearPlayerCorner[0]);
-
-	    	Line2D centerDistance = new Line2D.Double( centerPlayer , centerStat );
-	    	Line2D centerProjection = playerBounds.getProjectionLine(centerDistance, axis);
-	    	
-	    	g2.setColor(Color.GRAY);
-	    	camera.drawInFrame(centerProjection);
-	    	//CLOSEST SIDE TESTING
-	    	g2.setColor(Color.YELLOW);
-	    	//selected entity
-	    	if ( nearStatCorner.length > 1 ){ 
-	    		Side closest = nearStatCorner[0].getSharedSide(nearStatCorner[1]);
-	    		camera.draw(closest.toLine());
-	    		camera.drawString( closest.toString() , closest.getX1(), closest.getY1());
-	    	}
-	    	else 
-	    		camera.drawCrossInWorld(nearStatCorner[0].toPoint());
-
-	    	//make verticesFromPoint
-	    	//playerRef
-	    	if ( nearPlayerCorner.length > 1 ){
-	    		Side closest = nearPlayerCorner[0].getSharedSide(nearPlayerCorner[1]);
-	    		camera.draw(closest.toLine());
-	    		camera.drawString( closest.toString() , closest.getX1(), closest.getY1());
-	    	}
-	    	else 
-	    		camera.drawCrossInWorld( nearPlayerCorner[0].toPoint() );
-
-	    	// -----------------
-
-	    	Line2D playerHalf = new Line2D.Float( 
-	    			playerBounds.getProjectionPoint(playerCenter,axis) ,
-	    			playerBounds.getProjectionPoint(nearPlayerCorner[0].toPoint(),axis)
-	    			);
-	    	Line2D statHalf = new Line2D.Float( 
-	    			statBounds.getProjectionPoint(centerStat,axis) ,
-	    			statBounds.getProjectionPoint(nearStatCorner[0].toPoint(),axis) 
-	    			);
-
-	    	camera.drawInFrame(playerHalf);
-	    	g2.setColor(Color.GREEN);
-	    	camera.drawInFrame(statHalf );
-
-	    	int centerDistanceX = (int)(centerProjection.getX1() -  centerProjection.getX2()  );
-	    	int centerDistanceY = (int)(centerProjection.getY1() -  centerProjection.getY2()  );
-
-	    	int playerProjectionX = (int)(playerHalf.getX1() -  playerHalf.getX2());
-	    	int playerProjectionY = (int)(playerHalf.getY1() -  playerHalf.getY2());
-
-	    	int statProjectionX = (int)(statHalf.getX2() -  statHalf.getX1());
-	    	int statProjectionY = (int)(statHalf.getY2() -  statHalf.getY1());
-
-	    	int penetrationX = 0;
-	    	int penetrationY = 0;  
-	    	
-
-	    	if (centerDistanceX>0){
-	    		//centerDistanceX -= 1;
-	    		penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
-	    	}
-	    	else if (centerDistanceX<0){
-	    		//centerDistanceX += 1;  //NEEDS HIGHER LEVEL SOLUTION
-	    		penetrationX = playerProjectionX + statProjectionX - centerDistanceX ;
-	    	}
-	    	else
-	    		penetrationX = Math.abs(playerProjectionX) + Math.abs(statProjectionX);
-
-	    	if (centerDistanceY>0){
-	    		//centerDistanceY -= 1;
-	    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY ; 
-	    	}
-	    	else if (centerDistanceY<0){
-	    		//centerDistanceY += 1; 
-	    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY ; 
-	    	}else
-	    		penetrationY = Math.abs(playerProjectionY) + Math.abs(statProjectionY);
-
-
-	    	
-	    	if ( penetrationX * centerDistanceX < 0 ) //SIGNS ARE NOT THE SAME
-				penetrationX = 0;
-	    	if ( penetrationY * centerDistanceY < 0 )
-				penetrationY = 0;
-
-
-
-	    	g2.setFont( new Font( Font.DIALOG , Font.PLAIN , 10 ) );
-
-	    	// g2.drawString("Center distance X: " + centerDistanceX + " Y: " + centerDistanceY ,
-	    	//(int)centerProjection.getX1()+20 , (int)centerProjection.getY1()+20);
-	    	/*
-			   g2.drawString("Player projection X: " + playerProjectionX + " Y: " + playerProjectionY ,
-		    			(int)centerProjection.getX1()+20 , (int)centerProjection.getY1()+35);
-
-			   g2.drawString("Stat projection X: " + statProjectionX + " Y: " + statProjectionY ,
-		    		(int)centerProjection.getX1()+20 , (int)centerProjection.getY1()+50);
-	    	 */
-	    	g2.drawString("Penetration X: " + penetrationX + " Y: " + penetrationY ,
-	    			(int)playerHalf.getX1() , (int)playerHalf.getY1()+10);
-
-
-	    	//g2.setColor(Color.DARK_GRAY);
-
-	    	//g2.draw(new Line2D.Float(playerBounds.getProjectionPoint( nearPlayerCorner , axis ), nearPlayerCorner) );
-	    	//g2.draw(new Line2D.Float(playerBounds.getProjectionPoint( playerCenter , axis ), playerCenter) );
-
-	    }
-
-	    g2.setColor(Color.YELLOW);
-		g2.drawString( statBounds.getSides().length +" sides" ,30,45);
-		//g2.drawString( ""+testingNearStatCorners[0].getEndingSide()+" "+testingNearStatCorners[0].getStartingSide() ,30,60);
-	
-    	
-    }
-    
-    private void drawDebugCollisions(Graphics g){
-    	
-    	g.setColor(new Color(0, 0, 0, 150));
-        g.fillRect(0, 0, B_WIDTH, B_HEIGHT);
-    	
-	    Graphics2D g2 = (Graphics2D) g;
-    	
-
-	    
-	    drawDebugSAT( player , editorPanel.getSelectedEntities().get(0) , g2);
-
     }
     
     private void drawCross(int x, int y , Graphics g){
@@ -645,14 +451,8 @@ public class Board extends BoardAbstract {
  * ########################################################################################################################
  */
     
-    public void addStaticEntity(EntityStatic entity){
-    	this.currentScene.addEntity( entity );
-    	this.collisionEngine.addStaticCollidable( entity.getColliderComposite() );
-    	this.renderingEngine.addSpriteComposite(entity.getGraphicComposite());
-    }
-    
-    @Override
-    public MovingCamera getCamera() { return this.camera; }
+    /*@Override
+    public MovingCamera getCamera() { return this.camera; }*/
 	
 	public int getboundaryX(){ return B_WIDTH ;}
 	public int getboundaryY(){ return B_HEIGHT ;}
@@ -663,7 +463,7 @@ public class Board extends BoardAbstract {
 	public ArrayList<EntityDynamic> getDynamicEntities(){ return dynamicEntitiesList; }
 
 	public void transferEditorPanel(EditorPanel instance){
-		this.editorPanel = instance; 
+		this.editorPanel = instance;  
 	}
     
 	
@@ -680,7 +480,7 @@ public class Board extends BoardAbstract {
 		this.currentScene = scene;
 
 		//put player back into rendering
-		renderingEngine.addSpriteComposite(player.getGraphicComposite() );
+		player.getGraphicComposite().addCompositeToRenderer(renderingEngine);
 		
 	}
 	

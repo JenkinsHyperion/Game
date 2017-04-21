@@ -14,7 +14,7 @@ import engine.Camera;
 import engine.MovingCamera;
 import entityComposites.EntityStatic;
 import entityComposites.GraphicComposite;
-import physics.Boundary;
+import physics.*;
 
 public class SpriteFilledShape extends Sprite {
 	
@@ -22,7 +22,7 @@ public class SpriteFilledShape extends Sprite {
 	private Color color;
 	
 	public SpriteFilledShape( Boundary bounds , Color color ){
-
+		super("FilledShape",0,0);
 		this.color = color;
 		
 		int nCorners = bounds.getCornersVertex().length ;

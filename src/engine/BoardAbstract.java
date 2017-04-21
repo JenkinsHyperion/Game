@@ -1,9 +1,15 @@
 package engine;
 
+import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.event.*;
+import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
 import java.util.*;
 
 import javax.swing.JPanel;
@@ -27,6 +33,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	public final DoubleLinkedList<UpdateableComposite> updateablesList = new DoubleLinkedList<UpdateableComposite>();
 	
 	int counter;
+	Canvas mainCanvas;
 	
 	protected OverlayComposite diagnosticsOverlay;
 	
@@ -52,6 +59,9 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 		
 		B_WIDTH = width;
 	    B_HEIGHT = height;
+
+	    this.setIgnoreRepaint(true);
+	    
 	     // PAINT RENDERING THREAD #############################################
 	     
 	     ActionListener repaintUpdateTaskSwing = new ActionListener() {
@@ -112,11 +122,15 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	     
 	}
 	
+	protected void paintFrame(){
+		
+	}
+	
 	@Override
 	public void paintComponent(Graphics g) {  
         super.paintComponent(g);
         
-        //camera.repaint(g);
+        camera.repaint(g);
         
         graphicsThreadPaint(g);
         
@@ -132,7 +146,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	}
 	
 	public MovingCamera getCamera() {
-		return null;
+		return this.camera;
 	}
 	
 	public void transferEditorPanel(EditorPanel instance){
@@ -144,6 +158,11 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	}
 	
 	
+	public void addStaticEntity(EntityStatic entity) {
+		this.currentScene.addEntity( entity );
+	}
+
+
 	protected class DiagnosticsOverlay implements Overlay{
 		
 		@Override

@@ -8,209 +8,104 @@ import physics.PointForce;
 import physics.Vector;
 import utility.Ticket;
 
-public class TranslationComposite implements UpdateableComposite{
-	
-	private EntityStatic owner;
-	private Ticket updaterSlot;
+public class TranslationComposite{
+
+	protected EntityStatic owner;
 	
 	protected TranslationComposite( EntityStatic owner ){
 		this.owner = owner;
 	}
-	
-	protected float dx;
-    protected float dy;
-    protected float accY;
-    protected float accX;
-    
+
 	protected ArrayList<Force> forces = new ArrayList<>();
 	protected ArrayList<PointForce> pointForces = new ArrayList<>();
     
     protected boolean isColliding;
-
-    @Override
-    public void update() {
-    	
-    	owner.x += dx;
-    	owner.y += dy;
-    	
-    	dx += accX; 
-    	dy += accY;
-    	
-    }   
     
     public void halt(){
-    	dx=0;
-    	dy=0;
-    	accX=0;
-    	accY=0;
+    	System.err.println("Attempted to halt static");
     }
     
     public void AccelerateY() {
 
-    	owner.y += 1;
-        if (owner.y > 300){
-        	owner.y = 0;
-        }
+    	System.err.println("Attempted to accelerate y of static");
     }
 
-    public float getDX() {
-    	return dx;
+    public double getDX() {
+    	return 0;
     }
     
-    public float getDY() {
-    	return dy;
+    public double getDY() {
+    	return 0;
     }
     
-    public void setDX(float setdx) {
-    	dx = setdx;
+    public void setDX(double setdx) {
+    	System.err.println("Attempted to set y velocity of static");
     }
     
-    public void setDY(float setdy) {
-    	dy = setdy;
+    public void setDY(double setdy) {
+    	System.err.println("Attempted to set x velocity of static");
     }
     
     public void setVelocity( Vector vector){
-    	dx = (float)vector.getX();
-    	dy = (float)vector.getY();
+    	System.err.println("Attempted to set velocity of static");
     }
     
     public void addVelocity( Vector vector){
-    	dx += (float)vector.getX();
-    	dy += (float)vector.getY();
+    	System.err.println("Attempted to add velocity of static");
     }
     
-    public float getDeltaX(){
-    	return (owner.x + dx + accX);
+    public double getDeltaX(){
+    	return (owner.x);
     }
 
-    public float getDeltaY(){
-    	return (owner.y + dy + accY);
+    public double getDeltaY(){
+    	return (owner.y);
     }
     
-    public void clipDX(float clipDX) {
-    	if ( dx > 0 ) {
-    	    
-    		if ( clipDX < 0 ){ 
-    			if ( clipDX + dx > 0)
-    				dx = (dx + clipDX);
-    			else
-    				dx = 0;
-    		}
-    	}
-    	else if ( dx < 0 ) {
-    		
-    		if ( clipDX > 0 ){ 
-    			if ( clipDX + dx < 0)
-    				dx = dx + clipDX;
-    			else
-    				dx = 0;
-    		}
-    	}
+    public void clipDX(double clipDX) {
+    	System.err.println("Attempted to clip x velocity of static");
     }
     
-    public void clipDY(float clipDY) { 
-    	if ( dy > 0 ) {
-    
-    		if ( clipDY < 0 ){ 
-    			if ( clipDY + dy > 0)
-    				dy = dy + clipDY;
-    			else
-    				dy = 0;
-    		}
-    	}
-    	else if ( dy < 0 ) {
-    		
-    		if ( clipDY > 0 ){ 
-    			if ( clipDY + dy < 0)
-    				dy = (dy + clipDY);
-    			else
-    				dy = 0;
-    		}
-    	}
+    public void clipDY(double clipDY) { 
+    	System.err.println("Attempted to clip y velocity of static");
     }
     
     
     public void clipAccX(float clipAccX) {
-    	if ( accX > 0 ) {
-    	    
-    		if ( clipAccX < 0 ){ 
-    			if ( clipAccX + accX > 0)
-    				accX = (accX + clipAccX);
-    			else
-    				accX = 0;
-    		}
-    	}
-    	else if ( accX < 0 ) {
-    		
-    		if ( clipAccX > 0 ){ 
-    			if ( clipAccX + accX < 0)
-    				accX = accX + clipAccX;
-    			else
-    				accX = 0;
-    		}
-    	}
+    	System.err.println("Attempted to clip x acceleration of static");
     }
     
     public void clipAccY(float clipAccY) { 
-    	if ( accY > 0 ) {
-    
-    		if ( clipAccY < 0 ){ 
-    			if ( clipAccY + accY > 0)
-    				accY = accY + clipAccY;
-    			else
-    				accY = 0;
-    		}
-    	}
-    	else if ( accY < 0 ) {
-    		
-    		if ( clipAccY > 0 ){ 
-    			if ( clipAccY + accY < 0)
-    				accY = (accY + clipAccY);
-    			else
-    				accY = 0;
-    		}
-    	}
+    	System.err.println("Attempted to clip y acceleration of static");
     }
     
     
     public void setAccX(float setAX) {
-    	accX = setAX;
+    	System.err.println("Attempted to set x acceleration of static");
     }
     
     public void setAccY(float setAY) {
-    	accY = setAY;
+    	System.err.println("Attempted to set y acceleration of static");
     }
     
-    public float getAccY() {
-    	return accY;
+    public double getAccY() {
+    	return 0;
     }
     
-    public float getAccX() {
-    	return accX;
+    public double getAccX() {
+    	return 0;
     }
     
     public void setDampeningX(float decceleration) { 
-    	if (dx > (0.1))
-    	{
-    		applyAccelerationX( -decceleration );
-    	}
-    	else if (dx < (-0.1))
-    	{
-    		applyAccelerationX( decceleration );
-    	}
-    	else
-    	{
-    		accX=0;
-    		dx=0;
-    	}
+    	System.err.println("Attempted to apply x dampening to static");
     }
     
     public void applyAccelerationX(float accX){
-    	accX =+ accX;
+    	System.err.println("Attempted to apply x acceleration to static");
     }
     
     public void applyAccelerationY(float accY){
-    	accY =+ accY;
+    	System.err.println("Attempted to apply y acceleration to static");
     }
 
     
@@ -225,56 +120,33 @@ public class TranslationComposite implements UpdateableComposite{
 	 * @return
 	 */
     public Force addForce( Vector vector ){
-    	
-    	int indexID = forces.size();     	
-    	Force newForce = new Force( vector , indexID );
-    	forces.add( newForce ) ;
-    	System.out.print("Adding Force "+ indexID+" ... ");
-    	return newForce;
+    	System.err.println("Attempted to add force to static");
+    	return null;
     }
     
     public void removeForce(int index){ 
-    	System.out.print("Removing Force "+ index+" ... ");
-
-	    for ( int i = index+1 ; i < forces.size() ; i++) {
-	    	forces.get(i).indexShift();
-	    } 
-    	forces.remove(index); 
-	    
+    	System.err.println("Attempted to remove force from static");
     }
     
     //MOVE TO ROTATIONAL BODY
     public PointForce addPointForce( Vector vector , Point point ){
-
-    	int indexID = pointForces.size();     	
-    	PointForce newForce = new PointForce( vector, point , indexID );
-    	pointForces.add( newForce ) ;
-    	return newForce;
+    	System.err.println("Attempted to add force to static");
+    	return null;
     }
     
     public void removePointForce(int index){ 
-    	
-    	pointForces.remove(index); 
-	    for ( int i = index ; i < pointForces.size() ; i++) {
-	    	pointForces.get(i).indexShift();
-	    } 
+    	System.err.println("Attempted to remove force on static");
     }
     
     
     public Vector[] debugForceArrows(){
-    	Vector[] returnVectors = new Vector[ forces.size() ];
-    	for ( int i = 0 ; i < forces.size() ; i++ ){
-    		returnVectors[i] = forces.get(i).getVector() ;
-    	}
-    	return returnVectors;
+    	System.err.println("Attempted to get forces of static");
+    	return null;
     }
     
     public void applyAllForces(){
-    	for ( Force force : forces ){
-
-    		Vector acc = force.getLinearForce();
-    		accX = (float)acc.getX();
-    		accY = (float)acc.getY();
-    	}
+    	System.err.println("Attempted to apply force to static");
     }
+	
+	
 }

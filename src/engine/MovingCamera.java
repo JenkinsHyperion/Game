@@ -18,7 +18,8 @@ import editing.worldGeom.*;
 import entities.EntityDynamic;
 import entityComposites.EntityStatic;
 import misc.*;
-import physics.Boundary;
+import physics.BoundaryPolygonal;
+import physics.Side;
 import sprites.Sprite;
 
 public class MovingCamera extends EntityDynamic implements Camera{
@@ -27,8 +28,8 @@ public class MovingCamera extends EntityDynamic implements Camera{
 	Graphics2D graphics;
 	ImageObserver observer;
 	
-	final static int boardHalfWidth = Board.B_WIDTH/2;
-	final static int boardHalfHeight = Board.B_HEIGHT/2;
+	final static int boardHalfWidth = BoardAbstract.B_WIDTH/2;
+	final static int boardHalfHeight = BoardAbstract.B_HEIGHT/2;
 	
 	public final static Point ORIGIN = new Point(boardHalfWidth,boardHalfHeight);
 	
@@ -45,8 +46,7 @@ public class MovingCamera extends EntityDynamic implements Camera{
 		this.observer = observer;
 		this.currentBoard = testBoard;
 		this.setPos(0, 0);
-		behaviorActive = new InactiveBehavior();
-		behaviorCurrent = behaviorActive;
+		behaviorCurrent = new InactiveBehavior();
 	}
 	
 	public MovingCamera(BoardAbstract testBoard , EntityStatic targetEntity , Graphics2D g2 ,ImageObserver observer ){
@@ -231,68 +231,104 @@ public class MovingCamera extends EntityDynamic implements Camera{
 		
 	}
 	
+	public void debugDraw(Line2D line , Graphics2D g2){
+		
+		g2.drawLine( 
+				(int)line.getX1() - (int)this.x + boardHalfWidth ,  
+				(int)line.getY1() - (int)this.y + boardHalfHeight,  
+				(int)line.getX2() - (int)this.x + boardHalfWidth,  
+				(int)line.getY2() - (int)this.y + boardHalfHeight   
+		);
+		
+	}
+	
+	public void drawDebugAxis(Line2D line, Graphics2D g2){
+		
+		
+		
+		/*g2.drawLine( 
+				(int)line.getX1() - (int)this.x + boardHalfWidth ,  
+				(int)line.getY1() - (int)this.y + boardHalfHeight,  
+				(int)line.getX2() - (int)this.x + boardHalfWidth,  
+				(int)line.getY2() - (int)this.y + boardHalfHeight   
+		);*/
+
+		g2.drawLine(
+				getRelativeX( (int)line.getX1() ) ,  
+				getRelativeY( (int)line.getY1() ),  
+				getRelativeX( (int)line.getX2() ),  
+				getRelativeY( (int)line.getY2() )	
+		);
+		
+	}
+	
+	public void drawShapeInWorld( Shape shape , Point worldPosition){
+		
+		AffineTransform cameraTransform = new AffineTransform();
+		Graphics2D g2Temp = (Graphics2D) this.graphics.create();
+		
+		cameraTransform.translate( this.getRelativeX( worldPosition.x ) , this.getRelativeY( worldPosition.y ) );
+		
+		g2Temp.transform(cameraTransform);
+		
+		g2Temp.draw( shape );
+		g2Temp.dispose();
+	}
+	
 	public void drawInFrame(Line2D line){
 		
 		this.graphics.draw( line );
 		
 	}
 	
-	public void drawAxis(Line2D line , Point intersect){
-		
-		int xMax = this.currentBoard.getHeight();
-		int yMax = this.currentBoard.getHeight();
-		
-		if ( line.getP1().getX() == line.getP2().getX() ) { //line is vertical
-				
-				this.graphics.draw( new Line2D.Double( 0 , intersect.y , this.currentBoard.getWidth() , intersect.y ) ); //return normal line which is horizontal with slope 0
-			}
-		else {// line is not vertical, so it has a defined slope and can be in form y=mx+b
-	
-			//return normal line, whose slope is inverse reciprocal of line.   -(1/slope)
-			double m = ( line.getY1() - line.getY2() )/( line.getX1() - line.getX2() );
-			int b = (int)( line.getY1() - ( m*line.getX1() ) );
-			
-			if ( (m > -.00001) && (m < .00001))
-				this.graphics.draw( new Line2D.Float( intersect.x , 0 , intersect.x , this.currentBoard.getHeight() ) );
-	
-			else { // y=mx+b    y = m*(x - Xoffset ) + yOffset    (y-b)/( x-Xoffset )
-				
-				this.graphics.draw( new Line2D.Double( 0 , 
-						( -(1/m) * (-(xMax/2) ) ) + (yMax/2) ,
-						( -(1/m) * (xMax/2) ) + (yMax/2),
-						-xMax 
-						
-						));
-			}
-		}
-		
+	public void drawString( String string , Point pos ) {
+		graphics.drawString( string,
+				pos.x - (int)this.x + boardHalfWidth, 
+				pos.y - (int)this.y + boardHalfHeight
+			);
 	}
 	
-	
+	public void drawString( String string , Point2D pos , Graphics2D g2 ) {
+		g2.drawString( string,
+				(int)pos.getX() - (int)this.x + boardHalfWidth, 
+				(int)pos.getY() - (int)this.y + boardHalfHeight
+			);
+	}
 	
 	public void drawString( String string , int x, int y ) {
-		graphics.drawString(string, 
+		graphics.drawString( string, 
 				x - (int)this.x + boardHalfWidth, 
 				y - (int)this.y + boardHalfHeight
 		);
 	}
 	
-	public void drawCrossOnCamera( int worldX, int worldY){
+	public void drawCrossInWorld( int worldX, int worldY){
 		drawCross( this.getRelativeX(worldX) , this.getRelativeY(worldY) , graphics);
 	}
 	
-	public void drawCrossOnCamera( Point point ){
+	public void drawCrossInWorld( Point point ){
 		drawCross( (int)this.getRelativeX( point.getX() ) , (int)this.getRelativeY( point.getY() ) , graphics);
 	}
 	
-	public void drawCrossInWorld( int worldX, int worldY , Graphics g ){
+	public void drawCrossInWorld( Point point , Graphics2D g2){
+		drawCross( (int)this.getRelativeX( point.getX() ) , (int)this.getRelativeY( point.getY() ) , g2);
+	}
+
+	public void drawCrossInWorld( Point2D point , Graphics2D g2){
+		drawCross( (int)this.getRelativeX( point.getX() ) , (int)this.getRelativeY( point.getY() ) , g2);
+	}
+	
+	public void drawCrossInFrame( int worldX, int worldY , Graphics g ){
 		drawCross( worldX , worldY , g);
 	}
 	
-	public void drawCrossInWorld( Point point){
+	public void drawCrossInFrame( Point point){
 		drawCross( (int)point.getX() , (int)point.getY() , this.graphics);
 	}
 	
+	public void drawCrossInFrame( Point2D point , Graphics2D g2){
+		drawCross( (int)point.getX() , (int)point.getY() , g2);
+	}
 	/**
 	 * Takes ordinate relative to the camera screen and returns the local ordinate in the world
 	 * @param x_relative_to_camera
@@ -393,6 +429,76 @@ public class MovingCamera extends EntityDynamic implements Camera{
 	@Override
 	public int getOriginY() {
 		return (int)this.y;
+	}
+	@Deprecated
+	public void drawDebugVeronoiRegion( Side side , Graphics2D g2 ){
+		
+		Line2D line = side.toLine();
+		
+		Line2D drawLine = new Line2D.Double( 
+				line.getX1(),
+				line.getY1(),
+				line.getX1()+(line.getY2() - line.getY1()),
+				line.getY1()-(line.getX2() - line.getX1())
+			);
+		Line2D drawLine2 = new Line2D.Double( 
+				line.getX2(),
+				line.getY2(),
+				line.getX2()+(line.getY2() - line.getY1()),
+				line.getY2()-(line.getX2() - line.getX1())
+			);
+		
+		g2.drawLine(
+				getRelativeX( (int)drawLine.getX1() ) ,  
+				getRelativeY( (int)drawLine.getY1() ),  
+				getRelativeX( (int)drawLine.getX2() ),  
+				getRelativeY( (int)drawLine.getY2() )	
+		);
+		g2.drawLine(
+				getRelativeX( (int)drawLine2.getX1() ) ,  
+				getRelativeY( (int)drawLine2.getY1() ),  
+				getRelativeX( (int)drawLine2.getX2() ),  
+				getRelativeY( (int)drawLine2.getY2() )	
+		);
+		
+	}
+	
+	public void drawDebugAxis(double m, double b, Graphics2D g2) {
+		
+		double yInterceptRelative = getRelativeY( m*getLocalX(0) + b ) ;
+		double yEndRelative = getRelativeY( m * getLocalX(BoardAbstract.B_WIDTH) + b ) ; 
+
+		Line2D drawLine = new Line2D.Double(0,yInterceptRelative,BoardAbstract.B_WIDTH,yEndRelative);
+		
+		g2.draw(drawLine);
+	}
+
+	
+	public void drawDebugRay(double m, double b, Point2D p , Graphics2D g2) {
+		
+		Point relativeOrigin = new Point( (int)getRelativeX(p.getX()) , (int)getRelativeY(p.getY()) );
+		
+		double yInterceptRelative = getRelativeY( m*getLocalX(0) + b ) ;
+		double yEndRelative = getRelativeY( m * getLocalX(BoardAbstract.B_WIDTH) + b ) ; 
+		
+		
+		
+		Line2D drawLine = new Line2D.Double(relativeOrigin.x , relativeOrigin.y ,BoardAbstract.B_WIDTH,yEndRelative);
+		
+		g2.draw(drawLine);
+	}
+	
+	public void drawDebugAxisFromLine( Line2D line, Graphics2D g2) {
+		
+		double m = ( line.getY2() - line.getY1() )/( line.getX2() - line.getX1() );
+	
+		double yInterceptRelative = ( getRelativeY(line.getY1()) - (m* getRelativeX(line.getX1()))  );
+		double yEndRelative = ( m * BoardAbstract.B_WIDTH + yInterceptRelative ) ; 
+
+		Line2D drawLine = new Line2D.Double(0,yInterceptRelative,BoardAbstract.B_WIDTH,yEndRelative);
+		
+		g2.draw(drawLine);
+
 	}
 
 

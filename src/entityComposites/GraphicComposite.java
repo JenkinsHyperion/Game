@@ -3,7 +3,7 @@ package entityComposites;
 import sprites.*;
 import utility.Ticket;
 
-public class GraphicComposite{
+public class GraphicComposite implements EntityComposite{
 	
 	EntityStatic ownerEntity;
 	Sprite currentSprite;
@@ -34,6 +34,18 @@ public class GraphicComposite{
 	
 	public void addCompositeToRenderer( RenderingEngine engine ){
 		rendererSlot = engine.addSpriteComposite( this );
+	}
+
+	@Override
+	public boolean exists() {
+		return true;
+	}
+	
+	@Override
+	public void disable() {
+		//more disabling 
+		System.out.println("DISABLING");
+		rendererSlot.removeSelf();
 	}
 	
 }

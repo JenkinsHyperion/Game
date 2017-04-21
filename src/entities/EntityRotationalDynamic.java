@@ -5,7 +5,7 @@ import physics.*;
 
 public class EntityRotationalDynamic extends EntityDynamic{
 	
-	protected Boundary storedBounds; //So that rounding errors from rotation don't degrade the vertex locations
+	protected BoundaryPolygonal storedBounds; //So that rounding errors from rotation don't degrade the vertex locations
 	protected float angle = 0;
 	protected double angularVelocity = 0;
 	protected double angularAcc = 0;

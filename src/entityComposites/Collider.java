@@ -11,16 +11,20 @@ import entities.EntityRotationalDynamic;
 import misc.CollisionEvent;
 import misc.NullCollisionEvent;
 import physics.Boundary;
+import physics.BoundaryPolygonal;
 import physics.CollidingPair;
-import physics.Collision;
 import physics.CollisionCheck;
 import physics.CollisionEngine;
+import physics.Collision;
 import physics.Side;
 import physics.Vector;
 
-public class Collider{
+public class Collider implements EntityComposite{
 
-	protected EntityStatic owner;
+	protected EntityStatic ownerEntity;
+	
+	protected CollisionEngine engine;
+	protected int engineHashID;
 
 	protected Boundary boundary;
 	
@@ -34,14 +38,14 @@ public class Collider{
 	
 	public Collider( EntityStatic owner ){
 		
-		this.owner = owner;
+		this.ownerEntity = owner;
 		this.boundary = null;
 	}
 	
 	public Collider( EntityStatic owner , Boundary boundary){
 		
 		this.boundary = boundary;
-		this.owner = owner; 
+		this.ownerEntity = owner; 
 		
 	}
 	
@@ -49,12 +53,12 @@ public class Collider{
 		
 		lines[lines.length-1].setLine( lines[lines.length-1].getP1() , lines[0].getP1() );
 		
-		this.boundary = new Boundary( lines ) ;
-		this.owner = owner; 
+		this.boundary = new BoundaryPolygonal( lines ) ;
+		this.ownerEntity = owner; 
 		
 	}
 
-	public void setBoundary( Boundary boundary ){
+	protected void setBoundary( Boundary boundary ){
 		this.boundary = boundary;
 	}
 	
@@ -101,11 +105,14 @@ public class Collider{
 
     
 	public Boundary getBoundaryLocal(){
-		return boundary.atPosition( owner.getPos() );
+		return boundary.atPosition( ownerEntity.getPosition() );
 	}
 	
 	public Boundary getBoundaryDelta(){
-		Point positionDelta = new Point( (int)owner.getDeltaX() , (int)owner.getDeltaY() );
+		Point positionDelta = new Point( 
+				(int)ownerEntity.getTranslationComposite().getDeltaX() , 
+				(int)ownerEntity.getTranslationComposite().getDeltaY() 
+		);
 		return boundary.atPosition( positionDelta );
 	}
 	
@@ -173,30 +180,28 @@ public class Collider{
 	}
 	
 	private void printCollisions() {
-		System.out.println("\nCollisions on "+ owner.name );
+		System.out.println("\nCollisions on "+ ownerEntity.name );
 		for ( int i = 0 ; i < collisionInteractions.size() ; i++) 
 		System.out.println("---" + i + " " + collisionInteractions.get(i).collision().collisionDebugTag);
 	}
 	
 	public EntityStatic getOwnerEntity(){
-		return this.owner;
+		return this.ownerEntity;
 	}
 
 	public void debugDrawBoundary(MovingCamera camera , Graphics2D g){
-		
-		for ( Side side : this.getBoundaryLocal().getSides() ){
-			//g.draw(side);
-			camera.draw( side.toLine() );
-			camera.drawString(side.toString(), side.getX1()+(side.getX2()-side.getX1())/2 , side.getY1()+(side.getY2()-side.getY1())/2 );
-		}
-		
+		this.getBoundaryLocal().debugDrawBoundary( camera , g, this.ownerEntity );
+	}
+	
+	public void debugDrawBoundaryDelta(MovingCamera camera , Graphics2D g){
+		this.getBoundaryDelta().debugDrawBoundary( camera , g, this.ownerEntity );
 	}
 	
 	public float getMass(){ return mass; }
 	
 	public void applyPointMomentum( Vector momentum , Point2D point ){
 		
-		EntityRotationalDynamic thisEntity = (EntityRotationalDynamic)this.owner;
+		EntityRotationalDynamic thisEntity = (EntityRotationalDynamic)this.ownerEntity;
 		
 		//Vector momentumLinear = new Vector( mass*thisEntity.getDX() , mass*thisEntity.getDY() );
 		Vector radius = new Vector( thisEntity.getX() - point.getX() , thisEntity.getY() - point.getY() );
@@ -208,7 +213,7 @@ public class Collider{
 	@Deprecated
 	public void applyPointForce( Vector force , Point2D point ){
 		
-		EntityRotationalDynamic thisEntity = (EntityRotationalDynamic)this.owner;
+		EntityRotationalDynamic thisEntity = (EntityRotationalDynamic)this.ownerEntity;
 		
 		//Vector momentumLinear = new Vector( mass*thisEntity.getDX() , mass*thisEntity.getDY() );
 		Vector radius = new Vector( thisEntity.getX() - point.getX() , thisEntity.getY() - point.getY() );
@@ -219,9 +224,26 @@ public class Collider{
 	}
 	
 	
-	public void addCompositeToPhysicsEngine( CollisionEngine engine ){ //TODO COLLISION ENGINE DOUBEL LINKED LIST like renderer
-		engine.addStaticCollidable( this );
+	public void addCompositeToPhysicsEngineStatic( CollisionEngine engine ){ 
+		this.engineHashID = engine.addStaticCollidable( this );
+		this.engine = engine;
 	}
+	
+	public void addCompositeToPhysicsEngineDynamic( CollisionEngine engine ){ 
+		this.engineHashID = engine.addDynamicCollidable( this );
+		this.engine = engine;
+	}
+
+	@Override
+	public boolean exists() {
+		return true;
+	}
+	
+	@Override
+	public void disable(){
+		this.engine.removeCollidable(engineHashID);
+	}
+
 	
 }
 

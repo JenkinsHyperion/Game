@@ -182,7 +182,13 @@ public class Vector implements Serializable{
 			return new Vector( Math.sin(angle) , Math.cos(angle) );
 		}
 		
-		public Vector normal(){
+		public Vector normalRight(){
+			double returnX = this.y;
+			double returnY = -this.x;
+			return new Vector( returnX , returnY );
+		}
+		
+		public Vector normalLeft(){
 			double returnX = -this.y;
 			double returnY = this.x;
 			return new Vector( returnX , returnY );
@@ -200,6 +206,15 @@ public class Vector implements Serializable{
 			else
 				return this;
 			
+		}
+		
+		public Line2D toLine(Point2D origin){
+			return new Line2D.Double(
+					origin.getX(),
+					origin.getY(),
+					origin.getX()+this.x,
+					origin.getY()+this.y					
+					);
 		}
 		
 		@Override

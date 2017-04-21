@@ -1,7 +1,7 @@
 package entities;
 
 import entityComposites.*;
-import physics.Boundary;
+import physics.BoundaryPolygonal;
 
 public class EntityPhysics extends EntityDynamic{
 	
@@ -20,10 +20,11 @@ public class EntityPhysics extends EntityDynamic{
     	
     	loadSprite(path);
     	
-    	Collider collidable = new Collider(this);
-    	collidable.setBoundary( new Boundary.Box(24, 24, 0, 0) );
-    	this.setCollisionComposite( collidable );
+    	//Collider collidable = new Collider(this);
+    	//collidable.setBoundary( new BoundaryPolygonal.Box(24, 24, 0, 0) );   	
+    	//this.setCollisionComposite( collidable );
     	
+    	CompositeFactory.addColliderTo( this, new BoundaryPolygonal.Box(24, 24, 0, 0) );
     	
     	yReturn = y + 12 ;
     	//accY = 0.1f;

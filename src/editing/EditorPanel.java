@@ -16,6 +16,7 @@ import sprites.*;
 import entities.*;
 import entityComposites.*;
 import physics.Boundary;
+import physics.BoundaryPolygonal;
 import entityComposites.EntityFactory;
 import entityComposites.EntityStatic;
 import entityComposites.GraphicComposite;
@@ -1633,8 +1634,9 @@ public class EditorPanel extends JPanel {
 				
 				lines[lines.length-1].setLine( lines[lines.length-1].getP1() , lines[0].getP1() );
 				//Boundary newBoundary = new Boundary(lines, currentSelectedEntity.getColliderComposite());
-				Boundary newBoundary = new Boundary(lines);
-				this.currentSelectedEntity.getColliderComposite().setBoundary(newBoundary);
+				Boundary newBoundary = new BoundaryPolygonal(lines);
+				//this.currentSelectedEntity.getColliderComposite().setBoundary(newBoundary);
+				CompositeFactory.addColliderTo( this.currentSelectedEntity , newBoundary);
 				clearAllVerticesAndLines();
 				clearOldBoundary();
 				isClosedShape = false;

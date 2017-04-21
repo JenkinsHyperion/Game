@@ -39,7 +39,7 @@ public class PlantTwigSegment extends EntityDynamic {
 		this.setCollisionComposite( ColliderNull.getNonCollidable() );
         this.loadSprite("Prototypes/twig.png" , -4 , -40 );
         
-        ((SpriteStillframe) ((GraphicComposite)this.spriteType).getSprite()).setResizeFactor(0); //start initial segment at size 0
+        ((SpriteStillframe) ((GraphicComposite)this.graphicsComposite).getSprite()).setResizeFactor(0); //start initial segment at size 0
 	}
 	
 	public int getNumberFromBranch(){ return this.numberFromLastBranch; }
@@ -50,7 +50,7 @@ public class PlantTwigSegment extends EntityDynamic {
 	
 	public void setAngle( int angle ){
 		
-		((GraphicComposite)this.spriteType).getSprite().setAngle(angle);
+		((GraphicComposite)this.graphicsComposite).getSprite().setAngle(angle);
 		this.angle = angle;
 	}
 	

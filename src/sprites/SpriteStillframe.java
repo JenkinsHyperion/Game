@@ -21,12 +21,9 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     protected int width;
     protected int height;
     protected BufferedImage image;
-
-    public SpriteStillframe( BufferedImage image ){
-    	this.image = image;
-    }
     
     public SpriteStillframe(String path, EntityStatic owner) { 
+    	super(path,0,0);
     	if (!checkPath(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path)) {
     		fileName = null;
     		image = new MissingIcon().paintMissingSprite();
@@ -40,6 +37,7 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     	}
     //another constructor only for owner-less sprite (such as the ghostSprite in Editor)
     public SpriteStillframe(String path){
+    	super(path,0,0);
     	if (!checkPath(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path)) {
     		fileName = null;
     		image = new MissingIcon().paintMissingSprite();
@@ -52,6 +50,7 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     	visibility = true;
     }
     public SpriteStillframe(String path, int offset_x, int offset_y , EntityStatic owner) { 
+    	super(path,offset_x,offset_y);
     	if (!checkPath(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path)) {
     		fileName = null;
     		image = new MissingIcon().paintMissingSprite();
@@ -68,14 +67,14 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     }
     
     public SpriteStillframe(String path, int offset_x, int offset_y) { 
+    	super(path,offset_x,offset_y);
     	if (!checkPath(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path)) {
     		fileName = null;
     		image = new MissingIcon().paintMissingSprite();
-    		System.err.println("Image file '"+path +"' not found for '"+ownerComposite.ownerEntity().name+"', using placeholder");
+    		System.err.println("Image file '"+path +"' not found, using placeholder");
     	}
-    	else {
-	    	fileName = System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path;	    	
-	    	loadImage(fileName);
+    	else {	    	
+	    	loadImage( System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path );
     	}
     	visibility = true;
     	this.spriteOffsetX = offset_x;

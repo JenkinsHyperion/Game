@@ -64,7 +64,7 @@ public class Entity {
         y = (float) sety;
     }
     
-    public Point getPos(){
+    public Point getPosition(){
     	return new Point( (int)x , (int)y );
     }
 

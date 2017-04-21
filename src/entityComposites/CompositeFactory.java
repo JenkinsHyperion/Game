@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.geom.Line2D;
 
 import physics.Boundary;
+import physics.BoundaryPolygonal;
 import sprites.Sprite;
 import sprites.SpriteFilledShape;
 
@@ -13,7 +14,7 @@ public class CompositeFactory {
 	
 	
 	public static void addTranslationTo( EntityStatic entity ){
-		TranslationComposite trans = new TranslationComposite( entity );
+		TranslationCompositeActive trans = new TranslationCompositeActive( entity );
 		entity.setTranslationComposite( trans );
 	}
 	
@@ -21,7 +22,7 @@ public class CompositeFactory {
 		
 		Collider newCollider = new Collider( entity );
 		
-		Boundary newBoundary = new Boundary( sides );
+		Boundary newBoundary = new BoundaryPolygonal( sides );
 		
 		newCollider.setBoundary( newBoundary );
 		

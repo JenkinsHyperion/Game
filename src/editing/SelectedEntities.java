@@ -76,7 +76,7 @@ public class SelectedEntities {
 	public void updateOldEntityPositions(){
 		oldEntityPositions.clear();
 		for (EntityStatic entity: selectedEntities) {
-			oldEntityPositions.add(new Point(entity.getPos()));
+			oldEntityPositions.add(new Point(entity.getPosition()));
 		}
 	}
 	public void removeSelectedVertex(int i) {

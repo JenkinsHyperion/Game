@@ -7,9 +7,12 @@ import Input.*;
 import editing.worldGeom.*;
 import editing.worldGeom.WorldGeometry.VertexPlaceMode;
 import editing.worldGeom.WorldGeometry.VertexSelectMode;
+import editing.worldGeom.WorldGeometry.VertexSelectMode.AlignToXAxisEvent;
+import editing.worldGeom.WorldGeometry.VertexSelectMode.AlignToYAxisEvent;
 import editing.worldGeom.WorldGeometry.VertexSelectMode.CtrlVertexSelectLClickEvent;
 import editing.worldGeom.WorldGeometry.VertexSelectMode.DeleteVerticesEvent;
 import editing.worldGeom.WorldGeometry.VertexSelectMode.SelectionRectEvent;
+import editing.worldGeom.WorldGeometry.VertexSelectMode.SplitLineEvent;
 import editing.worldGeom.WorldGeometry.VertexSelectMode.TranslateEvent;
 import editing.worldGeom.WorldGeometry.VertexSelectMode.VertexSelectLClickEvent;
 import sprites.*;
@@ -59,6 +62,7 @@ public class EditorPanel extends JPanel {
 	private SpriteEditorMode spriteEditorMode;
 	private BoundaryEditorMode boundaryEditorMode;
 	private ModeAbstract editorMode;
+	private InputController inputController;
 	/*@Deprecated
 	public static final int DEFAULT_MODE = 0;
 	public static final int ENTPLACEMENT_MODE = 1;
@@ -158,6 +162,50 @@ public class EditorPanel extends JPanel {
 		oldMousePanPos = new Point();
 		//worldMousePos = new Point();
 		oldCameraPos = new Point();
+		inputController = new InputController();
+		inputController.createKeyBinding(KeyEvent.VK_F5, new KeyCommand() {
+			@Override
+			public void onPressed() { setMode(getEditorSelectMode());	}
+			public void onReleased() {} public void onHeld() {}
+		});
+		inputController.createKeyBinding(KeyEvent.VK_F6, new KeyCommand() {
+			@Override
+			public void onPressed() { setMode(getWorldGeomMode());	}
+			public void onReleased() {} public void onHeld() {}
+		});
+		inputController.createKeyBinding(KeyEvent.VK_F7, new KeyCommand() {
+			@Override
+			public void onPressed() { 
+				if (editorMode == worldGeomMode) 
+					getWorldGeomMode().setMode(worldGeomMode.getVertexSelectMode());
+				else if (editorMode == boundaryEditorMode) 
+					getBoundaryEditorMode().setMode(boundaryEditorMode.getVertexSelectMode());
+			}
+			public void onReleased() {} public void onHeld() {}
+		});
+		inputController.createKeyBinding(KeyEvent.VK_F8, new KeyCommand() {
+			@Override
+			public void onPressed() { 
+				if (editorMode == worldGeomMode) 
+					getWorldGeomMode().setMode(worldGeomMode.getVertexPlaceMode());
+				else if (editorMode == boundaryEditorMode) 
+					getBoundaryEditorMode().setMode(boundaryEditorMode.getVertexPlaceMode());
+			}
+			public void onReleased() {} public void onHeld() {}
+		});
+		inputController.createKeyBinding(KeyEvent.VK_S, new KeyCommand() {
+			@Override
+			public void onPressed() { getEditorSelectMode().setSelectViaSprite(true);
+									  selectViaSpriteRB.setSelected(true);}
+			public void onReleased() {} public void onHeld() {}
+		});
+		
+		inputController.createKeyBinding(KeyEvent.VK_B, new KeyCommand() {
+			@Override
+			public void onPressed() { getEditorSelectMode().setSelectViaSprite(false);	
+									  selectViaBoundaryRB.setSelected(true);}
+			public void onReleased() {} public void onHeld() {}
+		});
 		
 		//##### INITIALIZING BUTTONS   ############
 		saveButton = new JButton("Save");
@@ -175,7 +223,7 @@ public class EditorPanel extends JPanel {
 		newEntityPath = "";
 		selectedBox = new Rectangle();
 		editorMousePos = new Point();
-		ghostSprite = null; 							//FIXME
+		ghostSprite = null; 				//FIXME
         //clickPosition = new Point(0,0);
         
 
@@ -221,7 +269,6 @@ public class EditorPanel extends JPanel {
 		
 		selectViaSpriteRB = new JRadioButton("S");
 		selectViaSpriteRB.setFocusable(false);
-		selectViaSpriteRB.setEnabled(true);
 		selectViaSpriteRB.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -231,17 +278,16 @@ public class EditorPanel extends JPanel {
 		});
 		selectViaBoundaryRB = new JRadioButton("B");
 		selectViaBoundaryRB.setFocusable(false);
+		selectViaBoundaryRB.setSelected(true);
 		selectViaBoundaryRB.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				editorSelectMode.setSelectViaSprite(false);
 			}
 		});
-		
 		ButtonGroup rbgroup = new ButtonGroup();
 		rbgroup.add(selectViaSpriteRB);
 		rbgroup.add(selectViaBoundaryRB);
-		selectViaSpriteRB.setEnabled(true);
 		
 		saveButton.setPreferredSize(new Dimension(40,22));
 		saveButton.setMargin(new Insets(0,0,0,0));
@@ -250,11 +296,9 @@ public class EditorPanel extends JPanel {
 		saveButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
 				String levelName = JOptionPane.showInputDialog("Enter level name");
 				//new SavingLoading(board).writeLevel(board.getStaticEntities(), levelName);
 				new SavingLoading(board).writeLevel( board.listCurrentSceneEntities(), levelName );
-				
 			}
 		});
 
@@ -436,7 +480,6 @@ public class EditorPanel extends JPanel {
 		iconBarScrollPaneSpriteSwap.setVerticalScrollBarPolicy((JScrollPane.VERTICAL_SCROLLBAR_ALWAYS));
 		iconBarScrollPaneSpriteSwap.setVisible(true);
 		// #### add everything to the editor
-		
 		add(entitiesComboBoxPanel);
 		add(saveButton);
 		add(loadButton);
@@ -450,13 +493,6 @@ public class EditorPanel extends JPanel {
 		add(tempSpriteName);
 		add(iconBarScrollPaneSpriteSwap);
 		//iconBarScrollPaneSpriteSwap.setVisible(false);
-	/*	try {
-			automaticMouseReturn = new Robot();
-		} catch (AWTException e) {}
-		*/
-		//testing setting the ghostSprite
-		//setGhostSprite(ASSET_PATH + PF1 );
-		//revalidate();
 		
 	} // #### end of constructor #### #####################################################################################
 	 // #### end of constructor #### #####################################################################################
@@ -524,6 +560,8 @@ public class EditorPanel extends JPanel {
 	
 	// ############ KEY HANDLING SECTION ###########
 	public void keyPressed(KeyEvent e) {
+		this.inputController.keyPressed(e);
+		this.inputController.keyReleased(e);
 		this.editorMode.keyPressed(e);
 	}	
 	public void keyReleased(KeyEvent e) {
@@ -1111,7 +1149,7 @@ public class EditorPanel extends JPanel {
 			@Override
 			public void mousePressed() {
 				checkForEntity(camera.getLocalPosition(editorMousePos));
-				selectedEntities.printSelectedEntities();
+				//selectedEntities.printSelectedEntities();
 			}
 
 			@Override
@@ -1485,29 +1523,53 @@ public class EditorPanel extends JPanel {
 				lineArray.add(tempLine);
 			}
 		}
-		@Deprecated
 		public void refreshAllSurfaceLinesClosedShape(ArrayList<Line2D.Double> lineArray) {
 			lineArray.clear();
 			for (int i = 0; i < vertexList.size()-1; i++) {
 				Line2D.Double tempLine = new Line2D.Double(vertexList.get(i).getPoint(), vertexList.get(i+1).getPoint());
 				lineArray.add(tempLine);
 			}
-			lineArray.add(new Line2D.Double(lineArray.get(lineArray.size()-1).getP2(),
-																lineArray.get(0).getP1()));
+			closeShape(lineArray);
 		}
 		public void closeShape(ArrayList<Line2D.Double> lineArray) {
-			if (lineArray.size() > 2) {
+			/*if (lineArray.size() > 2) {
 				if (lineArray.get(0).getP1() != lineArray.get(lineArray.size()-1).getP2()) {
 					lineArray.add(new Line2D.Double(lineArray.get(lineArray.size()-1).getP2(),
 							lineArray.get(0).getP1()));
 					System.out.println("Was able to close shape");
 				}
+			}*/
+			if (checkIfClosedShape(lineArray) == false) {  //is an open shape
+				lineArray.add(new Line2D.Double(lineArray.get(lineArray.size()-1).getP2(),
+						lineArray.get(0).getP1()));
 			}
 			/*if (lineArray == surfaceLines)
 					isClosedShape = true;*/
-			isClosedShape = true;
+			//isClosedShape = true;
 			//}
 		}
+		public boolean checkIfClosedShape(ArrayList<Line2D.Double> lineArray) {
+			if (lineArray.size() > 2) {
+				if (lineArray.get(0).getP1() == lineArray.get(lineArray.size()-1).getP2()) {
+					return true;
+				}
+			}
+			return false;
+			/*if (lineArray == surfaceLines)
+					isClosedShape = true;*/
+			//isClosedShape = true;
+			//}
+		}
+		public boolean checkIfVerticesAreAdjacent(EditorVertex vert1, EditorVertex vert2) {
+			int indexOfVert1 = vertexList.indexOf(vert1);
+			if (indexOfVert1 != vertexList.size()-1) {
+				if (vert2 == vertexList.get(indexOfVert1+1)) {
+					return true;
+				}
+			}
+			return false;
+		}
+		
 		public void addVertex(int x, int y) {
 			if (isClosedShape == false) {
 				//vertexList.add(new Vertex(this.camera.getLocalX(x), this.camera.getLocalY(y)));
@@ -1515,7 +1577,7 @@ public class EditorPanel extends JPanel {
 				if (vertexList.size() > 1) {
 					//updateSurfaceLinesUponChange(vertexList.size()-2);
 					refreshAllSurfaceLines(surfaceLines);
-					isClosedShape = false;
+					//isClosedShape = false;
 				}
 			}
 		}
@@ -1529,11 +1591,9 @@ public class EditorPanel extends JPanel {
 							break;
 						}
 					}
-					closeShape(surfaceLines);
 					refreshAllSurfaceLines(surfaceLines);
-					
+					closeShape(surfaceLines);
 				}
-				
 			}
 		}
 		public void clearAllVerticesAndLines() {
@@ -1569,27 +1629,26 @@ public class EditorPanel extends JPanel {
 				oldVertexListForReset.add(new EditorVertex((int)newVert.getPoint().getX(), (int)newVert.getPoint().getY()));
 		}
 		public void retrieveVertsFromBoundary(Collider sourceCollider){
-			this.vertexList.clear();
+			clearAllVerticesAndLines();
 			//might not need either of these two lines vvvvv
 			//ArrayList<Point2D> temporaryPointsList = new ArrayList<>();
 			//Point2D[] temporarayPointsArray = sourceCollider.getBoundary().getCornersPoint();
 			for (Point2D vertexToAdd: sourceCollider.getBoundaryLocal().getCornersPoint()){
 				vertexList.add(new EditorVertex( (int)vertexToAdd.getX(),(int)vertexToAdd.getY()) );
 			}
-			closeShape(surfaceLines);
-			closeShape(oldBoundary);
 			refreshAllSurfaceLines(surfaceLines);
 			refreshAllSurfaceLines(oldBoundary);
-			
+			closeShape(surfaceLines);
+			closeShape(oldBoundary);
 			/*surfaceLines.get(surfaceLines.size()-1).setLine(surfaceLines.get(surfaceLines.size()-1).getP2(),
 																			 surfaceLines.get(0).getP1());*/
 		}
-		public void debugTestForVerticesPosition() {
+		/*public void debugTestForVerticesPosition() {
 			//going to try to duplicate the coordinates of the big slope testentity
 			this.vertexList.clear();
-			/*new Line2D.Double( -25 , -50 , 2000 , 500 ),
+			new Line2D.Double( -25 , -50 , 2000 , 500 ),
 			new Line2D.Double( 2000 , 500 , -25 , 500 ),
-			new Line2D.Double( -25 , 500 , -25 , -50 )*/
+			new Line2D.Double( -25 , 500 , -25 , -50 )
 			
 			vertexList.add(new EditorVertex(-25,-50));
 			vertexList.add(new EditorVertex(2000,500));
@@ -1599,7 +1658,7 @@ public class EditorPanel extends JPanel {
 			closeShape(surfaceLines);
 			closeShape(oldBoundary);
 			
-		}
+		}*/
 		public void retrieveVertsFromRect(Rectangle rect) {
 			this.vertexList.clear();
 			Point2D p1 = new Point2D.Double(rect.getMinX(), rect.getMinY());
@@ -1621,6 +1680,8 @@ public class EditorPanel extends JPanel {
 		}
 		public void replaceAndFinalizeBoundary() {
 			if (surfaceLines.size() > 0) {
+				refreshAllSurfaceLines(surfaceLines);
+				closeShape(surfaceLines);
 				Line2D[] lines = new Line2D[surfaceLines.size()];
 				for (int i = 0; i < surfaceLines.size(); i++) {
 //					int offsetX = (int)surfaceLines.get(i).getX1() - currentSelectedEntity.getX();
@@ -1632,7 +1693,7 @@ public class EditorPanel extends JPanel {
 									 surfaceLines.get(i).getY2()-currentSelectedEntity.getY());
 				}
 				
-				lines[lines.length-1].setLine( lines[lines.length-1].getP1() , lines[0].getP1() );
+				//lines[lines.length-1].setLine( lines[lines.length-1].getP1() , lines[0].getP1() );
 				//Boundary newBoundary = new Boundary(lines, currentSelectedEntity.getColliderComposite());
 				Boundary newBoundary = new BoundaryPolygonal(lines);
 				//this.currentSelectedEntity.getColliderComposite().setBoundary(newBoundary);
@@ -1670,6 +1731,9 @@ public class EditorPanel extends JPanel {
 				this.inputController.createKeyBinding(KeyEvent.CTRL_MASK, KeyEvent.VK_Z, new ResetBoundaryVerticesToDefaultEvent());
 				this.inputController.createKeyBinding(KeyEvent.VK_DELETE, new DeleteVerticesEvent());
 				this.inputController.createKeyBinding(KeyEvent.VK_C, new CloseShapeEvent());
+				this.inputController.createKeyBinding(KeyEvent.VK_X, new AlignToXAxisEvent());
+				this.inputController.createKeyBinding(KeyEvent.VK_Y, new AlignToYAxisEvent());
+				this.inputController.createKeyBinding(KeyEvent.VK_SLASH, new SplitLineEvent());
 			}
 
 			@Override
@@ -1738,6 +1802,22 @@ public class EditorPanel extends JPanel {
 					}
 				}
 			}
+			public void splitLine() {
+				if (selectedVertices.size() == 2) {
+					if ( checkIfVerticesAreAdjacent(selectedVertices.getVertices().get(0), selectedVertices.getVertices().get(1)) ){
+						int x1 = selectedVertices.getVertices().get(0).getPoint().x;
+						int x2 = selectedVertices.getVertices().get(1).getPoint().x;
+						int y1 = selectedVertices.getVertices().get(0).getPoint().y;
+						int y2 = selectedVertices.getVertices().get(1).getPoint().y;
+						int averageX = (x1 + x2) / 2;
+						int averageY = (y1 + y2) / 2;
+						vertexList.add(vertexList.indexOf(selectedVertices.getVertices().get(1) ),
+										new EditorVertex(averageX,averageY));
+						refreshAllSurfaceLinesClosedShape(surfaceLines);
+						selectedVertices.clearSelectedVertices();
+					}
+				}
+			}
 // ****************** inner-inner classes for mouse behavior classes specific to vertex selecting
 // ****************** inner-inner classes for mouse behavior classes specific to vertex selecting
 			public class VertexSelectLClickEvent implements MouseCommand{
@@ -1788,10 +1868,12 @@ public class EditorPanel extends JPanel {
 				}
 				public void mouseDragged() {
 					selectedVertices.translate(initClickPoint, editorMousePos);
-					if (isClosedShape)
+					/*if (isClosedShape)
 						refreshAllSurfaceLinesClosedShape(surfaceLines);
 					else
-						refreshAllSurfaceLines(surfaceLines);
+						refreshAllSurfaceLines(surfaceLines);*/
+					refreshAllSurfaceLines(surfaceLines);
+					closeShape(surfaceLines);
 				}
 				public void mouseReleased() {
 					// TODO Auto-generated method stub
@@ -1816,8 +1898,6 @@ public class EditorPanel extends JPanel {
 
 				@Override
 				public void mouseReleased() {
-					// TODO Auto-generated method stub
-					//command to select vertices underneath box
 					checkForVertexInSelectionRect(selectionRectangleState.getWrekt());
 					selectionRectangleState.resetRect();
 					selectionRectangleState = nullSelectionRectangle;
@@ -1827,10 +1907,15 @@ public class EditorPanel extends JPanel {
 			public class EscapeEvent implements KeyCommand {
 				@Override
 				public void onPressed() {
-					// TODO Auto-generated method stub
 					selectedVertices.clearSelectedVertices();
 				}
 				public void onReleased(){} public void onHeld() {}
+			}
+			public class SplitLineEvent implements KeyCommand {
+				public void onPressed() {
+					splitLine();
+				}
+				public void onReleased() {} public void onHeld() {}
 			}
 			/*
 			public class RetrieveVertsFromBoundaryEvent implements KeyCommand {
@@ -1840,6 +1925,22 @@ public class EditorPanel extends JPanel {
 				}
 				public void onReleased(){} public void onHeld() {}
 			}*/
+			public class AlignToXAxisEvent implements KeyCommand {
+				@Override
+				public void onPressed() {
+					selectedVertices.alignToXAxis();
+					refreshAllSurfaceLinesClosedShape(surfaceLines);
+				}
+				public void onReleased(){} public void onHeld() {}
+			}
+			public class AlignToYAxisEvent implements KeyCommand {
+				@Override
+				public void onPressed() {
+					selectedVertices.alignToYAxis();
+					refreshAllSurfaceLinesClosedShape(surfaceLines);
+				}
+				public void onReleased(){} public void onHeld() {}
+			}
 			public class DeleteVerticesEvent implements KeyCommand {
 				@Override
 				public void onPressed() {
@@ -1852,6 +1953,7 @@ public class EditorPanel extends JPanel {
 				@Override
 				public void onPressed() {
 					// TODO Auto-generated method stub
+					refreshAllSurfaceLines(surfaceLines);
 					closeShape(surfaceLines);
 				}
 				public void onReleased() {} public void onHeld() {}

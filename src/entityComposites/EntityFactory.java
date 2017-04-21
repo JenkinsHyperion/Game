@@ -82,10 +82,7 @@ public class EntityFactory {
 			line.setLine( line.getX1()-centerX  , line.getY1()-centerY , line.getX2()-centerX , line.getY2()-centerY );
 		}
 		
-		EntityStatic testEntity = new EntityStatic(
-				0,
-				0
-		);
+		EntityStatic testEntity = new EntityStatic(0,0);
 		
 		/*for ( int i = 0 ; i < lines.length ; i++ ){
 			finalLines[i].setLine( lines[i].getX1() , lines[i].getY1()  , lines[i].getX2() , lines[i].getY2() );

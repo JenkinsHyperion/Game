@@ -2,7 +2,7 @@ package editing.worldGeom;
 
 import java.awt.event.MouseEvent;
 
-public class KeyStateNull extends KeyState {
+public class MouseMovedKeyStateNull implements MouseMovedKeyState {
 
 	@Override
 	public void mouseMoved(MouseEvent e) {

@@ -19,22 +19,11 @@ public class SpriteIconLoader extends JFrame {
    
   
     private String iconsDir = System.getProperty("user.dir") + "\\Assets\\Icons\\";
-    private String realImagesDir = System.getProperty("user.dir") + "\\Assets\\";
+    private String realImagesDir = System.getProperty("user.dir") + "\\Assets\\SpriteHotSwap\\";
     private JPanel iconBarRef;
     private EditorPanel editorPanelRef;
     private MissingIcon placeholderIcon = new MissingIcon();
-    /*private String[] iconFileNames = { 
-    		"boxIcon.png" , 
-    		"bulletIcon.png", 
-    		"grass01Icon.png",
-    		"ground01Icon.png",
-    		"ground_1Icon.png", 
-    		"platformIcon.png",
-    		"platform02Icon.png" }; */
-    //private String[] realImageFileNames = new String[iconFileNames.length];
     private String[] realImageFileNames;
-//    private String[] realImageFileNames = { "platform.png" , "platform02.png", "ground01.png",
-//    		"grass01.png", "box.png" }; 
     /**
      * Helper class to load buttons into preview Icon display for creating new entities.
      * @param editorPanelRef Reference to EditorPanel to use its methods and fields
@@ -43,7 +32,7 @@ public class SpriteIconLoader extends JFrame {
     public SpriteIconLoader(JPanel edPanRef, JPanel ibRef) {
     	editorPanelRef = (EditorPanel)edPanRef;
     	iconBarRef = ibRef;  
-    	populateRealFileNamesArray("SpriteHotSwap");
+    	populateRealFileNamesArray();
     	//populateRealFileNamesArray("Icons", iconFileNames);
     	//iconBarRef.add(Box.createGlue());
     	// iconBarRef.add(Box.createGlue());   
@@ -51,12 +40,12 @@ public class SpriteIconLoader extends JFrame {
     	// start the image loading SwingWorker in a background thread
     	loadimages.execute();
     }
-    private void populateRealFileNamesArray(String path) {
+    private void populateRealFileNamesArray() {
     	File fileArray[] = null;
 //    	FileInputStream fileIn = null;
-    	if (new File(realImagesDir + File.separator + path).exists()) {
+    	if (new File(realImagesDir + File.separator).exists()) {
     		try {
-    			fileArray = new File(realImagesDir + File.separator + path + File.separator).listFiles();
+    			fileArray = new File(realImagesDir + File.separator).listFiles();
     			realImageFileNames = new String[fileArray.length];
     			System.out.println("fileArray's length: " + fileArray.length);
     			for (int i = 0; i < fileArray.length; i++) {
@@ -70,10 +59,6 @@ public class SpriteIconLoader extends JFrame {
     		 catch (Exception f) {
  				f.printStackTrace();
  			}
-    		System.out.println("Realimagefilenames[]: \n");
-    		 for (int i = 0; i < realImageFileNames.length; i++) {
-    			 System.out.println(realImageFileNames[i]);
-    		 }
     	}
     	else {
 			JOptionPane.showMessageDialog(null, "No files to load");
@@ -142,9 +127,11 @@ public class SpriteIconLoader extends JFrame {
      * @param String - description of the file
      */
     protected ImageIcon createImageIcon(String path) {
+
     	File newFile = new File(path);
         if ( newFile.exists() ) {
         	System.out.println("This path exists: " + path);
+
             return new ImageIcon(path);
         } else {
             System.err.println("Couldn't find file: " + path);

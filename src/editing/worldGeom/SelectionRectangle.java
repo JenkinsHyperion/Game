@@ -26,7 +26,6 @@ public class SelectionRectangle implements SelectionRectangleAbstract{
 	}
 	@Override
 	public Rectangle getWrekt() {
-		// TODO Auto-generated method stub
 		return selectionRectangle;
 	}
 
@@ -48,26 +47,17 @@ public class SelectionRectangle implements SelectionRectangleAbstract{
 	}
 	@Override
 	public void setInitialX(int newInitialX) {
-		// TODO Auto-generated method stub
-		
 	}
-
 	@Override
 	public void setInitialY(int newInitialY) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void setFinalX(int newFinalX) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void setFinalY(int newFinalY) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

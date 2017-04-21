@@ -3,11 +3,12 @@ package editing;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-
+import entityComposites.*;
+import physics.Boundary;
 import engine.MovingCamera;
-import entityComposites.EntityStatic;
 
 public class SelectedEntities {
 	private ArrayList<EntityStatic> selectedEntities = new ArrayList<>();
@@ -36,14 +37,21 @@ public class SelectedEntities {
 	}
 	public void drawClickableBox(Graphics g, MovingCamera camera) {
 		for(EntityStatic entity: selectedEntities) {
-			//vertex.drawClickableBox(g, camera);
-			Rectangle rect = new Rectangle();
-			//rect.setLocation(entity.getXRelativeTo(camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(camera) + entity.getSpriteOffsetY());
-			rect.setLocation(entity.getX() + entity.getSpriteOffsetX(), entity.getY() + entity.getSpriteOffsetY());
-			rect.setSize(entity.getEntitySprite().getBufferedImage().getWidth(null),
-					entity.getEntitySprite().getBufferedImage().getHeight(null) );
-			camera.drawRect(rect, g, Color.BLUE, Color.CYAN, .05f);
-			
+			//vertex.drawClickableBox(g, camera);'
+		/*	if (!(entity.getGraphicComposite() instanceof GraphicCompositeNull)) {
+				Rectangle rect = new Rectangle();
+				//rect.setLocation(entity.getXRelativeTo(camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(camera) + entity.getSpriteOffsetY());
+				rect.setLocation(entity.getX() + entity.getSpriteOffsetX(), entity.getY() + entity.getSpriteOffsetY());
+				rect.setSize(entity.getEntitySprite().getBufferedImage().getWidth(null),
+						entity.getEntitySprite().getBufferedImage().getHeight(null) );
+				camera.drawRect(rect, g, Color.BLUE, Color.CYAN, .05f);
+			} */
+			// if entity has no graphics 
+			if (!(entity.getColliderComposite() instanceof ColliderNull)) {
+				Polygon poly = Boundary.getPolygonFromBoundary(entity.getColliderComposite().getBoundary(), entity);
+				Rectangle rect = poly.getBounds();
+				camera.drawRect(rect, g, Color.BLUE, Color.CYAN, .05f);
+			}
 		}
 		/*for (int i = 0; i < selectedVertices.size(); i++){
 			selectedVertices.get(i).drawClickableBox(g, camera);

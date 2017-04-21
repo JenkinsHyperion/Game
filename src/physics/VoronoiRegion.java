@@ -35,18 +35,29 @@ public class VoronoiRegion {
 			
 		VoronoiRegion r = new VoronoiRegion(feature);
 			//if (X) //vertical line 
-			Line2D side = ((Side)feature).toLine();
-			r.slopeCW = -(side.getX2()-side.getX1())/(side.getY2()-side.getY1());
-			r.slopeCCW = r.slopeCW;
-			
-			r.yInterceptCW = (int) (side.getP1().getY() - ( r.slopeCW * side.getP1().getX() ));
-			r.yInterceptCCW = (int) (side.getP2().getY() - ( r.slopeCCW * side.getP2().getX() ));
-			
-			r.slopeBase = (side.getY2()-side.getY1())/(side.getX2()-side.getX1());
-			r.yInterceptBase = (int) (side.getY1() - (r.slopeBase * side.getX1()));
-			r.topBottom = (byte) Math.signum( side.getX2()-side.getX1() );
-			
-			r.checkMath = r.new SideCheck(feature);
+			if ( feature.getY1() - feature.getY2() == 0 ){ //horizontal side
+				r.checkMath = r.new HorizontalSideCheck(feature);
+				r.topBottom = (byte) Math.signum( feature.getX2()-feature.getX1() );
+			}
+			else if ( feature.getX1() - feature.getX2() == 0 ){
+				r.checkMath = r.new VerticalSideCheck(feature);
+				r.topBottom = (byte) Math.signum( feature.getY2()-feature.getY1() );
+			}
+			else {
+		
+				Line2D side = ((Side)feature).toLine();
+				r.slopeCW = -(side.getX2()-side.getX1())/(side.getY2()-side.getY1());
+				r.slopeCCW = r.slopeCW;
+				
+				r.yInterceptCW = (int) (side.getP1().getY() - ( r.slopeCW * side.getP1().getX() ));
+				r.yInterceptCCW = (int) (side.getP2().getY() - ( r.slopeCCW * side.getP2().getX() ));
+				
+				r.slopeBase = (side.getY2()-side.getY1())/(side.getX2()-side.getX1());
+				r.yInterceptBase = (int) (side.getY1() - (r.slopeBase * side.getX1()));
+				r.topBottom = (byte) Math.signum( side.getX2()-side.getX1() );
+				
+				r.checkMath = r.new SideCheck(feature);
+			}
 			
 			return r;
 	}
@@ -131,6 +142,75 @@ public class VoronoiRegion {
 			cam.debugDraw( ownerSide.toVector().normalRight().toLine(ownerSide.getP1()) ,g2);
 			cam.debugDraw( ownerSide.toVector().normalRight().toLine(ownerSide.getP2()) ,g2);
 		}
+	}
+	
+	private class VerticalSideCheck implements RegionCheck{
+
+		private Side side;
+		public VerticalSideCheck(Side side){
+			this.side = side;
+		}
+		@Override
+		public boolean entityIsInRegion(EntityStatic entity) {
+			
+			int dist = Math.abs( entity.getY() - side.getY1() + entity.getY() - side.getY2()  ) ;
+			int range = Math.abs( side.getY1() - side.getY2()  ) ;
+			if ( 
+					dist < range &&
+					topBottom*(entity.getX() - side.getX1() ) > 0
+					){
+				return true;
+			}
+			else{
+				return false;
+			}
+		}
+
+		@Override
+		public Line2D getSeparation(EntityStatic entity) {
+			return this.side.toLine();
+		}
+
+		@Override
+		public void debugDraw(MovingCamera cam, Graphics2D g2) {
+			cam.debugDraw( side.toVector().normalRight().toLine(side.getP1()) ,g2);
+			cam.debugDraw( side.toVector().normalRight().toLine(side.getP2()) ,g2);
+		}
+		
+	}
+	
+	private class HorizontalSideCheck implements RegionCheck{ //Special case horizontal side where CW and CCW sides will be vertical
+		private Side side;
+		public HorizontalSideCheck(Side side){
+			this.side = side;
+		}
+		@Override
+		public boolean entityIsInRegion(EntityStatic entity) {
+			
+			int dist = Math.abs( entity.getX() - side.getX1() + entity.getX() - side.getX2()  ) ;
+			int range = Math.abs( side.getX1() - side.getX2()  ) ;
+			if ( 
+					dist < range &&
+					topBottom*(entity.getY() - side.getY1() ) < 0
+					){
+				return true;
+			}
+			else{
+				return false;
+			}
+		}
+
+		@Override
+		public Line2D getSeparation(EntityStatic entity) {
+			return this.side.toLine();
+		}
+
+		@Override
+		public void debugDraw(MovingCamera cam, Graphics2D g2) {
+			cam.debugDraw( side.toVector().normalRight().toLine(side.getP1()) ,g2);
+			cam.debugDraw( side.toVector().normalRight().toLine(side.getP2()) ,g2);
+		}
+		
 	}
 	
 	private class CornerCheck implements RegionCheck{ //Corner Check uses normal vectors of adjacent sides

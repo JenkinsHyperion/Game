@@ -207,6 +207,21 @@ public class EditorPanel extends JPanel {
 			public void onReleased() {} public void onHeld() {}
 		});
 		
+		inputController.createKeyBinding(KeyEvent.VK_DELETE, new KeyCommand(){ //DELETE SELECTED
+			@Override
+			public void onPressed() {
+				//ArrayList<EntityStatic> entities = editorSelectMode.getSelectedEntities();
+				//for ( EntityStatic entity : entities ){
+				//	entity.disable();
+				//}
+			}
+			@Override
+			public void onReleased() {}
+			@Override
+			public void onHeld() {}
+			
+		});
+		
 		//##### INITIALIZING BUTTONS   ############
 		saveButton = new JButton("Save");
 		loadButton = new JButton("Load");
@@ -1820,6 +1835,7 @@ public class EditorPanel extends JPanel {
 			}
 // ****************** inner-inner classes for mouse behavior classes specific to vertex selecting
 // ****************** inner-inner classes for mouse behavior classes specific to vertex selecting
+			
 			public class VertexSelectLClickEvent implements MouseCommand{
 				public void mousePressed() {
 					// TODO Auto-generated method stub

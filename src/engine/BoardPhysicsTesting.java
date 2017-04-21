@@ -35,10 +35,10 @@ public class BoardPhysicsTesting extends BoardAbstract{
     	
     	collisionEngine = new VisualCollisionEngine( this , renderingEngine );
 
-    	CompositeFactory.addColliderTo( followerEntity , new BoundaryPolygonal.Box(60, 60, -10, -10) );
-    	//CompositeFactory.addColliderTo(followerEntity, new BoundaryCircular(40,followerEntity) );
-    	CompositeFactory.addGraphicFromCollider( followerEntity , followerEntity.getColliderComposite() );
-    	//CompositeFactory.addGraphicTo(followerEntity, new SpriteStillframe("gf") );
+    	//CompositeFactory.addColliderTo( followerEntity , new BoundaryPolygonal.Box(60, 60, -10, -10) );
+    	CompositeFactory.addColliderTo(followerEntity, new BoundaryCircular(40,followerEntity) );
+    	//CompositeFactory.addGraphicFromCollider( followerEntity , followerEntity.getColliderComposite() );
+    	CompositeFactory.addGraphicTo(followerEntity, new SpriteStillframe("gf") );
     	CompositeFactory.addTranslationTo(followerEntity);
     	this.currentScene.addEntity( followerEntity );
     	
@@ -55,7 +55,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 		
 		
 		
-		EntityStatic testEntity = new EntityStatic("Test Ground1",50,500);     
+		EntityStatic testEntity = new EntityStatic("Test Ground1",0,0);     
         CompositeFactory.addColliderTo( testEntity , new BoundaryPolygonal.Box(446,100,-223,-50 ) );
         CompositeFactory.addGraphicTo(testEntity, new SpriteStillframe("ground_1.png" , -223 , -53 ) );
         currentScene.addEntity( testEntity );

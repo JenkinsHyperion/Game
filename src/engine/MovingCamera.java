@@ -254,10 +254,10 @@ public class MovingCamera extends EntityDynamic implements Camera{
 		);*/
 
 		g2.drawLine(
-				getRelativeX( (int)line.getX1() ) ,  
+				getRelativeX( (int)line.getX1() ),  
 				getRelativeY( (int)line.getY1() ),  
 				getRelativeX( (int)line.getX2() ),  
-				getRelativeY( (int)line.getY2() )	
+				getRelativeY( (int)line.getY2() )
 		);
 		
 	}

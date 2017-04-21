@@ -6,7 +6,7 @@ import java.awt.Polygon;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 
-
+import engine.MovingCamera;
 import entityComposites.Collider;
 import entityComposites.EntityStatic;
 import misc.*;
@@ -69,7 +69,7 @@ public abstract class Boundary {
 	 * @return Polygon that hopefully is the same shape as the boundary
 	 */
 	public static Polygon getPolygonFromBoundary(Boundary boundaryRaw, EntityStatic ent) {
-		Boundary boundaryLocal = boundaryRaw.atPosition(ent.getPos());
+		Boundary boundaryLocal = boundaryRaw.atPosition(ent.getPosition());
 		int[] xpoints;
 		int[] ypoints;
 		xpoints = new int[boundaryLocal.getCornersPoint().length];

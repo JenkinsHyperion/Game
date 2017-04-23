@@ -6,7 +6,6 @@ import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 
-import com.sun.org.apache.xalan.internal.utils.FeatureManager.Feature;
 
 import engine.MovingCamera;
 import entityComposites.EntityStatic;

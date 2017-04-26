@@ -18,7 +18,7 @@ public abstract class Boundary {
 	public abstract Boundary atPosition( Point position );
 	
 	public abstract void rotateBoundaryFromTemplate( Point center, double angle , Boundary template );
-	public abstract Point rotateBoundaryFromTemplatePoint(Point center, double angle , BoundaryPolygonal template);
+	//public abstract Point rotateBoundaryFromTemplatePoint(Point center, double angle , Boundary template);
 	
 	protected abstract Line2D[] getSeparatingSides(Boundary partner);
 	public abstract void debugDrawBoundary( MovingCamera cam , Graphics2D g2, EntityStatic ownerEntity );

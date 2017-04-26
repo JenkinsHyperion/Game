@@ -2,25 +2,35 @@ package entityComposites;
 
 import java.awt.Point;
 import java.io.File;
+import java.util.ArrayList;
+
 import animation.Animation;
+import engine.BoardAbstract;
 import entityComposites.*;
 import physics.Boundary;
 import physics.BoundaryPolygonal;
 import physics.CollisionEngine;
 import sprites.SpriteAnimated;
 import sprites.SpriteStillframe;
+import utility.DoubleLinkedList;
+import utility.Ticket;
 import sprites.RenderingEngine;
 import sprites.Sprite;
 
 /*
  * Static Entity class, for unmoving sprites. Has graphic that can be either still image or animation.
  */
-public class EntityStatic extends Entity{
+public class EntityStatic extends Entity implements UpdateableComposite{
 
+	private Ticket updaterSlot;
 	//COMPOSITE VARIABLES, LATER TO BE LIST OF COMPOSITES
-	protected TranslationComposite translationType = new TranslationComposite(this);
+	protected EntityStatic child;
+	protected TranslationComposite translationType = new TranslationComposite();
+	protected RotationComposite rotationType = new RotationComposite(this);
 	protected GraphicComposite graphicsComposite = GraphicCompositeNull.getNullSprite(); 
 	protected Collider collisionType = ColliderNull.getNonCollidable();
+	
+	protected ArrayList<UpdateableComposite> updateables = new ArrayList<UpdateableComposite>();
 	
 	public EntityStatic(int x, int y) {
 
@@ -32,13 +42,26 @@ public class EntityStatic extends Entity{
 	public EntityStatic( String name , int x, int y) {
     	super(x,y);
     	this.name = name;
-    	
     }
 
 	public EntityStatic(Point entityPosition) {
 		super( entityPosition.x , entityPosition.y );
 	}
+	@Override
+	public void updateComposite(){ //
+		for ( UpdateableComposite composite : updateables ){
+			composite.updateEntity(this);
+		}
+	}
+	@Override
+	public void updateEntity(EntityStatic entity) { 
+	}
 
+	public void addChild( EntityStatic entity ){
+		this.child = entity;
+		entity.setTranslationComposite( this.getTranslationComposite() );
+	}
+	
 	protected void setGraphicComposite(GraphicComposite spriteType){ 
 		this.graphicsComposite = spriteType; 
 		}
@@ -53,6 +76,14 @@ public class EntityStatic extends Entity{
 	
 	public TranslationComposite getTranslationComposite(){
 		return this.translationType;
+	}
+	
+	protected void setRotationComposite( RotationComposite rotationType ){ 
+		this.rotationType = rotationType; 
+	}
+	
+	public RotationComposite getRotationComposite(){
+		return this.rotationType;
 	}
 	
 	protected void setCollisionComposite(Collider collisionType){ 
@@ -184,6 +215,14 @@ public class EntityStatic extends Entity{
 		this.graphicsComposite = null;
 		this.collisionType = null;
 		
+	}
+	
+	public void addToUpdater( BoardAbstract board){
+		this.updaterSlot = board.addCompositeToUpdater(this);
+	}
+	
+	public void removeFromUpdater(){
+		this.updaterSlot.removeSelf();
 	}
 	
 }

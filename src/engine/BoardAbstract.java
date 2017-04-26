@@ -22,6 +22,7 @@ import physics.CollisionEngine;
 import saving_loading.EntityData;
 import sprites.RenderingEngine;
 import utility.DoubleLinkedList;
+import utility.Ticket;
 
 public abstract class BoardAbstract extends JPanel implements KeyListener {
 
@@ -30,7 +31,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	
 	Timer updateEntitiesTimer;
 	
-	public final DoubleLinkedList<UpdateableComposite> updateablesList = new DoubleLinkedList<UpdateableComposite>();
+	private final DoubleLinkedList<UpdateableComposite> updateablesList = new DoubleLinkedList<UpdateableComposite>();
 	
 	int counter;
 	Canvas mainCanvas;
@@ -100,9 +101,9 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	     	 public void run(){
 	     		
 	     		time = System.nanoTime();
-	     		
+
 	     		while ( updateablesList.hasNext() ){
-	     			updateablesList.get().update();
+	     			updateablesList.get().updateComposite();
 	     		}
 	     		
 	     		entityThreadRun();  
@@ -161,7 +162,10 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	public void addStaticEntity(EntityStatic entity) {
 		this.currentScene.addEntity( entity );
 	}
-
+	
+	public Ticket addCompositeToUpdater( UpdateableComposite updateable ){
+		return updateablesList.add(updateable);
+	}
 
 	protected class DiagnosticsOverlay implements Overlay{
 		

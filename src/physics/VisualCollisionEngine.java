@@ -94,7 +94,7 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 
 	@Override
 	public void paintOverlay(Graphics2D g2, MovingCamera cam) {
-		
+
 		Line2D[] linesBuffer = new Line2D[linesList.size()];
 		linesList.toArray(linesBuffer);
 		for ( Line2D line : linesBuffer )

@@ -2,6 +2,8 @@ package entityComposites;
 
 public interface UpdateableComposite {
 
-	public void update();
+	public void updateEntity( EntityStatic entity );
+	
+	public void updateComposite();
 	
 }

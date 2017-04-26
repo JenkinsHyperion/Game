@@ -110,8 +110,8 @@ public class Collider implements EntityComposite{
 	
 	public Boundary getBoundaryDelta(){
 		Point positionDelta = new Point( 
-				(int)ownerEntity.getTranslationComposite().getDeltaX() , 
-				(int)ownerEntity.getTranslationComposite().getDeltaY() 
+				(int)ownerEntity.getTranslationComposite().getDeltaX(ownerEntity) , 
+				(int)ownerEntity.getTranslationComposite().getDeltaY(ownerEntity) 
 		);
 		return boundary.atPosition( positionDelta );
 	}
@@ -243,7 +243,7 @@ public class Collider implements EntityComposite{
 	public void disable(){
 		this.engine.removeCollidable(engineHashID);
 	}
-
+	
 	
 }
 

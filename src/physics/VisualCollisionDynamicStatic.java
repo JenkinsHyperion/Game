@@ -66,10 +66,10 @@ public class VisualCollisionDynamicStatic extends Collision {
 	
 	@Override
 	public void updateCollision(){ 
-		
+
 		Resolution closestResolution = getClosestResolution();
 
-		if ( //NOT RESOLVING ON SLOPE, PROBLEM IN CLIPPINMG VECTOR
+		if ( 
 				(	/*(int)closestResolution.getDistanceVector().getY()-(int)entityPrimary.getDY() != 0  
 					&&*/ (int)closestResolution.getClippingVector().getY() != 0 
 				)
@@ -104,35 +104,40 @@ public class VisualCollisionDynamicStatic extends Collision {
 			//###
 			TranslationComposite dynamic = entityPrimary.getTranslationComposite();
 			
+
+			
 			if ( depthX != 0){ 
 				//System.out.print("Clamping DX "+entityPrimary.getTranslationComposite().getDX()+" by "+depthX);
-				dynamic.setDX( dynamic.getDX() + (int)(depthX) );	
+				//dynamic.setDX( dynamic.getDX() + (int)(depthX) );
+				dynamic.clipDX(depthX);
+				//dynamic.setAccX(0);
 			}
 			if ( depthY != 0){ 
-				//System.out.print("Clamping DY "+entityPrimary.getTranslationComposite().getDX()+" by "+depthY);
-				dynamic.setDY( dynamic.getDY() +  (int)(depthY) );
+				
+				dynamic.clipDY(depthY);
+					//dynamic.setDY( dynamic.getDY() +  (int)(depthY) );
+				//dynamic.setAccY(0);
 			}
 			
 		}
 		
 		else { 
 			
-			entityPrimary.getTranslationComposite().setColliding(true); //MOVE TO RESOLVED UPDATE CLASS JUST LIKE RESOLUTION EVENT
+			//entityPrimary.getTranslationComposite().setColliding(true); //MOVE TO RESOLVED UPDATE CLASS JUST LIKE RESOLUTION EVENT
 
 			if ( closestResolution.FeatureSecondary().debugIsSide() ){
 				Vector surface = ((Side)closestResolution.FeatureSecondary()).getSlopeVector();
 				Vector playerDP = new Vector( entityPrimary.getTranslationComposite().getDX(), entityPrimary.getTranslationComposite().getDY() );
-
+				System.err.println("GETTING NORMAL");
 				//friction.setVector(   playerDP.projectedOver( surface.unitVector() ).multiply(0.1).inverse()   );
 				double frictionCoefficient = normalForce.force.getLength() * 0.5 ;
 				
-				friction.setVector( playerDP.inverse().signVector().multiply( surface.unitVector().abs().multiply( frictionCoefficient ) ).projectedOver(surface) );
+				friction.setVector( playerDP.inverse().signVector().multiply( surface.unitVector().multiply( frictionCoefficient ) ).projectedOver(surface) );
 
 			}
 			else{
-				//System.out.println("DROPPED SIDE");
+				System.err.println("DROPPED SIDE");
 			}
-			
 			
 			
 			triggerResolutionEvent( closestResolution ); 
@@ -153,9 +158,8 @@ public class VisualCollisionDynamicStatic extends Collision {
 				Vector slope = ((Side)resolution.FeatureSecondary()).getSlopeVector();
 				Vector normal = slope.normalRight().unitVector().scaledBy( -0.2 );
 				
-				Vector test = new Vector( 0 , 0.2 ).projectedOver( slope.normalRight().unitVector() ).inverse() ;
-				
-				System.out.println( " Slope " + slope + " Normal "+test );
+				Vector test = new Vector(0,-0.2).projectedOver( slope.normalRight() );
+				System.err.println("SIDED");
 				normalForce.setVector( test );
 			}
 			else{
@@ -171,7 +175,6 @@ public class VisualCollisionDynamicStatic extends Collision {
 		
 	@Override
 	protected void triggerResolutionEvent( Resolution resolution ) { 
-					
 		this.resolutionState.triggerEvent( resolution );
 		this.resolutionState = ResolvedState.resolved();
 			
@@ -287,8 +290,8 @@ public class VisualCollisionDynamicStatic extends Collision {
 		    Boundary statBounds = collidingSecondary.getBoundaryLocal() ;
 		    Boundary playerBounds = collidingPrimary.getBoundaryDelta() ;
 		    
-		    double deltaX = entityPrimary.getTranslationComposite().getDeltaX() ;
-		    double deltaY = entityPrimary.getTranslationComposite().getDeltaY() ;
+		    double deltaX = entityPrimary.getTranslationComposite().getDeltaX(entityPrimary) ;
+		    double deltaY = entityPrimary.getTranslationComposite().getDeltaY(entityPrimary) ;
 		    
 		    //Point2D playerCenterDelta = new Point2D.Double(deltaX, deltaY);
 		    //Point2D statCenter = new Point2D.Double(stat.getX(), stat.getY());
@@ -356,14 +359,19 @@ public class VisualCollisionDynamicStatic extends Collision {
 	    	int penetrationX = 0;
 	    	int penetrationY = 0;  
 	    	
+	    	int shiftedX = 0;
+	    	int shiftedY = 0;
+	    	
 
 	    	if (centerDistanceX>0){
 	    		//centerDistanceX -= 1;
 	    		penetrationX = ( playerProjectionX + statProjectionX - centerDistanceX +1 );
+	    		shiftedX = penetrationX-1;
 	    	}
 	    	else if (centerDistanceX<0){
 	    		//centerDistanceX += 1;  //NEEDS HIGHER LEVEL SOLUTION
 	    		penetrationX = ( playerProjectionX + statProjectionX - centerDistanceX -1 );
+	    		shiftedX = penetrationX+1;
 	    	}
 	    	else
 	    		penetrationX = Math.abs(playerProjectionX) + Math.abs(statProjectionX);
@@ -371,21 +379,30 @@ public class VisualCollisionDynamicStatic extends Collision {
 	    	if (centerDistanceY>0){
 	    		//centerDistanceY -= 1;
 	    		penetrationY = ( playerProjectionY + statProjectionY - centerDistanceY+1 ); 
+	    		shiftedY = penetrationY-1;
 	    	}
 	    	else if (centerDistanceY<0){
 	    		//centerDistanceY += 1; 
 	    		penetrationY =   ( playerProjectionY + statProjectionY - centerDistanceY-1 ); 
+	    		shiftedY = penetrationY+1;
 	    	}else
 	    		penetrationY = Math.abs(playerProjectionY) + Math.abs(statProjectionY);
 
-
 	    	
-	    	if ( penetrationX * centerDistanceX < 0 ) //SIGNS ARE NOT THE SAME
+	    	
+	    	if ( penetrationX * centerDistanceX < 0 ){ //SIGNS ARE NOT THE SAME
 				penetrationX = 0;
-	    	if ( penetrationY * centerDistanceY < 0 )
+	    	}
+	    	if ( penetrationY * centerDistanceY < 0 ){
 				penetrationY = 0;
+	    	}
 
-
+	    	if ( shiftedX * centerDistanceX > 0 ){ //SIGNS ARE NOT THE SAME
+	    		shiftedX = 0;
+	    	}
+	    	if ( shiftedY * centerDistanceY > 0 ){
+	    		shiftedY = 0;
+	    	}
 		
 			//g2.draw( unshiftedX + " , " + unshiftedY , (int)separatingSide.getX1(), (int)separatingSide.getY1());
 			
@@ -399,6 +416,7 @@ public class VisualCollisionDynamicStatic extends Collision {
 				if ( nearStatCorner.length > 1 ){ 
 					featureSecondary = ((BoundaryCorner)nearStatCorner[0]).getSharedSide( ((BoundaryCorner)nearStatCorner[1]) );
 		    	}
+
 	    	}
 	    	else{
 	    		//featureSecondary = new BoundaryGenericFeature();
@@ -416,9 +434,9 @@ public class VisualCollisionDynamicStatic extends Collision {
 	    	}
 			
 
-			final int square = 1;
-			
-			if ( penetrationX*penetrationX + penetrationY*penetrationY < square*square ){  // PENETRATION DISTANCE OUTSIDE THRESHOLD SO END COLLISION
+			final int square = 2;
+			System.out.println(shiftedX+ " - " +shiftedY +")");
+			if ( shiftedX*shiftedX + shiftedY*shiftedY > square*square ){  // PENETRATION DISTANCE OUTSIDE THRESHOLD SO END COLLISION
 				isComplete = true;
 				System.out.println("Collision Dropped by (" +
 						penetrationX+ " - " +penetrationY +")");
@@ -437,36 +455,9 @@ public class VisualCollisionDynamicStatic extends Collision {
 						featurePrimary, //construct sides
 						featureSecondary,
 						new Vector( (penetrationX) , (penetrationY ) ),
-						new Vector( (penetrationX) , (penetrationY ))
+						new Vector( (shiftedX) , (shiftedY ))
 				);
 			}
-		}
-
-	}
-	
-
-	
-	// Finds the actual contacting surface of two contacting sides. As in, if a side is overhanging off a ledge, only the 
-	// part that is actually on the ledge is returned
-	private void getContactPoints(Line2D side1, Line2D side2) {
-		
-		contactPoints[0]=null; contactPoints[1]=null;
-
-		if ( pointIsOnSegment(side1.getP1(), side2) ) {
-			if (contactPoints[0]==null)  { contactPoints[0] = side1.getP1(); } 
-			else  { contactPoints[1] = side1.getP1(); return; }
-		}
-		if ( pointIsOnSegment(side1.getP2(), side2) ) {
-			if (contactPoints[0]==null)  { contactPoints[0] = side1.getP2(); } 
-			else  { contactPoints[1] = side1.getP2(); return; }
-		}
-		if ( pointIsOnSegment(side2.getP1(), side1) ) {
-			if (contactPoints[0]==null)  { contactPoints[0] = side2.getP1(); } 
-			else  { contactPoints[1] = side2.getP1(); return; }
-		}
-		if ( pointIsOnSegment(side2.getP2(), side1) ) {
-			if (contactPoints[0]==null)  { contactPoints[0] = side2.getP2(); } 
-			else  { contactPoints[1] = side2.getP2(); return; }
 		}
 
 	}

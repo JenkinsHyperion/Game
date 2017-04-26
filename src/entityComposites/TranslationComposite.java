@@ -9,11 +9,8 @@ import physics.Vector;
 import utility.Ticket;
 
 public class TranslationComposite{
-
-	protected EntityStatic owner;
 	
-	protected TranslationComposite( EntityStatic owner ){
-		this.owner = owner;
+	protected TranslationComposite(){
 	}
 
 	protected ArrayList<Force> forces = new ArrayList<>();
@@ -54,11 +51,11 @@ public class TranslationComposite{
     	System.err.println("Attempted to add velocity of static");
     }
     
-    public double getDeltaX(){
+    public double getDeltaX( EntityStatic owner ){
     	return (owner.x);
     }
 
-    public double getDeltaY(){
+    public double getDeltaY( EntityStatic owner ){
     	return (owner.y);
     }
     
@@ -143,10 +140,14 @@ public class TranslationComposite{
     	System.err.println("Attempted to get forces of static");
     	return null;
     }
-    
-    public void applyAllForces(){
-    	System.err.println("Attempted to apply force to static");
-    }
+
+	public Vector sumOfForces() {
+		System.err.println("Attempted to sum forces to static");
+		return new Vector(0,0);
+	}
 	
+	public void remove(){
+		System.err.println("Attempted to remove null Translation from updater");
+	}
 	
 }

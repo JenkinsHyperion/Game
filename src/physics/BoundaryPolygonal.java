@@ -170,7 +170,6 @@ public class BoundaryPolygonal extends Boundary {
 
 	}
 	
-	@Override
 	public Point rotateBoundaryFromTemplatePoint(Point center, double angle , BoundaryPolygonal template){ //OPTIMIZATION TRIG FUNCTIONS ARE NOTORIOUSLY EXPENSIVE Look into performing some trig magic
 
 		for ( int i = 0 ; i < template.corners.length ; i++ ) {

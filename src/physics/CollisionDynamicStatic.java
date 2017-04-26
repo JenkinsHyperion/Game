@@ -94,8 +94,8 @@ public class CollisionDynamicStatic extends Collision {
 			System.out.print("Snapping entity by "+ depthX +" , "+ depthY + " ... ");
 
 			
-			entityPrimary.setX( entityPrimary.getTranslationComposite().getDeltaX() + (int)depthX  );
-			entityPrimary.setY( entityPrimary.getTranslationComposite().getDeltaY()  + (int)depthY );
+			entityPrimary.setX( entityPrimary.getTranslationComposite().getDeltaX(entityPrimary) + (int)depthX  );
+			entityPrimary.setY( entityPrimary.getTranslationComposite().getDeltaY(entityPrimary)  + (int)depthY );
 			
 			// NO NEED TO CHECK VERTEX ANYMORE
 			if ( closestResolution.FeaturePrimary().debugIsVertex() && !closestResolution.FeatureSecondary().debugIsVertex()){
@@ -311,8 +311,8 @@ public class CollisionDynamicStatic extends Collision {
 		    Boundary statBounds = collidingSecondary.getBoundaryLocal() ;
 		    Boundary playerBounds = collidingPrimary.getBoundaryDelta() ;
 		    
-		    double deltaX = entityPrimary.getTranslationComposite().getDeltaX() ;
-		    double deltaY = entityPrimary.getTranslationComposite().getDeltaY() ;
+		    double deltaX = entityPrimary.getTranslationComposite().getDeltaX(entityPrimary) ;
+		    double deltaY = entityPrimary.getTranslationComposite().getDeltaY(entityPrimary) ;
 		    
 		    //Point2D playerCenterDelta = new Point2D.Double(deltaX, deltaY);
 		    //Point2D statCenter = new Point2D.Double(stat.getX(), stat.getY());

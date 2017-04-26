@@ -3,19 +3,24 @@ package entityComposites;
 import java.awt.Color;
 import java.awt.geom.Line2D;
 
+import engine.BoardAbstract;
 import physics.Boundary;
 import physics.BoundaryPolygonal;
 import sprites.Sprite;
 import sprites.SpriteFilledShape;
 
 public class CompositeFactory {
-	
-	private EntityStatic ownerEnttiy;
-	
+
+	public static void addRotationTo( EntityStatic entity ){
+		
+		RotationCompositeActive rotation = new RotationCompositeActive( entity );
+		entity.setRotationComposite( rotation );
+	}
 	
 	public static void addTranslationTo( EntityStatic entity ){
-		TranslationCompositeActive trans = new TranslationCompositeActive( entity );
+		TranslationCompositeActive trans = new TranslationCompositeActive();
 		entity.setTranslationComposite( trans );
+		entity.updateables.add(trans);
 	}
 	
 	public static void addColliderTo( EntityStatic entity , Line2D[] sides ){
@@ -32,11 +37,16 @@ public class CompositeFactory {
 
 	public static void addColliderTo( EntityStatic entity , Boundary boundary ){
 		
-		Collider newCollider = new Collider( entity );
-		
-		newCollider.setBoundary( boundary );
-		
-		entity.setCollisionComposite( newCollider );
+		if ( entity.getColliderComposite().exists() ){
+			entity.getColliderComposite().setBoundary(boundary);
+		}
+		else {
+			Collider newCollider = new Collider( entity );
+			
+			newCollider.setBoundary( boundary );
+			
+			entity.setCollisionComposite( newCollider );
+		}
 		
 	}
 	
@@ -63,12 +73,19 @@ public class CompositeFactory {
 	
 	// PARENT CHILDREN METHODS
 	
-	public static void makeChildOfParent( EntityStatic child , EntityStatic parent ){
+	public static void makeChildOfParent( EntityStatic child , EntityStatic parent , BoardAbstract board ){
 		
 		//CREATE COMPOSITE DECOSNTRUCTOR TO ENSURE REMOVAL
-		//child.getTranslationComposite().remove()
+		
+		child.getTranslationComposite().remove();
+		System.out.println("Setting "+child+" to "+parent);
 		child.setTranslationComposite( parent.getTranslationComposite() );
-		//ADD CHILD TO PARENTS CHILDREN LSIT IN CHILDREN COMPOSITE
+		child.updateables.add( (UpdateableComposite) parent.getTranslationComposite() );
+		
+		child.addToUpdater(board);
+		
+		//parent.updateables.add(child);
+		//child.updateables.add( (UpdateableComposite) parent.getTranslationComposite() );
 		
 	}
 	

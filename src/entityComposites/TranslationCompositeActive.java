@@ -3,6 +3,7 @@ package entityComposites;
 import java.awt.Point;
 import java.util.ArrayList;
 
+import engine.BoardAbstract;
 import physics.Force;
 import physics.PointForce;
 import physics.Vector;
@@ -15,26 +16,46 @@ public class TranslationCompositeActive extends TranslationComposite implements 
     protected double dy=0;
     protected double accY=0;
     protected double accX=0;
+    protected double dxT=0;
+    protected double dyT=0;
+    protected double accYT=0;
+    protected double accXT=0;
 	
-	protected TranslationCompositeActive( EntityStatic owner ){
-		super(owner);
+	protected TranslationCompositeActive(){
 	}
 
 	protected ArrayList<Force> forces = new ArrayList<>();
 	protected ArrayList<PointForce> pointForces = new ArrayList<>();
     
     protected boolean isColliding;
-
+  
     @Override
-    public void update() {
+    public void updateComposite() {
     	
-    	owner.x = (float) (owner.x + this.dx) ;
-    	owner.y = (float) (owner.y + this.dy) ;
-    	
+    	dx = dxT;
+    	dy = dyT;
+    	accX = accXT;
+    	accY = accYT;
+    
     	dx += accX; 
     	dy += accY;
+
+    	Vector sum = this.sumOfForces();
+    	accX = sum.getX();
+    	accY = sum.getY();
     	
-    }   
+    	dxT=dx;
+    	dyT=dy;
+    	accXT=accX;
+    	accYT=accY;
+    	
+    }  
+    @Override
+    public void updateEntity( EntityStatic entity ) {
+    	entity.x = (float) (entity.x + this.dx + this.accX) ; 
+    	entity.y = (float) (entity.y + this.dy + this.accY) ;
+    	
+    }  
     @Override
     public void halt(){
     	dx=0;
@@ -42,14 +63,7 @@ public class TranslationCompositeActive extends TranslationComposite implements 
     	accX=0;
     	accY=0;
     }
-    @Override
-    public void AccelerateY() {
 
-    	owner.y += 1;
-        if (owner.y > 300){
-        	owner.y = 0;
-        }
-    }
     @Override
     public double getDX() {
     	return dx;
@@ -60,16 +74,16 @@ public class TranslationCompositeActive extends TranslationComposite implements 
     }
     @Override
     public void setDX(double setdx) {
-    	dx = setdx;
+    	dxT = setdx;
     }
     @Override
     public void setDY(double setdy) {
-    	dy = setdy;
+    	dyT = setdy;
     }
     @Override
     public void setVelocity( Vector vector){
-    	dx = (float)vector.getX();
-    	dy = (float)vector.getY();
+    	dxT = (float)vector.getX();
+    	dyT = (float)vector.getY();
     }
     @Override
     public void addVelocity( Vector vector){
@@ -77,53 +91,52 @@ public class TranslationCompositeActive extends TranslationComposite implements 
     	dy += (float)vector.getY();
     }
     @Override
-    public double getDeltaX(){
+    public double getDeltaX( EntityStatic owner ){
     	return (owner.x + dx + accX);
     }
     @Override
-    public double getDeltaY(){
+    public double getDeltaY( EntityStatic owner ){
     	return (owner.y + dy + accY);
     }
     @Override
     public void clipDX(double clipDX) {
-    	if ( dx > 0 ) {
-    	    
-    		if ( clipDX < 0 ){ 
-    			if ( clipDX + dx > 0)
-    				dx = (float) (dx + clipDX);
-    			else
-    				dx = 0;
+    	
+    	if ( dxT > 0 ){
+    		if ( dxT + clipDX < 0 ){
+    			dxT = 0;
+    		}else{
+    			dxT = dxT + clipDX;
     		}
     	}
-    	else if ( dx < 0 ) {
-    		
-    		if ( clipDX > 0 ){ 
-    			if ( clipDX + dx < 0)
-    				dx = (float) (dx + clipDX);
-    			else
-    				dx = 0;
+    	else if ( dxT < 0 ){
+    		if ( dxT + clipDX > 0 ){
+    			dxT = 0;
+    		}else{
+    			dxT = dxT + clipDX;
     		}
+    	}else{
+    		dxT = 0;
     	}
+
+    	
     }
     @Override
     public void clipDY(double clipDY) { 
-    	if ( dy > 0 ) {
-    
-    		if ( clipDY < 0 ){ 
-    			if ( clipDY + dy > 0)
-    				dy = (float) (dy + clipDY);
-    			else
-    				dy = 0;
+    	if ( dyT > 0 ){
+    		if ( dyT + clipDY < 0 ){
+    			dyT = 0;
+    		}else{
+    			dyT = dyT + clipDY;
     		}
     	}
-    	else if ( dy < 0 ) {
-    		
-    		if ( clipDY > 0 ){ 
-    			if ( clipDY + dy < 0)
-    				dy = (float) (dy + clipDY);
-    			else
-    				dy = 0;
+    	else if ( dyT < 0 ){
+    		if ( dyT + clipDY > 0 ){
+    			dyT = 0;
+    		}else{
+    			dyT = dyT + clipDY;
     		}
+    	}else{
+    		dyT = 0;
     	}
     }
     
@@ -172,11 +185,11 @@ public class TranslationCompositeActive extends TranslationComposite implements 
     @Override
     
     public void setAccX(float setAX) {
-    	accX = setAX;
+    	accXT = setAX;
     }
     @Override
     public void setAccY(float setAY) {
-    	accY = setAY;
+    	accYT = setAY;
     }
     @Override
     public double getAccY() {
@@ -268,12 +281,23 @@ public class TranslationCompositeActive extends TranslationComposite implements 
     	return returnVectors;
     }
     @Override
-    public void applyAllForces(){
+    public Vector sumOfForces(){
+    	
+    	Vector returnVector = new Vector(0,0);
     	for ( Force force : forces ){
-
-    		Vector acc = force.getLinearForce();
-    		accX = (float)acc.getX();
-    		accY = (float)acc.getY();
+    		returnVector = returnVector.add( force.getVector() );
     	}
+    	
+    	return returnVector;
     }
+    
+    public void addToUpdater( BoardAbstract board){
+    	this.updaterSlot = board.addCompositeToUpdater(this);
+    }
+    @Override
+    public void remove(){
+    	this.updaterSlot.removeSelf();
+		System.out.println("Removing "+this+" from updater");
+    }
+
 }

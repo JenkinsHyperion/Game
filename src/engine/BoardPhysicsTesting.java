@@ -16,15 +16,17 @@ import entityComposites.*;
 import physics.BoundaryCircular;
 import physics.BoundaryPolygonal;
 import physics.CollisionEngine;
+import physics.Force;
 import physics.Vector;
 import physics.VisualCollisionEngine;
 import sprites.*;
 
 public class BoardPhysicsTesting extends BoardAbstract{
 
-	EntityStatic followerEntity = new EntityStatic(0,0);
+	EntityStatic followerEntity = new EntityStatic(-200,200);
 	final FollowerAI followerSleep = new Sleep();
 	FollowerAI currentFollowerAI = followerSleep;
+	private Force gravity;
 	
 	public BoardPhysicsTesting( int width, int height) {
 		super(width,height);
@@ -40,6 +42,8 @@ public class BoardPhysicsTesting extends BoardAbstract{
     	//CompositeFactory.addGraphicFromCollider( followerEntity , followerEntity.getColliderComposite() );
     	CompositeFactory.addGraphicTo(followerEntity, new SpriteStillframe("gf") );
     	CompositeFactory.addTranslationTo(followerEntity);
+    	
+    	gravity = followerEntity.getTranslationComposite().addForce(new Vector( 0,0.2 ) );
     	this.currentScene.addEntity( followerEntity );
     	
     	MouseHandlerClass myMouseHandler = new MouseHandlerClass();
@@ -58,10 +62,20 @@ public class BoardPhysicsTesting extends BoardAbstract{
 		EntityStatic testEntity = new EntityStatic("Test Ground1",0,0);     
         CompositeFactory.addColliderTo( testEntity , new BoundaryPolygonal.Box(446,100,-223,-50 ) );
         CompositeFactory.addGraphicTo(testEntity, new SpriteStillframe("ground_1.png" , -223 , -53 ) );
+        
+    	CompositeFactory.addRotationTo(testEntity);
+    	//testEntity.getRotationComposite().setAngleInDegrees(30);
+    	//testEntity.getRotationComposite().setAngularVelocity(2);
+        
         currentScene.addEntity( testEntity );
 		
-		
+        EntityStatic child = new EntityStatic("FollowerChild",-300,0); 
+        CompositeFactory.addGraphicTo( child, new SpriteStillframe("box.png" , -20 , -20 ) );
+        
+        currentScene.addEntity( child );
         camera.setFocus( testEntity.getPosition() );
+        
+        CompositeFactory.makeChildOfParent(child, followerEntity , this);
         
     	initializeBoard();
 	}
@@ -96,6 +110,11 @@ public class BoardPhysicsTesting extends BoardAbstract{
 		g.drawString( collisionEngine.debugNumberofStaticCollidables() + " static collidables" , 20, 65);
 		g.drawString( collisionEngine.debugNumberofDynamicCollidables() + " dynamic collidables" , 20, 80);
 		g.drawString( collisionEngine.debugNumberOfCollisions() + " collisions" , 20, 95);
+		g.drawString( this.followerEntity.getTranslationComposite().getAccY() + " accY" , 20, 110);
+		
+		for ( Vector force : followerEntity.getTranslationComposite().debugForceArrows() ){
+			camera.draw( force.toLine(followerEntity.getPosition() ) );
+		}
 		
 		/*g.setColor(Color.ORANGE);
 		for (Collider collider : this.collisionEngine.debugListActiveColliders() ){
@@ -197,6 +216,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
   		{ 		
   			editorPanel.mouseDragged(e);
   			currentFollowerAI = new Follow( e.getPoint() );
+  			//gravity.setVector( 0,0);
   		}
   		@Override
   		public void mouseMoved(MouseEvent e){
@@ -206,7 +226,9 @@ public class BoardPhysicsTesting extends BoardAbstract{
   		@Override
   		public void mouseReleased(MouseEvent e) 
   		{	
-  			followerEntity.getTranslationComposite().setVelocity( new Vector( 0,0 ) );
+  			//followerEntity.getTranslationComposite().setVelocity( new Vector( 0,0 ) );
+  			currentFollowerAI = followerSleep;
+  			//gravity.setVector( 0,0.2);
   			//player.inputController.mouseReleased(e);
   			editorPanel.mouseReleased(e);
   			//editorPanel.getWorldGeom().mouseReleased(e);

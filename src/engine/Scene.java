@@ -9,23 +9,32 @@ public class Scene {
 	
 	private BoardAbstract ownerBoard;
 
-	private ArrayList<EntityStatic> entityList = new ArrayList<EntityStatic>();
+	private ArrayList<LayeredEntity> entityList = new ArrayList<LayeredEntity>();
 
 	public Scene( BoardAbstract ownerBoard ){
 		this.ownerBoard = ownerBoard;
+
+	}
+	
+
+	
+	public void addEntity( EntityStatic entity , byte layer ){
+		entityList.add( new LayeredEntity(entity,layer));
 	}
 	
 	public void addEntity( EntityStatic entity ){
 		
 		System.out.println("Adding Entity to Scene");
 		//ADD ENTITY TO SCENES MASTER ENTITY LIST
-		entityList.add(entity);
+		entityList.add( new LayeredEntity(entity));
 		
 		//RUN THROUGH AND ADD UPDATEABLE COMPOSITES TO UPDATER LIST right now only translation for testing
 		
 		if ( (entity.getTranslationComposite() instanceof TranslationCompositeActive) ){
 			TranslationCompositeActive trans = (TranslationCompositeActive) entity.getTranslationComposite();
-			ownerBoard.updateablesList.add( trans );
+			
+			entity.addToUpdater(ownerBoard);
+			trans.addToUpdater(ownerBoard);
 		}
 		
 		//GRAPHICS COMPOSITE
@@ -63,18 +72,42 @@ public class Scene {
 	
 	
 	public void addBackgroundSprite( int layer , EntityStatic entity ){
-		entityList.add(entity);
+		entityList.add( new LayeredEntity(entity , (byte) layer) );
 		ownerBoard.renderingEngine.layersList[layer].addEntity(entity);
 	}
 	
 	public EntityStatic[] listEntities(){
+		
 		EntityStatic[] returnList = new EntityStatic[ this.entityList.size() ];
-		this.entityList.toArray( returnList );
+		
+		for (int i = 0 ; i < this.entityList.size() ; i++){
+			returnList[i] = entityList.get(i).entity;
+		}
 		return returnList;
 	}
 	
 	public void deconstructScene(){
 		
 	}
+	
+	
+	
+	private class LayeredEntity{
+		protected EntityStatic entity;
+		protected byte layer;
+		protected LayeredEntity( EntityStatic entity ){
+			this.entity= entity;
+			this.layer = 0;
+		}
+		protected LayeredEntity( EntityStatic entity , byte layer ){
+			this.entity= entity;
+			this.layer = layer;
+		}
+		protected void disable(){
+			this.entity.disable();
+			this.entity = null;
+		}
+	}
+	
 	
 }

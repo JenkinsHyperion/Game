@@ -78,7 +78,6 @@ public class BoundarySingular extends Boundary{
 		
 	}
 
-	@Override
 	public Point rotateBoundaryFromTemplatePoint(Point center, double angle, BoundaryPolygonal template) {
 		// TODO Auto-generated method stub
 		return null;

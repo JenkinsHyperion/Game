@@ -642,7 +642,7 @@ public class BoundaryPolygonal extends Boundary {
 		}
 		g2.setColor(Color.RED);
 		for ( int i = 0 ; i < regions.length ; i++ ){
-			if ( regions[i].entityIsInRegion(entity) ){
+			if ( regions[i].containsEntity(entity) ){
 				regions[i].debugDrawRegion(cam, g2);
 				cam.drawCrossInWorld(regions[i].getFeature() , g2 );
 			}

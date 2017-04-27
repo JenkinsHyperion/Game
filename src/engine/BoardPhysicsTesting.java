@@ -23,7 +23,7 @@ import sprites.*;
 
 public class BoardPhysicsTesting extends BoardAbstract{
 
-	EntityStatic followerEntity = new EntityStatic(-200,200);
+	EntityStatic followerEntity = new EntityStatic("Circle",-200,200);
 	final FollowerAI followerSleep = new Sleep();
 	FollowerAI currentFollowerAI = followerSleep;
 	private Force gravity;
@@ -59,7 +59,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 		
 		
 		
-		EntityStatic testEntity = new EntityStatic("Test Ground1",0,0);     
+		EntityStatic testEntity = new EntityStatic("Test Ground 01",0,0);     
         CompositeFactory.addColliderTo( testEntity , new BoundaryPolygonal.Box(446,100,-223,-50 ) );
         CompositeFactory.addGraphicTo(testEntity, new SpriteStillframe("ground_1.png" , -223 , -53 ) );
         
@@ -71,6 +71,8 @@ public class BoardPhysicsTesting extends BoardAbstract{
 		
         EntityStatic child = new EntityStatic("FollowerChild",-300,0); 
         CompositeFactory.addGraphicTo( child, new SpriteStillframe("box.png" , -20 , -20 ) );
+        //CompositeFactory.addColliderTo(child, new BoundaryPolygonal.Box(20,20,-10,-10 ) );
+        //CompositeFactory.addTranslationTo(child);
         
         currentScene.addEntity( child );
         camera.setFocus( testEntity.getPosition() );
@@ -105,7 +107,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 		this.renderingEngine.render( (Graphics2D)g );
 		editorPanel.render( g ); 
 		g.setColor(Color.CYAN);
-		g.drawString( this.followerEntity.getX() + " x" , 20, 35);
+		g.drawString( this.followerEntity.getTranslationComposite().getDY() + " dy" , 20, 35);
 		g.drawString( this.currentScene.listEntities().length + " entities" , 20, 50);
 		g.drawString( collisionEngine.debugNumberofStaticCollidables() + " static collidables" , 20, 65);
 		g.drawString( collisionEngine.debugNumberofDynamicCollidables() + " dynamic collidables" , 20, 80);

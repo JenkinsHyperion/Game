@@ -23,7 +23,7 @@ abstract public class BoundaryFeature {
 	
 	protected void onCollision(){}
 	
-	public String toString(){ return "null"; } //check for further abstraction
+	public String toString(){ return "Null Boudnary Feature"; } //check for further abstraction
 	
 	public void collisionTrigger(){}
 	

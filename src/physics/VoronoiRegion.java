@@ -83,7 +83,7 @@ public class VoronoiRegion {
 			return r;
 	}
 	
-	public boolean entityIsInRegion( EntityStatic entity ){
+	public boolean containsEntity( EntityStatic entity ){
 		return this.checkMath.entityIsInRegion(entity);
 	}
 	
@@ -114,23 +114,22 @@ public class VoronoiRegion {
 			
 			double y =  (slopeCW * ( entity.getX() ) + yInterceptCW);
 			double x =  (( y - yInterceptCW ) / slopeCW) ;
-			Point point = new Point( (int)x , (int)y);
 			
 			double y2 =  (slopeCCW * ( entity.getX() ) + yInterceptCCW);
 			double x2 =  (( y2 - yInterceptCCW ) / slopeCCW) ;
-			Point point2 = new Point( (int)x2 , (int)y2);
 			
 
 			boolean baseSide = topBottom * ( entityOnFrame.y - (slopeBase * entityOnFrame.x + yInterceptBase ) ) < 0 ;
 			
-			int dist = Math.abs( entityOnFrame.y - point.y + entityOnFrame.y - point2.y  ) ; //OPTIMIZE into square check
-			int range = Math.abs( point.y - point2.y  ) ;
-
-			if ( dist - range < 0 && baseSide ){ //OPTIMIZE TEST IF FASTER THAN DOUBLE CONDITIONAL
+			double dist = Math.abs( entityOnFrame.y - y + entityOnFrame.y - y2 ) ; //OPTIMIZE into square check
+			double range = Math.abs( y - y2  );
+			
+			if ( dist - range <= 2 && baseSide ){ //OPTIMIZE TEST IF FASTER THAN DOUBLE CONDITIONAL
 				return true;
 			}
-			else
+			else{
 				return false;
+			}
 		}
 		
 		public Line2D getSeparation(EntityStatic entity){
@@ -138,6 +137,9 @@ public class VoronoiRegion {
 		}
 		
 		public void debugDraw(MovingCamera cam , Graphics2D g2){
+			//cam.drawDebugAxis(slopeCW, 0, g2);
+			//cam.drawDebugAxis(slopeCCW, 0, g2);
+			
 			cam.debugDraw( ownerSide.toVector().normalRight().toLine(ownerSide.getP1()) ,g2);
 			cam.debugDraw( ownerSide.toVector().normalRight().toLine(ownerSide.getP2()) ,g2);
 		}

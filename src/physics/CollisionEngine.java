@@ -72,7 +72,6 @@ public class CollisionEngine {
 	
 	public int addStaticCollidable( Collider collidable ){ //returns hashID index to collider composite
 		staticCollidablesList.add(collidable);
-		System.out.println( "added "+ -staticCollidablesList.size() );
 		return -( staticCollidablesList.size() );
 	}
 	

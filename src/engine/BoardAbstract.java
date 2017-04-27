@@ -33,6 +33,8 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	
 	private final DoubleLinkedList<UpdateableComposite> updateablesList = new DoubleLinkedList<UpdateableComposite>();
 	
+	private final DoubleLinkedList<UpdateableComposite> updateableEntitiesList = new DoubleLinkedList<UpdateableComposite>();
+	
 	int counter;
 	Canvas mainCanvas;
 	
@@ -108,6 +110,10 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	     		
 	     		entityThreadRun();  
 	     		
+	     		while ( updateableEntitiesList.hasNext() ){
+	     			updateableEntitiesList.get().updateComposite();
+	     		}
+	     		
 	     		deltaTime = System.nanoTime() ;
 	     		speed = deltaTime - time;
 
@@ -165,6 +171,10 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	
 	public Ticket addCompositeToUpdater( UpdateableComposite updateable ){
 		return updateablesList.add(updateable);
+	}
+	
+	public Ticket addEntityToUpdater( UpdateableComposite updateable ){
+		return updateableEntitiesList.add(updateable);
 	}
 
 	protected class DiagnosticsOverlay implements Overlay{

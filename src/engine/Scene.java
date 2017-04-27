@@ -24,7 +24,7 @@ public class Scene {
 	
 	public void addEntity( EntityStatic entity ){
 		
-		System.out.println("Adding Entity to Scene");
+		System.out.println("Adding Entity ["+entity+"] to Current Scene");
 		//ADD ENTITY TO SCENES MASTER ENTITY LIST
 		entityList.add( new LayeredEntity(entity));
 		
@@ -43,24 +43,24 @@ public class Scene {
 			
 			entity.getGraphicComposite().addCompositeToRenderer( ownerBoard.renderingEngine );
 			
-		}else{System.err.println("     Couldn't add ["+entity+"] to renderer because it's missing a Graphic Composite ");}
+		}else{System.err.println("  Couldn't add ["+entity+"] to renderer because it's missing a Graphic Composite ");}
 		
 		//COLLIDER COMPOSITE
 		
-		if ( entity.getColliderComposite() instanceof Collider ){
+		if ( !(entity.getColliderComposite() instanceof ColliderNull) ){
 			
 			if ( entity.getTranslationComposite() instanceof TranslationCompositeActive ){  
-				System.out.println("     Adding "+entity+" as dynamic");
+				//System.out.println("     Adding "+entity+" as dynamic");
 				entity.getColliderComposite().addCompositeToPhysicsEngineDynamic( ownerBoard.collisionEngine );
 			}
 			else{ 
-				System.out.println("     Adding "+entity+" as static");
+				//System.out.println("     Adding "+entity+" as static");
 				entity.getColliderComposite().addCompositeToPhysicsEngineStatic( ownerBoard.collisionEngine );
 			}
 			
 		}
 		
-		//
+		System.out.println("----\n");
 		
 	}
 	

@@ -3,7 +3,7 @@ package utility;
 public class DoubleLinkedList<T> {
 
 	private final LinkedHead head = new LinkedHead();
-	private LinkedNodeElement<T> currentItteration;
+	private LinkedNodeElement<T> currentItteration = new LinkedTail(head);
 	
 	public DoubleLinkedList(){
 		

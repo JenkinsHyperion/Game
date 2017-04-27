@@ -31,23 +31,14 @@ public class TranslationCompositeActive extends TranslationComposite implements 
   
     @Override
     public void updateComposite() {
-    	
-    	dx = dxT;
-    	dy = dyT;
-    	accX = accXT;
-    	accY = accYT;
-    
+ 
     	dx += accX; 
     	dy += accY;
 
     	Vector sum = this.sumOfForces();
     	accX = sum.getX();
     	accY = sum.getY();
-    	
-    	dxT=dx;
-    	dyT=dy;
-    	accXT=accX;
-    	accYT=accY;
+ 
     	
     }  
     @Override
@@ -74,16 +65,16 @@ public class TranslationCompositeActive extends TranslationComposite implements 
     }
     @Override
     public void setDX(double setdx) {
-    	dxT = setdx;
+    	dx = setdx;
     }
     @Override
     public void setDY(double setdy) {
-    	dyT = setdy;
+    	dy = setdy;
     }
     @Override
     public void setVelocity( Vector vector){
-    	dxT = (float)vector.getX();
-    	dyT = (float)vector.getY();
+    	dx = (float)vector.getX();
+    	dy = (float)vector.getY();
     }
     @Override
     public void addVelocity( Vector vector){
@@ -101,42 +92,42 @@ public class TranslationCompositeActive extends TranslationComposite implements 
     @Override
     public void clipDX(double clipDX) {
     	
-    	if ( dxT > 0 ){
-    		if ( dxT + clipDX < 0 ){
-    			dxT = 0;
+    	if ( dx > 0 ){
+    		if ( dx + clipDX < 0 ){
+    			dx = 0;
     		}else{
-    			dxT = dxT + clipDX;
+    			dx = dx + clipDX;
     		}
     	}
-    	else if ( dxT < 0 ){
-    		if ( dxT + clipDX > 0 ){
-    			dxT = 0;
+    	else if ( dx < 0 ){
+    		if ( dx + clipDX > 0 ){
+    			dx = 0;
     		}else{
-    			dxT = dxT + clipDX;
+    			dx = dx + clipDX;
     		}
     	}else{
-    		dxT = 0;
+    		dx = 0;
     	}
 
     	
     }
     @Override
     public void clipDY(double clipDY) { 
-    	if ( dyT > 0 ){
-    		if ( dyT + clipDY < 0 ){
-    			dyT = 0;
+    	if ( dy > 0 ){
+    		if ( dy + clipDY < 0 ){
+    			dy = 0;
     		}else{
-    			dyT = dyT + clipDY;
+    			dy = dy + clipDY;
     		}
     	}
-    	else if ( dyT < 0 ){
-    		if ( dyT + clipDY > 0 ){
-    			dyT = 0;
+    	else if ( dy < 0 ){
+    		if ( dy + clipDY > 0 ){
+    			dy = 0;
     		}else{
-    			dyT = dyT + clipDY;
+    			dy = dy + clipDY;
     		}
     	}else{
-    		dyT = 0;
+    		dy = 0;
     	}
     }
     
@@ -295,9 +286,13 @@ public class TranslationCompositeActive extends TranslationComposite implements 
     	this.updaterSlot = board.addCompositeToUpdater(this);
     }
     @Override
-    public void remove(){
+    public void removeUpdateable(){
     	this.updaterSlot.removeSelf();
 		System.out.println("Removing "+this+" from updater");
     }
+    
+	public boolean exists(){
+		return true;
+	}
 
 }

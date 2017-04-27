@@ -146,8 +146,12 @@ public class TranslationComposite{
 		return new Vector(0,0);
 	}
 	
-	public void remove(){
+	public void removeUpdateable(){
 		System.err.println("Attempted to remove null Translation from updater");
+	}
+	
+	public boolean exists(){
+		return false;
 	}
 	
 }

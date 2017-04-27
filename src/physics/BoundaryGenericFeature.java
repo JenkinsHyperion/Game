@@ -6,13 +6,13 @@ public class BoundaryGenericFeature extends BoundaryFeature{
 	
 	@Override
 	public Point2D getP1() {
-		System.err.println("GenericFeature");
+		System.err.println("getP1() on GenericFeature");
 		return null;
 	}
 
 	@Override
 	public Point2D getP2() {
-		System.err.println("GenericFeature");
+		System.err.println("get P2() on GenericFeature");
 		return null;
 	}
 
@@ -25,7 +25,5 @@ public class BoundaryGenericFeature extends BoundaryFeature{
 	public boolean debugIsSide() {
 		return false;
 	}
-	
-	
 	
 }

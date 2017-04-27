@@ -76,13 +76,26 @@ public class CompositeFactory {
 	public static void makeChildOfParent( EntityStatic child , EntityStatic parent , BoardAbstract board ){
 		
 		//CREATE COMPOSITE DECOSNTRUCTOR TO ENSURE REMOVAL
+		System.out.println("Composite Factory setting "+child+" as child of "+parent);
 		
-		child.getTranslationComposite().remove();
-		System.out.println("Setting "+child+" to "+parent);
-		child.setTranslationComposite( parent.getTranslationComposite() );
-		child.updateables.add( (UpdateableComposite) parent.getTranslationComposite() );
+		if ( child.hasTranslation() ){//if child already has translation, remove it and flyweight parent's instead
+			System.err.println("TODO Composite Factory cannot yet make entity with translation into child");
+		}
+		else{//if child does not have translation, flyweight parent's translation
+			
+			child.setTranslationComposite( parent.getTranslationComposite() );
+			child.updateables.add( (UpdateableComposite) parent.getTranslationComposite() );
+			
+			child.addToUpdater(board); // add child to be updated
+		}
 		
-		child.addToUpdater(board);
+		//If child has collider, remove from and add back to collision Engine as dynamic, in case it was registered as static
+		if ( child.hasCollider() ){ 
+			System.out.println("Switched ["+child+ "] collider to dynamic");
+			child.getColliderComposite().disable();
+			child.getColliderComposite().addCompositeToPhysicsEngineDynamic(board.collisionEngine);
+		} //else do nothing
+		
 		
 		//parent.updateables.add(child);
 		//child.updateables.add( (UpdateableComposite) parent.getTranslationComposite() );

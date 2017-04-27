@@ -34,9 +34,10 @@ public class BoundaryCircular extends Boundary{
 	
 	@Override
 	protected Line2D[] getSeparatingSides(Boundary partner) { //CIRCLE BOUNDARY ADDS AXIS FROM CETNER TO CLOSEST CORNER ON OTHER BOUNDARY
-		
+
 		for ( VoronoiRegion region : partner.getVoronoiRegions() ){
-			if ( region.entityIsInRegion(this.ownerEntity) ){ //TODO OPTIMIZE TO REGION CHECK SYSTEM getRegion()
+
+			if ( region.containsEntity(this.ownerEntity) ){ //TODO OPTIMIZE TO REGION CHECK SYSTEM getRegion()
 				return new Line2D[]{ region.getSeparationSide(this.ownerEntity) };
 			}
 		}

@@ -102,12 +102,11 @@ public class RenderingEngine {
 	public Ticket addSpriteComposite( GraphicComposite sprite ){
 		
 		try{
-			System.out.print("adding");
 			return spriteCompositeList.add( sprite );
 		}
 		
 		catch( ClassCastException exc ){
-			System.err.println("Attempted to add spriteless entity.");
+			System.err.println("Rendering Engine attempted to add spriteless entity.");
 			return null;
 		}
 			

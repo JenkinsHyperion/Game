@@ -199,10 +199,6 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		y=y+(float)distance.getY();
 	}
 	
-	public boolean hasCollider(){
-		return !( this.collisionType instanceof ColliderNull );
-	}
-	
 	public boolean hasGraphics(){
 		return !( this.graphicsComposite instanceof GraphicComposite );
 	}
@@ -218,11 +214,19 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	}
 	
 	public void addToUpdater( BoardAbstract board){
-		this.updaterSlot = board.addCompositeToUpdater(this);
+		this.updaterSlot = board.addEntityToUpdater(this);
 	}
 	
 	public void removeFromUpdater(){
 		this.updaterSlot.removeSelf();
+	}
+
+	public boolean hasTranslation() {
+		return this.translationType.exists();
+	}
+	
+	public boolean hasCollider() {
+		return this.collisionType.exists();
 	}
 	
 }

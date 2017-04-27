@@ -154,18 +154,18 @@ public class PlayerCharacter extends Player {
 				double dist1 = slope1.unitVector().dotProduct(ground.getSlopeVector());
 				double dist2 = slope2.unitVector().dotProduct(ground.getSlopeVector());
 	
-				double ground = slopeGround.calculateAngleFromVector();
+				double ground = slopeGround.angleFromVectorInRadians();
 							
 					if ( Math.abs(dist2) > Math.abs(dist1) ){ //only works for rectangles
 						//Counterclockwise side is leaning at a closer angle to the surface
-						double rawSide2 = storedBounds.getRawSide( corner.getEndingSide().getID() ).getSlopeVector().absSlope().calculateAngleFromVector();
+						double rawSide2 = storedBounds.getRawSide( corner.getEndingSide().getID() ).getSlopeVector().absSlope().angleFromVectorInRadians();
 						//System.out.println("snapping CCW to "+Math.toDegrees(ground) );
 						//System.out.println("snapping CCW to "+Math.toDegrees(rawSide2) );
 						PlayerCharacter.this.setAngleInRadians( ground + rawSide2 );
 					}
 					else{
 						//Clockwise side is leaning at a closer angle to the surface
-						double rawSide1 = storedBounds.getRawSide( corner.getStartingSide().getID() ).getSlopeVector().absSlope().calculateAngleFromVector();
+						double rawSide1 = storedBounds.getRawSide( corner.getStartingSide().getID() ).getSlopeVector().absSlope().angleFromVectorInRadians();
 						//System.out.println("snapping CW to "+Math.toDegrees(ground));
 						//System.out.println("snapping CW to "+Math.toDegrees(rawSide1) );
 						PlayerCharacter.this.setAngleInRadians( ground + rawSide1 );

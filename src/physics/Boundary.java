@@ -34,6 +34,8 @@ public abstract class Boundary {
 	
 	public abstract Line2D[] collectAxesOfSeparationWith( Boundary partner );
 	
+	public abstract <T> Boundary temporaryClone();
+	
 	protected abstract void constructVoronoiRegions();
 	protected VoronoiRegion[] getVoronoiRegions(){ return this.regions; }
 	

@@ -14,7 +14,7 @@ public class RotationCompositeActive extends RotationComposite{
 	
 	public RotationCompositeActive( EntityStatic owner ){
 		super(owner);
-		this.storedBounds = owner.getBoundary();
+		this.storedBounds = owner.getBoundary().temporaryClone();
 		orientation = new Vector( 1 , 0 );
 	}
 	
@@ -49,7 +49,7 @@ public class RotationCompositeActive extends RotationComposite{
 	@Override
 	public void setAngleFromVector( Vector slope ){
 		
-		double angleRadians = slope.calculateAngleFromVector() ;
+		double angleRadians = slope.angleFromVectorInRadians() ;
 		System.out.println( "------------------------ANGLE "+angleRadians*180/Math.PI );
 		this.owner.getBoundary().rotateBoundaryFromTemplate( new Point(0,0) , angleRadians , storedBounds ); 
 		this.orientation = slope.unitVector().clamp();

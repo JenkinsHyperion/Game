@@ -105,8 +105,8 @@ public class BoundaryPolygonal extends Boundary {
 
 		}	
 	}
-
-	private BoundaryPolygonal temporaryClone(){  
+	@Override
+	public BoundaryPolygonal temporaryClone(){  
 
 		Side[] newSides = new Side[this.sides.length];
 		for ( int i = 0 ; i < newSides.length ; i++ ){
@@ -138,7 +138,7 @@ public class BoundaryPolygonal extends Boundary {
 	
 	
 	@Override
-	public void rotateBoundaryFromTemplate(Point center, double angle , Boundary template){ //OPTIMIZATION TRIG FUNCTIONS ARE NOTORIOUSLY EXPENSIVE Look into performing some trig magic
+	public void rotateBoundaryFromTemplate(Point center, double radians , Boundary template){ //OPTIMIZATION TRIG FUNCTIONS ARE NOTORIOUSLY EXPENSIVE Look into performing some trig magic
 		// with fast trig approximations
 		//THIS IS DOUBLING EVERY VERTEX BY DOING LINES, DO BY VERTEX INSTEAD!!!
 		BoundaryPolygonal templatePolygonal = (BoundaryPolygonal) template;
@@ -146,16 +146,15 @@ public class BoundaryPolygonal extends Boundary {
 		for ( int i = 0 ; i < templatePolygonal.corners.length ; i++ ) {
 			
 			Side side = templatePolygonal.sides[i];
-			BoundaryVertex corner = templatePolygonal.corners[i];
-			Point origin = new Point(center.x,center.y);
+			BoundaryVertex tempCorner = templatePolygonal.corners[i];
 			
-			double r = corner.toPoint().distance(origin); 
-			double a = -Math.acos( (corner.getX()-center.x) / r );
-			if (corner.getY() > center.y){ a = (2*Math.PI) - a ;} //clamp range to 0-2pi
+			double r = tempCorner.toPoint().distance(center); 
+			double a = -Math.acos( (tempCorner.getX()-center.x) / r );
+			if (tempCorner.getY() > center.y){ a = (2*Math.PI) - a ;} //clamp range to 0-2pi
 			
 			Point2D p1 = new Point2D.Double( 
-					Math.round(r * Math.cos( a + angle  ) ) , 
-					Math.round(r * Math.sin( a + angle ) )    );
+					Math.round(r * Math.cos( a + radians  ) ) , 
+					Math.round(r * Math.sin( a + radians ) )    );
 			
 			this.corners[i].setPos( p1 );
 		}

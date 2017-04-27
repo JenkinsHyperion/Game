@@ -193,6 +193,11 @@ public class BoundaryCircular extends Boundary{
 		return null;
 	}
 	
+	@Override
+	public Boundary temporaryClone(){
+		System.err.println("Circular Boundary was not cloned");
+		return this;  
+	}
 	
 
 }

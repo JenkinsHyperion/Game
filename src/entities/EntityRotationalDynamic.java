@@ -106,7 +106,7 @@ public class EntityRotationalDynamic extends EntityDynamic{
 	
 	public void setAngleFromVector( Vector slope ){
 		
-		double angleRadians = slope.calculateAngleFromVector() ;
+		double angleRadians = slope.angleFromVectorInRadians() ;
 		System.out.println( "------------------------ANGLE "+angleRadians*180/Math.PI );
 		this.getBoundary().rotateBoundaryFromTemplate( new Point(0,0) , angleRadians , storedBounds ); 
 		this.orientation = slope.unitVector().clamp();

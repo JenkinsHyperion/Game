@@ -23,7 +23,8 @@ import sprites.*;
 
 public class BoardPhysicsTesting extends BoardAbstract{
 
-	EntityStatic followerEntity = new EntityStatic("Circle",-200,200);
+	EntityStatic followerEntity = new EntityStatic("Circle",0,-200);
+	EntityStatic rotateTest;
 	final FollowerAI followerSleep = new Sleep();
 	FollowerAI currentFollowerAI = followerSleep;
 	private Force gravity;
@@ -59,15 +60,15 @@ public class BoardPhysicsTesting extends BoardAbstract{
 		
 		
 		
-		EntityStatic testEntity = new EntityStatic("Test Ground 01",0,0);     
-        CompositeFactory.addColliderTo( testEntity , new BoundaryPolygonal.Box(446,100,-223,-50 ) );
-        CompositeFactory.addGraphicTo(testEntity, new SpriteStillframe("ground_1.png" , -223 , -53 ) );
+		rotateTest = new EntityStatic("Test Ground 01",0,0);     
+        CompositeFactory.addColliderTo( rotateTest , new BoundaryPolygonal.Box(446,100,-223,-50 ) );
+        CompositeFactory.addGraphicTo(rotateTest, new SpriteStillframe("ground_1.png" , -223 , -53 ) );
         
-    	CompositeFactory.addRotationTo(testEntity);
-    	//testEntity.getRotationComposite().setAngleInDegrees(30);
+    	CompositeFactory.addRotationTo(rotateTest);
+    	//rotateTest.getRotationComposite().setAngleInDegrees(30);
     	//testEntity.getRotationComposite().setAngularVelocity(2);
         
-        currentScene.addEntity( testEntity );
+        currentScene.addEntity( rotateTest );
 		
         EntityStatic child = new EntityStatic("FollowerChild",-300,0); 
         CompositeFactory.addGraphicTo( child, new SpriteStillframe("box.png" , -20 , -20 ) );
@@ -75,7 +76,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
         //CompositeFactory.addTranslationTo(child);
         
         currentScene.addEntity( child );
-        camera.setFocus( testEntity.getPosition() );
+        camera.setFocus( rotateTest.getPosition() );
         
         CompositeFactory.makeChildOfParent(child, followerEntity , this);
         
@@ -198,6 +199,8 @@ public class BoardPhysicsTesting extends BoardAbstract{
 		}
 	}
 	
+	private Point mouseOrigin;
+	
  	protected class MouseHandlerClass extends MouseInputAdapter  { 		
   	    /*public int clickPositionXOffset;
   	    public int clickPositionYOffset;*/
@@ -205,20 +208,25 @@ public class BoardPhysicsTesting extends BoardAbstract{
   		@Override
   		public void mousePressed(MouseEvent e)
   		{  	
-  			currentFollowerAI = new Follow( e.getPoint() );
+  			if (e.getButton() == MouseEvent.BUTTON2){
+  				currentFollowerAI = new Follow( e.getPoint() );
+  			}
+  			
   			editorPanel.mousePressed(e);
-  			//editorPanel.getWorldGeom().mousePressed(e);
-  			/*if ( e.getButton() == MouseEvent.BUTTON3 ){
-  				System.out.println("REMOVING");
-  				currentScene.disableEntity( 1 );
-  			}*/
+
+  			mouseOrigin = e.getPoint();
+  			
   		}
   		@Override
   		public void mouseDragged(MouseEvent e) 
   		{ 		
   			editorPanel.mouseDragged(e);
-  			currentFollowerAI = new Follow( e.getPoint() );
+  			if (e.getButton() == MouseEvent.BUTTON2){
+  				currentFollowerAI = new Follow( e.getPoint() );
+  			}
   			//gravity.setVector( 0,0);
+  			//rotateTest.getRotationComposite().setAngleInDegrees( new Vector( e.getX()-mouseOrigin.x , e.getY()-mouseOrigin.y ).angleFromVectorInDegrees() );
+  			
   		}
   		@Override
   		public void mouseMoved(MouseEvent e){

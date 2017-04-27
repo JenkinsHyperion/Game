@@ -163,11 +163,13 @@ public class Vector implements Serializable{
 			return new Vector( line.getX2() - line.getX1() , line.getY2() - line.getY1() ).unitVector() ;
 		}
 		
-		public double calculateAngleFromVector(){
-			if ( this.getX() > 0 )
-				return Math.PI/2 - Math.atan2( this.getX(), this.getY() );
-			else //if ( vector.getX() < 0 )
+		public double angleFromVectorInRadians(){
 				return -Math.PI/2 - Math.atan2( this.getX(), this.getY() );  
+
+		}
+		
+		public double angleFromVectorInDegrees(){
+				return Math.toDegrees( -Math.PI/2 - Math.atan2( this.getX(), this.getY() ) );
 
 		}
 		

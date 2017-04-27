@@ -82,5 +82,11 @@ public class BoundarySingular extends Boundary{
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public BoundarySingular temporaryClone(){  
+		System.err.println("Boundary Singular was not cloned");
+		return this;
+	}
 
 }

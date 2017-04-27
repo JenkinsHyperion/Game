@@ -933,6 +933,7 @@ public class EditorPanel extends JPanel {
 			this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());
 			
 			this.inputController.createKeyBinding(KeyEvent.VK_ESCAPE, new DeselectEntitiesEvent());
+			this.inputController.createKeyBinding(KeyEvent.VK_R, new RotateEvent());
 		}
 		
 		@Override

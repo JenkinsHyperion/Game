@@ -22,7 +22,7 @@ import physics.CollisionEngine;
 import saving_loading.EntityData;
 import sprites.RenderingEngine;
 import utility.DoubleLinkedList;
-import utility.Ticket;
+import utility.ListNodeTicket;
 
 public abstract class BoardAbstract extends JPanel implements KeyListener {
 
@@ -169,11 +169,11 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 		this.currentScene.addEntity( entity );
 	}
 	
-	public Ticket addCompositeToUpdater( UpdateableComposite updateable ){
+	public ListNodeTicket addCompositeToUpdater( UpdateableComposite updateable ){
 		return updateablesList.add(updateable);
 	}
 	
-	public Ticket addEntityToUpdater( UpdateableComposite updateable ){
+	public ListNodeTicket addEntityToUpdater( UpdateableComposite updateable ){
 		return updateableEntitiesList.add(updateable);
 	}
 

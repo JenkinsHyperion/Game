@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import physics.Force;
 import physics.PointForce;
 import physics.Vector;
-import utility.Ticket;
+import utility.ListNodeTicket;
 
-public class TranslationComposite{
+public class TranslationComposite {
 	
 	protected TranslationComposite(){
 	}

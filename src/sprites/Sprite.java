@@ -25,6 +25,8 @@ public abstract class Sprite implements Graphic{
     protected double spriteAngle = 0;
     protected String fileName;
     
+    public static final byte CENTERED = 0;
+    
 	AffineTransform spriteTransform = new AffineTransform();
 
 	protected Sprite( String fileName , int xOffset, int yOffset  ){

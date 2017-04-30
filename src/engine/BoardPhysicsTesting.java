@@ -60,13 +60,13 @@ public class BoardPhysicsTesting extends BoardAbstract{
 		
 		
 		
-		rotateTest = new EntityStatic("Test Ground 01",0,0);     
+		rotateTest = new EntityStatic("Rotation Test Ground 01",0,0);     
         CompositeFactory.addColliderTo( rotateTest , new BoundaryPolygonal.Box(446,100,-223,-50 ) );
         CompositeFactory.addGraphicTo(rotateTest, new SpriteStillframe("ground_1.png" , -223 , -53 ) );
         
-    	CompositeFactory.addRotationTo(rotateTest);
+    	//CompositeFactory.addRotationTo(rotateTest);
     	//rotateTest.getRotationComposite().setAngleInDegrees(30);
-    	//testEntity.getRotationComposite().setAngularVelocity(2);
+    	//rotateTest.getRotationComposite().setAngularVelocity(2);
         
         currentScene.addEntity( rotateTest );
 		
@@ -77,8 +77,42 @@ public class BoardPhysicsTesting extends BoardAbstract{
         
         currentScene.addEntity( child );
         camera.setFocus( rotateTest.getPosition() );
+
+        //SPACESHIP TEST
         
-        CompositeFactory.makeChildOfParent(child, followerEntity , this);
+        EntityStatic spaceship = new EntityStatic("ship",-300,0);
+        CompositeFactory.addGraphicTo(spaceship, new SpriteStillframe("spaceship01.png" , Sprite.CENTERED) ); 
+        CompositeFactory.addTranslationTo(spaceship);
+        CompositeFactory.addRotationTo(spaceship);
+        CompositeFactory.addScriptTo(spaceship, new EntityScript(){
+        	
+        	private EntityStatic target = followerEntity;
+        	
+			@Override
+			protected void updateOwner(EntityStatic ownerEntity) {
+				
+				Vector targetVector =  new Vector( ownerEntity.getPosition(), target.getPosition() );
+				
+				ownerEntity.getRotationComposite().setAngleFromVector( targetVector );
+
+				ownerEntity.getTranslationComposite().setVelocity( targetVector.multiply(0.01) );
+				
+			}
+			
+			@Override
+			protected void updateScript() {
+				
+			}
+			
+        });
+        currentScene.addEntity(spaceship);
+        
+        
+        EntityStatic testParticleSpawner = new ParticleEmitter(0,0);
+        currentScene.addEntity( testParticleSpawner );
+        
+        CompositeFactory.makeChildOfParentUsingPosition(testParticleSpawner, spaceship , this);
+
         
     	initializeBoard();
 	}
@@ -221,9 +255,8 @@ public class BoardPhysicsTesting extends BoardAbstract{
   		public void mouseDragged(MouseEvent e) 
   		{ 		
   			editorPanel.mouseDragged(e);
-  			if (e.getButton() == MouseEvent.BUTTON2){
   				currentFollowerAI = new Follow( e.getPoint() );
-  			}
+  			
   			//gravity.setVector( 0,0);
   			//rotateTest.getRotationComposite().setAngleInDegrees( new Vector( e.getX()-mouseOrigin.x , e.getY()-mouseOrigin.y ).angleFromVectorInDegrees() );
   			

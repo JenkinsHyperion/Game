@@ -21,7 +21,7 @@ public final class ColliderNull extends Collider{
 	private final static ColliderNull nullCollision = new ColliderNull();
 
 	private ColliderNull(){
-		super(null);
+		super();
 	}
 	
 	public static ColliderNull getNonCollidable(){ 
@@ -41,10 +41,6 @@ public final class ColliderNull extends Collider{
 	 */
 	@Override
 	public void checkForInteractionWith( Collider entity, CollisionCheck checkType ,CollisionEngine engine){ 
-		System.err.println("Warning: Collision info checked on NonCollidable ");
-	}
-	@Override
-	public void passInteraction( Collider entity, CollisionCheck checkType , CollisionEngine engine ){ 
 		System.err.println("Warning: Collision info checked on NonCollidable ");
 	}
 	

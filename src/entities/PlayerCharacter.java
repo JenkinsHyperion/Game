@@ -121,9 +121,8 @@ public class PlayerCharacter extends Player {
         		onSideCollision
         };
         // Creating actual composite
-        Collider collisionMesh = new Collider( this );
-        setCollisionComposite( collisionMesh );
-        collisionMesh.setLeavingCollisionEvent( new OnLeavingCollision() );
+       // Collider collisionMesh = new Collider( this );
+        //setCollisionComposite( collisionMesh );
         // Find better method for casting
         
         Boundary boundarytemp =  new BoundaryPolygonal.EnhancedBox( 24,76 ,-12,-38, eventList );
@@ -179,6 +178,8 @@ public class PlayerCharacter extends Player {
 		}
         
 		CompositeFactory.addColliderTo( this , boundarytemp3 );
+		
+        this.getColliderComposite().setLeavingCollisionEvent( new OnLeavingCollision() );
 
 		//((Collider) collisionType).setBoundary( boundarytemp3 ); 
 		storedBounds = new BoundaryPolygonal.Box(24,76 ,-12,-38 );   //OPTIMIZE move to child RotationalCollidable that can store boundary 

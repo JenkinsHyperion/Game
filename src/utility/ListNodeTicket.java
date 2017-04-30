@@ -1,10 +1,10 @@
 package utility;
 
-public class Ticket {
+public class ListNodeTicket {
 
 	LinkedNodeElement<?> node;
 	
-	protected Ticket( LinkedNodeElement<?> node ){
+	protected ListNodeTicket( LinkedNodeElement<?> node ){
 		this.node = node;
 	}
 	

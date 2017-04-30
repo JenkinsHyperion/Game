@@ -36,10 +36,9 @@ public class Collider implements EntityComposite{
 
 	private CollisionEvent uponLeavingCollision = new NullCollisionEvent();
 	
-	public Collider( EntityStatic owner ){
-		
-		this.ownerEntity = owner;
+	protected Collider(){
 		this.boundary = null;
+		this.ownerEntity = null; 
 	}
 	
 	public Collider( EntityStatic owner , Boundary boundary){
@@ -71,19 +70,9 @@ public class Collider implements EntityComposite{
 		//We know owner entity has composite collidable, which is THIS instance of collidable, so pass owner's physical
 		// information to the other entity
 		
-		entity.passInteraction(this, checkType, engine); //THIS is collidable, so
-		
+		engine.registerCollision( checkType.check(this, entity) , this , entity);
 		//Physical constants like mass, restitution (bounciness), rotational friction and other stuff to be passed 
 		// to collisionEngine here:
-		
-	}
-
-	public void passInteraction( Collider entity, CollisionCheck checkType , CollisionEngine engine ){ 
-		//entity is collidable because if it wasn't it non-collidable would have terminated and returned WARNING to console.
-		//Both entities have passed through null object pattern, so now we can perform the actual
-		// check for interaction. For now we only have the SEPARATING AXIS THEOREM SAT check.
-		
-		engine.registerCollision( checkType.check(this, entity) , this , entity);
 		
 	}
 	

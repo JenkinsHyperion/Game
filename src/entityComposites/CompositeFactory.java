@@ -13,8 +13,9 @@ public class CompositeFactory {
 
 	public static void addRotationTo( EntityStatic entity ){
 		
-		RotationCompositeActive rotation = new RotationCompositeActive( entity );
+		RotationCompositeDynamic rotation = new RotationCompositeDynamic( entity );
 		entity.setRotationComposite( rotation );
+		entity.updateables.add(rotation);
 	}
 	
 	public static void addTranslationTo( EntityStatic entity ){
@@ -23,13 +24,25 @@ public class CompositeFactory {
 		entity.updateables.add(trans);
 	}
 	
+	public static void flyweightTranslation( EntityStatic parent, EntityStatic child ){
+		if ( parent.hasTranslation() ){
+			child.setTranslationComposite( parent.getTranslationComposite() );
+			child.updateables.add( (TranslationCompositeActive) parent.getTranslationComposite() );
+		}
+	}
+	
+	public static void flyweightRotation( EntityStatic parent, EntityStatic child ){
+		if ( parent.hasRotation() ){
+			child.setRotationComposite( parent.getRotationComposite() );
+			child.updateables.add( (RotationCompositeDynamic) parent.getRotationComposite() );
+		}
+	}
+	
 	public static void addColliderTo( EntityStatic entity , Line2D[] sides ){
-		
-		Collider newCollider = new Collider( entity );
 		
 		Boundary newBoundary = new BoundaryPolygonal( sides );
 		
-		newCollider.setBoundary( newBoundary );
+		Collider newCollider = new Collider( entity , newBoundary );
 		
 		entity.setCollisionComposite( newCollider );
 		
@@ -41,9 +54,7 @@ public class CompositeFactory {
 			entity.getColliderComposite().setBoundary(boundary);
 		}
 		else {
-			Collider newCollider = new Collider( entity );
-			
-			newCollider.setBoundary( boundary );
+			Collider newCollider = new Collider( entity , boundary );
 			
 			entity.setCollisionComposite( newCollider );
 		}
@@ -74,9 +85,18 @@ public class CompositeFactory {
 	// PARENT CHILDREN METHODS
 	
 	public static void makeChildOfParent( EntityStatic child , EntityStatic parent , BoardAbstract board ){
+		parenting(child, parent, board);
+	}
+	
+	public static void makeChildOfParentUsingPosition(EntityStatic child , EntityStatic parent , BoardAbstract board ){
+		parenting(child, parent, board);
+		child.setPos( child.getX() + parent.getX() , child.getY() + parent.getY() );
+	}
+	
+	private static void parenting( EntityStatic child , EntityStatic parent , BoardAbstract board ){
 		
 		//CREATE COMPOSITE DECOSNTRUCTOR TO ENSURE REMOVAL
-		System.out.println("Composite Factory setting "+child+" as child of "+parent);
+		System.out.println("Composite Factory setting ["+child+"] as child of ["+parent+"]");
 		
 		if ( child.hasTranslation() ){//if child already has translation, remove it and flyweight parent's instead
 			System.err.println("TODO Composite Factory cannot yet make entity with translation into child");
@@ -99,6 +119,12 @@ public class CompositeFactory {
 		
 		//parent.updateables.add(child);
 		//child.updateables.add( (UpdateableComposite) parent.getTranslationComposite() );
+		
+	}
+	
+	public static void addScriptTo( EntityStatic entity , EntityScript script){
+		
+		entity.updateables.add(script);
 		
 	}
 	

@@ -13,7 +13,7 @@ import physics.CollisionEngine;
 import sprites.SpriteAnimated;
 import sprites.SpriteStillframe;
 import utility.DoubleLinkedList;
-import utility.Ticket;
+import utility.ListNodeTicket;
 import sprites.RenderingEngine;
 import sprites.Sprite;
 
@@ -22,13 +22,14 @@ import sprites.Sprite;
  */
 public class EntityStatic extends Entity implements UpdateableComposite{
 
-	private Ticket updaterSlot;
+	private ListNodeTicket updaterSlot;
 	//COMPOSITE VARIABLES, LATER TO BE LIST OF COMPOSITES
 	protected EntityStatic child;
 	protected TranslationComposite translationType = new TranslationComposite();
 	protected RotationComposite rotationType = new RotationComposite(this);
 	protected GraphicComposite graphicsComposite = GraphicCompositeNull.getNullSprite(); 
 	protected Collider collisionType = ColliderNull.getNonCollidable();
+	
 	
 	protected ArrayList<UpdateableComposite> updateables = new ArrayList<UpdateableComposite>();
 	
@@ -48,7 +49,7 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		super( entityPosition.x , entityPosition.y );
 	}
 	@Override
-	public void updateComposite(){ //
+	public void updateComposite(){ //MAKE OWN COMPOSITE
 		for ( UpdateableComposite composite : updateables ){
 			composite.updateEntity(this);
 		}
@@ -98,13 +99,13 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	@Deprecated
     public void loadSprite(String path){ // needs handling if failed. Also needs to be moved out of object class into sprites
 
-		CompositeFactory.addGraphicTo( this , new SpriteStillframe( path , this) );
+		CompositeFactory.addGraphicTo( this , new SpriteStillframe( path ) );
     	
     }
     @Deprecated
     public void loadSprite(String path, int offset_x , int offset_y){ // needs handling if failed. Also needs to be moved out of object class into sprites
     	
-    	CompositeFactory.addGraphicTo( this , new SpriteStillframe( path , this) );
+    	CompositeFactory.addGraphicTo( this , new SpriteStillframe( path ) );
     }
 
 
@@ -214,7 +215,12 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	}
 	
 	public void addToUpdater( BoardAbstract board){
-		this.updaterSlot = board.addEntityToUpdater(this);
+		if ( updaterSlot == null ){
+			this.updaterSlot = board.addEntityToUpdater(this);
+		}else{
+			
+		}
+
 	}
 	
 	public void removeFromUpdater(){
@@ -225,8 +231,41 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		return this.translationType.exists();
 	}
 	
+	public boolean hasRotation() {
+		return this.rotationType.exists();
+	}
+	
 	public boolean hasCollider() {
 		return this.collisionType.exists();
+	}
+	
+	public boolean hasUpdateables(){
+		if ( updateables.size() > 0)
+			return true;
+		else
+			return false;
+	}
+	
+	public UpdateableComposite[] getUpdateables(){
+		UpdateableComposite[] returnArray = new UpdateableComposite[ this.updateables.size() ];
+		this.updateables.toArray(returnArray);
+		return returnArray;
+	}
+	
+	@Override
+	public void removeUpdateable() {
+		this.updaterSlot.removeSelf();
+	}
+
+	@Override
+	public boolean addCompositeToUpdater(BoardAbstract board) {
+		if ( this.updaterSlot == null ){
+    		this.updaterSlot = board.addCompositeToUpdater(this);
+    		return true;
+    	}
+    	else{
+    		return false;
+    	}
 	}
 	
 }

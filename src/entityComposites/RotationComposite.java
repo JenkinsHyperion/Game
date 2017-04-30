@@ -6,7 +6,7 @@ import physics.BoundaryPolygonal;
 import physics.BoundaryVertex;
 import physics.Vector;
 
-public class RotationComposite {
+public class RotationComposite implements EntityComposite{
 	
 	protected EntityStatic owner;
 	
@@ -53,5 +53,15 @@ public class RotationComposite {
 	public float getAngularVel(){ return 0; }
 	
 	public float getAngularAcc(){ return 0; }
+
+	@Override
+	public boolean exists() {
+		return false;
+	}
+
+	@Override
+	public void disable() {
+		// TODO Auto-generated method stub
+	}
 	
 }

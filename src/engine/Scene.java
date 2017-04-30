@@ -10,6 +10,8 @@ public class Scene {
 	private BoardAbstract ownerBoard;
 
 	private ArrayList<LayeredEntity> entityList = new ArrayList<LayeredEntity>();
+	
+	private String I = ""; //Indentations tring for console printing debugging
 
 	public Scene( BoardAbstract ownerBoard ){
 		this.ownerBoard = ownerBoard;
@@ -24,17 +26,33 @@ public class Scene {
 	
 	public void addEntity( EntityStatic entity ){
 		
-		System.out.println("Adding Entity ["+entity+"] to Current Scene");
+		boolean updateableEntity = false;
+		System.out.println(I+"Adding Entity ["+entity+"] to Current Scene");
 		//ADD ENTITY TO SCENES MASTER ENTITY LIST
 		entityList.add( new LayeredEntity(entity));
 		
+		I = I+"|  ";
 		//RUN THROUGH AND ADD UPDATEABLE COMPOSITES TO UPDATER LIST right now only translation for testing
 		
-		if ( (entity.getTranslationComposite() instanceof TranslationCompositeActive) ){
-			TranslationCompositeActive trans = (TranslationCompositeActive) entity.getTranslationComposite();
-			
-			entity.addToUpdater(ownerBoard);
-			trans.addToUpdater(ownerBoard);
+		if ( (entity.getTranslationComposite() instanceof UpdateableComposite) ){
+			UpdateableComposite trans = (UpdateableComposite) entity.getTranslationComposite();
+			updateableEntity = true;
+			if ( trans.addCompositeToUpdater(ownerBoard) ){
+				System.out.println( I+"Adding dynamic translation composite to updater thread");
+			}else
+				System.out.println( I+"Dynamic translation composite already in updater thread");
+		}
+		
+		//ROTATION 
+		
+		if ( (entity.getRotationComposite() instanceof UpdateableComposite) ){
+			UpdateableComposite rotation = (UpdateableComposite) entity.getRotationComposite();
+			updateableEntity = true;
+			if ( rotation.addCompositeToUpdater(ownerBoard) ){
+				System.out.println( I+"Adding dynamic rotation composite to updater thread");
+			}else{
+				System.out.println( I+"Dynamic rotation composite already in updater thread");
+			}
 		}
 		
 		//GRAPHICS COMPOSITE
@@ -43,7 +61,7 @@ public class Scene {
 			
 			entity.getGraphicComposite().addCompositeToRenderer( ownerBoard.renderingEngine );
 			
-		}else{System.err.println("  Couldn't add ["+entity+"] to renderer because it's missing a Graphic Composite ");}
+		}else{System.err.println(I+"Couldn't add ["+entity+"] to renderer because it's missing a Graphic Composite ");}
 		
 		//COLLIDER COMPOSITE
 		
@@ -60,7 +78,29 @@ public class Scene {
 			
 		}
 		
-		System.out.println("----\n");
+		if ( entity.hasUpdateables() ){
+			System.out.println(I+"Collecting updateables");
+			updateableEntity = true;
+			UpdateableComposite[] updateables = entity.getUpdateables();
+			for ( UpdateableComposite updateable : updateables){ //COLLECT UPDATEABLES THAT ARE CHILDREN ENTITIES
+				if ( updateable instanceof EntityStatic ){
+					this.addEntity( (EntityStatic)updateable  );
+				}
+			}
+		}
+		
+		if ( updateableEntity ){
+			entity.addToUpdater(ownerBoard);
+			System.out.println(I+"Adding entity to updater");
+		}
+
+		if( !I.isEmpty() )
+			I = I.substring(3);
+
+		
+		System.out.println( I+"----\n");
+		
+
 		
 	}
 	

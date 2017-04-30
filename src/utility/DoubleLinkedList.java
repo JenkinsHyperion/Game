@@ -9,12 +9,12 @@ public class DoubleLinkedList<T> {
 		
 	}
 
-	public Ticket add( T element ){
+	public ListNodeTicket add( T element ){
 		
 		try{
 			LinkedNodeElement<T> newElement = this.head.addElement( element );
 			currentItteration = newElement ;
-			return new Ticket(newElement);
+			return new ListNodeTicket(newElement);
 		}
 		
 		catch( ClassCastException exc ){

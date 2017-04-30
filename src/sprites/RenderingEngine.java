@@ -99,7 +99,7 @@ public class RenderingEngine {
 		
 	}
 	
-	public Ticket addSpriteComposite( GraphicComposite sprite ){
+	public ListNodeTicket addSpriteComposite( GraphicComposite sprite ){
 		
 		try{
 			return spriteCompositeList.add( sprite );

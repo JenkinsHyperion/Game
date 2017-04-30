@@ -7,11 +7,11 @@ import engine.BoardAbstract;
 import physics.Force;
 import physics.PointForce;
 import physics.Vector;
-import utility.Ticket;
+import utility.ListNodeTicket;
 
 public class TranslationCompositeActive extends TranslationComposite implements UpdateableComposite{
 	
-	private Ticket updaterSlot;	
+	private ListNodeTicket updaterSlot;	
 	protected double dx=0;
     protected double dy=0;
     protected double accY=0;
@@ -282,15 +282,27 @@ public class TranslationCompositeActive extends TranslationComposite implements 
     	return returnVector;
     }
     
-    public void addToUpdater( BoardAbstract board){
-    	this.updaterSlot = board.addCompositeToUpdater(this);
+    /** Attempts to add this Composite to Board updater thread.
+     * 
+     * @param board 
+     * @return True if this composite was added to updater thread. False if this composite is already in updater thread
+     */
+    @Override
+    public boolean addCompositeToUpdater( BoardAbstract board){ 
+    	if ( this.updaterSlot == null ){
+    		this.updaterSlot = board.addCompositeToUpdater(this);
+    		return true;
+    	}
+    	else{
+    		return false;
+    	}
     }
     @Override
     public void removeUpdateable(){
     	this.updaterSlot.removeSelf();
 		System.out.println("Removing "+this+" from updater");
     }
-    
+    @Override
 	public boolean exists(){
 		return true;
 	}

@@ -1,13 +1,13 @@
 package entityComposites;
 
 import sprites.*;
-import utility.Ticket;
+import utility.ListNodeTicket;
 
 public class GraphicComposite implements EntityComposite{
 	
 	EntityStatic ownerEntity;
 	Sprite currentSprite;
-	private Ticket rendererSlot;
+	private ListNodeTicket rendererSlot;
 	
 	protected GraphicComposite( Sprite current , EntityStatic ownerEntity ){
 		this.ownerEntity = ownerEntity;

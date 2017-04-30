@@ -11,6 +11,7 @@ public abstract class ModeAbstract {
 	protected InputController inputController;
 	protected MouseMovedKeyState mouseMovedKeyState;
 	protected MouseCommand cameraPanMode;
+	protected String modeName = "unnamedMode";
 	//protected CameraMode cameraMode;
 	/*public abstract void mouseInput(MouseEvent m);
 	public abstract void keyInput(KeyEvent e);

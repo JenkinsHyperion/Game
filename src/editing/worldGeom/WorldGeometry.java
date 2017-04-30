@@ -63,6 +63,7 @@ public class WorldGeometry extends ModeAbstract{
 	
 
 	public WorldGeometry(EditorPanel editorPanelRef, BoardAbstract board2) { 
+		modeName = "WorldGeometryMode";
 		this.worldGeomMousePos = new Point();
 		this.editorPanel = editorPanelRef;
 		this.board = board2;
@@ -273,6 +274,7 @@ public class WorldGeometry extends ModeAbstract{
 		MouseMovedYHeldEvent mouseMovedYHeldEvent;
 		protected Point initClickPoint;
 		public VertexPlaceMode() {
+			modeName = "VertexPlaceMode";
 			initClickPoint = new Point();
 			nullTempRectBoundary = SelectionRectangleNull.getNullSelectionRectangle();
 			tempRectBoundary = new SelectionRectangle(Color.BLUE, Color.cyan, camera, initClickPoint);
@@ -488,6 +490,7 @@ public class WorldGeometry extends ModeAbstract{
 		//worldGeomRef is inherited
 
 		public VertexSelectMode() {
+			modeName = "VertexSelectMode";
 			initClickPoint = new Point();
 			selectedVertices = new SelectedVertices(camera);
 			nullSelectionRectangle = SelectionRectangleNull.getNullSelectionRectangle();

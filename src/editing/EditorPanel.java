@@ -836,7 +836,9 @@ public class EditorPanel extends JPanel {
 	public void render(Graphics g) {
 		
 		this.editorMode.render(g);
-		
+		g.setFont(new Font("default", Font.BOLD, 16));
+		g.drawString(this.editorMode.modeName, 800, 30);
+		g.setFont(new Font("default", Font.PLAIN, 12));
 		//this.getGhostSprite().editorDraw(getEditorMousePos());
 		
 	}
@@ -917,6 +919,7 @@ public class EditorPanel extends JPanel {
 		private boolean selectViaSprite;
 		private Point initClickPoint;
 		public EditorSelectMode() {
+			modeName = "EditorSelectMode";
 			selectViaSprite = true;
 			oneEntitySelected = false;
 			initClickPoint = new Point();
@@ -1235,8 +1238,9 @@ public class EditorPanel extends JPanel {
 /////////   INNER CLASS EDITORPLACEMODE   //////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private class EditorPlaceMode extends ModeAbstract {
+	public class EditorPlaceMode extends ModeAbstract {
 		public EditorPlaceMode() {
+			modeName = "EditorPlaceMode";
 			inputController = new InputController();
 			this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());			
 		}
@@ -1298,6 +1302,7 @@ public class EditorPanel extends JPanel {
 		
 		
 		public SpriteEditorMode(){
+			modeName = "SpriteEditorMode";
 			spritePath = "";
 			defaultSpriteEditorMode = new DefaultSpriteEditorMode();
 			spriteEditorMode = defaultSpriteEditorMode;
@@ -1448,6 +1453,7 @@ public class EditorPanel extends JPanel {
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 	public class BoundaryEditorMode extends ModeAbstract {
+		
 		private ArrayList<EntityStatic> selectedEntitiesRef = getSelectedEntities();
 		protected BufferedImage ghostVertexPic;
 		private BoundaryVertexPlaceMode boundaryVertexPlaceMode;
@@ -1463,6 +1469,7 @@ public class EditorPanel extends JPanel {
 		private ArrayList<Line2D.Double> oldBoundary = new ArrayList<>();
 		
 		public BoundaryEditorMode() {
+			modeName = "BoundaryEditorMode";
 			isClosedShape = false;
 			//this.currentSelectedEntity = currentEntityRef;
 			boundaryVertexPlaceMode = new BoundaryVertexPlaceMode();
@@ -1730,6 +1737,7 @@ public class EditorPanel extends JPanel {
 			
 			//constructor
 			public BoundaryVertexSelectMode() {
+				modeName = "BoundaryVertexSelectMode";
 				initClickPoint = new Point();
 				selectedVertices = new SelectedVertices(camera);
 				nullSelectionRectangle = SelectionRectangleNull.getNullSelectionRectangle();
@@ -2001,6 +2009,7 @@ public class EditorPanel extends JPanel {
 			protected Point initClickPoint;
 			
 			public BoundaryVertexPlaceMode() {
+				modeName = "BoundaryVertexPlaceMode";
 				initClickPoint = new Point();
 				nullTempRectBoundary = SelectionRectangleNull.getNullSelectionRectangle();
 				tempRectBoundary = new SelectionRectangle(Color.BLUE, Color.cyan, camera, initClickPoint);

@@ -28,9 +28,9 @@ public class Collider implements EntityComposite{
 
 	protected Boundary boundary;
 	
-	private float friction = 1;
+	protected float friction = 1;
 	
-    private float mass = 1;
+	protected float mass = 1;
 	
 	protected ArrayList<CollidingPair> collisionInteractions = new ArrayList<>();
 

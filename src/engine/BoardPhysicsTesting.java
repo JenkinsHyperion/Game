@@ -23,7 +23,7 @@ import sprites.*;
 
 public class BoardPhysicsTesting extends BoardAbstract{
 
-	EntityStatic followerEntity = new EntityStatic("Circle",0,-200);
+	EntityStatic followerEntity = new EntityStatic("Circle",0,-300);
 	EntityStatic rotateTest;
 	final FollowerAI followerSleep = new Sleep();
 	FollowerAI currentFollowerAI = followerSleep;
@@ -64,7 +64,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
         CompositeFactory.addColliderTo( rotateTest , new BoundaryPolygonal.Box(446,100,-223,-50 ) );
         CompositeFactory.addGraphicTo(rotateTest, new SpriteStillframe("ground_1.png" , -223 , -53 ) );
         
-    	//CompositeFactory.addRotationTo(rotateTest);
+    	CompositeFactory.addRotationTo(rotateTest);
     	//rotateTest.getRotationComposite().setAngleInDegrees(30);
     	//rotateTest.getRotationComposite().setAngularVelocity(2);
         
@@ -107,6 +107,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
         });
         currentScene.addEntity(spaceship);
         
+        // TESTING OF SPACESHIP ENGINE PARTICLE EFFECT
         
         EntityStatic testParticleSpawner = new ParticleEmitter(0,0);
         currentScene.addEntity( testParticleSpawner );
@@ -255,8 +256,10 @@ public class BoardPhysicsTesting extends BoardAbstract{
   		public void mouseDragged(MouseEvent e) 
   		{ 		
   			editorPanel.mouseDragged(e);
-  				currentFollowerAI = new Follow( e.getPoint() );
   			
+  			if (e.getButton() == MouseEvent.BUTTON2){
+  				currentFollowerAI = new Follow( e.getPoint() );
+  			}
   			//gravity.setVector( 0,0);
   			//rotateTest.getRotationComposite().setAngleInDegrees( new Vector( e.getX()-mouseOrigin.x , e.getY()-mouseOrigin.y ).angleFromVectorInDegrees() );
   			

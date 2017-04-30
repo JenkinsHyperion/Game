@@ -16,6 +16,13 @@ public class CompositeFactory {
 		RotationCompositeDynamic rotation = new RotationCompositeDynamic( entity );
 		entity.setRotationComposite( rotation );
 		entity.updateables.add(rotation);
+		
+		if ( !(entity.getColliderComposite() instanceof ColliderNull) ){
+			Collider colliderStatic = entity.getColliderComposite();
+			ColliderRotational collederNew = new ColliderRotational( colliderStatic );
+			entity.setCollisionComposite( collederNew );
+			rotation.rotateableCompositeList.add( collederNew );
+		}
 	}
 	
 	public static void addTranslationTo( EntityStatic entity ){

@@ -1,6 +1,7 @@
 package entityComposites;
 
 import java.awt.Point;
+import java.util.ArrayList;
 
 import engine.BoardAbstract;
 import physics.*;
@@ -16,7 +17,7 @@ public class RotationCompositeDynamic extends RotationComposite implements Updat
 	protected double angularAcc = 0;
 	protected Vector orientation = new Vector( 1 , 0 );
 	
-	private RotateableComposite[] rotateableCompositeList = new RotateableComposite[0];
+	protected ArrayList<RotateableComposite> rotateableCompositeList = new ArrayList<RotateableComposite>();
 	
 	public RotationCompositeDynamic( EntityStatic owner ){
 		super(owner);

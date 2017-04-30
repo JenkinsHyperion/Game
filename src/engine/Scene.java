@@ -18,9 +18,7 @@ public class Scene {
 
 	}
 	
-
-	
-	public void addEntity( EntityStatic entity , byte layer ){
+	public void addEntityToList( EntityStatic entity , byte layer ){
 		entityList.add( new LayeredEntity(entity,layer));
 	}
 	
@@ -31,7 +29,8 @@ public class Scene {
 		//ADD ENTITY TO SCENES MASTER ENTITY LIST
 		entityList.add( new LayeredEntity(entity));
 		
-		I = I+"|  ";
+		I = I+"|  ";//temporary visual indentation for console output
+		
 		//RUN THROUGH AND ADD UPDATEABLE COMPOSITES TO UPDATER LIST right now only translation for testing
 		
 		if ( (entity.getTranslationComposite() instanceof UpdateableComposite) ){

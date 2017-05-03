@@ -24,6 +24,12 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
     	spriteAnimation = new Animation( LoadAnimation.buildAnimation(length, row, tileWidth, path) , delay );
     }
     
+    
+    public SpriteAnimated( String path , int delay ){
+    	super( path , 0 , 0 );
+    	spriteAnimation = Animation.animationFromGif( path, delay );
+    	spriteAnimation.start();
+    }
     // IMPLEMENTED METHODS
 
 
@@ -37,6 +43,8 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
     	entityTransformation.translate(this.spriteOffsetX, this.spriteOffsetY); 
 
     	camera.drawOnCamera(this , entityTransformation );
+    	
+    	this.updateSprite();
     	
     }
 

@@ -15,6 +15,7 @@ import engine.BoardAbstract.DiagnosticsOverlay;
 import entityComposites.*;
 import physics.BoundaryCircular;
 import physics.BoundaryPolygonal;
+import physics.BoundarySingular;
 import physics.CollisionEngine;
 import physics.Force;
 import physics.Vector;
@@ -81,9 +82,14 @@ public class BoardPhysicsTesting extends BoardAbstract{
         //SPACESHIP TEST
         
         EntityStatic spaceship = new EntityStatic("ship",-300,0);
-        CompositeFactory.addGraphicTo(spaceship, new SpriteStillframe("spaceship01.png" , Sprite.CENTERED) ); 
+        
+        //CompositeFactory.addGraphicTo(spaceship, new SpriteStillframe("spaceship01.png" , Sprite.CENTERED) ); 
+        
+        CompositeFactory.addGraphicTo(spaceship, new SpriteAnimated( "boom.gif" , 2 ) ); 
+        
         CompositeFactory.addTranslationTo(spaceship);
         CompositeFactory.addRotationTo(spaceship);
+        CompositeFactory.addColliderTo(spaceship, new BoundaryCircular( 10 , spaceship) );
         CompositeFactory.addScriptTo(spaceship, new EntityScript(){
         	
         	private EntityStatic target = followerEntity;
@@ -95,7 +101,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 				
 				ownerEntity.getRotationComposite().setAngleFromVector( targetVector );
 
-				ownerEntity.getTranslationComposite().setVelocity( targetVector.multiply(0.01) );
+				ownerEntity.getTranslationComposite().setVelocityFromVector( targetVector.multiply(0.01) );
 				
 			}
 			
@@ -149,6 +155,8 @@ public class BoardPhysicsTesting extends BoardAbstract{
 		g.drawString( collisionEngine.debugNumberofDynamicCollidables() + " dynamic collidables" , 20, 80);
 		g.drawString( collisionEngine.debugNumberOfCollisions() + " collisions" , 20, 95);
 		g.drawString( this.followerEntity.getTranslationComposite().getAccY() + " accY" , 20, 110);
+		g.drawString( this.updateableEntities() + " updateable entities" , 20, 180);
+		g.drawString( this.updateableComposites() + " dynamic composites" , 20, 195);
 		
 		for ( Vector force : followerEntity.getTranslationComposite().debugForceArrows() ){
 			camera.draw( force.toLine(followerEntity.getPosition() ) );
@@ -230,7 +238,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
   					Math.signum(distX)*(distX*distX)/50000  +  distX/20 ,    //like Linear Follow, this is a Quadratic Follow
   					Math.signum(distY)*(distY*distY)/50000  +  distY/20
   			);
-  			followerEntity.getTranslationComposite().setVelocity( followVelocity );
+  			followerEntity.getTranslationComposite().setVelocityFromVector( followVelocity );
 		}
 	}
 	

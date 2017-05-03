@@ -160,4 +160,10 @@ public abstract class Boundary {
 		
 	}
 	
+	
+	public void drawVoronoiRegions( EntityStatic entity , MovingCamera camera , Graphics2D g2){
+		
+	}
+	
+	
 }

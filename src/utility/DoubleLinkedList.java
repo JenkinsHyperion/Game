@@ -4,9 +4,10 @@ public class DoubleLinkedList<T> {
 
 	private final LinkedHead head = new LinkedHead();
 	private LinkedNodeElement<T> currentItteration = new LinkedTail(head);
+	private int size;
 	
 	public DoubleLinkedList(){
-		
+		this.size = 0;
 	}
 
 	public ListNodeTicket add( T element ){
@@ -14,6 +15,7 @@ public class DoubleLinkedList<T> {
 		try{
 			LinkedNodeElement<T> newElement = this.head.addElement( element );
 			currentItteration = newElement ;
+			size++;
 			return new ListNodeTicket(newElement);
 		}
 		
@@ -47,8 +49,13 @@ public class DoubleLinkedList<T> {
 		currentNode.removeSelf();
 		
 		this.currentItteration = this.currentItteration.getNextNode();
+		
+		this.size--;
 	}
-
+	
+	public int size(){
+		return this.size;
+	}
 	
 	private class LinkedHead extends LinkedNode<T>{
 		

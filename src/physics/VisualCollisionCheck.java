@@ -34,7 +34,7 @@ public class VisualCollisionCheck {
 	    	VoronoiRegion test = VoronoiRegion.getVoronoiRegion(side);
 	    	test.debugDrawRegion( collidablePrimary.getOwnerEntity() , camera, g2);
 	    }*/
-	    ((BoundaryPolygonal)statBounds).drawVoronoiRegions(collidablePrimary.getOwnerEntity(),camera,g2);
+	    statBounds.drawVoronoiRegions(collidablePrimary.getOwnerEntity(),camera,g2);
 
 	    
 	    Point2D playerCenter = new Point2D.Double(collidablePrimary.getOwnerEntity().getX(), collidablePrimary.getOwnerEntity().getY());
@@ -74,6 +74,8 @@ public class VisualCollisionCheck {
 	    	Line2D centerDistance = new Line2D.Double( centerPlayer , centerStat );
 	    	Line2D centerProjection = Boundary.getProjectionLine(centerDistance, axis);
 
+	    	statBounds = null;
+	    	playerBounds = null;
 	    	// -----------------
 
 	    	Line2D playerHalf = new Line2D.Float( 
@@ -181,6 +183,7 @@ public class VisualCollisionCheck {
 	    	camera.drawDebugAxis(projOuterStat, g2);
 	
 	    }
+	    
 	    return isColliding;
 	    //return false;
 	    

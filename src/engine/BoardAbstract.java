@@ -177,6 +177,13 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 		return updateableEntitiesList.add(updateable);
 	}
 
+	protected int updateableEntities(){
+		return updateableEntitiesList.size();
+	}
+	protected int updateableComposites(){
+		return updateablesList.size();
+	}
+	
 	protected class DiagnosticsOverlay implements Overlay{
 		
 		@Override

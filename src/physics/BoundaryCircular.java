@@ -14,6 +14,7 @@ public class BoundaryCircular extends Boundary{
 
 	private EntityStatic ownerEntity;
 	
+	private BoundaryVertex centerVertex;
 	private Point center;
 	private Point origin;
 	private int radius;
@@ -23,6 +24,8 @@ public class BoundaryCircular extends Boundary{
 		this.center = new Point(0,0);
 		this.origin = new Point(-radius,-radius);
 		this.ownerEntity = ownerEntity;
+		this.centerVertex = new BoundaryVertex(center);
+		this.constructVoronoiRegions();
 	}
 	
 	private BoundaryCircular( int radius , Point center , EntityStatic ownerEntity){ // FOR CLONING ONLY
@@ -30,6 +33,8 @@ public class BoundaryCircular extends Boundary{
 		this.center = new Point( center.x , center.y );
 		this.origin = new Point( center.x-radius , center.y-radius );
 		this.ownerEntity = ownerEntity;
+		this.centerVertex = new BoundaryVertex(center);
+		this.constructVoronoiRegions();
 	}
 	
 	@Override
@@ -37,8 +42,8 @@ public class BoundaryCircular extends Boundary{
 
 		for ( VoronoiRegion region : partner.getVoronoiRegions() ){
 
-			if ( region.containsEntity(this.ownerEntity) ){ //TODO OPTIMIZE TO REGION CHECK SYSTEM getRegion()
-				return new Line2D[]{ region.getSeparationSide(this.ownerEntity) };
+			if ( region.containsPoint( center ) ){ //TODO OPTIMIZE TO REGION CHECK SYSTEM getRegion()
+				return new Line2D[]{ region.constructDistanceLine( center ) };
 			}
 		}
 		System.err.println(this.ownerEntity+" is outside of Voronoi Region");
@@ -52,7 +57,7 @@ public class BoundaryCircular extends Boundary{
 	
 	@Override
 	public void constructVoronoiRegions() {
-		//all
+		this.regions = new VoronoiRegion[]{ VoronoiRegion.getUndefinedVoronoiRegion( centerVertex ) };
 	}
 
 	@Override
@@ -180,6 +185,7 @@ public class BoundaryCircular extends Boundary{
 
 	@Override
 	public Boundary atPosition(Point position) {
+		//System.err.println("Circular Boundary was not cloned");
 		return new BoundaryCircular( this.radius , position , this.ownerEntity);
 	}
 
@@ -195,7 +201,7 @@ public class BoundaryCircular extends Boundary{
 	
 	@Override
 	public Boundary temporaryClone(){
-		System.err.println("Circular Boundary was not cloned");
+		//System.err.println("Circular Boundary was not cloned");
 		return this;  
 	}
 	

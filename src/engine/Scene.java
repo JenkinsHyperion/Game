@@ -31,7 +31,8 @@ public class Scene {
 		
 		I = I+"|  ";//temporary visual indentation for console output
 		
-		//RUN THROUGH AND ADD UPDATEABLE COMPOSITES TO UPDATER LIST right now only translation for testing
+		//RUN THROUGH AND ADD UPDATEABLE COMPOSITES TO UPDATER LIST
+		///////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		if ( (entity.getTranslationComposite() instanceof UpdateableComposite) ){
 			UpdateableComposite trans = (UpdateableComposite) entity.getTranslationComposite();
@@ -59,6 +60,8 @@ public class Scene {
 		if ( !(entity.getGraphicComposite() instanceof GraphicCompositeNull) ){
 			
 			entity.getGraphicComposite().addCompositeToRenderer( ownerBoard.renderingEngine );
+			
+			System.out.println(I+"Adding graphics composite to renderer");
 			
 		}else{System.err.println(I+"Couldn't add ["+entity+"] to renderer because it's missing a Graphic Composite ");}
 		

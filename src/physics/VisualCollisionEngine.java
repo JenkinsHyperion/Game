@@ -33,12 +33,15 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 	@Override
 	public void checkCollisions() { 
     	
+		this.gOverlay.dispose();
 		this.gOverlay = renderer.debugGetOverlayGraphics();
 		this.camera = renderer.getCamera();
 		
     	for ( int i = 0 ; i < dynamicCollidablesList.size() ; i++ ){
     		
     		Collider dynamicCollidablePrimary = dynamicCollidablesList.get(i);
+    		
+    		//DYNAMIC ON STATIC COLLISIONS
     		
     		for ( int j = 0 ; j < staticCollidablesList.size(); j++ ){
     			
@@ -54,22 +57,24 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
     			
     		} 
     		
-    		/*for ( int k = i+1 ; k < dynamicCollidablesList.size(); k++ ){
+    		//DYNAMIC ON DYNAMIC COLLSIONS
+    		
+    		for ( int k = i+1 ; k < dynamicCollidablesList.size(); k++ ){
     			
     			Collider dynamicCollidableSecondary = dynamicCollidablesList.get(k);
     			
-    			dynamicCollidableSecondary.checkForInteractionWith( dynamicCollidablePrimary , CollisionCheck.SAT, this);
-    		}*/
+    			if ( VisualCollisionCheck.SAT.check(dynamicCollidablePrimary, dynamicCollidableSecondary, camera , gOverlay ) ){
+    				
+    				//TODO REGISTER DYNAMAIC DYNAMIC COLLISIONS
+    				
+    			}
+    		}
     		
     	}
 
     	updateCollisions();    
         
     }
-	
-	protected Graphics2D getOverlayGraphics(){
-		return this.gOverlay;
-	}
 	
 	@Override
 	public void registerCollision( boolean bool , Collider collidable1 , Collider collidable2){
@@ -95,12 +100,15 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 	@Override
 	public void paintOverlay(Graphics2D g2, MovingCamera cam) {
 
-		Line2D[] linesBuffer = new Line2D[linesList.size()];
+		/*Line2D[] linesBuffer = new Line2D[linesList.size()];
 		linesList.toArray(linesBuffer);
 		for ( Line2D line : linesBuffer )
 			renderer.getCamera().drawInFrame(line);
 		
-		linesList.clear();
+		linesList.clear();*/
+		
+		this.gOverlay.dispose();
+		
 	}
 	
 	

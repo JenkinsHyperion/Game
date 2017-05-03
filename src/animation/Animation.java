@@ -37,7 +37,10 @@ public class Animation {
 		this.totalFrames = this.frames.size();
 
 	}
-	
+
+	public static Animation animationFromGif( String path , int frameDelay ){
+		return new Animation( AnimatedGifReader.convertGifToFrames(path) , frameDelay );
+	}
 
 	public void setReverse(){
 		this.animationDirection = -1;

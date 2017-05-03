@@ -43,7 +43,7 @@ public class TranslationComposite {
     	System.err.println("Attempted to set x velocity of static");
     }
     
-    public void setVelocity( Vector vector){
+    public void setVelocityFromVector( Vector vector){
     	System.err.println("Attempted to set velocity of static");
     }
     

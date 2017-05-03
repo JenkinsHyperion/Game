@@ -625,15 +625,15 @@ public class BoundaryPolygonal extends Boundary {
 	@Override
 	public void constructVoronoiRegions(){
 		
-		this.regions = new VoronoiRegion[sides.length + corners.length ];//OPTIMIZATION check side/corner ratio guaranteed
+		this.regions = new VoronoiRegionDefined[sides.length + corners.length ];//OPTIMIZATION check side/corner ratio guaranteed
 		
 		for ( int i = 0 ; i < this.sides.length ; i++ ){ 
-	    	regions[2*i] = VoronoiRegion.getVoronoiRegion(sides[i]);
-	    	regions[(2*i)+1] = VoronoiRegion.getVoronoiRegion(corners[i]);
+	    	regions[2*i] = VoronoiRegionDefined.getVoronoiRegion(sides[i]);
+	    	regions[(2*i)+1] = VoronoiRegionDefined.getVoronoiRegion(corners[i]);
 	    }
 		
 	}
-
+	@Override
 	public void drawVoronoiRegions(EntityStatic entity , MovingCamera cam , Graphics2D g2) {
 		g2.setColor(Color.DARK_GRAY);
 		for ( VoronoiRegion region : regions ){
@@ -641,7 +641,7 @@ public class BoundaryPolygonal extends Boundary {
 		}
 		g2.setColor(Color.RED);
 		for ( int i = 0 ; i < regions.length ; i++ ){
-			if ( regions[i].containsEntity(entity) ){
+			if ( regions[i].containsPoint(entity.getPosition()) ){
 				regions[i].debugDrawRegion(cam, g2);
 				cam.drawCrossInWorld(regions[i].getFeature() , g2 );
 			}

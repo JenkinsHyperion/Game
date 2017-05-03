@@ -57,7 +57,10 @@ public class VisualCollisionDynamicStatic extends Collision {
 		
 		//updateCollision(); //Run math for first time OPTIMIZE, Add new code block for first time math
 
-		System.out.println("\n\n=============== Collision Start between "+entityPrimary + " and " + entitySecondary + " ===============");
+		System.out.println(
+				"\n\n=============== Collision Start between dynamic ["+entityPrimary + 
+				"] and static [" + entitySecondary + "]s ==============="
+				);
 		
 		// Things like bullets won't need to go any futher than the initial method
 		
@@ -103,7 +106,7 @@ public class VisualCollisionDynamicStatic extends Collision {
 			if ( closestResolution.FeatureSecondary().debugIsSide() ){
 			
 				Vector slope = ((Side)closestResolution.FeatureSecondary()).getSlopeVector();
-				Vector test = new Vector(0,-0.2).projectedOver( slope.normalRight() );
+				Vector test = slope.normalRight().unitVector().multiply(0.2) ;
 				normalForce.setVector( test );
 			
 			}
@@ -118,10 +121,11 @@ public class VisualCollisionDynamicStatic extends Collision {
 				dynamic.setAccX(0);
 			}
 			if ( depthY != 0){ 
-				System.out.println("Clamping DY "+entityPrimary.getTranslationComposite().getDY()+" by "+depthY);
+				System.out.print("Clamping DY "+entityPrimary.getTranslationComposite().getDY()+" by "+depthY+" to ");
 				dynamic.clipDY(depthY);
 					//dynamic.setDY( dynamic.getDY() +  (int)(depthY) );
 				dynamic.setAccY(0);
+				System.out.println(dynamic.getDY());
 			}
 			
 		}
@@ -337,6 +341,9 @@ public class VisualCollisionDynamicStatic extends Collision {
 	    	Line2D centerDistance = new Line2D.Double( centerPlayer , centerStat );
 	    	Line2D centerProjection = Boundary.getProjectionLine(centerDistance, axis);
 
+	    	
+	    	statBounds = null ;
+		    playerBounds = null;
 		    //Construct half projection lines for both boundaries. Overlap between these two lines represents the penetration distance
 	    	//on this axis.
 	    	Line2D playerHalf = new Line2D.Float( 

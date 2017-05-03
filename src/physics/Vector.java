@@ -23,6 +23,11 @@ public class Vector implements Serializable{
 		public double getX(){ return x; }
 		public double getY(){ return y; }
 
+		
+		//############################################################################
+		//						VECTOR MATH OPERATIONS
+		//############################################################################
+		
 		public Vector unitVector(){  
 			if ( x+y != 0 ){
 				Point2D origin = new Point2D.Double(0,0);

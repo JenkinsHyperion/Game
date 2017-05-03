@@ -72,7 +72,7 @@ public class TranslationCompositeActive extends TranslationComposite implements 
     	dy = setdy;
     }
     @Override
-    public void setVelocity( Vector vector){
+    public void setVelocityFromVector( Vector vector){
     	dx = (float)vector.getX();
     	dy = (float)vector.getY();
     }

@@ -21,7 +21,8 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
     
     public SpriteAnimated( String path ,int offset_x, int offset_y , int length , int row, int tileWidth, int tileHeight , int delay ){
     	super( path, offset_x, offset_y );
-    	spriteAnimation = new Animation( LoadAnimation.buildAnimation(length, row, tileWidth, path) , delay );
+    	spriteAnimation = new Animation( LoadAnimation.buildAnimation(length, row, tileWidth, tileHeight, path) , delay );
+    	spriteAnimation.start();
     }
     
     

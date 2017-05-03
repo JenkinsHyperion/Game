@@ -83,9 +83,9 @@ public class BoardPhysicsTesting extends BoardAbstract{
         
         EntityStatic spaceship = new EntityStatic("ship",-300,0);
         
-        //CompositeFactory.addGraphicTo(spaceship, new SpriteStillframe("spaceship01.png" , Sprite.CENTERED) ); 
+        CompositeFactory.addGraphicTo(spaceship, new SpriteStillframe("spaceship01.png" , Sprite.CENTERED) ); 
         
-        CompositeFactory.addGraphicTo(spaceship, new SpriteAnimated( "boom.gif" , 2 ) ); 
+        //CompositeFactory.addGraphicTo(spaceship, new SpriteAnimated("boom.png", 0, 0, 26, 0, 400, 300, 1) ); 
         
         CompositeFactory.addTranslationTo(spaceship);
         CompositeFactory.addRotationTo(spaceship);

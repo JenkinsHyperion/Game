@@ -57,7 +57,18 @@ public class LoadAnimation {
 		for (int i = 0; i < length; i++) {
 			b[i] = getFrame(i, row, file, tileSize, tileSize);
 		}
+		return b;
+	}
 
+	public static BufferedImage[] buildAnimation(int length, int row, int tileWidth , int tileHeight, String file) {
+
+		if (length < 1){System.out.println("WARNING BUILD ANIMATION IN LOAD ANIMATION CLASS");}
+		
+		BufferedImage[] b = new BufferedImage[length];
+
+		for (int i = 0; i < length; i++) {
+			b[i] = getFrame(i, row, file, tileWidth, tileHeight);
+		}
 		return b;
 	}
 	

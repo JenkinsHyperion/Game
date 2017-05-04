@@ -135,5 +135,11 @@ public class CompositeFactory {
 		
 	}
 	
+	public static void addLifespanTo( EntityStatic entity , int lifespan ){
+		
+		entity.updateables.add( new LifespanComposite(lifespan) );
+		
+	}
+	
 	
 }

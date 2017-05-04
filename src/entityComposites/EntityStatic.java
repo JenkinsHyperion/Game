@@ -44,6 +44,11 @@ public class EntityStatic extends Entity implements UpdateableComposite{
     	super(x,y);
     	this.name = name;
     }
+	
+	public EntityStatic( String name , Point position ) {
+    	super( position.x , position.y );
+    	this.name = name;
+    }
 
 	public EntityStatic(Point entityPosition) {
 		super( entityPosition.x , entityPosition.y );
@@ -205,13 +210,18 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	}
 	
 	public void disable(){
+		System.out.println("DISABLING "+this);
 		
 		this.graphicsComposite.disable();
-		this.collisionType.disable();
-		
 		this.graphicsComposite = null;
-		this.collisionType = null;
 		
+		this.collisionType.disable();
+		this.collisionType = null;		
+		
+		
+		this.updaterSlot.removeSelf();
+
+		System.out.println("done");
 	}
 	
 	public void addToUpdater( BoardAbstract board){

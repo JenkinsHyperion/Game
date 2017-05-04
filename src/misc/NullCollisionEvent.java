@@ -6,7 +6,7 @@ public class NullCollisionEvent extends CollisionEvent {
 
 	@Override
 	public void run( BoundaryFeature source , BoundaryFeature collidingWith ) {
-		System.out.println("Leaving Collision");
+		System.out.println("Null Collision");
 	}
 	
 }

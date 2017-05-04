@@ -13,7 +13,9 @@ import javax.swing.event.MouseInputAdapter;
 import engine.Board.MouseHandlerClass;
 import engine.BoardAbstract.DiagnosticsOverlay;
 import entityComposites.*;
+import misc.CollisionEvent;
 import physics.BoundaryCircular;
+import physics.BoundaryFeature;
 import physics.BoundaryPolygonal;
 import physics.BoundarySingular;
 import physics.CollisionEngine;
@@ -81,27 +83,42 @@ public class BoardPhysicsTesting extends BoardAbstract{
 
         //SPACESHIP TEST
         
-        EntityStatic spaceship = new EntityStatic("ship",-300,0);
+        
+        
+        EntityStatic spaceship = new EntityStatic("ship",-500,-500);
+        
+        	SpriteAnimated explosionSprite = new SpriteAnimated("boom.png", -200, -150, 26, 0, 400, 300, 1);
         
         CompositeFactory.addGraphicTo(spaceship, new SpriteStillframe("spaceship01.png" , Sprite.CENTERED) ); 
         
-        //CompositeFactory.addGraphicTo(spaceship, new SpriteAnimated("boom.png", 0, 0, 26, 0, 400, 300, 1) ); 
-        
         CompositeFactory.addTranslationTo(spaceship);
+        
         CompositeFactory.addRotationTo(spaceship);
-        CompositeFactory.addColliderTo(spaceship, new BoundaryCircular( 10 , spaceship) );
+        
+        //CompositeFactory.addColliderTo(spaceship, new BoundaryPolygonal.Box(10, 10, -5, -5));
+        CompositeFactory.addColliderTo(spaceship, new BoundaryCircular( 10 , spaceship) ); 	//Add collider
+        //CompositeFactory.addColliderTo(spaceship, new BoundarySingular() ); 	//Add collider
+
         CompositeFactory.addScriptTo(spaceship, new EntityScript(){
         	
         	private EntityStatic target = followerEntity;
+        	private final float VELOCITY = 4;
         	
 			@Override
 			protected void updateOwner(EntityStatic ownerEntity) {
 				
-				Vector targetVector =  new Vector( ownerEntity.getPosition(), target.getPosition() );
+				Vector targetVector =  new Vector( ownerEntity.getPosition() ,  target.getPosition()  );
 				
-				ownerEntity.getRotationComposite().setAngleFromVector( targetVector );
+				//ownerEntity.getRotationComposite().setAngleFromVector( targetVector );
+				Vector currentVector = ownerEntity.getRotationComposite().getOrientationVector();
+				
+				final int sign = currentVector.sign(targetVector); //1 is clockwise, -1 is counterclockwise
 
-				ownerEntity.getTranslationComposite().setVelocityFromVector( targetVector.multiply(0.01) );
+				ownerEntity.getRotationComposite().addAngleInRadians( Math.PI*sign/120f );
+
+				ownerEntity.getTranslationComposite().setVelocityFromVector( 
+						ownerEntity.getRotationComposite().getOrientationVector().multiply(VELOCITY)
+				);
 				
 			}
 			
@@ -120,6 +137,25 @@ public class BoardPhysicsTesting extends BoardAbstract{
         
         CompositeFactory.makeChildOfParentUsingPosition(testParticleSpawner, spaceship , this);
 
+        
+        spaceship.getColliderComposite().setCollisionEvent( new CollisionEvent(){ 			//Make anonymous collision event to maek explosion
+			@Override
+			public void run(BoundaryFeature source, BoundaryFeature collidingWith) { //TAKE OUT OF EVENT
+				
+				EntityStatic explosion = new EntityStatic("boom", spaceship.getPosition() );
+				CompositeFactory.addGraphicTo(explosion, explosionSprite );
+				explosion.getGraphicComposite().getSprite().setSizePercent( 20 );
+				CompositeFactory.addLifespanTo(explosion , 52 );
+				
+				explosionSprite.getAnimation().restart();
+				
+				explosion.setPos( spaceship.getPosition() );
+				spaceship.setPos( -500 , -500);
+				testParticleSpawner.setPos( -500, -500 );
+				currentScene.addEntity(explosion);
+			}
+        });
+        
         
     	initializeBoard();
 	}

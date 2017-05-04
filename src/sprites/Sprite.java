@@ -94,5 +94,9 @@ public abstract class Sprite implements Graphic{
     public String getPathName(){
     	return this.fileName;
     }
+
+	public void setSizePercent(int percent) {
+		this.spriteSizePercent = percent;
+	}
     
 }

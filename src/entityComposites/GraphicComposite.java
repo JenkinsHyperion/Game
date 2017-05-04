@@ -44,7 +44,7 @@ public class GraphicComposite implements EntityComposite{
 	@Override
 	public void disable() {
 		//more disabling 
-		System.out.println("DISABLING");
+		System.out.println("Removing graphics from renderer");
 		rendererSlot.removeSelf();
 	}
 	

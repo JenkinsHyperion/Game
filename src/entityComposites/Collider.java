@@ -34,6 +34,7 @@ public class Collider implements EntityComposite{
 	
 	protected ArrayList<CollidingPair> collisionInteractions = new ArrayList<>();
 
+	private CollisionEvent uponCollision = new NullCollisionEvent();
 	private CollisionEvent uponLeavingCollision = new NullCollisionEvent();
 	
 	protected Collider(){
@@ -113,7 +114,7 @@ public class Collider implements EntityComposite{
 	 */
 	
 	public void onCollisionEvent(){ 
-		
+		uponCollision.run(null, null);
 	}
 	
 	public void onLeavingCollisionEvent(){
@@ -128,6 +129,10 @@ public class Collider implements EntityComposite{
 	
 	public void setLeavingCollisionEvent( CollisionEvent leavingEvent ){
 		uponLeavingCollision = leavingEvent;
+	}
+	
+	public void setCollisionEvent( CollisionEvent collidingEvent ){
+		uponCollision = collidingEvent;
 	}
 	
 	/**

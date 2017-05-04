@@ -44,13 +44,17 @@ public class RotationCompositeDynamic extends RotationComposite implements Updat
 	@Override
 	public void updateEntity(EntityStatic entity) {
 		double angleRadians = (angle * ((Math.PI)/180) ) ;
-		this.orientation = new Vector( Math.cos(angleRadians) , Math.sin(angleRadians) );
+		this.updateOrientationVector(angleRadians);
 		
 		for ( RotateableComposite rotateable : rotateableCompositeList ){
 			rotateable.setAngle(angleRadians);
 		}
 		
 		entity.getEntitySprite().setAngle(angle);
+	}
+	
+	private void updateOrientationVector( double angleRadians ){
+		this.orientation = new Vector( Math.cos(angleRadians) , Math.sin(angleRadians) );
 	}
 	
 	private void setAngleOfRotateables( double angleRadians ){
@@ -64,25 +68,31 @@ public class RotationCompositeDynamic extends RotationComposite implements Updat
 
 		this.setAngleOfRotateables(angleRadians);
 		
-		this.orientation = new Vector( Math.cos(angleRadians) , Math.sin(angleRadians) );
+		this.updateOrientationVector(angleRadians);
 		this.owner.getEntitySprite().setAngle(angle);
 	}
 	
 	@Override
 	protected void setAngle(double angle){
 		double angleRadians = (angle * ((Math.PI)/180) ) ;
-		this.orientation = new Vector( Math.cos(angleRadians) , Math.sin(angleRadians) );
+		this.updateOrientationVector(angleRadians);
 		//((SpriteStillframe)this.getEntitySprite() ).setAngle((int)angle);
 
 	}
 	@Override
-	protected void addAngle(float angle){
-		this.angle = this.angle + angle;
+	protected void addAngleInDegrees(double angle){
+		this.angle = (float) (this.angle + angle);
 		double angleRadians = (this.angle * ((Math.PI)/180) ) ;
 
-		this.setAngleOfRotateables(angleRadians);
+		setInternalAngle( angleRadians + angle );
+	}
+	@Override
+	public void addAngleInRadians(double addRadians){
+
+		this.angle = angle + (float) (addRadians * (180/(Math.PI)) ) ;
 		
-		this.orientation = new Vector( Math.cos(angleRadians) , Math.sin(angleRadians) );
+		this.setInternalAngle(angle);
+		
 	}
 	@Override
 	public void setAngleInDegrees( double angle ){
@@ -91,7 +101,7 @@ public class RotationCompositeDynamic extends RotationComposite implements Updat
 
 		this.setAngleOfRotateables(angleRadians);
 		
-		this.orientation = new Vector( Math.cos(angleRadians) , Math.sin(angleRadians) );
+		this.updateOrientationVector(angleRadians);
 		this.owner.getEntitySprite().setAngle(angle);
 	}
 	@Override
@@ -103,7 +113,7 @@ public class RotationCompositeDynamic extends RotationComposite implements Updat
 		
 		this.setAngleOfRotateables(angleRadians);
 		
-		this.orientation = new Vector( Math.cos(angleRadians) , Math.sin(angleRadians) );
+		this.updateOrientationVector(angleRadians);
 		this.owner.getEntitySprite().setAngle(angleDegrees);
 	}
 	@Override
@@ -111,12 +121,24 @@ public class RotationCompositeDynamic extends RotationComposite implements Updat
 		
 		double angleRadians = slope.angleFromVectorInRadians() ;
 		this.angle = (float) (angleRadians * (180/(Math.PI)) ) ;
-		this.orientation = slope.unitVector().clamp();
+		this.orientation = slope.unitVector();
 
 		this.setAngleOfRotateables(angleRadians);
 		
 
 	}
+	@Override
+	public void addAngleFromVector( Vector slope ){
+		
+		double angleRadians = slope.angleFromVectorInRadians() ;
+		this.angle = (float) (angleRadians * (180/(Math.PI)) ) ;
+		this.orientation = slope.unitVector();
+
+		this.setAngleOfRotateables(angleRadians);
+		
+	}
+	
+	
 	@Override @Deprecated
 	public void setAngleFromVector( Vector slope , BoundaryVertex rawCorner ){
 		

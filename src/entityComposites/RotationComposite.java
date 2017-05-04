@@ -18,7 +18,11 @@ public class RotationComposite implements EntityComposite{
 		System.err.println("Setting angle of null rotation");
 	}
 	
-	protected void addAngle(float angle){
+	protected void addAngleInDegrees(double angle){
+		System.err.println("Setting angle of null rotation");
+	}
+	
+	public void addAngleInRadians(double angleRadians) {
 		System.err.println("Setting angle of null rotation");
 	}
 	
@@ -35,6 +39,10 @@ public class RotationComposite implements EntityComposite{
 	}
 	
 	public void setAngleFromVector( Vector slope , BoundaryVertex rawCorner ){
+		System.err.println("Setting angle of null rotation");
+	}
+	
+	public void addAngleFromVector(Vector slope) {
 		System.err.println("Setting angle of null rotation");
 	}
 	

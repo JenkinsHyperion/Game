@@ -66,7 +66,8 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
     			if ( VisualCollisionCheck.SAT.check(dynamicCollidablePrimary, dynamicCollidableSecondary, camera , gOverlay ) ){
     				
     				//TODO REGISTER DYNAMAIC DYNAMIC COLLISIONS
-    				
+    				dynamicCollidablePrimary.onCollisionEvent();
+    				dynamicCollidableSecondary.onCollisionEvent();
     			}
     		}
     		

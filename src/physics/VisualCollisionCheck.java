@@ -53,7 +53,6 @@ public class VisualCollisionCheck {
 
 	    	//g2.setColor(Color.CYAN);
 	    	//g2.draw(separatingSides[i]);
-	    	
 	    	Point2D[] outerPoints = Boundary.getFarthestPointsBetween(playerBounds, statBounds, axis);
 
 	    	//BoundaryVertex[] statOuter= statBounds.getFarthestVertices(playerBounds,axis);

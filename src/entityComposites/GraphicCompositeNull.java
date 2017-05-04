@@ -46,4 +46,13 @@ public class GraphicCompositeNull extends GraphicComposite{
 		return false;
 	}
 	
+	@Override
+	public void disable() {
+		System.err.println("No graphics to disable");
+	}
+	
+	@Override
+	public String toString() {
+		return "Null Graphics Composite Singleton";
+	}
 }

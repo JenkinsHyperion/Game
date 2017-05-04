@@ -67,7 +67,7 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     @Override
     public void draw(Camera camera){
 
-    	AffineTransform entityTransformation = new AffineTransform();
+    	AffineTransform entityTransformation = new AffineTransform(); //OPTIMIZE Test making AffineTransform field of Sprite
 
     	entityTransformation.scale( (double)this.spriteSizePercent/100 , (double)this.spriteSizePercent/100 );
     	entityTransformation.rotate( Math.toRadians(this.spriteAngle) ); 

@@ -145,4 +145,9 @@ public final class ColliderNull extends Collider{
 		return false;
 	}
 	
+	@Override
+	public void disable() {
+		System.err.println("No collider to disable");
+	}
+	
 }

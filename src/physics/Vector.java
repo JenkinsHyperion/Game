@@ -43,8 +43,22 @@ public class Vector implements Serializable{
 		/**
 		 * Returns sign Vector with components -1 , 0 , or 1 that correspond to the input Vector's components. Vector equivalent of Math.signum()
 		 */
-		public Vector signVector() {
+		public Vector signumVector() {
 			return new Vector( Math.signum(this.x) , Math.signum(this.y) );
+		}
+		
+		public byte sign( Vector base ){
+
+			  if ( this.y*base.getX() > this.x*base.getY() )
+			  { 
+			    return -1;
+			  }
+			  else  if ( this.y*base.getX() < this.x*base.getY() )
+			  {
+			    return 1;
+			  }
+			  else
+				  return 0;
 		}
 		
 		public boolean isShorterThan( Vector compare ){

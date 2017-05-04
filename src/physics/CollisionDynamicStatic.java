@@ -132,7 +132,7 @@ public class CollisionDynamicStatic extends Collision {
 				//friction.setVector(   playerDP.projectedOver( surface.unitVector() ).multiply(0.1).inverse()   );
 				double frictionCoefficient = normalForce.force.getLength() * 0.5 ;
 				
-				friction.setVector( playerDP.inverse().signVector().multiply( surface.unitVector().abs().multiply( frictionCoefficient ) ).projectedOver(surface) );
+				friction.setVector( playerDP.inverse().signumVector().multiply( surface.unitVector().abs().multiply( frictionCoefficient ) ).projectedOver(surface) );
 
 			}
 			else{

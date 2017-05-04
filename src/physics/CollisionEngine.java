@@ -144,7 +144,7 @@ public class CollisionEngine {
 			// if not, add new collision event
 			//int index = currentBoard.getStaticEntities().size() + 1 ;
     			//System.out.println( "Collision detected" );
-    			collisionsList.add(new CollisionDynamicStatic( collidable1 , collidable2 , this ) ); 
+    			collisionsList.add(new VisualCollisionDynamicStatic( collidable1 , collidable2 , this ) ); 
 			
 			} 	
     	}

@@ -37,6 +37,9 @@ public abstract class Boundary {
 	public abstract <T> Boundary temporaryClone();
 	
 	protected abstract void constructVoronoiRegions();
+	
+	//COCNRETE METHODS
+	
 	protected VoronoiRegion[] getVoronoiRegions(){ return this.regions; }
 	
 	public static Point2D[] getFarthestPointsBetween( Boundary b1 , Boundary b2 , Line2D axis ){

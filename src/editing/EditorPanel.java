@@ -47,12 +47,6 @@ import java.util.ArrayList;
  * @author Dave 
  */
 public class EditorPanel extends JPanel {
-	// ### important fields ###
-	public static final String ASSET_PATH = System.getProperty("user.dir")+ File.separator + "Assets" + File.separator;
-	public static final String PF1 = "platform.png";
-	public static final String PF2 = "platform02.png";
-	public static final String GND = "ground01.png";
-	public static final String GRASS1 = "grass01.png";
 	
 //	##### MODES #####
 	private EditorSelectMode editorSelectMode;
@@ -74,7 +68,7 @@ public class EditorPanel extends JPanel {
 	private Point editorMousePos;
 	private Point oldMousePanPos; // the reference point of last click position for mouse camera panning
 	private Point oldCameraPos;
-	private Robot automaticMouseReturn;
+	//private Robot automaticMouseReturn;
 // oldMousePanPos will only refresh when shift is held, and then mouse is dragged. Purely for the panning
 	
 // the distance from reference point and current point
@@ -89,14 +83,6 @@ public class EditorPanel extends JPanel {
 //	currently used as an identifier to indicate which entity should be created,
 //	but the system should be more like a factory.
 
-//	Keyboard fields
-	private boolean keypressUP = false;
-	private boolean keypressDOWN = false;
-	private boolean keypressLEFT = false;
-	private boolean keypressRIGHT = false;
-	private boolean keypressSHIFT = false;
-	private float pan_dx = 0.0f;
-	private float pan_dy = 0.0f;
 	public final Dimension minimizedSize = new Dimension(200,20);
 	public final Dimension propPanelDefaultSize = new Dimension(215,125);
 	public final Dimension allEntitiesComboBoxDefSize = new Dimension(120,20);
@@ -108,13 +94,9 @@ public class EditorPanel extends JPanel {
 
     //protected EntityStatic currentSelectedEntity;
     public Rectangle selectedBox;
-    
-	
+    	
 	protected ArrayList<PropertiesList> listOfPropLists;
     private String[] staticEntityStringArr;
-    
-    //private String[] dynamicEntityStringArr;
-    //private String[] physicsEntityStringArr;  will use these later, it won't be hard. 
 	
 // ###### COMPONENTS
 	private JLabel mousePosLabel;
@@ -210,10 +192,6 @@ public class EditorPanel extends JPanel {
 		inputController.createKeyBinding(KeyEvent.VK_DELETE, new KeyCommand(){ //DELETE SELECTED
 			@Override
 			public void onPressed() {
-				//ArrayList<EntityStatic> entities = editorSelectMode.getSelectedEntities();
-				//for ( EntityStatic entity : entities ){
-				//	entity.disable();
-				//}
 			}
 			@Override
 			public void onReleased() {}
@@ -234,20 +212,11 @@ public class EditorPanel extends JPanel {
 		boundaryEditorButton = new JButton("BoundEditor");
 		boundaryVertexSelectButton = new JButton("BoundVertSelect");
 		boundaryVertexPlaceButton = new JButton("BoundVertPlace");
-		
 		newEntityPath = "";
 		selectedBox = new Rectangle();
 		editorMousePos = new Point();
 		ghostSprite = null; 				//FIXME
         //clickPosition = new Point(0,0);
-        
-
-		//set default selected entity so it's not null
-
-		//setSelectedEntityThruEditor(board.getStaticEntities().get(0)); //NEEDS ZERO ARRAY SIZE CHECK
-
-		//setCurrentSelectedEntity( EntityNull.getNullEntity() ); 
-        //setCurrentSelectedEntity( this.board.getStaticEntities().get(0) ); 
 		
 		//set the editor's layout
 		setLayout(new FlowLayout(FlowLayout.LEADING, 3, 3));

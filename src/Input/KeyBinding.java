@@ -73,7 +73,8 @@ public class KeyBinding {
 		
 		protected boolean keyCodeMatches( KeyEvent e ){ //class
 			
-			if ( (e.getModifiers() & modKeyCode ) != 0 ){
+			if ( ( e.getModifiers() & modKeyCode ) != 0 ){
+				
 				if ( e.getKeyCode() == keyCode )
 					return true;
 				else

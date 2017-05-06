@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import entityComposites.*;
 import physics.Boundary;
@@ -47,10 +48,14 @@ public class SelectedEntities {
 				camera.drawRect(rect, g, Color.BLUE, Color.CYAN, .05f);
 			} */
 			// if entity has no graphics 
-			if (!(entity.getColliderComposite() instanceof ColliderNull)) {
-				Polygon poly = Boundary.getPolygonFromBoundary(entity.getColliderComposite().getBoundary(), entity);
+			//float tempAngle = entity.getRotationComposite().getAngle();
+			//AffineTransform xform = new AffineTransform();
+			//xform.rotate((double)Math.toRadians(tempAngle));
+			if (entity.getColliderComposite().exists()) {
+				Polygon poly = Boundary.getPolygonFromBoundary(entity.getColliderComposite().getBoundaryLocal(), entity);
 				Rectangle rect = poly.getBounds();
-				camera.drawRect(rect, g, Color.BLUE, Color.CYAN, .05f);
+				camera.drawRect(rect, g, Color.BLUE, Color.CYAN, .2f);
+				//camera.debugDrawPolygon(poly, Color.CYAN, entity, xform);
 			}
 		}
 		/*for (int i = 0; i < selectedVertices.size(); i++){

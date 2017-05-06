@@ -23,4 +23,7 @@ public abstract class ModeAbstract {
 	public abstract void keyPressed(KeyEvent e);
 	public abstract void keyReleased(KeyEvent e);
 	public abstract void render(Graphics g);
+	public String getModeName() {
+		return modeName;
+	}
 }

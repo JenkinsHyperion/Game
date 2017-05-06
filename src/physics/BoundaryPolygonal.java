@@ -7,6 +7,8 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
+import com.sun.javafx.geom.Shape;
+
 import engine.MovingCamera;
 import entityComposites.Collider;
 import entityComposites.EntityStatic;
@@ -135,7 +137,7 @@ public class BoundaryPolygonal extends Boundary {
 		
 		return returnBounds;
 	}
-	
+
 	
 	@Override
 	public void rotateBoundaryFromTemplate(Point center, double radians , Boundary template){ //OPTIMIZATION TRIG FUNCTIONS ARE NOTORIOUSLY EXPENSIVE Look into performing some trig magic
@@ -617,7 +619,7 @@ public class BoundaryPolygonal extends Boundary {
 	@Override
 	public void debugDrawBoundary(MovingCamera camera, Graphics2D g, EntityStatic ownerEntity) {
 		for ( Side side : this.getSides() ){
-			//g.draw(side);
+
 			camera.draw( side.toLine() );
 			camera.drawString(side.toString(), side.getX1()+(side.getX2()-side.getX1())/2 , side.getY1()+(side.getY2()-side.getY1())/2 );
 		}

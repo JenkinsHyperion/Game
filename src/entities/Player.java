@@ -26,7 +26,7 @@ public class Player extends EntityRotationalDynamic {
 
     //INPUT CONTROL
     
-    public InputController inputController = new InputController();
+    public InputController inputController = new InputController("Player controller");
     
     @Override
     public void updatePosition() {//Override friction forces while running 

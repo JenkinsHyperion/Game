@@ -1,5 +1,6 @@
 package Input;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -7,16 +8,44 @@ import java.util.ArrayList;
 
 public class InputController {
 
+	private String name;
+	
 	ArrayList< KeyBinding > keysListening = new ArrayList<>();
 	ArrayList< KeyBinding > keysHeld = new ArrayList<>();
 	
-	ArrayList< MouseBinding > mouseListening = new ArrayList<>();
-	ArrayList< MouseBinding > mouseHeld = new ArrayList<>();
+	private ArrayList< MouseBinding > mouseListening = new ArrayList<>();
+	private ArrayList< MouseBinding > mouseHeld = new ArrayList<>();
+	
+	private InputController(){
+	}
 	
 	/**
 	 * 
 	 */
-	public InputController(){ 
+	public InputController( String name){
+		this.name = name;
+	}
+	
+	private boolean noDuplicateBindingExists( MouseBinding binding ){
+		for ( MouseBinding listening : this.mouseListening ){
+			if( listening.getMouseButton() == binding.getMouseButton() && listening.getMouseModifier() == binding.getMouseModifier() ){
+				System.err.println("Warning: "+this.name+
+						" already has MouseBinding "+MouseEvent.getModifiersExText(binding.getMouseModifier()));
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private boolean noDuplicateBindingExists( KeyBinding binding ){
+		for ( KeyBinding listening : this.keysListening ){
+			if( listening.getKeyCode() == binding.getKeyCode() && listening.getModCode() == binding.getModCode() ){
+				System.err.println("Warning: "+this.name+
+						" already has MouseBinding "+KeyEvent.getModifiersExText(binding.getModCode()));
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	/** Binds input key to user-defined command class implementing KeyCommand.
@@ -27,8 +56,14 @@ public class InputController {
 	public void createKeyBinding( int inputKey , KeyCommand command ){
 		
 		KeyBinding binding = new KeyBinding( inputKey , command );
-		binding.setIndexListened( keysListening.size() ); 
-		keysListening.add( binding );
+		
+		if ( noDuplicateBindingExists(binding) ){
+			binding.setIndexListened( keysListening.size() ); 
+			keysListening.add( binding );
+		}
+		else{
+			binding = null;
+		}
 	}
 	
 	/** Binds input key plus modifier key (such as shift) to user-defined command class implementing KeyCommand.
@@ -41,8 +76,14 @@ public class InputController {
 	public void createKeyBinding( int modifierMask , int inputKey , KeyCommand command ){
 		
 		KeyBinding binding = new KeyBinding( modifierMask , inputKey , command );
-		binding.setIndexListened( keysListening.size() ); 
-		keysListening.add( binding );
+		
+		if ( noDuplicateBindingExists(binding) ){
+			binding.setIndexListened( keysListening.size() ); 
+			keysListening.add( binding );
+		}
+		else{
+			binding = null;
+		}
 	}
 	
 	/**Binds input mouse button to user-defined command class implementing MouseCommand.
@@ -50,10 +91,18 @@ public class InputController {
 	 * @param mouseButton
 	 * @param command
 	 */
-	public void createMouseBinding( int mouseButton , MouseCommand command ){
+	public void createMouseBinding( int mouseButton , MouseCommand command ){ 
+
 		MouseBinding mouseBinding = new MouseBinding( mouseButton , command );
-		mouseBinding.setIndexListened( mouseListening.size() ); 
-		mouseListening.add( mouseBinding );
+		
+		if ( noDuplicateBindingExists( mouseBinding ) ){
+			mouseBinding.setIndexListened( mouseListening.size() ); 
+			mouseListening.add( mouseBinding );
+		}
+		else{
+			mouseBinding = null;
+		}
+			
 	}
 	
 	/** Binds input mouse button plus modifier key (such as shift) to user-defined command class implementing MouseCommand.
@@ -64,25 +113,75 @@ public class InputController {
 	 * @param command
 	 */
 	public void createMouseBinding( int modifierMask , int mouseButton,  MouseCommand command ){
+
 		MouseBinding mouseBinding = new MouseBinding( modifierMask , mouseButton , command );
-		mouseBinding.setIndexListened( mouseListening.size() ); 
-		mouseListening.add( mouseBinding );
+		
+		if ( noDuplicateBindingExists( mouseBinding ) ){
+			mouseBinding.setIndexListened( mouseListening.size() ); 
+			mouseListening.add( mouseBinding );
+		}else{
+			mouseBinding = null;
+		}
 	}
 	
-	public void keyPressed( KeyEvent e ){
+	private void releaseKey( KeyBinding key ){
+		key.setIndexListened( keysListening.size() ); 
+		keysListening.add( key );
+		removeFromHeld( key );
+		key.onReleased();
+	}
+	
+	private void pressKey( KeyBinding key ){
+		key.setIndexHeld( keysHeld.size() ); // add this key to keys being held
+		keysHeld.add( key );
+		removeFromListening( key ); // stop listening for this key while it's being held
+		key.onPressed(); // trigger pressed event for that key
+	}
+	
+	private void releaseButton( MouseBinding button ){
+		button.setIndexListened( mouseListening.size() ); 
+		mouseListening.add( button );
+		removeFromHeld( button );
+		button.mouseReleased();
+	}
+	
+	private void pressButton( MouseBinding button ){
+		button.setIndexHeld( mouseHeld.size() ); // add this key to keys being held
+		mouseHeld.add( button );
+		removeFromListening( button ); // stop listening for this key while it's being held
+		button.mousePressed(); // trigger pressed event for that key
+
+	}
+	
+	public void keyPressed( KeyEvent e ){ // being spammed from fucking keyEvent
+		
+		if ( e.getModifiers() != 0 ){ //mod key was pressed
+
+			for ( int i = 0 ; i < keysHeld.size() ; i++ ){ 
+				KeyBinding held = keysHeld.get(i);
+				
+				for ( int j = 0 ; j < keysListening.size() ; j++ ){ 
+					KeyBinding listened = keysListening.get(j);
+					if ( listened.getModCode() == e.getModifiers() && listened.keyCode == held.keyCode ){
+						
+						pressKey(listened);
+						
+						releaseKey(held);
+						
+					}
+					
+				}
+				
+			}
+		}
 		
 		for ( int i = 0 ; i < keysListening.size() ; i++ ){ 
 			
-			if ( keysListening.get(i).keyMatch( e ) ){ // If key is being pressed
-				
-				KeyBinding key = keysListening.get(i);
-				
-				key.setIndexHeld( keysHeld.size() ); // add this key to keys being held
-				keysHeld.add( key );
-				
-				removeFromListening( key ); // stop listening for this key while it's being held
-				
-				key.onPressed(); // trigger pressed event for that key
+			KeyBinding key = keysListening.get(i);
+			
+			if ( keysListening.get(i).keyMatch( e ) && keysListening.get(i).modMatch( e )  ){ // If key is being pressed
+
+				pressKey(key);
 				
 			}
 			
@@ -90,62 +189,99 @@ public class InputController {
 		
 	}
 	
-	public void keyReleased( KeyEvent e ){
+	public void keyReleased( KeyEvent e ){ 
+					
 		
-		for ( int i = 0 ; i < keysHeld.size() ; i++ ){
+			for ( int i = 0 ; i < keysHeld.size() ; i++ ){
 			
-			if ( keysHeld.get(i).keyMatch(e) ){ 
-				
 				KeyBinding key = keysHeld.get(i);
 				
-				key.setIndexListened( keysListening.size() ); //same as above but inverted
-				keysListening.add( key );
+				if ( key.getModCode() == 2 && e.getKeyCode() == 17 ){
+					//System.err.println( "CTR RELEASED ");
+					releaseKey(key);
+				}
 				
-				removeFromHeld( key );
+				if ( key.getModCode() == 1 && e.getKeyCode() == 16 ){
+					//System.err.println( "CTR RELEASED ");
+					releaseKey(key);
+				}
 				
-				key.onReleased();
-				
+				if ( key.keyMatch(e)  ){ 
+	
+					releaseKey(key);
+				}
+
 			}
 			
-		}
-		
-	}
-	
-	public void mousePressed(MouseEvent e){
-	
-		for ( int i = 0 ; i < mouseListening.size() ; i++ ){ 
-			
-			if ( mouseListening.get(i).mouseMatch( e ) ){ // If key is being pressed
-				
-				MouseBinding mouse = mouseListening.get(i);
-				
-				mouse.setIndexHeld(  mouseHeld.size() ); // add this key to keys being held
-				mouseHeld.add( mouse );
-				
-				removeFromListening( mouse ); // stop listening for this key while it's being held
-				
-				mouse.mousePressed(); // trigger pressed event for that key
-			}
-		}
-		
-	}
-	
-	public void mouseReleased( MouseEvent e ){
-		
-		for ( int i = 0 ; i < mouseHeld.size() ; i++ ){
+			for ( int i = 0 ; i < mouseHeld.size() ; i++ ){
 				
 				MouseBinding mouse = mouseHeld.get(i);
 				
-				mouse.setIndexListened( mouseListening.size() ); //same as above but inverted
-				mouseListening.add( mouse );
+				System.out.println(mouse.getMouseModifier()+" - "+" - " +e.getModifiers()+" - "+e.getKeyCode() );
 				
-				removeFromHeld( mouse );
+				if ( e.getKeyCode() == KeyEvent.VK_CONTROL && mouse.getMouseModifier() == 2 ){
+					rigisterReleased( 2 , mouse );
+					releaseButton(mouse);
+				}
 				
-				mouse.mouseReleased();
+				if ( e.getKeyCode() == KeyEvent.VK_SHIFT && mouse.getMouseModifier() == 1 ){
+					rigisterReleased( 1 , mouse );
+					releaseButton(mouse);
+				}
+				
+			}
+	} 
+	
+	private void rigisterReleased( int modifierReleased , MouseBinding held ){
+		
+		ArrayList<MouseBinding> pressButtons = new ArrayList<MouseBinding>();
+		
+		for ( MouseBinding listened : mouseListening ){
+			if ( listened.getMouseButton() == held.getMouseButton() && 
+					( listened.getMouseModifier() & modifierReleased ) == listened.getMouseModifier()
+			){
+				pressButtons.add(listened);			}
+		}
+		for ( MouseBinding r : pressButtons ){
+			pressButton(r);
+		}
+	}
+		
+	
+	public void mousePressed( MouseEvent e ){ // being spammed from fucking keyEvent
+		
+		
+		for ( int i = 0 ; i < mouseListening.size() ; i++ ){ 
+			
+			MouseBinding key = mouseListening.get(i);
+			
+			if ( key.mouseMatch(e)  ){ // If key is being pressed 
+
+				pressButton(key); 
+				
+			}
 			
 		}
 		
 	}
+	
+	public void mouseReleased( MouseEvent e ){ 
+		
+			for ( int i = 0 ; i < mouseHeld.size() ; i++ ){
+			
+				MouseBinding key = mouseHeld.get(i);
+				
+				if ( key.mouseMatch(e) ){
+				
+					releaseButton( key );
+				
+					//key.mouseReleased();
+					
+				}
+				
+			}
+	} 
+	
 	public void mouseDragged(MouseEvent e){
 
 		for ( int i = 0 ; i < mouseHeld.size() ; i++ ){
@@ -173,16 +309,13 @@ public class InputController {
 	public void debugReleased(){
 		
 		for ( int i = 0 ; i < keysListening.size() ; i++ ){
-
-			System.out.println(keysListening.get(i) + "is released");
+			
 		}
 	}
 	
 	public void debugHeld(){
 		
 		for ( int i = 0 ; i < keysHeld.size() ; i++ ){
-
-			System.out.println(keysHeld.get(i) + "is held");
 		}
 	}
 	
@@ -225,14 +358,30 @@ public class InputController {
 	}
 	
     public void debugPrintInputList( int x, int y ,Graphics g){
-
-    	for ( int i = 0 ; i < this.keysHeld.size() ; i++ ) {
-	    	g.drawString( keysHeld.get(i).toString() , x , y+(10*i) );
+    	g.setColor(Color.GRAY);
+    	g.drawString(name, x, y);
+    	
+    	g.drawString("Held:                 Listening: ", x, y+15);
+    	
+    	int line;
+    	
+    	for ( line = 0 ; line < this.keysHeld.size() ; line++ ) {
+	    	g.drawString( keysHeld.get(line).toString() , x , y+30+(10*line) );
 	    }	
     	
     	for ( int i = 0 ; i < this.mouseHeld.size() ; i++ ) {
-	    	g.drawString( mouseHeld.get(i).toString() , x+50 , y+(10*i) );
+	    	g.drawString( mouseHeld.get(i).toString() , x , y+30+(10*(i+line)) );
 	    }	
+    	
+    	for ( line = 0 ; line < this.keysListening.size() ; line++ ) {
+	    	g.drawString( keysListening.get(line).toString() , x+80 , y+30+(10*line) );
+	    }	
+    	
+    	for ( int i = 0 ; i < this.mouseListening.size() ; i++ ) {
+	    	g.drawString( mouseListening.get(i).toString() , x+80 , y+30+(10*(i+line)) );
+	    }	
+    	
+    	
 
     }
 	

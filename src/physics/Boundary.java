@@ -21,6 +21,7 @@ public abstract class Boundary {
 	//public abstract Point rotateBoundaryFromTemplatePoint(Point center, double angle , Boundary template);
 	
 	protected abstract Line2D[] getSeparatingSides(Boundary partner);
+	
 	public abstract void debugDrawBoundary( MovingCamera cam , Graphics2D g2, EntityStatic ownerEntity );
 
 	protected abstract Point2D[] getOuterPointsPair(Line2D axis);
@@ -73,8 +74,8 @@ public abstract class Boundary {
 	 * @param ent Entity to get boundary from
 	 * @return Polygon that hopefully is the same shape as the boundary
 	 */
-	public static Polygon getPolygonFromBoundary(Boundary boundaryRaw, EntityStatic ent) {
-		Boundary boundaryLocal = boundaryRaw.atPosition(ent.getPosition());
+	public static Polygon getPolygonFromBoundary(Boundary boundaryLocal, EntityStatic ent) {
+
 		int[] xpoints;
 		int[] ypoints;
 		xpoints = new int[boundaryLocal.getCornersPoint().length];

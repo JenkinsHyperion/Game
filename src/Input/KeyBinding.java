@@ -33,7 +33,19 @@ public class KeyBinding {
 	public void onHeld(){ command.onHeld(); }
 	
 	public boolean keyMatch( KeyEvent e ){
-		return type.keyCodeMatches( e );
+		return ( type.keyCodeMatches( e ) && type.modCodeMatches( e ) );
+	}
+	
+	public int getModCode(){
+		return type.getModCode();
+	}
+	
+	public int getKeyCode(){
+		return this.keyCode;
+	}
+	
+	public boolean modMatch( KeyEvent e ){
+		return type.modCodeMatches( e ) ;
 	}
 
 	protected int getIndexHeld(){ return indexHeld; }
@@ -48,17 +60,36 @@ public class KeyBinding {
 	
 	private abstract class Type{
 		protected abstract boolean keyCodeMatches( KeyEvent e );
+		protected abstract boolean modCodeMatches( KeyEvent e );
+		protected abstract int getModCode();
 	}
 
 	private class SingleKeyMatch extends Type{
 		@Override
 		protected boolean keyCodeMatches( KeyEvent e ){ //class
 			
-				if ( ( e.getKeyCode() | e.getModifiers() ) == keyCode)
-					return true;
-				else
-					return false;
+			if ( e.getKeyCode() == keyCode )
+				return true;
+			else
+				return false;
 				
+		}
+		@Override
+		protected boolean modCodeMatches(KeyEvent e) {
+			if ( e.getModifiers() == 0 )
+				return true;
+			else
+				return false;
+		}
+		
+		@Override
+		public String toString() {
+			return "Key "+keyCode;
+		}
+		
+		@Override
+		protected int getModCode() {
+			return 0;
 		}
 	
 	}
@@ -72,24 +103,36 @@ public class KeyBinding {
 		}
 		
 		protected boolean keyCodeMatches( KeyEvent e ){ //class
-			
-			if ( ( e.getModifiers() & modKeyCode ) != 0 ){
-				
+
 				if ( e.getKeyCode() == keyCode )
 					return true;
 				else
 					return false;
-			}
-			else 
-				return false;
 			
+		}
+		@Override
+		protected boolean modCodeMatches(KeyEvent e) {
+			if ( e.getModifiers() == modKeyCode )
+				return true;
+			else
+				return false;
+		}
+		
+		@Override
+		public String toString() {
+			return modKeyCode +" + Key "+keyCode;
+		}
+		
+		@Override
+		protected int getModCode() {
+			return modKeyCode;
 		}
 	
 	}
 	
 	@Override
 	public String toString() {
-		return "Key "+this.keyCode;
+		return this.type.toString();
 	}
 	
 }

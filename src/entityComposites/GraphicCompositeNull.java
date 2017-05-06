@@ -27,7 +27,7 @@ public class GraphicCompositeNull extends GraphicComposite{
 	}
 	
 	public Sprite getSprite(){
-		//System.err.println("Attempting to get sprite on null graphics composite");
+		System.err.println("Attempting to get sprite on null graphics composite");
 		return currentSprite;
 	}
 	

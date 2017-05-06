@@ -7,13 +7,19 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
 
 import javax.swing.event.MouseInputAdapter;
 
+import Input.InputController;
+import Input.KeyBinding;
+import Input.KeyCommand;
+import Input.MouseCommand;
 import engine.Board.MouseHandlerClass;
 import engine.BoardAbstract.DiagnosticsOverlay;
 import entityComposites.*;
 import misc.CollisionEvent;
+import physics.Boundary;
 import physics.BoundaryCircular;
 import physics.BoundaryFeature;
 import physics.BoundaryPolygonal;
@@ -32,6 +38,8 @@ public class BoardPhysicsTesting extends BoardAbstract{
 	FollowerAI currentFollowerAI = followerSleep;
 	private Force gravity;
 	
+	private InputController inputConroller = new InputController("Main editor controller");
+	
 	public BoardPhysicsTesting( int width, int height) {
 		super(width,height);
 		
@@ -40,6 +48,14 @@ public class BoardPhysicsTesting extends BoardAbstract{
     	this.diagnosticsOverlay = renderingEngine.addOverlay( new DiagnosticsOverlay() );
     	
     	collisionEngine = new VisualCollisionEngine( this , renderingEngine );
+    	
+    	inputConroller.createKeyBinding( KeyEvent.VK_R, new UNMASKED_R() );
+    	inputConroller.createKeyBinding( KeyEvent.VK_E, new UNMASKED_R() );
+    	inputConroller.createKeyBinding( KeyEvent.CTRL_MASK , KeyEvent.VK_R, new CTR_R() );
+    	
+    	inputConroller.createMouseBinding( MouseEvent.BUTTON1 , new MOUSETRIGGER() );
+    	//inputConroller.createMouseBinding( MouseEvent.BUTTON3 , new MOUSETRIGGER() );
+    	//inputConroller.createMouseBinding( MouseEvent.CTRL_MASK , MouseEvent.BUTTON1 , new MOUSETRIGGER() );
 
     	//CompositeFactory.addColliderTo( followerEntity , new BoundaryPolygonal.Box(60, 60, -10, -10) );
     	CompositeFactory.addColliderTo(followerEntity, new BoundaryCircular(40,followerEntity) );
@@ -128,7 +144,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 			}
 			
         });
-        currentScene.addEntity(spaceship);
+        //currentScene.addEntity(spaceship);
         
         // TESTING OF SPACESHIP ENGINE PARTICLE EFFECT
         
@@ -163,13 +179,13 @@ public class BoardPhysicsTesting extends BoardAbstract{
 	@Override
 	public void keyPressed(KeyEvent e) {
 		// TODO Auto-generated method stub
-		
+		inputConroller.keyPressed(e);
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
 		// TODO Auto-generated method stub
-		
+		inputConroller.keyReleased(e);
 	}
 
 	@Override
@@ -198,12 +214,17 @@ public class BoardPhysicsTesting extends BoardAbstract{
 			camera.draw( force.toLine(followerEntity.getPosition() ) );
 		}
 		
+		//inputConroller.debugPrintInputList(100, 300, g);
 		/*g.setColor(Color.ORANGE);
 		for (Collider collider : this.collisionEngine.debugListActiveColliders() ){
 			collider.debugDrawBoundaryDelta( renderingEngine.getCamera(), (Graphics2D) g);
 		}*/
 		g.setColor(Color.CYAN);
 		for (Collider collider : this.collisionEngine.debugListActiveColliders() ){
+			
+			//if ( collider.getBoundary() instanceof BoundaryPolygonal ){
+			//	camera.debugDrawPolygon( Boundary.getPolygonFromBoundary( collider.getBoundary(), collider.getOwnerEntity() ) , Color.CYAN, collider.getOwnerEntity() , new AffineTransform() );
+			//}
 			collider.debugDrawBoundary( renderingEngine.getCamera(), (Graphics2D) g);
 		}
 		
@@ -293,6 +314,8 @@ public class BoardPhysicsTesting extends BoardAbstract{
   			
   			editorPanel.mousePressed(e);
 
+  			inputConroller.mousePressed(e);
+  			
   			mouseOrigin = e.getPoint();
   			
   		}
@@ -300,6 +323,8 @@ public class BoardPhysicsTesting extends BoardAbstract{
   		public void mouseDragged(MouseEvent e) 
   		{ 		
   			editorPanel.mouseDragged(e);
+  			
+  			
   			
   			if (e.getButton() == MouseEvent.BUTTON2){
   				currentFollowerAI = new Follow( e.getPoint() );
@@ -316,15 +341,80 @@ public class BoardPhysicsTesting extends BoardAbstract{
   		@Override
   		public void mouseReleased(MouseEvent e) 
   		{	
+  			
+  			inputConroller.mouseReleased(e);
+  			
   			//followerEntity.getTranslationComposite().setVelocity( new Vector( 0,0 ) );
   			currentFollowerAI = followerSleep;
   			//gravity.setVector( 0,0.2);
   			//player.inputController.mouseReleased(e);
-  			editorPanel.mouseReleased(e);
+
   			//editorPanel.getWorldGeom().mouseReleased(e);
+  			
+  			editorPanel.mouseReleased(e);
   		}
   			
   	}
+ 	
+ 	private class CTR_R implements KeyCommand {
+
+		@Override
+		public void onPressed() {
+			
+		}
+
+		@Override
+		public void onReleased() {
+			
+		}
+
+		@Override
+		public void onHeld() {
+			
+		}
+ 		
+ 	}
+ 	
+ 	private class UNMASKED_R implements KeyCommand {
+
+		@Override
+		public void onPressed() {
+			
+		}
+
+		@Override
+		public void onReleased() {
+			
+		}
+
+		@Override
+		public void onHeld() {
+			
+		}
+ 		
+ 	}
+ 	
+ 	private class MOUSETRIGGER implements MouseCommand {
+
+		@Override
+		public void mousePressed() {
+			// TODO Auto-generated method stub
+			System.err.println("CLICK");
+		}
+
+		@Override
+		public void mouseDragged() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseReleased() {
+			// TODO Auto-generated method stub
+			
+		}
+ 		
+ 	}
 	
 	
 }

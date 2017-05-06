@@ -28,6 +28,14 @@ public class MouseBinding {
 		
 	}
 	
+	public int getMouseModifier(){
+		return type.getModKey();
+	}
+	
+	public int getMouseButton(){
+		return this.mouseButton;
+	}
+	
 	public void mousePressed(){ command.mousePressed(); } // forward events to the referenced user-defined command 
 	public void mouseDragged(){ command.mouseDragged(); } // that implements MouseCommand
 	public void mouseReleased(){ command.mouseReleased(); }
@@ -50,22 +58,34 @@ public class MouseBinding {
 	
 	private abstract class Type{
 		protected abstract boolean mouseMatches( MouseEvent e );
+		protected abstract int getModKey();
+		public abstract String toString();
 	}
 
 	private class UnmodifiedMouse extends Type{
-	
+		
 		@Override
 		protected boolean mouseMatches( MouseEvent e ){ //
-			
-			if ( (e.getModifiers() & (MouseEvent.CTRL_MASK|MouseEvent.SHIFT_MASK|MouseEvent.ALT_MASK) ) == 0 ){
-				if (e.getButton() == mouseButton)
+
+				if (e.getButton() == mouseButton && 
+						( e.getModifiers() | e.CTRL_MASK ) != e.getModifiers() &&
+						( e.getModifiers() | e.SHIFT_MASK ) != e.getModifiers() &&
+						( e.getModifiers() | e.ALT_MASK ) != e.getModifiers() 
+				){ //16 is no modifiers mask for some reason
 					return true;
+				}
 				else
-					return false;
-			}
-			else 
-				return false;
-			
+					return false;		
+		}
+		
+		@Override
+		protected int getModKey() {
+			return 0;
+		}
+		
+		@Override
+		public String toString() {
+			return "Button "+mouseButton;
 		}
 	
 	}
@@ -80,22 +100,29 @@ public class MouseBinding {
 		@Override
 		protected boolean mouseMatches( MouseEvent e ){ //class
 			
-			if ( (e.getModifiers() & modKeyCode ) != 0 ){
-				if (e.getButton() == mouseButton)
+				if (e.getButton() == mouseButton && (e.getModifiers() & modKeyCode)==modKeyCode )
 					return true;
 				else
 					return false;
-			}
-			else 
-				return false;
+
 			
 		}
+		
+		@Override
+		protected int getModKey() {
+			return modKeyCode;
+		}
 	
+		@Override
+		public String toString() {
+			return "Button "+mouseButton+" + "+modKeyCode;
+		}
+		
 	}
 	
 	@Override
 	public String toString() {
-		return "Button "+this.mouseButton;
+		return this.type.toString();
 	}
 	
 }

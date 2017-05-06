@@ -144,7 +144,7 @@ public class EditorPanel extends JPanel {
 		oldMousePanPos = new Point();
 		//worldMousePos = new Point();
 		oldCameraPos = new Point();
-		inputController = new InputController();
+		inputController = new InputController("Main panel controller");
 		inputController.createKeyBinding(KeyEvent.VK_F5, new KeyCommand() {
 			@Override
 			public void onPressed() { setMode(getEditorSelectMode());	}
@@ -810,6 +810,8 @@ public class EditorPanel extends JPanel {
 		g.setFont(new Font("default", Font.PLAIN, 12));
 		//this.getGhostSprite().editorDraw(getEditorMousePos());
 		
+		this.editorMode.inputController.debugPrintInputList(800, 100, g);
+		
 	}
 	public void defaultRender(Graphics g) {
 		//will contain a render procedure for modes that certainly don't need their own rendering implementation 
@@ -897,7 +899,7 @@ public class EditorPanel extends JPanel {
 			selectionRectangle = new SelectionRectangle(Color.BLUE, Color.cyan, camera, initClickPoint);
 			selectionRectangleState = nullSelectionRectangle;
 			
-			inputController = new InputController();
+			inputController = new InputController("Editor select mode controller");
 			this.inputController.createMouseBinding(MouseEvent.BUTTON1, new EntitySelectLClickEvent());
 			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new CtrlEntitySelectLClickEvent());
 			this.inputController.createMouseBinding(MouseEvent.BUTTON3, new TranslateEvent());
@@ -1210,7 +1212,7 @@ public class EditorPanel extends JPanel {
 	public class EditorPlaceMode extends ModeAbstract {
 		public EditorPlaceMode() {
 			modeName = "EditorPlaceMode";
-			inputController = new InputController();
+			inputController = new InputController("Editor place mode controller");
 			this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());			
 		}
 		
@@ -1338,7 +1340,7 @@ public class EditorPanel extends JPanel {
 				initClick = new Point();
 				//spriteInitialPosition = new Point();
 				spriteOriginalOffset = new Point();
-				inputController = new InputController();
+				inputController = new InputController("Default sprite editor mode controller");
 				this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());			
 				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new TranslateOffsetEvent());			
 				this.inputController.createKeyBinding(KeyEvent.VK_ENTER, new SwapSpriteEvent());			
@@ -1713,7 +1715,7 @@ public class EditorPanel extends JPanel {
 				selectionRectangle = new SelectionRectangle(Color.BLUE, Color.cyan, camera, initClickPoint);
 				selectionRectangleState = nullSelectionRectangle;
 				
-				inputController = new InputController();
+				inputController = new InputController("Boundary vertex select mode controller");
 				this.inputController.createMouseBinding(MouseEvent.BUTTON1, new VertexSelectLClickEvent());
 				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new CtrlVertexSelectLClickEvent());
 				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new TranslateEvent());
@@ -1983,7 +1985,7 @@ public class EditorPanel extends JPanel {
 				nullTempRectBoundary = SelectionRectangleNull.getNullSelectionRectangle();
 				tempRectBoundary = new SelectionRectangle(Color.BLUE, Color.cyan, camera, initClickPoint);
 				tempRectBoundaryState = nullTempRectBoundary;
-				inputController = new InputController();
+				inputController = new InputController("Boundary vertex place mode controller");
 				this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());			
 				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON1, new RectangleBoundDrawEvent());
 			}

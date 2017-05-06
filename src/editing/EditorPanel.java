@@ -1154,7 +1154,6 @@ public class EditorPanel extends JPanel {
 			}
 			if (selectViaSprite == true) {
 				for (EntityStatic entity: board.listCurrentSceneEntities()) {
-					System.err.println("Current entity: " + entity);
 					if (entity.getGraphicComposite().exists()) {
 						Rectangle clickableRect = new Rectangle();
 						//clickableRect.setLocation(entity.getXRelativeTo(camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(camera) + entity.getSpriteOffsetY());

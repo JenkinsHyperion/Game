@@ -39,24 +39,25 @@ public class SelectedEntities {
 	public void drawClickableBox(Graphics g, MovingCamera camera) {
 		for(EntityStatic entity: selectedEntities) {
 			//vertex.drawClickableBox(g, camera);'
-		/*	if (!(entity.getGraphicComposite() instanceof GraphicCompositeNull)) {
+			if (entity.getGraphicComposite().exists()) {
 				Rectangle rect = new Rectangle();
 				//rect.setLocation(entity.getXRelativeTo(camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(camera) + entity.getSpriteOffsetY());
-				rect.setLocation(entity.getX() + entity.getSpriteOffsetX(), entity.getY() + entity.getSpriteOffsetY());
-				rect.setSize(entity.getEntitySprite().getBufferedImage().getWidth(null),
-						entity.getEntitySprite().getBufferedImage().getHeight(null) );
-				camera.drawRect(rect, g, Color.BLUE, Color.CYAN, .05f);
-			} */
+				rect.setLocation(entity.getX() + entity.getGraphicComposite().getSprite().getOffsetX(), 
+						entity.getY() + entity.getGraphicComposite().getSprite().getOffsetY());
+				rect.setSize(entity.getGraphicComposite().getSprite().getBufferedImage().getWidth(),
+							 entity.getGraphicComposite().getSprite().getBufferedImage().getHeight());
+				camera.drawRect(rect, g, Color.BLUE, Color.CYAN, .2f);
+			} 
 			// if entity has no graphics 
 			//float tempAngle = entity.getRotationComposite().getAngle();
 			//AffineTransform xform = new AffineTransform();
 			//xform.rotate((double)Math.toRadians(tempAngle));
-			if (entity.getColliderComposite().exists()) {
+			/*if (entity.getColliderComposite().exists()) {
 				Polygon poly = Boundary.getPolygonFromBoundary(entity.getColliderComposite().getBoundaryLocal(), entity);
 				Rectangle rect = poly.getBounds();
 				camera.drawRect(rect, g, Color.BLUE, Color.CYAN, .2f);
 				//camera.debugDrawPolygon(poly, Color.CYAN, entity, xform);
-			}
+			}*/
 		}
 		/*for (int i = 0; i < selectedVertices.size(); i++){
 			selectedVertices.get(i).drawClickableBox(g, camera);
@@ -78,9 +79,9 @@ public class SelectedEntities {
 			System.out.println(ent.name + ", ");
 		}
 	}
-	public void translate(Point initClickPoint, Point worldGeomMousePos) {
-		int deltaX = initClickPoint.x - worldGeomMousePos.x;
-		int deltaY = initClickPoint.y - worldGeomMousePos.y;
+	public void translate(Point initClickPoint, Point currentClickPoint) {
+		int deltaX = initClickPoint.x - currentClickPoint.x;
+		int deltaY = initClickPoint.y - currentClickPoint.y;
 		for (int i = 0; i < selectedEntities.size(); i++) {
 			selectedEntities.get(i).setPos(camera.getLocalX(oldEntityPositions.get(i).x - deltaX), 
 											 camera.getLocalY(oldEntityPositions.get(i).y - deltaY));

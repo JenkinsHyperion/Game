@@ -118,7 +118,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
         CompositeFactory.addScriptTo(spaceship, new EntityScript(){
         	
         	private EntityStatic target = followerEntity;
-        	private final float VELOCITY = 4;
+        	private float VELOCITY = 4;
         	
 			@Override
 			protected void updateOwner(EntityStatic ownerEntity) {
@@ -140,11 +140,12 @@ public class BoardPhysicsTesting extends BoardAbstract{
 			
 			@Override
 			protected void updateScript() {
-				
 			}
 			
         });
+
         //currentScene.addEntity(spaceship);
+
         
         // TESTING OF SPACESHIP ENGINE PARTICLE EFFECT
         

@@ -112,6 +112,10 @@ public class WorldGeometry extends ModeAbstract{
 	public void render(Graphics g) {
 		worldGeomMode.render(g);
 	}
+	@Override
+	public String getModeName() {
+		return this.worldGeomMode.getModeName();
+	}
 	public void defaultRender(Graphics g) {
 		Graphics2D g2 = (Graphics2D)g;			
 		//old drawVertexPoints vvvvvvv

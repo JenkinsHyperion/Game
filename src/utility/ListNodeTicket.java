@@ -2,12 +2,16 @@ package utility;
 
 public class ListNodeTicket {
 
-	LinkedNodeElement<?> node;
+	DoubleLinkedList<?>.LinkedNodeElement<?> node;
 	
-	protected ListNodeTicket( LinkedNodeElement<?> node ){
-		this.node = node;
+	//protected ListNodeTicket( LinkedNodeElement<T> node ){
+	//	this.node = node;
+	//}
+	
+	protected ListNodeTicket(DoubleLinkedList<?>.LinkedNodeElement<?> newElement) {
+		this.node = newElement;
 	}
-	
+
 	public void removeSelf(){
 		node.removeSelf();
 	}

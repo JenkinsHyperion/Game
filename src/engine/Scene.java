@@ -4,12 +4,15 @@ import java.util.ArrayList;
 
 import entities.*;
 import entityComposites.*;
+import utility.DoubleLinkedList;
 
 public class Scene {
 	
 	private BoardAbstract ownerBoard;
 
 	private ArrayList<LayeredEntity> entityList = new ArrayList<LayeredEntity>();
+	
+	//private DoubleLinkedList<LayeredEntity> entityList2 = new DoubleLinkedList<LayeredEntity>();
 	
 	private String I = ""; //Indentations tring for console printing debugging
 
@@ -19,15 +22,16 @@ public class Scene {
 	}
 	
 	public void addEntityToList( EntityStatic entity , byte layer ){
+		entity.addEntityToScene( this, entityList.size() );
 		entityList.add( new LayeredEntity(entity,layer));
 	}
 	
 	public void addEntity( EntityStatic entity ){
 		
 		boolean updateableEntity = false;
-		System.out.println(I+"Adding Entity ["+entity+"] to Current Scene");
+		System.out.println(I+"Adding Entity ["+entity+"] to Current Scene, slot "+entityList.size());
 		//ADD ENTITY TO SCENES MASTER ENTITY LIST
-		entityList.add( new LayeredEntity(entity));
+		addEntityToList(entity,(byte) 0);
 		
 		I = I+"|  ";//temporary visual indentation for console output
 		
@@ -107,8 +111,7 @@ public class Scene {
 	}
 	
 	
-	protected void disableEntity( int index ){
-		this.entityList.get(index).disable();
+	public void removeEntity( int index ){
 		this.entityList.remove(index);
 	}
 	

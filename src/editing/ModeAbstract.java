@@ -16,6 +16,7 @@ public abstract class ModeAbstract {
 	/*public abstract void mouseInput(MouseEvent m);
 	public abstract void keyInput(KeyEvent e);
 	*/
+	
 	public abstract void mousePressed(MouseEvent e);
 	public abstract void mouseDragged(MouseEvent e);	
 	public void mouseMoved(MouseEvent e){}
@@ -25,5 +26,8 @@ public abstract class ModeAbstract {
 	public abstract void render(Graphics g);
 	public String getModeName() {
 		return modeName;
+	}
+	public void debugDrawController(Graphics g){
+		this.inputController.debugPrintInputList(800, 200, g);
 	}
 }

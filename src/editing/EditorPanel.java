@@ -814,10 +814,8 @@ public class EditorPanel extends JPanel {
 		g.drawString(this.editorMode.getModeName(), 800, 30);
 		g.setFont(new Font("default", Font.PLAIN, 12));
 		//this.getGhostSprite().editorDraw(getEditorMousePos());
-		
-		this.editorMode.inputController.debugPrintInputList(800, 100, g);
+		//editorMode.inputController.debugPrintInputList(200, 100, g); //no idea why this wont fucking get the inputController instance
 
-		
 	}
 	public void defaultRender(Graphics g) {
 		//will contain a render procedure for modes that certainly don't need their own rendering implementation 
@@ -916,7 +914,7 @@ public class EditorPanel extends JPanel {
 			selectionRectangle = new SelectionRectangle(Color.BLUE, Color.cyan, camera, initClickPoint);
 			selectionRectangleState = nullSelectionRectangle;
 			
-			inputController = new InputController("Editor select mode controller");
+			inputController = new InputController("Editor select mode controller"); 
 			this.inputController.createMouseBinding(MouseEvent.BUTTON1, new EntitySelectLClickEvent());
 			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new CtrlEntitySelectLClickEvent());
 			this.inputController.createMouseBinding(MouseEvent.BUTTON3, new TranslateEvent());
@@ -955,7 +953,6 @@ public class EditorPanel extends JPanel {
 			Graphics2D g2 = (Graphics2D)g;
 			g2.setColor(Color.BLUE);
 			selectedEntities.drawClickableBox(g2, camera);
-			selectionRectangleState.draw(g2, camera);
 		}
 		@Override
 		public void render(Graphics g) {
@@ -970,9 +967,8 @@ public class EditorPanel extends JPanel {
 		public class DefaultMode extends ModeAbstract {
 			public DefaultMode() {
 				modeName = "EditorSelectMode";
+				this.inputController = new InputController("Default mode (Editor select) controller");
 				
-				
-				inputController = new InputController("Default mode controller");
 				this.inputController.createMouseBinding(MouseEvent.BUTTON1, new EntitySelectLClickEvent());
 				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new CtrlEntitySelectLClickEvent());
 				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new TranslateEvent());
@@ -1023,7 +1019,7 @@ public class EditorPanel extends JPanel {
 			public RotateMode() {
 				this.modeName = "RotateMode";
 				//ctrlHeld = false;
-				inputController = new InputController("Rotate mode controller");	
+				this.inputController = new InputController("Rotate mode controller");	
 				this.inputController.createMouseBinding(MouseEvent.BUTTON1, new RotateEvent());
 				//this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON1, new DegreeLockRotateEvent());
 				this.inputController.createKeyBinding(KeyEvent.VK_R, new SetDefaultMode());
@@ -1058,6 +1054,7 @@ public class EditorPanel extends JPanel {
 			public void render(Graphics g) {
 				defaultRender(g);
 			}
+			
 			// ######## INNER BEHAVIOR CLASSES #########
 			public class RotateEvent implements MouseCommand {
 				//the functionality for this will be very similar to how you designed the selection rectangle.
@@ -1465,6 +1462,7 @@ public class EditorPanel extends JPanel {
 			spritePath = "";
 			defaultSpriteEditorMode = new DefaultSpriteEditorMode();
 			spriteEditorMode = defaultSpriteEditorMode;
+			this.inputController = new InputController("Sprite editor mode controller");
 			
 		}
 		public void setCurrentEntity(EntityStatic newEntity) {
@@ -2292,4 +2290,5 @@ public class EditorPanel extends JPanel {
 			
 		}
 	} // end of CameraPanMode inner class
+
 }

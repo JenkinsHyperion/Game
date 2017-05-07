@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import animation.Animation;
 import engine.BoardAbstract;
+import engine.Scene;
 import entityComposites.*;
 import physics.Boundary;
 import physics.BoundaryPolygonal;
@@ -22,6 +23,9 @@ import sprites.Sprite;
  */
 public class EntityStatic extends Entity implements UpdateableComposite{
 
+	private Scene ownerScene;
+	private Integer sceneIndex;
+	
 	private ListNodeTicket updaterSlot;
 	//COMPOSITE VARIABLES, LATER TO BE LIST OF COMPOSITES
 	protected EntityStatic child;
@@ -218,8 +222,9 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		this.collisionType.disable();
 		this.collisionType = null;		
 		
-		
 		this.updaterSlot.removeSelf();
+		
+		this.ownerScene.removeEntity(this.sceneIndex);
 
 		System.out.println("done");
 	}
@@ -228,7 +233,7 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		if ( updaterSlot == null ){
 			this.updaterSlot = board.addEntityToUpdater(this);
 		}else{
-			
+			System.err.println("Warning: "+this.name+" is already in updater");
 		}
 
 	}
@@ -276,6 +281,15 @@ public class EntityStatic extends Entity implements UpdateableComposite{
     	else{
     		return false;
     	}
+	}
+	
+	public void addEntityToScene(Scene scene , int index){
+		if ( this.sceneIndex == null ){
+			this.ownerScene = scene;
+			this.sceneIndex = index;
+		}else{
+			System.err.println("Warning: "+this.name+" is already in a scene and cannot yet be moved");
+		}
 	}
 	
 }

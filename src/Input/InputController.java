@@ -358,6 +358,7 @@ public class InputController {
 	}
 	
     public void debugPrintInputList( int x, int y ,Graphics g){
+    	
     	g.setColor(Color.GRAY);
     	g.drawString(name, x, y);
     	

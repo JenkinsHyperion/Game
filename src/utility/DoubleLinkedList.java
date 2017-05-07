@@ -20,7 +20,7 @@ public class DoubleLinkedList<T> {
 		}
 		
 		catch( ClassCastException exc ){
-			System.err.println("Attempted to add entity without Composite.");
+			System.err.println("Attempted to add entity without Composite DoubleLinkedList.");
 			return null;
 		}
 		
@@ -111,5 +111,50 @@ public class DoubleLinkedList<T> {
 		}
 		
 	}
+	
+	
+	abstract class LinkedNode<T>{ // make interface?
+		
+		protected LinkedNodeElement<T> nextNode;
+		protected LinkedNode<T> prevNode;
+		
+		protected abstract void run();
+		
+		protected void setPreviousNode( LinkedNode<T> prevNode ){ this.prevNode = prevNode; }
+		protected void setNextNode( LinkedNodeElement<T> nextNode ){ this.nextNode = nextNode; }
+		protected LinkedNode<T> getPreviousNode(){ return this.prevNode; }
+		protected LinkedNodeElement<T> getNextNode( ){ return this.nextNode; }
+		
+	}
+	
+	public class LinkedNodeElement<T> extends LinkedNode<T>{
+
+		private T element;
+		
+		protected LinkedNodeElement( T element ){
+			this.element = element;
+		}
+		@Override
+		protected void run(){
+			// CODE TO RUN FOR EACH ELEMENT
+			this.getNextNode().run();
+		}
+		
+		protected T getElement(){
+			return this.element;
+		}
+		
+		protected boolean isNext(){
+			return true;
+		}
+		
+		protected void removeSelf(){
+			this.prevNode.setNextNode( this.nextNode );
+			this.nextNode.setPreviousNode( this.prevNode );
+			size--;
+		}
+		
+	}
+	
 	
 }

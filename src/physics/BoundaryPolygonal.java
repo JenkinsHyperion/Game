@@ -7,8 +7,6 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
-import com.sun.javafx.geom.Shape;
-
 import engine.MovingCamera;
 import entityComposites.Collider;
 import entityComposites.EntityStatic;

@@ -1174,7 +1174,7 @@ public class EditorPanel extends JPanel {
 							if (selectedEntities.contains(entity) == false) {
 								selectedEntities.addSelectedEntity(entity);
 								//FIXME this is just a test
-								//selectedEntities.get(0).getRotationComposite().setAngleInDegrees(selectedEntities.get(0).getRotationComposite().getAngle()+45);
+								selectedEntities.get(0).getRotationComposite().setAngleInDegrees(selectedEntities.get(0).getRotationComposite().getAngle()+45);
 								spriteEditorButton.setEnabled(true);
 								boundaryEditorButton.setEnabled(true);
 								boundaryVertexSelectButton.setEnabled(true);

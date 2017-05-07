@@ -31,9 +31,6 @@ public class MovingCamera extends EntityDynamic implements Camera{
 	final static int boardHalfWidth = BoardAbstract.B_WIDTH/2;
 	final static int boardHalfHeight = BoardAbstract.B_HEIGHT/2;
 	
-	final static int MAX_X = BoardAbstract.B_WIDTH;
-	final static int MAX_Y = BoardAbstract.B_HEIGHT;
-	
 	public final static Point ORIGIN = new Point(boardHalfWidth,boardHalfHeight);
 	
 	EntityStatic target;
@@ -504,29 +501,6 @@ public class MovingCamera extends EntityDynamic implements Camera{
 
 	}
 
-	public void drawOverlayGrid( int square ,Color grid, Color axisColor){
-		
-		Point pos = this.getPosition();
-		
-		int s = square; //square dimension
-		
-		//X AXIS
-		for ( int i = (pos.x - boardHalfWidth+40 ) / s ; i < ( (pos.x + boardHalfWidth/2 ) / s ) ; i++ ){ //OPTIMIZE remove testing offset when done
-			this.graphics.setColor(grid);
-			this.graphics.drawLine( getRelativeX(i*s) , 0, getRelativeX(i*s), MAX_Y);
-			this.graphics.setColor(axisColor);
-			this.graphics.drawString( ""+i*s, getRelativeX(i*s), 20);
-		}
-		//Y AXIS
-		for ( int i = (pos.y - boardHalfHeight ) / s ; i < ( (pos.y + boardHalfHeight ) / s ) ; i++ ){ //OPTIMIZE remove testing offset when done
-			this.graphics.setColor(grid);
-			this.graphics.drawLine( 0, getRelativeY(i*s) , MAX_X, getRelativeY(i*s));
-			this.graphics.setColor(axisColor);
-			this.graphics.drawString( ""+i*s, 5,getRelativeY(i*s));
-		}
-
-		
-	}
 
 	
 }

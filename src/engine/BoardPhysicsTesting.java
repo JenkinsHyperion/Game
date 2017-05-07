@@ -38,7 +38,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 	FollowerAI currentFollowerAI = followerSleep;
 	private Force gravity;
 	
-	private InputController inputController = new InputController("Main editor controller");
+	private InputController inputConroller = new InputController("Main editor controller");
 	
 	public BoardPhysicsTesting( int width, int height) {
 		super(width,height);
@@ -49,13 +49,13 @@ public class BoardPhysicsTesting extends BoardAbstract{
     	
     	collisionEngine = new VisualCollisionEngine( this , renderingEngine );
     	
-    	//inputController.createKeyBinding( KeyEvent.VK_R, new UNMASKED_R() );
-    	//inputController.createKeyBinding( KeyEvent.VK_E, new UNMASKED_R() );
-    	//inputController.createKeyBinding( KeyEvent.CTRL_MASK , KeyEvent.VK_R, new CTR_R() );
+    	inputConroller.createKeyBinding( KeyEvent.VK_R, new UNMASKED_R() );
+    	inputConroller.createKeyBinding( KeyEvent.VK_E, new UNMASKED_R() );
+    	inputConroller.createKeyBinding( KeyEvent.CTRL_MASK , KeyEvent.VK_R, new CTR_R() );
     	
-    	//inputController.createMouseBinding( MouseEvent.BUTTON1 , new MOUSETRIGGER() );
-    	//inputController.createMouseBinding( MouseEvent.BUTTON3 , new MOUSETRIGGER() );
-    	//inputController.createMouseBinding( MouseEvent.CTRL_MASK , MouseEvent.BUTTON1 , new MOUSETRIGGER() );
+    	inputConroller.createMouseBinding( MouseEvent.BUTTON1 , new MOUSETRIGGER() );
+    	//inputConroller.createMouseBinding( MouseEvent.BUTTON3 , new MOUSETRIGGER() );
+    	//inputConroller.createMouseBinding( MouseEvent.CTRL_MASK , MouseEvent.BUTTON1 , new MOUSETRIGGER() );
 
     	//CompositeFactory.addColliderTo( followerEntity , new BoundaryPolygonal.Box(60, 60, -10, -10) );
     	CompositeFactory.addColliderTo(followerEntity, new BoundaryCircular(40,followerEntity) );
@@ -144,7 +144,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 			
         });
 
-        currentScene.addEntity(spaceship);
+        //currentScene.addEntity(spaceship);
 
         
         // TESTING OF SPACESHIP ENGINE PARTICLE EFFECT
@@ -180,13 +180,13 @@ public class BoardPhysicsTesting extends BoardAbstract{
 	@Override
 	public void keyPressed(KeyEvent e) {
 		// TODO Auto-generated method stub
-		inputController.keyPressed(e);
+		inputConroller.keyPressed(e);
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
 		// TODO Auto-generated method stub
-		inputController.keyReleased(e);
+		inputConroller.keyReleased(e);
 	}
 
 	@Override
@@ -199,15 +199,9 @@ public class BoardPhysicsTesting extends BoardAbstract{
 	protected void graphicsThreadPaint(Graphics g) {
 		// TODO Auto-generated method stub
 		//renderingEngine.getCamera().repaint(g);
-
-		
 		this.renderingEngine.render( (Graphics2D)g );
 		editorPanel.render( g ); 
-		
-		camera.drawOverlayGrid( 100, Color.DARK_GRAY , Color.WHITE );
-		
 		g.setColor(Color.CYAN);
-
 		g.drawString( this.followerEntity.getTranslationComposite().getDY() + " dy" , 20, 35);
 		g.drawString( this.currentScene.listEntities().length + " entities" , 20, 50);
 		g.drawString( collisionEngine.debugNumberofStaticCollidables() + " static collidables" , 20, 65);
@@ -221,7 +215,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 			camera.draw( force.toLine(followerEntity.getPosition() ) );
 		}
 		
-		inputController.debugPrintInputList(100, 300, g);
+		//inputConroller.debugPrintInputList(100, 300, g);
 		/*g.setColor(Color.ORANGE);
 		for (Collider collider : this.collisionEngine.debugListActiveColliders() ){
 			collider.debugDrawBoundaryDelta( renderingEngine.getCamera(), (Graphics2D) g);
@@ -321,7 +315,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
   			
   			editorPanel.mousePressed(e);
 
-  			inputController.mousePressed(e);
+  			inputConroller.mousePressed(e);
   			
   			mouseOrigin = e.getPoint();
   			
@@ -349,7 +343,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
   		public void mouseReleased(MouseEvent e) 
   		{	
   			
-  			inputController.mouseReleased(e);
+  			inputConroller.mouseReleased(e);
   			
   			//followerEntity.getTranslationComposite().setVelocity( new Vector( 0,0 ) );
   			currentFollowerAI = followerSleep;
@@ -406,7 +400,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 		@Override
 		public void mousePressed() {
 			// TODO Auto-generated method stub
-			//System.err.println("CLICK in board");
+			System.err.println("CLICK");
 		}
 
 		@Override

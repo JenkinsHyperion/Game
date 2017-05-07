@@ -113,6 +113,9 @@ public class Scene {
 	
 	public void removeEntity( int index ){
 		this.entityList.remove(index);
+		for( int i = index ; i < entityList.size() ; i++ ){
+			entityList.get(i).entity.indexShift();
+		}
 	}
 	
 	

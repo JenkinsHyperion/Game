@@ -108,12 +108,14 @@ public class CompositeFactory {
 		if ( child.hasTranslation() ){//if child already has translation, remove it and flyweight parent's instead
 			System.err.println("TODO Composite Factory cannot yet make entity with translation into child");
 		}
-		else{//if child does not have translation, flyweight parent's translation
-			
+		else if ( parent.hasTranslation() ){ //child does not have translation, so flyweight parent's translation
 			child.setTranslationComposite( parent.getTranslationComposite() );
 			child.updateables.add( (UpdateableComposite) parent.getTranslationComposite() );
 			
 			child.addToUpdater(board); // add child to be updated
+		}
+		else{ //parent has no translation, so 
+			System.out.println("Parent entity ["+parent+"] has no Translational composite");
 		}
 		
 		//If child has collider, remove from and add back to collision Engine as dynamic, in case it was registered as static
@@ -123,6 +125,14 @@ public class CompositeFactory {
 			child.getColliderComposite().addCompositeToPhysicsEngineDynamic(board.collisionEngine);
 		} //else do nothing
 		
+		if ( parent.getRotationComposite().exists() ){
+			System.out.println("Setting '"+parent+"' as rotateable parent");
+			ParentRotateableComposite parentComposite = new ParentRotateableComposite(parent);
+			parent.addFamilyRole( parentComposite );
+			parentComposite.addChild(child);
+			parent.getRotationComposite().addRotateable( parentComposite );
+		}
+
 		
 		//parent.updateables.add(child);
 		//child.updateables.add( (UpdateableComposite) parent.getTranslationComposite() );
@@ -135,9 +145,9 @@ public class CompositeFactory {
 		
 	}
 	
-	public static void addLifespanTo( EntityStatic entity , int lifespan ){
+	public static void addLifespanTo( EntityStatic entity , int lifespanInFrames ){
 		
-		entity.updateables.add( new LifespanComposite(lifespan) );
+		entity.updateables.add( new LifespanComposite(lifespanInFrames) );
 		
 	}
 	

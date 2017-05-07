@@ -14,6 +14,10 @@ public class RotationComposite implements EntityComposite{
 		this.owner = owner;
 	}
 	
+	protected void addRotateable( RotateableComposite rotateable ){
+		System.err.println("Can't add rotateable to null rotation");
+	}
+	
 	protected void setAngle(double angle){
 		System.err.println("Setting angle of null rotation");
 	}

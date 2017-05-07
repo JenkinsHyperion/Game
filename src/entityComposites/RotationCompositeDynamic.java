@@ -40,6 +40,10 @@ public class RotationCompositeDynamic extends RotationComposite implements Updat
     	angularVelocity = angularVelocity + angularAcc;
 		
 	}
+	@Override
+	protected void addRotateable( RotateableComposite rotateable ){
+		rotateableCompositeList.add( rotateable );
+	}
 	
 	@Override
 	public void updateEntity(EntityStatic entity) {

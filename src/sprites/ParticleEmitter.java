@@ -43,6 +43,8 @@ public class ParticleEmitter extends EntityStatic implements UpdateableComposite
 			int value = rand.nextInt(180); 
 			double angleRadians = (value * ((Math.PI)/180) ) ;
 			
+			Sprite particleSprite = new SpriteStillframe("particle_test.png",-3,-3);
+			
 			CompositeFactory.flyweightTranslation( particles[0] , particles[i] );
 			
 			CompositeFactory.addRotationTo(particles[i]);
@@ -50,7 +52,7 @@ public class ParticleEmitter extends EntityStatic implements UpdateableComposite
 			//CompositeFactory.flyweightRotation( particles[0] , particles[i] );
 			particles[i].getRotationComposite().setAngleInRadians(angleRadians);
 			
-			CompositeFactory.addGraphicTo(particles[i], new SpriteStillframe("particle_test.png",-3,-3) ); 
+			CompositeFactory.addGraphicTo(particles[i], particleSprite ); 
 			updateables.add(particles[i]);
 		}
 	}

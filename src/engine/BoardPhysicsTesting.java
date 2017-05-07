@@ -79,13 +79,13 @@ public class BoardPhysicsTesting extends BoardAbstract{
 		
 		
 		
-		rotateTest = new EntityStatic("Rotation Test Ground 01",0,0);     
+		rotateTest = new EntityStatic("Test Ground 01",0,0);     
         CompositeFactory.addColliderTo( rotateTest , new BoundaryPolygonal.Box(446,100,-223,-50 ) );
         CompositeFactory.addGraphicTo(rotateTest, new SpriteStillframe("ground_1.png" , -223 , -53 ) );
         
-    	CompositeFactory.addRotationTo(rotateTest);
+    	//CompositeFactory.addRotationTo(rotateTest);
     	//rotateTest.getRotationComposite().setAngleInDegrees(30);
-    	//rotateTest.getRotationComposite().setAngularVelocity(2);
+    	//rotateTest.getRotationComposite().setAngularVelocity(0.1);
         
         currentScene.addEntity( rotateTest );
 		
@@ -93,8 +93,16 @@ public class BoardPhysicsTesting extends BoardAbstract{
         CompositeFactory.addGraphicTo( child, new SpriteStillframe("box.png" , -20 , -20 ) );
         //CompositeFactory.addColliderTo(child, new BoundaryPolygonal.Box(20,20,-10,-10 ) );
         //CompositeFactory.addTranslationTo(child);
-        
         currentScene.addEntity( child );
+        
+        EntityStatic orbit = new EntityStatic("Orbiter",-300,100); 
+        CompositeFactory.addGraphicTo( orbit, new SpriteStillframe("box.png" , Sprite.CENTERED ) );
+        CompositeFactory.addRotationTo(orbit);
+        orbit.getRotationComposite().setAngularVelocity(1);
+        currentScene.addEntity( orbit );
+        
+        
+        
         camera.setFocus( rotateTest.getPosition() );
 
         //SPACESHIP TEST
@@ -144,7 +152,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 			
         });
 
-        currentScene.addEntity(spaceship);
+        //currentScene.addEntity(spaceship);
 
         
         // TESTING OF SPACESHIP ENGINE PARTICLE EFFECT
@@ -152,8 +160,9 @@ public class BoardPhysicsTesting extends BoardAbstract{
         EntityStatic testParticleSpawner = new ParticleEmitter(0,0);
         currentScene.addEntity( testParticleSpawner );
         
-        CompositeFactory.makeChildOfParentUsingPosition(testParticleSpawner, spaceship , this);
+        //CompositeFactory.makeChildOfParentUsingPosition(testParticleSpawner, spaceship , this);
 
+        CompositeFactory.makeChildOfParentUsingPosition(child, orbit , this);
         
         spaceship.getColliderComposite().setCollisionEvent( new CollisionEvent(){ 			//Make anonymous collision event to maek explosion
 			@Override

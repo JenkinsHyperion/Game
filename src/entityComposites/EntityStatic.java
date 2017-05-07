@@ -28,12 +28,12 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	
 	private ListNodeTicket updaterSlot;
 	//COMPOSITE VARIABLES, LATER TO BE LIST OF COMPOSITES
-	protected EntityStatic child;
 	protected TranslationComposite translationType = new TranslationComposite();
 	protected RotationComposite rotationType = new RotationComposite(this);
 	protected GraphicComposite graphicsComposite = GraphicCompositeNull.getNullSprite(); 
 	protected Collider collisionType = ColliderNull.getNonCollidable();
 	
+	protected ParentChildRelationship[] family = new ParentChildRelationship[0];
 	
 	protected ArrayList<UpdateableComposite> updateables = new ArrayList<UpdateableComposite>();
 	
@@ -65,11 +65,6 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	}
 	@Override
 	public void updateEntity(EntityStatic entity) { 
-	}
-
-	public void addChild( EntityStatic entity ){
-		this.child = entity;
-		entity.setTranslationComposite( this.getTranslationComposite() );
 	}
 	
 	protected void setGraphicComposite(GraphicComposite spriteType){ 
@@ -104,6 +99,16 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		return this.collisionType;			
 	}
 	
+	protected void addFamilyRole( ParentChildRelationship relationship ){
+		ParentChildRelationship[] returnArray = new ParentChildRelationship[family.length+1];
+		for ( int i = 0 ; i < family.length ; i++ ){
+			returnArray[i] = family[i];
+		}
+		this.family = null;
+		returnArray[ returnArray.length-1 ] = relationship;
+		this.family = returnArray;
+		
+	}
 	
 	@Deprecated
     public void loadSprite(String path){ // needs handling if failed. Also needs to be moved out of object class into sprites
@@ -290,6 +295,10 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		}else{
 			System.err.println("Warning: "+this.name+" is already in a scene and cannot yet be moved");
 		}
+	}
+
+	public void indexShift(){
+		this.sceneIndex--;
 	}
 	
 }

@@ -1,5 +1,6 @@
 package sprites;
 
+import java.awt.Point;
 import java.util.ArrayList;
 
 import engine.Camera;
@@ -28,8 +29,8 @@ public class RenderingLayer implements Graphic {
 	public void addEntity( EntityStatic entity ){
 		entitiesList.add( entity.getGraphicComposite() );
 	}
-	
-	public void draw( Camera camera ){ 
+	@Override
+	public void draw( Camera camera ,  GraphicComposite composite ){ 
 		
 		cam.setPosition( (int) ( camera1.getX()/PARALLAX_X ), 
 				(int) ( camera1.getY()/PARALLAX_Y ), 
@@ -37,9 +38,9 @@ public class RenderingLayer implements Graphic {
 				camera1.getObserver()
 				);
 		
-		for ( GraphicComposite composite : entitiesList  ){ 
+		for ( GraphicComposite comp : entitiesList  ){ //FIXME Redo this entire class
 
-			composite.getSprite().draw(cam);
+			comp.getSprite().draw(cam, composite);
 
 		}
 			

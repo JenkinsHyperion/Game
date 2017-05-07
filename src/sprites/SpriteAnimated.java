@@ -35,7 +35,7 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
 
 
     @Override
-    public void draw(Camera camera){
+    public void draw(Camera camera , GraphicComposite composite ){
 
     	AffineTransform entityTransformation = new AffineTransform();
 
@@ -43,7 +43,7 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
     	entityTransformation.rotate( Math.toRadians(this.spriteAngle) );
     	entityTransformation.translate(this.spriteOffsetX, this.spriteOffsetY); 
 
-    	camera.drawOnCamera(this , entityTransformation );
+    	camera.drawOnCamera( composite , entityTransformation );
     	
     	this.updateSprite();
     	
@@ -66,14 +66,6 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
     
     public Animation getAnimation() {
     	return spriteAnimation;
-    }
-    /**
-     * USE GETIMAGE INSTEAD
-     * @return
-     */
-    @Deprecated
-    public Image getSpriteFrame() {
-        return spriteAnimation.getAnimationFrame();
     }
 
     public int getRow(){

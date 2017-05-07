@@ -2,6 +2,7 @@ package sprites;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -71,16 +72,17 @@ public class RenderingEngine {
 		this.graphics = g2;
 		camera.repaint(g2); 
 		
-		for ( int i = layersList.length-1 ; i > -1  ; i-- ){
-			layersList[i].draw(camera);
-		}	
+		//for ( int i = layersList.length-1 ; i > -1  ; i-- ){
+			//layersList[i].draw(camera,);
+		//}	
 		//Layers
 		//layer1Head.beginDraw(); 
 		
 		int spriteNumber = 0;
 		
 		while ( spriteCompositeList.hasNext() ){
-			spriteCompositeList.get().getSprite().draw( camera );
+			GraphicComposite graphic = spriteCompositeList.get();
+			graphic.getSprite().draw( camera , graphic );
 			spriteNumber++;
 		}
 		g2.setColor(Color.CYAN);

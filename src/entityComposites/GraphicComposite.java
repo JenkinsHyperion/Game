@@ -28,7 +28,6 @@ public class GraphicComposite implements EntityComposite{
 	
 	public void setSprite(Sprite sprite){
 		this.currentSprite = sprite;
-		this.currentSprite.setOwner(this);
 	}
 	
 	

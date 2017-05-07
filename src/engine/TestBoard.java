@@ -150,7 +150,7 @@ public class TestBoard extends BoardAbstract{
 	    for (EntityStatic stat : staticEntitiesList) {
 	    	
 	        	//stat.getEntitySprite().drawSprite(g2,camera);
-	    	stat.getEntitySprite().draw(camera);
+	    	stat.getEntitySprite().draw(camera,stat.getGraphicComposite());
 	    	
 	    }
 	    
@@ -159,7 +159,7 @@ public class TestBoard extends BoardAbstract{
 	    for (EntityDynamic dynamic : dynamicEntitiesBuffer) {
 	    	
         	//stat.getEntitySprite().drawSprite(g2,camera);
-	    	dynamic.getEntitySprite().draw(camera);
+	    	dynamic.getEntitySprite().draw(camera,dynamic.getGraphicComposite());
     	
 	    }
 

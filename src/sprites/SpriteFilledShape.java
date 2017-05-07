@@ -39,14 +39,14 @@ public class SpriteFilledShape extends Sprite {
 	}
 
 	@Override
-	public void draw(Camera camera) {
+	public void draw(Camera camera , GraphicComposite composite ) {
 		
 		AffineTransform entityTransformation = new AffineTransform();
 
     	entityTransformation.scale( (double)this.spriteSizePercent/100 , (double)this.spriteSizePercent/100 );
     	entityTransformation.rotate( Math.toRadians(this.spriteAngle) ); 
 
-    	camera.debugDrawPolygon(this.shape , this.color , this.ownerEntity() , entityTransformation );
+    	camera.debugDrawPolygon(this.shape , this.color , composite.ownerEntity().getPosition() , entityTransformation );
 		//camera.drawOnCamera(this, entityTransformation);
 	}
 

@@ -17,6 +17,7 @@ import java.awt.image.ImageObserver;
 import editing.worldGeom.*;
 import entities.EntityDynamic;
 import entityComposites.EntityStatic;
+import entityComposites.GraphicComposite;
 import misc.*;
 import physics.BoundaryPolygonal;
 import physics.Side;
@@ -167,16 +168,16 @@ public class MovingCamera extends EntityDynamic implements Camera{
 	 * @param entityTransform
 	 */
 	@Override
-	public void drawOnCamera(Sprite sprite , AffineTransform entityTransform){
+	public void drawOnCamera(GraphicComposite sprite , AffineTransform entityTransform){
 		
 		AffineTransform cameraTransform = new AffineTransform();
 		this.graphics.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 		
-		cameraTransform.translate( this.getRelativeX( sprite.ownerComposite().ownerEntity().getX()) , 
-				this.getRelativeY( sprite.ownerComposite().ownerEntity().getY()) );
+		cameraTransform.translate( this.getRelativeX( sprite.ownerEntity().getX()) , 
+				this.getRelativeY( sprite.ownerEntity().getY()) );
 		cameraTransform.concatenate(entityTransform);
 		
-		this.graphics.drawImage(sprite.getBufferedImage(), 
+		this.graphics.drawImage(sprite.getSprite().getBufferedImage(), 
 				cameraTransform,
 				this.observer);
 	}
@@ -189,14 +190,14 @@ public class MovingCamera extends EntityDynamic implements Camera{
 				this.observer);
 	}
 	@Override
-	public void debugDrawPolygon( Shape polygon, Color color, EntityStatic owner , AffineTransform entityTransform ){ //OPTIMIZE 
+	public void debugDrawPolygon( Shape polygon, Color color, Point position , AffineTransform entityTransform ){ //OPTIMIZE 
 		
 		AffineTransform cameraTransform = new AffineTransform();
 		Graphics2D g2Temp = (Graphics2D) this.graphics.create();
 		
 		this.graphics.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 		
-		cameraTransform.translate( this.getRelativeX( owner.getX()) , this.getRelativeY( owner.getY()) );
+		cameraTransform.translate( this.getRelativeX( position.x) , this.getRelativeY( position.y) );
 		cameraTransform.concatenate(entityTransform);
 		
 		g2Temp.transform(cameraTransform);

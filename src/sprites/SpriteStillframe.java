@@ -65,7 +65,7 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     }
 
     @Override
-    public void draw(Camera camera){
+    public void draw(Camera camera , GraphicComposite composite ){
 
     	AffineTransform entityTransformation = new AffineTransform(); //OPTIMIZE Test making AffineTransform field of Sprite
 
@@ -73,7 +73,7 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     	entityTransformation.rotate( Math.toRadians(this.spriteAngle) ); 
     	entityTransformation.translate(spriteOffsetX, spriteOffsetY);
 
-    	camera.drawOnCamera(this, entityTransformation );
+    	camera.drawOnCamera( composite, entityTransformation );
     	
     }
 

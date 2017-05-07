@@ -17,7 +17,6 @@ import entityComposites.GraphicComposite;
  */
 public abstract class Sprite implements Graphic{
 	
-	protected GraphicComposite ownerComposite;
     protected boolean visibility;
     protected int spriteOffsetX = 0;
     protected int spriteOffsetY = 0;
@@ -40,10 +39,6 @@ public abstract class Sprite implements Graphic{
     //can call a generalized format.
     //public abstract void draw(Camera camera);
     //public abstract void draw();
-    
-    public EntityStatic ownerEntity(){
-    	return this.ownerComposite.ownerEntity();
-    }
 
 	public abstract Image getImage(); 
 	public abstract BufferedImage getBufferedImage();
@@ -58,14 +53,6 @@ public abstract class Sprite implements Graphic{
 	
     public boolean isVisible() {
         return visibility;
-    }
-    
-    public void setOwner( GraphicComposite spriteComposite){
-    	this.ownerComposite = spriteComposite;
-    }
-    
-    public GraphicComposite ownerComposite(){
-    	return this.ownerComposite;
     }
 
     public void setVisible(Boolean visible) {

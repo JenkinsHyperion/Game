@@ -2,6 +2,7 @@ package engine;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
@@ -9,6 +10,7 @@ import java.awt.image.ImageObserver;
 import java.util.Observer;
 
 import entityComposites.EntityStatic;
+import entityComposites.GraphicComposite;
 import sprites.Sprite;
 
 public class CameraParallax implements Camera{
@@ -31,25 +33,25 @@ public class CameraParallax implements Camera{
 	public int getOriginY() { return y; }
 
 	@Override
-	public void drawOnCamera(Sprite sprite, AffineTransform entityTransform) {
+	public void drawOnCamera(GraphicComposite sprite, AffineTransform entityTransform) {
 		
 		AffineTransform cameraTransform = new AffineTransform();
 		this.graphics.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 		
-		cameraTransform.translate( -this.x + sprite.ownerComposite().ownerEntity().getX() , 
-				-this.y + sprite.ownerComposite().ownerEntity().getY() 
+		cameraTransform.translate( -this.x + sprite.ownerEntity().getX() , 
+				-this.y + sprite.ownerEntity().getY() 
 				);
 		
 		cameraTransform.concatenate(entityTransform);
 		
-		this.graphics.drawImage(sprite.getBufferedImage(), 
+		this.graphics.drawImage(sprite.getSprite().getBufferedImage(), 
 				cameraTransform,
 				this.observer);
 		
 	}
 
 	@Override
-	public void debugDrawPolygon(Shape polygon, Color color, EntityStatic owner, AffineTransform entityTransform) {
+	public void debugDrawPolygon(Shape polygon, Color color, Point point, AffineTransform entityTransform) {
 		// TODO Auto-generated method stub
 		
 	}

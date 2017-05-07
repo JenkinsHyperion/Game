@@ -144,7 +144,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 			
         });
 
-        //currentScene.addEntity(spaceship);
+        currentScene.addEntity(spaceship);
 
         
         // TESTING OF SPACESHIP ENGINE PARTICLE EFFECT

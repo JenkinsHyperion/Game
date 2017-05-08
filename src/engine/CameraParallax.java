@@ -51,9 +51,7 @@ public class CameraParallax implements Camera{
 	}
 
 	@Override
-	public void debugDrawPolygon(Shape polygon, Color color, Point point, AffineTransform entityTransform) {
-		// TODO Auto-generated method stub
-		
+	public void debugDrawPolygon(Shape polygon, Color color, Point point, AffineTransform entityTransform, float alpha) {
 	}
 
 	@Override

@@ -83,7 +83,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
         CompositeFactory.addColliderTo( rotateTest , new BoundaryPolygonal.Box(446,100,-223,-50 ) );
         CompositeFactory.addGraphicTo(rotateTest, new SpriteStillframe("ground_1.png" , -223 , -53 ) );
         
-    	//CompositeFactory.addRotationTo(rotateTest);
+    	CompositeFactory.addRotationTo(rotateTest);
     	//rotateTest.getRotationComposite().setAngleInDegrees(30);
     	//rotateTest.getRotationComposite().setAngularVelocity(0.1);
         

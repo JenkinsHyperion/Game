@@ -193,7 +193,7 @@ public class MovingCamera extends EntityDynamic implements Camera{
 				this.observer);
 	}
 	@Override
-	public void debugDrawPolygon( Shape polygon, Color color, Point position , AffineTransform entityTransform ){ //OPTIMIZE 
+	public void debugDrawPolygon( Shape polygon, Color color, Point position , AffineTransform entityTransform, float alpha){ //OPTIMIZE 
 		
 		AffineTransform cameraTransform = new AffineTransform();
 		Graphics2D g2Temp = (Graphics2D) this.graphics.create();
@@ -204,7 +204,8 @@ public class MovingCamera extends EntityDynamic implements Camera{
 		//cameraTransform.concatenate(entityTransform);
 		
 		g2Temp.transform(cameraTransform);
-		
+		g2Temp.draw(polygon);
+		g2Temp.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
 		g2Temp.setColor(color);
 		g2Temp.fill( polygon );
 		g2Temp.dispose();

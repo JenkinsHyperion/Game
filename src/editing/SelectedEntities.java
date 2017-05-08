@@ -57,7 +57,7 @@ public class SelectedEntities {
 				Polygon poly = Boundary.getPolygonFromBoundary(entity.getColliderComposite().getBoundary(), entity);
 				Rectangle rect = poly.getBounds();
 				//camera.drawRect(rect, g, Color.BLUE, Color.CYAN, .2f);
-				camera.debugDrawPolygon(poly, Color.CYAN, entity.getPosition(), new AffineTransform());
+				camera.debugDrawPolygon(poly, Color.CYAN, entity.getPosition(), new AffineTransform(), .2f);
 			}
 		}
 		/*for (int i = 0; i < selectedVertices.size(); i++){

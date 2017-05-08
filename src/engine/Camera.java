@@ -17,7 +17,7 @@ import sprites.Sprite;
 public interface Camera {
 
 	public void drawOnCamera(GraphicComposite sprite , AffineTransform entityTransform);
-	public void debugDrawPolygon( Shape polygon, Color color, Point point , AffineTransform entityTransform );
+	public void debugDrawPolygon( Shape polygon, Color color, Point point , AffineTransform entityTransform, float alpha );
 	
 	public int getOriginX();
 	public int getOriginY();

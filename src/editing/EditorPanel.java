@@ -982,27 +982,22 @@ public class EditorPanel extends JPanel {
 			public void mousePressed(MouseEvent e) {
 				this.inputController.mousePressed(e);
 			}
-
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				this.inputController.mouseDragged(e);
 			}
-
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				this.inputController.mouseReleased(e);
 			}
-
 			@Override
 			public void keyPressed(KeyEvent e) {
 				this.inputController.keyPressed(e);
 			}
-
 			@Override
 			public void keyReleased(KeyEvent e) {
 				this.inputController.keyReleased(e);
 			}
-
 			@Override
 			public void render(Graphics g) {
 				defaultRender(g);
@@ -1013,14 +1008,19 @@ public class EditorPanel extends JPanel {
 			//private boolean ctrlHeld;
 			private Point origin;
 			private Vector vector;
+			private double currentAngle;
+			private boolean mouseDown;
 			//private MouseMovedKeyState defaultMouseMovedState;
 			//private MouseMovedKeyStateNull mouseMovedKeyStateNull = new MouseMovedKeyStateNull();
 			//private MouseMovedKeyState ctrlMouseMovedKeyState = new CtrlMouseMovedKeyState();
 			public RotateMode() {
+				currentAngle = 0.0;
+				mouseDown = false;
 				this.modeName = "RotateMode";
+				this.vector = new Vector(0, 0);
 				//ctrlHeld = false;
 				this.inputController = new InputController("Rotate mode controller");	
-				this.inputController.createMouseBinding(MouseEvent.BUTTON1, new RotateEvent());
+				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new RotateEvent());
 				//this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON1, new DegreeLockRotateEvent());
 				this.inputController.createKeyBinding(KeyEvent.VK_R, new SetDefaultMode());
 				this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());
@@ -1029,32 +1029,45 @@ public class EditorPanel extends JPanel {
 			public void mousePressed(MouseEvent e) {
 				this.inputController.mousePressed(e);
 			}
-			
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				this.inputController.mouseDragged(e);
 			}
-			
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				this.inputController.mouseReleased(e);
 			}
-			
 			@Override
 			public void keyPressed(KeyEvent e) {
 				this.inputController.keyPressed(e);
 			}
-			
 			@Override
 			public void keyReleased(KeyEvent e) {
 				this.inputController.keyReleased(e);
-			}
-			
+			}			
 			@Override
 			public void render(Graphics g) {
 				defaultRender(g);
-			}
+				Graphics2D g2 = (Graphics2D)g.create();
+				g2.setColor(Color.GREEN);
+				final float dash1[] = {10.0f};
+			    final BasicStroke dashed =
+			        new BasicStroke(1.0f,
+			                        BasicStroke.CAP_BUTT,
+			                        BasicStroke.JOIN_MITER,
+			                        10.0f, dash1, 0.0f);
+			    g2.setStroke(dashed);
+				if (selectedEntities.size() == 1) {					
+					g2.drawLine(camera.getRelativeX(getCurrentEntity().getX()), camera.getRelativeY(getCurrentEntity().getY()), editorMousePos.x,editorMousePos.y);
+					if (mouseDown) {
+						g2.drawString(String.format("Angle: %.2f", currentAngle), editorMousePos.x, editorMousePos.y - 8);
+					}
+				}
+			}			
 			
+			public EntityStatic getCurrentEntity() {
+				return selectedEntities.get(0);
+			}
 			// ######## INNER BEHAVIOR CLASSES #########
 			public class RotateEvent implements MouseCommand {
 				//the functionality for this will be very similar to how you designed the selection rectangle.
@@ -1066,22 +1079,41 @@ public class EditorPanel extends JPanel {
 				 4) set rotation of selected entity by this angle
 				 Considerations:
 				 Everything should work except the blue shaded selection square around the entity. That won't rotate, will need to take care of that separately.
-				 
+				 -There should be an ongoing vector in this mode
 				 
 				 */
+				
 				@Override
 				public void mousePressed() {
-					// 
+					mouseDown = true;
+					// gonna need to create vectore from initClickPoint and current mouse pos (editorMousePos?)
+					initClickPoint.setLocation(camera.getLocalPosition(editorMousePos));
 				}
 
 				@Override
 				public void mouseDragged() {
-					
+					// ~~~### First way: using an initial click point ### /// 
+				/*	double deltaX = camera.getLocalPosition(editorMousePos).getX() -
+									initClickPoint.getX();
+					double deltaY = camera.getLocalPosition(editorMousePos).getY() -
+									initClickPoint.getY();*/
+					// ~~~#### Second way: getting init point from entity's origin
+					double deltaX = editorMousePos.getX() - 
+									camera.getRelativePoint(getCurrentEntity().getPosition()).getX();
+					double deltaY = editorMousePos.getY() - 
+									camera.getRelativePoint(getCurrentEntity().getPosition()).getY();
+					if (editorMousePos.distance(
+							camera.getRelativePoint(getCurrentEntity().getPosition())) > 20) {
+						vector.setX(-deltaX);
+						vector.setY(-deltaY);
+						currentAngle = vector.angleFromVectorInDegrees();
+						getCurrentEntity().getRotationComposite().setAngleInDegrees(currentAngle);
+					}
 				}
 
 				@Override
 				public void mouseReleased() {
-					
+					mouseDown = false;
 				}
 			}
 		} // END OF ROTATEMODE INNER CLASS  #####
@@ -1174,7 +1206,7 @@ public class EditorPanel extends JPanel {
 							if (selectedEntities.contains(entity) == false) {
 								selectedEntities.addSelectedEntity(entity);
 								//FIXME this is just a test
-								selectedEntities.get(0).getRotationComposite().setAngleInDegrees(selectedEntities.get(0).getRotationComposite().getAngle()+45);
+								//selectedEntities.get(0).getRotationComposite().setAngleInDegrees(selectedEntities.get(0).getRotationComposite().getAngle()+45);
 								spriteEditorButton.setEnabled(true);
 								boundaryEditorButton.setEnabled(true);
 								boundaryVertexSelectButton.setEnabled(true);
@@ -1371,10 +1403,8 @@ public class EditorPanel extends JPanel {
 		public class SetRotateMode implements KeyCommand {
 			@Override
 			public void onPressed() {
-				//if (selectedEntities.size() == 1) {
-					if (true) {
+				if (selectedEntities.size() == 1) {
 					setMode(rotateMode);
-					System.out.println("Was able to reach rotatemode");
 				}
 			}
 			public void onReleased() {}
@@ -1384,7 +1414,6 @@ public class EditorPanel extends JPanel {
 			@Override
 			public void onPressed() {
 				setMode(defaultMode);
-				System.out.println("was able to reach defaultmode");
 			}
 			public void onReleased() {}
 			public void onHeld() {}

@@ -22,7 +22,12 @@ public class Vector implements Serializable{
 		
 		public double getX(){ return x; }
 		public double getY(){ return y; }
-
+		public void setX(double newX) {
+			this.x = newX;
+		}
+		public void setY(double newY) {
+			this.y = newY;
+		}
 		
 		//############################################################################
 		//						VECTOR MATH OPERATIONS

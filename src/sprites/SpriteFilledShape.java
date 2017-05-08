@@ -46,7 +46,7 @@ public class SpriteFilledShape extends Sprite {
     	entityTransformation.scale( (double)this.spriteSizePercent/100 , (double)this.spriteSizePercent/100 );
     	entityTransformation.rotate( Math.toRadians(this.spriteAngle) ); 
 
-    	camera.debugDrawPolygon(this.shape , this.color , composite.ownerEntity().getPosition() , entityTransformation );
+    	camera.debugDrawPolygon(this.shape , this.color , composite.ownerEntity().getPosition() , entityTransformation, 1.0f );
 		//camera.drawOnCamera(this, entityTransformation);
 	}
 

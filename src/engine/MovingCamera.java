@@ -201,7 +201,7 @@ public class MovingCamera extends EntityDynamic implements Camera{
 		this.graphics.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 		
 		cameraTransform.translate( this.getRelativeX( position.x) , this.getRelativeY( position.y) );
-		cameraTransform.concatenate(entityTransform);
+		//cameraTransform.concatenate(entityTransform);
 		
 		g2Temp.transform(cameraTransform);
 		

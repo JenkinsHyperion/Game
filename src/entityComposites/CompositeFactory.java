@@ -56,13 +56,12 @@ public class CompositeFactory {
 	}
 
 	public static void addColliderTo( EntityStatic entity , Boundary boundary ){
-		
+
 		if ( entity.getColliderComposite().exists() ){
 			entity.getColliderComposite().setBoundary(boundary);
 		}
 		else {
 			Collider newCollider = new Collider( entity , boundary );
-			
 			entity.setCollisionComposite( newCollider );
 		}
 		

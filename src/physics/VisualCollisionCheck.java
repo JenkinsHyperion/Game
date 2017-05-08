@@ -48,7 +48,6 @@ public class VisualCollisionCheck {
 	    g2.drawString("Axes of Separations: "+separatingSides.length, 300, 20);
 	    
 	    for ( int i = 0 ; i < separatingSides.length ; i++ ){
-	    	
 	    	Line2D axis = BoundaryPolygonal.getSeparatingAxis( separatingSides[i] );
 
 	    	//g2.setColor(Color.CYAN);

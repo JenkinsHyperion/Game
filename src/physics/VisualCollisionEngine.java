@@ -58,7 +58,7 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
     		} 
     		
     		//DYNAMIC ON DYNAMIC COLLSIONS
-    		
+    		/*
     		for ( int k = i+1 ; k < dynamicCollidablesList.size(); k++ ){
     			
     			Collider dynamicCollidableSecondary = dynamicCollidablesList.get(k);
@@ -70,7 +70,7 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
     				dynamicCollidableSecondary.onCollisionEvent();
     			}
     		}
-    		
+    		*/
     	}
 
     	updateCollisions();    
@@ -108,7 +108,7 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 		
 		linesList.clear();*/
 		
-		this.gOverlay.dispose();
+		//this.gOverlay.dispose();
 		
 	}
 	

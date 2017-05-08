@@ -42,6 +42,8 @@ public abstract class Boundary {
 	
 	public static Point2D[] getFarthestPointsBetween( Boundary b1 , Boundary b2 , Line2D axis ){
 		
+		//System.err.println(b1+" + "+b2 +" in Boudary getFarthest");
+		
 		Point2D[] farthestPoints = new Point2D[]{ b1.getOuterPointsPair(axis)[0] , b2.getOuterPointsPair(axis)[0] };
 		
 		Point2D[] points1= b1.getOuterPointsPair(axis);

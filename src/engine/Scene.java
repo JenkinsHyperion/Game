@@ -82,7 +82,7 @@ public class Scene {
 				entity.getColliderComposite().addCompositeToPhysicsEngineStatic( ownerBoard.collisionEngine );
 			}
 			
-		}
+		}else{System.out.println(I+"No collider detected"); }
 		
 		if ( entity.hasUpdateables() ){
 			System.out.println(I+"Collecting updateables");

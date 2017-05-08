@@ -89,17 +89,17 @@ public class BoardPhysicsTesting extends BoardAbstract{
         
         currentScene.addEntity( rotateTest );
 		
-        EntityStatic child = new EntityStatic("FollowerChild",-300,0); 
-        CompositeFactory.addGraphicTo( child, new SpriteStillframe("box.png" , -20 , -20 ) );
-        //CompositeFactory.addColliderTo(child, new BoundaryPolygonal.Box(20,20,-10,-10 ) );
+        EntityStatic orbiter = new EntityStatic("Orbiter",-300,0); 
+        CompositeFactory.addGraphicTo( orbiter, new SpriteStillframe("box.png" , Sprite.CENTERED ) );
+       // CompositeFactory.addColliderTo(orbiter, new BoundaryPolygonal.Box(20,20,-10,-10 ) );
         //CompositeFactory.addTranslationTo(child);
-        currentScene.addEntity( child );
+        currentScene.addEntity( orbiter );
         
-        EntityStatic orbit = new EntityStatic("Orbiter",-300,100); 
-        CompositeFactory.addGraphicTo( orbit, new SpriteStillframe("box.png" , Sprite.CENTERED ) );
-        CompositeFactory.addRotationTo(orbit);
-        orbit.getRotationComposite().setAngularVelocity(1);
-        currentScene.addEntity( orbit );
+        EntityStatic parent = new EntityStatic("parent",-300,100); 
+        CompositeFactory.addGraphicTo( parent, new SpriteStillframe("box.png" , Sprite.CENTERED ) );
+        CompositeFactory.addRotationTo(parent);
+        parent.getRotationComposite().setAngularVelocity(0.1);
+        currentScene.addEntity( parent );
         
         
         
@@ -162,7 +162,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
         
         //CompositeFactory.makeChildOfParentUsingPosition(testParticleSpawner, spaceship , this);
 
-        CompositeFactory.makeChildOfParentUsingPosition(child, orbit , this);
+        CompositeFactory.makeChildOfParentUsingPosition(orbiter, parent , this);
         
         spaceship.getColliderComposite().setCollisionEvent( new CollisionEvent(){ 			//Make anonymous collision event to maek explosion
 			@Override

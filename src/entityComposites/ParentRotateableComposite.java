@@ -27,8 +27,8 @@ public class ParentRotateableComposite extends ParentChildRelationship implement
 			double y = child.zeroAnglePosition.getY();
 			
 			child.ownerChild.setPos( 
-							ownerEntity.getX() + (int)( x*Math.cos(angleRadians) - y*Math.sin(angleRadians) ),
-							ownerEntity.getY() + (int)( y*Math.cos(angleRadians) + x*Math.sin(angleRadians) )
+							(int) (ownerEntity.getX() + x*Math.cos(angleRadians) - y*Math.sin(angleRadians)) ,
+							(int) (ownerEntity.getY() + y*Math.cos(angleRadians) + x*Math.sin(angleRadians)) 
 					);			
 		}
 	}

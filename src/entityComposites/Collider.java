@@ -58,7 +58,7 @@ public class Collider implements EntityComposite{
 		
 	}
 
-	protected void setBoundary( Boundary boundary ){
+	public void setBoundary( Boundary boundary ){
 		this.boundary = boundary;
 	}
 	

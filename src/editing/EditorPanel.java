@@ -1021,7 +1021,7 @@ public class EditorPanel extends JPanel {
 				//ctrlHeld = false;
 				this.inputController = new InputController("Rotate mode controller");	
 				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new RotateEvent());
-				//this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON1, new DegreeLockRotateEvent());
+				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new DegreeLockRotateEvent());
 				this.inputController.createKeyBinding(KeyEvent.VK_R, new SetDefaultMode());
 				this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());
 			}
@@ -1111,6 +1111,40 @@ public class EditorPanel extends JPanel {
 					}
 				}
 
+				@Override
+				public void mouseReleased() {
+					mouseDown = false;
+				}
+			}
+			public class DegreeLockRotateEvent implements MouseCommand {
+				@Override
+				public void mousePressed() {
+					mouseDown = true;
+					// gonna need to create vectore from initClickPoint and current mouse pos (editorMousePos?)
+					initClickPoint.setLocation(camera.getLocalPosition(editorMousePos));
+				}
+				
+				@Override
+				public void mouseDragged() {
+					// ~~~### First way: using an initial click point ### /// 
+					/*	double deltaX = camera.getLocalPosition(editorMousePos).getX() -
+									initClickPoint.getX();
+					double deltaY = camera.getLocalPosition(editorMousePos).getY() -
+									initClickPoint.getY();*/
+					// ~~~#### Second way: getting init point from entity's origin
+					double deltaX = editorMousePos.getX() - 
+							camera.getRelativePoint(getCurrentEntity().getPosition()).getX();
+					double deltaY = editorMousePos.getY() - 
+							camera.getRelativePoint(getCurrentEntity().getPosition()).getY();
+					if (editorMousePos.distance(
+							camera.getRelativePoint(getCurrentEntity().getPosition())) > 20) {
+						vector.setX((int)-deltaX);
+						vector.setY((int)-deltaY);
+						currentAngle = vector.angleFromVectorInDegrees();
+						getCurrentEntity().getRotationComposite().setAngleInDegrees(15*(Math.round(currentAngle/15)));
+					}
+				}
+				
 				@Override
 				public void mouseReleased() {
 					mouseDown = false;
@@ -1251,15 +1285,17 @@ public class EditorPanel extends JPanel {
 			if (selectViaSprite == true) {
 				
 				for (EntityStatic entity: board.listCurrentSceneEntities()) {
-					Rectangle clickableRect = new Rectangle();
-					Sprite graphic = entity.getGraphicComposite().getSprite();
-					//clickableRect.setLocation(entity.getXRelativeTo(camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(camera) + entity.getSpriteOffsetY());
-					clickableRect.setLocation(entity.getX() + graphic.getOffsetX(), entity.getY() + graphic.getOffsetY());
-					clickableRect.setSize(graphic.getImage().getWidth(null), graphic.getImage().getHeight(null) );
-					//if(selectionRect.contains(clickableRect)) {
-					if(selectionRect.intersects(clickableRect)) {
-						if(selectedEntities.contains(entity) == false) {
-							selectedEntities.addSelectedEntity(entity);
+					if (entity.getGraphicComposite().exists()){
+						Rectangle clickableRect = new Rectangle();
+						Sprite graphic = entity.getGraphicComposite().getSprite();
+						//clickableRect.setLocation(entity.getXRelativeTo(camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(camera) + entity.getSpriteOffsetY());
+						clickableRect.setLocation(entity.getX() + graphic.getOffsetX(), entity.getY() + graphic.getOffsetY());
+						clickableRect.setSize(graphic.getImage().getWidth(null), graphic.getImage().getHeight(null) );
+						//if(selectionRect.contains(clickableRect)) {
+						if(selectionRect.intersects(clickableRect)) {
+							if(selectedEntities.contains(entity) == false) {
+								selectedEntities.addSelectedEntity(entity);
+							}
 						}
 					}
 				}
@@ -1267,9 +1303,7 @@ public class EditorPanel extends JPanel {
 			else {
 				for(EntityStatic entity: board.listCurrentSceneEntities()) {
 					//polygonTest.
-					if (entity.getColliderComposite() instanceof ColliderNull ){
-					}
-					else {
+					if (entity.getColliderComposite().exists()){
 						Boundary bound = entity.getColliderComposite().getBoundaryLocal();
 						int[] xpoints;
 						int[] ypoints;
@@ -1309,9 +1343,7 @@ public class EditorPanel extends JPanel {
 			selectedEntities.addSelectedEntity(entity);
 		}
 		@Deprecated
-		/**
-		 * @deprecated
-		 * @return
+		/** @deprecated
 		 */
 		public EntityStatic getSingleSelectedEntity() {
 			if (selectedEntities.size() == 1)
@@ -1908,8 +1940,8 @@ public class EditorPanel extends JPanel {
 				//lines[lines.length-1].setLine( lines[lines.length-1].getP1() , lines[0].getP1() );
 				//Boundary newBoundary = new Boundary(lines, currentSelectedEntity.getColliderComposite());
 				Boundary newBoundary = new BoundaryPolygonal(lines);
-				//this.currentSelectedEntity.getColliderComposite().setBoundary(newBoundary);
-				CompositeFactory.addColliderTo( this.currentSelectedEntity , newBoundary);
+				this.currentSelectedEntity.getColliderComposite().setBoundary(newBoundary);
+				//CompositeFactory.addColliderTo( this.currentSelectedEntity , newBoundary);
 				clearAllVerticesAndLines();
 				clearOldBoundary();
 				isClosedShape = false;

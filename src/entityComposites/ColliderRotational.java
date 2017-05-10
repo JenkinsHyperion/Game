@@ -25,5 +25,10 @@ public class ColliderRotational extends Collider implements RotateableComposite{
 		this.boundary.rotateBoundaryFromTemplate( new Point(0,0) , angleRadians , storedBounds ); 
 	}
 
+	@Override
+	public void setBoundary(Boundary boundary) {
+		super.setBoundary(boundary);
+		this.storedBounds = boundary.temporaryClone();
+	}
 	
 }

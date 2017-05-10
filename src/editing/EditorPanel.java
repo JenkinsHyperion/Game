@@ -1516,12 +1516,16 @@ public class EditorPanel extends JPanel {
 		protected ModeAbstract spriteEditorMode;
 		//protected SpriteOffSetMode spriteOffsetMode;
 		protected DefaultSpriteEditorMode defaultSpriteEditorMode;
+		protected SpriteRotateMode spriteRotateMode;
+		private Point initClickPoint;
 		
 		
 		public SpriteEditorMode(){
-			modeName = "SpriteEditorMode";
+			//modeName = "SpriteEditorMode";
 			spritePath = "";
+			initClickPoint = new Point();
 			defaultSpriteEditorMode = new DefaultSpriteEditorMode();
+			spriteRotateMode = new SpriteRotateMode();
 			spriteEditorMode = defaultSpriteEditorMode;
 			this.inputController = new InputController("Sprite editor mode controller");
 			
@@ -1560,6 +1564,10 @@ public class EditorPanel extends JPanel {
 		public void render(Graphics g) {
 			this.spriteEditorMode.render(g);
 		}
+		@Override
+		public String getModeName(){
+			return this.spriteEditorMode.getModeName();
+		}
 		public void replaceAndFinalizeSprite(String path) {
 /*			Boundary newBoundary = new Boundary(lines);
 			this.currentSelectedEntity.getColliderComposite().setBoundary(newBoundary);
@@ -1584,12 +1592,14 @@ public class EditorPanel extends JPanel {
 			Point spriteOriginalOffset;
 			
 			public DefaultSpriteEditorMode() {
+				modeName = "DefaultSpriteEditorMode";
 				initClick = new Point();
 				//spriteInitialPosition = new Point();
 				spriteOriginalOffset = new Point();
 				inputController = new InputController("Default sprite editor mode controller");
 				this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());			
-				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new TranslateOffsetEvent());			
+				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new TranslateOffsetEvent());
+				this.inputController.createKeyBinding(KeyEvent.VK_R, new SetRotateMode());
 				this.inputController.createKeyBinding(KeyEvent.VK_ENTER, new SwapSpriteEvent());			
 				//this.inputController.createKeyBinding(KeyEvent.VK_O, new SetOffsetEvent());			
 			
@@ -1664,8 +1674,167 @@ public class EditorPanel extends JPanel {
 				@Override
 				public void onHeld() {}
 			}
+			public class SetRotateMode implements KeyCommand {
+				@Override
+				public void onPressed() {
+					setMode(spriteRotateMode);
+				}
+				public void onReleased() {}
+				public void onHeld() {}
+			}
 		}
 
+		public class SpriteRotateMode extends ModeAbstract {
+			//private boolean ctrlHeld;
+			//private Point origin;
+			private Vector vector;
+			private double currentAngle;
+			private boolean mouseDown;
+			//private MouseMovedKeyState defaultMouseMovedState;
+			//private MouseMovedKeyStateNull mouseMovedKeyStateNull = new MouseMovedKeyStateNull();
+			//private MouseMovedKeyState ctrlMouseMovedKeyState = new CtrlMouseMovedKeyState();
+			public SpriteRotateMode() {
+				currentAngle = 0.0;
+				mouseDown = false;
+				this.modeName = "SpriteRotateMode";
+				this.vector = new Vector(0, 0);
+				//ctrlHeld = false;
+				this.inputController = new InputController("Rotate mode controller");	
+				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new RotateEvent());
+				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new DegreeLockRotateEvent());
+				this.inputController.createKeyBinding(KeyEvent.VK_R, new SetDefaultMode());
+				this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());
+			}
+			@Override
+			public void mousePressed(MouseEvent e) {
+				this.inputController.mousePressed(e);
+			}
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				this.inputController.mouseDragged(e);
+			}
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				this.inputController.mouseReleased(e);
+			}
+			@Override
+			public void keyPressed(KeyEvent e) {
+				this.inputController.keyPressed(e);
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {
+				this.inputController.keyReleased(e);
+			}			
+			@Override
+			public void render(Graphics g) {
+				defaultRender(g);
+				Graphics2D g2 = (Graphics2D)g.create();
+				g2.setColor(Color.GREEN);
+				final float dash1[] = {10.0f};
+			    final BasicStroke dashed =
+			        new BasicStroke(1.0f,
+			                        BasicStroke.CAP_BUTT,
+			                        BasicStroke.JOIN_MITER,
+			                        10.0f, dash1, 0.0f);
+			    g2.setStroke(dashed);
+				g2.drawLine(camera.getRelativeX(getCurrentEntity().getX()), camera.getRelativeY(getCurrentEntity().getY()), editorMousePos.x,editorMousePos.y);
+				if (mouseDown) {
+					g2.drawString(String.format("Angle: %.2f", currentAngle), editorMousePos.x, editorMousePos.y - 8);
+				}
+			}			
+			
+			// ######## INNER BEHAVIOR CLASSES #########
+			public class RotateEvent implements MouseCommand {
+				//the functionality for this will be very similar to how you designed the selection rectangle.
+				/*
+				 Steps: 
+				 1) click, acknowledges origin and the clicked point
+				 2) generate vector from these two points
+				 3)	get angle from this vector
+				 4) set rotation of selected entity by this angle
+				 Considerations:
+				 Everything should work except the blue shaded selection square around the entity. That won't rotate, will need to take care of that separately.
+				 -There should be an ongoing vector in this mode
+				 
+				 */
+				
+				@Override
+				public void mousePressed() {
+					mouseDown = true;
+					// gonna need to create vectore from initClickPoint and current mouse pos (editorMousePos?)
+					initClickPoint.setLocation(camera.getLocalPosition(editorMousePos));
+				}
+
+				@Override
+				public void mouseDragged() {
+					// ~~~### First way: using an initial click point ### /// 
+				/*	double deltaX = camera.getLocalPosition(editorMousePos).getX() -
+									initClickPoint.getX();
+					double deltaY = camera.getLocalPosition(editorMousePos).getY() -
+									initClickPoint.getY();*/
+					// ~~~#### Second way: getting init point from entity's origin
+					double deltaX = editorMousePos.getX() - 
+									camera.getRelativePoint(getCurrentEntity().getPosition()).getX();
+					double deltaY = editorMousePos.getY() - 
+									camera.getRelativePoint(getCurrentEntity().getPosition()).getY();
+					if (editorMousePos.distance(
+							camera.getRelativePoint(getCurrentEntity().getPosition())) > 20) {
+						vector.setX(-deltaX);
+						vector.setY(-deltaY);
+						currentAngle = vector.angleFromVectorInDegrees();
+						getCurrentEntity().getGraphicComposite().getSprite().setAngle(currentAngle);
+					}
+				}
+
+				@Override
+				public void mouseReleased() {
+					mouseDown = false;
+				}
+			}
+			public class DegreeLockRotateEvent implements MouseCommand {
+				@Override
+				public void mousePressed() {
+					mouseDown = true;
+					// gonna need to create vectore from initClickPoint and current mouse pos (editorMousePos?)
+					initClickPoint.setLocation(camera.getLocalPosition(editorMousePos));
+				}
+				
+				@Override
+				public void mouseDragged() {
+					// ~~~### First way: using an initial click point ### /// 
+					/*	double deltaX = camera.getLocalPosition(editorMousePos).getX() -
+									initClickPoint.getX();
+					double deltaY = camera.getLocalPosition(editorMousePos).getY() -
+									initClickPoint.getY();*/
+					// ~~~#### Second way: getting init point from entity's origin
+					double deltaX = editorMousePos.getX() - 
+							camera.getRelativePoint(getCurrentEntity().getPosition()).getX();
+					double deltaY = editorMousePos.getY() - 
+							camera.getRelativePoint(getCurrentEntity().getPosition()).getY();
+					if (editorMousePos.distance(
+							camera.getRelativePoint(getCurrentEntity().getPosition())) > 20) {
+						vector.setX((int)-deltaX);
+						vector.setY((int)-deltaY);
+						currentAngle = vector.angleFromVectorInDegrees();
+						getCurrentEntity().getGraphicComposite().getSprite().setAngle(15*(Math.round(currentAngle/15)));
+					}
+				}
+				
+				@Override
+				public void mouseReleased() {
+					mouseDown = false;
+				}
+			}
+			
+			public class SetDefaultMode implements KeyCommand {
+				@Override
+				public void onPressed() {
+					setMode(defaultSpriteEditorMode);
+				}
+				public void onReleased() {}
+				public void onHeld() {}
+			}
+		} // END OF ROTATEMODE INNER CLASS  #####
 	}
 /////////   INNER CLASS BOUNDARYEDITORMODE   //////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////

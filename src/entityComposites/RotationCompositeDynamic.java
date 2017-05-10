@@ -67,7 +67,7 @@ public class RotationCompositeDynamic extends RotationComposite implements Updat
 		}
 	}
 	
-	private void setInternalAngle(double angle){
+	private void setInternalAngle(double angle){ //composited method
 		double angleRadians = (angle * ((Math.PI)/180) ) ;
 
 		this.setAngleOfRotateables(angleRadians);

@@ -72,8 +72,6 @@ public class VisualCollisionCheck {
 	    	Line2D centerDistance = new Line2D.Double( centerPlayer , centerStat );
 	    	Line2D centerProjection = Boundary.getProjectionLine(centerDistance, axis);
 
-	    	statBounds = null;
-	    	playerBounds = null;
 	    	// -----------------
 
 	    	Line2D playerHalf = new Line2D.Float( 

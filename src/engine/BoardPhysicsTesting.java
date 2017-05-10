@@ -57,8 +57,8 @@ public class BoardPhysicsTesting extends BoardAbstract{
     	//inputController.createMouseBinding( MouseEvent.BUTTON3 , new MOUSETRIGGER() );
     	//inputController.createMouseBinding( MouseEvent.CTRL_MASK , MouseEvent.BUTTON1 , new MOUSETRIGGER() );
 
-    	//CompositeFactory.addColliderTo( followerEntity , new BoundaryPolygonal.Box(60, 60, -10, -10) );
-    	CompositeFactory.addColliderTo(followerEntity, new BoundaryCircular(40,followerEntity) );
+    	CompositeFactory.addColliderTo( followerEntity , new BoundaryPolygonal.Box(60, 60, -10, -10) );
+    	//CompositeFactory.addColliderTo(followerEntity, new BoundaryCircular(40,followerEntity) );
     	//CompositeFactory.addGraphicFromCollider( followerEntity , followerEntity.getColliderComposite() );
     	CompositeFactory.addGraphicTo(followerEntity, new SpriteStillframe("gf") );
     	CompositeFactory.addTranslationTo(followerEntity);

@@ -60,7 +60,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
     	CompositeFactory.addColliderTo( followerEntity , new BoundaryPolygonal.Box(60, 60, -10, -10) );
     	//CompositeFactory.addColliderTo(followerEntity, new BoundaryCircular(40,followerEntity) );
     	//CompositeFactory.addGraphicFromCollider( followerEntity , followerEntity.getColliderComposite() );
-    	CompositeFactory.addGraphicTo(followerEntity, new SpriteStillframe("gf") );
+    	CompositeFactory.addGraphicTo(followerEntity, new SpriteStillframe("box.png") );
     	CompositeFactory.addTranslationTo(followerEntity);
     	
     	gravity = followerEntity.getTranslationComposite().addForce(new Vector( 0,0.2 ) );
@@ -93,13 +93,13 @@ public class BoardPhysicsTesting extends BoardAbstract{
         CompositeFactory.addGraphicTo( orbiter, new SpriteStillframe("box.png" , Sprite.CENTERED ) );
        // CompositeFactory.addColliderTo(orbiter, new BoundaryPolygonal.Box(20,20,-10,-10 ) );
         //CompositeFactory.addTranslationTo(child);
-        currentScene.addEntity( orbiter );
+        //currentScene.addEntity( orbiter );
         
         EntityStatic parent = new EntityStatic("parent",-300,100); 
         CompositeFactory.addGraphicTo( parent, new SpriteStillframe("box.png" , Sprite.CENTERED ) );
         CompositeFactory.addRotationTo(parent);
         parent.getRotationComposite().setAngularVelocity(0.1);
-        currentScene.addEntity( parent );
+        //currentScene.addEntity( parent );
         
         
         
@@ -158,7 +158,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
         // TESTING OF SPACESHIP ENGINE PARTICLE EFFECT
         
         EntityStatic testParticleSpawner = new ParticleEmitter(0,0);
-        currentScene.addEntity( testParticleSpawner );
+        //currentScene.addEntity( testParticleSpawner );
         
         //CompositeFactory.makeChildOfParentUsingPosition(testParticleSpawner, spaceship , this);
 
@@ -170,7 +170,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 				
 				EntityStatic explosion = new EntityStatic("boom", spaceship.getPosition() );
 				CompositeFactory.addGraphicTo(explosion, explosionSprite );
-				explosion.getGraphicComposite().getSprite().setSizePercent( 20 );
+				explosion.getGraphicComposite().getSprite().setSizeFactor( 20 );
 				CompositeFactory.addLifespanTo(explosion , 52 );
 				
 				explosionSprite.getAnimation().restart();
@@ -186,6 +186,8 @@ public class BoardPhysicsTesting extends BoardAbstract{
     	initializeBoard();
 	}
 
+	//INPUT CONTROL
+	
 	@Override
 	public void keyPressed(KeyEvent e) {
 		// TODO Auto-generated method stub
@@ -273,7 +275,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 			g.setColor(Color.RED);
 		
 		//camera.drawCrossInFrame( point );
-		//camera.drawCrossInFrame( point2 );
+		//camera.drawCrossInFrame( point );
 		//camera.drawCrossInFrame( camera.getRelativePoint( followerEntity.getPosition() ) );
 		
 	}

@@ -35,6 +35,7 @@ public class RotationCompositeDynamic extends RotationComposite implements Updat
         	//else if ( Math.abs(angle)<1 ){angle = 0;}
     	
         	this.setInternalAngle(angle);
+        	System.err.println("rotating"+angularVelocity);
     	}
     	
     	angularVelocity = angularVelocity + angularAcc;
@@ -53,8 +54,6 @@ public class RotationCompositeDynamic extends RotationComposite implements Updat
 		for ( RotateableComposite rotateable : rotateableCompositeList ){
 			rotateable.setAngle(angleRadians);
 		}
-		
-		entity.getEntitySprite().setAngle(angle);
 	}
 	
 	private void updateOrientationVector( double angleRadians ){

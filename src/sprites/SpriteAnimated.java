@@ -39,7 +39,7 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
 
     	AffineTransform entityTransformation = new AffineTransform();
 
-    	entityTransformation.scale( (double)this.spriteSizePercent/100 , (double)this.spriteSizePercent/100 );
+    	entityTransformation.scale( (double)this.spriteSizePercent , (double)this.spriteSizePercent );
     	entityTransformation.rotate( Math.toRadians(this.spriteAngle) );
     	entityTransformation.translate(this.spriteOffsetX, this.spriteOffsetY); 
 

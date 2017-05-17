@@ -69,7 +69,7 @@ public class SpriteStillframe extends Sprite {  // Object with still image
 
     	AffineTransform entityTransformation = new AffineTransform(); //OPTIMIZE Test making AffineTransform field of Sprite
 
-    	entityTransformation.scale( (double)this.spriteSizePercent/100 , (double)this.spriteSizePercent/100 );
+    	entityTransformation.scale( (double)this.spriteSizePercent , (double)this.spriteSizePercent );
     	entityTransformation.rotate( Math.toRadians(this.spriteAngle) ); 
     	entityTransformation.translate(spriteOffsetX, spriteOffsetY);
 
@@ -119,7 +119,7 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     
     public void updateSprite(){} //Need to figure out a better way of avoiding this redundancy
 
-	
+	@Deprecated
 	public void setResizeFactor( int percent ){
 		this.spriteSizePercent = percent;
 	}

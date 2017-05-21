@@ -258,7 +258,7 @@ public class EditorPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
-				editorSelectMode.setSelectViaSprite(true);
+				//editorSelectMode.setSelectViaSprite(true);
 			}
 		});
 		selectViaBoundaryRB = new JRadioButton("B");
@@ -267,7 +267,7 @@ public class EditorPanel extends JPanel {
 		selectViaBoundaryRB.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				editorSelectMode.setSelectViaSprite(false);
+				//editorSelectMode.setSelectViaSprite(false);
 			}
 		});
 		ButtonGroup rbgroup = new ButtonGroup();
@@ -1507,9 +1507,10 @@ public class EditorPanel extends JPanel {
 	
 /////////   INNER CLASS SPRITEEDITORMODE   //////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
+	@SuppressWarnings("unused")
 	public class SpriteEditorMode extends ModeAbstract {
 		protected EntityStatic currentSelectedEntity;
+
 		private ArrayList<EntityStatic> selectedEntitiesRef = getSelectedEntities();
 		private String spritePath;
 		
@@ -1851,9 +1852,11 @@ public class EditorPanel extends JPanel {
 		} // END OF ROTATEMODE INNER CLASS  #####
 		
 		// SPRITE SCALE MODE!
+		@SuppressWarnings("unused")
 		public class SpriteScaleMode extends ModeAbstract {
 			//private boolean ctrlHeld;
 			//private Point origin;
+
 			private Vector vector;
 			private double currentAngle;
 			private boolean mouseDown;
@@ -1982,9 +1985,8 @@ public class EditorPanel extends JPanel {
 	}
 /////////   INNER CLASS BOUNDARYEDITORMODE   //////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
+	@SuppressWarnings("unused")
 	public class BoundaryEditorMode extends ModeAbstract {
-		
 		private ArrayList<EntityStatic> selectedEntitiesRef = getSelectedEntities();
 		protected BufferedImage ghostVertexPic;
 		private BoundaryVertexPlaceMode boundaryVertexPlaceMode;

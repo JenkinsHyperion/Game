@@ -122,6 +122,8 @@ public class CompositeFactory {
 			System.out.println("Switched ["+child+ "] collider to dynamic");
 			child.getColliderComposite().disable();
 			child.getColliderComposite().addCompositeToPhysicsEngineDynamic(board.collisionEngine);
+			
+			child.setTranslationComposite( new TranslationCompositeActive() );
 		} //else do nothing
 		
 		if ( parent.getRotationComposite().exists() ){

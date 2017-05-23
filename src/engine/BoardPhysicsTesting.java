@@ -7,6 +7,8 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 
 import javax.swing.event.MouseInputAdapter;
@@ -59,8 +61,10 @@ public class BoardPhysicsTesting extends BoardAbstract{
 
     	//CompositeFactory.addColliderTo( followerEntity , new BoundaryPolygonal.Box(60, 60, -10, -10) );
     	CompositeFactory.addColliderTo(followerEntity, new BoundaryCircular(40,followerEntity) );
+    	//CompositeFactory.addColliderTo(followerEntity, new BoundarySingular() );
+    	//CompositeFactory.addColliderTo(followerEntity, new BoundaryPolygonal.Box(60, 60, -30, -30) );
     	//CompositeFactory.addGraphicFromCollider( followerEntity , followerEntity.getColliderComposite() );
-    	CompositeFactory.addGraphicTo(followerEntity, new SpriteStillframe("gf") );
+    	CompositeFactory.addGraphicTo(followerEntity, new SpriteStillframe("box.png") );
     	CompositeFactory.addTranslationTo(followerEntity);
     	
     	gravity = followerEntity.getTranslationComposite().addForce(new Vector( 0,0.2 ) );
@@ -69,6 +73,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
     	MouseHandlerClass myMouseHandler = new MouseHandlerClass();
   		addMouseListener(myMouseHandler);
   		addMouseMotionListener(myMouseHandler);
+  		addMouseWheelListener(myMouseHandler);
   		addKeyListener(this);
         setFocusable(true);
         
@@ -80,18 +85,20 @@ public class BoardPhysicsTesting extends BoardAbstract{
 		
 		
 		rotateTest = new EntityStatic("Test Ground 01",0,0);     
+		
         CompositeFactory.addColliderTo( rotateTest , new BoundaryPolygonal.Box(446,100,-223,-50 ) );
+    	//CompositeFactory.addColliderTo(rotateTest, new BoundaryCircular(40,rotateTest) );
+        
         CompositeFactory.addGraphicTo(rotateTest, new SpriteStillframe("ground_1.png" , -223 , -53 ) );
         
-    	CompositeFactory.addRotationTo(rotateTest);
+    	//CompositeFactory.addRotationTo(rotateTest);
     	//rotateTest.getRotationComposite().setAngleInDegrees(30);
     	//rotateTest.getRotationComposite().setAngularVelocity(0.1);
-        
-        currentScene.addEntity( rotateTest );
+    	currentScene.addEntity( rotateTest );
 		
         EntityStatic orbiter = new EntityStatic("Orbiter",-300,0); 
         CompositeFactory.addGraphicTo( orbiter, new SpriteStillframe("box.png" , Sprite.CENTERED ) );
-       // CompositeFactory.addColliderTo(orbiter, new BoundaryPolygonal.Box(20,20,-10,-10 ) );
+        //CompositeFactory.addColliderTo(orbiter, new BoundaryPolygonal.Box(20,20,-10,-10 ) );
         //CompositeFactory.addTranslationTo(child);
         currentScene.addEntity( orbiter );
         
@@ -140,7 +147,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 
 				ownerEntity.getRotationComposite().addAngleInRadians( Math.PI*sign/120f );
 
-				ownerEntity.getTranslationComposite().setVelocityFromVector( 
+				ownerEntity.getTranslationComposite().setVelocityVector( 
 						ownerEntity.getRotationComposite().getOrientationVector().multiply(VELOCITY)
 				);
 				
@@ -208,23 +215,23 @@ public class BoardPhysicsTesting extends BoardAbstract{
 	protected void graphicsThreadPaint(Graphics g) {
 		// TODO Auto-generated method stub
 		//renderingEngine.getCamera().repaint(g);
-
+		final Point margin = new Point( 50,50 );
 		
 		this.renderingEngine.render( (Graphics2D)g );
 		editorPanel.render( g ); 
 		
-		camera.drawOverlayGrid( 100, Color.DARK_GRAY , Color.WHITE );
+		//camera.drawOverlayGrid( 100, Color.DARK_GRAY , Color.WHITE );
 		
 		g.setColor(Color.CYAN);
 
-		g.drawString( this.followerEntity.getTranslationComposite().getDY() + " dy" , 20, 35);
-		g.drawString( this.currentScene.listEntities().length + " entities" , 20, 50);
-		g.drawString( collisionEngine.debugNumberofStaticCollidables() + " static collidables" , 20, 65);
-		g.drawString( collisionEngine.debugNumberofDynamicCollidables() + " dynamic collidables" , 20, 80);
-		g.drawString( collisionEngine.debugNumberOfCollisions() + " collisions" , 20, 95);
-		g.drawString( this.followerEntity.getTranslationComposite().getAccY() + " accY" , 20, 110);
-		g.drawString( this.updateableEntities() + " updateable entities" , 20, 180);
-		g.drawString( this.updateableComposites() + " dynamic composites" , 20, 195);
+		g.drawString( this.followerEntity.getTranslationComposite().getDY() + " dy" , margin.x, 35);
+		g.drawString( this.currentScene.listEntities().length + " entities" , margin.x, 50);
+		g.drawString( collisionEngine.debugNumberofStaticCollidables() + " static collidables" , margin.x, 65);
+		g.drawString( collisionEngine.debugNumberofDynamicCollidables() + " dynamic collidables" , margin.x, 80);
+		g.drawString( collisionEngine.debugNumberOfCollisions() + " collisions" , margin.x, 95);
+		g.drawString( this.followerEntity.getTranslationComposite().getAccY() + " accY" , margin.x, 110);
+		g.drawString( this.updateableEntities() + " updateable entities" , margin.x, 180);
+		g.drawString( this.updateableComposites() + " dynamic composites" , margin.x, 195);
 		
 		for ( Vector force : followerEntity.getTranslationComposite().debugForceArrows() ){
 			camera.draw( force.toLine(followerEntity.getPosition() ) );
@@ -311,13 +318,13 @@ public class BoardPhysicsTesting extends BoardAbstract{
   					Math.signum(distX)*(distX*distX)/50000  +  distX/20 ,    //like Linear Follow, this is a Quadratic Follow
   					Math.signum(distY)*(distY*distY)/50000  +  distY/20
   			);
-  			followerEntity.getTranslationComposite().setVelocityFromVector( followVelocity );
+  			followerEntity.getTranslationComposite().setVelocityVector( followVelocity );
 		}
 	}
 	
 	private Point mouseOrigin;
 	
- 	protected class MouseHandlerClass extends MouseInputAdapter  { 		
+ 	protected class MouseHandlerClass extends MouseInputAdapter implements MouseWheelListener { 		
   	    /*public int clickPositionXOffset;
   	    public int clickPositionYOffset;*/
 
@@ -326,6 +333,10 @@ public class BoardPhysicsTesting extends BoardAbstract{
   		{  	
   			if (e.getButton() == MouseEvent.BUTTON2){
   				currentFollowerAI = new Follow( e.getPoint() );
+  			}
+  			
+  			if (e.getButton() == MouseEvent.MOUSE_WHEEL){
+  				System.err.println("WHEELW");
   			}
   			
   			editorPanel.mousePressed(e);
@@ -369,7 +380,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
   			
   			editorPanel.mouseReleased(e);
   		}
-  			
+  		
   	}
  	
  	private class CTR_R implements KeyCommand {

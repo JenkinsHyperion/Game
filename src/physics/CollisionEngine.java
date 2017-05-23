@@ -1,6 +1,7 @@
 package physics;
 
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -9,9 +10,12 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 import engine.BoardAbstract;
+import engine.MovingCamera;
 import engine.Overlay;
 import engine.OverlayComposite;
 import entityComposites.*;
+import utility.DoubleLinkedList;
+import utility.ListNodeTicket;
 
 public class CollisionEngine {
 
@@ -20,7 +24,12 @@ public class CollisionEngine {
 	protected ArrayList<Collider> staticCollidablesList = new ArrayList<>(); 
 	protected ArrayList<Collider> dynamicCollidablesList = new ArrayList<>(); 
 	
+	protected ArrayList<ActiveCollider> staticCollidables = new ArrayList<ActiveCollider>(); 
+	protected ArrayList<ActiveCollider> dynamicCollidables = new ArrayList<ActiveCollider>(); 
+	
 	protected LinkedList<Collision> collisionsList = new LinkedList<Collision>(); 
+	
+	protected DoubleLinkedList<CheckingPair> checkingPairs = new DoubleLinkedList<CheckingPair>();
 
 	public CollisionEngine(BoardAbstract testBoard){
 		currentBoard = testBoard;
@@ -70,31 +79,54 @@ public class CollisionEngine {
 	    	
     }
 	
-	public int addStaticCollidable( Collider collidable ){ //returns hashID index to collider composite
-		staticCollidablesList.add(collidable);
-		return -( staticCollidablesList.size() );
+	//COLLIDER ADDITION METHODS
+	
+	public ActiveCollider addStaticCollidable( Collider collidable ){ //returns hashID index to collider composite
+		
+		ActiveCollider newStatic = new ActiveCollider(collidable);
+		staticCollidables.add( newStatic );
+		//Create pairs with dynamics
+		for ( ActiveCollider dynamic : dynamicCollidables ){
+
+			if ( dynamic.collider.getBoundary() instanceof BoundaryCircular ){
+				
+				if ( newStatic.collider.getBoundary() instanceof BoundaryCircular ){ //both bolliders are circles
+					VisualCollisionCheck check = VisualCollisionCheck.circleCircle( dynamic.collider.getOwnerEntity(), newStatic.collider.getOwnerEntity() ) ;
+					this.addPair( new CheckingPair( dynamic , newStatic , check ) );
+				}
+				else{
+					VisualCollisionCheck check = VisualCollisionCheck.circlePoly( dynamic.collider.getOwnerEntity(), (BoundaryPolygonal)newStatic.collider.getBoundary() ) ;
+					this.addPair( new CheckingPair( dynamic , newStatic , check ) );
+				}
+			}
+			else {
+				VisualCollisionCheck check = VisualCollisionCheck.polyPoly() ;
+				this.addPair( new CheckingPair( dynamic , newStatic , check ) );
+			}
+		}
+		
+		return newStatic;
+		
 	}
 	
-	public int addDynamicCollidable( Collider collidable ){
-		dynamicCollidablesList.add(collidable);
-		return dynamicCollidablesList.size();
+	public ActiveCollider addDynamicCollidable( Collider collidable ){
+
+		ActiveCollider newDynamic = new ActiveCollider(collidable);
+		dynamicCollidables.add( newDynamic );
+
+		for ( ActiveCollider stat : staticCollidables ){
+			this.addPair( new CheckingPair( newDynamic , stat , 
+					VisualCollisionCheck.circlePoly(newDynamic.collider.getOwnerEntity(), (BoundaryPolygonal) stat.collider.getBoundary() ) ) );
+		}
+		return newDynamic;
 	}
-	/**Removes collider from collision engine. Positive index removes from dynamic colliders, negative removes from
-	 * static colliders
-	 * @param engineHashID
-	 */
-	public void removeCollidable( int engineHashID){
-		if (engineHashID<0){
-			staticCollidablesList.remove( (-engineHashID) - 1 );
-		}
-		else if (engineHashID>0){
-			dynamicCollidablesList.remove( engineHashID-1 );
-		}
-		else
-			System.err.println("0 is not a valid index for removing Collider from engine.");
+	
+	private void addPair( CheckingPair pair ){
+		pair.listSlot = checkingPairs.add(pair);
 	}
 	    
-    //THIS IS THE MAIN BODY OF THE COLLISION ENGINE
+	
+    //COLLISION ENGINE MAIN LOOP METHODS
     public void checkCollisions() { 
 	    	
     	for ( int i = 0 ; i < dynamicCollidablesList.size() ; i++ ){
@@ -116,19 +148,6 @@ public class CollisionEngine {
     		}
     		
     	}
-    	
-    	
-    	
-	        // TEST LASER COLLISION 
-	        /*for (EntityStatic stat : currentBoard.getStaticEntities()) {                	
-	        	if ( currentBoard.laser.getBoundary().boundaryIntersects( ((Collidable) stat.collidability()).getBoundaryLocal() ) ) {
-		            	
-		            //OPEN COLLISION
-		            if (!hasActiveCollision(currentBoard.laser,stat)) { //check to see if collision isn't already occurring
-		            	collisionsList.add(new CollisionPositioning(currentBoard.laser, stat)); // if not, add new collision event
-		            } 		            
-		   		}
-	        }*/
 
         // END OF CHECKS, update and remove collisions that completed;
     	updateCollisions();    
@@ -136,7 +155,7 @@ public class CollisionEngine {
     }
     
     
-    public void registerCollision( boolean bool , Collider collidable1 , Collider collidable2){
+    public void registerCollision( boolean bool , Collider collidable1 , Collider collidable2, CollisionCheck check){ //OPTIMIZE remove outdated boolean
     	
     	if ( bool ) { 
 		 //check to see if collision isn't already occurring
@@ -144,69 +163,17 @@ public class CollisionEngine {
 			// if not, add new collision event
 			//int index = currentBoard.getStaticEntities().size() + 1 ;
     			//System.out.println( "Collision detected" );
-    			collisionsList.add(new VisualCollisionDynamicStatic( collidable1 , collidable2 , this ) ); 
+    			collisionsList.add(new VisualCollisionDynamicStatic( 
+    					collidable1 , collidable2 , 
+    					((VisualCollisionCheck)check).axisCollector ,
+    					this 
+    					)); 
 			
 			} 	
     	}
     	//else System.out.println("TEST");
     	
-    }
-    
-    /*protected boolean checkForCollisionsSAT( EntityDynamic entityPrimary , EntityStatic entitySecondary ) {
-        
-	    for ( Line2D separatingSide : ((Collidable)entityPrimary.collidability()).getBoundaryLocal().getSeparatingSides() ){
-	    	
-	    	Point distanceVector = getDistanceSAT( separatingSide , entityPrimary , entitySecondary );
-	    	
-	    	if ( distanceVector.getX() == 0 && distanceVector.getY() == 0 ){
-	    		//If ONLY ONE axis is separated, the entity is NOT COLLIDING OPTIMIZATION MERGE TWO LOOPS INTO ONE GET SEPARATING
-	    		return false;
-	    	}
-	    }
-	    
-	    for ( Line2D separatingSide : entitySecondary.getBoundary().getSeparatingSides() ){
-	    	
-	    	Point distanceVector = getDistanceSAT( separatingSide , entityPrimary , entitySecondary );
-	    	
-	    	if ( distanceVector.getX() == 0 && distanceVector.getY() == 0 ){
-	    		//If ONLY ONE axis is separated, the entity is NOT COLLIDING
-	    		return false;
-	    	}
-	    }
-	    
-
-	    return true;
-    	
-    }*/
-    
-    
- 
-   
-    //#### EDITOR METHODS ###################################
-    
-
-    
-    /*private Vector[] getSATVectors( EntityStatic entityA, EntityStatic entityB ) {
-    	
-    	Line2D[] axes = entityA.getBoundary().getSpearatingSidesBetween( entityB.getBoundary() );
-    	Vector[] vectors = new Vector[axes.length];
-    	
-    	for ( int j = 0; j < vectors.length ; j++ ) { //index through all separating axes and get projection distance 
-			
-			vectors[j] = getDistanceSAT2( axes[j], entityA, entityB );
-
-			if ( !vectors[j].isShorterThan(20) ) { return new Vector[0]; }//return new Vector[0]; }
-			//System.out.println( vectors[j].getX() + " - " + vectors[j].getY());
-		}
-
-    	return vectors;
-    	
-    }*/
-    
-
-    
-    
-	    
+    }  
 
     public void debugPrintCollisionList( int x, int y ,Graphics g){
     	
@@ -220,11 +187,11 @@ public class CollisionEngine {
     protected BoardAbstract getBoard(){ return currentBoard; }
 
     public int debugNumberofStaticCollidables(){ 
-    	return this.staticCollidablesList.size();
+    	return this.staticCollidables.size();
     }
     
     public int debugNumberofDynamicCollidables(){ 
-    	return this.dynamicCollidablesList.size();
+    	return this.dynamicCollidables.size();
     }
     
     public int debugNumberOfCollisions(){
@@ -233,21 +200,67 @@ public class CollisionEngine {
     
     public Collider[] debugListActiveColliders(){
     	
-    	Collider[] activeColliders = new Collider[ this.staticCollidablesList.size() + this.dynamicCollidablesList.size() ];
+    	Collider[] activeColliders = new Collider[ this.staticCollidables.size() + this.dynamicCollidables.size() ];
     	
     	int index;
     	
-    	for ( index=0 ; index < staticCollidablesList.size() ; index++){
-    		activeColliders[index] = staticCollidablesList.get(index);
+    	for ( index=0 ; index < staticCollidables.size() ; index++){
+    		activeColliders[index] = staticCollidables.get(index).collider;
     	}
     	
-    	for ( int i = 0 ; i < dynamicCollidablesList.size() ; i++){
-    		activeColliders[index] = dynamicCollidablesList.get(i);
+    	for ( int i = 0 ; i < dynamicCollidables.size() ; i++){
+    		activeColliders[index] = dynamicCollidables.get(i).collider;
     		index++;
     	}
     	
     	return activeColliders;
     }
+    
+    
+	public class ActiveCollider{
+		protected Collider collider;
+		private CheckingPair[] pairs;
+		
+		public ActiveCollider( Collider collider ){
+			this.collider = collider;
+		}
+
+		public void removeSelf() {
+			//TODO
+		}
+		
+	}
+	
+	protected class CheckingPair{
+		private ListNodeTicket listSlot;
+		
+		private ActiveCollider primary;
+		private ActiveCollider secondary;
+		
+		private CollisionCheck check;
+
+		public CheckingPair( ActiveCollider collider1 , ActiveCollider collider2 , CollisionCheck check ){
+			this.primary = collider1;
+			this.secondary = collider2;
+			this.check = check;
+		}
+		
+		public void addToList( DoubleLinkedList<CheckingPair> list ){
+			this.listSlot = list.add( this );
+		}
+		
+		public void check(){
+			registerCollision(check.check(primary.collider, secondary.collider), primary.collider , secondary.collider , this.check);
+		}
+		
+		public void visualCheck( MovingCamera cam, Graphics2D g2 ){
+			registerCollision(((VisualCollisionCheck)check).check(primary.collider, secondary.collider, cam , g2), 
+					primary.collider , secondary.collider , this.check);
+		}
+		
+	}
+    
+    
 	    
 }
 	   

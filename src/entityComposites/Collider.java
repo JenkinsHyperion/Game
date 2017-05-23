@@ -18,6 +18,7 @@ import physics.CollisionEngine;
 import physics.Collision;
 import physics.Side;
 import physics.Vector;
+import physics.VisualCollisionCheck;
 
 public class Collider implements EntityComposite{
 
@@ -25,11 +26,11 @@ public class Collider implements EntityComposite{
 	
 	protected CollisionEngine engine;
 	protected int engineHashID;
+	protected CollisionEngine.ActiveCollider engineSlot;
 
 	protected Boundary boundary;
 	
 	protected float friction = 1;
-	
 	protected float mass = 1;
 	
 	protected ArrayList<CollidingPair> collisionInteractions = new ArrayList<>();
@@ -71,7 +72,7 @@ public class Collider implements EntityComposite{
 		//We know owner entity has composite collidable, which is THIS instance of collidable, so pass owner's physical
 		// information to the other entity
 		
-		engine.registerCollision( checkType.check(this, entity) , this , entity);
+		engine.registerCollision( checkType.check(this, entity) , this , entity , checkType );
 		//Physical constants like mass, restitution (bounciness), rotational friction and other stuff to be passed 
 		// to collisionEngine here:
 		
@@ -219,15 +220,15 @@ public class Collider implements EntityComposite{
 	
 	
 	public void addCompositeToPhysicsEngineStatic( CollisionEngine engine ){ 
-		this.engineHashID = engine.addStaticCollidable( this );
+		this.engineSlot = engine.addStaticCollidable( this );
 		this.engine = engine;
-		System.out.println("   "+this+" adding to collision engine slot "+engineHashID);
+		System.out.println("   "+this+" adding to collision engine");
 	}
 	
 	public void addCompositeToPhysicsEngineDynamic( CollisionEngine engine ){ 
-		this.engineHashID = engine.addDynamicCollidable( this );
+		this.engineSlot = engine.addDynamicCollidable( this );
 		this.engine = engine;
-		System.out.println("   "+this+" adding to collision engine slot "+engineHashID);
+		System.out.println("   "+this+" adding to collision engine");
 	}
 
 	@Override
@@ -237,9 +238,8 @@ public class Collider implements EntityComposite{
 	
 	@Override
 	public void disable(){
-		this.engine.removeCollidable(engineHashID);
+		this.engineSlot.removeSelf();
 	}
-	
 	
 }
 

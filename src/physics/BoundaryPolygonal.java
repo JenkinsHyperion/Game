@@ -92,18 +92,22 @@ public class BoundaryPolygonal extends Boundary {
 	protected void connectBoundaryMap( CollisionEvent cornerEvent ){ //disychains every feature with its adjacent features
 		
 		corners = new BoundaryCorner[ sides.length  ];
-		corners[0] = new BoundaryCorner( sides[0].getP1() , this , 0 , cornerEvent );
-		
+		for (int i = 0 ; i < corners.length ; i++){
+			corners[i] = new BoundaryCorner( sides[i].getP1() , this , i , cornerEvent );
+		}
 		for (int i = 0 ; i < sides.length ; i++) {
 			
 			int iNext = (i+1) % sides.length;
 			
-			corners[ iNext ]  = new BoundaryCorner( sides[i].getP2() , sides[i] , sides[iNext] , this , iNext , cornerEvent);
+			corners[iNext].setEndingSide( sides[ iNext ] );
+			corners[iNext].setStartingSide( sides[i] );
 			
 			sides[i].setStartPoint( corners[i] ); 
 			sides[i].setEndPoint( corners[ iNext ] );
 
 		}	
+
+		
 	}
 	@Override
 	public BoundaryPolygonal temporaryClone(){  
@@ -301,7 +305,7 @@ public class BoundaryPolygonal extends Boundary {
 			returnBoundary.corners[i].setPos( shiftedPosition );
 		}
 
-		returnBoundary.constructVoronoiRegions();
+		returnBoundary.constructVoronoiRegions(); //OPTIMIZE make move method instead of reconstructing each time
 		
 		return returnBoundary;
 	};
@@ -355,7 +359,7 @@ public class BoundaryPolygonal extends Boundary {
 		
 	}
 	@Override
-	public Line2D[] getSeparatingSides(Boundary partner){  //LOOK FOR OPTIMIZATION IN SIDE.TOLINE() also SLOPE ONLY
+	public Line2D[] getSeparatingSides(){  //LOOK FOR OPTIMIZATION IN SIDE.TOLINE() also SLOPE ONLY
 		
 		ArrayList<Line2D> axes = new ArrayList<>();
 		
@@ -372,11 +376,6 @@ public class BoundaryPolygonal extends Boundary {
 		}
 		return lines;
 		
-	}
-	
-	@Override
-	public Line2D[] collectAxesOfSeparationWith( Boundary partner ){
-		return partner.getSeparatingSides(this);
 	}
 	
 	public static Line2D getSeparatingAxis( Line2D separatingSide ){ //OPTIMIZATION CHANGE TO SLOPE ONLY##DONE
@@ -621,31 +620,37 @@ public class BoundaryPolygonal extends Boundary {
 			camera.draw( side.toLine() );
 			camera.drawString(side.toString(), side.getX1()+(side.getX2()-side.getX1())/2 , side.getY1()+(side.getY2()-side.getY1())/2 );
 		}
+		//for ( BoundaryCorner corner : corners ){
+		//	camera.drawString(corner.toString() , corner.getX() , corner.getY() );
+		//}
 	}
 	@Override
 	public void constructVoronoiRegions(){
 		
-		this.regions = new VoronoiRegionDefined[sides.length + corners.length ];//OPTIMIZATION check side/corner ratio guaranteed
+		final VoronoiRegionDefined[] newRegions = new VoronoiRegionDefined[sides.length + corners.length ];//OPTIMIZATION check side/corner ratio guaranteed
 		
+		// Lay out boundary features in clockwise loop, alternating corners and sides
 		for ( int i = 0 ; i < this.sides.length ; i++ ){ 
-	    	regions[2*i] = VoronoiRegionDefined.getVoronoiRegion(sides[i]);
-	    	regions[(2*i)+1] = VoronoiRegionDefined.getVoronoiRegion(corners[i]);
+			newRegions[(2*i)+1] = new VoronoiRegionDefined(sides[i]);
+			newRegions[2*i] = new VoronoiRegionDefined(corners[i]); // Orders regions like so: V0 , Side0 , V1, SIde1, V2
 	    }
 		
+		// Itterate over each side and separate it from its adjacent corners
+		VoronoiRegionDefined.addSideOuterBounds( newRegions[0] , newRegions[1] , newRegions[2] , sides[0]);
+		for ( int i = 3 ; i < newRegions.length ; i=i+2 ){ 
+			int iNext = (i+1) % newRegions.length;
+			VoronoiRegionDefined.addSideOuterBounds( newRegions[i-1] , newRegions[i] , newRegions[iNext] , sides[i/2]);
+	    }
+		
+		for ( int i = 1 ; i < newRegions.length ; i=i+2 ){ 
+			int iNext = (i+2) % newRegions.length;
+			VoronoiRegionDefined.splitAdjacentSideRegions( newRegions[i] , newRegions[iNext] );
+	    }
+		
+		VoronoiRegionDefined.splitOpposingSides( newRegions[1] , newRegions[5] );
+		
+		this.regions = newRegions;
+		
 	}
-	@Override
-	public void drawVoronoiRegions(EntityStatic entity , MovingCamera cam , Graphics2D g2) {
-		g2.setColor(Color.DARK_GRAY);
-		for ( VoronoiRegion region : regions ){
-			region.debugDrawRegion(cam, g2);
-		}
-		g2.setColor(Color.RED);
-		for ( int i = 0 ; i < regions.length ; i++ ){
-			if ( regions[i].containsPoint(entity.getPosition()) ){
-				regions[i].debugDrawRegion(cam, g2);
-				cam.drawCrossInWorld(regions[i].getFeature() , g2 );
-			}
-		}
-	}
-	
+
 }

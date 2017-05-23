@@ -14,7 +14,7 @@ import entityComposites.GraphicComposite;
 import sprites.Sprite;
 
 
-public interface Camera {
+public interface ReferenceFrame {
 
 	public void drawOnCamera(GraphicComposite sprite , AffineTransform entityTransform);
 	public void debugDrawPolygon( Shape polygon, Color color, Point point , AffineTransform entityTransform, float alpha );

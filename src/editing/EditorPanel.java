@@ -47,7 +47,7 @@ import java.util.ArrayList;
 /**
  * @author Dave 
  */
-public class EditorPanel extends JPanel {
+public class EditorPanel extends JPanel implements MouseWheelListener{
 	
 //	##### MODES #####
 	private EditorSelectMode editorSelectMode;
@@ -200,6 +200,10 @@ public class EditorPanel extends JPanel {
 			public void onHeld() {}
 			
 		});
+		
+		inputController.createKeyBinding( KeyEvent.VK_ADD, new CameraZoomInEvent() );
+		inputController.createKeyBinding( KeyEvent.VK_SUBTRACT, new CameraZoomOutEvent() );
+		inputController.createKeyBinding( KeyEvent.VK_DECIMAL, new CameraResetZoom() );
 		
 		//##### INITIALIZING BUTTONS   ############
 		saveButton = new JButton("Save");
@@ -543,6 +547,10 @@ public class EditorPanel extends JPanel {
 		setEditorMousePos(e.getX(), e.getY());
 		this.editorMode.mouseReleased(e);
 
+	}
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		//this.editorMode.mouseWheelScrolled(e);	
 	}
 	
 	// ############ KEY HANDLING SECTION ###########
@@ -941,6 +949,11 @@ public class EditorPanel extends JPanel {
 		public void mouseReleased(MouseEvent e) {
 			currentMode.inputController.mouseReleased(e);
 		}
+		@Override
+		public void mouseWheelScrolled(MouseWheelEvent e) {
+			camera.setZoomLevel(0.5);
+		}
+		
 		@Override
 		public void keyPressed(KeyEvent e) {
 			currentMode.inputController.keyPressed(e);
@@ -2267,6 +2280,46 @@ public class EditorPanel extends JPanel {
 		
 		
 //////////////////////////////////////////////////////////////////////	
+	
+	public class CameraResetZoom implements KeyCommand {
+
+		@Override
+		public void onPressed() {
+			camera.resetZoom();
+		}
+		@Override
+		public void onReleased() {}
+		@Override
+		public void onHeld() {}
+			
+		}
+	
+	public class CameraZoomInEvent implements KeyCommand {
+
+	@Override
+	public void onPressed() {
+		camera.addZoom(0.1);
+	}
+	@Override
+	public void onReleased() {}
+	@Override
+	public void onHeld() {}
+		
+	}
+	
+	public class CameraZoomOutEvent implements KeyCommand {
+
+		@Override
+		public void onPressed() {
+			camera.addZoom(-0.1);
+		}
+		@Override
+		public void onReleased() {}
+		@Override
+		public void onHeld() {}
+			
+		}
+	
 	public class CameraPanEvent implements MouseCommand {
 		public CameraPanEvent(){
 		}
@@ -2294,9 +2347,7 @@ public class EditorPanel extends JPanel {
 				mousePanDY = editorMousePos.getY() - oldMousePanPos.getY();*/
 				//camera.translate (-mousePanDX, -mousePanDY) or something
 				// ^^^ must be negative because camera will pan in direction opposite the mouse drag
-				mousePanDX = (editorMousePos.getX() - oldMousePanPos.getX());
-				mousePanDY = (editorMousePos.getY() - oldMousePanPos.getY());
-				camera.translate((float)mousePanDX, (float)mousePanDY);
+
 				camera.setFocus(editorMousePos);
 				camera.setFocusForEditor( oldCameraPos.getX() + ( oldMousePanPos.getX() - editorMousePos.getX() ), 
 											    oldCameraPos.getY() + ( oldMousePanPos.getY() - editorMousePos.getY() )
@@ -2318,6 +2369,10 @@ public class EditorPanel extends JPanel {
 		public void mouseReleased() {
 			
 		}
+		
+		
 	} // end of CameraPanMode inner class
+	
+	
 
 }

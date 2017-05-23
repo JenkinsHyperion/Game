@@ -23,7 +23,11 @@ public class VoronoiRegion {
 	}
 	
 	
-	public boolean containsPoint( Point point){
+	public VoronoiRegion getEscapedRegion( Point point ){
+		return this.checkMath.pointIsOutsideRegion(point);
+	}
+	
+	public boolean pointIsInRegion( Point point ){
 		return this.checkMath.pointIsInRegion(point);
 	}
 	
@@ -36,11 +40,15 @@ public class VoronoiRegion {
 		return this.checkMath.getSeparation(center);
 	}
 	
-	public Point getFeature(){
+	public Point getFeaturePoint(){
 		return new Point(
 				(int)this.ownerFeature.getP1().getX(),
 				(int)this.ownerFeature.getP1().getY()
 				);
+	}
+	
+	public BoundaryFeature getFeature(){
+		return ownerFeature;
 	}
 	
 	public void debugDrawRegion( MovingCamera camera , Graphics2D g2 ){	
@@ -50,16 +58,25 @@ public class VoronoiRegion {
 	//##########################################################################
 
 	protected interface RegionCheck{ // Interface for intersection math, depending on owner boundary feature (side, corner )
-		
-		public boolean pointIsInRegion( Point point );
+		/**
+		 * Returns the adjacent region that input Point has escaped. 
+		 * @param point
+		 * @return Adjacent region that point has escaped. Null if point is still within this region.
+		 */
+		public VoronoiRegion pointIsOutsideRegion( Point point );
+		public boolean pointIsInRegion(Point point);
 		public Line2D getSeparation( Point center );
 		public void debugDraw(MovingCamera cam , Graphics2D g2);
 	}
 	
 	private class UndefinedCheck implements RegionCheck{
 		@Override
-		public boolean pointIsInRegion(Point point) {
-			return true; 
+		public VoronoiRegion pointIsOutsideRegion(Point point ) {
+			return null; 
+		}
+		@Override
+		public boolean pointIsInRegion(Point point){
+			return true;
 		}
 		@Override
 		public Line2D getSeparation(Point center) {

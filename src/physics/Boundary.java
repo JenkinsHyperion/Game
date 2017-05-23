@@ -13,14 +13,14 @@ import misc.*;
 
 public abstract class Boundary {
 	
-	protected VoronoiRegion[] regions;
+	protected VoronoiRegion[] regions; //construxct with undefined region to prevent crashes
 
 	public abstract Boundary atPosition( Point position );
 	
 	public abstract void rotateBoundaryFromTemplate( Point center, double angle , Boundary template );
 	//public abstract Point rotateBoundaryFromTemplatePoint(Point center, double angle , Boundary template);
 	
-	protected abstract Line2D[] getSeparatingSides(Boundary partner);
+	protected abstract Line2D[] getSeparatingSides();
 	
 	public abstract void debugDrawBoundary( MovingCamera cam , Graphics2D g2, EntityStatic ownerEntity );
 
@@ -33,8 +33,6 @@ public abstract class Boundary {
 	public abstract BoundaryVertex[] getCornersVertex();
 	public abstract Point2D[] getCornersPoint();
 	
-	public abstract Line2D[] collectAxesOfSeparationWith( Boundary partner );
-	
 	public abstract <T> Boundary temporaryClone();
 	
 	protected abstract void constructVoronoiRegions();
@@ -42,7 +40,7 @@ public abstract class Boundary {
 	
 	public static Point2D[] getFarthestPointsBetween( Boundary b1 , Boundary b2 , Line2D axis ){
 		
-		//System.err.println(b1+" + "+b2 +" in Boudary getFarthest");
+
 		
 		Point2D[] farthestPoints = new Point2D[]{ b1.getOuterPointsPair(axis)[0] , b2.getOuterPointsPair(axis)[0] };
 		
@@ -136,14 +134,10 @@ public abstract class Boundary {
 		
 	}
 	
-	public Line2D[] getSeparatingSidesBetween( Boundary partner ){
-		return this.collectAxesOfSeparationWith(partner);
-	}
-	
 	public static Line2D[] getSeparatingSidesBetween( Boundary b1 , Boundary b2){
 		
-		Line2D[] separatingSides1 = b1.getSeparatingSides(b2);
-		Line2D[] separatingSides2 = b2.getSeparatingSides(b1);
+		Line2D[] separatingSides1 = b1.getSeparatingSides();
+		Line2D[] separatingSides2 = b2.getSeparatingSides();
 		
 		Line2D[] lines = new Line2D[ separatingSides1.length + separatingSides2.length  ]; //compile final array
 		
@@ -162,11 +156,7 @@ public abstract class Boundary {
 		return lines;
 		
 	}
-	
-	
-	public void drawVoronoiRegions( EntityStatic entity , MovingCamera camera , Graphics2D g2){
-		
-	}
+
 	
 	
 }

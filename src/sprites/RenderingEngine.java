@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import engine.Board;
 import engine.BoardAbstract;
-import engine.Camera;
+import engine.ReferenceFrame;
 import engine.MovingCamera;
 import engine.Overlay;
 import engine.OverlayComposite;
@@ -62,7 +62,7 @@ public class RenderingEngine {
 		return (Graphics2D) image.getGraphics();
 	}
 	
-	public Camera debugGetOverlayCamera(){
+	public ReferenceFrame debugGetOverlayCamera(){
 		return camera;
 	}
 

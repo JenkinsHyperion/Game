@@ -13,7 +13,7 @@ import entityComposites.EntityStatic;
 import entityComposites.GraphicComposite;
 import sprites.Sprite;
 
-public class CameraParallax implements Camera{
+public class ParallaxFrame implements ReferenceFrame{
 	
 	private int x = 0;
 	private int y = 0;

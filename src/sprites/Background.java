@@ -16,7 +16,7 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
 import animation.Animation;
-import engine.Camera;
+import engine.ReferenceFrame;
 import engine.MovingCamera;
 import entityComposites.GraphicComposite;
 
@@ -74,7 +74,7 @@ public class Background extends Sprite{
 		
 	}
 	@Override
-	public void draw( Camera camera , GraphicComposite composite ){ 
+	public void draw( ReferenceFrame camera , GraphicComposite composite ){ 
 
 		int cameraPositionX = camera.getOriginX() + xOffset;
 		int cameraPositionY = camera.getOriginY() + yOffset;

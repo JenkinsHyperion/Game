@@ -234,6 +234,10 @@ public class Vector implements Serializable{
 			
 		}
 		
+		public Vector bisectingVector( Vector input ){
+			return ( input.unitVector().add(this.unitVector() ) ) ;
+		}
+		
 		public Line2D toLine(Point2D origin){
 			return new Line2D.Double(
 					origin.getX(),

@@ -6,11 +6,13 @@ import java.awt.geom.Line2D;
 import java.util.ArrayList;
 
 import engine.BoardAbstract;
-import engine.Camera;
+import engine.ReferenceFrame;
 import engine.MovingCamera;
 import engine.Overlay;
 import entityComposites.Collider;
 import sprites.RenderingEngine;
+import utility.DoubleLinkedList;
+import utility.ListNodeTicket;
 
 public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 
@@ -37,48 +39,16 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 		this.gOverlay = renderer.debugGetOverlayGraphics();
 		this.camera = renderer.getCamera();
 		
-    	for ( int i = 0 ; i < dynamicCollidablesList.size() ; i++ ){
-    		
-    		Collider dynamicCollidablePrimary = dynamicCollidablesList.get(i);
-    		
-    		//DYNAMIC ON STATIC COLLISIONS
-    		
-    		for ( int j = 0 ; j < staticCollidablesList.size(); j++ ){
-    			
-    			Collider staticCollidable = staticCollidablesList.get(j);
-    			
-    			//staticCollidable.checkForInteractionWith( dynamicCollidablePrimary , CollisionCheck.SAT, this);
-    			
-    			this.registerCollision( 
-    					VisualCollisionCheck.SAT.check(dynamicCollidablePrimary, staticCollidable, camera , gOverlay ) , 
-    					dynamicCollidablePrimary, 
-    					staticCollidable
-    			);
-    			
-    		} 
-    		
-    		//DYNAMIC ON DYNAMIC COLLSIONS
-    		/*
-    		for ( int k = i+1 ; k < dynamicCollidablesList.size(); k++ ){
-    			
-    			Collider dynamicCollidableSecondary = dynamicCollidablesList.get(k);
-    			
-    			if ( VisualCollisionCheck.SAT.check(dynamicCollidablePrimary, dynamicCollidableSecondary, camera , gOverlay ) ){
-    				
-    				//TODO REGISTER DYNAMAIC DYNAMIC COLLISIONS
-    				dynamicCollidablePrimary.onCollisionEvent();
-    				dynamicCollidableSecondary.onCollisionEvent();
-    			}
-    		}
-    		*/
-    	}
+		while ( checkingPairs.hasNext() ){
+			checkingPairs.get().visualCheck( camera , gOverlay);
+		}
 
     	updateCollisions();    
         
     }
 	
 	@Override
-	public void registerCollision( boolean bool , Collider collidable1 , Collider collidable2){
+	public void registerCollision( boolean bool , Collider collidable1 , Collider collidable2 , CollisionCheck checkType){
     	
     	if ( bool ) { 
 		 //check to see if collision isn't already occurring
@@ -86,8 +56,11 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 			// if not, add new collision event
 			//int index = currentBoard.getStaticEntities().size() + 1 ;
     			//System.out.println( "Collision detected" );
-    			collisionsList.add(new VisualCollisionDynamicStatic( collidable1 , collidable2 , this ) ); 
-			
+    			collisionsList.add(new VisualCollisionDynamicStatic( 
+    					collidable1 , collidable2 , 
+    					((VisualCollisionCheck)checkType).getCollector() , 
+    					this 
+    					)); 
 			} 	
     	}
     	//else System.out.println("TEST");
@@ -144,6 +117,5 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 		}
 		
 	}
-	
 
 }

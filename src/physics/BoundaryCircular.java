@@ -38,21 +38,8 @@ public class BoundaryCircular extends Boundary{
 	}
 	
 	@Override
-	protected Line2D[] getSeparatingSides(Boundary partner) { //CIRCLE BOUNDARY ADDS AXIS FROM CETNER TO CLOSEST CORNER ON OTHER BOUNDARY
-
-		for ( VoronoiRegion region : partner.getVoronoiRegions() ){
-
-			if ( region.containsPoint( center ) ){ //TODO OPTIMIZE TO REGION CHECK SYSTEM getRegion()
-				return new Line2D[]{ region.constructDistanceLine( center ) };
-			}
-		}
-		System.err.println(this.ownerEntity+" is outside of Voronoi Region");
+	protected Line2D[] getSeparatingSides() { //CIRCLE BOUNDARY ADDS AXIS FROM CETNER TO CLOSEST CORNER ON OTHER BOUNDARY
 		return new Line2D[0];
-	}
-	
-	@Override
-	public Line2D[] collectAxesOfSeparationWith(Boundary partner) {
-		return this.getSeparatingSides(partner);
 	}
 	
 	@Override

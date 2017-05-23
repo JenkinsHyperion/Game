@@ -50,6 +50,7 @@ public class MainWindow extends JPanel implements KeyListener, MouseListener{
 		splitPane.setSize(new Dimension(board.getWidth() + editorPanel.getWidth(), 300));
 		splitPane.setMinimumSize(new Dimension(board.getWidth() + editorPanel.getWidth(), 300));
 		
+		
 	}
 	public JSplitPane getSplitPane() {
 		return splitPane;
@@ -231,7 +232,6 @@ public class MainWindow extends JPanel implements KeyListener, MouseListener{
 	public void mouseReleased(MouseEvent e) {
 		
 	}
-	
 	
 
 

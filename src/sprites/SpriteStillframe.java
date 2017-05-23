@@ -65,7 +65,7 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     }
 
     @Override
-    public void draw(Camera camera , GraphicComposite composite ){
+    public void draw(ReferenceFrame camera , GraphicComposite composite ){
 
     	AffineTransform entityTransformation = new AffineTransform(); //OPTIMIZE Test making AffineTransform field of Sprite
 

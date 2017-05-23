@@ -7,7 +7,7 @@ import java.awt.image.BufferedImage;
 
 import animation.Animation;
 import animation.LoadAnimation;
-import engine.Camera;
+import engine.ReferenceFrame;
 import engine.MovingCamera;
 import entityComposites.EntityStatic;
 import entityComposites.GraphicComposite;
@@ -35,7 +35,7 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
 
 
     @Override
-    public void draw(Camera camera , GraphicComposite composite ){
+    public void draw(ReferenceFrame camera , GraphicComposite composite ){
 
     	AffineTransform entityTransformation = new AffineTransform();
 

@@ -60,8 +60,8 @@ public class BoundaryCorner extends BoundaryVertex{
 		//TO DO
 	}
 	
-	public Side getEndingSide(){ return endingSide; }
-	public Side getStartingSide(){ return startingSide; }
+	public Side getCWSide(){ return endingSide; }
+	public Side getCCWSide(){ return startingSide; }
 	
 	protected void setStartingSide( Side side ){ this.startingSide = side; }
 	protected void setEndingSide( Side side ){ this.endingSide = side; }

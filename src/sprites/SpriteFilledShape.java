@@ -10,7 +10,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 import animation.Animation;
-import engine.Camera;
+import engine.ReferenceFrame;
 import engine.MovingCamera;
 import entityComposites.EntityStatic;
 import entityComposites.GraphicComposite;
@@ -39,7 +39,7 @@ public class SpriteFilledShape extends Sprite {
 	}
 
 	@Override
-	public void draw(Camera camera , GraphicComposite composite ) {
+	public void draw(ReferenceFrame camera , GraphicComposite composite ) {
 		
 		AffineTransform entityTransformation = new AffineTransform();
 

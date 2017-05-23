@@ -23,11 +23,13 @@ import physics.BoundaryPolygonal;
 import physics.Side;
 import sprites.Sprite;
 
-public class MovingCamera extends EntityDynamic implements Camera{
+public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	
 	BoardAbstract currentBoard;
 	Graphics2D graphics;
 	ImageObserver observer;
+	
+	double zoomFactor = 1;
 	
 	final static int boardHalfWidth = BoardAbstract.B_WIDTH/2;
 	final static int boardHalfHeight = BoardAbstract.B_HEIGHT/2;
@@ -94,15 +96,6 @@ public class MovingCamera extends EntityDynamic implements Camera{
 		this.y = (float)(distFromOriginalY);
 		//System.out.println("DeltaX: " + distFromOriginalX + " DeltaY: " + distFromOriginalY);
 	} 
-	/**
-	 * translate(): for using keyboard to move camera
-	 * @param dx
-	 * @param dy
-	 */
-	public void translate(float dx, float dy) {
-		this.dx = dx;
-		this.dy = dy;
-	}
 	
 	/**
 	 * Use this method for updating old pre-camera methods and for other debugging
@@ -136,12 +129,25 @@ public class MovingCamera extends EntityDynamic implements Camera{
 		behaviorCurrent = behaviorActive;
 		lockState = false;
 	}
+	
+	public void addZoom(double dz){
+		this.zoomFactor += dz;
+	}
+	
+	public void setZoomLevel( double factor ){
+		this.zoomFactor = factor;
+	}
+	
+	public void resetZoom(){
+		this.zoomFactor = 1;
+	}
+	
 	public void drawVertex(EditorVertexAbstract vertex, Graphics g)
 	{
 		Graphics2D g2 = (Graphics2D)g;
 		g2.drawImage(EditorVertex.vertexPicture, 
-				vertex.getPoint().x-3 - (int)this.x + boardHalfWidth,
-				vertex.getPoint().y-3 - (int)this.y + boardHalfHeight, null);				 
+				getRelativeX( vertex.getPoint().x-3 ),
+				getRelativeY( vertex.getPoint().y-3 ), null);				 
 	}
 	public void drawVertexClickableBox(EditorVertexAbstract vertex, Graphics g)
 	{
@@ -176,6 +182,8 @@ public class MovingCamera extends EntityDynamic implements Camera{
 		AffineTransform cameraTransform = new AffineTransform();
 		this.graphics.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 		
+		cameraTransform.scale( zoomFactor , zoomFactor);
+		
 		cameraTransform.translate( this.getRelativeX( sprite.ownerEntity().getX()) , 
 				this.getRelativeY( sprite.ownerEntity().getY()) );
 		cameraTransform.concatenate(entityTransform);
@@ -188,8 +196,8 @@ public class MovingCamera extends EntityDynamic implements Camera{
 	public void draw(Image image , int worldX, int worldY ){
 		
 		this.graphics.drawImage(image, 
-				worldX - (int)this.x + boardHalfWidth , 
-				worldY - (int)this.y + boardHalfHeight , 
+				getRelativeX(worldX) , 
+				getRelativeY(worldY) , 
 				this.observer);
 	}
 	@Override
@@ -215,8 +223,8 @@ public class MovingCamera extends EntityDynamic implements Camera{
 	public void draw(Image image , Point world_position ){
 		
 		this.graphics.drawImage(image, 
-				world_position.x - (int)this.x + boardHalfWidth , 
-				world_position.y - (int)this.y + boardHalfHeight , 
+				getRelativeX(world_position.x) , 
+				getRelativeY(world_position.y) , 
 				this.observer);
 	}
 	
@@ -228,10 +236,10 @@ public class MovingCamera extends EntityDynamic implements Camera{
 	public void draw(Line2D line){
 		
 		this.graphics.drawLine( 
-				(int)line.getX1() - (int)this.x + boardHalfWidth ,  
-				(int)line.getY1() - (int)this.y + boardHalfHeight,  
-				(int)line.getX2() - (int)this.x + boardHalfWidth,  
-				(int)line.getY2() - (int)this.y + boardHalfHeight   
+				getRelativeX(line.getX1()) ,  
+				getRelativeY(line.getY1()) ,  
+				getRelativeX(line.getX2()) ,  
+				getRelativeY(line.getY2()) 
 		);
 		
 	}
@@ -239,10 +247,10 @@ public class MovingCamera extends EntityDynamic implements Camera{
 	public void debugDraw(Line2D line , Graphics2D g2){
 		
 		g2.drawLine( 
-				(int)line.getX1() - (int)this.x + boardHalfWidth ,  
-				(int)line.getY1() - (int)this.y + boardHalfHeight,  
-				(int)line.getX2() - (int)this.x + boardHalfWidth,  
-				(int)line.getY2() - (int)this.y + boardHalfHeight   
+				getRelativeX(line.getX1()) ,  
+				getRelativeY(line.getY1()) ,  
+				getRelativeX(line.getX2()) ,  
+				getRelativeY(line.getY2())  
 		);
 		
 	}
@@ -280,30 +288,24 @@ public class MovingCamera extends EntityDynamic implements Camera{
 		g2Temp.dispose();
 	}
 	
-	public void drawInFrame(Line2D line){
-		
-		this.graphics.draw( line );
-		
-	}
-	
 	public void drawString( String string , Point pos ) {
 		graphics.drawString( string,
-				pos.x - (int)this.x + boardHalfWidth, 
-				pos.y - (int)this.y + boardHalfHeight
+				getRelativeX(pos.x), 
+				getRelativeY(pos.y)
 			);
 	}
 	
 	public void drawString( String string , Point2D pos , Graphics2D g2 ) {
 		g2.drawString( string,
-				(int)pos.getX() - (int)this.x + boardHalfWidth, 
-				(int)pos.getY() - (int)this.y + boardHalfHeight
+				getRelativeX(pos.getX()) , 
+				getRelativeY(pos.getY())
 			);
 	}
 	
 	public void drawString( String string , int x, int y ) {
 		graphics.drawString( string, 
-				x - (int)this.x + boardHalfWidth, 
-				y - (int)this.y + boardHalfHeight
+				getRelativeX(x), 
+				getRelativeY(y)
 		);
 	}
 	
@@ -340,10 +342,10 @@ public class MovingCamera extends EntityDynamic implements Camera{
 	 * @return the ordinate relative to the board/world 
 	 */
 	public int getLocalX( int x_relative_to_camera){
-		return x_relative_to_camera +  (int)this.x - boardHalfWidth  ;
+		return (int)( x_relative_to_camera +  (int)this.x - boardHalfWidth/zoomFactor ) ;
 	}
-	public double getLocalX( double x_relative_to_camera){
-		return x_relative_to_camera +  (int)this.x - boardHalfWidth  ;
+	public int getLocalX( double x_relative_to_camera){
+		return (int) (x_relative_to_camera +  (int)this.x - boardHalfWidth/zoomFactor ) ;
 	}
 	
 	/**
@@ -352,10 +354,10 @@ public class MovingCamera extends EntityDynamic implements Camera{
 	 * @return the ordinate relative to the board/world 
 	 */
 	public int getLocalY( int y_relative_to_camera){
-		return y_relative_to_camera +  (int)this.y - boardHalfHeight ;
+		return (int) (y_relative_to_camera +  (int)this.y - boardHalfHeight/zoomFactor );
 	}
-	public double getLocalY( double y_relative_to_camera){
-		return y_relative_to_camera +  (int)this.y - boardHalfHeight ;
+	public int getLocalY( double y_relative_to_camera){
+		return (int) (y_relative_to_camera +  (int)this.y - boardHalfHeight/zoomFactor );
 	}
 	
 	/**
@@ -365,36 +367,36 @@ public class MovingCamera extends EntityDynamic implements Camera{
 	 */
 	public Point getLocalPosition( Point position_relative_to_camera){
 		return new Point(
-				(int)(position_relative_to_camera.getX() + (int)this.x - boardHalfWidth),
-				(int)(position_relative_to_camera.getY() + (int)this.y - boardHalfHeight)
+				getLocalX( position_relative_to_camera.getX() ) ,
+				getLocalY( position_relative_to_camera.getY() )
 				);
 	}
 	
 	public int getRelativeX( int x_relative_to_world){
-		return x_relative_to_world -  (int)this.x + boardHalfWidth  ;
+		return (int) ((x_relative_to_world -  this.x + boardHalfWidth/zoomFactor ))  ;
 	}
-	public double getRelativeX( double  x_relative_to_world){
-		return x_relative_to_world -  (int)this.x + boardHalfWidth  ;
+	public int getRelativeX( double  x_relative_to_world){
+		return (int)(( x_relative_to_world -  (int)this.x  + boardHalfWidth/zoomFactor ) ) ;
 	}
 	
 	public int getRelativeY( int y_relative_to_world){
-		return y_relative_to_world -  (int)this.y + boardHalfHeight  ;
+		return (int) ((y_relative_to_world - this.y  + boardHalfHeight/zoomFactor ) ) ;
 	}
-	public double getRelativeY( double  y_relative_to_world){
-		return y_relative_to_world -  (int)this.y + boardHalfHeight  ;
+	public int getRelativeY( double  y_relative_to_world){
+		return (int) (( y_relative_to_world -  (int)this.y + boardHalfHeight/zoomFactor ) ) ;
 	}
 	
 	public Point getRelativePoint( Point point_in_world ){
 		return new Point( 
-			point_in_world.x -  (int)this.x + boardHalfWidth ,
-			point_in_world.y -  (int)this.y + boardHalfHeight 
+			getRelativeX( point_in_world.x ),
+			getRelativeY( point_in_world.y ) 
 		);
 	}
 	
 	public Point getRelativePoint( Point2D point_in_world ){
 		return new Point( 
-			(int)point_in_world.getX() -  (int)this.x + boardHalfWidth ,
-			(int)point_in_world.getY() -  (int)this.y + boardHalfHeight 
+			getRelativeX( point_in_world.getX() ),
+			getRelativeY( point_in_world.getY() ) 
 		);
 	}
 	
@@ -506,6 +508,11 @@ public class MovingCamera extends EntityDynamic implements Camera{
 
 	}
 
+	public void drawVerticalLine( int world_x , String s , Graphics2D g2){
+		g2.drawLine( getRelativeX(world_x) , 0, getRelativeX(world_x), MAX_Y);
+		g2.drawString(s, getRelativeX(world_x), 20);
+	}
+	
 	public void drawOverlayGrid( int square ,Color grid, Color axisColor){
 		
 		Point pos = this.getPosition();

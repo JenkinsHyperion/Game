@@ -108,11 +108,11 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	     			updateablesList.get().updateComposite();
 	     		}
 	     		
-	     		entityThreadRun();  
-	     		
 	     		while ( updateableEntitiesList.hasNext() ){
 	     			updateableEntitiesList.get().updateComposite();
 	     		}
+	     		
+	     		entityThreadRun();  
 	     		
 	     		deltaTime = System.nanoTime() ;
 	     		speed = deltaTime - time;

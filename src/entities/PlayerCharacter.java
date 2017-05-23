@@ -140,10 +140,10 @@ public class PlayerCharacter extends Player {
 
 				BoundaryCorner corner = ((BoundaryCorner)source);
 				
-				Vector sub = corner.getStartingSide().getSlopeVector().subtract( corner.getEndingSide().getSlopeVector() );
+				Vector sub = corner.getCCWSide().getSlopeVector().subtract( corner.getCWSide().getSlopeVector() );
 				
-				Vector slope1 = corner.getStartingSide().getSlopeVector();
-				Vector slope2 = corner.getEndingSide().getSlopeVector();
+				Vector slope1 = corner.getCCWSide().getSlopeVector();
+				Vector slope2 = corner.getCWSide().getSlopeVector();
 				
 				//BoundaryVertex rawCorner = ((BoundaryPolygonal)getColliderComposite().getBoundary()).getRawVertex( corner.getID() );
 
@@ -157,14 +157,14 @@ public class PlayerCharacter extends Player {
 							
 					if ( Math.abs(dist2) > Math.abs(dist1) ){ //only works for rectangles
 						//Counterclockwise side is leaning at a closer angle to the surface
-						double rawSide2 = storedBounds.getRawSide( corner.getEndingSide().getID() ).getSlopeVector().absSlope().angleFromVectorInRadians();
+						double rawSide2 = storedBounds.getRawSide( corner.getCWSide().getID() ).getSlopeVector().absSlope().angleFromVectorInRadians();
 						//System.out.println("snapping CCW to "+Math.toDegrees(ground) );
 						//System.out.println("snapping CCW to "+Math.toDegrees(rawSide2) );
 						PlayerCharacter.this.setAngleInRadians( ground + rawSide2 );
 					}
 					else{
 						//Clockwise side is leaning at a closer angle to the surface
-						double rawSide1 = storedBounds.getRawSide( corner.getStartingSide().getID() ).getSlopeVector().absSlope().angleFromVectorInRadians();
+						double rawSide1 = storedBounds.getRawSide( corner.getCCWSide().getID() ).getSlopeVector().absSlope().angleFromVectorInRadians();
 						//System.out.println("snapping CW to "+Math.toDegrees(ground));
 						//System.out.println("snapping CW to "+Math.toDegrees(rawSide1) );
 						PlayerCharacter.this.setAngleInRadians( ground + rawSide1 );

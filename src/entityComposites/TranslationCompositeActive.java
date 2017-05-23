@@ -21,7 +21,7 @@ public class TranslationCompositeActive extends TranslationComposite implements 
     protected double accYT=0;
     protected double accXT=0;
 	
-	protected TranslationCompositeActive(){
+	protected TranslationCompositeActive(){ 
 	}
 
 	protected ArrayList<Force> forces = new ArrayList<>();
@@ -72,7 +72,7 @@ public class TranslationCompositeActive extends TranslationComposite implements 
     	dy = setdy;
     }
     @Override
-    public void setVelocityFromVector( Vector vector){
+    public void setVelocityVector( Vector vector){
     	dx = (float)vector.getX();
     	dy = (float)vector.getY();
     }
@@ -128,6 +128,32 @@ public class TranslationCompositeActive extends TranslationComposite implements 
     		}
     	}else{
     		dy = 0;
+    	}
+    }
+    
+    public void clampDX( int clamp ){
+    	if ( dx > 0 ){
+    		if (clamp < 0){
+    			dx = 0;
+    		}
+    	}
+    	else if (dx < 0){
+    		if (clamp > 0){
+    			dx=0;
+    		}
+    	}
+    }
+    
+    public void clampDY( int clamp ){
+    	if ( dy > 0 ){
+    		if (clamp < 0){
+    			dy = 0;
+    		}
+    	}
+    	else if (dy < 0){
+    		if (clamp > 0){
+    			dy=0;
+    		}
     	}
     }
     

@@ -25,22 +25,17 @@ public class BoundarySingular extends Boundary{
 	}
 	
 	@Override
-	protected Line2D[] getSeparatingSides(Boundary partner) { // RETURN NO AXES
+	protected Line2D[] getSeparatingSides() { // RETURN NO AXES
 
-		for ( VoronoiRegion region : partner.getVoronoiRegions() ){
+		/*for ( VoronoiRegion region : partner.getVoronoiRegions() ){
 
 			if ( region.containsPoint( center ) ){ //TODO OPTIMIZE TO REGION CHECK SYSTEM getRegion()
 				return new Line2D[]{ region.constructDistanceLine( center ) };
 			}
 		}
-		System.err.println(this + " is outside of Voronoi Region");
+		System.err.println(this + " is outside of Voronoi Region");*/
 		return new Line2D[0];
 		
-	}
-	
-	@Override
-	public Line2D[] collectAxesOfSeparationWith(Boundary partner) {
-		return this.getSeparatingSides(partner);
 	}
 	
 	@Override

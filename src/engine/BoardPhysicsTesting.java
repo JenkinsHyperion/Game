@@ -63,6 +63,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
     	CompositeFactory.addColliderTo(followerEntity, new BoundaryCircular(40,followerEntity) );
     	//CompositeFactory.addColliderTo(followerEntity, new BoundarySingular() );
     	//CompositeFactory.addColliderTo(followerEntity, new BoundaryPolygonal.Box(60, 60, -30, -30) );
+
     	//CompositeFactory.addGraphicFromCollider( followerEntity , followerEntity.getColliderComposite() );
     	CompositeFactory.addGraphicTo(followerEntity, new SpriteStillframe("box.png") );
     	CompositeFactory.addTranslationTo(followerEntity);
@@ -165,7 +166,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
         // TESTING OF SPACESHIP ENGINE PARTICLE EFFECT
         
         EntityStatic testParticleSpawner = new ParticleEmitter(0,0);
-        currentScene.addEntity( testParticleSpawner );
+        //currentScene.addEntity( testParticleSpawner );
         
         //CompositeFactory.makeChildOfParentUsingPosition(testParticleSpawner, spaceship , this);
 
@@ -177,7 +178,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 				
 				EntityStatic explosion = new EntityStatic("boom", spaceship.getPosition() );
 				CompositeFactory.addGraphicTo(explosion, explosionSprite );
-				explosion.getGraphicComposite().getSprite().setSizePercent( 20 );
+				explosion.getGraphicComposite().getSprite().setSizeFactor( 20 );
 				CompositeFactory.addLifespanTo(explosion , 52 );
 				
 				explosionSprite.getAnimation().restart();
@@ -193,6 +194,8 @@ public class BoardPhysicsTesting extends BoardAbstract{
     	initializeBoard();
 	}
 
+	//INPUT CONTROL
+	
 	@Override
 	public void keyPressed(KeyEvent e) {
 		// TODO Auto-generated method stub
@@ -280,7 +283,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 			g.setColor(Color.RED);
 		
 		//camera.drawCrossInFrame( point );
-		//camera.drawCrossInFrame( point2 );
+		//camera.drawCrossInFrame( point );
 		//camera.drawCrossInFrame( camera.getRelativePoint( followerEntity.getPosition() ) );
 		
 	}

@@ -20,7 +20,7 @@ public abstract class Sprite implements Graphic{
     protected boolean visibility;
     protected int spriteOffsetX = 0;
     protected int spriteOffsetY = 0;
-    protected int spriteSizePercent = 100;
+    protected double spriteSizePercent = 1;
     protected double spriteAngle = 0;
     protected String fileName;
     
@@ -82,8 +82,11 @@ public abstract class Sprite implements Graphic{
     	return this.fileName;
     }
 
-	public void setSizePercent(int percent) {
-		this.spriteSizePercent = percent;
+	public void setSizeFactor(double factor) {
+		this.spriteSizePercent = factor;
+	}
+	public double getSizeFactor() {
+		return spriteSizePercent;
 	}
     
 }

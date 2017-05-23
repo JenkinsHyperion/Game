@@ -36,6 +36,7 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 		return returnCheck;
 	}
 	
+
 	protected static VisualCollisionCheck circlePoly( EntityStatic circle , BoundaryPolygonal polygon ){
 		VisualCollisionCheck returnCheck = new VisualCollisionCheck.VisualSAT();
 		returnCheck.setAxisCollector( new SeparatingAxisCollector.AxisByRegion( polygon , circle) );
@@ -61,6 +62,7 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 			boolean isColliding = true;
 			final Boundary statBounds = collidableSecondary.getBoundaryLocal();
 		    final Boundary playerBounds = collidablePrimary.getBoundaryDelta();
+
 
 		    //statBounds.drawVoronoiRegions(collidablePrimary.getOwnerEntity(),camera,g2);
 	

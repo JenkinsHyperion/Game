@@ -53,8 +53,6 @@ public class RotationCompositeDynamic extends RotationComposite implements Updat
 		for ( RotateableComposite rotateable : rotateableCompositeList ){
 			rotateable.setAngle(angleRadians);
 		}
-		
-		entity.getEntitySprite().setAngle(angle);
 	}
 	
 	private void updateOrientationVector( double angleRadians ){
@@ -67,7 +65,7 @@ public class RotationCompositeDynamic extends RotationComposite implements Updat
 		}
 	}
 	
-	private void setInternalAngle(double angle){
+	private void setInternalAngle(double angle){ //composited method
 		double angleRadians = (angle * ((Math.PI)/180) ) ;
 
 		this.setAngleOfRotateables(angleRadians);

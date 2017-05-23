@@ -262,7 +262,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
-				editorSelectMode.setSelectViaSprite(true);
+				//editorSelectMode.setSelectViaSprite(true);
 			}
 		});
 		selectViaBoundaryRB = new JRadioButton("B");
@@ -271,7 +271,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		selectViaBoundaryRB.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				editorSelectMode.setSelectViaSprite(false);
+				//editorSelectMode.setSelectViaSprite(false);
 			}
 		});
 		ButtonGroup rbgroup = new ButtonGroup();
@@ -1034,7 +1034,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				//ctrlHeld = false;
 				this.inputController = new InputController("Rotate mode controller");	
 				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new RotateEvent());
-				//this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON1, new DegreeLockRotateEvent());
+				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new DegreeLockRotateEvent());
 				this.inputController.createKeyBinding(KeyEvent.VK_R, new SetDefaultMode());
 				this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());
 			}
@@ -1124,6 +1124,40 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					}
 				}
 
+				@Override
+				public void mouseReleased() {
+					mouseDown = false;
+				}
+			}
+			public class DegreeLockRotateEvent implements MouseCommand {
+				@Override
+				public void mousePressed() {
+					mouseDown = true;
+					// gonna need to create vectore from initClickPoint and current mouse pos (editorMousePos?)
+					initClickPoint.setLocation(camera.getLocalPosition(editorMousePos));
+				}
+				
+				@Override
+				public void mouseDragged() {
+					// ~~~### First way: using an initial click point ### /// 
+					/*	double deltaX = camera.getLocalPosition(editorMousePos).getX() -
+									initClickPoint.getX();
+					double deltaY = camera.getLocalPosition(editorMousePos).getY() -
+									initClickPoint.getY();*/
+					// ~~~#### Second way: getting init point from entity's origin
+					double deltaX = editorMousePos.getX() - 
+							camera.getRelativePoint(getCurrentEntity().getPosition()).getX();
+					double deltaY = editorMousePos.getY() - 
+							camera.getRelativePoint(getCurrentEntity().getPosition()).getY();
+					if (editorMousePos.distance(
+							camera.getRelativePoint(getCurrentEntity().getPosition())) > 20) {
+						vector.setX((int)-deltaX);
+						vector.setY((int)-deltaY);
+						currentAngle = vector.angleFromVectorInDegrees();
+						getCurrentEntity().getRotationComposite().setAngleInDegrees(15*(Math.round(currentAngle/15)));
+					}
+				}
+				
 				@Override
 				public void mouseReleased() {
 					mouseDown = false;
@@ -1264,15 +1298,17 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			if (selectViaSprite == true) {
 				
 				for (EntityStatic entity: board.listCurrentSceneEntities()) {
-					Rectangle clickableRect = new Rectangle();
-					Sprite graphic = entity.getGraphicComposite().getSprite();
-					//clickableRect.setLocation(entity.getXRelativeTo(camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(camera) + entity.getSpriteOffsetY());
-					clickableRect.setLocation(entity.getX() + graphic.getOffsetX(), entity.getY() + graphic.getOffsetY());
-					clickableRect.setSize(graphic.getImage().getWidth(null), graphic.getImage().getHeight(null) );
-					//if(selectionRect.contains(clickableRect)) {
-					if(selectionRect.intersects(clickableRect)) {
-						if(selectedEntities.contains(entity) == false) {
-							selectedEntities.addSelectedEntity(entity);
+					if (entity.getGraphicComposite().exists()){
+						Rectangle clickableRect = new Rectangle();
+						Sprite graphic = entity.getGraphicComposite().getSprite();
+						//clickableRect.setLocation(entity.getXRelativeTo(camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(camera) + entity.getSpriteOffsetY());
+						clickableRect.setLocation(entity.getX() + graphic.getOffsetX(), entity.getY() + graphic.getOffsetY());
+						clickableRect.setSize(graphic.getImage().getWidth(null), graphic.getImage().getHeight(null) );
+						//if(selectionRect.contains(clickableRect)) {
+						if(selectionRect.intersects(clickableRect)) {
+							if(selectedEntities.contains(entity) == false) {
+								selectedEntities.addSelectedEntity(entity);
+							}
 						}
 					}
 				}
@@ -1280,9 +1316,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			else {
 				for(EntityStatic entity: board.listCurrentSceneEntities()) {
 					//polygonTest.
-					if (entity.getColliderComposite() instanceof ColliderNull ){
-					}
-					else {
+					if (entity.getColliderComposite().exists()){
 						Boundary bound = entity.getColliderComposite().getBoundaryLocal();
 						int[] xpoints;
 						int[] ypoints;
@@ -1322,9 +1356,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			selectedEntities.addSelectedEntity(entity);
 		}
 		@Deprecated
-		/**
-		 * @deprecated
-		 * @return
+		/** @deprecated
 		 */
 		public EntityStatic getSingleSelectedEntity() {
 			if (selectedEntities.size() == 1)
@@ -1488,21 +1520,28 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	
 /////////   INNER CLASS SPRITEEDITORMODE   //////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
+	@SuppressWarnings("unused")
 	public class SpriteEditorMode extends ModeAbstract {
 		protected EntityStatic currentSelectedEntity;
+
 		private ArrayList<EntityStatic> selectedEntitiesRef = getSelectedEntities();
 		private String spritePath;
 		
 		protected ModeAbstract spriteEditorMode;
 		//protected SpriteOffSetMode spriteOffsetMode;
 		protected DefaultSpriteEditorMode defaultSpriteEditorMode;
+		protected SpriteRotateMode spriteRotateMode;
+		protected SpriteScaleMode spriteScaleMode;
+		private Point initClickPoint;
 		
 		
 		public SpriteEditorMode(){
-			modeName = "SpriteEditorMode";
+			//modeName = "SpriteEditorMode";
 			spritePath = "";
+			initClickPoint = new Point();
 			defaultSpriteEditorMode = new DefaultSpriteEditorMode();
+			spriteRotateMode = new SpriteRotateMode();
+			spriteScaleMode = new SpriteScaleMode();
 			spriteEditorMode = defaultSpriteEditorMode;
 			this.inputController = new InputController("Sprite editor mode controller");
 			
@@ -1541,6 +1580,10 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		public void render(Graphics g) {
 			this.spriteEditorMode.render(g);
 		}
+		@Override
+		public String getModeName(){
+			return this.spriteEditorMode.getModeName();
+		}
 		public void replaceAndFinalizeSprite(String path) {
 /*			Boundary newBoundary = new Boundary(lines);
 			this.currentSelectedEntity.getColliderComposite().setBoundary(newBoundary);
@@ -1559,18 +1602,45 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		public String getSpritePath() {
 			return this.spritePath;
 		}
+		public class SetRotateMode implements KeyCommand {
+			@Override
+			public void onPressed() {
+				setMode(spriteRotateMode);
+			}
+			public void onReleased() {}
+			public void onHeld() {}
+		}
+		public class SetDefaultMode implements KeyCommand {
+			@Override
+			public void onPressed() {
+				setMode(defaultSpriteEditorMode);
+			}
+			public void onReleased() {}
+			public void onHeld() {}
+		}
+		public class SetScaleMode implements KeyCommand {
+			@Override
+			public void onPressed() {
+				setMode(spriteScaleMode);
+			}
+			public void onReleased() {}
+			public void onHeld() {}
+		}
 		public class DefaultSpriteEditorMode extends ModeAbstract {
 			Point initClick;
 			//Point spriteInitialPosition;
 			Point spriteOriginalOffset;
 			
 			public DefaultSpriteEditorMode() {
+				modeName = "DefaultSpriteEditorMode";
 				initClick = new Point();
 				//spriteInitialPosition = new Point();
 				spriteOriginalOffset = new Point();
 				inputController = new InputController("Default sprite editor mode controller");
 				this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());			
-				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new TranslateOffsetEvent());			
+				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new TranslateOffsetEvent());
+				this.inputController.createKeyBinding(KeyEvent.VK_R, new SetRotateMode());
+				this.inputController.createKeyBinding(KeyEvent.VK_S, new SetScaleMode());
 				this.inputController.createKeyBinding(KeyEvent.VK_ENTER, new SwapSpriteEvent());			
 				//this.inputController.createKeyBinding(KeyEvent.VK_O, new SetOffsetEvent());			
 			
@@ -1646,13 +1716,290 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				public void onHeld() {}
 			}
 		}
+		public class SpriteRotateMode extends ModeAbstract {
+			//private boolean ctrlHeld;
+			//private Point origin;
+			private Vector vector;
+			private double currentAngle;
+			private boolean mouseDown;
+			private double sizeFactorRef;
+			//private MouseMovedKeyState defaultMouseMovedState;
+			//private MouseMovedKeyStateNull mouseMovedKeyStateNull = new MouseMovedKeyStateNull();
+			//private MouseMovedKeyState ctrlMouseMovedKeyState = new CtrlMouseMovedKeyState();
+			public SpriteRotateMode() {
+				sizeFactorRef = 0;
+				currentAngle = 0.0;
+				mouseDown = false;
+				this.modeName = "SpriteRotateMode";
+				this.vector = new Vector(0, 0);
+				//ctrlHeld = false;
+				this.inputController = new InputController("Rotate mode controller");	
+				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new RotateEvent());
+				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new DegreeLockRotateEvent());
+				this.inputController.createKeyBinding(KeyEvent.VK_D, new SetDefaultMode());
+				this.inputController.createKeyBinding(KeyEvent.VK_S, new SetScaleMode());
+				this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());
+			}
+			@Override
+			public void mousePressed(MouseEvent e) {
+				this.inputController.mousePressed(e);
+			}
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				this.inputController.mouseDragged(e);
+			}
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				this.inputController.mouseReleased(e);
+			}
+			@Override
+			public void keyPressed(KeyEvent e) {
+				this.inputController.keyPressed(e);
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {
+				this.inputController.keyReleased(e);
+			}			
+			@Override
+			public void render(Graphics g) {
+				defaultRender(g);
+				Graphics2D g2 = (Graphics2D)g.create();
+				g2.setColor(Color.GREEN);
+				final float dash1[] = {10.0f};
+			    final BasicStroke dashed =
+			        new BasicStroke(1.0f,
+			                        BasicStroke.CAP_BUTT,
+			                        BasicStroke.JOIN_MITER,
+			                        10.0f, dash1, 0.0f);
+			    g2.setStroke(dashed);
+				//g2.drawLine(camera.getRelativeX(getCurrentEntity().getX()), camera.getRelativeY(getCurrentEntity().getY()), editorMousePos.x,editorMousePos.y);
+				if (mouseDown) {
+					g2.drawString(String.format("Angle: %.2f", currentAngle), editorMousePos.x, editorMousePos.y - 8);
+				}
+			}			
+			
+			// ######## INNER BEHAVIOR CLASSES #########
+			public class RotateEvent implements MouseCommand {
+				//the functionality for this will be very similar to how you designed the selection rectangle.
+				/*
+				 Steps: 
+				 1) click, acknowledges origin and the clicked point
+				 2) generate vector from these two points
+				 3)	get angle from this vector
+				 4) set rotation of selected entity by this angle
+				 Considerations:
+				 Everything should work except the blue shaded selection square around the entity. That won't rotate, will need to take care of that separately.
+				 -There should be an ongoing vector in this mode
+				 
+				 */
+				
+				@Override
+				public void mousePressed() {
+					mouseDown = true;
+					// gonna need to create vectore from initClickPoint and current mouse pos (editorMousePos?)
+					initClickPoint.setLocation(camera.getLocalPosition(editorMousePos));
+					sizeFactorRef = getCurrentEntity().getGraphicComposite().getSprite().getSizeFactor();
+				}
 
+				@Override
+				public void mouseDragged() {
+					// ~~~### First way: using an initial click point ### /// 
+				/*	double deltaX = camera.getLocalPosition(editorMousePos).getX() -
+									initClickPoint.getX();
+					double deltaY = camera.getLocalPosition(editorMousePos).getY() -
+									initClickPoint.getY();*/
+					// ~~~#### Second way: getting init point from entity's origin
+					double deltaX = editorMousePos.getX() - 
+									camera.getRelativePoint(getCurrentEntity().getPosition()).getX();
+					double deltaY = editorMousePos.getY() - 
+									camera.getRelativePoint(getCurrentEntity().getPosition()).getY();
+					
+					if (editorMousePos.distance(
+							camera.getRelativePoint(getCurrentEntity().getPosition())) > 20) {
+						vector.setX(-deltaX);
+						vector.setY(-deltaY);
+						currentAngle = vector.angleFromVectorInDegrees();
+						getCurrentEntity().getGraphicComposite().getSprite().setAngle(currentAngle);
+					}
+				}
+
+				@Override
+				public void mouseReleased() {
+					mouseDown = false;
+				}
+			}
+			public class DegreeLockRotateEvent implements MouseCommand {
+				@Override
+				public void mousePressed() {
+					mouseDown = true;
+					// gonna need to create vectore from initClickPoint and current mouse pos (editorMousePos?)
+					initClickPoint.setLocation(camera.getLocalPosition(editorMousePos));
+				}
+				
+				@Override
+				public void mouseDragged() {
+					// ~~~### First way: using an initial click point ### /// 
+					/*	double deltaX = camera.getLocalPosition(editorMousePos).getX() -
+									initClickPoint.getX();
+					double deltaY = camera.getLocalPosition(editorMousePos).getY() -
+									initClickPoint.getY();*/
+					// ~~~#### Second way: getting init point from entity's origin
+					double deltaX = editorMousePos.getX() - 
+							camera.getRelativePoint(getCurrentEntity().getPosition()).getX();
+					double deltaY = editorMousePos.getY() - 
+							camera.getRelativePoint(getCurrentEntity().getPosition()).getY();
+					if (editorMousePos.distance(
+							camera.getRelativePoint(getCurrentEntity().getPosition())) > 20) {
+						vector.setX((int)-deltaX);
+						vector.setY((int)-deltaY);
+						currentAngle = vector.angleFromVectorInDegrees();
+						getCurrentEntity().getGraphicComposite().getSprite().setAngle(15*(Math.round(currentAngle/15)));
+					}
+				}
+				
+				@Override
+				public void mouseReleased() {
+					mouseDown = false;
+				}
+			}
+		} // END OF ROTATEMODE INNER CLASS  #####
+		
+		// SPRITE SCALE MODE!
+		@SuppressWarnings("unused")
+		public class SpriteScaleMode extends ModeAbstract {
+			//private boolean ctrlHeld;
+			//private Point origin;
+
+			private Vector vector;
+			private double currentAngle;
+			private boolean mouseDown;
+			private double dragDistance;
+			private double sizeFactorRef;
+			//private MouseMovedKeyState defaultMouseMovedState;
+			//private MouseMovedKeyStateNull mouseMovedKeyStateNull = new MouseMovedKeyStateNull();
+			//private MouseMovedKeyState ctrlMouseMovedKeyState = new CtrlMouseMovedKeyState();
+			public SpriteScaleMode() {
+				sizeFactorRef = 0;
+				dragDistance = 0.0;
+				currentAngle = 0.0;
+				mouseDown = false;
+				this.modeName = "SpriteScaleMode";
+				this.vector = new Vector(0, 0);
+				//ctrlHeld = false;
+				this.inputController = new InputController("Scale mode controller");	
+				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new ScaleEvent());
+				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new ScaleIncrementEvent());
+				this.inputController.createKeyBinding(KeyEvent.VK_D, new SetDefaultMode());
+				this.inputController.createKeyBinding(KeyEvent.VK_R, new SetRotateMode());
+				this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());
+			}
+			@Override
+			public void mousePressed(MouseEvent e) {
+				this.inputController.mousePressed(e);
+			}
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				this.inputController.mouseDragged(e);
+			}
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				this.inputController.mouseReleased(e);
+			}
+			@Override
+			public void keyPressed(KeyEvent e) {
+				this.inputController.keyPressed(e);
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {
+				this.inputController.keyReleased(e);
+			}			
+			@Override
+			public void render(Graphics g) {
+				defaultRender(g);
+				Graphics2D g2 = (Graphics2D)g.create();
+				g2.setColor(Color.GREEN);
+				final float dash1[] = {10.0f};
+				final BasicStroke dashed =
+						new BasicStroke(1.0f,
+								BasicStroke.CAP_BUTT,
+								BasicStroke.JOIN_MITER,
+								10.0f, dash1, 0.0f);
+				g2.setStroke(dashed);
+				//g2.drawLine(camera.getRelativeX(getCurrentEntity().getX()), camera.getRelativeY(getCurrentEntity().getY()), editorMousePos.x,editorMousePos.y);
+				if (mouseDown) {
+					g2.drawString(String.format("Angle: %.2f", currentAngle), editorMousePos.x, editorMousePos.y - 8);
+					//g2.drawString(String.format("DrawDistance: %.2f", dragDistance), editorMousePos.x, editorMousePos.y - 20);
+				}
+			}			
+			
+			// ######## INNER BEHAVIOR CLASSES #########
+			public class ScaleEvent implements MouseCommand {
+				
+				@Override
+				public void mousePressed() {
+					mouseDown = true;
+					// gonna need to create vectore from initClickPoint and current mouse pos (editorMousePos?)
+					initClickPoint.setLocation(camera.getLocalPosition(editorMousePos));
+					sizeFactorRef = getCurrentEntity().getGraphicComposite().getSprite().getSizeFactor();
+				}
+				
+				@Override
+				public void mouseDragged() {
+					//double tempDistance = Math.abs(camera.getRelativePoint(getCurrentEntity().getPosition()).distance(editorMousePos));
+					//double tempDistance = camera.getRelativePoint(initClickPoint).distance(editorMousePos);
+					double tempDistance = -(camera.getRelativeX(initClickPoint.getX()) - editorMousePos.getX());
+					dragDistance = tempDistance;
+					double width = getCurrentEntity().getGraphicComposite().getSprite().getBufferedImage().getWidth();
+					double height = getCurrentEntity().getGraphicComposite().getSprite().getBufferedImage().getHeight();
+					double hyp = Math.sqrt( (width*width/4) + (height*height/4));
+					
+					
+					getCurrentEntity().getGraphicComposite().getSprite().setSizeFactor(tempDistance/hyp + sizeFactorRef);
+					/*if (editorMousePos.distance(
+							camera.getRelativePoint(getCurrentEntity().getPosition())) > 20) {
+						vector.setX(-deltaX);
+						vector.setY(-deltaY);
+						currentAngle = vector.angleFromVectorInDegrees();
+						getCurrentEntity().getGraphicComposite().getSprite().setAngle(currentAngle);
+					}*/
+				}
+				
+				@Override
+				public void mouseReleased() {
+					mouseDown = false;
+				}
+			}
+			public class ScaleIncrementEvent implements MouseCommand {
+				@Override
+				public void mousePressed() {
+					//mouseDown = true;
+					// gonna need to create vectore from initClickPoint and current mouse pos (editorMousePos?)
+					//initClickPoint.setLocation(camera.getLocalPosition(editorMousePos));
+				}
+				
+				@Override
+				public void mouseDragged() {}
+				/*{									
+				if (editorMousePos.distance(
+							camera.getRelativePoint(getCurrentEntity().getPosition())) > 20) {
+						vector.setX((int)-deltaX);
+						vector.setY((int)-deltaY);
+						currentAngle = vector.angleFromVectorInDegrees();
+						getCurrentEntity().getGraphicComposite().getSprite().setAngle(15*(Math.round(currentAngle/15)));
+					}
+				}
+				*/
+				@Override
+				public void mouseReleased() {
+					//mouseDown = false;
+				}
+			}
+		} // END OF ROTATEMODE INNER CLASS  #####
 	}
 /////////   INNER CLASS BOUNDARYEDITORMODE   //////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
+	@SuppressWarnings("unused")
 	public class BoundaryEditorMode extends ModeAbstract {
-		
 		private ArrayList<EntityStatic> selectedEntitiesRef = getSelectedEntities();
 		protected BufferedImage ghostVertexPic;
 		private BoundaryVertexPlaceMode boundaryVertexPlaceMode;
@@ -1921,8 +2268,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				//lines[lines.length-1].setLine( lines[lines.length-1].getP1() , lines[0].getP1() );
 				//Boundary newBoundary = new Boundary(lines, currentSelectedEntity.getColliderComposite());
 				Boundary newBoundary = new BoundaryPolygonal(lines);
-				//this.currentSelectedEntity.getColliderComposite().setBoundary(newBoundary);
-				CompositeFactory.addColliderTo( this.currentSelectedEntity , newBoundary);
+				this.currentSelectedEntity.getColliderComposite().setBoundary(newBoundary);
+				//CompositeFactory.addColliderTo( this.currentSelectedEntity , newBoundary);
 				clearAllVerticesAndLines();
 				clearOldBoundary();
 				isClosedShape = false;

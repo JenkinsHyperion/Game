@@ -1678,7 +1678,10 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 							 currentSelectedEntity.getGraphicComposite().getSprite().getOffsetX());*/
 
 					initClickPoint.setLocation(editorMousePos); // sets temporary old mouse position reference
-
+					
+					//sets temporary old Sprite offset
+					spriteOriginalOffset = new Point( currentSelectedEntity.getGraphicComposite().getSprite().getOffsetPoint() );
+					
 					spriteOriginalOffset.setLocation(currentSelectedEntity.getGraphicComposite().getSprite().getOffsetPoint());;
 				}
 
@@ -1687,7 +1690,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					Sprite currentSprite = currentSelectedEntity.getGraphicComposite().getSprite();
 					int mousePanDX = (initClickPoint.x - editorMousePos.x);
 					int mousePanDY = (initClickPoint.y - editorMousePos.y);
-					Vector originalVector = new Vector(mousePanDX, mousePanDY);
+					Vector originalVector = new Vector(mousePanDX, -mousePanDY);
 					Vector newVector = currentSprite.getRelativePoint(originalVector);
 					/*currentSelectedEntity.getGraphicComposite().getSprite().setOffset(
 							(int)(spriteInitialPosition.x + mousePanDX),
@@ -1699,9 +1702,21 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 							);*/
 					//currentSprite.setOffset(-(int)newVector.getX(),-(int)newVector.getY());
 
-					Vector orientation = originalVector.projectedOver( Vector.unitVectorFromAngle(Math.toRadians(currentSprite.getAngle())) );
-					
-					currentSprite.setOffset( (int)orientation.getX(), (int)orientation.getY() );
+					Vector orientation = Vector.unitVectorFromAngle(Math.toRadians(currentSprite.getAngle()));
+
+					//	Matt: Heres where I messed up the math, I was using the dot product projection method which returns the VECTOR
+					//of the projection on the sprite x and y axis, RELATIVE TO BOARD. So when the sprite was diagonal, the dot product
+					//returned diagonal coordnates when it really needed the straight x and y coordinates relative to the sprite.
+					//		
+					//	Like if you imagine a side of the tilted sprite, it's a diagonal vector relative to board, 
+					// but it's just a straight line relative to the sprite.
+					//
+					//	What I needed was the cross product, which returns the projection DISTANCE over the sprite x and y axes.
+					//that ends up with the x and y coordinates RELATIVE TO THE SPRITE
+					double relativeDX = originalVector.crossProduct(orientation);
+					double relativeDY = originalVector.crossProduct(orientation.normalRight()); //normal right is just the y axis relative
+					//to the sprite.
+					currentSprite.setOffset( (int)relativeDX + spriteOriginalOffset.x , (int)relativeDY + spriteOriginalOffset.y );
 					
 				}
 				@Override

@@ -23,12 +23,12 @@ public class VoronoiRegion {
 	}
 	
 	
-	public VoronoiRegion getEscapedRegion( Point point ){
-		return this.checkMath.pointIsOutsideRegion(point);
+	public VoronoiRegion getEscapedRegion( Point point , Point localPos){
+		return this.checkMath.pointIsOutsideRegion(point,localPos);
 	}
 	
-	public boolean pointIsInRegion( Point point ){
-		return this.checkMath.pointIsInRegion(point);
+	public boolean pointIsInRegion( Point point , Point localPos){
+		return this.checkMath.pointIsInRegion(point,localPos);
 	}
 	
 	/** Constructs the separation line between this region's boundary feature, and the given point inside the region.
@@ -63,19 +63,19 @@ public class VoronoiRegion {
 		 * @param point
 		 * @return Adjacent region that point has escaped. Null if point is still within this region.
 		 */
-		public VoronoiRegion pointIsOutsideRegion( Point point );
-		public boolean pointIsInRegion(Point point);
+		public VoronoiRegion pointIsOutsideRegion( Point point , Point localPos );
+		public boolean pointIsInRegion(Point point, Point localPos);
 		public Line2D getSeparation( Point center );
 		public void debugDraw(MovingCamera cam , Graphics2D g2);
 	}
 	
 	private class UndefinedCheck implements RegionCheck{
 		@Override
-		public VoronoiRegion pointIsOutsideRegion(Point point ) {
+		public VoronoiRegion pointIsOutsideRegion(Point point , Point localPos) {
 			return null; 
 		}
 		@Override
-		public boolean pointIsInRegion(Point point){
+		public boolean pointIsInRegion(Point point , Point localPos){
 			return true;
 		}
 		@Override

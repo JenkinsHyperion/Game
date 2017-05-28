@@ -203,9 +203,9 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 		}
 		
 		@Override
-		public VoronoiRegion pointIsOutsideRegion( Point point ) {
+		public VoronoiRegion pointIsOutsideRegion( Point point , Point localPos) {
 			for ( RegionBoundary bound : bounds ){
-				if ( !bound.pointIsWithinBound(point) ){ 
+				if ( !bound.pointIsWithinBound(point , localPos) ){ 
 					return bound.adjacentRegion;
 				}
 			}
@@ -213,9 +213,9 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 		}
 		
 		@Override
-		public boolean pointIsInRegion(Point point){
+		public boolean pointIsInRegion(Point point , Point localPos){
 			for ( RegionBoundary bound : bounds ){
-				if ( !bound.pointIsWithinBound(point) ){
+				if ( !bound.pointIsWithinBound(point,localPos) ){
 					return false;
 				}
 			}
@@ -243,10 +243,10 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 		}
 		
 		@Override
-		public VoronoiRegion pointIsOutsideRegion( Point point ) { 
+		public VoronoiRegion pointIsOutsideRegion( Point point , Point localPos ) { 
 			
 			for ( RegionBoundary bound : bounds ){
-				if ( !bound.pointIsWithinBound(point) ){
+				if ( !bound.pointIsWithinBound(point,localPos) ){
 					return bound.adjacentRegion;
 				}
 			}
@@ -254,9 +254,9 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 		}
 		
 		@Override
-		public boolean pointIsInRegion(Point point){
+		public boolean pointIsInRegion(Point point , Point localPos){
 			for ( RegionBoundary bound : bounds ){
-				if ( !bound.pointIsWithinBound(point) ){
+				if ( !bound.pointIsWithinBound(point , localPos) ){
 					return false;
 				}
 			}
@@ -283,7 +283,7 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 	
 	private abstract class RegionBoundary{
 		protected VoronoiRegion adjacentRegion;
-		public abstract boolean pointIsWithinBound( Point point );
+		public abstract boolean pointIsWithinBound( Point point , Point localPos);
 		public abstract void draw( MovingCamera cam , Graphics2D g2 , Point2D point );
 	}
 	
@@ -299,7 +299,7 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 		}
 		
 		@Override
-		public boolean pointIsWithinBound( Point point ) {
+		public boolean pointIsWithinBound( Point point , Point localPos) {
 			return ( leftRight*(point.x - x) >= 0 );
 		}
 		
@@ -369,7 +369,7 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 			
 		}
 		@Override
-		public boolean pointIsWithinBound( Point point ){
+		public boolean pointIsWithinBound( Point point , Point localPos){
 			return ( topBottom * (slope*point.x + yIntercept - point.y) >= 0 );
 		}
 		

@@ -27,6 +27,8 @@ abstract public class BoundaryFeature {
 	
 	public void collisionTrigger(){}
 	
+	public abstract Vector getNormal();
+	
 	public abstract Point2D getP1();
 	public abstract Point2D getP2();
 	

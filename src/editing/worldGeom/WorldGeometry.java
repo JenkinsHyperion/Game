@@ -402,13 +402,13 @@ public class WorldGeometry extends ModeAbstract{
 			@Override
 			public void mousePressed() {
 				tempRectBoundaryState = tempRectBoundary;
-				initClickPoint.setLocation(camera.getLocalPosition(worldGeomMousePos));
+				initClickPoint.setLocation(camera.getWorldPosition(worldGeomMousePos));
 				tempRectBoundaryState.setInitialRectPoint();
 			}
 
 			@Override
 			public void mouseDragged() {
-				tempRectBoundaryState.translateEndPoint(camera.getLocalPosition(worldGeomMousePos));
+				tempRectBoundaryState.translateEndPoint(camera.getWorldPosition(worldGeomMousePos));
 			}
 
 			@Override
@@ -614,7 +614,7 @@ public class WorldGeometry extends ModeAbstract{
 		// ***** inner-inner classes for mouse behavior classes specific to vertex selecting
 		public class VertexSelectLClickEvent implements MouseCommand{
 			public void mousePressed() {
-				checkForVertex(camera.getLocalPosition(worldGeomMousePos));
+				checkForVertex(camera.getWorldPosition(worldGeomMousePos));
 			}
 			public void mouseDragged() {
 				//currentSelectedVertex.translate(camera.getLocalPosition(worldGeomMousePos));
@@ -635,7 +635,7 @@ public class WorldGeometry extends ModeAbstract{
 		public class CtrlVertexSelectLClickEvent implements MouseCommand{
 
 			public void mousePressed() {
-				checkForVertexShiftClick(camera.getLocalPosition(worldGeomMousePos));
+				checkForVertexShiftClick(camera.getWorldPosition(worldGeomMousePos));
 			}
 			public void mouseDragged() {
 				//currentSelectedVertex.translate(camera.getLocalPosition(worldGeomMousePos));
@@ -647,7 +647,7 @@ public class WorldGeometry extends ModeAbstract{
 		public class TranslateEvent implements MouseCommand{
 
 			public void mousePressed() {
-				initClickPoint.setLocation(camera.getLocalPosition(worldGeomMousePos));
+				initClickPoint.setLocation(camera.getWorldPosition(worldGeomMousePos));
 				selectedVertices.updateOldVertexPositions();
 			}
 			public void mouseDragged() {
@@ -662,12 +662,12 @@ public class WorldGeometry extends ModeAbstract{
 			@Override
 			public void mousePressed() {
 				selectionRectangleState = selectionRectangle;
-				initClickPoint.setLocation(camera.getLocalPosition(worldGeomMousePos));
+				initClickPoint.setLocation(camera.getWorldPosition(worldGeomMousePos));
 				selectionRectangleState.setInitialRectPoint();
 			}
 			@Override
 			public void mouseDragged() {
-				selectionRectangleState.translateEndPoint(camera.getLocalPosition(worldGeomMousePos));
+				selectionRectangleState.translateEndPoint(camera.getWorldPosition(worldGeomMousePos));
 			}
 			@Override
 			public void mouseReleased() {

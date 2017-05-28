@@ -81,6 +81,11 @@ public class BoundaryCorner extends BoundaryVertex{
 	public static Point2D getCenter( BoundaryVertex p1 , Point2D p2 ){ 
 		return new Point2D.Double( (p1.getX() + p2.getX())/2 , (p1.getY() + p2.getY())/2 );
 	}
+	
+	/*@Override
+	public Vector getNormal() {
+		
+	}*/
 
 	@Override
 	public boolean debugIsVertex() {

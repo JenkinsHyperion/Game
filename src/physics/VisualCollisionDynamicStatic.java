@@ -108,24 +108,25 @@ public class VisualCollisionDynamicStatic extends Collision {
 			//TODO GET NORMAL FROM BOUDNARY FEATURE INSTEAD
 			
 			if ( closestResolution.FeatureSecondary().debugIsSide() ){
-				Vector slope = ((Side)closestResolution.FeatureSecondary()).getSlopeVector();
-				Vector test = slope.normalRight().unitVector().multiply(0.2) ;
-				//normalForce.setVector( test );
+				Vector slope = ((Side)closestResolution.FeatureSecondary()).getSlopeVector().normalLeft();
+				Vector test = new Vector(0,-0.2).projectedOver(slope);
+				normalForce.setVector( test );
 			}
-				normalForce.setVector(0,-0.2);
+			else if ( closestResolution.FeatureSecondary().debugIsVertex() ){
+				
+				Vector distance = new Vector(
+					entityPrimary.getX() - closestResolution.FeatureSecondary().getP1().getX(),
+					entityPrimary.getY() - closestResolution.FeatureSecondary().getP1().getY()
+					).unitVector();
+				
+				normalForce.setVector( 0,-0.2 );
+			}
+
 				
 				System.out.println("Will clip by "+ depthX +" , "+ depthY + " ... ");
 				
-				final double dx = entityPrimary.getX() + dynamic.getDX() + (int)depthX;
-				final double dy = entityPrimary.getY() + dynamic.getDY() + (int)depthY;
-				
-				dynamic.setDX(0);
-				dynamic.setDY(0);
-				
-				entityPrimary.setPos((int)dx,(int)dy);
-				
-			
-			//dynamic.halt();
+				dynamic.clipDX(depthX);
+				dynamic.clipDY(depthY);
 			
 		}
 		
@@ -140,9 +141,9 @@ public class VisualCollisionDynamicStatic extends Collision {
 				double frictionCoefficient = normalForce.force.getLength() * 0.5 ;
 				
 				//friction.setVector( playerDP.inverse().signumVector().multiply( surface.unitVector().multiply( frictionCoefficient ) ).projectedOver(surface) );
-				Vector velocity = new Vector( dynamic.getDX(),dynamic.getDY() );
+				//Vector velocity = new Vector( dynamic.getDX(),dynamic.getDY() );
 				
-				dynamic.setVelocityVector( velocity.projectedOver(surface) );
+				//dynamic.setVelocityVector( velocity.projectedOver(surface) );
 				
 				
 			}

@@ -92,15 +92,23 @@ public class TranslationCompositeActive extends TranslationComposite implements 
     @Override
     public void clipDX(double clipDX) {
     	
+    	double dxTemp = dx;
+    	
     	if ( dx > 0 ){
-    		if ( dx + clipDX < 0 ){
+    		if ( clipDX > 0){
+    			
+    		}
+    		else if ( dx + clipDX < 0 ){
     			dx = 0;
     		}else{
     			dx = dx + clipDX;
     		}
     	}
     	else if ( dx < 0 ){
-    		if ( dx + clipDX > 0 ){
+    		if ( clipDX < 0){
+    			
+    		}
+    		else if ( dx + clipDX > 0 ){ 
     			dx = 0;
     		}else{
     			dx = dx + clipDX;
@@ -108,7 +116,7 @@ public class TranslationCompositeActive extends TranslationComposite implements 
     	}else{
     		dx = 0;
     	}
-
+    	System.out.println(dxTemp+" ->> "+clipDX+" ->> "+dx);
     	
     }
     @Override

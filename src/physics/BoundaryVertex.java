@@ -48,5 +48,10 @@ public class BoundaryVertex extends BoundaryFeature{
 	public boolean debugIsSide() {
 		return false;
 	}
+	@Override
+	public Vector getNormal() {
+		System.err.println("Attempted to get Normal Vector on BOundaryVertex (not Corner)");
+		return null;
+	}
 
 }

@@ -39,14 +39,16 @@ public abstract class SeparatingAxisCollector {
 		Boundary regionBoundary;
 		VoronoiRegion currentRegion;
 		EntityStatic nonPolygon;
+		EntityStatic polygon;
 		
-		protected AxisByRegion( Boundary region1 , EntityStatic nonPolygon){
+		protected AxisByRegion( Boundary region1 , EntityStatic polygon , EntityStatic nonPolygon){
 			this.regionBoundary = region1;
 			regionBoundary.constructVoronoiRegions();
 			this.nonPolygon = nonPolygon;
+			this.polygon = polygon;
 			
 			for ( VoronoiRegion region : regionBoundary.getVoronoiRegions() ){
-				if ( region.pointIsInRegion( nonPolygon.getPosition() ) ){ //TODO OPTIMIZE TO REGION CHECK SYSTEM getRegion()
+				if ( region.pointIsInRegion( nonPolygon.getPosition() , polygon.getPosition() ) ){ 
 					currentRegion = region;
 				}
 			}
@@ -54,7 +56,7 @@ public abstract class SeparatingAxisCollector {
 		
 		public Line2D[] getSeparatingAxes( Boundary b1, Boundary b2 ){
 			
-			VoronoiRegion changedRegion = currentRegion.getEscapedRegion( nonPolygon.getPosition());
+			VoronoiRegion changedRegion = currentRegion.getEscapedRegion( nonPolygon.getPosition() , polygon.getPosition() );
 			
 			if ( changedRegion == null ){
 				return new Line2D[]{ currentRegion.constructDistanceLine( nonPolygon.getPosition() ) };

@@ -29,5 +29,11 @@ public class NullFeature extends BoundaryFeature{
 	public boolean debugIsSide() {
 		return false;
 	}
+
+	@Override
+	public Vector getNormal() {
+		System.err.println("Attempted normal on Null Feature");
+		return null;
+	}
 	
 }

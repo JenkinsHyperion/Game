@@ -59,8 +59,8 @@ public class BoardPhysicsTesting extends BoardAbstract{
     	//inputController.createMouseBinding( MouseEvent.BUTTON3 , new MOUSETRIGGER() );
     	//inputController.createMouseBinding( MouseEvent.CTRL_MASK , MouseEvent.BUTTON1 , new MOUSETRIGGER() );
 
-    	//CompositeFactory.addColliderTo( followerEntity , new BoundaryPolygonal.Box(60, 60, -10, -10) );
-    	CompositeFactory.addColliderTo(followerEntity, new BoundaryCircular(40,followerEntity) );
+    	CompositeFactory.addColliderTo( followerEntity , new BoundaryPolygonal.Box(60, 60, -10, -10) );
+    	//CompositeFactory.addColliderTo(followerEntity, new BoundaryCircular(40,followerEntity) );
     	//CompositeFactory.addColliderTo(followerEntity, new BoundarySingular() );
     	//CompositeFactory.addColliderTo(followerEntity, new BoundaryPolygonal.Box(60, 60, -30, -30) );
 
@@ -92,7 +92,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
         
         CompositeFactory.addGraphicTo(rotateTest, new SpriteStillframe("ground_1.png" , -223 , -53 ) );
         
-    	//CompositeFactory.addRotationTo(rotateTest);
+    	CompositeFactory.addRotationTo(rotateTest);
     	//rotateTest.getRotationComposite().setAngleInDegrees(30);
     	//rotateTest.getRotationComposite().setAngularVelocity(0.1);
     	currentScene.addEntity( rotateTest );
@@ -227,7 +227,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 		
 		g.setColor(Color.CYAN);
 
-		g.drawString( this.followerEntity.getTranslationComposite().getDY() + " dy" , margin.x, 35);
+		g.drawString( (float)this.followerEntity.getTranslationComposite().getDY() + " dy " +(float)this.followerEntity.getTranslationComposite().getDX(), margin.x, 35);
 		g.drawString( this.currentScene.listEntities().length + " entities" , margin.x, 50);
 		g.drawString( collisionEngine.debugNumberofStaticCollidables() + " static collidables" , margin.x, 65);
 		g.drawString( collisionEngine.debugNumberofDynamicCollidables() + " dynamic collidables" , margin.x, 80);
@@ -252,6 +252,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 			//	camera.debugDrawPolygon( Boundary.getPolygonFromBoundary( collider.getBoundary(), collider.getOwnerEntity() ) , Color.CYAN, collider.getOwnerEntity() , new AffineTransform() );
 			//}
 			collider.debugDrawBoundary( renderingEngine.getCamera(), (Graphics2D) g);
+			collider.getBoundary().debugDrawVoronoiRegions( renderingEngine.getCamera(), (Graphics2D) g);
 		}
 		
 		//VORONI REIGON TESTING

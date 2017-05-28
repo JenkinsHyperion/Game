@@ -37,9 +37,9 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 	}
 	
 
-	protected static VisualCollisionCheck circlePoly( EntityStatic circle , BoundaryPolygonal polygon ){
+	protected static VisualCollisionCheck circlePoly( EntityStatic circle , EntityStatic polygonEntity , BoundaryPolygonal polygonBoudnary ){
 		VisualCollisionCheck returnCheck = new VisualCollisionCheck.VisualSAT();
-		returnCheck.setAxisCollector( new SeparatingAxisCollector.AxisByRegion( polygon , circle) );
+		returnCheck.setAxisCollector( new SeparatingAxisCollector.AxisByRegion( polygonBoudnary ,polygonEntity , circle) );
 		return returnCheck;
 	}
 	

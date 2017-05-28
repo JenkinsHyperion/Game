@@ -37,13 +37,13 @@ public class BoundaryPolygonal extends Boundary {
 				, new BoundaryCorner(line.getP2() , this , 1 , defaultCollisionEvent) };
 
 		connectBoundaryMap( defaultCollisionEvent );
-		constructVoronoiRegions();
+		//constructVoronoiRegions();
 	}
 	
 	public BoundaryPolygonal(Side[] bounds ) {
 		sides = bounds;
 		connectBoundaryMap( defaultCollisionEvent );
-		constructVoronoiRegions();
+		//constructVoronoiRegions();
 	}
 	
 	public BoundaryPolygonal(Line2D[] bounds) {
@@ -55,7 +55,7 @@ public class BoundaryPolygonal extends Boundary {
 			sides[i] = new Side( bounds[i] , this , i , defaultCollisionEvent);
 		}
 		connectBoundaryMap( defaultCollisionEvent );
-		constructVoronoiRegions();
+		//constructVoronoiRegions();
 	}
 	
 	public static class Box extends BoundaryPolygonal{
@@ -68,7 +68,7 @@ public class BoundaryPolygonal extends Boundary {
 			sides[2] = new Side( new Line2D.Float(xOffset+width , yOffset+height , xOffset , yOffset+height ) , this, 2 , defaultCollisionEvent);
 			sides[3] = new Side( new Line2D.Float(xOffset , yOffset+height , xOffset , yOffset ) , this, 3 , defaultCollisionEvent);
 			connectBoundaryMap( defaultCollisionEvent );
-			constructVoronoiRegions();
+			//constructVoronoiRegions();
 		}
 		
 	}
@@ -84,7 +84,7 @@ public class BoundaryPolygonal extends Boundary {
 			sides[2] = new Side( new Line2D.Float(xOffset+width , yOffset+height , xOffset , yOffset+height ) , this, 2 , eventList[2]);
 			sides[3] = new Side( new Line2D.Float(xOffset , yOffset+height , xOffset , yOffset ) , this, 3 , eventList[3]);
 			connectBoundaryMap( defaultCollisionEvent );
-			constructVoronoiRegions();
+			//constructVoronoiRegions();
 		}
 		
 	}

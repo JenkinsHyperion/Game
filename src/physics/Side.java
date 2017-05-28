@@ -120,5 +120,9 @@ public class Side extends BoundaryFeature{
 	public boolean debugIsSide() {
 		return true;
 	}
+	@Override
+	public Vector getNormal() {
+		return this.getSlopeVector().normalLeft();
+	}
 	
 }

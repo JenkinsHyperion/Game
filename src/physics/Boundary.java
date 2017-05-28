@@ -13,7 +13,7 @@ import misc.*;
 
 public abstract class Boundary {
 	
-	protected VoronoiRegion[] regions; //construxct with undefined region to prevent crashes
+	protected VoronoiRegion[] regions = new VoronoiRegion[0]; //construxct with undefined region to prevent crashes
 
 	public abstract Boundary atPosition( Point position );
 	
@@ -157,6 +157,12 @@ public abstract class Boundary {
 		
 	}
 
-	
+	public void debugDrawVoronoiRegions( MovingCamera cam , Graphics2D g2 ){
+		
+		for (VoronoiRegion region : regions ){
+			region.debugDrawRegion(cam, g2);
+		}
+		
+	}
 	
 }

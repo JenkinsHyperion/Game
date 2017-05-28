@@ -95,7 +95,11 @@ public class CollisionEngine {
 					this.addPair( new CheckingPair( dynamic , newStatic , check ) );
 				}
 				else{
-					VisualCollisionCheck check = VisualCollisionCheck.circlePoly( dynamic.collider.getOwnerEntity(), (BoundaryPolygonal)newStatic.collider.getBoundary() ) ;
+					VisualCollisionCheck check = VisualCollisionCheck.circlePoly( 
+							dynamic.collider.getOwnerEntity(), 
+							newStatic.collider.getOwnerEntity(),
+							(BoundaryPolygonal)newStatic.collider.getBoundary() 
+					);
 					this.addPair( new CheckingPair( dynamic , newStatic , check ) );
 				}
 			}
@@ -116,7 +120,12 @@ public class CollisionEngine {
 
 		for ( ActiveCollider stat : staticCollidables ){
 			this.addPair( new CheckingPair( newDynamic , stat , 
-					VisualCollisionCheck.circlePoly(newDynamic.collider.getOwnerEntity(), (BoundaryPolygonal) stat.collider.getBoundary() ) ) );
+					VisualCollisionCheck.circlePoly(
+							newDynamic.collider.getOwnerEntity(),
+							stat.collider.getOwnerEntity(),
+							(BoundaryPolygonal) stat.collider.getBoundary() 
+					)
+			));
 		}
 		return newDynamic;
 	}

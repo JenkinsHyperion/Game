@@ -176,12 +176,12 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			}
 			public void onReleased() {} public void onHeld() {}
 		});
-		inputController.createKeyBinding(KeyEvent.VK_S, new KeyCommand() {
+		/*inputController.createKeyBinding(KeyEvent.VK_S, new KeyCommand() {
 			@Override
 			public void onPressed() { getEditorSelectMode().setSelectViaSprite(true);
 									  selectViaSpriteRB.setSelected(true);}
 			public void onReleased() {} public void onHeld() {}
-		});
+		});*/
 		
 		inputController.createKeyBinding(KeyEvent.VK_B, new KeyCommand() {
 			@Override
@@ -262,7 +262,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
-				//editorSelectMode.setSelectViaSprite(true);
+				editorSelectMode.setSelectViaSprite(true);
 			}
 		});
 		selectViaBoundaryRB = new JRadioButton("B");
@@ -271,7 +271,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		selectViaBoundaryRB.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//editorSelectMode.setSelectViaSprite(false);
+				editorSelectMode.setSelectViaSprite(false);
 			}
 		});
 		ButtonGroup rbgroup = new ButtonGroup();
@@ -841,6 +841,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		this.editorMode = newMode;
 	}
 	public EditorSelectMode getEditorSelectMode() {
+		this.editorSelectMode.setMode(editorSelectMode.getDefaultMode());
 		worldGeomButton.setEnabled(true);
 		iconBarScrollPaneSpriteSwap.setVisible(false);
 		spriteEditorButton.setEnabled(false);
@@ -1630,13 +1631,12 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			public void onHeld() {}
 		}
 		public class DefaultSpriteEditorMode extends ModeAbstract {
-			Point initClick;
+			//Point initClick;
 			//Point spriteInitialPosition;
 			Point spriteOriginalOffset;
 			
 			public DefaultSpriteEditorMode() {
 				modeName = "DefaultSpriteEditorMode";
-				initClick = new Point();
 				//spriteInitialPosition = new Point();
 				spriteOriginalOffset = new Point();
 				inputController = new InputController("Default sprite editor mode controller");
@@ -1676,22 +1676,31 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				public void mousePressed() {
 				/*	spriteOriginalOffset.setLocation(currentSelectedEntity.getGraphicComposite().getSprite().getOffsetX(),
 							 currentSelectedEntity.getGraphicComposite().getSprite().getOffsetX());*/
-					initClick.setLocation(camera.getLocalPosition(editorMousePos)); // sets temporary old mouse position reference
+					initClickPoint.setLocation(editorMousePos); // sets temporary old mouse position reference
 					spriteOriginalOffset.setLocation(currentSelectedEntity.getGraphicComposite().getSprite().getOffsetPoint());;
 				}
 
 				@Override
 				public void mouseDragged() {
-					int mousePanDX = (initClick.x - editorMousePos.x);
-					int mousePanDY = (initClick.y - editorMousePos.y);
+					Sprite currentSprite = currentSelectedEntity.getGraphicComposite().getSprite();
+					int mousePanDX = (initClickPoint.x - editorMousePos.x);
+					int mousePanDY = (initClickPoint.y - editorMousePos.y);
+					Vector originalVector = new Vector(mousePanDX, mousePanDY);
+					Vector newVector = currentSprite.getRelativePoint(originalVector);
 					/*currentSelectedEntity.getGraphicComposite().getSprite().setOffset(
 							(int)(spriteInitialPosition.x + mousePanDX),
 							(int)(spriteInitialPosition.y + mousePanDY)
 							);*/
-					currentSelectedEntity.getGraphicComposite().getSprite().setOffset(
+				/*	currentSelectedEntity.getGraphicComposite().getSprite().setOffset(
 							(int)(camera.getLocalX(spriteOriginalOffset.x - mousePanDX)),
 							(int)(camera.getLocalY(spriteOriginalOffset.y - mousePanDY))
-							);
+							);*/
+					//currentSprite.setOffset(-(int)newVector.getX(),-(int)newVector.getY());
+
+					Vector orientation = originalVector.projectedOver( Vector.unitVectorFromAngle(Math.toRadians(currentSprite.getAngle())) );
+					
+					currentSprite.setOffset( (int)orientation.getX(), (int)orientation.getY() );
+					
 				}
 				@Override
 				public void mouseReleased() {}

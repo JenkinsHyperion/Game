@@ -11,6 +11,7 @@ import animation.Animation;
 import engine.MovingCamera;
 import entityComposites.EntityStatic;
 import entityComposites.GraphicComposite;
+import physics.Vector;
 
 /*
  * This is the base Sprite class. 
@@ -73,11 +74,18 @@ public abstract class Sprite implements Graphic{
     	spriteOffsetX = x;
     	spriteOffsetY = y;
     }
+    public Vector getRelativePoint(Vector worldVector) {
+    	double newX = worldVector.getX() * (Math.cos(Math.toRadians(spriteAngle)));
+    	double newY = worldVector.getY() * (Math.sin(Math.toRadians(spriteAngle)));
+    	return new Vector(newX, newY);
+    }
     
     public void setAngle( double angle){
 		this.spriteAngle = angle;
 	}
-    
+    public double getAngle() {
+    	return this.spriteAngle;
+    }
     public String getPathName(){
     	return this.fileName;
     }

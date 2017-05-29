@@ -10,14 +10,17 @@ public class SelectedVertices {
 	private ArrayList<EditorVertex> selectedVertices = new ArrayList<>();
 	private ArrayList<Point> oldVertexPositions = new ArrayList<>();
 	private MovingCamera camera;
+	//private double selectedVertsScaleFactor;
 	//private Point worldGeomMousePos;
 	// vvvv probably won't need
 	//private VertexNull vertexNull = VertexNull.getNullVertex();
 	public SelectedVertices(MovingCamera camera) {
+		//selectedVertsScaleFactor = 0.0;
 		this.camera = camera;
 		//this.worldGeomMousePos = worldGeomMousePosRef;
 	}
 	public void clearSelectedVertices() {
+		//selectedVertsScaleFactor = 0.0;
 		selectedVertices.clear();
 	}
 	public ArrayList<EditorVertex> getVertices(){
@@ -95,13 +98,33 @@ public class SelectedVertices {
 		selectedVertices.remove(editorVertex);
 	}
 	
-	public void translate(Point initClickPoint, Point worldGeomMousePos) {
-		int deltaX = initClickPoint.x - worldGeomMousePos.x;
-		int deltaY = initClickPoint.y - worldGeomMousePos.y;
+	public void translate(Point initClickPoint, Point finalClickPos) {
+		int deltaX = initClickPoint.x - finalClickPos.x;
+		int deltaY = initClickPoint.y - finalClickPos.y;
 		for (int i = 0; i < selectedVertices.size(); i++) {
 			selectedVertices.get(i).translate(camera.getLocalX(oldVertexPositions.get(i).x - deltaX), 
 											 camera.getLocalY(oldVertexPositions.get(i).y - deltaY));
 		}
+	}
+	public void scaleVertices(Point initClickPos, Point finalClickPos, Point center) {
+		// there will be 2 components: 
+		// 1) The X distance between initclickpoint and editorMousePos
+		// 2) The center of the boundary
+		double tempDistance = -(camera.getRelativeX(initClickPos.getX()) - camera.getRelativeX(finalClickPos.getX()) );
+		for (int i = 0; i < selectedVertices.size(); i++) {
+			//vvvvv the wrong solution vvvv
+			double distanceFromCenterX = oldVertexPositions.get(i).x - center.x;
+			double distanceFromCenterY = oldVertexPositions.get(i).y - center.y;
+/*			selectedVertices.get(i).translate( camera.getLocalX( (oldVertexPositions.get(i).x - camera.getLocalX(center.x)) - tempDistance  ), 
+											   camera.getLocalY( (oldVertexPositions.get(i).y - camera.getLocalY(center.y)) - tempDistance ) );*/
+			selectedVertices.get(i).translate(  (int)(distanceFromCenterX * (1 + (tempDistance/400)) ), 
+												 (int)(distanceFromCenterY * (1 + (tempDistance/400)) ));
+		}
+		//distance will add or subtract from the scale factor(which is stored in the boundaryVertexSelectMode class
+		//will add this distance to the old X, multiply another scale factor(such as .1) to reduce its scaling speed, and set that as the current x
+		//double newX = 
+		//double deltaX = clickPosition.x - center;
+		//double deltaY = clickPosition.y - center;
 	}
 	public void removeSelectedVertex(int i) {
 		if (i >= 0 && i <= selectedVertices.size()-1 )

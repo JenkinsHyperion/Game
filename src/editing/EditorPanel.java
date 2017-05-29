@@ -118,7 +118,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	protected JButton wgVertexSelectModeButton;
 	//protected JButton entidorModeButton;
 	protected JButton spriteEditorButton;
-	protected JButton boundaryEditorButton;
 	protected JButton boundaryVertexSelectButton;
 	protected JButton boundaryVertexPlaceButton;
 	
@@ -214,7 +213,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		wgVertexPlaceModeButton = new JButton("VtxPlace");
 		wgVertexSelectModeButton = new JButton("VtxSelect");
 		spriteEditorButton = new JButton("SpriteEditor");
-		boundaryEditorButton = new JButton("BoundEditor");
 		boundaryVertexSelectButton = new JButton("BoundVertSelect");
 		boundaryVertexPlaceButton = new JButton("BoundVertPlace");
 		newEntityPath = "";
@@ -366,17 +364,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				
 			}
 		});
-		/////////// THIS BUTTON NOT BEING USED ANYMORE
-		boundaryEditorButton.setFocusable(false);
-		boundaryEditorButton.setEnabled(false);
-		boundaryEditorButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				boundaryEditorMode.setCurrentEntity(getEditorSelectMode().getSingleSelectedEntity());
-				setMode(getBoundaryEditorMode());
-			}
-		}); ///////////////////////////////
-
 		boundaryVertexSelectButton.setFocusable(false);
 		boundaryVertexSelectButton.setEnabled(false);
 		boundaryVertexSelectButton.addActionListener(new ActionListener() {
@@ -384,10 +371,10 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			public void actionPerformed(ActionEvent e) {
 				boundaryEditorMode.setCurrentEntity(getEditorSelectMode().getSingleSelectedEntity());
 				boundaryEditorMode.setSubMode(boundaryEditorMode.getVertexSelectMode());
+				boundaryEditorMode.getVertexSelectMode().setBoundarySubMode(boundaryEditorMode.getVertexSelectMode().getDefaultMode());
 				setMode(getBoundaryEditorMode());
 			}
 		});
-
 		boundaryVertexPlaceButton.setFocusable(false);
 		boundaryVertexPlaceButton.setEnabled(false);
 		boundaryVertexPlaceButton.addActionListener(new ActionListener() {
@@ -423,7 +410,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		buttonPanel.add(separators[3]); //divider
 		buttonPanel.add(spriteEditorButton);
 		buttonPanel.add(separators[4]); //divider
-		//buttonPanel.add(boundaryEditorButton);
 		buttonPanel.add(boundaryVertexSelectButton);
 		buttonPanel.add(boundaryVertexPlaceButton);
 		
@@ -512,7 +498,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				//setCurrentSelectedEntity(board.getEntities().get(currentEntIndex));
 				editorSelectMode.addSelectedEntity(board.listCurrentSceneEntities()[currentEntIndex]);
 				spriteEditorButton.setEnabled(true);
-				boundaryEditorButton.setEnabled(true);
 				boundaryVertexSelectButton.setEnabled(true);
 				boundaryVertexPlaceButton.setEnabled(true);
 				//createAndShowPropertiesPanel(board);   ##### IMPORTANT LINE, UNCOMMENT LATER
@@ -847,7 +832,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		spriteEditorButton.setEnabled(false);
 		wgVertexSelectModeButton.setEnabled(false);
 		wgVertexPlaceModeButton.setEnabled(false);
-		boundaryEditorButton.setEnabled(false);
 		boundaryVertexPlaceButton.setEnabled(false);
 		boundaryVertexSelectButton.setEnabled(false);
 		return this.editorSelectMode;
@@ -862,7 +846,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		wgVertexPlaceModeButton.setEnabled(true);
 		wgVertexSelectModeButton.setEnabled(true);
 		
-		boundaryEditorButton.setEnabled(false);
 		boundaryVertexPlaceButton.setEnabled(false);
 		boundaryVertexSelectButton.setEnabled(false);
 		return this.worldGeomMode;
@@ -875,7 +858,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		iconBarScrollPaneSpriteSwap.setVisible(true);
 		wgVertexPlaceModeButton.setEnabled(false);
 		wgVertexSelectModeButton.setEnabled(false);
-		boundaryEditorButton.setEnabled(false);
 		boundaryVertexPlaceButton.setEnabled(false);
 		boundaryVertexSelectButton.setEnabled(false);
 		return this.spriteEditorMode;
@@ -1219,14 +1201,12 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			} //end of else
 			if (selectedEntities.size() == 1) {
 				spriteEditorButton.setEnabled(true);
-				boundaryEditorButton.setEnabled(true);
 				boundaryVertexSelectButton.setEnabled(true);
 				boundaryVertexPlaceButton.setEnabled(true);
 				
 			}
 			else {
 				spriteEditorButton.setEnabled(false);
-				boundaryEditorButton.setEnabled(false);
 				boundaryVertexSelectButton.setEnabled(false);
 				boundaryVertexPlaceButton.setEnabled(false);
 			}
@@ -1236,7 +1216,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			//since this is the regular click method, would want to make sure any selected entities are deselected first
 			if (selectedEntities.size() > 0) {
 				spriteEditorButton.setEnabled(false);
-				boundaryEditorButton.setEnabled(false);
 				boundaryVertexSelectButton.setEnabled(false);
 				boundaryVertexPlaceButton.setEnabled(false);
 				selectedEntities.clearSelectedEntities();
@@ -1256,7 +1235,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 								//FIXME this is just a test
 								//selectedEntities.get(0).getRotationComposite().setAngleInDegrees(selectedEntities.get(0).getRotationComposite().getAngle()+45);
 								spriteEditorButton.setEnabled(true);
-								boundaryEditorButton.setEnabled(true);
 								boundaryVertexSelectButton.setEnabled(true);
 								boundaryVertexPlaceButton.setEnabled(true);
 								break;
@@ -1285,7 +1263,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 							if (selectedEntities.contains(entity) == false) {
 								selectedEntities.addSelectedEntity(entity);
 								spriteEditorButton.setEnabled(true);
-								boundaryEditorButton.setEnabled(true);
 								boundaryVertexSelectButton.setEnabled(true);
 								boundaryVertexPlaceButton.setEnabled(true);
 								break;
@@ -1341,13 +1318,11 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			if (selectedEntities.size() == 1) {
 				//TODO return to this once synced with matt's new Sprite composite system
 				spriteEditorButton.setEnabled(true);
-				boundaryEditorButton.setEnabled(true);
 				boundaryVertexSelectButton.setEnabled(true);
 				boundaryVertexPlaceButton.setEnabled(true);
 			}
 			else {
 				spriteEditorButton.setEnabled(false);
-				boundaryEditorButton.setEnabled(false);
 				boundaryVertexSelectButton.setEnabled(false);
 				boundaryVertexPlaceButton.setEnabled(false);
 			}
@@ -1441,7 +1416,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			public void onPressed() {
 				selectedEntities.clearSelectedEntities();
 				spriteEditorButton.setEnabled(false);
-				boundaryEditorButton.setEnabled(false);
 			}
 			public void onReleased() {}
 			public void onHeld() {}
@@ -1545,14 +1519,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			spriteScaleMode = new SpriteScaleMode();
 			spriteEditorSubMode = defaultSpriteEditorMode;
 			this.inputController = new InputController("Sprite editor mode controller");
-			
 		}
-		public void setCurrentEntity(EntityStatic newEntity) {
-			this.currentSelectedEntity = newEntity;
-		}
-		public EntityStatic getCurrentEntity(){
-			return this.currentSelectedEntity;
-		}
+
 		@Override
 		public void mousePressed(MouseEvent e) {
 			this.spriteEditorSubMode.mousePressed(e);
@@ -1580,6 +1548,12 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		@Override
 		public void render(Graphics g) {
 			this.spriteEditorSubMode.render(g);
+		}
+		public void setCurrentEntity(EntityStatic newEntity) {
+			this.currentSelectedEntity = newEntity;
+		}
+		public EntityStatic getCurrentEntity(){
+			return this.currentSelectedEntity;
 		}
 		@Override
 		public String getModeName(){
@@ -1977,7 +1951,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					//double tempDistance = Math.abs(camera.getRelativePoint(getCurrentEntity().getPosition()).distance(editorMousePos));
 					//double tempDistance = camera.getRelativePoint(initClickPoint).distance(editorMousePos);
 					double tempDistance = -(camera.getRelativeX(initClickPoint.getX()) - editorMousePos.getX());
-					dragDistance = tempDistance;
+					dragDistance = tempDistance; //not an important field
 					double width = getCurrentEntity().getGraphicComposite().getSprite().getBufferedImage().getWidth();
 					double height = getCurrentEntity().getGraphicComposite().getSprite().getBufferedImage().getHeight();
 					double hyp = Math.sqrt( (width*width/4) + (height*height/4));
@@ -2039,7 +2013,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		protected EntityNull nullEntity = EntityNull.getNullEntity();
 		private ArrayList<EditorVertex> vertexList = new ArrayList<>();
 		private ArrayList<EditorVertex> oldVertexListForReset = new ArrayList<>(vertexList);
-		private ArrayList<EditorVertex> oldVertexListForScaling = new ArrayList<>();
+		//private ArrayList<EditorVertex> oldVertexListForScaling = new ArrayList<>();
 		private ArrayList<Line2D.Double> surfaceLines = new ArrayList<>();
 		private ArrayList<Line2D.Double> oldBoundaryLines = new ArrayList<>();
 		
@@ -2209,7 +2183,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			this.currentSelectedEntity = newEntity;
 			//debugTestForVerticesPosition();
 			retrieveVertsFromBoundary(currentSelectedEntity.getColliderComposite());
-			setUpBackUpVerts();
+			setUpBackUpVertsForReset();
 			getBoundaryEditorMode().getVertexSelectMode().selectedVertices.clearSelectedVertices();
 		}
 		public EntityStatic getCurrentEntity(){
@@ -2224,29 +2198,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			
 			getVertexSelectMode().selectedVertices.clearSelectedVertices();
 		}
-		/**
-		 * @param scaleFactor - the raw distance on screen between the center of the boundary and the mouseclick position
-		 */
-		public void scaleVertices(double scaleFactor) { //might not actually need that scaleFactor parameter
-			// remember in the ScaleEvent->mousePressed() section to set the oldVertexListForScaling to the currentVertices
-			this.vertexList.clear();
-			// don't use vvvvv
-			/*for (EditorVertex newVert: oldVertexListForScaling) {
-				double newX = 
-			}*/
-			for (int i = 0; i < oldVertexListForScaling.size(); i++) {
-				//TODO fix this
-				//what I had from spriteScaling:
-				//double tempDistance = -(camera.getRelativeX(initClickPoint.getX()) - editorMousePos.getX());
-				//dragDistance = tempDistance;
-				
-				//tempdistance = 
-				//distance will add or subtract from the scale factor(which is stored in the boundaryVertexSelectMode class
-				//will add this distance to the old X, multiply another scale factor(such as .1) to reduce its scaling speed, and set that as the current x
-				//double newX = 
-			}
-		}
-		public void setUpBackUpVerts() {
+		public void setUpBackUpVertsForReset() {
 			this.oldVertexListForReset.clear();
 			for (EditorVertex newVert: vertexList) 
 				oldVertexListForReset.add(new EditorVertex((int)newVert.getPoint().getX(), (int)newVert.getPoint().getY()));
@@ -2327,13 +2279,14 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				getVertexSelectMode().selectedVertices.clearSelectedVertices();
 			}
 		}
-		// ############ INNER CLASS BOUNDARY VERTEX SELECT MODE ############
+		
+//  #################### INNER CLASS BOUNDARY VERTEX SELECT MODE ################################################### BOUNDARY VERTEX SELECT MODE
 		public class BoundaryVertexSelectMode extends ModeAbstract {
 			protected SelectedVertices selectedVertices;
 			
 			protected ModeAbstract boundaryVertexSelectSubMode;
-			//protected DefaultBVSMode defaultBVSMode;
-			//protected BoundaryScaleMode boundaryScaleMode;
+			protected DefaultBoundarySubMode defaultBoundarySubMode;
+			protected BoundaryScaleSubMode boundaryScaleSubMode;
 			protected SelectionRectangleAbstract selectionRectangle;
 			protected SelectionRectangleAbstract selectionRectangleState;
 			protected SelectionRectangleAbstract nullSelectionRectangle;
@@ -2343,6 +2296,9 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			public BoundaryVertexSelectMode() {
 				//FIXME ** WILL NEED TO SPLIT THIS CLASS INTO TWO SUBMODES: DEFAULT AND SCALE MODE, MAYBE ROTATE LATER
 				modeName = "BoundaryVertexSelectMode";
+				defaultBoundarySubMode = new DefaultBoundarySubMode();
+				boundaryScaleSubMode = new BoundaryScaleSubMode();
+				this.boundaryVertexSelectSubMode = defaultBoundarySubMode;
 				initClickPoint = new Point();
 				selectedVertices = new SelectedVertices(camera);
 				nullSelectionRectangle = SelectionRectangleNull.getNullSelectionRectangle();
@@ -2350,48 +2306,27 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				selectionRectangleState = nullSelectionRectangle;
 				
 				inputController = new InputController("Boundary vertex select mode controller");
-				this.inputController.createMouseBinding(MouseEvent.BUTTON1, new VertexSelectLClickEvent());
-				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new CtrlVertexSelectLClickEvent());
-				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new TranslateEvent());
-				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON1, new SelectionRectEvent());
-				this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());
-				//this.inputController.createKeyBinding(KeyEvent.VK_N, new RetrieveVertsFromBoundaryEvent());
-				this.inputController.createKeyBinding(KeyEvent.VK_ENTER, new ReplaceAndFinalizeBoundaryEvent());
-				this.inputController.createKeyBinding(KeyEvent.CTRL_MASK, KeyEvent.VK_Z, new ResetBoundaryVerticesToDefaultEvent());
-				this.inputController.createKeyBinding(KeyEvent.VK_DELETE, new DeleteVerticesEvent());
-				this.inputController.createKeyBinding(KeyEvent.VK_C, new CloseShapeEvent());
-				this.inputController.createKeyBinding(KeyEvent.VK_X, new AlignToXAxisEvent());
-				this.inputController.createKeyBinding(KeyEvent.VK_Y, new AlignToYAxisEvent());
-				this.inputController.createKeyBinding(KeyEvent.VK_SLASH, new SplitLineEvent());
+				
 			}
-
+			// Running polymorphic input commands
 			@Override
 			public void mousePressed(MouseEvent e) {
-				inputController.mousePressed(e);			
-			}
+				boundaryVertexSelectSubMode.inputController.mousePressed(e); }
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				inputController.mouseDragged(e);
-			}
+				boundaryVertexSelectSubMode.inputController.mouseDragged(e); }
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				
-				inputController.mouseReleased(e); }
+				boundaryVertexSelectSubMode.inputController.mouseReleased(e); }
 			@Override
-			public void keyPressed(KeyEvent e) { inputController.keyPressed(e);	}
+			public void keyPressed(KeyEvent e) { 
+				boundaryVertexSelectSubMode.inputController.keyPressed(e);	}
 			@Override
-			public void keyReleased(KeyEvent e) {inputController.keyReleased(e); }
-
+			public void keyReleased(KeyEvent e) {
+				boundaryVertexSelectSubMode.inputController.keyReleased(e); }
 			@Override
 			public void render(Graphics g) {
-				Graphics2D g2 = (Graphics2D)g;	
-				defaultRender(g2);
-				// section to draw selected Vertex (if one is selected)
-				g2.setColor(Color.GREEN);
-				selectedVertices.drawClickableBox(g2, camera);
-				g2.setColor(Color.BLUE);
-				// vvvv section to draw selection rectangle
-				selectionRectangleState.draw(g2, camera);
+				boundaryVertexSelectSubMode.render(g);
 			}
 			public void checkForVertexShiftClick(Point click) {
 				for (EditorVertex editorVertex: vertexList) {
@@ -2431,6 +2366,22 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					}
 				}
 			}
+			public ModeAbstract getSubMode() {
+				return this.boundaryVertexSelectSubMode;
+			}
+			public DefaultBoundarySubMode getDefaultMode() {
+				return this.defaultBoundarySubMode;
+			}
+			public BoundaryScaleSubMode getScaleMode() {
+				return this.boundaryScaleSubMode;
+			}
+			@Override
+			public String getModeName(){
+				return this.boundaryVertexSelectSubMode.getModeName();
+			}
+			public void setBoundarySubMode(ModeAbstract newMode) {
+				this.boundaryVertexSelectSubMode = newMode;
+			}
 			public void splitLine() {
 				if (selectedVertices.size() == 2) {
 					if ( checkIfVerticesAreAdjacent(selectedVertices.getVertices().get(0), selectedVertices.getVertices().get(1)) ){
@@ -2447,6 +2398,118 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					}
 				}
 			}
+			
+			public class SetDefaultMode implements KeyCommand {
+				@Override
+				public void onPressed() {
+					setBoundarySubMode(defaultBoundarySubMode);
+				}
+				public void onReleased() {}
+				public void onHeld() {}
+			}
+			public class SetScaleMode implements KeyCommand {
+				@Override
+				public void onPressed() {
+					setBoundarySubMode(boundaryScaleSubMode);
+				}
+				public void onReleased() {}
+				public void onHeld() {}
+			}
+			// ########################  INNER SUB MODE: DEFAULT MODE ########################					DEFAULT MODE, i.e. translating mode
+			public class DefaultBoundarySubMode extends ModeAbstract {
+				
+				public DefaultBoundarySubMode() {
+					this.modeName = "BoundaryVertexSelectDefaultMode";
+					inputController = new InputController("Boundary vertex select mode Default controller");
+					this.inputController.createMouseBinding(MouseEvent.BUTTON1, new VertexSelectLClickEvent());
+					this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new CtrlVertexSelectLClickEvent());
+					this.inputController.createMouseBinding(MouseEvent.BUTTON3, new TranslateEvent());
+					this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON1, new SelectionRectEvent());
+					this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());
+					//this.inputController.createKeyBinding(KeyEvent.VK_N, new RetrieveVertsFromBoundaryEvent());
+					this.inputController.createKeyBinding(KeyEvent.VK_ENTER, new ReplaceAndFinalizeBoundaryEvent());
+					this.inputController.createKeyBinding(KeyEvent.CTRL_MASK, KeyEvent.VK_Z, new ResetBoundaryVerticesToDefaultEvent());
+					this.inputController.createKeyBinding(KeyEvent.VK_DELETE, new DeleteVerticesEvent());
+					this.inputController.createKeyBinding(KeyEvent.VK_C, new CloseShapeEvent());
+					this.inputController.createKeyBinding(KeyEvent.VK_X, new AlignToXAxisEvent());
+					this.inputController.createKeyBinding(KeyEvent.VK_Y, new AlignToYAxisEvent());
+					this.inputController.createKeyBinding(KeyEvent.VK_SLASH, new SplitLineEvent());
+					this.inputController.createKeyBinding(KeyEvent.VK_S, new SetScaleMode());
+				}
+				@Override
+				public void mousePressed(MouseEvent e) {
+					this.inputController.mousePressed(e);
+				}
+				@Override
+				public void mouseDragged(MouseEvent e) {
+					this.inputController.mouseDragged(e);
+				}
+				@Override
+				public void mouseReleased(MouseEvent e) {
+					this.inputController.mouseReleased(e);
+				}
+				@Override
+				public void keyPressed(KeyEvent e) {
+					this.inputController.keyPressed(e);
+				}
+				@Override
+				public void keyReleased(KeyEvent e) {
+					this.inputController.keyReleased(e);
+				}			
+				@Override
+				public void render(Graphics g) {
+					// vvvv will be inside defaultmode's render
+					Graphics2D g2 = (Graphics2D)g;	
+					defaultRender(g2);
+					// section to draw selected Vertex (if one is selected)
+					g2.setColor(Color.GREEN);
+					selectedVertices.drawClickableBox(g2, camera);
+					g2.setColor(Color.BLUE);
+					// vvvv section to draw selection rectangle
+					selectionRectangleState.draw(g2, camera);
+				}
+			}	// end of Default Mode
+			
+			// ########################  INNER SUB MODE: SCALE MODE ########################					SCALE MODE
+			public class BoundaryScaleSubMode extends ModeAbstract {
+				
+				public BoundaryScaleSubMode() {
+					this.modeName = "Boundary Scale Mode";
+					inputController = new InputController("Boundary vertex select Scale controller");
+					this.inputController.createKeyBinding(KeyEvent.VK_D, new SetDefaultMode());
+					this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());
+					this.inputController.createMouseBinding(MouseEvent.BUTTON3, new ScaleEvent());
+					this.inputController.createKeyBinding(KeyEvent.VK_ENTER, new ReplaceAndFinalizeBoundaryEvent());
+				}
+				@Override
+				public void mousePressed(MouseEvent e) {
+					this.inputController.mousePressed(e);
+				}
+				@Override
+				public void mouseDragged(MouseEvent e) {
+					this.inputController.mouseDragged(e);
+				}
+				@Override
+				public void mouseReleased(MouseEvent e) {
+					this.inputController.mouseReleased(e);
+				}
+				@Override
+				public void keyPressed(KeyEvent e) {
+					this.inputController.keyPressed(e);
+				}
+				@Override
+				public void keyReleased(KeyEvent e) {
+					this.inputController.keyReleased(e);
+				}	
+				@Override
+				public void render(Graphics g) {
+					Graphics2D g2 = (Graphics2D)g;	
+					defaultRender(g2);
+					selectedVertices.drawClickableBox(g2, camera);
+					g2.setColor(Color.BLUE);
+				}
+			} // end of Scale mode
+			
 // ****************** inner-inner classes for mouse behavior classes specific to vertex selecting
 // ****************** inner-inner classes for mouse behavior classes specific to vertex selecting
 			
@@ -2513,15 +2576,18 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				
 				public void mousePressed() {
 					// update oldVertexListForScaling
+					initClickPoint.setLocation((editorMousePos));
+					selectedVertices.updateOldVertexPositions();
 				}
 				public void mouseDragged() {
-					//selectedVertices.translate(initClickPoint, editorMousePos);
+					//double tempDistance = -(camera.getRelativeX(initClickPoint.getX()) - editorMousePos.getX());
+					selectedVertices.scaleVertices(initClickPoint, editorMousePos, currentSelectedEntity.getPosition());
 					
 					refreshAllSurfaceLines(surfaceLines);
 					closeShape(surfaceLines);
 				}
 				public void mouseReleased() {
-					
+					selectedVertices.updateOldVertexPositions();
 				}
 			}
 			public class SelectionRectEvent implements MouseCommand {
@@ -2621,6 +2687,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		} // end of boundaryVertexSelectMode
 /////////   INNER CLASS BOUNDARYVERTEXPLACEMODE   //////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
+
 		public class BoundaryVertexPlaceMode extends ModeAbstract {
 			protected SelectionRectangleAbstract tempRectBoundary;
 			protected SelectionRectangleAbstract tempRectBoundaryState;

@@ -35,6 +35,9 @@ public abstract class Boundary {
 	
 	public abstract <T> Boundary temporaryClone();
 	
+	public abstract void scaleBoundary(double scaleFactor);
+	public abstract void scaleBoundary(double scaleFactor, Point center);
+	
 	protected abstract void constructVoronoiRegions();
 	protected VoronoiRegion[] getVoronoiRegions(){ return this.regions; }
 	

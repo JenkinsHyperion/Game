@@ -11,13 +11,13 @@ public class GraphicData implements Serializable {
 	
 	protected static GraphicData createStillFrameData( String pathname , int xOffset, int yOffset ){
 		GraphicData data = new GraphicData();
-		data.setSrpiteData( data.new SpriteData( pathname, xOffset, yOffset ) );
+		data.setSpriteData( data.new SpriteData( pathname, xOffset, yOffset ) );
 		return data;
 	}
 	
 	protected static GraphicData createAnimationData( String path, int xOffset, int yOffset, int frames, int row, int tileW, int tileH, int delay ){
 		GraphicData data = new GraphicData();
-		data.setSrpiteData( data.new AnimatedSprite( path, xOffset, yOffset , frames, row, tileW, tileH, delay ) );
+		data.setSpriteData( data.new AnimatedSprite( path, xOffset, yOffset , frames, row, tileW, tileH, delay ) );
 		return data;
 	}
 	
@@ -31,7 +31,7 @@ public class GraphicData implements Serializable {
 		return this.spriteData.yOffset;
 	}
 	
-	protected void setSrpiteData( SpriteData data ){
+	protected void setSpriteData( SpriteData data ){
 		this.spriteData = data;
 	}
 	

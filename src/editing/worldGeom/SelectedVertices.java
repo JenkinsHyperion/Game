@@ -117,8 +117,8 @@ public class SelectedVertices {
 			double distanceFromCenterY = oldVertexPositions.get(i).y - center.y;
 /*			selectedVertices.get(i).translate( camera.getLocalX( (oldVertexPositions.get(i).x - camera.getLocalX(center.x)) - tempDistance  ), 
 											   camera.getLocalY( (oldVertexPositions.get(i).y - camera.getLocalY(center.y)) - tempDistance ) );*/
-			selectedVertices.get(i).translate(  (int)(distanceFromCenterX * (1 + (tempDistance/400)) ), 
-												 (int)(distanceFromCenterY * (1 + (tempDistance/400)) ));
+			selectedVertices.get(i).translate(  (int)(distanceFromCenterX * (1 + (tempDistance/400)) + center.x ), 
+												 (int)(distanceFromCenterY * (1 + (tempDistance/400)) + center.y));
 		}
 		//distance will add or subtract from the scale factor(which is stored in the boundaryVertexSelectMode class
 		//will add this distance to the old X, multiply another scale factor(such as .1) to reduce its scaling speed, and set that as the current x

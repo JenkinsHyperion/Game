@@ -51,16 +51,10 @@ public class BoardPhysicsTesting extends BoardAbstract{
     	
     	collisionEngine = new VisualCollisionEngine( this , renderingEngine );
     	
-    	//inputController.createKeyBinding( KeyEvent.VK_R, new UNMASKED_R() );
-    	//inputController.createKeyBinding( KeyEvent.VK_E, new UNMASKED_R() );
-    	//inputController.createKeyBinding( KeyEvent.CTRL_MASK , KeyEvent.VK_R, new CTR_R() );
-    	
-    	//inputController.createMouseBinding( MouseEvent.BUTTON1 , new MOUSETRIGGER() );
-    	//inputController.createMouseBinding( MouseEvent.BUTTON3 , new MOUSETRIGGER() );
-    	//inputController.createMouseBinding( MouseEvent.CTRL_MASK , MouseEvent.BUTTON1 , new MOUSETRIGGER() );
+    	inputController.createKeyBinding( KeyEvent.VK_PAUSE, new PauseEvent() );
 
-    	CompositeFactory.addColliderTo( followerEntity , new BoundaryPolygonal.Box(60, 60, -10, -10) );
-    	//CompositeFactory.addColliderTo(followerEntity, new BoundaryCircular(40,followerEntity) );
+    	//CompositeFactory.addColliderTo( followerEntity , new BoundaryPolygonal.Box(60, 60, -10, -10) );
+    	CompositeFactory.addColliderTo(followerEntity, new BoundaryCircular(40,followerEntity) );
     	//CompositeFactory.addColliderTo(followerEntity, new BoundarySingular() );
     	//CompositeFactory.addColliderTo(followerEntity, new BoundaryPolygonal.Box(60, 60, -30, -30) );
 
@@ -68,7 +62,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
     	CompositeFactory.addGraphicTo(followerEntity, new SpriteStillframe("box.png") );
     	CompositeFactory.addTranslationTo(followerEntity);
     	
-    	gravity = followerEntity.getTranslationComposite().addForce(new Vector( 0,0.2 ) );
+    	//gravity = followerEntity.getTranslationComposite().addForce(new Vector( 0,0.2 ) );
     	this.currentScene.addEntity( followerEntity );
     	
     	MouseHandlerClass myMouseHandler = new MouseHandlerClass();
@@ -198,7 +192,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 	
 	@Override
 	public void keyPressed(KeyEvent e) {
-		// TODO Auto-generated method stub
+		super.keyPressed(e);
 		inputController.keyPressed(e);
 	}
 
@@ -255,6 +249,18 @@ public class BoardPhysicsTesting extends BoardAbstract{
 			collider.getBoundary().debugDrawVoronoiRegions( renderingEngine.getCamera(), (Graphics2D) g);
 		}
 		
+		Point relativePosition = rotateTest.getRelativePositionOf(followerEntity);
+		
+		Point localPosition = new Point( relativePosition.x + rotateTest.getX() , relativePosition.y + rotateTest.getY() );
+		g.setColor(Color.RED);
+		camera.drawCrossInWorld(localPosition);
+		
+		for ( Vector force : followerEntity.getTranslationComposite().debugForceArrows() ){
+			
+			camera.draw( force.multiply(300).toLine( followerEntity.getPosition() ) );
+		}
+		
+		g.setColor(Color.CYAN);
 		//VORONI REIGON TESTING
 		
 		// y = ( 300 / 1000 )x + b
@@ -319,8 +325,8 @@ public class BoardPhysicsTesting extends BoardAbstract{
 			float distY =	(float)(-camera.getRelativeY( followerEntity.getY() ) + target.getY()) ;
 			
   			Vector followVelocity = new Vector(
-  					Math.signum(distX)*(distX*distX)/50000  +  distX/20 ,    //like Linear Follow, this is a Quadratic Follow
-  					Math.signum(distY)*(distY*distY)/50000  +  distY/20
+  					Math.signum(distX)*(distX*distX)/50000.0  +  distX/20.0 ,    //like Linear Follow, this is a Quadratic Follow
+  					Math.signum(distY)*(distY*distY)/50000.0  +  distY/20.0
   			);
   			followerEntity.getTranslationComposite().setVelocityVector( followVelocity );
 		}
@@ -387,7 +393,22 @@ public class BoardPhysicsTesting extends BoardAbstract{
   		
   	}
  	
- 	private class CTR_R implements KeyCommand {
+ 	private class PauseEvent extends KeyCommand{
+ 		private boolean isPaused = false;
+ 		@Override
+ 		public void onPressed() {
+ 			if (isPaused){
+ 				activateUpdater();
+ 				isPaused = false;
+ 			}
+ 			else{
+ 				pauseUpdater();
+ 				isPaused = true;
+ 			}
+ 		}
+ 	}
+ 	
+ 	private class CTR_R extends KeyCommand {
 
 		@Override
 		public void onPressed() {
@@ -406,7 +427,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
  		
  	}
  	
- 	private class UNMASKED_R implements KeyCommand {
+ 	private class UNMASKED_R extends KeyCommand {
 
 		@Override
 		public void onPressed() {
@@ -425,7 +446,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
  		
  	}
  	
- 	private class MOUSETRIGGER implements MouseCommand {
+ 	private class MOUSETRIGGER extends MouseCommand {
 
 		@Override
 		public void mousePressed() {

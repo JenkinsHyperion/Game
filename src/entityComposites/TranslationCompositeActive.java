@@ -43,8 +43,9 @@ public class TranslationCompositeActive extends TranslationComposite implements 
     }  
     @Override
     public void updateEntity( EntityStatic entity ) {
-    	entity.x = (float) (entity.x + this.dx + this.accX) ; 
-    	entity.y = (float) (entity.y + this.dy + this.accY) ;
+    	
+    	entity.setX( entity.x + this.dx) ; 
+    	entity.setY( entity.y + this.dy) ;
     	
     }  
     @Override
@@ -73,13 +74,13 @@ public class TranslationCompositeActive extends TranslationComposite implements 
     }
     @Override
     public void setVelocityVector( Vector vector){
-    	dx = (float)vector.getX();
-    	dy = (float)vector.getY();
+    	dx = vector.getX();
+    	dy = vector.getY();
     }
     @Override
     public void addVelocity( Vector vector){
-    	dx += (float)vector.getX();
-    	dy += (float)vector.getY();
+    	dx += vector.getX();
+    	dy += vector.getY();
     }
     @Override
     public double getDeltaX( EntityStatic owner ){
@@ -121,15 +122,22 @@ public class TranslationCompositeActive extends TranslationComposite implements 
     }
     @Override
     public void clipDY(double clipDY) { 
+    	double dyTemp = dy;
     	if ( dy > 0 ){
-    		if ( dy + clipDY < 0 ){
+    		if ( clipDY > 0){
+    			
+    		}
+    		else if ( dy + clipDY < 0 ){
     			dy = 0;
     		}else{
     			dy = dy + clipDY;
     		}
     	}
     	else if ( dy < 0 ){
-    		if ( dy + clipDY > 0 ){
+    		if ( clipDY < 0){
+    			
+    		}
+    		else if ( dy + clipDY > 0 ){ 
     			dy = 0;
     		}else{
     			dy = dy + clipDY;
@@ -137,6 +145,7 @@ public class TranslationCompositeActive extends TranslationComposite implements 
     	}else{
     		dy = 0;
     	}
+    	System.out.println(dyTemp+" ->> "+clipDY+" ->> "+dy);
     }
     
     public void clampDX( int clamp ){

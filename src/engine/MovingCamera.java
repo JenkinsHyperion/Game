@@ -85,15 +85,15 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	 * @param position
 	 */
 	public void setFocus(Point position){ //CHANGE TO INT INSTEAD OF FLOAT LATER
-		this.x = (float) position.getX();
-		this.y = (float) position.getY();
+		this.x = (int) position.getX();
+		this.y = (int) position.getY();
 
 		this.dx=0;	//halt velocity		
 		this.dy=0;
 	}
 	public void setFocusForEditor(double distFromOriginalX, double distFromOriginalY) {
-		this.x = (float)(distFromOriginalX);
-		this.y = (float)(distFromOriginalY);
+		this.x = (int)(distFromOriginalX);
+		this.y = (int)(distFromOriginalY);
 		//System.out.println("DeltaX: " + distFromOriginalX + " DeltaY: " + distFromOriginalY);
 	} 
 	
@@ -102,8 +102,8 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	 * @param position - Camera.ORIGIN for camera cornered at 0,0 (classic)
 	 */
 	public void lockAtPosition(Point position){ //CHANGE TO INT INSTEAD OF FLOAT LATER
-		this.x = (float) position.getX();
-		this.y = (float) position.getY();
+		this.x = (int) position.getX();
+		this.y = (int) position.getY();
 
 		this.dx=0;	//halt velocity		
 		this.dy=0;
@@ -344,10 +344,10 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	 * @return the ordinate relative to the board/world 
 	 */
 	public int getLocalX( int x_relative_to_camera){
-		return (int) ((x_relative_to_camera - boardHalfWidth )/zoomFactor + (int)this.x  ) ;
+		return (int) ((x_relative_to_camera - boardHalfWidth )/zoomFactor + this.x  ) ;
 	}
 	public int getLocalX( double x_relative_to_camera){
-		return (int) ((x_relative_to_camera - boardHalfWidth )/zoomFactor + (int)this.x  ) ;
+		return (int) ((x_relative_to_camera - boardHalfWidth )/zoomFactor + this.x  ) ;
 	}
 	
 	/**
@@ -356,10 +356,10 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	 * @return the ordinate relative to the board/world 
 	 */
 	public int getLocalY( int y_relative_to_camera){
-		return (int) ( (y_relative_to_camera - boardHalfHeight)/zoomFactor + (int)this.y  );
+		return (int) ( (y_relative_to_camera - boardHalfHeight)/zoomFactor + this.y  );
 	}
 	public int getLocalY( double y_relative_to_camera){
-		return (int) ( (y_relative_to_camera - boardHalfHeight)/zoomFactor + (int)this.y  );
+		return (int) ( (y_relative_to_camera - boardHalfHeight)/zoomFactor + this.y  );
 	}
 	
 	/**
@@ -537,6 +537,10 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		}
 
 		
+	}
+
+	public double localDistance( double d ) {
+		return d / this.zoomFactor;
 	}
 
 	

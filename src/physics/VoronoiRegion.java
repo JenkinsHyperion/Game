@@ -22,9 +22,13 @@ public class VoronoiRegion {
 		return returnRegion;
 	}
 	
-	
+	@Deprecated
 	public VoronoiRegion getEscapedRegion( Point point , Point localPos){
 		return this.checkMath.pointIsOutsideRegion(point,localPos);
+	}
+	
+	public VoronoiRegion getEscapedRegion( Point relativePos){
+		return this.checkMath.pointIsOutsideRegion(relativePos);
 	}
 	
 	public boolean pointIsInRegion( Point point , Point localPos){
@@ -36,8 +40,13 @@ public class VoronoiRegion {
 	 * @param center
 	 * @return
 	 */
-	public Line2D constructDistanceLine( Point center){
-		return this.checkMath.getSeparation(center);
+	@Deprecated
+	public Line2D constructDistanceLine( Point center , Point boundaryEntityPosition){
+		return this.checkMath.getSeparation(center , boundaryEntityPosition );
+	}
+	
+	public Line2D constructDistanceLine( Point relativeCirclePosition){
+		return this.checkMath.getSeparation( relativeCirclePosition );
 	}
 	
 	public Point getFeaturePoint(){
@@ -63,9 +72,13 @@ public class VoronoiRegion {
 		 * @param point
 		 * @return Adjacent region that point has escaped. Null if point is still within this region.
 		 */
+		@Deprecated
 		public VoronoiRegion pointIsOutsideRegion( Point point , Point localPos );
+		public VoronoiRegion pointIsOutsideRegion( Point relativePos );
 		public boolean pointIsInRegion(Point point, Point localPos);
-		public Line2D getSeparation( Point center );
+		@Deprecated
+		public Line2D getSeparation( Point center , Point boundaryEntityPosition );
+		public Line2D getSeparation( Point relativeCirclePosition );
 		public void debugDraw(MovingCamera cam , Graphics2D g2);
 	}
 	
@@ -75,14 +88,27 @@ public class VoronoiRegion {
 			return null; 
 		}
 		@Override
+		public VoronoiRegion pointIsOutsideRegion( Point relativePos) {
+			return null; 
+		}
+		@Override
 		public boolean pointIsInRegion(Point point , Point localPos){
 			return true;
 		}
 		@Override
-		public Line2D getSeparation(Point center) {
+		public Line2D getSeparation( Point center , Point boundaryEntityPosition ) {
 			return new Line2D.Double(
 					-center.y,
 					center.x,
+					-ownerFeature.getP1().getY() - boundaryEntityPosition.y,
+					ownerFeature.getP1().getX() - boundaryEntityPosition.x
+			);
+		}
+		@Override
+		public Line2D getSeparation( Point relativeCirclePosition ) {
+			return new Line2D.Double(
+					-relativeCirclePosition.y,
+					relativeCirclePosition.x,
 					-ownerFeature.getP1().getY(),
 					ownerFeature.getP1().getX()
 			);

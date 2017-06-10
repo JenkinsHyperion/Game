@@ -91,15 +91,15 @@ public class CompositeFactory {
 	// PARENT CHILDREN METHODS
 	
 	public static void makeChildOfParent( EntityStatic child , EntityStatic parent , BoardAbstract board ){
-		parenting(child, parent, board);
+		parentingFunctionality(child, parent, board);
 	}
 	
 	public static void makeChildOfParentUsingPosition(EntityStatic child , EntityStatic parent , BoardAbstract board ){
-		parenting(child, parent, board);
+		parentingFunctionality(child, parent, board);
 		child.setPos( child.getX() + parent.getX() , child.getY() + parent.getY() );
 	}
 	
-	private static void parenting( EntityStatic child , EntityStatic parent , BoardAbstract board ){
+	private static void parentingFunctionality( EntityStatic child , EntityStatic parent , BoardAbstract board ){
 		
 		//CREATE COMPOSITE DECOSNTRUCTOR TO ENSURE REMOVAL
 		System.out.println("Composite Factory setting ["+child+"] as child of ["+parent+"]");

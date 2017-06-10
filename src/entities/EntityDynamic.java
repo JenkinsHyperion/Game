@@ -80,11 +80,11 @@ public class EntityDynamic extends EntityStatic{
     	dy += (float)vector.getY();
     }
     
-    public float getDeltaX(){
+    public double getDeltaX(){
     	return (x + dx + accX);
     }
 
-    public float getDeltaY(){
+    public double getDeltaY(){
     	return (y + dy + accY);
     }
     

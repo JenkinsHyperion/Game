@@ -56,14 +56,14 @@ public abstract class SeparatingAxisCollector {
 		
 		public Line2D[] getSeparatingAxes( Boundary b1, Boundary b2 ){
 			
-			VoronoiRegion changedRegion = currentRegion.getEscapedRegion( nonPolygon.getPosition() , polygon.getPosition() );
+			VoronoiRegion changedRegion = currentRegion.getEscapedRegion(  polygon.getRelativePositionOf(nonPolygon) );
 			
 			if ( changedRegion == null ){
-				return new Line2D[]{ currentRegion.constructDistanceLine( nonPolygon.getPosition() ) };
+				return new Line2D[]{ currentRegion.constructDistanceLine( polygon.getRelativeTranslationalPositionOf(nonPolygon) ) };
 			}
 			else{
 				currentRegion = changedRegion;
-				return new Line2D[]{ currentRegion.constructDistanceLine( nonPolygon.getPosition() ) };
+				return new Line2D[]{ currentRegion.constructDistanceLine( polygon.getRelativeTranslationalPositionOf(nonPolygon) ) };
 			}
 		}
 	}

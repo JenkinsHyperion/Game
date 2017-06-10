@@ -1,9 +1,9 @@
 package Input;
 
-public interface KeyCommand {
+public abstract class KeyCommand {
 	
-	public void onPressed();
-	public void onReleased();
-	public void onHeld();
+	public void onPressed(){}
+	public void onReleased(){}
+	public void onHeld(){}
 	
 }

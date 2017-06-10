@@ -148,12 +148,10 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		inputController.createKeyBinding(KeyEvent.VK_F5, new KeyCommand() {
 			@Override
 			public void onPressed() { setMode(getEditorSelectMode());	}
-			public void onReleased() {} public void onHeld() {}
 		});
 		inputController.createKeyBinding(KeyEvent.VK_F6, new KeyCommand() {
 			@Override
 			public void onPressed() { setMode(getWorldGeomMode());	}
-			public void onReleased() {} public void onHeld() {}
 		});
 		inputController.createKeyBinding(KeyEvent.VK_F7, new KeyCommand() {
 			@Override
@@ -163,7 +161,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				else if (editorMode == boundaryEditorMode) 
 					getBoundaryEditorMode().setSubMode(boundaryEditorMode.getVertexSelectMode());
 			}
-			public void onReleased() {} public void onHeld() {}
 		});
 		inputController.createKeyBinding(KeyEvent.VK_F8, new KeyCommand() {
 			@Override
@@ -173,7 +170,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				else if (editorMode == boundaryEditorMode) 
 					getBoundaryEditorMode().setSubMode(boundaryEditorMode.getVertexPlaceMode());
 			}
-			public void onReleased() {} public void onHeld() {}
 		});
 		/*inputController.createKeyBinding(KeyEvent.VK_S, new KeyCommand() {
 			@Override
@@ -186,17 +182,11 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			@Override
 			public void onPressed() { getEditorSelectMode().setSelectViaSprite(false);	
 									  selectViaBoundaryRB.setSelected(true);}
-			public void onReleased() {} public void onHeld() {}
 		});
 		
 		inputController.createKeyBinding( KeyEvent.SHIFT_MASK , KeyEvent.VK_DELETE, new KeyCommand(){ //DELETE SELECTED
-			@Override
-			public void onPressed() {
-			}
-			@Override
-			public void onReleased() {}
-			@Override
-			public void onHeld() {}
+
+			//TODO
 			
 		});
 		
@@ -1065,7 +1055,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				return selectedEntities.get(0);
 			}
 			// ######## INNER BEHAVIOR CLASSES #########
-			public class RotateEvent implements MouseCommand {
+			public class RotateEvent extends MouseCommand {
 				//the functionality for this will be very similar to how you designed the selection rectangle.
 				/*
 				 Steps: 
@@ -1112,7 +1102,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					mouseDown = false;
 				}
 			}
-			public class DegreeLockRotateEvent implements MouseCommand {
+			public class DegreeLockRotateEvent extends MouseCommand {
 				@Override
 				public void mousePressed() {
 					mouseDown = true;
@@ -1355,7 +1345,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		public ArrayList<EntityStatic> getSelectedEntities () {
 			return selectedEntities.getSelectedEntities();
 		}
-		public class EntitySelectLClickEvent implements MouseCommand {
+		public class EntitySelectLClickEvent extends MouseCommand {
 
 			@Override
 			public void mousePressed() {
@@ -1369,7 +1359,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			@Override
 			public void mouseReleased() {} 	
 		}
-		public class CtrlEntitySelectLClickEvent implements MouseCommand {
+		public class CtrlEntitySelectLClickEvent extends MouseCommand {
 
 			@Override
 			public void mousePressed() {
@@ -1380,7 +1370,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			@Override
 			public void mouseReleased() {}
 		}
-		public class TranslateEvent implements MouseCommand{
+		public class TranslateEvent extends MouseCommand{
 
 			public void mousePressed() {
 				initClickPoint.setLocation(camera.getWorldPosition(editorMousePos));
@@ -1392,7 +1382,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			public void mouseReleased() {}
 
 		}
-		public class SelectionRectEvent implements MouseCommand {
+		public class SelectionRectEvent extends MouseCommand {
 			@Override
 			public void mousePressed() {
 				selectionRectangleState = selectionRectangle;
@@ -1411,7 +1401,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				selectionRectangleState = nullSelectionRectangle;
 			}
 		}
-		public class DeselectEntitiesEvent implements KeyCommand {
+		public class DeselectEntitiesEvent extends KeyCommand {
 			@Override
 			public void onPressed() {
 				selectedEntities.clearSelectedEntities();
@@ -1420,7 +1410,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			public void onReleased() {}
 			public void onHeld() {}
 		}
-		public class SetRotateMode implements KeyCommand {
+		public class SetRotateMode extends KeyCommand {
 			@Override
 			public void onPressed() {
 				if (selectedEntities.size() == 1) {
@@ -1430,7 +1420,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			public void onReleased() {}
 			public void onHeld() {}
 		}
-		public class SetDefaultMode implements KeyCommand {
+		public class SetDefaultMode extends KeyCommand {
 			@Override
 			public void onPressed() {
 				setMode(defaultMode);
@@ -1580,7 +1570,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		public String getSpritePath() {
 			return this.spritePath;
 		}
-		public class SetRotateMode implements KeyCommand {
+		public class SetRotateMode extends KeyCommand {
 			@Override
 			public void onPressed() {
 				setSubMode(spriteRotateMode);
@@ -1588,7 +1578,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			public void onReleased() {}
 			public void onHeld() {}
 		}
-		public class SetDefaultMode implements KeyCommand {
+		public class SetDefaultMode extends KeyCommand {
 			@Override
 			public void onPressed() {
 				setSubMode(defaultSpriteEditorMode);
@@ -1596,7 +1586,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			public void onReleased() {}
 			public void onHeld() {}
 		}
-		public class SetScaleMode implements KeyCommand {
+		public class SetScaleMode extends KeyCommand {
 			@Override
 			public void onPressed() {
 				setSubMode(spriteScaleMode);
@@ -1645,7 +1635,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			@Override
 			public void render(Graphics g) {
 			}
-			public class TranslateOffsetEvent implements MouseCommand {
+			public class TranslateOffsetEvent extends MouseCommand {
 				@Override
 				public void mousePressed() {
 				/*	spriteOriginalOffset.setLocation(currentSelectedEntity.getGraphicComposite().getSprite().getOffsetX(),
@@ -1696,7 +1686,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				@Override
 				public void mouseReleased() {}
 			}
-			public class SwapSpriteEvent implements KeyCommand {
+			public class SwapSpriteEvent extends KeyCommand {
 				@Override
 				public void onPressed() {
 					replaceAndFinalizeSprite(spritePath);
@@ -1706,7 +1696,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				@Override
 				public void onHeld() {}
 			}
-			public class SetOffsetEvent implements KeyCommand {
+			public class SetOffsetEvent extends KeyCommand {
 				@Override
 				public void onPressed() {
 					int x = Integer.parseInt(JOptionPane.showInputDialog("Enter x offset"));
@@ -1782,7 +1772,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			}			
 			
 			// ######## INNER BEHAVIOR CLASSES #########
-			public class RotateEvent implements MouseCommand {
+			public class RotateEvent extends MouseCommand {
 				//the functionality for this will be very similar to how you designed the selection rectangle.
 				/*
 				 Steps: 
@@ -1831,7 +1821,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					mouseDown = false;
 				}
 			}
-			public class DegreeLockRotateEvent implements MouseCommand {
+			public class DegreeLockRotateEvent extends MouseCommand {
 				@Override
 				public void mousePressed() {
 					mouseDown = true;
@@ -1936,7 +1926,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			}			
 			
 			// ######## INNER BEHAVIOR CLASSES #########
-			public class ScaleEvent implements MouseCommand {
+			public class ScaleEvent extends MouseCommand {
 				
 				@Override
 				public void mousePressed() {
@@ -1972,7 +1962,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					mouseDown = false;
 				}
 			}
-			public class ScaleIncrementEvent implements MouseCommand {
+			public class ScaleIncrementEvent extends MouseCommand {
 				@Override
 				public void mousePressed() {
 					//mouseDown = true;
@@ -2399,7 +2389,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				}
 			}
 			
-			public class SetDefaultMode implements KeyCommand {
+			public class SetDefaultMode extends KeyCommand {
 				@Override
 				public void onPressed() {
 					setBoundarySubMode(defaultBoundarySubMode);
@@ -2407,7 +2397,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				public void onReleased() {}
 				public void onHeld() {}
 			}
-			public class SetScaleMode implements KeyCommand {
+			public class SetScaleMode extends KeyCommand {
 				@Override
 				public void onPressed() {
 					setBoundarySubMode(boundaryScaleSubMode);
@@ -2513,7 +2503,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 // ****************** inner-inner classes for mouse behavior classes specific to vertex selecting
 // ****************** inner-inner classes for mouse behavior classes specific to vertex selecting
 			
-			public class VertexSelectLClickEvent implements MouseCommand{
+			public class VertexSelectLClickEvent extends MouseCommand{
 				public void mousePressed() {
 					
 					checkForVertex(camera.getWorldPosition(editorMousePos));
@@ -2521,9 +2511,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				public void mouseDragged() {
 					//currentSelectedVertex.translate(camera.getLocalPosition(editorMousePos));
 				}
-				public void mouseReleased() {}	
 			} // end of VertexSelectLClickEvent inner class
-			public class VertexSelectRClickEvent implements MouseCommand{
+			public class VertexSelectRClickEvent extends MouseCommand{
 				public void mousePressed() {
 					
 					//checkForVertex(camera.getLocalPosition(e.getPoint()));
@@ -2533,11 +2522,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					
 					//currentSelectedVertex.translate(camera.getLocalPosition(editorMousePos));
 				}
-				public void mouseReleased() {
-					
-				}	
 			} // end of VertexSelectRClickEvent inner class
-			public class CtrlVertexSelectLClickEvent implements MouseCommand{
+			public class CtrlVertexSelectLClickEvent extends MouseCommand{
 
 				public void mousePressed() {
 					
@@ -2547,12 +2533,9 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					
 					//currentSelectedVertex.translate(camera.getLocalPosition(editorMousePos));
 				}
-				public void mouseReleased() {
-					
-				}
 
 			} // end of ShiftVertexSelectLClickEvent inner class
-			public class TranslateEvent implements MouseCommand{
+			public class TranslateEvent extends MouseCommand{
 
 				public void mousePressed() {
 					
@@ -2568,11 +2551,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					refreshAllSurfaceLines(surfaceLines);
 					closeShape(surfaceLines);
 				}
-				public void mouseReleased() {
-					
-				}
 			}
-			public class ScaleEvent implements MouseCommand{
+			public class ScaleEvent extends MouseCommand{
 				
 				public void mousePressed() {
 					// update oldVertexListForScaling
@@ -2590,7 +2570,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					selectedVertices.updateOldVertexPositions();
 				}
 			}
-			public class SelectionRectEvent implements MouseCommand {
+			public class SelectionRectEvent extends MouseCommand {
 
 				@Override
 				public void mousePressed() {
@@ -2614,75 +2594,67 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				}
 
 			}
-			public class EscapeEvent implements KeyCommand {
+			public class EscapeEvent extends KeyCommand {
 				@Override
 				public void onPressed() {
 					selectedVertices.clearSelectedVertices();
 				}
-				public void onReleased(){} public void onHeld() {}
 			}
-			public class SplitLineEvent implements KeyCommand {
+			public class SplitLineEvent extends KeyCommand {
 				public void onPressed() {
 					splitLine();
 				}
-				public void onReleased() {} public void onHeld() {}
 			}
 			/*
-			public class RetrieveVertsFromBoundaryEvent implements KeyCommand {
+			public class RetrieveVertsFromBoundaryEvent extends KeyCommand {
 				@Override
 				public void onPressed() {
 					retrieveVertsFromBoundary(currentSelectedEntity.getColliderComposite());
 				}
 				public void onReleased(){} public void onHeld() {}
 			}*/
-			public class AlignToXAxisEvent implements KeyCommand {
+			public class AlignToXAxisEvent extends KeyCommand {
 				@Override
 				public void onPressed() {
 					selectedVertices.alignToXAxis();
 					refreshAllSurfaceLinesClosedShape(surfaceLines);
 				}
-				public void onReleased(){} public void onHeld() {}
 			}
-			public class AlignToYAxisEvent implements KeyCommand {
+			public class AlignToYAxisEvent extends KeyCommand {
 				@Override
 				public void onPressed() {
 					selectedVertices.alignToYAxis();
 					refreshAllSurfaceLinesClosedShape(surfaceLines);
 				}
-				public void onReleased(){} public void onHeld() {}
 			}
-			public class DeleteVerticesEvent implements KeyCommand {
+			public class DeleteVerticesEvent extends KeyCommand {
 				@Override
 				public void onPressed() {
 					
 					removeVertex(selectedVertices);
 				}
-				public void onReleased() {} public void onHeld() {}
 			}
-			public class CloseShapeEvent implements KeyCommand {
+			public class CloseShapeEvent extends KeyCommand {
 				@Override
 				public void onPressed() {
 					
 					refreshAllSurfaceLines(surfaceLines);
 					closeShape(surfaceLines);
 				}
-				public void onReleased() {} public void onHeld() {}
 			}
-			public class ReplaceAndFinalizeBoundaryEvent implements KeyCommand {
+			public class ReplaceAndFinalizeBoundaryEvent extends KeyCommand {
 				@Override
 				public void onPressed() {
 					
 					replaceAndFinalizeBoundary();
 				}
-				public void onReleased() {} public void onHeld() {}
 			}
-			public class ResetBoundaryVerticesToDefaultEvent implements KeyCommand {
+			public class ResetBoundaryVerticesToDefaultEvent extends KeyCommand {
 				@Override
 				public void onPressed() {
 					
 					resetBoundaryVerticesToDefault();
 				}
-				public void onReleased() {} public void onHeld() {}
 			}
 		} // end of boundaryVertexSelectMode
 /////////   INNER CLASS BOUNDARYVERTEXPLACEMODE   //////////////////////////////////////////////////////
@@ -2730,7 +2702,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				tempRectBoundaryState.draw(g2, camera);
 			}
 			/////// INNER BEHAVIOR CLASSES
-			public class RectangleBoundDrawEvent implements MouseCommand {
+			public class RectangleBoundDrawEvent extends MouseCommand {
 
 				@Override
 				public void mousePressed() {
@@ -2765,46 +2737,31 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		
 //////////////////////////////////////////////////////////////////////	
 	
-	public class CameraResetZoom implements KeyCommand {
+	public class CameraResetZoom extends KeyCommand {
 
 		@Override
 		public void onPressed() {
 			camera.resetZoom();
-		}
-		@Override
-		public void onReleased() {}
-		@Override
-		public void onHeld() {}
-			
-		}
+		}	
+	}
 	
-	public class CameraZoomInEvent implements KeyCommand {
+	public class CameraZoomInEvent extends KeyCommand {
 
-	@Override
-	public void onPressed() {
-		camera.addZoom(0.1);
-	}
-	@Override
-	public void onReleased() {}
-	@Override
-	public void onHeld() {}
-		
+		@Override
+		public void onPressed() {
+			camera.addZoom(0.1);
+		}
 	}
 	
-	public class CameraZoomOutEvent implements KeyCommand {
+	public class CameraZoomOutEvent extends KeyCommand {
 
 		@Override
 		public void onPressed() {
 			camera.addZoom(-0.1);
 		}
-		@Override
-		public void onReleased() {}
-		@Override
-		public void onHeld() {}
-			
-		}
+	}
 	
-	public class CameraPanEvent implements MouseCommand {
+	public class CameraPanEvent extends MouseCommand {
 		public CameraPanEvent(){
 		}
 		@Override
@@ -2812,7 +2769,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			//old version: vvvvvvv
 			//else if (mode == EditorPanel.CAMERAPAN_MODE) {
 
-			oldMousePanPos.setLocation( camera.getWorldPosition(editorMousePos) ); // sets temporary old mouse position reference
+			oldMousePanPos.setLocation( editorMousePos ); // sets temporary old mouse position reference
 			oldCameraPos.setLocation( camera.getFocus() );
 			//Set start positions 
 
@@ -2834,10 +2791,10 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 
 				//camera.setFocus( editorMousePos );
 				camera.setFocusForEditor( 
-						oldCameraPos.getX() + ( oldMousePanPos.getX() - camera.getLocalX(editorMousePos.getX()) ), 
-						oldCameraPos.getY() + ( oldMousePanPos.getY() - camera.getLocalY(editorMousePos.getY())  )
+						oldCameraPos.getX() + camera.localDistance( oldMousePanPos.getX() - editorMousePos.getX() ), 
+						oldCameraPos.getY() + camera.localDistance( oldMousePanPos.getY() - editorMousePos.getY()  )
 											);// camera start pos   - (   distance dragged relative to screen         )
-				
+
 				// I changed this to screen relative positions (editorMousePos) since we want the distance between two points, 
 				// which in this case is the same distance between world points because the camera is at x1 zoom. 
 				
@@ -2849,10 +2806,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				//this.camera.setFocusForEditor(worldMousePos.x , worldMousePos.y );
 				//oldMousePanPos.setLocation(e.getPoint());				
 		//	}
-		}
-		@Override
-		public void mouseReleased() {
-			
 		}
 		
 		

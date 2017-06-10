@@ -716,7 +716,7 @@ public class PlayerCharacter extends Player {
      */
 
     
-    private class UpKey implements KeyCommand{
+    private class UpKey extends KeyCommand{
 
 		@Override
 		public void onPressed() { playerState.onUp(); }
@@ -729,7 +729,7 @@ public class PlayerCharacter extends Player {
 		
     }
     
-    private class DownKey implements KeyCommand{
+    private class DownKey extends KeyCommand{
 
 		@Override
 		public void onPressed() { playerState.onDown(); }
@@ -742,7 +742,7 @@ public class PlayerCharacter extends Player {
 		
     }
     
-    private class RightKey implements KeyCommand{
+    private class RightKey extends KeyCommand{
     	
 
 		@Override
@@ -756,7 +756,7 @@ public class PlayerCharacter extends Player {
 		
     }
     
-    private class LeftKey implements KeyCommand{
+    private class LeftKey extends KeyCommand{
     	
 
 		@Override
@@ -771,7 +771,7 @@ public class PlayerCharacter extends Player {
     }
     
     
-    private class JumpKey implements KeyCommand{
+    private class JumpKey extends KeyCommand{
     	
 
 		@Override
@@ -785,7 +785,7 @@ public class PlayerCharacter extends Player {
 		
     }
     
-    private class ModKey implements KeyCommand{
+    private class ModKey extends KeyCommand{
 
 		@Override
 		public void onPressed() { playerState.onShift(); }
@@ -798,7 +798,7 @@ public class PlayerCharacter extends Player {
 		
     }
     
-    private class ClickTest implements MouseCommand{
+    private class ClickTest extends MouseCommand{
 
 		@Override
 		public void mousePressed() {

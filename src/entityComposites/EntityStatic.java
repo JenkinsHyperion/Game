@@ -210,8 +210,8 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 
 	public void move(Point distance) { //MAKE VECTOR LATER
 
-		x=x+(float)distance.getX();
-		y=y+(float)distance.getY();
+		x=x+(int)distance.getX();
+		y=y+(int)distance.getY();
 	}
 	
 	public boolean hasGraphics(){
@@ -299,6 +299,16 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 
 	public void indexShift(){
 		this.sceneIndex--;
+	}
+	
+	public Point getRelativePositionOf(Entity entity){
+		
+		Point returnPoint = this.getRelativeTranslationalPositionOf(entity);
+
+		returnPoint = this.rotationType.getRotationalPositionRelativeTo(returnPoint);
+		
+		return returnPoint;
+		
 	}
 	
 }

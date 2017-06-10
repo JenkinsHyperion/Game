@@ -1,10 +1,10 @@
 package Input;
 
-public interface MouseCommand {
+public abstract class MouseCommand {
 
-	public void mousePressed();
+	public void mousePressed(){}
 
-	public void mouseDragged();
+	public void mouseDragged(){}
 
-	public void mouseReleased();
+	public void mouseReleased(){}
 }

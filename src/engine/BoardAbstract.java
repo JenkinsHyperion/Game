@@ -28,7 +28,11 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 
     public static int B_WIDTH;// = 400;	
     public static int B_HEIGHT;// = 300;
-	
+    
+    private final EntityUpdater activeUpdater = new EntityUpdater();
+    private final InactiveEntityUpdater inactiveUpdater = new InactiveEntityUpdater();
+    private EntityUpdater currentState = activeUpdater;
+
 	Timer updateEntitiesTimer;
 	
 	private final DoubleLinkedList<UpdateableComposite> updateablesList = new DoubleLinkedList<UpdateableComposite>();
@@ -45,9 +49,9 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	public RenderingEngine renderingEngine;
 	protected MovingCamera camera;
 	
+	private Console console;
+	
 	public CollisionEngine collisionEngine; 
-	
-	
 	
 	protected Scene currentScene =  new Scene(this);
 	
@@ -62,6 +66,8 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 		
 		B_WIDTH = width;
 	    B_HEIGHT = height;
+	    
+	    console = new Console( 400 , 100 , this);
 
 	    this.setIgnoreRepaint(true);
 	    
@@ -104,15 +110,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	     		
 	     		time = System.nanoTime();
 
-	     		while ( updateablesList.hasNext() ){
-	     			updateablesList.get().updateComposite();
-	     		}
-	     		
-	     		while ( updateableEntitiesList.hasNext() ){
-	     			updateableEntitiesList.get().updateComposite();
-	     		}
-	     		
-	     		entityThreadRun();  
+	     		currentState.update();
 	     		
 	     		deltaTime = System.nanoTime() ;
 	     		speed = deltaTime - time;
@@ -133,6 +131,14 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 		
 	}
 	
+	protected void pauseUpdater(){ 
+		this.currentState = this.inactiveUpdater;
+	}
+	protected void activateUpdater(){
+		this.currentState = this.activeUpdater;
+	}
+	
+	
 	@Override
 	public void paintComponent(Graphics g) {  
         super.paintComponent(g);
@@ -140,7 +146,8 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
         camera.repaint(g);
         
         graphicsThreadPaint(g);
-        
+         
+        console.drawConsole( (Graphics2D) g );
         //camera.overlay.drawOverlay();
     }
 	
@@ -210,5 +217,33 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 		
 	}
 	
+	
+	private class EntityUpdater{
+		
+		public void update(){
+			
+     		while ( updateablesList.hasNext() ){
+     			updateablesList.get().updateComposite();
+     		}
+     		
+     		while ( updateableEntitiesList.hasNext() ){
+     			updateableEntitiesList.get().updateComposite();
+     		}
+     		
+     		entityThreadRun(); 
+		}
+		
+	}
+	
+	private class InactiveEntityUpdater extends EntityUpdater{
+		
+		public void update(){
+			//DO NOTHING
+		}	
+	}
+	
+	public void keyPressed(KeyEvent e) {
+		this.console.inputEvent(e);
+	}
 	
 }

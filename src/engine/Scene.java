@@ -9,6 +9,7 @@ import utility.DoubleLinkedList;
 public class Scene {
 	
 	private BoardAbstract ownerBoard;
+	protected String sceneName;
 
 	private ArrayList<LayeredEntity> entityList = new ArrayList<LayeredEntity>();
 	
@@ -18,14 +19,18 @@ public class Scene {
 
 	public Scene( BoardAbstract ownerBoard ){
 		this.ownerBoard = ownerBoard;
-
+		this.sceneName = "Unnamed Scene";
+	}
+	public Scene( String name , BoardAbstract ownerBoard ){
+		this.ownerBoard = ownerBoard;
+		this.sceneName = name;
 	}
 	
 	public void addEntityToList( EntityStatic entity , byte layer ){
 		entity.addEntityToScene( this, entityList.size() );
-		entityList.add( new LayeredEntity(entity,layer));
+		entityList.add( new LayeredEntity(entity,layer)); 
 	}
-	
+
 	public void addEntity( EntityStatic entity ){
 		
 		boolean updateableEntity = false;

@@ -101,16 +101,17 @@ public class VisualCollisionDynamicStatic extends Collision {
 			
 			//entityPrimary.setX( entityPrimary.getDeltaX() + (int)depthX  );
 			//entityPrimary.setY( entityPrimary.getDeltaY()  + (int)depthY );
-			
 
 			closestResolution.FeaturePrimary().getEvent().run(closestResolution.FeaturePrimary(), closestResolution.FeatureSecondary() );
 			
 			//TODO GET NORMAL FROM BOUDNARY FEATURE INSTEAD
-			
+			 
 			if ( closestResolution.FeatureSecondary().debugIsSide() ){
 				Vector slope = ((Side)closestResolution.FeatureSecondary()).getSlopeVector().normalLeft();
-				Vector test = new Vector(0,-0.2).projectedOver(slope);
-				normalForce.setVector( test );
+				Vector normal = new Vector(0,-0.2).projectedOver(slope);
+				normalForce.setVector( normal );
+				
+				dynamic.addVelocity( new Vector(depthX,depthY) );
 			}
 			else if ( closestResolution.FeatureSecondary().debugIsVertex() ){
 				
@@ -122,16 +123,13 @@ public class VisualCollisionDynamicStatic extends Collision {
 				normalForce.setVector( 0,-0.2 );
 			}
 
-				
 				System.out.println("Will clip by "+ depthX +" , "+ depthY + " ... ");
+
 				
-				dynamic.clipDX(depthX);
-				dynamic.clipDY(depthY);
-			
 		}
 		
 		else { 
-			
+
 			//entityPrimary.getTranslationComposite().setColliding(true); //MOVE TO RESOLVED UPDATE CLASS JUST LIKE RESOLUTION EVENT
 
 			if ( closestResolution.FeatureSecondary().debugIsSide() ){
@@ -389,28 +387,28 @@ public class VisualCollisionDynamicStatic extends Collision {
 
 	    	if (centerDistanceX>0){
 	    		//centerDistanceX -= 1;
-	    		penetrationX = ( playerProjectionX + statProjectionX - centerDistanceX +1 );
+	    		penetrationX = (int)( playerProjectionX + statProjectionX - centerDistanceX +1 );
 	    		shiftedX = penetrationX-1;
 	    	}
 	    	else if (centerDistanceX<0){
 	    		//centerDistanceX += 1;  //NEEDS HIGHER LEVEL SOLUTION
-	    		penetrationX = ( playerProjectionX + statProjectionX - centerDistanceX -1 );
+	    		penetrationX = (int)( playerProjectionX + statProjectionX - centerDistanceX -1 );
 	    		shiftedX = penetrationX+1;
 	    	}
 	    	else
-	    		penetrationX = Math.abs(playerProjectionX) + Math.abs(statProjectionX);
+	    		penetrationX = (int)Math.abs(playerProjectionX) + Math.abs(statProjectionX);
 
 	    	if (centerDistanceY>0){
 	    		//centerDistanceY -= 1;
-	    		penetrationY = ( playerProjectionY + statProjectionY - centerDistanceY+1 ); 
+	    		penetrationY = (int)( playerProjectionY + statProjectionY - centerDistanceY+1 ); 
 	    		shiftedY = penetrationY-1;
 	    	}
 	    	else if (centerDistanceY<0){
 	    		//centerDistanceY += 1; 
-	    		penetrationY =   ( playerProjectionY + statProjectionY - centerDistanceY-1 ); 
+	    		penetrationY =   (int)( playerProjectionY + statProjectionY - centerDistanceY-1 ); 
 	    		shiftedY = penetrationY+1;
 	    	}else
-	    		penetrationY = Math.abs(playerProjectionY) + Math.abs(statProjectionY);
+	    		penetrationY = (int)Math.abs(playerProjectionY) + Math.abs(statProjectionY);
 	    	
 	    	distX = penetrationX;
 	    	distY = penetrationY;

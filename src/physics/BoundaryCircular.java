@@ -191,6 +191,18 @@ public class BoundaryCircular extends Boundary{
 		//System.err.println("Circular Boundary was not cloned");
 		return this;  
 	}
+
+	@Override
+	public void scaleBoundary(double scaleFactor) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void scaleBoundary(double scaleFactor, Point center) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 
 }

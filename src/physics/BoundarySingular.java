@@ -102,4 +102,16 @@ public class BoundarySingular extends Boundary{
 		return this;
 	}
 
+	@Override
+	public void scaleBoundary(double scaleFactor) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void scaleBoundary(double scaleFactor, Point center) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

@@ -7,6 +7,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
+import editing.worldGeom.EditorVertex;
 import engine.MovingCamera;
 import entityComposites.Collider;
 import entityComposites.EntityStatic;
@@ -17,21 +18,24 @@ public class BoundaryPolygonal extends Boundary {
 
 	protected Side[] sides = new Side[1]; 
 	private BoundaryCorner[] corners;
+	private ArrayList<Point2D> oldCornersReference;
 	protected CollisionEvent defaultCollisionEvent = new DefaultCollisionEvent();
 
 	private BoundaryPolygonal(){
+		oldCornersReference = new ArrayList<>();
 		sides = new Side[0];
 		corners = new BoundaryCorner[0];
 		//this.ownerCollidable = ownerCollidable;
 	} //use cloning instead
 	//FOR CLONING ONLY
 	private BoundaryPolygonal( Side[] sides , BoundaryCorner[] corners){
+		oldCornersReference = new ArrayList<>();
 		this.sides = sides;
 		this.corners = corners;
 	}
 	
 	public BoundaryPolygonal(Line2D line){
-
+		oldCornersReference = new ArrayList<>();
 		sides[0] = new Side(line , this , 0, defaultCollisionEvent); 
 		corners = new BoundaryCorner[]{ new BoundaryCorner(line.getP1() , this , 0 , defaultCollisionEvent) 
 				, new BoundaryCorner(line.getP2() , this , 1 , defaultCollisionEvent) };
@@ -41,6 +45,7 @@ public class BoundaryPolygonal extends Boundary {
 	}
 	
 	public BoundaryPolygonal(Side[] bounds ) {
+		oldCornersReference = new ArrayList<>();
 		sides = bounds;
 		connectBoundaryMap( defaultCollisionEvent );
 		//constructVoronoiRegions();
@@ -48,7 +53,7 @@ public class BoundaryPolygonal extends Boundary {
 	
 	public BoundaryPolygonal(Line2D[] bounds) {
 		
-
+		oldCornersReference = new ArrayList<>();
 		sides = new Side[ bounds.length ];
 		
 		for ( int i = 0 ; i < bounds.length ; i++ ){
@@ -587,6 +592,13 @@ public class BoundaryPolygonal extends Boundary {
 		return returnFarthestPoints;
 	}
 	
+	public void updateOldCornersPositions(){
+		oldCornersReference.clear();
+		Point2D[] tempCornersReference = getCornersPoint();
+		for (Point2D corner: tempCornersReference) {
+			oldCornersReference.add(new Point2D.Double(corner.getX(), corner.getY()));
+		}
+	}
 	
 	public Point2D[] getNearestPoints(Boundary bounds , Line2D axis){ //same deal as above just witht he closest points
 		
@@ -650,6 +662,16 @@ public class BoundaryPolygonal extends Boundary {
 		VoronoiRegionDefined.splitOpposingSides( newRegions[1] , newRegions[5] );
 		
 		this.regions = newRegions;
+		
+	}
+	@Override
+	public void scaleBoundary(double scaleFactor) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void scaleBoundary(double scaleFactor, Point center) {
+		// TODO Auto-generated method stub
 		
 	}
 

@@ -366,7 +366,7 @@ public class WorldGeometry extends ModeAbstract{
 //  	 ###############  Inner behavior classes #################
 		
 		// #######  left click event  #######
-		public class LeftClickEvent implements MouseCommand {
+		public class LeftClickEvent extends MouseCommand {
 			public void mousePressed() {
 				if (vertexPlacementAllowed == true) // FIXME 
 					addVertex(camera.getLocalX(worldGeomMousePos.x), camera.getLocalY(worldGeomMousePos.y));
@@ -397,7 +397,7 @@ public class WorldGeometry extends ModeAbstract{
 				}
 			}
 		} // end if inner inner class KeyStateXHeld
-		public class RectangleBoundDrawEvent implements MouseCommand {
+		public class RectangleBoundDrawEvent extends MouseCommand {
 
 			@Override
 			public void mousePressed() {
@@ -424,7 +424,7 @@ public class WorldGeometry extends ModeAbstract{
 		
 		// ###### ALIGN TO X-AXIS BUTTON  #######
 		//inputController.createKeyBinding(KeyEvent.VK_X, new KeyCommand() {
-		public class SetXHeldEvent implements KeyCommand {
+		public class SetXHeldEvent extends KeyCommand {
 			@Override
 			public void onPressed() {
 				mouseMovedKeyState = mouseMovedXHeldEvent;
@@ -437,7 +437,7 @@ public class WorldGeometry extends ModeAbstract{
 			public void onHeld() {
 			}
 		}
-		public class SetYHeldEvent implements KeyCommand {
+		public class SetYHeldEvent extends KeyCommand {
 			@Override
 			public void onPressed() {
 				mouseMovedKeyState = mouseMovedXHeldEvent;
@@ -456,7 +456,7 @@ public class WorldGeometry extends ModeAbstract{
 			}
 		}
 		// ####  UNDO BUTTON  #######
-		public class UndoEvent implements KeyCommand {
+		public class UndoEvent extends KeyCommand {
 			@Override
 			public void onPressed() {
 				if (vertexList.size() > 0) {
@@ -612,7 +612,7 @@ public class WorldGeometry extends ModeAbstract{
 			}
 		}
 		// ***** inner-inner classes for mouse behavior classes specific to vertex selecting
-		public class VertexSelectLClickEvent implements MouseCommand{
+		public class VertexSelectLClickEvent extends MouseCommand{
 			public void mousePressed() {
 				checkForVertex(camera.getWorldPosition(worldGeomMousePos));
 			}
@@ -621,7 +621,7 @@ public class WorldGeometry extends ModeAbstract{
 			}
 			public void mouseReleased() {}	
 		} // end of VertexSelectLClickEvent inner class
-		public class VertexSelectRClickEvent implements MouseCommand{
+		public class VertexSelectRClickEvent extends MouseCommand{
 			public void mousePressed() {
 				//checkForVertex(camera.getLocalPosition(e.getPoint()));
 				//checkForVertex(camera.getLocalPosition(worldGeomMousePos));
@@ -632,7 +632,7 @@ public class WorldGeometry extends ModeAbstract{
 			public void mouseReleased() {
 			}	
 		} // end of VertexSelectRClickEvent inner class
-		public class CtrlVertexSelectLClickEvent implements MouseCommand{
+		public class CtrlVertexSelectLClickEvent extends MouseCommand{
 
 			public void mousePressed() {
 				checkForVertexShiftClick(camera.getWorldPosition(worldGeomMousePos));
@@ -644,7 +644,7 @@ public class WorldGeometry extends ModeAbstract{
 			}
 
 		} // end of ShiftVertexSelectLClickEvent inner class
-		public class TranslateEvent implements MouseCommand{
+		public class TranslateEvent extends MouseCommand{
 
 			public void mousePressed() {
 				initClickPoint.setLocation(camera.getWorldPosition(worldGeomMousePos));
@@ -658,7 +658,7 @@ public class WorldGeometry extends ModeAbstract{
 			}
 
 		}
-		public class SelectionRectEvent implements MouseCommand {
+		public class SelectionRectEvent extends MouseCommand {
 			@Override
 			public void mousePressed() {
 				selectionRectangleState = selectionRectangle;
@@ -676,14 +676,14 @@ public class WorldGeometry extends ModeAbstract{
 				selectionRectangleState = nullSelectionRectangle;
 			}
 		}
-		public class EscapeEvent implements KeyCommand {
+		public class EscapeEvent extends KeyCommand {
 			@Override
 			public void onPressed() {
 				selectedVertices.clearSelectedVertices();
 			}
 			public void onReleased(){} public void onHeld() {}
 		}
-		public class AlignToXAxisEvent implements KeyCommand {
+		public class AlignToXAxisEvent extends KeyCommand {
 			@Override
 			public void onPressed() {
 				selectedVertices.alignToXAxis();
@@ -691,7 +691,7 @@ public class WorldGeometry extends ModeAbstract{
 			}
 			public void onReleased(){} public void onHeld() {}
 		}
-		public class AlignToYAxisEvent implements KeyCommand {
+		public class AlignToYAxisEvent extends KeyCommand {
 			@Override
 			public void onPressed() {
 				selectedVertices.alignToYAxis();
@@ -699,14 +699,14 @@ public class WorldGeometry extends ModeAbstract{
 			}
 			public void onReleased(){} public void onHeld() {}
 		}
-		public class DeleteVerticesEvent implements KeyCommand {
+		public class DeleteVerticesEvent extends KeyCommand {
 			@Override
 			public void onPressed() {
 				removeVertex(selectedVertices);
 			}
 			public void onReleased() {} public void onHeld() {}
 		}
-		public class SplitLineEvent implements KeyCommand {
+		public class SplitLineEvent extends KeyCommand {
 			public void onPressed() {
 				splitLine();
 			}
@@ -716,7 +716,7 @@ public class WorldGeometry extends ModeAbstract{
 	//end of VertexSelectMode inner class
 	
 	//common to all of WorldGeometry vvvvv 
-	public class CloseShapeEvent implements KeyCommand {
+	public class CloseShapeEvent extends KeyCommand {
 		@Override
 		public void onPressed() {
 			// TODO Auto-generated method stub
@@ -726,7 +726,7 @@ public class WorldGeometry extends ModeAbstract{
 		public void onReleased() {} public void onHeld() {}
 	}
 	//CREATE ENTITY FROM WORLD GEOMETRY
-	public class CreateEntityEvent implements KeyCommand {
+	public class CreateEntityEvent extends KeyCommand {
 		@Override
 		public void onPressed() {
 			createEntityFromWorldGeom();

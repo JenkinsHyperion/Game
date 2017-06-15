@@ -61,7 +61,7 @@ public class EntityPhysics extends EntityDynamic{
     	
     	
 
-    	dy = dy - (y-yReturn)/50 ;
+    	dy = (float) (dy - (y-yReturn)/50) ;
     	//dx = dx - (x-120)/50 ;
     	
     	if (dy>0){

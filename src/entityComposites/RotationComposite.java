@@ -66,6 +66,10 @@ public class RotationComposite implements EntityComposite{
 	
 	public float getAngularAcc(){ return 0; }
 
+	public Point getRotationalPositionRelativeTo( Point relativePoint ){
+		return relativePoint;
+	}
+	
 	@Override
 	public boolean exists() {
 		return false;

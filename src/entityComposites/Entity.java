@@ -21,8 +21,8 @@ public class Entity {
 	public String name = "blank entity" + count;
 	protected boolean alive = true;
 	protected boolean collidable = true; //default to true
-	protected float x;
-    protected float y;
+	protected double x;
+    protected double y;
     protected int entityType;
     
 	public Entity(int x, int y){
@@ -41,11 +41,11 @@ public class Entity {
     }
     
     public int getX() {
-        return (int) x;
+        return (int)x;
     }
 
     public int getY() {
-        return (int) y;
+        return (int)y;
     }
     
     public void setX(int setx) {
@@ -53,7 +53,7 @@ public class Entity {
     }
     
     public void setX(double setx) {
-        x = (float) setx;
+        x = setx;
     }
 
     public void setY(int sety) {
@@ -61,7 +61,7 @@ public class Entity {
     }
     
     public void setY(double sety) {
-        y = (float) sety;
+        y = sety;
     }
     
     public Point getPosition(){
@@ -69,13 +69,13 @@ public class Entity {
     }
 
     public void setPos(Point p){
-    	x = (float) p.getX();
-    	y = (float) p.getY();
+    	x = (int) p.getX();
+    	y = (int) p.getY();
     }
     
     public void setPos(int x, int y){
-    	this.x = (float) x;
-    	this.y = (float) y;
+    	this.x = (int) x;
+    	this.y = (int) y;
     }
     @Deprecated
     public boolean isCollidable() {
@@ -115,6 +115,12 @@ public class Entity {
         			camera.getRelativeY((int) this.y)
         		);
     }
-    
+
+    public Point getRelativeTranslationalPositionOf( Entity entity ) {
+        return new Point(
+        			entity.getX() - this.getX(),
+        			entity.getY() - this.getY()
+        		);
+    }
 
 }

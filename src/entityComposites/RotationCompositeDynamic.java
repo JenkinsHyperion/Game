@@ -166,7 +166,22 @@ public class RotationCompositeDynamic extends RotationComposite implements Updat
 	public float getAngularVel(){ return (float)angularVelocity; }
 	@Override
 	public float getAngularAcc(){ return (float)angularAcc; }
-
+	@Override
+	public Point getRotationalPositionRelativeTo( Point relativePosition ){
+		double returnX = relativePosition.getX();
+		double returnY = relativePosition.getY();
+		
+		double cosineTheta = Math.cos( Math.toRadians(-this.angle) );
+		double sineTheta = Math.sin( Math.toRadians(-this.angle) );
+		
+		Point returnPoint = new Point(
+				(int)( returnX*cosineTheta - returnY*sineTheta ),
+				(int)( returnX*sineTheta + returnY*cosineTheta )
+		);
+		
+		return returnPoint;
+	}
+	
 	@Override
 	public void removeUpdateable() {
 		this.updaterSlot.removeSelf();

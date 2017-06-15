@@ -122,5 +122,12 @@ public class Entity {
         			entity.getY() - this.getY()
         		);
     }
+    
+    public Point getRelativeTranslationalPositionOf( Point point_on_entity ) {
+        return new Point(
+        			point_on_entity.x + this.getX(),
+        			point_on_entity.y + this.getY()
+        		);
+    }
 
 }

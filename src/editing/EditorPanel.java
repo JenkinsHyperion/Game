@@ -1084,7 +1084,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 						vector.setX(-deltaX);
 						vector.setY(-deltaY);
 						currentAngle = vector.angleFromVectorInDegrees();
-						getCurrentEntity().getRotationComposite().setAngleInDegrees(currentAngle);
+						getCurrentEntity().getAngularComposite().setAngleInDegrees(currentAngle);
 					}
 				}
 
@@ -1118,7 +1118,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 						vector.setX((int)-deltaX);
 						vector.setY((int)-deltaY);
 						currentAngle = vector.angleFromVectorInDegrees();
-						getCurrentEntity().getRotationComposite().setAngleInDegrees(15*(Math.round(currentAngle/15)));
+						getCurrentEntity().getAngularComposite().setAngleInDegrees(15*(Math.round(currentAngle/15)));
 					}
 				}
 				

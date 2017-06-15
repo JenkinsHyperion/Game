@@ -8,7 +8,7 @@ import physics.PointForce;
 import physics.Vector;
 import utility.ListNodeTicket;
 
-public class TranslationComposite {
+public class TranslationComposite implements EntityComposite{
 	
 	protected TranslationComposite(){
 	}
@@ -150,8 +150,14 @@ public class TranslationComposite {
 		System.err.println("Attempted to remove null Translation from updater");
 	}
 	
+	@Override
 	public boolean exists(){
 		return false;
+	}
+
+	@Override
+	public void disable() {
+		//TODO ENSURE THIS NULL COMPOSITE IS DESTROYED
 	}
 	
 }

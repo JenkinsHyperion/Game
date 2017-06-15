@@ -53,8 +53,8 @@ public class BoardPhysicsTesting extends BoardAbstract{
     	
     	inputController.createKeyBinding( KeyEvent.VK_PAUSE, new PauseEvent() );
 
-    	//CompositeFactory.addColliderTo( followerEntity , new BoundaryPolygonal.Box(60, 60, -10, -10) );
-    	CompositeFactory.addColliderTo(followerEntity, new BoundaryCircular(40,followerEntity) );
+    	CompositeFactory.addColliderTo( followerEntity , new BoundaryPolygonal.Box(200, 20, -10, -10) );
+    	//CompositeFactory.addColliderTo(followerEntity, new BoundaryCircular(40,followerEntity) );
     	//CompositeFactory.addColliderTo(followerEntity, new BoundarySingular() );
     	//CompositeFactory.addColliderTo(followerEntity, new BoundaryPolygonal.Box(60, 60, -30, -30) );
 
@@ -86,7 +86,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
         
         CompositeFactory.addGraphicTo(rotateTest, new SpriteStillframe("ground_1.png" , -223 , -53 ) );
         
-    	CompositeFactory.addRotationTo(rotateTest);
+    	CompositeFactory.addDynamicRotationTo(rotateTest);
     	//rotateTest.getRotationComposite().setAngleInDegrees(30);
     	//rotateTest.getRotationComposite().setAngularVelocity(0.1);
     	currentScene.addEntity( rotateTest );
@@ -99,7 +99,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
         
         EntityStatic parent = new EntityStatic("parent",-300,100); 
         CompositeFactory.addGraphicTo( parent, new SpriteStillframe("box.png" , Sprite.CENTERED ) );
-        CompositeFactory.addRotationTo(parent);
+        CompositeFactory.addDynamicRotationTo(parent);
         parent.getRotationComposite().setAngularVelocity(0.1);
         currentScene.addEntity( parent );
         
@@ -119,7 +119,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
         
         CompositeFactory.addTranslationTo(spaceship);
         
-        CompositeFactory.addRotationTo(spaceship);
+        CompositeFactory.addDynamicRotationTo(spaceship);
         
         //CompositeFactory.addColliderTo(spaceship, new BoundaryPolygonal.Box(10, 10, -5, -5));
         CompositeFactory.addColliderTo(spaceship, new BoundaryCircular( 10 , spaceship) ); 	//Add collider
@@ -136,14 +136,14 @@ public class BoardPhysicsTesting extends BoardAbstract{
 				Vector targetVector =  new Vector( ownerEntity.getPosition() ,  target.getPosition()  );
 				
 				//ownerEntity.getRotationComposite().setAngleFromVector( targetVector );
-				Vector currentVector = ownerEntity.getRotationComposite().getOrientationVector();
+				Vector currentVector = ownerEntity.getAngularComposite().getOrientationVector();
 				
 				final int sign = currentVector.sign(targetVector); //1 is clockwise, -1 is counterclockwise
 
-				ownerEntity.getRotationComposite().addAngleInRadians( Math.PI*sign/120f );
+				//ownerEntity.getAngularComposite().addAngleInRadians( Math.PI*sign/120f );
 
 				ownerEntity.getTranslationComposite().setVelocityVector( 
-						ownerEntity.getRotationComposite().getOrientationVector().multiply(VELOCITY)
+						ownerEntity.getAngularComposite().getOrientationVector().multiply(VELOCITY)
 				);
 				
 			}
@@ -165,6 +165,8 @@ public class BoardPhysicsTesting extends BoardAbstract{
         //CompositeFactory.makeChildOfParentUsingPosition(testParticleSpawner, spaceship , this);
 
         CompositeFactory.makeChildOfParentUsingPosition(orbiter, parent , this);
+        
+        CompositeFactory.makeChildOfParentUsingPosition(parent, followerEntity , this);
         
         spaceship.getColliderComposite().setCollisionEvent( new CollisionEvent(){ 			//Make anonymous collision event to maek explosion
 			@Override

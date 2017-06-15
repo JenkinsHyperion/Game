@@ -14,6 +14,8 @@ import java.util.*;
 
 import javax.swing.JPanel;
 
+import Input.InputController;
+import Input.KeyCommand;
 import editing.EditorPanel;
 import entityComposites.EntityStatic;
 import entityComposites.UpdateableComposite;
@@ -24,7 +26,7 @@ import sprites.RenderingEngine;
 import utility.DoubleLinkedList;
 import utility.ListNodeTicket;
 
-public abstract class BoardAbstract extends JPanel implements KeyListener {
+public abstract class BoardAbstract extends JPanel implements KeyListener{
 
     public static int B_WIDTH;// = 400;	
     public static int B_HEIGHT;// = 300;
@@ -49,7 +51,10 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	public RenderingEngine renderingEngine;
 	protected MovingCamera camera;
 	
-	private Console console;
+	private final Console console;
+	private final ConsoleActive consoleActive = new ConsoleActive();
+	private final ConsoleDisabled consoleDisabled = new ConsoleDisabled();
+	private ConsoleState currentConsoleState = consoleDisabled; 
 	
 	public CollisionEngine collisionEngine; 
 	
@@ -57,43 +62,46 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	
 	protected int[] speedLogDraw = new int[300];
 	protected int[] speedLog = new int[300];
-
-    private  PaintOverlay p;
     
 	protected EditorPanel editorPanel;
+	
+	protected InputController inputController = new InputController("Abstract Board Input Controller");
 	
 	public BoardAbstract( int width , int height ){
 		
 		B_WIDTH = width;
 	    B_HEIGHT = height;
 	    
-	    console = new Console( 400 , 100 , this);
-
+	    console = new Console( 20 , B_HEIGHT-200 , this);
+	    inputController.createKeyBinding( 192 , new KeyCommand(){ // 192 is grave accent / tilde key 
+	    	
+	    	private boolean consoleIsVisible = false;
+	    	public void onPressed(){
+	    		diagnosticsOverlay.toggle();
+	    		if (consoleIsVisible){
+	    			currentConsoleState = consoleDisabled;
+	    			consoleIsVisible=false;
+	    		}else{
+	    			currentConsoleState = consoleActive;
+	    			consoleIsVisible=true;
+	    		}
+	    	}
+	    });
+	    inputController.createKeyBinding(KeyEvent.VK_PAUSE, new KeyCommand(){
+	    	private boolean isPaused = false;
+	    	public void onPressed(){
+	    		if (isPaused){
+	    			activateUpdater();
+	    			isPaused=false;
+	    		}else{
+	    			pauseUpdater();
+	    			isPaused=true;
+	    		}
+	    	}
+	    });
+	    
 	    this.setIgnoreRepaint(true);
 	    
-	     // PAINT RENDERING THREAD #############################################
-	     
-	     ActionListener repaintUpdateTaskSwing = new ActionListener() {
-	        	
-	        	private long time = 0;
-	            private long deltaTime = 0;
-	            private long speed = 0;
-	            
-	        	@Override
-	        	public void actionPerformed(ActionEvent e) {
-	        		time = System.nanoTime();
-	        		
-	        		repaint();
-	        		
-	        		deltaTime = System.nanoTime() ;
-	        		speed = deltaTime - time;
-	        		
-	        		speedLogDraw[counter] = (int)(speed/1000);
-	        	}
-	     };
-	     javax.swing.Timer repaintTimer = new javax.swing.Timer(16, repaintUpdateTaskSwing);
-	     repaintTimer.setRepeats(true);
-	     repaintTimer.start();
 	}
 	
 	protected void initializeBoard(){
@@ -125,6 +133,30 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	     };      
 	     updateEntitiesTimer.scheduleAtFixedRate( updateEntitiesTask , 0 , 16);
 	     
+	     // PAINT RENDERING THREAD #############################################
+	     
+	     ActionListener repaintUpdateTaskSwing = new ActionListener() {
+	        	
+	        	private long time = 0;
+	            private long deltaTime = 0;
+	            private long speed = 0;
+	            
+	        	@Override
+	        	public void actionPerformed(ActionEvent e) {
+	        		time = System.nanoTime();
+	        		
+	        		repaint();
+	        		
+	        		deltaTime = System.nanoTime() ;
+	        		speed = deltaTime - time;
+	        		
+	        		speedLogDraw[counter] = (int)(speed/1000);
+	        	}
+	     };
+	     javax.swing.Timer repaintTimer = new javax.swing.Timer(16, repaintUpdateTaskSwing);
+	     repaintTimer.setRepeats(true);
+	     repaintTimer.start();
+	     
 	}
 	
 	protected void paintFrame(){
@@ -145,11 +177,33 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
         
         camera.repaint(g);
         
-        graphicsThreadPaint(g);
-         
-        console.drawConsole( (Graphics2D) g );
+        this.currentConsoleState.render(g);
         //camera.overlay.drawOverlay();
+        g.drawString("ENTITIES UPDATED: "+this.updateableEntitiesList.size() , 20,20 );
+        //diagnostics.paintOverlay( (Graphics2D)g, camera);
     }
+	
+	private interface ConsoleState{
+		abstract void render(Graphics g );
+		abstract void keyPressed(KeyEvent e);
+	}
+	private class ConsoleDisabled implements ConsoleState{
+		public void render(Graphics g){
+	        graphicsThreadPaint(g);  
+		}
+		public void keyPressed(KeyEvent e){
+			
+		}
+	}
+	private class ConsoleActive implements ConsoleState{
+		public void render(Graphics g ){
+	        graphicsThreadPaint(g);    
+	        console.drawConsole( (Graphics2D) g );
+		}
+		public void keyPressed(KeyEvent e){
+			console.inputEvent(e);
+		}
+	}
 	
 	protected abstract void graphicsThreadPaint( Graphics g);
 	
@@ -180,8 +234,8 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 		return updateablesList.add(updateable);
 	}
 	
-	public ListNodeTicket addEntityToUpdater( UpdateableComposite updateable ){
-		return updateableEntitiesList.add(updateable);
+	public ListNodeTicket addEntityToUpdater( UpdateableComposite entity ){
+		return updateableEntitiesList.add(entity);
 	}
 
 	protected int updateableEntities(){
@@ -200,7 +254,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 	        g2.fillRect(0, 0, B_WIDTH, B_HEIGHT);
 		    //DIAGNOSTIC GRAPH
 		    for (int i = 0 ; i < 320 ; i += 20){
-		    	g2.drawLine(45, 600-i , 1280, 600-i); //make better overlay class
+		    	g2.drawLine(45, 500-i , 1280, 500-i); 
 		    	g2.drawString( i/20 + " ms" , 10,603-i);
 	    	}	
 	    
@@ -208,9 +262,9 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 		    	
 		    		int speed = speedLogDraw[i]/50; //1ms = 20px
 		    		g2.setColor(Color.MAGENTA);
-		    		g2.drawLine(3*i + 50 , 600 , 3*i + 50 , 600 - speed );
+		    		g2.drawLine(3*i + 50 , 500 , 3*i + 50 , 500 - speed );
 		    		g2.setColor(Color.CYAN);
-		    		g2.drawLine(3*i + 50 , 600 - speed , 3*i + 50 , 600 - speed-(speedLog[i]/50) );
+		    		g2.drawLine(3*i + 50 , 500 - speed , 3*i + 50 , 500 - speed-(speedLog[i]/50) );
 		    }
 		    
 		}
@@ -241,9 +295,22 @@ public abstract class BoardAbstract extends JPanel implements KeyListener {
 			//DO NOTHING
 		}	
 	}
-	
+	@Override
 	public void keyPressed(KeyEvent e) {
-		this.console.inputEvent(e);
+		this.inputController.keyPressed(e);
+		this.currentConsoleState.keyPressed(e);
+	}
+	@Override
+	public void keyReleased(KeyEvent e) {
+		this.inputController.keyReleased(e);
+	}
+	@Override
+	public void keyTyped(KeyEvent e) {
+		
+	}
+	
+	protected int updateableEnttiiesNumber(){
+		return this.updateableEntitiesList.size();
 	}
 	
 }

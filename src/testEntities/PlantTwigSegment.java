@@ -1,18 +1,23 @@
 package testEntities;
 
+import java.awt.Point;
 import java.util.concurrent.ThreadLocalRandom;
 
 import engine.TestBoard;
 import entities.*;
 import entityComposites.ColliderNull;
+import entityComposites.CompositeFactory;
+import entityComposites.EntityStatic;
 import entityComposites.GraphicComposite;
+import sprites.Sprite;
 import sprites.SpriteStillframe;
 //import sun.management.counter.Counter;
 import utility.Trigger;
 
-public class PlantTwigSegment extends EntityDynamic {
+public class PlantTwigSegment extends EntityStatic{
+	
+	private static Sprite twigSprite = new SpriteStillframe("Prototypes/twig.png" , -4 , -40);
 
-	private int angle;
 	private TestBoard board;
 	private int maxGrowth;
 
@@ -26,20 +31,25 @@ public class PlantTwigSegment extends EntityDynamic {
 		super(x, y);
 		this.board = board;
 		this.maxGrowth = maxGrowth;
+		
+		CompositeFactory.addDynamicRotationTo(this);
+		
 		init( maxGrowth );
 		
 	}
 	
 	private void init( int percentMax){
 		
-		growth = new Counter(Counter.COUNT_UP_TO , percentMax , new FullyGrown() ); //Counter that counts up to percentMax then fires FullyGrown class
+		growth = new Counter(Counter.COUNT_UP_TO , percentMax*5 , new FullyGrown() ); //Counter that counts up to percentMax then fires FullyGrown class
 		
-		lifespan = new Counter(Counter.COUNT_DOWN_FROM , 10*percentMax , new Dead() );
+		lifespan = new Counter(Counter.COUNT_DOWN_FROM , percentMax*10 , new Dead() );
 		
-		this.setCollisionComposite( ColliderNull.getNonCollidable() );
-        this.loadSprite("Prototypes/twig.png" , -4 , -40 );
+        //this.loadSprite("Prototypes/twig.png" , -4 , -40 );
+        //((SpriteStillframe) ((GraphicComposite)this.graphicsComposite).getSprite()).setResizeFactor(0); //start initial segment at size 0
         
-        ((SpriteStillframe) ((GraphicComposite)this.graphicsComposite).getSprite()).setResizeFactor(0); //start initial segment at size 0
+		CompositeFactory.addGraphicTo(this, twigSprite );
+		this.getGraphicComposite().setGraphicSizeFactor(0);
+        
 	}
 	
 	public int getNumberFromBranch(){ return this.numberFromLastBranch; }
@@ -48,17 +58,19 @@ public class PlantTwigSegment extends EntityDynamic {
 	public int getMaxGrowth(){ return this.maxGrowth; }
 	public void killSegment(){ this.maxGrowth = 1;}
 	
-	public void setAngle( int angle ){
-		
-		((GraphicComposite)this.graphicsComposite).getSprite().setAngle(angle);
-		this.angle = angle;
-	}
-	
-	public int getAngle(){ return this.angle; }
-	
 	public boolean isDead(){ return dead; }
 
 	@Override
+	public void updateComposite() {
+		super.updateComposite();
+		
+    	this.getGraphicComposite().setGraphicSizeFactor( growth.getCount()/500.0 );
+    	
+		growth.updateCounter(); // Counter "growth" counts up and then fires FullyGrown trigger when done
+		lifespan.updateCounter();
+	}
+	
+	/*@Override
 	public void updatePosition() {
 		super.updatePosition();
 		
@@ -67,7 +79,7 @@ public class PlantTwigSegment extends EntityDynamic {
 		
     	(( SpriteStillframe )this.getEntitySprite()).setResizeFactor( growth.getCount() );
 
-	}
+	}*/
 	
 	
 	private class FullyGrown implements Trigger{ //Event that fires when this segments growth counter reaches 100%
@@ -79,18 +91,25 @@ public class PlantTwigSegment extends EntityDynamic {
 			float oldRadius = oldMaxGrowth/100*40;
 			
 			// Calculate location of the tip of this segment for next segment
-			int endPointX =  (int)x + (int)( oldRadius * Math.sin( Math.toRadians(angle ))  );
-			int endPointY =  (int)y - (int)( oldRadius * Math.cos( Math.toRadians(angle ))  );
+			int endPointX =  (int)x + (int)( oldRadius * Math.sin( Math.toRadians( getAngularComposite().getAngle() ))  );
+			int endPointY =  (int)y - (int)( oldRadius * Math.cos( Math.toRadians( getAngularComposite().getAngle() ))  );
 			
+			Point relativeTip = PlantTwigSegment.this.getPosition();
+			int tipX = relativeTip.x;
+			int tipY = (int)(relativeTip.y - oldRadius);
+			
+			Point tip = PlantTwigSegment.this.getRelativePositionOf(new Point( 0 , (int)oldRadius ));
+			endPointX = tip.x;
+			endPointY = tip.y;
 			
 			if ( getNumberFromBranch() > ThreadLocalRandom.current().nextInt( 0 , 5) ){ //start new branch every 1-6 segments
 				
 				final int FORK_ANGLE = 40; // Set to 90 or higher for some freaky shit
-				final int UPWARD_WILLPOWER = 20; //-20 to 40 look normal. Set to 90 or higher for chaos
+				final int UPWARD_WILLPOWER = -10; //-20 to 40 look normal. Set to 90 or higher for chaos
 				
 				int thisMaxGrowth = (int)oldMaxGrowth-1;
 				
-				int thisSegmentAngle =  (angle % 360) ; // constrain angle to 0-360 for convenience
+				int thisSegmentAngle =  (int) ( getAngularComposite().getAngle() % 360) ; // constrain angle to 0-360 for convenience
 				
 				if ( thisSegmentAngle > 0)
 					if (thisSegmentAngle > 180) // Adds push towards angle of 0 ( pointing up )
@@ -104,13 +123,21 @@ public class PlantTwigSegment extends EntityDynamic {
 						thisSegmentAngle += UPWARD_WILLPOWER;
 				
 				//Create next segments and spawn them into board
-				PlantTwigSegment sprout = new PlantTwigSegment( endPointX , endPointY , thisMaxGrowth , board) ;
-				sprout.setAngle( thisSegmentAngle + FORK_ANGLE );
-				board.spawnDynamicEntity( sprout );
+				//PlantTwigSegment sprout = new PlantTwigSegment( endPointX , endPointY , thisMaxGrowth , board) ;
+				PlantTwigSegment sprout = new PlantTwigSegment( tipX , tipY , thisMaxGrowth , board) ;
+				sprout.getAngularComposite().setAngleInDegrees( thisSegmentAngle + FORK_ANGLE );
+				CompositeFactory.makeChildOfParent(sprout, PlantTwigSegment.this , board);
+
+				board.spawnNewSprout( sprout );
 				
-				sprout = new PlantTwigSegment( endPointX , endPointY , thisMaxGrowth , board) ;
-				sprout.setAngle( thisSegmentAngle - FORK_ANGLE );
-				board.spawnDynamicEntity( sprout );
+				//sprout = new PlantTwigSegment( endPointX , endPointY , thisMaxGrowth , board) ;
+				sprout = new PlantTwigSegment( tipX , tipY , thisMaxGrowth , board) ;
+				//sprout.setAngle( thisSegmentAngle - FORK_ANGLE );
+
+				sprout.getAngularComposite().setAngleInDegrees( thisSegmentAngle - FORK_ANGLE );
+				CompositeFactory.makeChildOfParent(sprout, PlantTwigSegment.this , board);
+				
+				board.spawnNewSprout( sprout );
 				
 			}
 			else if (oldMaxGrowth > 30){ // Else segemnt didn't branch, so grown next segment if bigger than 20% grown
@@ -124,11 +151,13 @@ public class PlantTwigSegment extends EntityDynamic {
 				
 				int thisMaxGrowth = getMaxGrowth() - randomShrinkage; //reduce next segment's max growth so its always smaller
 				
-				PlantTwigSegment sprout = new PlantTwigSegment( endPointX , endPointY , thisMaxGrowth , board) ;
+				
+				//PlantTwigSegment sproutStem = new PlantTwigSegment( endPointX , endPointY , thisMaxGrowth , board) ;	
+				PlantTwigSegment sproutStem = new PlantTwigSegment( tipX , tipY , thisMaxGrowth , board );
 				
 				int randomBend = ThreadLocalRandom.current().nextInt( -RANDOM_BEND_RANGE ,RANDOM_BEND_RANGE); // get random bend
 				
-				int thisSegmentAngle =  ((angle + randomBend) % 360) ; //And add it to the next segments angle
+				int thisSegmentAngle =  (int)(( getAngularComposite().getAngle() + randomBend) % 360) ; //And add it to the next segments angle
 				
 				if ( thisSegmentAngle > 0)
 					if (thisSegmentAngle > 180) // Adds a 10 degree push towards angle of 0 ( pointing up ) same as above
@@ -140,11 +169,13 @@ public class PlantTwigSegment extends EntityDynamic {
 						thisSegmentAngle += UPWARD_WILLPOWER;
 					else
 						thisSegmentAngle -= UPWARD_WILLPOWER;
-					
+				sproutStem.getAngularComposite().setAngleInDegrees(thisSegmentAngle);
+				CompositeFactory.makeChildOfParent(sproutStem, PlantTwigSegment.this , board);
 				
-				sprout.setAngle(thisSegmentAngle);
-				sprout.nextNumberFromBranch( getNumberFromBranch()+1 ); //Increment next branches number in this stem
-				board.spawnDynamicEntity( sprout ); //then spawn it in
+				//sproutStem.getRotationComposite().setAngularVelocity(1f);
+
+				sproutStem.nextNumberFromBranch( getNumberFromBranch()+1 ); //Increment next branches number in this stem
+				board.spawnNewSprout( sproutStem ); //then spawn it in
 				
 			}
 			
@@ -158,7 +189,7 @@ public class PlantTwigSegment extends EntityDynamic {
 
 		@Override
 		public void activate() {
-			accY = 0.05f;
+			
 		}
 		
 	}

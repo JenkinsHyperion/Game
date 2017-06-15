@@ -6,6 +6,7 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+import Input.MouseCommand;
 import engine.Board;
 import engine.BoardAbstract;
 import engine.ReferenceFrame;
@@ -30,7 +31,6 @@ public class RenderingEngine {
 	
 	private BufferedImage image = new BufferedImage( ownerBoard.B_WIDTH, ownerBoard.B_HEIGHT , BufferedImage.TYPE_INT_ARGB );
 	
-	private ArrayList<Overlay> overlayList = new ArrayList<Overlay>();
 	private ArrayList<OverlayComposite> visibleOverlayList = new ArrayList<OverlayComposite>();
 	
 	private ArrayList<Sprite> spriteListTEMPORARY_USEAGE_ONLY = new ArrayList<Sprite>();
@@ -82,18 +82,19 @@ public class RenderingEngine {
 		
 		while ( spriteCompositeList.hasNext() ){
 			GraphicComposite graphic = spriteCompositeList.get();
-			graphic.getSprite().draw( camera , graphic );
+			graphic.draw(camera);
 			spriteNumber++;
 		}
 		g2.setColor(Color.CYAN);
-		g2.drawString( "Sprites: "+ spriteNumber , 20, 300);
+		g2.drawString( "Rendering Engine: Sprites: "+ spriteNumber , 20, 300);
 		
 		//Overlays
 		
 		g2.drawImage(image,0,0,ownerBoard );
 		
-		/*for ( OverlayComposite overlay : visibleOverlayList ){
-		}*/
+		for ( OverlayComposite overlay : visibleOverlayList ){
+			overlay.paintOverlay(g2, camera);
+		}
 		
 	}
 	
@@ -209,9 +210,9 @@ public class RenderingEngine {
 	}*/
 	
 	public OverlayComposite addOverlay( Overlay overlay) {
-		
 		OverlayComposite newOverlayComp = new OverlayComposite( overlay );
-		newOverlayComp.setHashID( 0 , this);
+		newOverlayComp.setHashID( this.visibleOverlayList.size() , this);
+		this.visibleOverlayList.add( newOverlayComp );
 		return newOverlayComp;
 		
 	}
@@ -248,5 +249,6 @@ public class RenderingEngine {
 	public Graphics2D getGraphics() {
 		return graphics;
 	}
+
 	
 }

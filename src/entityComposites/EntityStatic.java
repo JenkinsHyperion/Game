@@ -26,16 +26,19 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	private Scene ownerScene;
 	private Integer sceneIndex;
 	
-	private ListNodeTicket updaterSlot;
+	private final NullTicket nullTicket = new NullTicket();
+	private ListNodeTicket updaterSlot = nullTicket;
 	//COMPOSITE VARIABLES, LATER TO BE LIST OF COMPOSITES
 	protected TranslationComposite translationType = new TranslationComposite();
-	protected RotationComposite rotationType = new RotationComposite(this);
+	protected DynamicRotationComposite rotationType = new DynamicRotationComposite(this);
 	protected GraphicComposite graphicsComposite = GraphicCompositeNull.getNullSprite(); 
-	protected Collider collisionType = ColliderNull.getNonCollidable();
+	protected Collider collisionType = ColliderNull.getNonCollidableSingleton();
+	protected AngularComposite angularType = new AngularComposite.AngleComposite(this);
 	
 	protected ParentChildRelationship[] family = new ParentChildRelationship[0];
 	
 	protected ArrayList<UpdateableComposite> updateables = new ArrayList<UpdateableComposite>();
+	protected ArrayList<TranslatableComposite> translateables = new ArrayList<TranslatableComposite>();
 	
 	public EntityStatic(int x, int y) {
 
@@ -57,6 +60,13 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	public EntityStatic(Point entityPosition) {
 		super( entityPosition.x , entityPosition.y );
 	}
+	
+	protected void addUpdateable( UpdateableComposite updateable){
+		updateables.add(updateable);
+	}
+	/**BE ADVISED: ALWAYS CALL super.updateComposite() WHEN SUBCLASSING ENTITYSTATIC
+	 * 
+	 */
 	@Override
 	public void updateComposite(){ //MAKE OWN COMPOSITE
 		for ( UpdateableComposite composite : updateables ){
@@ -65,6 +75,7 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	}
 	@Override
 	public void updateEntity(EntityStatic entity) { 
+		System.err.println("ENTITY STATIC WARNING");
 	}
 	
 	protected void setGraphicComposite(GraphicComposite spriteType){ 
@@ -83,12 +94,16 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		return this.translationType;
 	}
 	
-	protected void setRotationComposite( RotationComposite rotationType ){ 
+	protected void setRotationComposite( DynamicRotationComposite rotationType ){ 
 		this.rotationType = rotationType; 
 	}
 	
-	public RotationComposite getRotationComposite(){
+	public DynamicRotationComposite getRotationComposite(){
 		return this.rotationType;
+	}
+	
+	public AngularComposite getAngularComposite(){
+		return this.angularType;
 	}
 	
 	protected void setCollisionComposite(Collider collisionType){ 
@@ -212,6 +227,10 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 
 		x=x+(int)distance.getX();
 		y=y+(int)distance.getY();
+		
+		for ( TranslatableComposite trans : this.translateables ){
+			trans.translate( x , ENEMY);
+		}
 	}
 	
 	public boolean hasGraphics(){
@@ -235,8 +254,9 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	}
 	
 	public void addToUpdater( BoardAbstract board){
-		if ( updaterSlot == null ){
+		if ( !updaterSlot.isActive() ){
 			this.updaterSlot = board.addEntityToUpdater(this);
+			System.out.println("Added "+this.name+" to updater");
 		}else{
 			System.err.println("Warning: "+this.name+" is already in updater");
 		}
@@ -275,6 +295,7 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	@Override
 	public void removeUpdateable() {
 		this.updaterSlot.removeSelf();
+		this.updaterSlot = nullTicket;
 	}
 
 	@Override
@@ -305,10 +326,28 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		
 		Point returnPoint = this.getRelativeTranslationalPositionOf(entity);
 
-		returnPoint = this.rotationType.getRotationalPositionRelativeTo(returnPoint);
+		returnPoint = this.angularType.getRotationalPositionRelativeTo(returnPoint);
 		
 		return returnPoint;
+	}
+	
+	public Point getRelativePositionOf(Point point_on_entity ){
 		
+		
+		Point returnPoint = this.angularType.getRotationalPositionRelativeTo(point_on_entity);
+		returnPoint = this.getRelativeTranslationalPositionOf( returnPoint );
+		return returnPoint;
+	}
+	
+	private static class NullTicket extends ListNodeTicket{
+		 @Override
+		public void removeSelf() {
+			//System.err.println( " was not in updater");
+		}
+		 @Override
+		public boolean isActive() {
+			return false;
+		}
 	}
 	
 }

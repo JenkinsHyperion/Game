@@ -7,6 +7,9 @@ public class ListNodeTicket {
 	//protected ListNodeTicket( LinkedNodeElement<T> node ){
 	//	this.node = node;
 	//}
+	protected ListNodeTicket(){
+		
+	}
 	
 	protected ListNodeTicket(DoubleLinkedList<?>.LinkedNodeElement<?> newElement) {
 		this.node = newElement;
@@ -14,6 +17,10 @@ public class ListNodeTicket {
 
 	public void removeSelf(){
 		node.removeSelf();
+	}
+	
+	public boolean isActive(){
+		return true;
 	}
 	
 }

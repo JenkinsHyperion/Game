@@ -24,7 +24,7 @@ public final class ColliderNull extends Collider{
 		super();
 	}
 	
-	public static ColliderNull getNonCollidable(){ 
+	public static ColliderNull getNonCollidableSingleton(){ 
 		return nullCollision;
 	}
 	

@@ -1,5 +1,7 @@
 package entityComposites;
 
+import engine.ReferenceFrame;
+import javafx.scene.Camera;
 import sprites.*;
 import utility.ListNodeTicket;
 
@@ -8,6 +10,9 @@ public class GraphicComposite implements EntityComposite{
 	EntityStatic ownerEntity;
 	Sprite currentSprite;
 	private ListNodeTicket rendererSlot;
+	
+	private double graphicSizePercent = 1;
+	private double graphicAngle = 0;
 	
 	protected GraphicComposite( Sprite current , EntityStatic ownerEntity ){
 		this.ownerEntity = ownerEntity;
@@ -30,6 +35,25 @@ public class GraphicComposite implements EntityComposite{
 		this.currentSprite = sprite;
 	}
 	
+	public void setGraphicSizeFactor(double factor){
+		this.graphicSizePercent = factor;
+	}
+	
+	public double getGraphicsSize(){
+		return this.graphicSizePercent;
+	}
+	
+	public void setGraphicAngle( double angle ){
+		this.graphicAngle = angle;
+	}
+	
+	public double getGraphicAngle(){
+		return this.graphicAngle;
+	}
+	
+	public void draw( ReferenceFrame camera ){
+		this.currentSprite.draw(camera, this);
+	}
 	
 	public void addCompositeToRenderer( RenderingEngine engine ){
 		rendererSlot = engine.addSpriteComposite( this );

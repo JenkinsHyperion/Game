@@ -23,8 +23,6 @@ public class Console {
 	private Font defaultFont = new Font("Helvetica", Font.PLAIN, 16);
 	
 	private ArrayList<String> enteredLines = new ArrayList<String>();
-	
-	private Graphics2D g2;
 
 	protected Console( int x , int y, BoardAbstract board){
 		this.board = board;
@@ -33,7 +31,7 @@ public class Console {
 	}
 	
 	protected void drawConsole( Graphics2D g2 ){
-		this.g2 = g2;
+
 		g2.setColor(Color.WHITE);
 		g2.setFont( defaultFont);
 		g2.drawString("Console: ", fieldPosition.x , fieldPosition.y );
@@ -123,10 +121,10 @@ public class Console {
 	}
 	
 	private void cursorLeft( Character character ){	//these methods use Graphic2Ds Font Metrics to determine the pixel width of a character
-		cursor.setLocation( (int)cursor.getMinX() - g2.getFontMetrics(defaultFont).charWidth(character) , (int)cursor.getMinY() );
+		cursor.setLocation( (int)cursor.getMinX() - board.getFontMetrics(defaultFont).charWidth(character) , (int)cursor.getMinY() );
 	}
 	private void cursorRight( Character character ){
-		cursor.setLocation( (int)cursor.getMinX() + g2.getFontMetrics(defaultFont).charWidth(character) , (int)cursor.getMinY() );
+		cursor.setLocation( (int)cursor.getMinX() + board.getFontMetrics(defaultFont).charWidth(character) , (int)cursor.getMinY() );
 	}
 	
 	

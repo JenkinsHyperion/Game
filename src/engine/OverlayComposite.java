@@ -9,7 +9,7 @@ public class OverlayComposite {
 	private RenderingEngine ownerEngine;
 	private int hashID;
 	
-	private boolean visible = false;
+	private boolean visible = true;
 	
 	private Overlay component;
 	

@@ -9,7 +9,7 @@ public final class EntityNull extends EntityStatic {
 
 	private EntityNull() {
 		super(0,0);
-		this.collisionType = ColliderNull.getNonCollidable();
+		this.collisionType = ColliderNull.getNonCollidableSingleton();
 	}
 	
 	public static EntityNull getNullEntity(){

@@ -49,7 +49,7 @@ public class Scene {
 		
 		//ROTATION 
 		
-		if ( (entity.getRotationComposite() instanceof UpdateableComposite) ){
+		if ( (entity.getRotationComposite().exists() ) ){
 			UpdateableComposite rotation = (UpdateableComposite) entity.getRotationComposite();
 			updateableEntity = true;
 			if ( rotation.addCompositeToUpdater(ownerBoard) ){

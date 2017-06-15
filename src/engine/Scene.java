@@ -9,7 +9,7 @@ import utility.DoubleLinkedList;
 public class Scene {
 	
 	private BoardAbstract ownerBoard;
-
+	private String sceneName;
 	private ArrayList<LayeredEntity> entityList = new ArrayList<LayeredEntity>();
 	
 	//private DoubleLinkedList<LayeredEntity> entityList2 = new DoubleLinkedList<LayeredEntity>();
@@ -18,7 +18,7 @@ public class Scene {
 
 	public Scene( BoardAbstract ownerBoard ){
 		this.ownerBoard = ownerBoard;
-
+		this.sceneName = "Unnamed Scene";
 	}
 	
 	public void addEntityToList( EntityStatic entity , byte layer ){
@@ -132,6 +132,10 @@ public class Scene {
 			returnList[i] = entityList.get(i).entity;
 		}
 		return returnList;
+	}
+	
+	public void uponSwitchingToThisScene(){
+		System.out.println( "Scene: Switced to Scene " + this.sceneName );
 	}
 	
 	public void deconstructScene(){

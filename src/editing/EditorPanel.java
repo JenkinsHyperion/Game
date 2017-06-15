@@ -1059,18 +1059,29 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				 -There should be an ongoing vector in this mode
 				 
 				 */
-				
+
 				@Override
 				public void mousePressed() {
 					mouseDown = true;
 					// gonna need to create vectore from initClickPoint and current mouse pos (editorMousePos?)
 					initClickPoint.setLocation(camera.getWorldPosition(editorMousePos));
+					double deltaX = editorMousePos.getX() - 
+							camera.getRelativePoint(getCurrentEntity().getPosition()).getX();
+					double deltaY = editorMousePos.getY() - 
+							camera.getRelativePoint(getCurrentEntity().getPosition()).getY();
+					if (editorMousePos.distance(
+							camera.getRelativePoint(getCurrentEntity().getPosition())) > 20) {
+						vector.setX(-deltaX);
+						vector.setY(-deltaY);
+						currentAngle = vector.angleFromVectorInDegrees();
+						getCurrentEntity().getRotationComposite().setAngleInDegrees(currentAngle);
+					}
 				}
 
 				@Override
 				public void mouseDragged() {
 					// ~~~### First way: using an initial click point ### /// 
-				/*	double deltaX = camera.getLocalPosition(editorMousePos).getX() -
+					/*	double deltaX = camera.getLocalPosition(editorMousePos).getX() -
 									initClickPoint.getX();
 					double deltaY = camera.getLocalPosition(editorMousePos).getY() -
 									initClickPoint.getY();*/
@@ -1861,21 +1872,33 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				 Considerations:
 				 Everything should work except the blue shaded selection square around the entity. That won't rotate, will need to take care of that separately.
 				 -There should be an ongoing vector in this mode
-				 
+
 				 */
-				
+
 				@Override
 				public void mousePressed() {
 					mouseDown = true;
 					// gonna need to create vectore from initClickPoint and current mouse pos (editorMousePos?)
 					initClickPoint.setLocation(camera.getWorldPosition(editorMousePos));
 					sizeFactorRef = getCurrentEntity().getGraphicComposite().getSprite().getSizeFactor();
+					double deltaX = editorMousePos.getX() - 
+							camera.getRelativePoint(getCurrentEntity().getPosition()).getX();
+					double deltaY = editorMousePos.getY() - 
+							camera.getRelativePoint(getCurrentEntity().getPosition()).getY();
+
+					if (editorMousePos.distance(
+							camera.getRelativePoint(getCurrentEntity().getPosition())) > 20) {
+						vector.setX(-deltaX);
+						vector.setY(-deltaY);
+						currentAngle = vector.angleFromVectorInDegrees();
+						getCurrentEntity().getGraphicComposite().getSprite().setAngle(currentAngle);
+					}
 				}
 
 				@Override
 				public void mouseDragged() {
 					// ~~~### First way: using an initial click point ### /// 
-				/*	double deltaX = camera.getLocalPosition(editorMousePos).getX() -
+					/*	double deltaX = camera.getLocalPosition(editorMousePos).getX() -
 									initClickPoint.getX();
 					double deltaY = camera.getLocalPosition(editorMousePos).getY() -
 									initClickPoint.getY();*/
@@ -2041,29 +2064,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				}
 			}
 			public class ScaleIncrementEvent extends MouseCommand {
-				@Override
-				public void mousePressed() {
-					//mouseDown = true;
-					// gonna need to create vectore from initClickPoint and current mouse pos (editorMousePos?)
-					//initClickPoint.setLocation(camera.getLocalPosition(editorMousePos));
-				}
-				
-				@Override
-				public void mouseDragged() {}
-				/*{									
-				if (editorMousePos.distance(
-							camera.getRelativePoint(getCurrentEntity().getPosition())) > 20) {
-						vector.setX((int)-deltaX);
-						vector.setY((int)-deltaY);
-						currentAngle = vector.angleFromVectorInDegrees();
-						getCurrentEntity().getGraphicComposite().getSprite().setAngle(15*(Math.round(currentAngle/15)));
-					}
-				}
-				*/
-				@Override
-				public void mouseReleased() {
-					//mouseDown = false;
-				}
+				//not currently using this mode
 			}
 		} // END OF ROTATEMODE INNER CLASS  #####
 	}

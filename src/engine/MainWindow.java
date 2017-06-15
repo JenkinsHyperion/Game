@@ -57,6 +57,8 @@ public class MainWindow extends JPanel implements KeyListener, MouseListener{
 		return splitPane;
 	}
 	
+	@Deprecated
+	//Not being used anymore
 	public static void showGUI(JFrame frame){
 		
 		MainWindow splitPaneInstance = new MainWindow();
@@ -89,7 +91,7 @@ public class MainWindow extends JPanel implements KeyListener, MouseListener{
 		frame.pack();
 		
 	}
-	@Deprecated
+
 	public static void createAndShowGUI() {
 		//Create and set up the window
 		JFrame frame = new JFrame(System.getProperty("user.dir"));

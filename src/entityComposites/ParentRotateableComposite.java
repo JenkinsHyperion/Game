@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import entityComposites.AngularComposite.AngleComposite;
 
-public class ParentRotateableComposite extends ParentChildRelationship implements RotateableComposite{
+public class ParentRotateableComposite extends ParentChildRelationship implements RotateableComposite {
 	
 	private EntityStatic ownerEntity;
 	private ArrayList<ChildComposite> children = new ArrayList<ChildComposite>();
@@ -17,9 +17,9 @@ public class ParentRotateableComposite extends ParentChildRelationship implement
 	protected void addChild( EntityStatic child ){
 
 		if ( ownerEntity.getAngularComposite().exists() ){
-			AngleComposite angularChild = (AngleComposite) ownerEntity.getAngularComposite();
+			AngleComposite angularParent = (AngleComposite) ownerEntity.getAngularComposite();
 		
-			ChildComposite childComposite = new ChildComposite(child , children.size() , ownerEntity.getPosition() , angularChild.getAngle() );
+			ChildComposite childComposite = new ChildComposite(child , children.size() , ownerEntity.getPosition() , angularParent.getAngle() );
 			child.addFamilyRole( childComposite );
 			children.add( childComposite );
 		}else{
@@ -27,25 +27,29 @@ public class ParentRotateableComposite extends ParentChildRelationship implement
 		}
 		
 	}
-
+	
 	@Override
-	public void setAngle(double angleDegrees) { //METHOD IN CHARGE OF ROTATING ALL CHILDREN
+	public void setAngle(double angleRadians) {
+		manipulateChildren();
+	}
+	
+	@Override
+	public void manipulateChildren() { //METHOD IN CHARGE OF ROTATING ALL CHILDREN
 		
-		double angleRadians = Math.toRadians(angleDegrees);
-		
+		double angleRadians = Math.toRadians( ownerEntity.getAngularComposite().getAngle() );
 		for ( ChildComposite child : children ){
 			
-			double x = child.zeroAnglePosition.getX();
-			double y = child.zeroAnglePosition.getY();
+			double relativeX = child.zeroAnglePosition.getX();
+			double relativeY = child.zeroAnglePosition.getY();
 			
-			child.ownerChild.setPos( 
-							(int) (ownerEntity.getX() + x*Math.cos(angleRadians) - y*Math.sin(angleRadians)) ,
-							(int) (ownerEntity.getY() + x*Math.sin(angleRadians) + y*Math.cos(angleRadians)) 
-					);	
-			
+			double x = ( relativeX*Math.cos(angleRadians) - relativeY*Math.sin(angleRadians) );
+			double y = ( relativeX*Math.sin(angleRadians) + relativeY*Math.cos(angleRadians) );
+
+			child.ownerChild.setCompositedPos( ownerEntity.x + x , ownerEntity.y + y );
 			
 			
 		}
+		
 	}
 	
 	@Override

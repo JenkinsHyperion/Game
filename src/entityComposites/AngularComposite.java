@@ -39,7 +39,7 @@ public abstract class AngularComposite implements EntityComposite, RotateableCom
 		public void setAngle( double angleDegrees ){
 			this.angleDegrees = angleDegrees;
 			this.setAngleInDegrees(angleDegrees); //FIXME MAKE ROTATEABLE GRAPHICS AND COLLIDER VARIANTS TO BE USED IN ROTATEABLES LIST
-			setAngleOfRotateables(angleDegrees);
+			//setAngleOfRotateables(angleDegrees);
 		}
 		@Override
 		public double getAngle(){ return angleDegrees ; }
@@ -65,6 +65,8 @@ public abstract class AngularComposite implements EntityComposite, RotateableCom
 			
 			this.updateOrientationVector(angleRadians);
 			this.ownerEntity.getEntitySprite().setAngle(angle);
+			
+			setAngleOfRotateables(angle);
 		}
 	
 		protected void addAngleInDegrees(double angle){
@@ -89,6 +91,7 @@ public abstract class AngularComposite implements EntityComposite, RotateableCom
 			this.updateOrientationVector(angleRadians);
 			//this.owner.getEntitySprite().setAngle(angle);
 			this.ownerEntity.getGraphicComposite().setGraphicAngle(angleRadians);
+			setAngleOfRotateables(angleDegrees);
 		}
 		@Override
 		public void setAngleInRadians( double angleRadians ){
@@ -100,6 +103,7 @@ public abstract class AngularComposite implements EntityComposite, RotateableCom
 			this.updateOrientationVector(angleRadians);
 			//this.owner.getEntitySprite().setAngle(angleDegrees);
 			this.ownerEntity.getGraphicComposite().setGraphicAngle(angleRadians);
+			setAngleOfRotateables(angleDegrees);
 		}
 	
 		public void setAngleFromVector( Vector slope ){

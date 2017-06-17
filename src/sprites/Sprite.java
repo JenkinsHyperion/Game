@@ -18,6 +18,8 @@ import physics.Vector;
  */
 public abstract class Sprite implements Graphic{
 	
+	public static final SpriteStillframe missingSprite = new SpriteStillframe.MissingSprite("Missing");
+	
     protected boolean visibility;
     protected int spriteOffsetX = 0;
     protected int spriteOffsetY = 0;

@@ -17,6 +17,7 @@ import sprites.Sprite;
 public interface ReferenceFrame {
 
 	public void drawOnCamera(GraphicComposite sprite , AffineTransform entityTransform);
+	public void drawString(String string , int world_x, int world_y);
 	public void debugDrawPolygon( Shape polygon, Color color, Point point , AffineTransform entityTransform, float alpha );
 	
 	public int getOriginX();

@@ -33,7 +33,7 @@ public class ParticleEmitter extends EntityStatic implements UpdateableComposite
 		//particles[0].getTranslationComposite().setDX(2);
 		particles[0].getRotationComposite().setAngularVelocity(2);
 		
-		updateables.add(particles[0]);
+		updateablesList.add(particles[0]);
 		
 		for ( int i = 1 ; i < particles.length ; i++ ){
 
@@ -53,7 +53,7 @@ public class ParticleEmitter extends EntityStatic implements UpdateableComposite
 			particles[i].getAngularComposite().setAngleInRadians(angleRadians);
 			
 			CompositeFactory.addGraphicTo(particles[i], particleSprite ); 
-			updateables.add(particles[i]);
+			updateablesList.add(particles[i]);
 		}
 	}
 	

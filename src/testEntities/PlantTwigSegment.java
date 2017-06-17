@@ -1,8 +1,10 @@
 package testEntities;
 
+import java.awt.Color;
 import java.awt.Point;
 import java.util.concurrent.ThreadLocalRandom;
 
+import engine.ReferenceFrame;
 import engine.TestBoard;
 import entities.*;
 import entityComposites.ColliderNull;
@@ -27,6 +29,11 @@ public class PlantTwigSegment extends EntityStatic{
 	
 	private int numberFromLastBranch = 0;
 	
+	private PlantTwigSegment previousSegment;
+	private PlantTwigSegment nextSegment;
+	
+	private int waterLevel = 0; 
+	
 	public PlantTwigSegment(int x, int y, int maxGrowth , TestBoard board) {
 		super(x, y);
 		this.board = board;
@@ -47,7 +54,18 @@ public class PlantTwigSegment extends EntityStatic{
         //this.loadSprite("Prototypes/twig.png" , -4 , -40 );
         //((SpriteStillframe) ((GraphicComposite)this.graphicsComposite).getSprite()).setResizeFactor(0); //start initial segment at size 0
         
-		CompositeFactory.addGraphicTo(this, twigSprite );
+		//CompositeFactory.addGraphicTo(this, twigSprite );
+		CompositeFactory.addAnonymousGraphicTo(this, new GraphicComposite(this){
+			
+			@Override
+			public void draw(ReferenceFrame camera) {
+				camera.getGraphics().setColor(Color.CYAN);
+				camera.drawString( waterLevel+"%", getX(), getY());
+				super.draw(camera);
+			}
+		});
+		
+		this.getGraphicComposite().setSprite(twigSprite);
 		this.getGraphicComposite().setGraphicSizeFactor(0);
         
 	}
@@ -80,7 +98,9 @@ public class PlantTwigSegment extends EntityStatic{
     	(( SpriteStillframe )this.getEntitySprite()).setResizeFactor( growth.getCount() );
 
 	}*/
-	
+	public void debugSetWaterPercent( int waterPercent ){
+		this.waterLevel = waterPercent;
+	}
 	
 	private class FullyGrown implements Trigger{ //Event that fires when this segments growth counter reaches 100%
 		@Override
@@ -102,10 +122,10 @@ public class PlantTwigSegment extends EntityStatic{
 			endPointX = tip.x;
 			endPointY = tip.y;
 			
-			if ( getNumberFromBranch() > ThreadLocalRandom.current().nextInt( 0 , 5) ){ //start new branch every 1-6 segments
+			if ( getNumberFromBranch() > ThreadLocalRandom.current().nextInt( 0 , 8) ){ //start new branch every 1-6 segments
 				
-				final int FORK_ANGLE = 40; // Set to 90 or higher for some freaky shit
-				final int UPWARD_WILLPOWER = -10; //-20 to 40 look normal. Set to 90 or higher for chaos
+				final int FORK_ANGLE = 50; // Set to 90 or higher for some freaky shit
+				final int UPWARD_WILLPOWER = 20; //-20 to 40 look normal. Set to 90 or higher for chaos
 				
 				int thisMaxGrowth = (int)oldMaxGrowth-1;
 				
@@ -144,7 +164,7 @@ public class PlantTwigSegment extends EntityStatic{
 				
 				final int RANDOM_BEND_RANGE = 20; // 0 is perfectly straight branch. Higher than 40 looks withered.
 				
-				final int UPWARD_WILLPOWER = 20; // 
+				final int UPWARD_WILLPOWER = 10; // 
 				
 				int randomShrinkage = ThreadLocalRandom.current().nextInt( 1 , 10); // This being greater than 0 is the only
 				//thing stopping the stem from growing infinitely. Adjust chances accordingly
@@ -169,8 +189,10 @@ public class PlantTwigSegment extends EntityStatic{
 						thisSegmentAngle += UPWARD_WILLPOWER;
 					else
 						thisSegmentAngle -= UPWARD_WILLPOWER;
-				sproutStem.getAngularComposite().setAngleInDegrees(thisSegmentAngle);
+
 				CompositeFactory.makeChildOfParent(sproutStem, PlantTwigSegment.this , board);
+				
+				sproutStem.getAngularComposite().setAngleInDegrees(thisSegmentAngle);
 				
 				//sproutStem.getRotationComposite().setAngularVelocity(1f);
 
@@ -189,17 +211,7 @@ public class PlantTwigSegment extends EntityStatic{
 
 		@Override
 		public void activate() {
-			
-		}
-		
-	}
-	
-	
-	class wheelw implements Trigger{
-
-		@Override
-		public void activate() {
-			
+			PlantTwigSegment.this.disable();
 		}
 		
 	}

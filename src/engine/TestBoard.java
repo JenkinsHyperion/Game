@@ -71,21 +71,24 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     		public void onPressed() { camera.setDX(10f); }
     		public void onReleased() { camera.setDX(0); }
     	});
-    	this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK , MouseEvent.BUTTON3, new MouseCommand(){
+    	this.inputController.createMouseBinding(MouseEvent.CTRL_MASK , MouseEvent.BUTTON3, new MouseCommand(){
     		public void mousePressed() { asteroid.getRotationComposite().setAngularVelocity(0.4f); }
     	});
     	//MOUSE COMMAND FOR GROWING NEW PLANT  
-        this.inputController.createMouseBinding( MouseEvent.SHIFT_MASK , MouseEvent.BUTTON1 , new MouseCommand(){
+        this.inputController.createMouseBinding( MouseEvent.CTRL_MASK , MouseEvent.BUTTON1 , new MouseCommand(){
     		public void mousePressed() {
       			//editorPanel.getWorldGeom().mousePressed(e);
     		}
     		public void mouseReleased() {
+    			
     			PlantTwigSegment sprout = new PlantTwigSegment( 
       				camera.getLocalX( (int)dragLine.getX1() ), 
       				camera.getLocalY( (int)dragLine.getY1() ),
       				100,
       				TestBoard.this
       			);
+    			
+    			sprout.debugSetWaterPercent(100);
       			
       			int angle = 0;
       			
@@ -158,9 +161,9 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 		editorPanel.render( g ); 
     	g.setColor( Color.RED );
     	
-    	for( EntityStatic entity : this.listCurrentSceneEntities() ){
+    	/*for( EntityStatic entity : this.listCurrentSceneEntities() ){
     		camera.drawCrossInWorld( entity.getPosition() , (Graphics2D)g);
-    	}
+    	}*/
     	
     }
 

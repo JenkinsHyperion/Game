@@ -1,7 +1,9 @@
 package entityComposites;
 
-public class ParentChildRelationship implements EntityComposite {
+public abstract class ParentChildRelationship implements EntityComposite {
 
+	public abstract void manipulateChildren();
+	
 	@Override
 	public boolean exists() {
 		return false;

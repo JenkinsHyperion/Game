@@ -16,11 +16,13 @@ public class ChildComposite extends ParentChildRelationship{
 				ownerChild.getX() - (int)parentPosition.getX() , 
 				ownerChild.getY() - (int)parentPosition.getY()  
 		);
-		
-		//double childAngle = ((RotationCompositeDynamic)owner.getRotationComposite()).angle;
-		
-		//relativeAngle = childAngle - parentAngle;
+		this.relativeAngle = parentAngle - owner.getAngularComposite().getAngle();
 
+	}
+	
+	@Override
+	public void manipulateChildren( ) {
+		
 	}
 	
 	@Override

@@ -33,10 +33,7 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 
 		AngularComposite angular = entity.getAngularComposite();
 		angular.setAngle( angular.getAngle() + angularVelocity);
-		/*for ( RotateableComposite rotateable : rotateableCompositeList ){
 
-			rotateable.setAngle(angleRadians);
-		}*/
 	}
 	
 	public void setAngularVelocity( double angularVelocity ){

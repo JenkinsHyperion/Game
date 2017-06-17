@@ -64,4 +64,10 @@ public class ParallaxFrame implements ReferenceFrame{
 		return this.graphics;
 	}
 
+	@Override
+	public void drawString(String string, int world_x, int world_y) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

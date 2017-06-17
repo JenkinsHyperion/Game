@@ -72,7 +72,7 @@ public class MissingIcon implements Icon{
         
         g2d.dispose();
     }
-    public BufferedImage paintMissingSprite() {
+    public BufferedImage getMissingSprite() { //FIXME MAKE STATIC TO GET BUFFERED IMAGES AND MOVE WIDTH/HEIGHT INTO THIS METHODS PARAMETERS
     	placeHolder = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = placeHolder.createGraphics();
         

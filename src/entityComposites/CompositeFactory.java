@@ -16,7 +16,7 @@ public class CompositeFactory {
 		
 		DynamicRotationComposite rotation = new DynamicRotationComposite( entity );
 		entity.setRotationComposite( rotation );
-		entity.updateables.add(rotation);
+		entity.updateablesList.add(rotation);
 		
 		if ( !(entity.getColliderComposite() instanceof ColliderNull) ){
 			Collider colliderStatic = entity.getColliderComposite();
@@ -31,20 +31,20 @@ public class CompositeFactory {
 	public static void addTranslationTo( EntityStatic entity ){
 		TranslationCompositeActive trans = new TranslationCompositeActive();
 		entity.setTranslationComposite( trans );
-		entity.updateables.add(trans);
+		entity.updateablesList.add(trans);
 	}
 	
 	public static void flyweightTranslation( EntityStatic parent, EntityStatic child ){
 		if ( parent.hasTranslation() ){
 			child.setTranslationComposite( parent.getTranslationComposite() );
-			child.updateables.add( (TranslationCompositeActive) parent.getTranslationComposite() );
+			child.updateablesList.add( (TranslationCompositeActive) parent.getTranslationComposite() );
 		}
 	}
 	
 	public static void flyweightRotation( EntityStatic parent, EntityStatic child ){
 		if ( parent.hasRotation() ){
 			child.setRotationComposite( parent.getRotationComposite() );
-			child.updateables.add( (DynamicRotationComposite) parent.getRotationComposite() );
+			child.updateablesList.add( (DynamicRotationComposite) parent.getRotationComposite() );
 		}
 	}
 	
@@ -78,7 +78,15 @@ public class CompositeFactory {
 		
 		entity.setGraphicComposite( graphicComposite );
 	}
-	
+	/**Adds anonymous graphicComposite to this entity, probably with the intention of overriding the GraphicComposite draw() Method
+	 * 
+	 * @param entity
+	 * @param graphicComposite
+	 */
+	public static void addAnonymousGraphicTo( EntityStatic entity , GraphicComposite graphicComposite ){
+		
+		entity.setGraphicComposite( graphicComposite );
+	}
 	
 	public static void addGraphicFromCollider( EntityStatic entity , Collider collider){
 		
@@ -122,7 +130,7 @@ public class CompositeFactory {
 				
 				System.out.print("... Flyweighted translation "+trans.getDX());
 				child.setTranslationComposite( trans );
-				child.updateables.add( trans );
+				child.updateablesList.add( trans );
 
 			}
 			
@@ -154,7 +162,7 @@ public class CompositeFactory {
 			parentAngular.addRotateable( parentComposite );	//Add children list to rotateables
 			
 			child.setRotationComposite(parentRotation);
-			child.updateables.add(parentRotation);
+			child.updateablesList.add(parentRotation);
 			
 		}else{
 			System.err.print("Parent isn't rotateable");
@@ -168,13 +176,13 @@ public class CompositeFactory {
 	
 	public static void addScriptTo( EntityStatic entity , EntityScript script){
 		
-		entity.updateables.add(script);
+		entity.updateablesList.add(script);
 		
 	}
 	
 	public static void addLifespanTo( EntityStatic entity , int lifespanInFrames ){
 		
-		entity.updateables.add( new LifespanComposite(lifespanInFrames) );
+		entity.updateablesList.add( new LifespanComposite(lifespanInFrames) );
 		
 	}
 	

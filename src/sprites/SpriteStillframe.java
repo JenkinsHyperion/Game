@@ -56,7 +56,7 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     private void initialize( String path ){
     	if (!checkPath(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path)) {
     		fileName = null;
-    		image = new MissingIcon().paintMissingSprite();
+    		image = new MissingIcon().getMissingSprite();
     		System.err.println("Image file '"+path +"' not found, using placeholder");
     	}
     	else {	    	
@@ -100,7 +100,7 @@ public class SpriteStillframe extends Sprite {  // Object with still image
     	
     }
     public void loadImagePlaceHolder(){
-    	image = new MissingIcon().paintMissingSprite();
+    	image = new MissingIcon().getMissingSprite();
     }
 
     @Override 
@@ -131,6 +131,16 @@ public class SpriteStillframe extends Sprite {  // Object with still image
 
 	public void setFileName(String path) {
 		fileName = path;
+	}
+	
+	protected static class MissingSprite extends SpriteStillframe{
+
+		public MissingSprite(String path) {
+			super("Missing Sprite");
+			
+			this.image = new MissingIcon().getMissingSprite();
+		}
+		
 	}
 	
 }

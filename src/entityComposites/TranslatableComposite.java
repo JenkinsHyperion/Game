@@ -2,6 +2,6 @@ package entityComposites;
 
 public interface TranslatableComposite {
 
-	public abstract void translate( double x , double y );
+	public abstract void setPosition( double x , double y );
 	
 }

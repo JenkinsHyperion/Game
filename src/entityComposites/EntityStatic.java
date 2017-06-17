@@ -37,8 +37,8 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	
 	protected ParentChildRelationship[] family = new ParentChildRelationship[0];
 	
-	protected ArrayList<UpdateableComposite> updateables = new ArrayList<UpdateableComposite>();
-	protected ArrayList<TranslatableComposite> translateables = new ArrayList<TranslatableComposite>();
+	protected ArrayList<UpdateableComposite> updateablesList = new ArrayList<UpdateableComposite>();
+	protected ArrayList<TranslatableComposite> translatablesList = new ArrayList<TranslatableComposite>();
 	
 	public EntityStatic(int x, int y) {
 
@@ -62,14 +62,14 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	}
 	
 	protected void addUpdateable( UpdateableComposite updateable){
-		updateables.add(updateable);
+		updateablesList.add(updateable);
 	}
 	/**BE ADVISED: ALWAYS CALL super.updateComposite() WHEN SUBCLASSING ENTITYSTATIC
 	 * 
 	 */
 	@Override
 	public void updateComposite(){ //MAKE OWN COMPOSITE
-		for ( UpdateableComposite composite : updateables ){
+		for ( UpdateableComposite composite : updateablesList ){
 			composite.updateEntity(this);
 		}
 	}
@@ -123,6 +123,24 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		returnArray[ returnArray.length-1 ] = relationship;
 		this.family = returnArray;
 		
+	}
+
+	public void setCompositedPos( double x , double y ){
+		this.x = x;
+		this.y = y;
+		this.manipulateChildren();
+	}//
+	
+	public void compositedTranslate( double x, double y){
+		this.x = this.x + x;
+		this.y = this.y + y;
+	
+	}
+	
+	protected void manipulateChildren( ){
+		for ( ParentChildRelationship parentComposite : family ){
+			parentComposite.manipulateChildren();
+		}
 	}
 	
 	@Deprecated
@@ -227,10 +245,6 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 
 		x=x+(int)distance.getX();
 		y=y+(int)distance.getY();
-		
-		for ( TranslatableComposite trans : this.translateables ){
-			trans.translate( x , ENEMY);
-		}
 	}
 	
 	public boolean hasGraphics(){
@@ -280,15 +294,15 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	}
 	
 	public boolean hasUpdateables(){
-		if ( updateables.size() > 0)
+		if ( updateablesList.size() > 0)
 			return true;
 		else
 			return false;
 	}
 	
 	public UpdateableComposite[] getUpdateables(){
-		UpdateableComposite[] returnArray = new UpdateableComposite[ this.updateables.size() ];
-		this.updateables.toArray(returnArray);
+		UpdateableComposite[] returnArray = new UpdateableComposite[ this.updateablesList.size() ];
+		this.updateablesList.toArray(returnArray);
 		return returnArray;
 	}
 	

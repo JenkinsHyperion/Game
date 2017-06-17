@@ -48,6 +48,7 @@ public class TranslationCompositeActive extends TranslationComposite implements 
     	entity.setY( entity.y + this.dy) ;
     	
     }  
+    
     @Override
     public void halt(){
     	dx=0;

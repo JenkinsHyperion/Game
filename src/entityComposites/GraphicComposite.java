@@ -8,7 +8,7 @@ import utility.ListNodeTicket;
 public class GraphicComposite implements EntityComposite{
 	
 	EntityStatic ownerEntity;
-	Sprite currentSprite;
+	Sprite currentSprite = Sprite.missingSprite;
 	private ListNodeTicket rendererSlot;
 	
 	private double graphicSizePercent = 1;

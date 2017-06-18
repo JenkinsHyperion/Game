@@ -1,7 +1,6 @@
 package entityComposites;
 
 import engine.ReferenceFrame;
-import javafx.scene.Camera;
 import sprites.*;
 import utility.ListNodeTicket;
 

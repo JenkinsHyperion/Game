@@ -2,6 +2,8 @@ package editing;
 
 import javax.annotation.Generated;
 import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeSelectionModel;
 
 import Input.*;
 import editing.worldGeom.*;
@@ -39,9 +41,6 @@ import java.util.ArrayList;
 
 
 //TASK LIST:
-// 1) need to add a function that can re-assign the list of entities in case they are added/removed from board.
-//		--currently it is only being assigned once in this constructor.
-// 2) DONE: create a function that will contain a properties list that is assembled every time the info button is pushed (while an entity is selected)
 
 @SuppressWarnings("serial")
 /**
@@ -103,6 +102,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	private JLabel mousePosLabel;
 	private JLabel entityCoordsLabel;
 	private JLabel selectedEntityNameLabel;
+	private JTree tree;
 	protected JLabel tempSpriteName = new JLabel("");
 	protected JLabel spriteHotSwapLabel = new JLabel();
 	protected JComboBox<String> allEntitiesComboBox;
@@ -123,6 +123,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	
 //	Panels
 	private JPanel entitiesComboBoxPanel;
+	private JPanel treePanel;
 	private JPanel labelsPanel;
 	private JPanel buttonPanel;
 	private JPanel propertyPanelTest;
@@ -381,8 +382,32 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			separators[i] = new JSeparator(SwingConstants.HORIZONTAL);
 			separators[i].setPreferredSize(new Dimension(150,3));
 		}
+		/*try {
+            UIManager.setLookAndFeel(
+                UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            System.err.println("Couldn't use system look and feel.");
+        }*/
 		//separator.setPreferredSize(new Dimension(150,3));
-	
+		DefaultMutableTreeNode top = new DefaultMutableTreeNode("Scenes");
+		DefaultMutableTreeNode sceneTest = new DefaultMutableTreeNode("sceneTest");
+		DefaultMutableTreeNode sceneTest2 = new DefaultMutableTreeNode("sceneTest2");
+		DefaultMutableTreeNode entities = new DefaultMutableTreeNode("Entities");
+		DefaultMutableTreeNode entityTest = new DefaultMutableTreeNode("entityTest");
+		DefaultMutableTreeNode composites = new DefaultMutableTreeNode("Composites");
+		DefaultMutableTreeNode compositeTest = new DefaultMutableTreeNode("compositeTest");
+		
+		top.add(sceneTest);
+		top.add(sceneTest2);
+		sceneTest.add(entities);
+		entities.add(entityTest);
+		entityTest.add(composites);
+		composites.add(compositeTest);
+		tree = new JTree(top);
+		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		treePanel = new JPanel();
+		treePanel.add(tree);
+		
 		buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		buttonPanel.setBackground(Color.GRAY);
 	    buttonPanel.setBorder(BorderFactory.createTitledBorder("buttonPanelTest"));
@@ -449,6 +474,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		add(saveButton);
 		add(loadButton);
 		add(labelsPanel);
+		add(treePanel);
 		add(buttonPanel);	
 		//add(propertyPanelTest);
 		add(new JLabel("        EntityPlacement         "));
@@ -977,6 +1003,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			@Override
 			public void render(Graphics g) {
 				defaultRender(g);
+				selectionRectangleState.draw(g, camera);
 			}
 		} // END OF DEFAULTMODE INNER CLASS  #####
 		
@@ -1074,7 +1101,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 						vector.setX(-deltaX);
 						vector.setY(-deltaY);
 						currentAngle = vector.angleFromVectorInDegrees();
-						getCurrentEntity().getRotationComposite().setAngleInDegrees(currentAngle);
+						getCurrentEntity().getAngularComposite().setAngleInDegrees(currentAngle);
 					}
 				}
 

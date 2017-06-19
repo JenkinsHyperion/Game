@@ -122,9 +122,10 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		this.family = null;
 		returnArray[ returnArray.length-1 ] = relationship;
 		this.family = returnArray;
-		
 	}
-
+	public ParentChildRelationship[] getParentChildRelationship() {
+		return this.family;
+	}
 	public void setCompositedPos( double x , double y ){
 		this.x = x;
 		this.y = y;

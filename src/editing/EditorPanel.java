@@ -2,6 +2,8 @@ package editing;
 
 import javax.annotation.Generated;
 import javax.swing.*;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -137,13 +139,12 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	
 // ##################### CONSTRUCTOR #################################################################
 // ##################### CONSTRUCTOR #################################################################
-	public EditorPanel( BoardAbstract board2) {   
+	public EditorPanel( BoardAbstract board2) { 
+		
 		//initializing some of the fields
-	
 		this.board = board2;
 		this.camera = board.getCamera();
 		oldMousePanPos = new Point();
-		//worldMousePos = new Point();
 		oldCameraPos = new Point();
 		inputController = new InputController("Main panel controller");
 		inputController.createKeyBinding(KeyEvent.VK_F5, new KeyCommand() {
@@ -184,11 +185,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			public void onPressed() { getEditorSelectMode().setSelectViaSprite(false);	
 									  selectViaBoundaryRB.setSelected(true);}
 		});
-		
 		inputController.createKeyBinding( KeyEvent.SHIFT_MASK , KeyEvent.VK_DELETE, new KeyCommand(){ //DELETE SELECTED
-
-			//TODO
-			
 		});
 		
 		inputController.createKeyBinding( KeyEvent.VK_ADD, new CameraZoomInEvent() );
@@ -389,24 +386,32 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
             System.err.println("Couldn't use system look and feel.");
         }*/
 		//separator.setPreferredSize(new Dimension(150,3));
+		
 		DefaultMutableTreeNode top = new DefaultMutableTreeNode("Scenes");
 		DefaultMutableTreeNode sceneTest = new DefaultMutableTreeNode("sceneTest");
 		DefaultMutableTreeNode sceneTest2 = new DefaultMutableTreeNode("sceneTest2");
-		DefaultMutableTreeNode entities = new DefaultMutableTreeNode("Entities");
-		DefaultMutableTreeNode entityTest = new DefaultMutableTreeNode("entityTest");
-		DefaultMutableTreeNode composites = new DefaultMutableTreeNode("Composites");
-		DefaultMutableTreeNode compositeTest = new DefaultMutableTreeNode("compositeTest");
-		
+		DefaultMutableTreeNode entitiesRootFolder = new DefaultMutableTreeNode("Entities");
+	
 		top.add(sceneTest);
 		top.add(sceneTest2);
-		sceneTest.add(entities);
-		entities.add(entityTest);
-		entityTest.add(composites);
-		composites.add(compositeTest);
+		sceneTest.add(entitiesRootFolder);
+		entitiesRootFolder.add(createEntityNodeFolder(board.listCurrentSceneEntities()[0]));
+		
 		tree = new JTree(top);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		treePanel = new JPanel();
+		tree.addTreeSelectionListener(new TreeSelectionListener() {
+			@Override
+			public void valueChanged(TreeSelectionEvent e) {
+				DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
+				//this is still in raw Object format. Must be cast
+				Object objectInsideNode = currentNode.getUserObject();
+				System.err.println("What is the type? " + objectInsideNode.getClass().getSimpleName());
+			}
+		});
+		treePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		treePanel.add(tree);
+		JScrollPane treeScrollPane = new JScrollPane(treePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		treeScrollPane.setPreferredSize(new Dimension(200,200));
 		
 		buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		buttonPanel.setBackground(Color.GRAY);
@@ -474,7 +479,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		add(saveButton);
 		add(loadButton);
 		add(labelsPanel);
-		add(treePanel);
+		add(treeScrollPane);
 		add(buttonPanel);	
 		//add(propertyPanelTest);
 		add(new JLabel("        EntityPlacement         "));
@@ -528,7 +533,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		}	
 	} //end of EntitiesComboBoxActionHandler inner class
 	
-	// TODO
 	// ########## MOUSE HANDLING SECTION ##############
 	public void mousePressed(MouseEvent e) {
 		setEditorMousePos(e.getX(), e.getY());
@@ -566,6 +570,42 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		this.inputController.keyReleased(e);
 	}
     //END OF KEYHANDLING SECTION 
+	
+	//TREE SECTION
+	/**
+	 * Note** Only creates the current entity node. Doesn't create the main "Entities" folder in the same way that {@link #createCompositesNodeFolder(EntityStatic)} does.
+	 * @param entity The entity that will be stored in this corresponding node.
+	 * @return The branch node for the current entity. Also contains "Composites" and may contain more branches for its children*/
+	private DefaultMutableTreeNode createEntityNodeFolder(EntityStatic entity) {
+		DefaultMutableTreeNode currentEntityNode = new DefaultMutableTreeNode(entity);
+		//append Composites folder to Entities folder
+		currentEntityNode.add(createCompositesNodeFolder(entity));
+		//append Children folder to Entities folder
+		// FIXME ask Matt to make some utility functions for easily navigating parent/child relationship.
+		currentEntityNode.add(createChildrenNodeFolder(entity));
+		return currentEntityNode;
+	}
+	
+	/** @param entity The entity that contains the composites.
+	 * @return The branch node "Composites" that will contain the entity's composites */
+	@SuppressWarnings("unused")
+	private DefaultMutableTreeNode createCompositesNodeFolder(EntityStatic entity) {
+		DefaultMutableTreeNode newCompositesFolder = new DefaultMutableTreeNode("Composites");
+		EntityComposite[] entityCompositeArray = new EntityComposite[]{entity.getAngularComposite(), entity.getColliderComposite(),
+				entity.getGraphicComposite(), entity.getRotationComposite(), entity.getTranslationComposite() };
+		//create the leaf nodes from the array
+		for (int i = 0; i < entityCompositeArray.length; i++) {
+			newCompositesFolder.add(new DefaultMutableTreeNode(entityCompositeArray[i]));
+		}
+		return newCompositesFolder;
+	}
+	
+	private DefaultMutableTreeNode createChildrenNodeFolder(EntityStatic entity) {
+		DefaultMutableTreeNode newChildrenFolder = new DefaultMutableTreeNode("Children");
+		// TODO lots of work to do here
+		return newChildrenFolder;
+	}
+	
 	@Deprecated
 	public void deselectAllEntities() {
   		//setCurrentSelectedEntity( EntityNull.getNullEntity() );
@@ -619,12 +659,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	 * Helper method to set Board's currentSelectedEntity
 	 * @param newSelectedEntity
 	 */
-	
-	
-	/*
-	private void setSelectedEntityThruEditor(EntityStatic newSelectedEntity){
-		board.setCurrentSelectedEntity(newSelectedEntity);
-	}
 ///	*/
 	//helper function to transfer data from ArrayList into a regular array
 	@Deprecated
@@ -672,8 +706,11 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		minimizePanels();
 	}
 	//so many ways I can do this. Will start with overloaded methods
+	//FIXME this method is fucked right now. Needs a lot of work.
+	/**  This method needs complete rework
+	 */
 	public void addEntity(int x, int y, int offsetX, int offsetY, String path) {  //default one. Adds test entity
-		EntityStatic newEnt;
+		//EntityStatic newEnt;
 		if (path.toLowerCase().contains("platform")) {
 			
 			//newEnt = new Platform(x, y, offsetX, offsetY, path);
@@ -698,7 +735,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			newEnt.loadSprite("grass01.png");*/
 		}
 		else {
-			newEnt = new EntityStatic(x, y);
 		}
 		//deselectAllEntities();
 		//board.getStaticEntities().add(newEnt);
@@ -819,9 +855,10 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	public void render(Graphics g) {
 		
 		this.editorMode.render(g);
+		Font originalFont = g.getFont();
 		g.setFont(new Font("default", Font.BOLD, 16));
 		g.drawString(this.editorMode.getModeName(), 800, 30);
-		g.setFont(new Font("default", Font.PLAIN, 12));
+		g.setFont(originalFont);
 		//this.getGhostSprite().editorDraw(getEditorMousePos());
 		//editorMode.inputController.debugPrintInputList(200, 100, g); //no idea why this wont fucking get the inputController instance
 

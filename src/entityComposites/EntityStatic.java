@@ -69,6 +69,7 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	 */
 	@Override
 	public void updateComposite(){ //MAKE OWN COMPOSITE
+		
 		for ( UpdateableComposite composite : updateablesList ){
 			composite.updateEntity(this);
 		}

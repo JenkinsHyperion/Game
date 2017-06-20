@@ -79,7 +79,7 @@ public class CompositeFactory {
 		entity.setGraphicComposite( graphicComposite );
 	}
 	/**Adds anonymous graphicComposite to this entity, probably with the intention of overriding the GraphicComposite draw() Method
-	 * 
+	 * with custom functionality
 	 * @param entity
 	 * @param graphicComposite
 	 */

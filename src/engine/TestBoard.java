@@ -87,8 +87,8 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
       				100,
       				TestBoard.this
       			);
-    			
-    			sprout.debugSetWaterPercent(100);
+    			sprout.name = "Seed";
+    			sprout.debugMakeWaterSource();
       			
       			int angle = 0;
       			

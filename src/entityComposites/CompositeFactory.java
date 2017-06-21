@@ -157,7 +157,7 @@ public class CompositeFactory {
 			AngleComposite parentAngular = (AngleComposite) parent.getAngularComposite();
 			
 			ParentRotateableComposite parentComposite = new ParentRotateableComposite(parent);
-			parent.addFamilyRole( parentComposite );		//Give parent list of children
+			parent.addParentComposite( parentComposite );		//Give parent list of children
 			parentComposite.addChild(child);				//Add child to parent's list //FIXME CHECK FOR EXISTING PARENT
 			parentAngular.addRotateable( parentComposite );	//Add children list to rotateables
 			

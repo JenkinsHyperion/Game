@@ -1,7 +1,11 @@
 package entityComposites;
 
-public abstract class ParentChildRelationship implements EntityComposite {
+import java.util.ArrayList;
 
+public abstract class ParentComposite implements EntityComposite {
+
+	protected ArrayList<ChildComposite> children = new ArrayList<ChildComposite>();
+	
 	public abstract void manipulateChildren();
 	
 	@Override

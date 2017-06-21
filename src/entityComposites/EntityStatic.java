@@ -35,7 +35,8 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	protected Collider collisionType = ColliderNull.getNonCollidableSingleton();
 	protected AngularComposite angularType = new AngularComposite.AngleComposite(this);
 	
-	protected ParentChildRelationship[] family = new ParentChildRelationship[0];
+	protected ParentComposite[] family = new ParentComposite[0];
+	protected ChildComposite childComposite;
 	
 	protected ArrayList<UpdateableComposite> updateablesList = new ArrayList<UpdateableComposite>();
 	protected ArrayList<TranslatableComposite> translatablesList = new ArrayList<TranslatableComposite>();
@@ -115,8 +116,8 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		return this.collisionType;			
 	}
 	
-	protected void addFamilyRole( ParentChildRelationship relationship ){
-		ParentChildRelationship[] returnArray = new ParentChildRelationship[family.length+1];
+	protected void addParentComposite( ParentComposite relationship ){
+		ParentComposite[] returnArray = new ParentComposite[family.length+1];
 		for ( int i = 0 ; i < family.length ; i++ ){
 			returnArray[i] = family[i];
 		}
@@ -124,7 +125,7 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		returnArray[ returnArray.length-1 ] = relationship;
 		this.family = returnArray;
 	}
-	public ParentChildRelationship[] getParentChildRelationship() {
+	public ParentComposite[] getParentChildRelationship() {
 		return this.family;
 	}
 	public void setCompositedPos( double x , double y ){
@@ -140,7 +141,7 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	}
 	
 	protected void manipulateChildren( ){
-		for ( ParentChildRelationship parentComposite : family ){
+		for ( ParentComposite parentComposite : family ){
 			parentComposite.manipulateChildren();
 		}
 	}

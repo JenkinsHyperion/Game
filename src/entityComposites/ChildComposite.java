@@ -2,7 +2,7 @@ package entityComposites;
 
 import java.awt.Point;
 
-public class ChildComposite extends ParentChildRelationship{
+public class ChildComposite {
 
 	protected Point zeroAnglePosition;
 	protected double relativeAngle;
@@ -19,15 +19,6 @@ public class ChildComposite extends ParentChildRelationship{
 		this.relativeAngle = parentAngle - owner.getAngularComposite().getAngle();
 
 	}
-	
-	@Override
-	public void manipulateChildren( ) {
-		
-	}
-	
-	@Override
-	public boolean exists() {
-		return true;
-	}
+
 	
 }

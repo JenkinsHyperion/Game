@@ -5,10 +5,9 @@ import java.util.ArrayList;
 
 import entityComposites.AngularComposite.AngleComposite;
 
-public class ParentRotateableComposite extends ParentChildRelationship implements RotateableComposite {
+public class ParentRotateableComposite extends ParentComposite implements RotateableComposite {
 	
 	private EntityStatic ownerEntity;
-	private ArrayList<ChildComposite> children = new ArrayList<ChildComposite>();
 	
 	public ParentRotateableComposite( EntityStatic owner ){
 		this.ownerEntity = owner;
@@ -20,7 +19,7 @@ public class ParentRotateableComposite extends ParentChildRelationship implement
 			AngleComposite angularParent = (AngleComposite) ownerEntity.getAngularComposite();
 		
 			ChildComposite childComposite = new ChildComposite(child , children.size() , ownerEntity.getPosition() , angularParent.getAngle() );
-			child.addFamilyRole( childComposite );
+			child.childComposite = childComposite;
 			children.add( childComposite );
 		}else{
 			System.err.println("TODO: Parent Rotateable Composite must be rotateable. Make non rotateable parent relationship ");

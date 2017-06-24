@@ -346,6 +346,8 @@ public class PlantTwigSegment extends EntityStatic{
 				sproutRight.getAngularComposite().setAngleInDegrees( thisSegmentAngle - FORK_ANGLE );
 				CompositeFactory.makeChildOfParent(sproutRight, PlantTwigSegment.this , board);
 				
+				CompositeFactory.addDynamicRotationTo(sproutRight);
+				
 				board.spawnNewSprout( sproutRight );
 				
 				PlantTwigSegment.this.currentTransportState = new ForkPushTransportState( sproutRight, sproutLeft ) ;

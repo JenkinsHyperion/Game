@@ -127,7 +127,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 	     		
 	     		if (counter < 299)
 	     			counter++;
-	     		else
+	     		else 
 	     			counter = 0;
 	     	 }
 	     };      

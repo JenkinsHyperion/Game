@@ -12,8 +12,13 @@ import sprites.SpriteFilledShape;
 
 public class CompositeFactory {
 
-	public static void addDynamicRotationTo( EntityStatic entity ){
+	public static DynamicRotationComposite addDynamicRotationTo( EntityStatic entity ){
 		
+		if ( entity.getRotationComposite().exists() ){
+			System.out.println("Overriding dynamic rotation composite of "+entity);
+		}else{
+			
+		}
 		DynamicRotationComposite rotation = new DynamicRotationComposite( entity );
 		entity.setRotationComposite( rotation );
 		entity.updateablesList.add(rotation);
@@ -25,6 +30,7 @@ public class CompositeFactory {
 			//rotation.rotateableCompositeList.add( collederNew );
 		}
 		
+		return rotation;
 		
 	}
 	
@@ -45,6 +51,9 @@ public class CompositeFactory {
 		if ( parent.hasRotation() ){
 			child.setRotationComposite( parent.getRotationComposite() );
 			child.updateablesList.add( (DynamicRotationComposite) parent.getRotationComposite() );
+		}
+		else{
+			System.err.println("WARNING: "+parent+" has no rotational composite to flyweight");
 		}
 	}
 	
@@ -161,11 +170,11 @@ public class CompositeFactory {
 			parentComposite.addChild(child);				//Add child to parent's list //FIXME CHECK FOR EXISTING PARENT
 			parentAngular.addRotateable( parentComposite );	//Add children list to rotateables
 			
-			child.setRotationComposite(parentRotation);
-			child.updateablesList.add(parentRotation);
+			child.setRotationComposite(parentRotation); 
+			child.updateablesList.add(parentRotation); 
 			
-		}else{
-			System.err.print("Parent isn't rotateable");
+		}else{ 
+			System.out.print("Parent isn't rotateable"); 
 		}
 		
 		System.out.println("");

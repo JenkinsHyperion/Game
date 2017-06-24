@@ -7,6 +7,10 @@ public class ChildComposite {
 	protected Point zeroAnglePosition;
 	protected double relativeAngle;
 	protected EntityStatic ownerChild;
+	
+	protected DynamicRotationComposite parentRotation;
+	protected TranslationComposite parentTranslation;
+	
 	private int parentIndex;
 	
 	protected ChildComposite( EntityStatic owner , int index , Point parentPosition, double parentAngle){

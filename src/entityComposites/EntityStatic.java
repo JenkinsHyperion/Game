@@ -45,21 +45,29 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 
     	super(x,y);
     	//isSelected = false;
+    	init();
     }  
 	
 	//COMPOSITE CONTRUCTION
 	public EntityStatic( String name , int x, int y) {
     	super(x,y);
     	this.name = name;
+    	init();
     }
 	
 	public EntityStatic( String name , Point position ) {
     	super( position.x , position.y );
     	this.name = name;
+    	init();
     }
 
 	public EntityStatic(Point entityPosition) {
 		super( entityPosition.x , entityPosition.y );
+		init();
+	}
+	
+	private void init(){
+		 
 	}
 	
 	protected void addUpdateable( UpdateableComposite updateable){

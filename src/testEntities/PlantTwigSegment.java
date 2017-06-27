@@ -259,12 +259,34 @@ public class PlantTwigSegment extends EntityStatic{
 		@Override
 		public void run() {
 			
-			if ( sugarLevel > 50 ){
-				
-				if ( nextSegment.sugarLevel < 100 ) {
-				
+			if ( sugarLevel > 50 ){	
+				if ( nextSegment.sugarLevel < 100 ) {	
 					if( nextSegment.sugarLevel < PlantTwigSegment.this.sugarLevel ){
 						nextSegment.sugarLevel += 1; 
+						PlantTwigSegment.this.sugarLevel -= 1;
+					}
+				}
+			}
+		}
+	}
+	
+	private class ForkSugarOverflowTransport implements Runnable{
+		
+		protected PlantTwigSegment nextSegmentCW;
+		protected PlantTwigSegment nextSegmentCCW;
+		
+		public ForkSugarOverflowTransport( PlantTwigSegment nextSegmentCW , PlantTwigSegment nextSegmentCCW ){
+			this.nextSegmentCW = nextSegmentCW;
+			this.nextSegmentCCW = nextSegmentCCW;
+		}
+		
+		@Override
+		public void run() {
+			
+			if ( sugarLevel >= 50 + 2 ){	
+				if ( nextSegmentCW.sugarLevel < 100 && nextSegmentCCW.sugarLevel < 100) {	
+					if( nextSegmentCW.sugarLevel < PlantTwigSegment.this.sugarLevel ){
+						nextSegmentCW.sugarLevel += 1; 
 						PlantTwigSegment.this.sugarLevel -= 1;
 					}
 				}

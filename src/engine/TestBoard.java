@@ -20,6 +20,7 @@ import sprites.Background;
 import sprites.RenderingEngine;
 import sprites.Sprite;
 import sprites.SpriteStillframe;
+import sun.net.www.content.audio.wav;
 import testEntities.*;
 import misc.*;
 
@@ -72,7 +73,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     		public void onReleased() { camera.setDX(0); }
     	});
     	this.inputController.createMouseBinding(MouseEvent.CTRL_MASK , MouseEvent.BUTTON3, new MouseCommand(){
-    		public void mousePressed() { asteroid.getRotationComposite().setAngularVelocity(0.4f); }
+    		public void mousePressed() { asteroid.getRotationComposite().setAngularVelocity(0.1f); }
     	});
     	//MOUSE COMMAND FOR GROWING NEW PLANT  
         this.inputController.createMouseBinding( MouseEvent.CTRL_MASK , MouseEvent.BUTTON1 , new MouseCommand(){
@@ -142,6 +143,13 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     protected void entityThreadRun() {
     	
     	camera.updatePosition();
+    	
+    	if ( PlantTwigSegment.waveCounter[0] <= 100 ){
+    		PlantTwigSegment.waveCounter[0]++;
+    	}else{
+    		PlantTwigSegment.waveCounter[0] = -100;
+    	}
+    	
     }
 
     public void spawnNewSprout( EntityStatic newTwig ){

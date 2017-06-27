@@ -73,9 +73,9 @@ public class Entity {
     	y = (int) p.getY();
     }
     
-    public void setPos(int x, int y){
-    	this.x = (int) x;
-    	this.y = (int) y;
+    public void setPos( double x, double y){
+    	this.x =  x;
+    	this.y =  y;
     }
     @Deprecated
     public boolean isCollidable() {

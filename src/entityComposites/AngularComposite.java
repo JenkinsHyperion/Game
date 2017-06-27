@@ -9,7 +9,7 @@ import physics.Vector;
  * @author Jenkins
  *
  */
-public abstract class AngularComposite implements EntityComposite, RotateableComposite{
+public abstract class AngularComposite implements EntityComposite{
 
 	private static final FixedAngleComposite fixedAngle = new AngularComposite.FixedAngleComposite();
 	
@@ -22,6 +22,7 @@ public abstract class AngularComposite implements EntityComposite, RotateableCom
 	public abstract double getAngle();
 	public abstract void setAngleInDegrees( double angle);
 	public abstract void setAngleInRadians( double angle);
+	public abstract void notifyAngleChange( double angle );
 	public abstract Point getRotationalPositionRelativeTo( Point relativePosition);
 	public abstract Vector getOrientationVector();
 	
@@ -35,12 +36,9 @@ public abstract class AngularComposite implements EntityComposite, RotateableCom
 			this.ownerEntity = ownerEnttiy;
 			orientation = new Vector( 1 , 0 );
 		}
-		@Override
-		public void setAngle( double angleDegrees ){
-			this.angleDegrees = angleDegrees;
-			this.setAngleInDegrees(angleDegrees); //FIXME MAKE ROTATEABLE GRAPHICS AND COLLIDER VARIANTS TO BE USED IN ROTATEABLES LIST
-			//setAngleOfRotateables(angleDegrees);
-		}
+		/**Angle in DEGREES
+		 * 
+		 */
 		@Override
 		public double getAngle(){ return angleDegrees ; }
 		@Override
@@ -58,6 +56,13 @@ public abstract class AngularComposite implements EntityComposite, RotateableCom
 		
 		protected void addRotateable( RotateableComposite rotateable ){
 			rotateableCompositeList.add( rotateable );
+		}
+		
+		@Override
+		public void notifyAngleChange(double angleRadians) {
+			for ( RotateableComposite rotateable : rotateableCompositeList ){
+				rotateable.addAngle(angleRadians);
+			}
 		}
 		
 		private void setInternalAngle(double angle){ //composited method
@@ -151,7 +156,7 @@ public abstract class AngularComposite implements EntityComposite, RotateableCom
 	
 	private static class FixedAngleComposite extends AngularComposite{
 
-		@Override
+
 		public void setAngle(double angleRadians) {
 			System.err.println("WARNING: Attempted to set angle on fixed angle entity");
 		}
@@ -167,6 +172,10 @@ public abstract class AngularComposite implements EntityComposite, RotateableCom
 		@Override
 		public void setAngleInRadians(double angle) {
 			System.err.println("WARNING: Attempted to set angle of fixed angle entity");
+		}
+		@Override
+		public void notifyAngleChange(double angle) {
+			System.err.println("WARNING: Attempted to notify angle change on fixed angle entity");
 		}
 		@Override
 		public Point getRotationalPositionRelativeTo(Point relativePosition) {

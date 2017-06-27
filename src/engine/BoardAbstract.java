@@ -253,6 +253,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 			g2.setColor(new Color(0, 0, 0, 150));
 	        g2.fillRect(0, 0, B_WIDTH, B_HEIGHT);
 		    //DIAGNOSTIC GRAPH
+	        g2.setColor(Color.CYAN);
 		    for (int i = 0 ; i < 320 ; i += 20){
 		    	g2.drawLine(45, 500-i , 1280, 500-i); 
 		    	g2.drawString( i/20 + " ms" , 10,603-i);

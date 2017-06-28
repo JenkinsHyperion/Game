@@ -9,7 +9,7 @@ import physics.Vector;
 import utility.ListNodeTicket;
 
 public class TranslationComposite implements EntityComposite{
-	
+	protected String compositeName = "TranslationComposite";
 	protected TranslationComposite(){
 	}
 
@@ -159,5 +159,16 @@ public class TranslationComposite implements EntityComposite{
 	public void disable() {
 		//TODO ENSURE THIS NULL COMPOSITE IS DESTROYED
 	}
-	
+	@Override
+	public void setCompositeName(String newName) {
+		this.compositeName = newName;
+	}
+	@Override
+	public String getCompositeName() {
+		return this.compositeName;		
+	}
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName();
+	}
 }

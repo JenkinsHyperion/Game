@@ -21,7 +21,7 @@ import physics.Vector;
 import physics.VisualCollisionCheck;
 
 public class Collider implements EntityComposite{
-
+	protected String compositeName = "Collider";
 	protected EntityStatic ownerEntity;
 	
 	protected CollisionEngine engine;
@@ -240,6 +240,20 @@ public class Collider implements EntityComposite{
 	public void disable(){
 		this.engineSlot.removeSelf();
 	}
-	
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName();
+	}
+
+	@Override
+	public void setCompositeName(String newName) {
+		this.compositeName = newName;
+	}
+	@Override
+	public String getCompositeName() {
+		return this.compositeName;		
+	}
+
+
 }
 

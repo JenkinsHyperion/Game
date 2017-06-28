@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import entityComposites.AngularComposite.AngleComposite;
 
 public class ParentRotateableComposite extends ParentComposite implements RotateableComposite {
-	
+	protected String compositeName = "ParentRotateableComposite";
 	private EntityStatic ownerEntity;
 	
 	public ParentRotateableComposite( EntityStatic owner ){
@@ -55,5 +55,16 @@ public class ParentRotateableComposite extends ParentComposite implements Rotate
 	public boolean exists() {
 		return true;
 	}
-	
+	@Override
+	public void setCompositeName(String newName) {
+		this.compositeName = newName;
+	}
+	@Override
+	public String getCompositeName() {
+		return this.compositeName;		
+	}
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName();
+	}
 }

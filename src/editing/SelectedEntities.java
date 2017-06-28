@@ -75,10 +75,20 @@ public class SelectedEntities {
 	public void removeSelectedEntity (EntityStatic entity) {
 		selectedEntities.remove(entity);
 	}
-	public void printSelectedEntities() {
+	public void printSelectedEntitiesToConsole() {
 		for (EntityStatic ent: selectedEntities) {
 			System.out.println(ent.name + ", ");
 		}
+	}
+	public String printSelectedEntitiesAsString() {
+		String finalStringOfNames = "";
+		for (EntityStatic ent: selectedEntities) {
+			if (selectedEntities.size() > 1)
+				finalStringOfNames += ent.name + ", ";
+			else
+				finalStringOfNames += ent.name;
+		}
+		return finalStringOfNames;
 	}
 	public void translate(Point initClickPoint, Point currentClickPoint) {
 		int deltaX = initClickPoint.x - currentClickPoint.x;

@@ -8,7 +8,7 @@ import physics.*;
 import utility.ListNodeTicket;
 
 public class DynamicRotationComposite implements EntityComposite, UpdateableComposite{
-
+	protected String compositeName = "DynamicRotationComposite";
 	private ListNodeTicket updaterSlot;
 	
 	private EntityStatic ownerEntity;
@@ -74,5 +74,18 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 		this.angularVelocity = 0;
 		this.angularAcc = 0;
 		
+	}
+
+	@Override
+	public void setCompositeName(String newName) {
+		this.compositeName = newName;
+	}
+	@Override
+	public String getCompositeName() {
+		return this.compositeName;		
+	}
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName();
 	}
 }

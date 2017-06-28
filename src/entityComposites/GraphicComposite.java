@@ -5,7 +5,7 @@ import sprites.*;
 import utility.ListNodeTicket;
 
 public class GraphicComposite implements EntityComposite{
-	
+	protected String compositeName = "GraphicComposite";
 	EntityStatic ownerEntity;
 	Sprite currentSprite = Sprite.missingSprite;
 	private ListNodeTicket rendererSlot;
@@ -69,5 +69,16 @@ public class GraphicComposite implements EntityComposite{
 		System.out.println("Removing graphics from renderer");
 		rendererSlot.removeSelf();
 	}
-	
+	@Override
+	public void setCompositeName(String newName) {
+		this.compositeName = newName;
+	}
+	@Override
+	public String getCompositeName() {
+		return this.compositeName;		
+	}
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName();
+	}
 }

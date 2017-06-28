@@ -6,4 +6,6 @@ public interface EntityComposite {
 	
 	public void disable();
 	
+	public void setCompositeName(String newName);
+	public String getCompositeName();
 }

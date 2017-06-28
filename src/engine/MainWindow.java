@@ -29,21 +29,23 @@ public class MainWindow extends JPanel implements KeyListener, MouseListener{
 		height = (int) screenSize.getHeight();
 		System.out.println("Resolution set to "+ width + " by " + height);
 		
-		//editorPanelMinSize = new Dimension(220,300);
-		//board = new BoardPhysicsTesting(width,height);
+		editorPanelMinSize = new Dimension(220,300);
+		board = new BoardPhysicsTesting(width,height);
 		//board = new Board(width,height);
-		board = new TestBoard(width,height);
+		//board = new TestBoard(width,height);
 		
 		board.setPreferredSize(new Dimension(BoardAbstract.B_WIDTH, BoardAbstract.B_HEIGHT));
 		board.setMinimumSize(new Dimension(BoardAbstract.B_WIDTH, BoardAbstract.B_HEIGHT));
 		
 		editorPanel = new EditorPanel(board);
-		editorPanel.setSize(new Dimension(220, 300));
-		editorPanel.setPreferredSize(new Dimension(220, 300));
-		editorPanel.setMinimumSize(editorPanelMinSize);
+		editorPanel.setSize(new Dimension(240, 300));
+		editorPanel.setPreferredSize(new Dimension(240, 300));
+		JScrollPane editorPanelScrollPane = new JScrollPane(editorPanel);
+		editorPanelScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		//editorPanel.setMinimumSize(editorPanelMinSize);
 		board.transferEditorPanel(editorPanel);
 		
-		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, editorPanel, board); // 
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, editorPanelScrollPane, board); // 
 		splitPane.setOneTouchExpandable(true);
 		splitPane.setDividerLocation(editorPanel.getWidth());
 		//board.setFocusable(true);

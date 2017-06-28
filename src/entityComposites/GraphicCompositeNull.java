@@ -6,7 +6,7 @@ import sprites.Sprite;
 import sprites.SpriteStillframe;
 
 public class GraphicCompositeNull extends GraphicComposite{
-	
+	protected String compositeName = "GraphicCompositeNull";
 	private final static GraphicCompositeNull nullSprite = new GraphicCompositeNull();
 	
 	//constructor
@@ -53,6 +53,7 @@ public class GraphicCompositeNull extends GraphicComposite{
 	
 	@Override
 	public String toString() {
+		//FIXME come back to later to decide if this should return the current string, or getClass().getSimpleName()
 		return "Null Graphics Composite Singleton";
 	}
 }

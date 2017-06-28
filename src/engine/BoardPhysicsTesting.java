@@ -99,8 +99,8 @@ public class BoardPhysicsTesting extends BoardAbstract{
         
         EntityStatic parent = new EntityStatic("parent",-300,100); 
         CompositeFactory.addGraphicTo( parent, new SpriteStillframe("box.png" , Sprite.CENTERED ) );
-        CompositeFactory.addDynamicRotationTo(parent);
-        parent.getRotationComposite().setAngularVelocity(0.1);
+        DynamicRotationComposite parentRotation = CompositeFactory.addDynamicRotationTo(parent);
+        parentRotation.setAngularVelocity(0.1);
         currentScene.addEntity( parent );
         
         

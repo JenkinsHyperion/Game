@@ -67,4 +67,16 @@ public class ParentRotateableComposite extends ParentComposite implements Rotate
 	public String toString() {
 		return this.getClass().getSimpleName();
 	}
+
+	@Override
+	public void addAngle(double angleRadians) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setCompositedPosition(double x, double y) {
+		// TODO Auto-generated method stub
+		
+	}
 }

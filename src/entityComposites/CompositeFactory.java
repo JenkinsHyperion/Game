@@ -12,8 +12,13 @@ import sprites.SpriteFilledShape;
 
 public class CompositeFactory {
 
-	public static void addDynamicRotationTo( EntityStatic entity ){
+	public static DynamicRotationComposite addDynamicRotationTo( EntityStatic entity ){
 		
+		if ( entity.getRotationComposite().exists() ){
+			System.out.println("Overriding dynamic rotation composite of "+entity);
+		}else{
+			System.out.println("Adding dynamic rotation composite to "+entity);
+		}
 		DynamicRotationComposite rotation = new DynamicRotationComposite( entity );
 		entity.setRotationComposite( rotation );
 		entity.updateablesList.add(rotation);
@@ -25,7 +30,19 @@ public class CompositeFactory {
 			//rotation.rotateableCompositeList.add( collederNew );
 		}
 		
+		return rotation;
 		
+	}
+	
+	public static void addCustomDynamicRotationTo( EntityStatic entity , DynamicRotationComposite rotation ){
+		if ( entity.getRotationComposite().exists() ){
+			System.out.println("Overriding dynamic rotation composite of "+entity);
+		}else{
+			System.out.println("Adding dynamic rotation composite to "+entity);
+		}
+
+		entity.setRotationComposite( rotation );
+		entity.updateablesList.add(rotation);
 	}
 	
 	public static void addTranslationTo( EntityStatic entity ){
@@ -33,18 +50,21 @@ public class CompositeFactory {
 		entity.setTranslationComposite( trans );
 		entity.updateablesList.add(trans);
 	}
-	
+	@Deprecated
 	public static void flyweightTranslation( EntityStatic parent, EntityStatic child ){
 		if ( parent.hasTranslation() ){
 			child.setTranslationComposite( parent.getTranslationComposite() );
 			child.updateablesList.add( (TranslationCompositeActive) parent.getTranslationComposite() );
 		}
 	}
-	
+	@Deprecated
 	public static void flyweightRotation( EntityStatic parent, EntityStatic child ){
 		if ( parent.hasRotation() ){
 			child.setRotationComposite( parent.getRotationComposite() );
 			child.updateablesList.add( (DynamicRotationComposite) parent.getRotationComposite() );
+		}
+		else{
+			System.err.println("WARNING: "+parent+" has no rotational composite to flyweight");
 		}
 	}
 	
@@ -140,6 +160,32 @@ public class CompositeFactory {
 			System.err.print("... Parent entity ["+parent+"] has no Translational composite");
 		}
 		
+		if ( parent.getRotationComposite().exists() ){
+			
+			System.out.print("... Setting '"+parent+"' as rotateable parent");	
+			
+			DynamicRotationComposite parentRotation;
+			
+			parentRotation = (DynamicRotationComposite) parent.getRotationComposite();
+			AngleComposite parentAngular = (AngleComposite) parent.getAngularComposite();
+			
+			ParentComposite.ParentRotateableComposite parentComposite = new ParentComposite.ParentRotateableComposite(parent);
+			parent.addParentComposite( parentComposite );		//Give parent list of children			FIXME CHECK FOR EXISTING PARENT
+			parentAngular.addRotateable( parentComposite );	//Add children list to rotateables
+			
+			ChildComposite childComposite = parentComposite.registerChild(child);	
+			( ( AngleComposite ) child.getAngularComposite() ).addRotateable( childComposite );
+			
+			/*if ( child.getAngularComposite().exists() ){
+				AngleComposite childAngular = (AngleComposite) child.getAngularComposite();
+				childAngular.addRotateable( childComposite );
+			}*/
+			
+
+		}else{ 
+			System.out.print("Parent isn't rotateable"); 
+		}
+		
 		//If child has collider, remove from and add back to collision Engine as dynamic, in case it was registered as static
 		if ( child.hasCollider() ){ 
 			System.out.print("... Switched ["+child+ "] collider to dynamic");
@@ -148,25 +194,6 @@ public class CompositeFactory {
 			
 			child.setTranslationComposite( new TranslationCompositeActive() );
 		} //else do nothing
-		
-		if ( parent.getRotationComposite().exists() ){
-			
-			System.out.print("... Setting '"+parent+"' as rotateable parent");	
-			
-			DynamicRotationComposite parentRotation = (DynamicRotationComposite) parent.getRotationComposite();
-			AngleComposite parentAngular = (AngleComposite) parent.getAngularComposite();
-			
-			ParentRotateableComposite parentComposite = new ParentRotateableComposite(parent);
-			parent.addParentComposite( parentComposite );		//Give parent list of children
-			parentComposite.addChild(child);				//Add child to parent's list //FIXME CHECK FOR EXISTING PARENT
-			parentAngular.addRotateable( parentComposite );	//Add children list to rotateables
-			
-			child.setRotationComposite(parentRotation);
-			child.updateablesList.add(parentRotation);
-			
-		}else{
-			System.err.print("Parent isn't rotateable");
-		}
 		
 		System.out.println("");
 		//parent.updateables.add(child);

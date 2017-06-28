@@ -128,7 +128,6 @@ public final class ColliderNull extends Collider{
 	@Override	
 	public void applyPointMomentum( Vector momentum , Point2D point ){
 		System.err.println("Warning: Attempted to apply Point Momentum on NonCollidable ");
-		
 	}
 	@Deprecated
 	public void applyPointForce( Vector force , Point2D point ){

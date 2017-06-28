@@ -9,6 +9,7 @@ import engine.TestBoard;
 import entities.*;
 import entityComposites.ColliderNull;
 import entityComposites.CompositeFactory;
+import entityComposites.DynamicRotationComposite;
 import entityComposites.EntityStatic;
 import entityComposites.GraphicComposite;
 import sprites.Sprite;
@@ -19,6 +20,8 @@ import utility.Trigger;
 public class PlantTwigSegment extends EntityStatic{
 	
 	private static Sprite twigSprite = new SpriteStillframe("Prototypes/twig.png" , -4 , -40);
+	
+	public static int waveCounter[] = new int[]{0};
 
 	private TestBoard board;
 	private int maxGrowth;
@@ -26,7 +29,8 @@ public class PlantTwigSegment extends EntityStatic{
 	private boolean dead;
 	
 	private Runnable currentGrowthState = new GrowingState();
-	private Runnable currentTransportState = new InactiveTransportState();
+	private Runnable currentWaterTransportState = new InactiveTransportState();
+	private Runnable currentSugarTransportState = new InactiveTransportState();
 	
 	private int numberFromLastBranch = 0;
 	
@@ -34,13 +38,15 @@ public class PlantTwigSegment extends EntityStatic{
 	
 	private int growthLevel = 0;
 	private int waterLevel = 0; 
+	private int sugarLevel = 0;
 	
 	public PlantTwigSegment(int x, int y, int maxGrowth , TestBoard board) {
 		super(x, y);
 		this.board = board;
 		this.maxGrowth = maxGrowth;
 		
-		CompositeFactory.addDynamicRotationTo(this);
+		//CompositeFactory.addDynamicRotationTo(this);
+		CompositeFactory.addCustomDynamicRotationTo(this, new DynamicRotationComposite.SineWave(this , waveCounter ) );
 		
 		init( maxGrowth );
 		
@@ -54,6 +60,8 @@ public class PlantTwigSegment extends EntityStatic{
 				camera.getGraphics().setColor(Color.CYAN);
 				camera.drawString( ""+waterLevel , getX()+10, getY()+10);
 				super.draw(camera);
+				camera.getGraphics().setColor(Color.YELLOW);
+				camera.drawString( ""+sugarLevel , getX()+30, getY()+10);
 			}
 		});
 		this.getGraphicComposite().setSprite(twigSprite);
@@ -123,8 +131,9 @@ public class PlantTwigSegment extends EntityStatic{
 
 		this.currentGrowthState.run(); 
 		
-		this.currentTransportState.run();
+		this.currentWaterTransportState.run();
 		
+		this.currentSugarTransportState.run();
 	}
 	
 	/*@Override
@@ -161,7 +170,7 @@ public class PlantTwigSegment extends EntityStatic{
 					if ( waterLevel > maxGrowth ){
 						PlantTwigSegment.this.new FullyGrown().activate();
 						PlantTwigSegment.this.currentGrowthState = PlantTwigSegment.this.new FullyGrownState();
-						PlantTwigSegment.this.currentTransportState = PlantTwigSegment.this.new PullTransportState();
+						PlantTwigSegment.this.currentWaterTransportState = PlantTwigSegment.this.new PullTransportState();
 					}
 				}
 		}
@@ -204,7 +213,6 @@ public class PlantTwigSegment extends EntityStatic{
 	private class InactiveTransportState implements Runnable{
 		@Override
 		public void run() {
-			
 		}
 	}
 	
@@ -214,6 +222,9 @@ public class PlantTwigSegment extends EntityStatic{
 			// Pull water from thin air
 			if ( waterLevel < 1000 ){
 				waterLevel = waterLevel + 10;
+			}
+			if ( sugarLevel < 1000 ){
+				sugarLevel = sugarLevel + 1;
 			}
 		}
 	}
@@ -234,7 +245,53 @@ public class PlantTwigSegment extends EntityStatic{
 	
 	public void debugMakeWaterSource(){
 		this.currentGrowthState = new DebugSelfGrowing();
-		this.currentTransportState = new DebugWaterSource();
+		this.currentWaterTransportState = new DebugWaterSource();
+	}
+	
+	private class StemSugarOverflowTransport implements Runnable{
+		
+		protected PlantTwigSegment nextSegment;
+		
+		public StemSugarOverflowTransport(PlantTwigSegment nextSegment){
+			this.nextSegment = nextSegment;
+		}
+		
+		@Override
+		public void run() {
+			
+			if ( sugarLevel > 50 ){	
+				if ( nextSegment.sugarLevel < 100 ) {	
+					if( nextSegment.sugarLevel < PlantTwigSegment.this.sugarLevel ){
+						nextSegment.sugarLevel += 1; 
+						PlantTwigSegment.this.sugarLevel -= 1;
+					}
+				}
+			}
+		}
+	}
+	
+	private class ForkSugarOverflowTransport implements Runnable{
+		
+		protected PlantTwigSegment nextSegmentCW;
+		protected PlantTwigSegment nextSegmentCCW;
+		
+		public ForkSugarOverflowTransport( PlantTwigSegment nextSegmentCW , PlantTwigSegment nextSegmentCCW ){
+			this.nextSegmentCW = nextSegmentCW;
+			this.nextSegmentCCW = nextSegmentCCW;
+		}
+		
+		@Override
+		public void run() {
+			
+			if ( sugarLevel >= 50 + 2 ){	
+				if ( nextSegmentCW.sugarLevel < 100 && nextSegmentCCW.sugarLevel < 100) {	
+					if( nextSegmentCW.sugarLevel < PlantTwigSegment.this.sugarLevel ){
+						nextSegmentCW.sugarLevel += 1; 
+						PlantTwigSegment.this.sugarLevel -= 1;
+					}
+				}
+			}
+		}
 	}
 	
 	private abstract class PushTransportState implements Runnable{ 
@@ -268,12 +325,7 @@ public class PlantTwigSegment extends EntityStatic{
 			this.nextSegmentCW = nextNodeCW;
 			this.nextSegmentCCW = nextNodeCCW;
 		}
-		protected void setNextCWNode( PlantTwigSegment nextCWNode ){
-			this.nextSegmentCW = nextCWNode;
-		}
-		protected void setNextCCWNode( PlantTwigSegment nextCCWNode ){
-			this.nextSegmentCCW = nextCCWNode;
-		}
+
 		@Override
 		public void run(){
 			if ( PlantTwigSegment.this.waterLevel >= 10 ){
@@ -348,7 +400,7 @@ public class PlantTwigSegment extends EntityStatic{
 				
 				board.spawnNewSprout( sproutRight );
 				
-				PlantTwigSegment.this.currentTransportState = new ForkPushTransportState( sproutRight, sproutLeft ) ;
+				PlantTwigSegment.this.currentWaterTransportState = new ForkPushTransportState( sproutRight, sproutLeft ) ;
 				
 			}
 			else if (oldMaxGrowth > 30){ // Else segemnt didn't branch, so grown next segment if bigger than 20% grown
@@ -382,17 +434,17 @@ public class PlantTwigSegment extends EntityStatic{
 					else
 						thisSegmentAngle -= UPWARD_WILLPOWER;
 
-				CompositeFactory.makeChildOfParent(sproutStem, PlantTwigSegment.this , board);
-				
 				sproutStem.getAngularComposite().setAngleInDegrees(thisSegmentAngle);
+				
+				CompositeFactory.makeChildOfParent(sproutStem, PlantTwigSegment.this , board);
 				
 				//sproutStem.getRotationComposite().setAngularVelocity(1f);
 
 				sproutStem.numberFromLastBranch = numberFromLastBranch + 1 ; //Increment next branches number in this stem
 				board.spawnNewSprout( sproutStem ); //then spawn it in
 				
-				PlantTwigSegment.this.currentTransportState = new StemPushTransportState( sproutStem ) ;
-				
+				PlantTwigSegment.this.currentWaterTransportState = new StemPushTransportState( sproutStem ) ;
+				PlantTwigSegment.this.currentSugarTransportState = new StemSugarOverflowTransport( sproutStem ) ;
 			}
 			
 				

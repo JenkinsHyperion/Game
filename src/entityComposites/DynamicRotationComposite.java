@@ -5,11 +5,14 @@ import java.util.ArrayList;
 
 import engine.BoardAbstract;
 import physics.*;
+import testEntities.PlantTwigSegment;
 import utility.ListNodeTicket;
 
 public class DynamicRotationComposite implements EntityComposite, UpdateableComposite{
 	protected String compositeName = "DynamicRotationComposite";
 	private ListNodeTicket updaterSlot;
+	
+	protected ArrayList<DynamicRotateableComposite> rotateableChildren = new ArrayList<DynamicRotateableComposite>();
 	
 	private EntityStatic ownerEntity;
 	
@@ -32,7 +35,9 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 	public void updateEntity(EntityStatic entity) {
 
 		AngularComposite angular = entity.getAngularComposite();
-		angular.setAngle( angular.getAngle() + angularVelocity);
+		angular.setAngleInDegrees( angular.getAngle() + angularVelocity);
+		
+		angular.notifyAngleChange(angularVelocity); //FIXME Change to addAngle which automatically notifies rotateables in angular
 
 	}
 	
@@ -88,4 +93,47 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 	public String toString() {
 		return this.getClass().getSimpleName();
 	}
+
+	
+	
+	public static class SineWave extends DynamicRotationComposite{
+
+		int[] phaseCounter; //Array of [1] is java workaround to ensure this.phaseCounter receives a REFERENCE not a value
+		double bend = 0;
+		int internalCounter = 0;
+		
+		public SineWave(EntityStatic owner , int[] phaseCounter) { 
+			super(owner);
+			this.phaseCounter = phaseCounter;
+		}
+		
+		@Override
+		public void updateComposite() {
+	    	
+			double output = phaseCounter[0] / 10.0;
+			
+			//double output = internalCounter / 10.0;
+			
+			this.bend = ( (2*output)*(2*output)*(2*output)/100 - (8*output) ) / 3000 ; //Polynomial approximation of Sine function
+
+			/*if ( internalCounter <= 100){
+				internalCounter++;
+			}else{
+				internalCounter=-100;
+			}*/
+			
+		}
+		
+		@Override
+		public void updateEntity(EntityStatic entity) {
+			
+			AngularComposite angular = entity.getAngularComposite();
+			
+			angular.setAngleInDegrees( angular.getAngle() + bend);
+			angular.notifyAngleChange(bend); //FIXME Change to addAngle which automatically notifies rotateables in angular
+
+		}
+		
+	}
+	
 }

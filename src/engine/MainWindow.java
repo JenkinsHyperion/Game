@@ -30,9 +30,9 @@ public class MainWindow extends JPanel implements KeyListener, MouseListener{
 		System.out.println("Resolution set to "+ width + " by " + height);
 		
 		editorPanelMinSize = new Dimension(220,300);
-		board = new BoardPhysicsTesting(width,height);
+		//board = new BoardPhysicsTesting(width,height);
 		//board = new Board(width,height);
-		//board = new TestBoard(width,height);
+		board = new TestBoard(width,height);
 		
 		board.setPreferredSize(new Dimension(BoardAbstract.B_WIDTH, BoardAbstract.B_HEIGHT));
 		board.setMinimumSize(new Dimension(BoardAbstract.B_WIDTH, BoardAbstract.B_HEIGHT));

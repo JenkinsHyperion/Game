@@ -18,4 +18,9 @@ public class ParentTranslatableComposite extends ParentComposite {
 	public String toString() {
 		return this.getClass().getSimpleName();
 	}
+	@Override
+	public void setCompositedPosition(double x, double y) {
+		// TODO Auto-generated method stub
+		
+	}
 }

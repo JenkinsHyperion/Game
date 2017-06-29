@@ -27,7 +27,8 @@ public class Scene {
 	}
 	
 	public void addEntity( EntityStatic entity ){
-		
+		if (ownerBoard.editorPanel != null)
+			ownerBoard.editorPanel.refreshTree();
 		boolean updateableEntity = false;
 		System.out.println(I+"Adding Entity ["+entity+"] to Current Scene, slot "+entityList.size());
 		//ADD ENTITY TO SCENES MASTER ENTITY LIST

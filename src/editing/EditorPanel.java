@@ -1,52 +1,77 @@
 package editing;
 
-import javax.annotation.Generated;
-import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreeSelectionModel;
-
-import Input.*;
-import editing.worldGeom.*;
-import editing.worldGeom.WorldGeometry.VertexPlaceMode;
-import editing.worldGeom.WorldGeometry.VertexSelectMode;
-import editing.worldGeom.WorldGeometry.VertexSelectMode.AlignToXAxisEvent;
-import editing.worldGeom.WorldGeometry.VertexSelectMode.AlignToYAxisEvent;
-import editing.worldGeom.WorldGeometry.VertexSelectMode.CtrlVertexSelectLClickEvent;
-import editing.worldGeom.WorldGeometry.VertexSelectMode.DeleteVerticesEvent;
-import editing.worldGeom.WorldGeometry.VertexSelectMode.SelectionRectEvent;
-import editing.worldGeom.WorldGeometry.VertexSelectMode.SplitLineEvent;
-import editing.worldGeom.WorldGeometry.VertexSelectMode.TranslateEvent;
-import editing.worldGeom.WorldGeometry.VertexSelectMode.VertexSelectLClickEvent;
-import sprites.*;
-import entities.*;
-import entityComposites.*;
-import physics.Boundary;
-import physics.BoundaryPolygonal;
-import physics.Vector;
-import entityComposites.EntityFactory;
-import entityComposites.EntityStatic;
-import entityComposites.GraphicComposite;
-import saving_loading.SavingLoading;
-import engine.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.Point;
+import java.awt.Polygon;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JTree;
+import javax.swing.SwingConstants;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
-
+import Input.InputController;
+import Input.KeyCommand;
+import Input.MouseCommand;
+import editing.worldGeom.EditorVertex;
+import editing.worldGeom.SelectedVertices;
+import editing.worldGeom.SelectionRectangle;
+import editing.worldGeom.SelectionRectangleAbstract;
+import editing.worldGeom.SelectionRectangleNull;
+import editing.worldGeom.WorldGeometry;
+import engine.BoardAbstract;
+import engine.MovingCamera;
+import entities.EntityNull;
+import entityComposites.Collider;
+import entityComposites.Entity;
+import entityComposites.EntityComposite;
+import entityComposites.EntityFactory;
+import entityComposites.EntityStatic;
+import entityComposites.TranslationComposite;
+import physics.Boundary;
+import physics.BoundaryPolygonal;
+import physics.Vector;
+import saving_loading.SavingLoading;
+import sprites.Sprite;
+import sprites.SpriteStillframe;
 
 //TASK LIST:
-
 @SuppressWarnings("serial")
 /**
  * @author Dave 
@@ -170,6 +195,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		inputController.createKeyBinding(KeyEvent.VK_F8, new KeyCommand() {
 			@Override
 			public void onPressed() { 
+				/*debug section, line below */
+				//refreshTree();
 				if (editorMode == worldGeomMode) 
 					getWorldGeomMode().setMode(worldGeomMode.getVertexPlaceMode());
 				else if (editorMode == boundaryEditorMode) 
@@ -389,16 +416,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
         }*/
 		//separator.setPreferredSize(new Dimension(150,3));
 		
-		DefaultMutableTreeNode top = new DefaultMutableTreeNode("Scenes");
-		DefaultMutableTreeNode sceneTest = new DefaultMutableTreeNode("sceneTest");
-		DefaultMutableTreeNode sceneTest2 = new DefaultMutableTreeNode("sceneTest2");
-		DefaultMutableTreeNode entitiesRootFolder = createEntireEntityNodeFolder(board.listCurrentSceneEntities());
-	
-		top.add(sceneTest);
-		top.add(sceneTest2);
-		sceneTest.add(entitiesRootFolder);
 		
-		tree = new JTree(top);
+		tree = new JTree(new DefaultMutableTreeNode("Scenes"));
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.addTreeSelectionListener(new TreeSelectionEventHandler());
 		tree.setFocusable(false);
@@ -407,7 +426,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		treePanel.setFocusable(false);
 		JScrollPane treeScrollPane = new JScrollPane(treePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		treeScrollPane.setFocusable(false);
-		treeScrollPane.setPreferredSize(new Dimension(200,200));
+		treeScrollPane.setPreferredSize(new Dimension(220,200));
 		treeScrollPane.getVerticalScrollBar().setUnitIncrement(10);
 		treeScrollPane.getHorizontalScrollBar().setUnitIncrement(10);
 		
@@ -638,7 +657,24 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		// TODO lots of work to do here
 		return newChildrenFolder;
 	}
-	
+	public void refreshTree() {
+		try {
+			DefaultMutableTreeNode sceneTest = new DefaultMutableTreeNode("sceneTest");
+			DefaultMutableTreeNode sceneTest2 = new DefaultMutableTreeNode("sceneTest2");
+			DefaultMutableTreeNode entitiesRootFolder = createEntireEntityNodeFolder(board.listCurrentSceneEntities());
+			DefaultTreeModel defaultModel = (DefaultTreeModel) tree.getModel();
+			DefaultMutableTreeNode tempRoot = (DefaultMutableTreeNode)tree.getModel().getRoot();
+			tempRoot.removeAllChildren();
+			defaultModel.reload();
+			tempRoot.add(sceneTest);
+			tempRoot.add(sceneTest2);
+			sceneTest.add(entitiesRootFolder);
+			tree.expandPath(new TreePath(defaultModel.getPathToRoot(sceneTest)));
+			defaultModel.reload();
+		} catch (Exception e) {
+			System.err.println("Error possibly because tree was empty?");
+		}
+	}
 	@Deprecated
 	public void deselectAllEntities() {
   		//setCurrentSelectedEntity( EntityNull.getNullEntity() );
@@ -694,6 +730,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	 */
 ///	*/
 	//helper function to transfer data from ArrayList into a regular array
+	
 	@Deprecated
 	public void populateArrayFromList(String[] arr, ArrayList<EntityStatic> arrayList)
 	{

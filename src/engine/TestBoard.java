@@ -142,11 +142,10 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     protected void entityThreadRun() {
     	
     	camera.updatePosition();
-    	
-    	if ( PlantTwigSegment.waveCounter[0] <= 100 ){
-    		PlantTwigSegment.waveCounter[0]++;
+    	if ( PlantTwigSegment.waveCounterInt <= 100 ){
+    		PlantTwigSegment.waveCounterInt++;
     	}else{
-    		PlantTwigSegment.waveCounter[0] = -100;
+    		PlantTwigSegment.waveCounterInt = -100;
     	}
     	
     }

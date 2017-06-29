@@ -22,6 +22,7 @@ public class PlantTwigSegment extends EntityStatic{
 	private static Sprite twigSprite = new SpriteStillframe("Prototypes/twig.png" , -4 , -40);
 	
 	public static int waveCounter[] = new int[]{0};
+	public static Integer waveCounterInt = new Integer(0);
 
 	private TestBoard board;
 	private int maxGrowth;
@@ -46,7 +47,8 @@ public class PlantTwigSegment extends EntityStatic{
 		this.maxGrowth = maxGrowth;
 		
 		//CompositeFactory.addDynamicRotationTo(this);
-		CompositeFactory.addCustomDynamicRotationTo(this, new DynamicRotationComposite.SineWave(this , waveCounter ) );
+		//CompositeFactory.addCustomDynamicRotationTo(this, new DynamicRotationComposite.SineWave(this , waveCounter ) );
+		CompositeFactory.addCustomDynamicRotationTo(this, new DynamicRotationComposite.SineWave(this , waveCounterInt ) );
 		
 		init( maxGrowth );
 		

@@ -418,6 +418,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		
 		
 		tree = new JTree(new DefaultMutableTreeNode("Scenes"));
+		refreshTree();
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.addTreeSelectionListener(new TreeSelectionEventHandler());
 		tree.setFocusable(false);
@@ -427,7 +428,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		JScrollPane treeScrollPane = new JScrollPane(treePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		treeScrollPane.setFocusable(false);
 		treeScrollPane.setPreferredSize(new Dimension(220,200));
-		treeScrollPane.getVerticalScrollBar().setUnitIncrement(10);
+		treeScrollPane.getVerticalScrollBar().setUnitIncrement(50);
 		treeScrollPane.getHorizontalScrollBar().setUnitIncrement(10);
 		
 		buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -509,8 +510,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		add(iconBarScrollPaneSpriteSwap);
 		//iconBarScrollPaneSpriteSwap.setVisible(false);
 		
-	} // #### end of constructor #### #####################################################################################
-	 // #### end of constructor #### #####################################################################################
+	} // #### end of CONSTRUCTOR #### #####################################################################################
+	 // #### end of CONSTRUCTOR #### #####################################################################################
 	
 	//Handler for the allEntitiesComboBox drop down panel
 	// Out of date because I need to completely rework how this class handles multiple selections
@@ -553,6 +554,9 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		@Override
 		public void valueChanged(TreeSelectionEvent e) {
 			DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
+			DefaultMutableTreeNode testNode = (DefaultMutableTreeNode)e.getPath().getLastPathComponent();
+			System.err.println("Debug test-- in TreeSelectionListener, e.getPath();.getLastPathComponent() will \n"
+					+ "return this: " + testNode);
 			//this is still in raw Object format. Must be cast
 			if (currentNode == null) return;
 			Object objectInsideNode = currentNode.getUserObject();

@@ -5,9 +5,13 @@ import java.util.ArrayList;
 import entityComposites.AngularComposite.AngleComposite;
 import physics.ResolutionState;
 
+
 public abstract class ParentComposite implements EntityComposite {
 	
 	private static final ParentComposite.NullParentComposite nullParent = new NullParentComposite();
+
+	protected String compositeName = "ParentComposite";
+
 	/**
 	 * Sets position of entity and all children if this parent composite is not null
 	 * @param x
@@ -58,6 +62,7 @@ public abstract class ParentComposite implements EntityComposite {
 				AngleComposite angularParent = (AngleComposite) ownerParentEntity.getAngularComposite();
 			
 				ChildComposite.Rotateable childComposite = new ChildComposite.Rotateable(child , ownerParentEntity, ownerParentEntity.getTranslationComposite(), ownerParentEntity.getRotationComposite(), childrenCompositesList.size() , ownerParentEntity.getPosition() , angularParent.getAngle() );
+
 				child.childComposite = childComposite;
 				this.childrenCompositesList.add( childComposite );
 				
@@ -156,5 +161,16 @@ public abstract class ParentComposite implements EntityComposite {
 	public void disable() {
 		// TODO Auto-generated method stub
 	}
-
+	@Override
+	public void setCompositeName(String newName) {
+		this.compositeName = newName;
+	}
+	@Override
+	public String getCompositeName() {
+		return this.compositeName;		
+	}
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName();
+	}
 }

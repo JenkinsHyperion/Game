@@ -133,7 +133,7 @@ public class IconLoader extends JFrame {
         	editorPanelRef.setGhostSprite(path);
         	editorPanelRef.setNewEntityPath(path);
         	//editorPanelRef.mode = EditorPanel.ENTPLACEMENT_MODE;
-        	editorPanelRef.setMode(editorPanelRef.getEditorPlaceMode());
+        	editorPanelRef.setMode(editorPanelRef.getEntityPlaceMode());
            //System.out.println(e.getActionCommand().toString());
         }
     }

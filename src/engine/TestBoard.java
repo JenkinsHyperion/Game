@@ -20,7 +20,6 @@ import sprites.Background;
 import sprites.RenderingEngine;
 import sprites.Sprite;
 import sprites.SpriteStillframe;
-import sun.net.www.content.audio.wav;
 import testEntities.*;
 import misc.*;
 
@@ -144,7 +143,6 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     protected void entityThreadRun() {
     	
     	camera.updatePosition();
-    	
     	if ( PlantTwigSegment.waveCounter[0] <= 100 ){
     		PlantTwigSegment.waveCounter[0]++;
     	}else{

@@ -1,49 +1,77 @@
 package editing;
 
-import javax.annotation.Generated;
-import javax.swing.*;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeSelectionModel;
-
-import Input.*;
-import editing.worldGeom.*;
-import editing.worldGeom.WorldGeometry.VertexPlaceMode;
-import editing.worldGeom.WorldGeometry.VertexSelectMode;
-import editing.worldGeom.WorldGeometry.VertexSelectMode.AlignToXAxisEvent;
-import editing.worldGeom.WorldGeometry.VertexSelectMode.AlignToYAxisEvent;
-import editing.worldGeom.WorldGeometry.VertexSelectMode.CtrlVertexSelectLClickEvent;
-import editing.worldGeom.WorldGeometry.VertexSelectMode.DeleteVerticesEvent;
-import editing.worldGeom.WorldGeometry.VertexSelectMode.SelectionRectEvent;
-import editing.worldGeom.WorldGeometry.VertexSelectMode.SplitLineEvent;
-import editing.worldGeom.WorldGeometry.VertexSelectMode.TranslateEvent;
-import editing.worldGeom.WorldGeometry.VertexSelectMode.VertexSelectLClickEvent;
-import sprites.*;
-import entities.*;
-import entityComposites.*;
-import physics.Boundary;
-import physics.BoundaryPolygonal;
-import physics.Vector;
-import entityComposites.EntityFactory;
-import entityComposites.EntityStatic;
-import entityComposites.GraphicComposite;
-import saving_loading.SavingLoading;
-import engine.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.Point;
+import java.awt.Polygon;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JTree;
+import javax.swing.SwingConstants;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
-
+import Input.InputController;
+import Input.KeyCommand;
+import Input.MouseCommand;
+import editing.worldGeom.EditorVertex;
+import editing.worldGeom.SelectedVertices;
+import editing.worldGeom.SelectionRectangle;
+import editing.worldGeom.SelectionRectangleAbstract;
+import editing.worldGeom.SelectionRectangleNull;
+import editing.worldGeom.WorldGeometry;
+import engine.BoardAbstract;
+import engine.MovingCamera;
+import entities.EntityNull;
+import entityComposites.Collider;
+import entityComposites.Entity;
+import entityComposites.EntityComposite;
+import entityComposites.EntityFactory;
+import entityComposites.EntityStatic;
+import entityComposites.TranslationComposite;
+import physics.Boundary;
+import physics.BoundaryPolygonal;
+import physics.Vector;
+import saving_loading.SavingLoading;
+import sprites.Sprite;
+import sprites.SpriteStillframe;
 
 //TASK LIST:
-
 @SuppressWarnings("serial")
 /**
  * @author Dave 
@@ -51,8 +79,8 @@ import java.util.ArrayList;
 public class EditorPanel extends JPanel implements MouseWheelListener{
 	
 //	##### MODES #####
-	private EditorSelectMode editorSelectMode;
-	private EditorPlaceMode editorPlaceMode;
+	private EntitySelectMode entitySelectMode;
+	private EntityPlaceMode entityPlaceMode;
 	private WorldGeometry worldGeomMode;
 	private CameraPanEvent cameraPanEvent;
 	private SpriteEditorMode spriteEditorMode;
@@ -149,7 +177,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		inputController = new InputController("Main panel controller");
 		inputController.createKeyBinding(KeyEvent.VK_F5, new KeyCommand() {
 			@Override
-			public void onPressed() { setMode(getEditorSelectMode());	}
+			public void onPressed() { setMode(getEntitySelectMode());	}
 		});
 		inputController.createKeyBinding(KeyEvent.VK_F6, new KeyCommand() {
 			@Override
@@ -167,6 +195,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		inputController.createKeyBinding(KeyEvent.VK_F8, new KeyCommand() {
 			@Override
 			public void onPressed() { 
+				/*debug section, line below */
+				//refreshTree();
 				if (editorMode == worldGeomMode) 
 					getWorldGeomMode().setMode(worldGeomMode.getVertexPlaceMode());
 				else if (editorMode == boundaryEditorMode) 
@@ -175,14 +205,14 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		});
 		/*inputController.createKeyBinding(KeyEvent.VK_S, new KeyCommand() {
 			@Override
-			public void onPressed() { getEditorSelectMode().setSelectViaSprite(true);
+			public void onPressed() { getEntitySelectMode().setSelectViaSprite(true);
 									  selectViaSpriteRB.setSelected(true);}
 			public void onReleased() {} public void onHeld() {}
 		});*/
 		
 		inputController.createKeyBinding(KeyEvent.VK_B, new KeyCommand() {
 			@Override
-			public void onPressed() { getEditorSelectMode().setSelectViaSprite(false);	
+			public void onPressed() { getEntitySelectMode().setSelectViaSprite(false);	
 									  selectViaBoundaryRB.setSelected(true);}
 		});
 		inputController.createKeyBinding( KeyEvent.SHIFT_MASK , KeyEvent.VK_DELETE, new KeyCommand(){ //DELETE SELECTED
@@ -232,14 +262,14 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		iconBarScrollPaneSpriteSwap = new JScrollPane(iconBarForSpriteSwap);
 	    SpriteIconLoader iconLoaderForSpriteSwap = new SpriteIconLoader(this, iconBarForSpriteSwap);
 	
-	    editorSelectMode = new EditorSelectMode();
-		editorPlaceMode = new EditorPlaceMode();
+	    entitySelectMode = new EntitySelectMode();
+		entityPlaceMode = new EntityPlaceMode();
 		cameraPanEvent = new CameraPanEvent();
 		worldGeomMode = new WorldGeometry(this, board2);
 		boundaryEditorMode = new BoundaryEditorMode();
 		spriteEditorMode = new SpriteEditorMode();
 		
-		this.editorMode = getEditorSelectMode();
+		this.editorMode = getEntitySelectMode();
 
 		
 		selectViaSpriteRB = new JRadioButton("S");
@@ -248,7 +278,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
-				editorSelectMode.setSelectViaSprite(true);
+				entitySelectMode.setSelectViaSprite(true);
 			}
 		});
 		selectViaBoundaryRB = new JRadioButton("B");
@@ -257,7 +287,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		selectViaBoundaryRB.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				editorSelectMode.setSelectViaSprite(false);
+				entitySelectMode.setSelectViaSprite(false);
 			}
 		});
 		ButtonGroup rbgroup = new ButtonGroup();
@@ -309,8 +339,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		entitySelectButton.addActionListener(new ActionListener() {	
 			@Override
 			public void actionPerformed(ActionEvent e) {						
-				setMode(getEditorSelectMode());
-				getEditorSelectMode().selectedEntities.clearSelectedEntities();
+				setMode(getEntitySelectMode());
+				getEntitySelectMode().selectedEntities.clearSelectedEntities();
 				
 			} 		
 		});
@@ -347,9 +377,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		spriteEditorButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				spriteEditorMode.setCurrentEntity(getEditorSelectMode().getSingleSelectedEntity());
+				spriteEditorMode.setCurrentEntity(getEntitySelectMode().getSingleSelectedEntity());
 				setMode(getSpriteEditorMode());
-				
 			}
 		});
 		boundaryVertexSelectButton.setFocusable(false);
@@ -357,7 +386,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		boundaryVertexSelectButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				boundaryEditorMode.setCurrentEntity(getEditorSelectMode().getSingleSelectedEntity());
+				boundaryEditorMode.setCurrentEntity(getEntitySelectMode().getSingleSelectedEntity());
 				boundaryEditorMode.setSubMode(boundaryEditorMode.getVertexSelectMode());
 				boundaryEditorMode.getVertexSelectMode().setBoundarySubMode(boundaryEditorMode.getVertexSelectMode().getDefaultMode());
 				setMode(getBoundaryEditorMode());
@@ -368,7 +397,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		boundaryVertexPlaceButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				boundaryEditorMode.setCurrentEntity(getEditorSelectMode().getSingleSelectedEntity());
+				boundaryEditorMode.setCurrentEntity(getEntitySelectMode().getSingleSelectedEntity());
 				boundaryEditorMode.setSubMode(boundaryEditorMode.getVertexPlaceMode());
 				setMode(getBoundaryEditorMode());
 			}
@@ -379,7 +408,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			separators[i] = new JSeparator(SwingConstants.HORIZONTAL);
 			separators[i].setPreferredSize(new Dimension(150,3));
 		}
-		/*try {
+		/*try {            /// THIS WASN'T REALLY WORKING SUPER WELL
             UIManager.setLookAndFeel(
                 UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
@@ -387,31 +416,20 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
         }*/
 		//separator.setPreferredSize(new Dimension(150,3));
 		
-		DefaultMutableTreeNode top = new DefaultMutableTreeNode("Scenes");
-		DefaultMutableTreeNode sceneTest = new DefaultMutableTreeNode("sceneTest");
-		DefaultMutableTreeNode sceneTest2 = new DefaultMutableTreeNode("sceneTest2");
-		DefaultMutableTreeNode entitiesRootFolder = new DefaultMutableTreeNode("Entities");
-	
-		top.add(sceneTest);
-		top.add(sceneTest2);
-		sceneTest.add(entitiesRootFolder);
-		entitiesRootFolder.add(createEntityNodeFolder(board.listCurrentSceneEntities()[0]));
 		
-		tree = new JTree(top);
+		tree = new JTree(new DefaultMutableTreeNode("Scenes"));
+		refreshTree();
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		tree.addTreeSelectionListener(new TreeSelectionListener() {
-			@Override
-			public void valueChanged(TreeSelectionEvent e) {
-				DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
-				//this is still in raw Object format. Must be cast
-				Object objectInsideNode = currentNode.getUserObject();
-				System.err.println("What is the type? " + objectInsideNode.getClass().getSimpleName());
-			}
-		});
+		tree.addTreeSelectionListener(new TreeSelectionEventHandler());
+		tree.setFocusable(false);
 		treePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		treePanel.add(tree);
+		treePanel.setFocusable(false);
 		JScrollPane treeScrollPane = new JScrollPane(treePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		treeScrollPane.setPreferredSize(new Dimension(200,200));
+		treeScrollPane.setFocusable(false);
+		treeScrollPane.setPreferredSize(new Dimension(220,200));
+		treeScrollPane.getVerticalScrollBar().setUnitIncrement(50);
+		treeScrollPane.getHorizontalScrollBar().setUnitIncrement(10);
 		
 		buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		buttonPanel.setBackground(Color.GRAY);
@@ -472,9 +490,11 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		iconBarForSpriteSwap.setBackground(Color.GRAY);
 		iconBarForSpriteSwap.setPreferredSize(new Dimension(195,200));
 		iconBarForSpriteSwap.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		//iconBarScrollPaneSpriteSwap.setVisible(true);
 		iconBarScrollPaneSpriteSwap.setVerticalScrollBarPolicy((JScrollPane.VERTICAL_SCROLLBAR_ALWAYS));
-		iconBarScrollPaneSpriteSwap.setVisible(true);
-		// #### add everything to the editor
+		
+		
+		// #### add everything to the editor's scroll pane
 		add(entitiesComboBoxPanel);
 		add(saveButton);
 		add(loadButton);
@@ -490,46 +510,72 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		add(iconBarScrollPaneSpriteSwap);
 		//iconBarScrollPaneSpriteSwap.setVisible(false);
 		
-	} // #### end of constructor #### #####################################################################################
-	 // #### end of constructor #### #####################################################################################
+	} // #### end of CONSTRUCTOR #### #####################################################################################
+	 // #### end of CONSTRUCTOR #### #####################################################################################
 	
 	//Handler for the allEntitiesComboBox drop down panel
 	// Out of date because I need to completely rework how this class handles multiple selections
-
+	
+	/** Takes care of GUI events that I want to happen when an entity is clicked.*/
+	public void selectSingleEntityGUIHouseKeeping() {
+		//TODO IMPORTANT make a "modeSwitchCleanUp()" method that is called every time a mode is switched, to avoid data leaks
+		//editorMode.modeSwitchCleanUp();   //Might not be necessary though. States can probably just be stored in the mode's instance
+		setMode(getEntitySelectMode());
+		entitySelectMode.selectedEntities.clearSelectedEntities();
+		deleteEntButton.setEnabled(true);
+		spriteEditorButton.setEnabled(true);
+		boundaryVertexSelectButton.setEnabled(true);
+		boundaryVertexPlaceButton.setEnabled(true);
+	}
 	public class EntitiesComboBoxActionHandler implements ActionListener{
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			setMode(getEditorSelectMode());
+			setMode(getEntitySelectMode());
 			//JComboBox cb = (JComboBox)e.getSource();
 			//cb.getSelectedIndex());
-			
 			//restorePanels();    	#### IMPORTANT LINE, UNCOMMENT LATER
-			
-			//String testString = (String)allEntitiesComboBox.getSelectedItem();
-			//System.out.println(testString);
-			//allEntitiesComboBox.addItem
 			currentEntIndex = allEntitiesComboBox.getSelectedIndex();
-			System.out.println(currentEntIndex);
 			try{					
-				getEditorSelectMode().selectedEntities.clearSelectedEntities();
-				deleteEntButton.setEnabled(true);
-				
+				selectSingleEntityGUIHouseKeeping();
 				//sets Board's current entity
-				//setCurrentSelectedEntity(board.getEntities().get(currentEntIndex));
-				editorSelectMode.addSelectedEntity(board.listCurrentSceneEntities()[currentEntIndex]);
-				spriteEditorButton.setEnabled(true);
-				boundaryVertexSelectButton.setEnabled(true);
-				boundaryVertexPlaceButton.setEnabled(true);
+				entitySelectMode.addSelectedEntity(board.listCurrentSceneEntities()[currentEntIndex]);
 				//createAndShowPropertiesPanel(board);   ##### IMPORTANT LINE, UNCOMMENT LATER
-				
-				setSelectedEntityNameLabel("Selected: " + board.listCurrentSceneEntities()[currentEntIndex].name);
-				setEntityCoordsLabel(String.format("Coords of Selected Entity: %s,%s", editorSelectMode.selectedEntities.get(0).getX(), editorSelectMode.getSelectedEntities().get(0).getY()));
+
+				setEntityCoordsLabel(String.format("Coords of Selected Entity: %s,%s", entitySelectMode.getSingleSelectedEntity().getX(), entitySelectMode.getSingleSelectedEntity().getY()));
 			}
 			catch (NullPointerException exception){
 				exception.printStackTrace();
-				System.err.println("nullpointerexception"); 
+				System.err.println("nullpointerexception, couldn't select an entity for some reason."); 
 			}
+		}	
+	} //end of EntitiesComboBoxActionHandler inner class
+	public class TreeSelectionEventHandler implements TreeSelectionListener{
+		@Override
+		public void valueChanged(TreeSelectionEvent e) {
+			DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
+			DefaultMutableTreeNode testNode = (DefaultMutableTreeNode)e.getPath().getLastPathComponent();
+			System.err.println("Debug test-- in TreeSelectionListener, e.getPath();.getLastPathComponent() will \n"
+					+ "return this: " + testNode);
+			//this is still in raw Object format. Must be cast
+			if (currentNode == null) return;
+			Object objectInsideNode = currentNode.getUserObject();
+			if (objectInsideNode instanceof Entity) {
+				EntityStatic nodeIsEntity = (EntityStatic)objectInsideNode;
+				System.out.println("*** IS AN ENTITY ***");
+				setMode(getEntitySelectMode());
+				selectSingleEntityGUIHouseKeeping();
+				//sets Board's current entity
+				entitySelectMode.addSelectedEntity(nodeIsEntity);
+			}
+			else if (objectInsideNode instanceof EntityComposite) {
+				System.out.println("*** IS A COMPOSITE ***");
+				if (objectInsideNode instanceof TranslationComposite) {
+					System.out.println("*** IS TRANSLATEABLECOMPOSITE ***");
+				}
+			}
+			System.err.println("Name of object in mode using its toString() method: " + objectInsideNode);
+
 		}	
 	} //end of EntitiesComboBoxActionHandler inner class
 	
@@ -576,7 +622,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	 * Note** Only creates the current entity node. Doesn't create the main "Entities" folder in the same way that {@link #createCompositesNodeFolder(EntityStatic)} does.
 	 * @param entity The entity that will be stored in this corresponding node.
 	 * @return The branch node for the current entity. Also contains "Composites" and may contain more branches for its children*/
-	private DefaultMutableTreeNode createEntityNodeFolder(EntityStatic entity) {
+	private DefaultMutableTreeNode createSingleEntityNodeFolder(EntityStatic entity) {
 		DefaultMutableTreeNode currentEntityNode = new DefaultMutableTreeNode(entity);
 		//append Composites folder to Entities folder
 		currentEntityNode.add(createCompositesNodeFolder(entity));
@@ -585,10 +631,20 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		currentEntityNode.add(createChildrenNodeFolder(entity));
 		return currentEntityNode;
 	}
+	private <T> DefaultMutableTreeNode createEntireEntityNodeFolder(EntityStatic[] entityListRef) {
+		DefaultMutableTreeNode entireEntityFolder = new DefaultMutableTreeNode("Entities");
+		//will make as many folders(nodes) as there are Entities in the list parameter
+		int size = entityListRef.length;
+		DefaultMutableTreeNode currentFolder;
+		for (int i = 0; i < size; i++) {
+			currentFolder = createSingleEntityNodeFolder(entityListRef[i]);
+			entireEntityFolder.add(currentFolder);
+		}
+		return entireEntityFolder;
+	}
 	
 	/** @param entity The entity that contains the composites.
 	 * @return The branch node "Composites" that will contain the entity's composites */
-	@SuppressWarnings("unused")
 	private DefaultMutableTreeNode createCompositesNodeFolder(EntityStatic entity) {
 		DefaultMutableTreeNode newCompositesFolder = new DefaultMutableTreeNode("Composites");
 		EntityComposite[] entityCompositeArray = new EntityComposite[]{entity.getAngularComposite(), entity.getColliderComposite(),
@@ -605,7 +661,24 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		// TODO lots of work to do here
 		return newChildrenFolder;
 	}
-	
+	public void refreshTree() {
+		try {
+			DefaultMutableTreeNode sceneTest = new DefaultMutableTreeNode("sceneTest");
+			DefaultMutableTreeNode sceneTest2 = new DefaultMutableTreeNode("sceneTest2");
+			DefaultMutableTreeNode entitiesRootFolder = createEntireEntityNodeFolder(board.listCurrentSceneEntities());
+			DefaultTreeModel defaultModel = (DefaultTreeModel) tree.getModel();
+			DefaultMutableTreeNode tempRoot = (DefaultMutableTreeNode)tree.getModel().getRoot();
+			tempRoot.removeAllChildren();
+			defaultModel.reload();
+			tempRoot.add(sceneTest);
+			tempRoot.add(sceneTest2);
+			sceneTest.add(entitiesRootFolder);
+			tree.expandPath(new TreePath(defaultModel.getPathToRoot(sceneTest)));
+			defaultModel.reload();
+		} catch (Exception e) {
+			System.err.println("Error possibly because tree was empty?");
+		}
+	}
 	@Deprecated
 	public void deselectAllEntities() {
   		//setCurrentSelectedEntity( EntityNull.getNullEntity() );
@@ -661,6 +734,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	 */
 ///	*/
 	//helper function to transfer data from ArrayList into a regular array
+	
 	@Deprecated
 	public void populateArrayFromList(String[] arr, ArrayList<EntityStatic> arrayList)
 	{
@@ -867,19 +941,22 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		//will contain a render procedure for modes that certainly don't need their own rendering implementation 
 	}
 	public void addSelectedEntity(EntityStatic entity) {
-		this.getEditorSelectMode().addSelectedEntity(entity);
+		this.entitySelectMode.addSelectedEntity(entity);
 	}
 	public void removeSelectedEntity(EntityStatic entity) {
-		this.getEditorSelectMode().removeSelectedEntity(entity);
+		this.entitySelectMode.removeSelectedEntity(entity);
+	}
+	public void clearSelectedEntities() {
+		this.getEntitySelectMode().selectedEntities.clearSelectedEntities();;
 	}
 	public ArrayList<EntityStatic> getSelectedEntities () {
-		return this.getEditorSelectMode().getSelectedEntities();
+		return this.getEntitySelectMode().getSelectedEntities();
 	}
 	public void setMode(ModeAbstract newMode) {
 		this.editorMode = newMode;
 	}
-	public EditorSelectMode getEditorSelectMode() {
-		this.editorSelectMode.setMode(editorSelectMode.getDefaultMode());
+	public EntitySelectMode getEntitySelectMode() {
+		this.entitySelectMode.setMode(entitySelectMode.getDefaultMode());
 		worldGeomButton.setEnabled(true);
 		iconBarScrollPaneSpriteSwap.setVisible(false);
 		spriteEditorButton.setEnabled(false);
@@ -887,11 +964,12 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		wgVertexPlaceModeButton.setEnabled(false);
 		boundaryVertexPlaceButton.setEnabled(false);
 		boundaryVertexSelectButton.setEnabled(false);
-		return this.editorSelectMode;
+		revalidate();
+		return this.entitySelectMode;
 	}
-	public EditorPlaceMode getEditorPlaceMode() {
+	public EntityPlaceMode getEntityPlaceMode() {
 		iconBarScrollPaneSpriteSwap.setVisible(false);
-		return this.editorPlaceMode;
+		return this.entityPlaceMode;
 	}
 	public WorldGeometry getWorldGeomMode() {
 		iconBarScrollPaneSpriteSwap.setVisible(false);
@@ -901,6 +979,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		
 		boundaryVertexPlaceButton.setEnabled(false);
 		boundaryVertexSelectButton.setEnabled(false);
+		revalidate();
 		return this.worldGeomMode;
 	}
 	public CameraPanEvent getCameraPanMode() {
@@ -913,6 +992,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		wgVertexSelectModeButton.setEnabled(false);
 		boundaryVertexPlaceButton.setEnabled(false);
 		boundaryVertexSelectButton.setEnabled(false);
+		revalidate();
 		return this.spriteEditorMode;
 	}
 	public BoundaryEditorMode getBoundaryEditorMode() {
@@ -921,15 +1001,16 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		boundaryVertexSelectButton.setEnabled(true);
 		wgVertexSelectModeButton.setEnabled(false);
 		wgVertexPlaceModeButton.setEnabled(false);
+		revalidate();
 		return this.boundaryEditorMode;
 	}
 	// ######################################### INNER CLASS MODES #######################################
 	// ######################################### INNER CLASS MODES #######################################
 	
-/////////   INNER CLASS EDITORSELECTMODE   //////////////////////////////////////////////////////
+/////////   INNER CLASS ENTITYSELECTMODE   //////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
 	@SuppressWarnings("unused")
-	public class EditorSelectMode extends ModeAbstract {
+	public class EntitySelectMode extends ModeAbstract {
 		protected SelectedEntities selectedEntities;
 		protected SelectionRectangleAbstract selectionRectangle;
 		protected SelectionRectangleAbstract nullSelectionRectangle;
@@ -944,7 +1025,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		private Point initClickPoint;
 		
 		private double tempAngle;
-		public EditorSelectMode() {
+		public EntitySelectMode() {
 			tempAngle = 0.0;
 			//mouseMovedKeyState = new MouseMovedKeyStateNull();
 			selectedEntities = new SelectedEntities(camera);
@@ -1004,8 +1085,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		// ################ INNER CLASS EditorSelect--->DEFAULT MODE ############################
 		public class DefaultMode extends ModeAbstract {
 			public DefaultMode() {
-				modeName = "EditorSelectMode";
-				this.inputController = new InputController("Default mode (Editor select) controller");
+				modeName = "EntitySelectMode";
+				this.inputController = new InputController("Default mode (Entity select) controller");
 				
 				this.inputController.createMouseBinding(MouseEvent.BUTTON1, new EntitySelectLClickEvent());
 				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new CtrlEntitySelectLClickEvent());
@@ -1297,9 +1378,9 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 						clickableRect.setSize(graphic.getImage().getWidth(null), graphic.getImage().getHeight(null) );
 						if (clickableRect.contains(click)) {
 							if (selectedEntities.contains(entity))
-								selectedEntities.removeSelectedEntity(entity);
+								removeSelectedEntity(entity);
 							else
-								selectedEntities.addSelectedEntity(entity);
+								addSelectedEntity(entity);
 						}
 					}
 				}
@@ -1323,9 +1404,9 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 						Rectangle rect = polygonTest.getBounds();
 						if (polygonTest.contains(click)) {
 							if (selectedEntities.contains(entity))
-								selectedEntities.removeSelectedEntity(entity);
+								removeSelectedEntity(entity);
 							else
-								selectedEntities.addSelectedEntity(entity);
+								addSelectedEntity(entity);
 						}
 					}
 				}// end of for loop
@@ -1349,7 +1430,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				spriteEditorButton.setEnabled(false);
 				boundaryVertexSelectButton.setEnabled(false);
 				boundaryVertexPlaceButton.setEnabled(false);
-				selectedEntities.clearSelectedEntities();
+				clearSelectedEntities();
 			}
 			if (selectViaSprite == true) {
 				for (EntityStatic entity: board.listCurrentSceneEntities()) {
@@ -1362,7 +1443,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 						if (clickableRect.contains(click))
 						{
 							if (selectedEntities.contains(entity) == false) {
-								selectedEntities.addSelectedEntity(entity);
+								addSelectedEntity(entity);
 								//FIXME this is just a test
 								//selectedEntities.get(0).getRotationComposite().setAngleInDegrees(selectedEntities.get(0).getRotationComposite().getAngle()+45);
 								spriteEditorButton.setEnabled(true);
@@ -1392,7 +1473,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 						//Rectangle rect = polygonTest.getBounds();
 						if (polygonTest.contains(click)) {
 							if (selectedEntities.contains(entity) == false) {
-								selectedEntities.addSelectedEntity(entity);
+								addSelectedEntity(entity);
 								spriteEditorButton.setEnabled(true);
 								boundaryVertexSelectButton.setEnabled(true);
 								boundaryVertexPlaceButton.setEnabled(true);
@@ -1416,7 +1497,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 						//if(selectionRect.contains(clickableRect)) {
 						if(selectionRect.intersects(clickableRect)) {
 							if(selectedEntities.contains(entity) == false) {
-								selectedEntities.addSelectedEntity(entity);
+								addSelectedEntity(entity);
 							}
 						}
 					}
@@ -1440,7 +1521,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 						Rectangle rect = polygonTest.getBounds();
 						if (polygonTest.intersects(selectionRect)) {
 							if (selectedEntities.contains(entity) == false) {
-								selectedEntities.addSelectedEntity(entity);
+								addSelectedEntity(entity);
 							}
 						}
 					}
@@ -1461,6 +1542,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		
 		public void addSelectedEntity(EntityStatic entity) {
 			selectedEntities.addSelectedEntity(entity);
+			setSelectedEntityNameLabel("Selected: " + entitySelectMode.selectedEntities.printSelectedEntitiesAsString());
 		}
 		public EntityStatic getSingleSelectedEntity() {
 			if (selectedEntities.size() == 1)
@@ -1482,6 +1564,11 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		}
 		public void removeSelectedEntity(EntityStatic entity) {
 			selectedEntities.removeSelectedEntity(entity);
+			setSelectedEntityNameLabel("Selected: " + entitySelectMode.selectedEntities.printSelectedEntitiesAsString());
+		}
+		public void clearSelectedEntities() {
+			this.selectedEntities.clearSelectedEntities();
+			setSelectedEntityNameLabel("Selected: " + entitySelectMode.selectedEntities.printSelectedEntitiesAsString());
 		}
 		public ArrayList<EntityStatic> getSelectedEntities () {
 			return selectedEntities.getSelectedEntities();
@@ -1581,15 +1668,15 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			public void onReleased() {}
 			public void onHeld() {}
 		}
-	}  // end of EditorSelectMode inner class
+	}  // end of EntitySelectMode inner class
 	
-/////////   INNER CLASS EDITORPLACEMODE   //////////////////////////////////////////////////////
+/////////   INNER CLASS ENTITYPLACEMODE   //////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-	public class EditorPlaceMode extends ModeAbstract {
-		public EditorPlaceMode() {
-			modeName = "EditorPlaceMode";
-			inputController = new InputController("Editor place mode controller");
+	public class EntityPlaceMode extends ModeAbstract {
+		public EntityPlaceMode() {
+			modeName = "EntityPlaceMode";
+			inputController = new InputController("Entity place mode controller");
 			this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());			
 		}
 		
@@ -1617,7 +1704,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		@Override
 		public void mouseReleased(MouseEvent e) {
 			//mode = EditorPanel.DEFAULT_MODE;
-			setMode(getEditorSelectMode());
+			setMode(getEntitySelectMode());
 		}
 		@Override
 		public void keyPressed(KeyEvent e) {
@@ -1631,7 +1718,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		public void render(Graphics g) {
 			
 		}
-	}  // end of EditorPlaceMode inner class
+	}  // end of EntityPlaceMode inner class
 	
 	
 	
@@ -2247,7 +2334,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					System.out.println("Was able to close shape");
 				}
 			}*/
-			if (checkIfClosedShape(lineArray) == false) {  //is an open shape
+			if ((checkIfClosedShape(lineArray) == false) && (lineArray.size() > 0)) {  //is an open shape, and array's not empty
 				lineArray.add(new Line2D.Double(lineArray.get(lineArray.size()-1).getP2(),
 						lineArray.get(0).getP1()));
 			}

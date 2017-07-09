@@ -4,7 +4,7 @@ import engine.BoardAbstract;
 import utility.ListNodeTicket;
 
 public class LifespanComposite implements EntityComposite, UpdateableComposite {
-
+	protected String compositeName = "LifespanComposite";
 	ListNodeTicket updaterSlot;
 	
 	private int lifespan;
@@ -52,6 +52,18 @@ public class LifespanComposite implements EntityComposite, UpdateableComposite {
 	@Override
 	public void disable() {
 		this.updaterSlot.removeSelf();
+	}
+	@Override
+	public void setCompositeName(String newName) {
+		this.compositeName = newName;
+	}
+	@Override
+	public String getCompositeName() {
+		return this.compositeName;		
+	}
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName();
 	}
 
 }

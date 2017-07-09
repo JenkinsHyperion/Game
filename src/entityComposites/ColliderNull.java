@@ -16,8 +16,8 @@ import physics.Collision;
 import physics.Side;
 import physics.Vector;
 
-public final class ColliderNull extends Collider{
-	
+public final class ColliderNull extends Collider{ 
+	private String compositeName = "ColliderNull";
 	private final static ColliderNull nullCollision = new ColliderNull();
 
 	private ColliderNull(){
@@ -148,5 +148,17 @@ public final class ColliderNull extends Collider{
 	public void disable() {
 		System.err.println("No collider to disable");
 	}
-	
+	@Override
+	public void setCompositeName(String newName) {
+		this.compositeName = newName;
+	}
+	@Override
+	public String getCompositeName() {
+		return this.compositeName;		
+	}
+
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName();
+	}
 }

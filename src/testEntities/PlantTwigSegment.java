@@ -26,7 +26,7 @@ public class PlantTwigSegment extends EntityStatic{
 	
 	protected TestBoard board;
 
-	public static int waveCounter[] = new int[]{0};
+	public static int[] waveCounter = new int[]{0};
 	
 	protected int growthLevel = 0;
 	protected int maxGrowth;
@@ -43,6 +43,7 @@ public class PlantTwigSegment extends EntityStatic{
 		super(x,y);
 		this.board = board;
 		this.maxGrowth = maxGrowth;
+
 	}
 	
 	protected void setPreviousStem(StemSegment previous){ this.previousSegment = previous; }

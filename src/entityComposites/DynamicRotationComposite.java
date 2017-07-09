@@ -9,7 +9,7 @@ import testEntities.PlantTwigSegment;
 import utility.ListNodeTicket;
 
 public class DynamicRotationComposite implements EntityComposite, UpdateableComposite{
-
+	protected String compositeName = "DynamicRotationComposite";
 	private ListNodeTicket updaterSlot;
 	
 	protected ArrayList<DynamicRotateableComposite> rotateableChildren = new ArrayList<DynamicRotateableComposite>();
@@ -80,22 +80,42 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 		this.angularAcc = 0;
 		
 	}
+
+	@Override
+	public void setCompositeName(String newName) {
+		this.compositeName = newName;
+	}
+	@Override
+	public String getCompositeName() {
+		return this.compositeName;		
+	}
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName();
+	}
+
 	
 	
 	public static class SineWave extends DynamicRotationComposite{
 
 		int[] phaseCounter; //Array of [1] is java workaround to ensure this.phaseCounter receives a REFERENCE not a value
+		//Integer phaseCounterInt; //Array of [1] is java workaround to ensure this.phaseCounter receives a REFERENCE not a value
 		double bend = 0;
-		int internalCounter = 0;
 		
-		public SineWave(EntityStatic owner , int[] phaseCounter) { 
+		/*public SineWave(EntityStatic owner , int[] phaseCounter) { 
 			super(owner);
 			this.phaseCounter = phaseCounter;
+		}
+		*/
+		public SineWave(EntityStatic owner , int[] phaseCounterIntRef) { 
+			super(owner);
+			this.phaseCounter = phaseCounterIntRef;
 		}
 		
 		@Override
 		public void updateComposite() {
 	    	
+			//double output = phaseCounter[0] / 10.0;
 			double output = phaseCounter[0] / 10.0;
 			
 			//double output = internalCounter / 10.0;

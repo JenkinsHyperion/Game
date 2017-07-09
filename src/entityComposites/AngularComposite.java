@@ -9,7 +9,9 @@ import physics.Vector;
  * @author Jenkins
  *
  */
-public abstract class AngularComposite implements EntityComposite{
+
+public abstract class AngularComposite implements EntityComposite {
+	protected String compositeName = "AngularComposite";
 
 	private static final FixedAngleComposite fixedAngle = new AngularComposite.FixedAngleComposite();
 	
@@ -25,9 +27,21 @@ public abstract class AngularComposite implements EntityComposite{
 	public abstract void notifyAngleChange( double angle );
 	public abstract Point getRotationalPositionRelativeTo( Point relativePosition);
 	public abstract Vector getOrientationVector();
+	@Override
+	public void setCompositeName(String newName) {
+		this.compositeName = newName;
+	}
+	@Override
+	public String getCompositeName() {
+		return this.compositeName;		
+	}
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName();
+	}
 	
 	public static class AngleComposite extends AngularComposite{
-		
+		private String compositeName = "AngleComposite";
 		protected EntityStatic ownerEntity;
 		protected Vector orientation = new Vector( 1 , 0 );
 		protected ArrayList<RotateableComposite> rotateableCompositeList = new ArrayList<RotateableComposite>();
@@ -151,11 +165,24 @@ public abstract class AngularComposite implements EntityComposite{
 		public void disable() {
 			// TODO Auto-generated method stub
 		}
+		@Override
+		public void setCompositeName(String newName) {
+			this.compositeName = newName;
+		}
+		@Override
+		public String getCompositeName() {
+			return this.compositeName;		
+		}
+		@Override
+		public String toString() {
+			return this.getClass().getSimpleName();
+		}
 	
 	}
 	
 	private static class FixedAngleComposite extends AngularComposite{
 
+		private String compositeName = "FixedAngleComposite";
 
 		public void setAngle(double angleRadians) {
 			System.err.println("WARNING: Attempted to set angle on fixed angle entity");
@@ -195,7 +222,18 @@ public abstract class AngularComposite implements EntityComposite{
 			System.err.println("WARNING: Attempted to get Orientation Vector of fixed angle entity");
 			return new Vector(1,0);
 		}
-		
+		@Override
+		public void setCompositeName(String newName) {
+			this.compositeName = newName;
+		}
+		@Override
+		public String getCompositeName() {
+			return this.compositeName;		
+		}
+		@Override
+		public String toString() {
+			return this.getClass().getSimpleName();
+		}
 	}
 	
 }

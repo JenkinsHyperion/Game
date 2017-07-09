@@ -10,7 +10,7 @@ import physics.Vector;
 import utility.ListNodeTicket;
 
 public class TranslationCompositeActive extends TranslationComposite implements UpdateableComposite{
-	
+	protected String compositeName = "TranslationCompositeActive";
 	private ListNodeTicket updaterSlot;	
 	protected double dx=0;
     protected double dy=0;
@@ -350,5 +350,16 @@ public class TranslationCompositeActive extends TranslationComposite implements 
 	public boolean exists(){
 		return true;
 	}
-
+    @Override
+	public void setCompositeName(String newName) {
+		this.compositeName = newName;
+	}
+	@Override
+	public String getCompositeName() {
+		return this.compositeName;		
+	}
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName();
+	}
 }

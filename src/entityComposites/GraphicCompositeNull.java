@@ -18,7 +18,7 @@ public class GraphicCompositeNull extends GraphicComposite{
 	
 	//OPTIMIZATION - Look into better handling, this is a static factory that returns the static singleton nullSprite, which
 	//apparently is difficult to substitute test without breaking everything
-	public static GraphicComposite getNullSprite(){ 
+	public static GraphicComposite nullGraphicComposite(){ 
 		return nullSprite;
 	}
 	

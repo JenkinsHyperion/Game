@@ -31,12 +31,12 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	//COMPOSITE VARIABLES, LATER TO BE LIST OF COMPOSITES
 	protected TranslationComposite translationType = new TranslationComposite();
 	protected DynamicRotationComposite rotationType = new DynamicRotationComposite(this);
-	protected GraphicComposite graphicsComposite = GraphicCompositeNull.getNullSprite(); 
-	protected Collider collisionType = ColliderNull.getNonCollidableSingleton();
+	protected GraphicComposite graphicsComposite = GraphicCompositeNull.nullGraphicComposite(); 
+	protected Collider collisionType = ColliderNull.nullColliderComposite();
 	protected AngularComposite angularType = new AngularComposite.AngleComposite(this);
 	
-	protected ParentComposite parentComposite = new ParentComposite.NullParentComposite(this);
-	protected ChildComposite childComposite;
+	protected ParentComposite parentComposite = ParentComposite.nullParentComposite();
+	protected ChildComposite childComposite = ChildComposite.nullChildComposite();
 	
 	protected ArrayList<UpdateableComposite> updateablesList = new ArrayList<UpdateableComposite>();
 	protected ArrayList<TranslatableComposite> translatablesList = new ArrayList<TranslatableComposite>();
@@ -73,7 +73,7 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	protected void addUpdateable( UpdateableComposite updateable){
 		updateablesList.add(updateable);
 	}
-	/**BE ADVISED: ALWAYS CALL super.updateComposite() WHEN SUBCLASSING ENTITYSTATIC
+	/**BE ADVISED: WHEN OVERRIDING IN A SUBCLASS, ALWAYS CALL super.updateComposite() which contains core composite updater functionality.
 	 * 
 	 */
 	@Override
@@ -128,9 +128,9 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		this.parentComposite = parentComposite;
 	}
 	
-	public ParentComposite getParentComposite() {
+	/*public ParentComposite getParentComposite() {
 		return this.parentComposite;
-	}
+	}*/
 	
 	/*protected void addParentComposite( ParentComposite relationship ){
 		ParentComposite[] returnArray = new ParentComposite[family.length+1];
@@ -151,11 +151,29 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		//this.parentComposite.manipulateChildren();
 	}//
 	
-	public void compositedTranslate( double x, double y){
-		this.x = this.x + x;
-		this.y = this.y + y;
+	// POSITIONING OVERRIDDEN FROM ENTITY
+	@Override
+    public void setX(int setx) { x = setx; }
+	@Override  
+    public void setX(double setx) { x = setx; }
+	@Override
+    public void setY(int sety) { y = sety; }
+	@Override   
+    public void setY(double sety) { y = sety; }
+	@Override
+    public void setPos(Point p){
+    	x = (int) p.getX();
+    	y = (int) p.getY();
+    }
+	@Override 
+    public void setPos( double x, double y){
+    	this.x =  x;
+    	this.y =  y;
+    	
+    	//this.childComposite.
+    }
 	
-	}
+	// ----------------
 	
 	@Deprecated
     public void loadSprite(String path){ // needs handling if failed. Also needs to be moved out of object class into sprites
@@ -163,30 +181,12 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		CompositeFactory.addGraphicTo( this , new SpriteStillframe( path ) );
     	
     }
-    @Deprecated
-    public void loadSprite(String path, int offset_x , int offset_y){ // needs handling if failed. Also needs to be moved out of object class into sprites
-    	
-    	CompositeFactory.addGraphicTo( this , new SpriteStillframe( path ) );
-    }
-
-
 
     @Deprecated
     public Sprite getEntitySprite(){ // gets the Object's sprite, still image or animation MOVE TO SPRITEPROPERTY
     	return ((GraphicComposite)this.graphicsComposite).getSprite();
     }
-    @Deprecated
-    public void setEntitySprite( Sprite entitySprite ){
-    	 ((GraphicComposite)this.graphicsComposite).setSprite( entitySprite );
-    }
-    @Deprecated
-    public int getSpriteOffsetX(){
-    	return ((GraphicComposite)this.graphicsComposite).getSprite().getOffsetX(); 
-    }
-    @Deprecated
-    public int getSpriteOffsetY() {
-    	return ((GraphicComposite)this.graphicsComposite).getSprite().getOffsetY();
-    }
+
     /**@deprecated
      * @param x_offset
      * @param y_offset
@@ -295,6 +295,21 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		this.updaterSlot.removeSelf();
 	}
 
+	// PARENT CHILD METHODS
+	public boolean isParent(){
+		return this.parentComposite.isParent();
+	}
+	public EntityStatic[] getChildrenEntities(){
+		return this.parentComposite.getChildrenEntities();
+	}
+	public boolean isChild(){
+		return this.childComposite.isChild();
+	}
+	public EntityStatic getParentEntity(){
+		return this.childComposite.getParentEntity();
+	}
+	
+	//GET COMPOSITE METHODS
 	public boolean hasTranslation() {
 		return this.translationType.exists();
 	}

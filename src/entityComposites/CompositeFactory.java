@@ -173,7 +173,7 @@ public class CompositeFactory {
 			parent.addParentComposite( parentComposite );		//Give parent list of children			FIXME CHECK FOR EXISTING PARENT
 			parentAngular.addRotateable( parentComposite );	//Add children list to rotateables
 			
-			ChildComposite childComposite = parentComposite.registerChild(child);	
+			ChildComposite.Rotateable childComposite = parentComposite.registerChild(child);	
 			( ( AngleComposite ) child.getAngularComposite() ).addRotateable( childComposite );
 			
 			/*if ( child.getAngularComposite().exists() ){

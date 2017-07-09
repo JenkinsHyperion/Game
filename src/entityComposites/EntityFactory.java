@@ -39,7 +39,7 @@ public class EntityFactory {
 	
 	public static EntityStatic createBackgroundSprite( String path, int x, int y ){
 		EntityStatic testEntity = new EntityStatic(x,y);
-        testEntity.setCollisionComposite( ColliderNull.getNonCollidableSingleton() );
+        testEntity.setCollisionComposite( ColliderNull.nullColliderComposite() );
         SpriteStillframe sprite = new SpriteStillframe(path);
         CompositeFactory.addGraphicTo(testEntity, sprite);
         return testEntity;

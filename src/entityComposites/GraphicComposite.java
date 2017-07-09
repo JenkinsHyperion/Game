@@ -10,7 +10,8 @@ public class GraphicComposite implements EntityComposite{
 	Sprite currentSprite = Sprite.missingSprite;
 	private ListNodeTicket rendererSlot;
 	
-	private double graphicSizePercent = 1;
+	private double graphicSizePercentX = 1;
+	private double graphicSizePercentY = 1;
 	private double graphicAngle = 0;
 	
 	protected GraphicComposite( Sprite current , EntityStatic ownerEntity ){
@@ -35,11 +36,24 @@ public class GraphicComposite implements EntityComposite{
 	}
 	
 	public void setGraphicSizeFactor(double factor){
-		this.graphicSizePercent = factor;
+		this.graphicSizePercentX = factor;
+		this.graphicSizePercentY = factor;
 	}
 	
-	public double getGraphicsSize(){
-		return this.graphicSizePercent;
+	public void setGraphicSizeFactorX(double factorX ){
+		this.graphicSizePercentX = factorX;
+	}
+	
+	public void setGraphicSizeFactorY(double factorY ){
+		this.graphicSizePercentY = factorY;
+	}
+	
+	public double getGraphicsSizeX(){
+		return this.graphicSizePercentX;
+	}
+	
+	public double getGraphicsSizeY(){
+		return this.graphicSizePercentY;
 	}
 	
 	public void setGraphicAngle( double angle ){

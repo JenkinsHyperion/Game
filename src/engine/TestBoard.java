@@ -82,7 +82,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     		}
     		public void mouseReleased() {
     			
-    			PlantTwigSegment sprout = new PlantTwigSegment( 
+    			PlantTwigSegment.StemSegment sprout = new PlantTwigSegment.StemSegment( 
       				camera.getLocalX( (int)dragLine.getX1() ), 
       				camera.getLocalY( (int)dragLine.getY1() ),
       				100,
@@ -90,6 +90,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
       			);
     			sprout.name = "Seed";
     			sprout.debugMakeWaterSource();
+    			sprout.debugSetSugarLevel(700);
       			
       			int angle = 0;
       			

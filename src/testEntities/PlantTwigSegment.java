@@ -3,9 +3,6 @@ package testEntities;
 import java.awt.Color;
 import java.awt.Point;
 import java.util.concurrent.ThreadLocalRandom;
-
-import com.sun.javafx.sg.prism.GrowableDataBuffer;
-
 import engine.ReferenceFrame;
 import engine.TestBoard;
 import entities.*;

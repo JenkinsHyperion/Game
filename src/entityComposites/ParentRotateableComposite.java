@@ -18,7 +18,7 @@ public class ParentRotateableComposite extends ParentComposite implements Rotate
 		if ( ownerEntity.getAngularComposite().exists() ){
 			AngleComposite angularParent = (AngleComposite) ownerEntity.getAngularComposite();
 		
-			ChildComposite childComposite = new ChildComposite(child , children.size() , ownerEntity.getPosition() , angularParent.getAngle() );
+			ChildComposite.Rotateable childComposite = new ChildComposite.Rotateable(child , children.size() , ownerEntity.getPosition() , angularParent.getAngle() );
 			child.childComposite = childComposite;
 			children.add( childComposite );
 		}else{

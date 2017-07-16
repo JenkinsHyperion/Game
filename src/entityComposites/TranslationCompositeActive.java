@@ -66,6 +66,10 @@ public class TranslationCompositeActive extends TranslationComposite implements 
     	return dy;
     }
     @Override
+    public Vector getVelocityVector(){
+    	return new Vector( dx , dy );
+    }
+    @Override
     public void setDX(double setdx) {
     	dx = setdx;
     }
@@ -276,12 +280,12 @@ public class TranslationCompositeActive extends TranslationComposite implements 
     	int indexID = forces.size();     	
     	Force newForce = new Force( vector , indexID );
     	forces.add( newForce ) ;
-    	System.out.print("Adding Force "+ indexID+" ... ");
+    	//System.out.print("Adding Force "+ indexID+" ... ");
     	return newForce;
     }
     @Override
     public void removeForce(int index){ 
-    	System.out.print("Removing Force "+ index+" ... ");
+    	//System.out.print("Removing Force "+ index+" ... ");
 
 	    for ( int i = index+1 ; i < forces.size() ; i++) {
 	    	forces.get(i).indexShift();

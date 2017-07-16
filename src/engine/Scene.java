@@ -30,11 +30,11 @@ public class Scene {
 		if (ownerBoard.editorPanel != null)
 			ownerBoard.editorPanel.refreshTree();
 		boolean updateableEntity = false;
-		System.out.println(I+"Adding Entity ["+entity+"] to Current Scene, slot "+entityList.size());
+		System.out.println(I+"ADDING ENTITY ["+entity+"] to Current Scene, index "+entityList.size());
 		//ADD ENTITY TO SCENES MASTER ENTITY LIST
 		addEntityToList(entity,(byte) 0);
 		
-		I = I+"|  ";//temporary visual indentation for console output
+		I = I+"|   ";//temporary visual indentation for console output
 		
 		//RUN THROUGH AND ADD UPDATEABLE COMPOSITES TO UPDATER LIST
 		///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,9 +43,9 @@ public class Scene {
 			UpdateableComposite trans = (UpdateableComposite) entity.getTranslationComposite();
 			updateableEntity = true;
 			if ( trans.addCompositeToUpdater(ownerBoard) ){
-				System.out.println( I+"Adding dynamic translation composite to updater thread");
+				System.out.println( I+"Adding dynamic translation composite to updater");
 			}else
-				System.out.println( I+"Dynamic translation composite already in updater thread");
+				System.err.println( I+"Dynamic translation composite was not added to updater");
 		}
 		
 		//ROTATION 
@@ -85,7 +85,7 @@ public class Scene {
 			
 		}else{System.out.println(I+"No collider detected"); }
 		
-		if ( entity.hasUpdateables() ){
+		/*if ( entity.hasUpdateables() ){
 			System.out.println(I+"Collecting updateables");
 			updateableEntity = true;
 			UpdateableComposite[] updateables = entity.getUpdateables();
@@ -94,7 +94,7 @@ public class Scene {
 					this.addEntity( (EntityStatic)updateable  );
 				}
 			}
-		}
+		}*/
 		
 		if ( updateableEntity ){
 			entity.addToUpdater(ownerBoard);
@@ -102,7 +102,7 @@ public class Scene {
 		}
 
 		if( !I.isEmpty() )
-			I = I.substring(3);
+			I = I.substring(4);
 
 		
 		System.out.println( I+"----\n");

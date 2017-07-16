@@ -45,10 +45,11 @@ public class CompositeFactory {
 		entity.updateablesList.add(rotation);
 	}
 	
-	public static void addTranslationTo( EntityStatic entity ){
+	public static TranslationCompositeActive addTranslationTo( EntityStatic entity ){
 		TranslationCompositeActive trans = new TranslationCompositeActive();
 		entity.setTranslationComposite( trans );
 		entity.updateablesList.add(trans);
+		return trans;
 	}
 	@Deprecated
 	public static void flyweightTranslation( EntityStatic parent, EntityStatic child ){

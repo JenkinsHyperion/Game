@@ -9,6 +9,7 @@ import engine.BoardAbstract;
 import engine.ReferenceFrame;
 import engine.MovingCamera;
 import engine.Overlay;
+import engine.OverlayComposite;
 import entityComposites.Collider;
 import sprites.RenderingEngine;
 import utility.DoubleLinkedList;
@@ -20,13 +21,15 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 	private Graphics2D gOverlay;
 	private MovingCamera camera;
 	
+	private OverlayComposite overlayComposite;
+	
 	private ArrayList<Line2D> linesList = new ArrayList<Line2D>();
 	
 	public VisualCollisionEngine(BoardAbstract testBoard , RenderingEngine renderer) {
 		super(testBoard);
 
 		this.renderer = renderer;
-		renderer.quickAddOverlay(this);
+		this.overlayComposite = renderer.addOverlay(this);
 		
 		this.gOverlay = renderer.debugGetOverlayGraphics();
 

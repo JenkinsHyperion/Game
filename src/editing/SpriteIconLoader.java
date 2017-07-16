@@ -47,13 +47,13 @@ public class SpriteIconLoader extends JFrame {
     		try {
     			fileArray = new File(realImagesDir + File.separator).listFiles();
     			realImageFileNames = new String[fileArray.length];
-    			System.out.println("fileArray's length: " + fileArray.length);
+    			//System.out.println("fileArray's length: " + fileArray.length);
     			for (int i = 0; i < fileArray.length; i++) {
     				/*fileIn = new FileInputStream(realImagesDir + File.separator + "SpriteHotSwap" + File.separator +
     						fileArray[i].getName());
     				fileIn.close();*/
     				realImageFileNames[i] = fileArray[i].getName();
-    				System.out.println(fileArray[i].getName());
+    				//System.out.println(fileArray[i].getName());
     			}
     		}
     		 catch (Exception f) {
@@ -122,7 +122,7 @@ public class SpriteIconLoader extends JFrame {
     };
     
     /**
-     * Creates an ImageIcon if the path is valid.
+     * Creates an ImageIcon if the path is valid, returns null if path is invalid.
      * @param String - resource path
      * @param String - description of the file
      */
@@ -130,11 +130,11 @@ public class SpriteIconLoader extends JFrame {
 
     	File newFile = new File(path);
         if ( newFile.exists() ) {
-        	System.out.println("This path exists: " + path);
+        	//System.out.println("This path exists: " + path);
 
             return new ImageIcon(path);
         } else {
-            System.err.println("Couldn't find file: " + path);
+            //System.err.println("Couldn't find file: " + path);
             return null;
         }
     }

@@ -9,10 +9,7 @@ import java.util.ArrayList;
 
 import engine.*;
 import entities.*;
-import entityComposites.Collider;
-import entityComposites.EntityStatic;
-import entityComposites.TranslationComposite;
-import entityComposites.TranslationCompositeActive;
+import entityComposites.*;
 import misc.DefaultCollisionEvent;
 import physics.Collision;
 import sprites.RenderingEngine;
@@ -61,8 +58,8 @@ public class VisualCollisionDynamicStatic extends Collision {
 		//updateCollision(); //Run math for first time OPTIMIZE, Add new code block for first time math
 
 		System.out.println(
-				"\n\n=============== Collision Start between dynamic ["+entityPrimary + 
-				"] and static [" + entitySecondary + "]s ==============="
+				"\n\n=============== Visual Dynamic Collision Start between dynamic ["+entityPrimary + 
+				"] and static [" + entitySecondary + "] ==============="
 				);
 		
 		// Things like bullets won't need to go any futher than the initial method
@@ -74,7 +71,9 @@ public class VisualCollisionDynamicStatic extends Collision {
 	public void updateCollision(){ 
 
 		Resolution closestResolution = getClosestResolution();
-		TranslationComposite dynamic = entityPrimary.getTranslationComposite();
+		
+		TranslationComposite dynamicPrimary = entityPrimary.getTranslationComposite(); //OPTIMIZE See about moving to initialization
+		AngularComposite angularPrimary = entityPrimary.getAngularComposite();
 		
 		if ( //TODO
 				(	/*(int)closestResolution.getDistanceVector().getY()-(int)entityPrimary.getDY() != 0  
@@ -85,7 +84,7 @@ public class VisualCollisionDynamicStatic extends Collision {
 					&&*/ closestResolution.getClippingVector().getX() != 0 
 				)
 				
-		) { //Primary Entity is clipping by closestResolution.vector() 
+		) { //CLIPPING UPDATING
 					
 			entityPrimary.getTranslationComposite().setColliding(false);
 			System.out.println( "\n[ "+closestResolution.FeaturePrimary() + " on " + entityPrimary +
@@ -96,22 +95,31 @@ public class VisualCollisionDynamicStatic extends Collision {
 			
 			depthX = resolution.getX();
 			depthY = resolution.getY();
-			
-			//System.out.print("Snapping entity by "+ depthX +" , "+ depthY + " ... ");
-			
-			//entityPrimary.setX( entityPrimary.getDeltaX() + (int)depthX  );
-			//entityPrimary.setY( entityPrimary.getDeltaY()  + (int)depthY );
 
 			closestResolution.FeaturePrimary().getEvent().run(closestResolution.FeaturePrimary(), closestResolution.FeatureSecondary() );
 			
 			//TODO GET NORMAL FROM BOUDNARY FEATURE INSTEAD
-			 
+
+			System.out.println("Will clip by "+ depthX +" , "+ depthY + " ... ");
+			
+			dynamicPrimary.clipDX(depthX);
+			dynamicPrimary.clipDY(depthY);
+
+			normalForce.setVector( 0,-0.2 );
+			//normalForce.setVector( new Vector(0,-0.2) );
+		}
+		
+		else { //RESOLVED UPDATING
+
+			//entityPrimary.getTranslationComposite().setColliding(true); //MOVE TO RESOLVED UPDATE CLASS JUST LIKE RESOLUTION EVENT
+			
 			if ( closestResolution.FeatureSecondary().debugIsSide() ){
-				Vector slope = ((Side)closestResolution.FeatureSecondary()).getSlopeVector().normalLeft();
-				Vector normal = new Vector(0,-0.2).projectedOver(slope);
+				Vector slope = ((Side)closestResolution.FeatureSecondary()).getSlopeVector().unitVector();
+				Vector normal = new Vector(0,-0.2);
 				normalForce.setVector( normal );
+
+				friction.setVector( dynamicPrimary.getVelocityVector().projectedOver(slope).inverse().multiply(0.01) );
 				
-				dynamic.addVelocity( new Vector(depthX,depthY) );
 			}
 			else if ( closestResolution.FeatureSecondary().debugIsVertex() ){
 				
@@ -123,28 +131,6 @@ public class VisualCollisionDynamicStatic extends Collision {
 				normalForce.setVector( 0,-0.2 );
 			}
 
-				System.out.println("Will clip by "+ depthX +" , "+ depthY + " ... ");
-
-				
-		}
-		
-		else { 
-
-			//entityPrimary.getTranslationComposite().setColliding(true); //MOVE TO RESOLVED UPDATE CLASS JUST LIKE RESOLUTION EVENT
-
-			if ( closestResolution.FeatureSecondary().debugIsSide() ){
-				Vector surface = ((Side)closestResolution.FeatureSecondary()).getSlopeVector();
-				Vector playerDP = new Vector( entityPrimary.getTranslationComposite().getDX(), entityPrimary.getTranslationComposite().getDY() );
-				//friction.setVector(   playerDP.projectedOver( surface.unitVector() ).multiply(0.1).inverse()   );
-				double frictionCoefficient = normalForce.force.getLength() * 0.5 ;
-				
-				//friction.setVector( playerDP.inverse().signumVector().multiply( surface.unitVector().multiply( frictionCoefficient ) ).projectedOver(surface) );
-				//Vector velocity = new Vector( dynamic.getDX(),dynamic.getDY() );
-				
-				//dynamic.setVelocityVector( velocity.projectedOver(surface) );
-				
-				
-			}
 			else{
 				System.err.println("DROPPED SIDE");
 			}

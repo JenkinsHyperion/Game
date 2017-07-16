@@ -171,4 +171,8 @@ public class TranslationComposite implements EntityComposite{
 	public String toString() {
 		return this.getClass().getSimpleName();
 	}
+
+	public Vector getVelocityVector() {
+		return new Vector(0,0);
+	}
 }

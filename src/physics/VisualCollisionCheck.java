@@ -62,9 +62,6 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 			boolean isColliding = true;
 			final Boundary statBounds = collidableSecondary.getBoundaryLocal();
 		    final Boundary playerBounds = collidablePrimary.getBoundaryDelta();
-
-
-		    //statBounds.drawVoronoiRegions(collidablePrimary.getOwnerEntity(),camera,g2);
 	
 		    Point2D playerCenter = new Point2D.Double(collidablePrimary.getOwnerEntity().getX(), collidablePrimary.getOwnerEntity().getY());
 		    Point2D statCenter = new Point2D.Double(collidableSecondary.getOwnerEntity().getX(), collidableSecondary.getOwnerEntity().getY());

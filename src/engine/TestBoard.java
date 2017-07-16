@@ -115,7 +115,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     	});
     	
     	initBoard();
-    	initializeBoard();
+    	postInitializeBoard();
     }
 
 

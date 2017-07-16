@@ -104,7 +104,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 	    
 	}
 	
-	protected void initializeBoard(){
+	protected void postInitializeBoard(){
 		
 		updateEntitiesTimer = new java.util.Timer();
 	     TimerTask updateEntitiesTask = new TimerTask() {

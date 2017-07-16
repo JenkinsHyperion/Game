@@ -187,7 +187,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
         });
         
         
-    	initializeBoard();
+    	postInitializeBoard();
 	}
 
 	//INPUT CONTROL

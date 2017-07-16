@@ -63,7 +63,7 @@ public class Board extends BoardAbstract {
     	super(width,height);
     	
     	initBoard();
-    	initializeBoard();
+    	postInitializeBoard();
     }
     //over loaded board constructor to accept SidePanel (editor) if editor is to be enabled
 
@@ -72,12 +72,13 @@ public class Board extends BoardAbstract {
     	//INITIALIZE RENDERING
     	this.renderingEngine = new RenderingEngine( this );
     	
-    	this.camera = renderingEngine.getCamera();
+    	this.camera = renderingEngine.getCamera(); 
     	this.debugBoundaries = renderingEngine.addOverlay( new DebugBoundaryOverlay() );
-    	this.diagnosticsOverlay = renderingEngine.addOverlay( new DiagnosticsOverlay() );
+
+    	//this.diagnosticsOverlay = renderingEngine.addOverlay( new DiagnosticsOverlay() );
     	
     	
-    	collisionEngine = new CollisionEngine(this); 
+    	collisionEngine = new VisualCollisionEngine(this , this.renderingEngine ); 
     	
     	
         myMouseHandler = new MouseHandlerClass();
@@ -107,6 +108,7 @@ public class Board extends BoardAbstract {
         collisionEngine.addDynamicCollidable( player.getColliderComposite() );
         renderingEngine.addSpriteComposite( player.getGraphicComposite() );
 
+        currentScene.addEntity( player ); 
   
         EntityStatic testEntity;
         
@@ -119,7 +121,7 @@ public class Board extends BoardAbstract {
 		testEntity = EntityFactory.createEntityFromBoundary(300, 500, triangleBounds );
 		testEntity.name = "Test Slope";
 		CompositeFactory.addGraphicFromCollider( testEntity , testEntity.getColliderComposite() );
-		currentScene.addEntity( testEntity );   
+		//currentScene.addEntity( testEntity );   
 
 		//renderingEngine.addSpriteComposite( testEntity.getSpriteType() );
         
@@ -139,7 +141,7 @@ public class Board extends BoardAbstract {
         CompositeFactory.addGraphicTo(testEntity, new SpriteStillframe("ground_1.png" , -223 , -53 ));
         CompositeFactory.addTranslationTo( testEntity );
         //renderingEngine.addSpriteComposite( testEntity.getSpriteType() );
-        currentScene.addEntity( testEntity );
+        //currentScene.addEntity( testEntity );
         testEntity.getTranslationComposite().setDY(-0.1f);
         //currentScene.addEntity(new EntityPhysics(120,260,"box.png"));
         //dynamicEntitiesList.add(new Bullet(100,100,1,1));
@@ -246,8 +248,6 @@ public class Board extends BoardAbstract {
     // Update position and Graphic of Player
     private void updatePlayer() { 
 
-        player.updatePosition();
-        
 		player.getEntitySprite().getAnimation().update();
     }
     
@@ -403,13 +403,14 @@ public class Board extends BoardAbstract {
 		        
 		        g2.setColor(Color.GRAY);
 			    g2.drawString("Entities: "+ currentScene.listEntities().length + " , Collidables:"+
-			    		collisionEngine.debugNumberofStaticCollidables() ,5,15);
-			    g2.drawString("DX: "+player.getDX() + " DY: " + player.getDY(),5,30);
-			    g2.drawString("AccX: " + player.getAccX() + "  AccY: " + player.getAccY(),5,45);
-			    g2.drawString("Rotation: " + (int)player.getAngle() + " degrees " + player.getAngularVel() + " " + player.getAngularAcc(),5,60);
-			    g2.drawString("State: "+ ((PlayerCharacter)player).printState() + "Colliding: " + player.isColliding(),5,75);
+			    		collisionEngine.debugNumberofStaticCollidables() +" + "+
+			    		collisionEngine.debugNumberofDynamicCollidables() ,5,15);
+			    g2.drawString("DX: "+player.getTranslationComposite().getDX() + " DY: " + player.getTranslationComposite().getDY(),5,30);
+			    g2.drawString("AccX: " + player.getTranslationComposite().getAccX() + "  AccY: " + player.getTranslationComposite().getAccY(),5,45);
+			    g2.drawString("Rotation: " + (int)player.getAngularComposite().getAngle() + " degrees " + player.getRotationComposite().getAngularVel() + " " + player.getRotationComposite().getAngularAcc(),5,60);
+			    g2.drawString("State: "+ ((PlayerCharacter)player).printState() + "Colliding: TODO" ,5,75);
 			    g2.drawString( ((PlayerCharacter)player).printBufferState() ,5,90 );
-			        
+
 			    //Draw player bounding box
 		
 			    g2.setColor(Color.CYAN);
@@ -422,7 +423,7 @@ public class Board extends BoardAbstract {
 			    
 			    for (Collider collider : collisionEngine.debugListActiveColliders() ){
 			    	
-			    	collider.getBoundaryLocal().debugDrawBoundary(camera , g2, null);
+			    	collider.getBoundaryLocal().debugDrawBoundary(camera , g2, collider.getOwnerEntity() );
 			    	camera.drawCrossInWorld( collider.getOwnerEntity().getPosition());
 			    	
 			    }

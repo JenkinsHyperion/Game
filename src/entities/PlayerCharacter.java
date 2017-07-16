@@ -14,10 +14,7 @@ import Input.MouseCommand;
 
 import animation.*;
 import engine.BoardAbstract;
-import entityComposites.Collider;
-import entityComposites.Collider;
-import entityComposites.CompositeFactory;
-import entityComposites.GraphicComposite;
+import entityComposites.*;
 import physics.Force;
 import physics.Side;
 import physics.Vector;
@@ -44,13 +41,16 @@ public class PlayerCharacter extends Player {
 	private Force movementForce ;
 	private Force gravity ;
 	
+	private TranslationComposite translation = CompositeFactory.addTranslationTo(this);
+	private AngularComposite angular = this.getAngularComposite();
+	
 	private Side ground;
 	
     private final SpriteAnimated RUN_RIGHT = new SpriteAnimated( "RunRight.png", spriteOffsetX , spriteOffsetY,
-    		16, 0, 75, 75, 2 );
+    		16, 0, 75, 75, 6 );
     		
     private final SpriteAnimated RUN_LEFT = new SpriteAnimated( "Run_75px.png" , spriteOffsetX , spriteOffsetY,
-    		16, 0, 75, 75 ,2 );
+    		16, 0, 75, 75 ,6 );
     
     private final SpriteAnimated SPRINT_LEFT = new SpriteAnimated( "SprintLeft2.png" , spriteOffsetX , spriteOffsetY,
     		10, 0, 75, 75 , 3);
@@ -58,11 +58,11 @@ public class PlayerCharacter extends Player {
     		10, 0, 75, 75 , 3);
     
     private final SpriteAnimated IDLE_RIGHT = new SpriteAnimated( "IdleLeft.png" , spriteOffsetX , spriteOffsetY,
-    		2, 0, 75, 75, 18);
+    		2, 0, 75, 75, 60);
     
     //
     private final SpriteAnimated IDLE_LEFT = new SpriteAnimated("IdleLeft.png" , spriteOffsetX , spriteOffsetY,
-    		2, 0, 75, 75 , 18);
+    		2, 0, 75, 75 , 60);
     
     private final SpriteAnimated CLIMB_LEFT = new SpriteAnimated( "climbSpritesheet.png" , spriteOffsetX-40 , spriteOffsetY-55,
     		18, 0, 100,165,3);
@@ -110,7 +110,7 @@ public class PlayerCharacter extends Player {
         //SpriteComposite spirteComp = new SpriteComposite( IDLE_LEFT , this);
         //this.setSpriteType(spirteComp);
         CompositeFactory.addGraphicTo( this , IDLE_LEFT);
-
+        
         // COLLIDER COMPOSITE
         // Making many custom events for player contexts
         CollisionEvent floorCollisionEvent = new DefaultCollisionEvent(  );
@@ -128,62 +128,14 @@ public class PlayerCharacter extends Player {
         Boundary boundarytemp =  new BoundaryPolygonal.EnhancedBox( 24,76 ,-12,-38, eventList );
         //Boundary boundarytemp2 = new BoundarySingular();
         Boundary boundarytemp3 = new BoundaryCircular(40,this);
-        
-        CollisionEvent cornerCollision = new CollisionEvent(){
-			
-			@Override 
-			public void run(BoundaryFeature source, BoundaryFeature collidingWith) {
-			
-				//SNAPPING ANGLE TO SIDE 
-				ground = (Side) collidingWith;
-				
-
-				BoundaryCorner corner = ((BoundaryCorner)source);
-				
-				Vector sub = corner.getCCWSide().getSlopeVector().subtract( corner.getCWSide().getSlopeVector() );
-				
-				Vector slope1 = corner.getCCWSide().getSlopeVector();
-				Vector slope2 = corner.getCWSide().getSlopeVector();
-				
-				//BoundaryVertex rawCorner = ((BoundaryPolygonal)getColliderComposite().getBoundary()).getRawVertex( corner.getID() );
-
-				Vector slopeGround = ground.getSlopeVector();
-
-				
-				double dist1 = slope1.unitVector().dotProduct(ground.getSlopeVector());
-				double dist2 = slope2.unitVector().dotProduct(ground.getSlopeVector());
-	
-				double ground = slopeGround.angleFromVectorInRadians();
-							
-					if ( Math.abs(dist2) > Math.abs(dist1) ){ //only works for rectangles
-						//Counterclockwise side is leaning at a closer angle to the surface
-						double rawSide2 = storedBounds.getRawSide( corner.getCWSide().getID() ).getSlopeVector().absSlope().angleFromVectorInRadians();
-						//System.out.println("snapping CCW to "+Math.toDegrees(ground) );
-						//System.out.println("snapping CCW to "+Math.toDegrees(rawSide2) );
-						PlayerCharacter.this.setAngleInRadians( ground + rawSide2 );
-					}
-					else{
-						//Clockwise side is leaning at a closer angle to the surface
-						double rawSide1 = storedBounds.getRawSide( corner.getCCWSide().getID() ).getSlopeVector().absSlope().angleFromVectorInRadians();
-						//System.out.println("snapping CW to "+Math.toDegrees(ground));
-						//System.out.println("snapping CW to "+Math.toDegrees(rawSide1) );
-						PlayerCharacter.this.setAngleInRadians( ground + rawSide1 );
-					}
-			 
-			}
-		};
 		
-		for ( BoundaryVertex corner : boundarytemp.getCornersVertex() ){
+		/*for ( BoundaryVertex corner : boundarytemp.getCornersVertex() ){
 			corner.setCollisionEvent( cornerCollision );
-		}
+		}*/
         
-		CompositeFactory.addColliderTo( this , boundarytemp3 );
+		CompositeFactory.addColliderTo( this , boundarytemp );
 		
         this.getColliderComposite().setLeavingCollisionEvent( new OnLeavingCollision() );
-
-		//((Collider) collisionType).setBoundary( boundarytemp3 ); 
-		storedBounds = new BoundaryPolygonal.Box(24,76 ,-12,-38 );   //OPTIMIZE move to child RotationalCollidable that can store boundary 
-
 		
 		//dispose of all the temp stuff
 		boundarytemp = null;
@@ -201,22 +153,19 @@ public class PlayerCharacter extends Player {
 		this.inputController.createMouseBinding(MouseEvent.ALT_MASK , MouseEvent.BUTTON1, new ClickTest() );
 		
 		// ADD FORCES // TO BE MOVED TO EXTERNAL BOARD AND OR FEILDS
-		this.gravity = addForce( new Vector( 0 , 0.2 ) );
-		this.movementForce = addForce( new Vector( 0 , 0 ) );
+		this.gravity = this.translation.addForce( new Vector( 0 , 0.2 ) );
+		this.movementForce = this.translation.addForce( new Vector( 0 , 0 ) );
 		
     }
     
   
     
     @Override
-    public void updatePosition() {// SPLIT INTO GENERAL UPDATE BETWEEN INPUT AND POSITION
-    	super.updatePosition();
+    public void updateComposite() {// SPLIT INTO GENERAL UPDATE BETWEEN INPUT AND POSITION
+    	super.updateComposite();
     	playerState.updateState();
-    	
-    	//TESTING FORCES
-    	//this.accX = (float) this.sumOfForces().getX();
-    	//this.accY = (float) this.sumOfForces().getY();
-    	this.applyAllForces();
+ 
+    	//this.applyAllForces();
     	
     }   
     
@@ -346,7 +295,7 @@ public class PlayerCharacter extends Player {
 		@Override
 		public void onJump() {
 			//setDY(-5);
-			addVelocity(ground.getSlopeVector().normalRight().inverse().unitVector().multiply(5));
+			translation.addVelocity(ground.getSlopeVector().normalRight().unitVector().multiply(5));
 			playerStateBuffer = running;
 			//changePlayerState(fallingLeft); //later to be jum;ping
 		}
@@ -376,7 +325,7 @@ public class PlayerCharacter extends Player {
     		@Override
     		public void update(){ 
     			
-    			float runningForce = 0.1f * ( 3 - Math.abs(dx) ) ;
+    			double runningForce = 0.1f * ( 3 - Math.abs(translation.getDX()) ) ;
     			
     			if (runningForce < 0){ runningForce = 0;}
     			
@@ -395,7 +344,7 @@ public class PlayerCharacter extends Player {
     		@Override
     		public void update(){
     			movementForce.setVector(0,0);
-    			if ( Math.abs(dx) < 0.1 ){
+    			if ( Math.abs(translation.getDX()) < 0.1 ){
     				changePlayerState(standing);
     			}
     		} 
@@ -429,7 +378,7 @@ public class PlayerCharacter extends Player {
 		
 		@Override
 		public void onJump() {
-			addVelocity(ground.getSlopeVector().normalRight().inverse().unitVector().multiply(5));
+			translation.addVelocity(ground.getSlopeVector().normalRight().unitVector().multiply(5));
 			playerStateBuffer = running;
 			changePlayerState(fallingLeft); //later to be jum;ping
 			movementForce.setVector(0,0);
@@ -495,12 +444,12 @@ public class PlayerCharacter extends Player {
 
 		@Override
 		public void updateState() {
-			dx = playerDirection.normalize(5);
+			translation.setDX( playerDirection.normalize(5) );
 		}
 		
 		@Override
 		public void onJump() {
-			setDY(-3);
+			translation.setDY(-3);
 		}
 		
 		@Override
@@ -560,14 +509,14 @@ public class PlayerCharacter extends Player {
     	
 		public Falling( String name , Sprite spriteRight , Sprite spriteLeft) {
 			super( name , spriteRight , spriteLeft);
-			adjustUpForce = addForce( new Vector( 0 , 0 ) );
-			adjustForwardForce = addForce( new Vector( 0 , 0 ) );
-			adjustBackwardForce = addForce( new Vector( 0 , 0 ) );
+			adjustUpForce = translation.addForce( new Vector( 0 , 0 ) );
+			adjustForwardForce = translation.addForce( new Vector( 0 , 0 ) );
+			adjustBackwardForce = translation.addForce( new Vector( 0 , 0 ) );
 		}
 		
 		@Override
 		public void onEnteringState() {
-			accX = 0;
+			translation.setAccX( 0 );
 			movementForce.setVector( 0, 0);
 		}
 		
@@ -592,7 +541,7 @@ public class PlayerCharacter extends Player {
 		
 		@Override
 		public void holdingJump() {
-			this.adjustUpForce.setVector( orientation.unitVector().normalRight().multiply( hangAccelerationUp) );
+			//this.adjustUpForce.setVector( orientation.unitVector().normalRight().multiply( hangAccelerationUp) );
 		}
 		
 		@Override
@@ -608,7 +557,7 @@ public class PlayerCharacter extends Player {
 		
 		public void holdingForward() {
 			playerStateBuffer = running;
-			this.adjustForwardForce.setVector( orientation.unitVector().multiply( playerDirection.normalize(hangAccelerationForward) ) );
+			//this.adjustForwardForce.setVector( orientation.unitVector().multiply( playerDirection.normalize(hangAccelerationForward) ) );
 		}
 		
 		@Override
@@ -620,7 +569,7 @@ public class PlayerCharacter extends Player {
 		@Override
 		public void holdingBackward() {
 			playerStateBuffer = standing;
-			this.adjustBackwardForce.setVector( orientation.unitVector().inverse().multiply( playerDirection.normalize(hangAccelerationBackward) ) );
+			//this.adjustBackwardForce.setVector( orientation.unitVector().inverse().multiply( playerDirection.normalize(hangAccelerationBackward) ) );
 		}
 		
 		@Override
@@ -660,7 +609,7 @@ public class PlayerCharacter extends Player {
 		@Override
 		public void updateState() {
 			if (clinging){
-				dy = 0.5f;
+				translation.setDY( 0.5 );
 			}
 		}
 		
@@ -669,8 +618,8 @@ public class PlayerCharacter extends Player {
 			
 
 			changeDirection();
-			dx = playerDirection.normalize(2);
-			dy = dy-5;
+			translation.setDX( playerDirection.normalize(2) );
+			translation.setDY( translation.getDY()-5 );
 			
 		}
 		
@@ -681,7 +630,7 @@ public class PlayerCharacter extends Player {
 		
 		@Override
 		public void onDown() {
-			accY = 0.2f;
+			translation.setAccY( 0.2f );
 			clinging = false;
 		}
     	
@@ -696,7 +645,7 @@ public class PlayerCharacter extends Player {
     	
 		@Override
 		public void onEnteringState() {
-			halt();
+			translation.halt();
 			gravity.setVector(0,0);
 		}
 		

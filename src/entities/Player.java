@@ -7,8 +7,9 @@ import Input.InputController;
 //import javax.swing.Timer;
 
 import engine.BoardAbstract;
+import entityComposites.EntityStatic;
 
-public class Player extends EntityRotationalDynamic {
+public class Player extends EntityStatic {
 
 	protected transient BoardAbstract board;
 	
@@ -27,14 +28,11 @@ public class Player extends EntityRotationalDynamic {
     //INPUT CONTROL
     
     public InputController inputController = new InputController("Player controller");
-    
-    @Override
-    public void updatePosition() {//Override friction forces while running 
-    	super.updatePosition();
-    	
 
-    }   
-    
+    @Override
+    public void updateComposite() {
+    	super.updateComposite();
+    }
 
     public String toString() {
 		return String.format(name);

@@ -284,9 +284,9 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	public void addToUpdater( BoardAbstract board){
 		if ( !updaterSlot.isActive() ){
 			this.updaterSlot = board.addEntityToUpdater(this);
-			System.out.println("Added "+this.name+" to updater");
+			System.out.println("Added entity ["+this.name+"] to updater");
 		}else{
-			System.err.println("Warning: "+this.name+" is already in updater");
+			System.err.println("Warning: ["+this.name+"] is already in updater");
 		}
 
 	}

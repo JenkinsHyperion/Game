@@ -132,7 +132,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	private JLabel mousePosLabel;
 	private JLabel entityCoordsLabel;
 	private JLabel selectedEntityNameLabel;
-	private JTree tree;
+	//private JTree tree;
 	protected JLabel tempSpriteName = new JLabel("");
 	protected JLabel spriteHotSwapLabel = new JLabel();
 	protected JComboBox<String> allEntitiesComboBox;
@@ -153,7 +153,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	
 //	Panels
 	private JPanel entitiesComboBoxPanel;
-	private JPanel treePanel;
+	//private JPanel treePanel;
+	private BrowserTreePanel browserTreePanel;
 	private JPanel labelsPanel;
 	private JPanel buttonPanel;
 	private JPanel propertyPanelTest;
@@ -417,15 +418,9 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		//separator.setPreferredSize(new Dimension(150,3));
 		
 		
-		tree = new JTree(new DefaultMutableTreeNode("Scenes"));
-		refreshTree();
-		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		tree.addTreeSelectionListener(new TreeSelectionEventHandler());
-		tree.setFocusable(false);
-		treePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		treePanel.add(tree);
-		treePanel.setFocusable(false);
-		JScrollPane treeScrollPane = new JScrollPane(treePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		browserTreePanel = new BrowserTreePanel(new BorderLayout(),this, board);
+//		browserTreePanel = new BrowserTreePanel(new FlowLayout(FlowLayout.LEFT),this,board);
+		JScrollPane treeScrollPane = new JScrollPane(browserTreePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		treeScrollPane.setFocusable(false);
 		treeScrollPane.setPreferredSize(new Dimension(220,200));
 		treeScrollPane.getVerticalScrollBar().setUnitIncrement(50);
@@ -456,7 +451,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		allEntitiesComboBox = new JComboBox<>(staticEntityStringArr);
 		allEntitiesComboBox.setPreferredSize(allEntitiesComboBoxDefSize);
 		allEntitiesComboBox.setFocusable(false);
-		
 		allEntitiesComboBox.setSelectedIndex(0); //give it a default value
 		
 		allEntitiesComboBox.addActionListener(new EntitiesComboBoxActionHandler());
@@ -550,34 +544,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			}
 		}	
 	} //end of EntitiesComboBoxActionHandler inner class
-	public class TreeSelectionEventHandler implements TreeSelectionListener{
-		@Override
-		public void valueChanged(TreeSelectionEvent e) {
-			DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
-			DefaultMutableTreeNode testNode = (DefaultMutableTreeNode)e.getPath().getLastPathComponent();
-			System.err.println("Debug test-- in TreeSelectionListener, e.getPath();.getLastPathComponent() will \n"
-					+ "return this: " + testNode);
-			//this is still in raw Object format. Must be cast
-			if (currentNode == null) return;
-			Object objectInsideNode = currentNode.getUserObject();
-			if (objectInsideNode instanceof Entity) {
-				EntityStatic nodeIsEntity = (EntityStatic)objectInsideNode;
-				System.out.println("*** IS AN ENTITY ***");
-				setMode(getEntitySelectMode());
-				selectSingleEntityGUIHouseKeeping();
-				//sets Board's current entity
-				entitySelectMode.addSelectedEntity(nodeIsEntity);
-			}
-			else if (objectInsideNode instanceof EntityComposite) {
-				System.out.println("*** IS A COMPOSITE ***");
-				if (objectInsideNode instanceof TranslationComposite) {
-					System.out.println("*** IS TRANSLATEABLECOMPOSITE ***");
-				}
-			}
-			System.err.println("Name of object in mode using its toString() method: " + objectInsideNode);
-
-		}	
-	} //end of EntitiesComboBoxActionHandler inner class
+	
 	
 	// ########## MOUSE HANDLING SECTION ##############
 	public void mousePressed(MouseEvent e) {
@@ -617,68 +584,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	}
     //END OF KEYHANDLING SECTION 
 	
-	//TREE SECTION
-	/**
-	 * Note** Only creates the current entity node. Doesn't create the main "Entities" folder in the same way that {@link #createCompositesNodeFolder(EntityStatic)} does.
-	 * @param entity The entity that will be stored in this corresponding node.
-	 * @return The branch node for the current entity. Also contains "Composites" and may contain more branches for its children*/
-	private DefaultMutableTreeNode createSingleEntityNodeFolder(EntityStatic entity) {
-		DefaultMutableTreeNode currentEntityNode = new DefaultMutableTreeNode(entity);
-		//append Composites folder to Entities folder
-		currentEntityNode.add(createCompositesNodeFolder(entity));
-		//append Children folder to Entities folder
-		// FIXME ask Matt to make some utility functions for easily navigating parent/child relationship.
-		currentEntityNode.add(createChildrenNodeFolder(entity));
-		return currentEntityNode;
-	}
-	private <T> DefaultMutableTreeNode createEntireEntityNodeFolder(EntityStatic[] entityListRef) {
-		DefaultMutableTreeNode entireEntityFolder = new DefaultMutableTreeNode("Entities");
-		//will make as many folders(nodes) as there are Entities in the list parameter
-		int size = entityListRef.length;
-		DefaultMutableTreeNode currentFolder;
-		for (int i = 0; i < size; i++) {
-			currentFolder = createSingleEntityNodeFolder(entityListRef[i]);
-			entireEntityFolder.add(currentFolder);
-		}
-		return entireEntityFolder;
-	}
 	
-	/** @param entity The entity that contains the composites.
-	 * @return The branch node "Composites" that will contain the entity's composites */
-	private DefaultMutableTreeNode createCompositesNodeFolder(EntityStatic entity) {
-		DefaultMutableTreeNode newCompositesFolder = new DefaultMutableTreeNode("Composites");
-		EntityComposite[] entityCompositeArray = new EntityComposite[]{entity.getAngularComposite(), entity.getColliderComposite(),
-				entity.getGraphicComposite(), entity.getRotationComposite(), entity.getTranslationComposite() };
-		//create the leaf nodes from the array
-		for (int i = 0; i < entityCompositeArray.length; i++) {
-			newCompositesFolder.add(new DefaultMutableTreeNode(entityCompositeArray[i]));
-		}
-		return newCompositesFolder;
-	}
-	
-	private DefaultMutableTreeNode createChildrenNodeFolder(EntityStatic entity) {
-		DefaultMutableTreeNode newChildrenFolder = new DefaultMutableTreeNode("Children");
-		// TODO lots of work to do here
-		return newChildrenFolder;
-	}
-	public void refreshTree() {
-		try {
-			DefaultMutableTreeNode sceneTest = new DefaultMutableTreeNode("sceneTest");
-			DefaultMutableTreeNode sceneTest2 = new DefaultMutableTreeNode("sceneTest2");
-			DefaultMutableTreeNode entitiesRootFolder = createEntireEntityNodeFolder(board.listCurrentSceneEntities());
-			DefaultTreeModel defaultModel = (DefaultTreeModel) tree.getModel();
-			DefaultMutableTreeNode tempRoot = (DefaultMutableTreeNode)tree.getModel().getRoot();
-			tempRoot.removeAllChildren();
-			defaultModel.reload();
-			tempRoot.add(sceneTest);
-			tempRoot.add(sceneTest2);
-			sceneTest.add(entitiesRootFolder);
-			tree.expandPath(new TreePath(defaultModel.getPathToRoot(sceneTest)));
-			defaultModel.reload();
-		} catch (Exception e) {
-			System.err.println("Error possibly because tree was empty?");
-		}
-	}
 	@Deprecated
 	public void deselectAllEntities() {
   		//setCurrentSelectedEntity( EntityNull.getNullEntity() );
@@ -954,6 +860,9 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	}
 	public void setMode(ModeAbstract newMode) {
 		this.editorMode = newMode;
+	}
+	public BrowserTreePanel getBrowserTreePanel() {
+		return this.browserTreePanel;
 	}
 	public EntitySelectMode getEntitySelectMode() {
 		this.entitySelectMode.setMode(entitySelectMode.getDefaultMode());

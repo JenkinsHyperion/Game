@@ -80,7 +80,7 @@ public class CollisionDynamicStatic extends Collision {
 				
 		) { //Primary Entity is clipping by closestResolution.vector() 
 					
-			entityPrimary.getTranslationComposite().setColliding(false);
+			//entityPrimary.getTranslationComposite().setColliding(false);
 			System.out.println( "\n[ "+closestResolution.FeaturePrimary() + " on " + entityPrimary +
 					" ] colliding with [ " + closestResolution.FeatureSecondary() + " on " + entitySecondary
 					+" ]");
@@ -123,7 +123,7 @@ public class CollisionDynamicStatic extends Collision {
 		
 		else { 
 			
-			entityPrimary.getTranslationComposite().setColliding(true); //MOVE TO RESOLVED UPDATE CLASS JUST LIKE RESOLUTION EVENT
+			//entityPrimary.getTranslationComposite().setColliding(true); //MOVE TO RESOLVED UPDATE CLASS JUST LIKE RESOLUTION EVENT
 
 			if ( closestResolution.FeatureSecondary().debugIsSide() ){
 				Vector surface = ((Side)closestResolution.FeatureSecondary()).getSlopeVector();

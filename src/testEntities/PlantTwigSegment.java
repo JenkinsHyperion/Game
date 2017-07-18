@@ -88,7 +88,7 @@ public class PlantTwigSegment extends EntityStatic{
 			
 			protected void init( int percentMax){
 		
-				CompositeFactory.addAnonymousGraphicTo(this, new GraphicComposite(this){
+				CompositeFactory.addAnonymousGraphicTo(this, new GraphicComposite.Active(this){
 					@Override
 					public void draw(ReferenceFrame camera) {
 						camera.getGraphics().setColor(Color.CYAN);

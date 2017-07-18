@@ -30,7 +30,7 @@ public class RenderingLayer implements Graphic {
 		entitiesList.add( entity.getGraphicComposite() );
 	}
 	@Override
-	public void draw( ReferenceFrame camera ,  GraphicComposite composite ){ 
+	public void draw( ReferenceFrame camera ,  GraphicComposite.Active composite ){ 
 		
 		cam.setPosition( (int) ( camera1.getX()/PARALLAX_X ), 
 				(int) ( camera1.getY()/PARALLAX_Y ), 

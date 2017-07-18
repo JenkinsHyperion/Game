@@ -29,9 +29,9 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	private final NullTicket nullTicket = new NullTicket();
 	private ListNodeTicket updaterSlot = nullTicket;
 	//COMPOSITE VARIABLES, LATER TO BE LIST OF COMPOSITES
-	protected TranslationComposite translationType = new TranslationComposite();
+	protected TranslationComposite translationType = TranslationComposite.nullSingleton();
 	protected DynamicRotationComposite rotationType = new DynamicRotationComposite(this);
-	protected GraphicComposite graphicsComposite = GraphicCompositeNull.nullGraphicComposite(); 
+	protected GraphicComposite graphicsComposite = GraphicComposite.nullSingleton(); 
 	protected Collider collisionType = ColliderNull.nullColliderComposite();
 	protected AngularComposite angularType = new AngularComposite.AngleComposite(this);
 	
@@ -39,8 +39,7 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	protected ChildComposite childComposite = ChildComposite.nullChildComposite();
 	
 	protected ArrayList<UpdateableComposite> updateablesList = new ArrayList<UpdateableComposite>();
-	protected ArrayList<TranslatableComposite> translatablesList = new ArrayList<TranslatableComposite>();
-	
+
 	public EntityStatic(int x, int y) {
 
     	super(x,y);

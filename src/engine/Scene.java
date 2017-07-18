@@ -62,9 +62,9 @@ public class Scene {
 		
 		//GRAPHICS COMPOSITE
 		
-		if ( !(entity.getGraphicComposite() instanceof GraphicCompositeNull) ){
+		if ( entity.getGraphicComposite().exists() ){
 			
-			entity.getGraphicComposite().addCompositeToRenderer( ownerBoard.renderingEngine );
+			((GraphicComposite.Active) entity.getGraphicComposite()).addCompositeToRenderer( ownerBoard.renderingEngine );
 			
 			System.out.println(I+"Adding graphics composite to renderer");
 			
@@ -74,7 +74,7 @@ public class Scene {
 		
 		if ( !(entity.getColliderComposite() instanceof ColliderNull) ){
 			
-			if ( entity.getTranslationComposite() instanceof TranslationCompositeActive ){  
+			if ( entity.getTranslationComposite().exists() ){  
 				//System.out.println("     Adding "+entity+" as dynamic");
 				entity.getColliderComposite().addCompositeToPhysicsEngineDynamic( ownerBoard.collisionEngine );
 			}

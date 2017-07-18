@@ -177,7 +177,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	 * @param entityTransform
 	 */
 	@Override
-	public void drawOnCamera(GraphicComposite sprite , AffineTransform entityTransform){
+	public void drawOnCamera(GraphicComposite.Active sprite , AffineTransform entityTransform){
 		
 		AffineTransform cameraTransform = new AffineTransform();
 		this.graphics.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);

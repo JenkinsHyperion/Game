@@ -33,7 +33,7 @@ public class ParallaxFrame implements ReferenceFrame{
 	public int getOriginY() { return y; }
 
 	@Override
-	public void drawOnCamera(GraphicComposite sprite, AffineTransform entityTransform) {
+	public void drawOnCamera(GraphicComposite.Active sprite, AffineTransform entityTransform) {
 		
 		AffineTransform cameraTransform = new AffineTransform();
 		this.graphics.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);

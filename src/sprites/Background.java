@@ -74,7 +74,7 @@ public class Background extends Sprite{
 		
 	}
 	@Override
-	public void draw( ReferenceFrame camera , GraphicComposite composite ){ 
+	public void draw( ReferenceFrame camera , GraphicComposite.Active composite ){ 
 
 		int cameraPositionX = camera.getOriginX() + xOffset;
 		int cameraPositionY = camera.getOriginY() + yOffset;

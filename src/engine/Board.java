@@ -481,7 +481,7 @@ public class Board extends BoardAbstract {
 		this.currentScene = scene;
 
 		//put player back into rendering
-		player.getGraphicComposite().addCompositeToRenderer(renderingEngine);
+		((GraphicComposite.Active) player.getGraphicComposite()).addCompositeToRenderer(renderingEngine);
 		
 	}
 	

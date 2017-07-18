@@ -45,8 +45,8 @@ public class CompositeFactory {
 		entity.updateablesList.add(rotation);
 	}
 	
-	public static TranslationCompositeActive addTranslationTo( EntityStatic entity ){
-		TranslationCompositeActive trans = new TranslationCompositeActive();
+	public static TranslationComposite.Active addTranslationTo( EntityStatic entity ){
+		TranslationComposite.Active trans = new TranslationComposite.Active();
 		entity.setTranslationComposite( trans );
 		entity.updateablesList.add(trans);
 		return trans;
@@ -55,7 +55,7 @@ public class CompositeFactory {
 	public static void flyweightTranslation( EntityStatic parent, EntityStatic child ){
 		if ( parent.hasTranslation() ){
 			child.setTranslationComposite( parent.getTranslationComposite() );
-			child.updateablesList.add( (TranslationCompositeActive) parent.getTranslationComposite() );
+			child.updateablesList.add( (TranslationComposite.Active) parent.getTranslationComposite() );
 		}
 	}
 	@Deprecated
@@ -93,7 +93,7 @@ public class CompositeFactory {
 	
 	public static void addGraphicTo( EntityStatic entity , Sprite sprite ){
 		
-		GraphicComposite graphicComposite = new GraphicComposite( entity );
+		GraphicComposite.Active graphicComposite = new GraphicComposite.Active( entity );
 		
 		graphicComposite.setSprite( sprite );
 		
@@ -111,7 +111,7 @@ public class CompositeFactory {
 	
 	public static void addGraphicFromCollider( EntityStatic entity , Collider collider){
 		
-		GraphicComposite graphicComposite = new GraphicComposite( entity );
+		GraphicComposite.Active graphicComposite = new GraphicComposite.Active( entity );
 		
 		graphicComposite.setSprite( new SpriteFilledShape( collider.getBoundary() , Color.WHITE ) );
 		
@@ -134,22 +134,22 @@ public class CompositeFactory {
 	private static void parentingFunctionality( EntityStatic child , EntityStatic parent , BoardAbstract board ){
 		
 		//CREATE COMPOSITE DECOSNTRUCTOR TO ENSURE REMOVAL
-		System.out.print("Composite Factory setting ["+child+"] as child of ["+parent+"]");
+		System.out.println("Composite Factory setting ["+child+"] as child of ["+parent+"]");
 		
 		if ( parent.hasTranslation() ){ 
 			
-			TranslationCompositeActive trans = (TranslationCompositeActive) parent.getTranslationComposite();
+			TranslationComposite.Active trans = (TranslationComposite.Active) parent.getTranslationComposite();
 			
 			if ( child.hasTranslation() ){  	
 				
-				System.out.print("... Swapped flyweighted translation "+trans.getDX());
+				System.out.println("|   Swapped flyweighted translation "+trans.getDX());
 				child.translationType.disable();
 				child.setTranslationComposite(trans );
 				child.addUpdateable( trans );
 
 			}else{ 								
 				
-				System.out.print("... Flyweighted translation "+trans.getDX());
+				System.out.println("|   Flyweighted translation "+trans.getDX());
 				child.setTranslationComposite( trans );
 				child.updateablesList.add( trans );
 
@@ -158,12 +158,12 @@ public class CompositeFactory {
 			child.addToUpdater(board); // add child to be updated
 		}
 		else{ //parent has no translation, so 
-			System.err.print("... Parent entity ["+parent+"] has no Translational composite");
+			System.err.println("|   Parent entity ["+parent+"] has no Translational composite");
 		}
 		
 		if ( parent.getRotationComposite().exists() ){
 			
-			System.out.print("... Setting '"+parent+"' as rotateable parent");	
+			System.out.println("|   Setting '"+parent+"' as rotateable parent");	
 			
 			DynamicRotationComposite parentRotation;
 			
@@ -184,16 +184,16 @@ public class CompositeFactory {
 			
 
 		}else{ 
-			System.out.print("Parent isn't rotateable"); 
+			System.out.println("|   Parent isn't rotateable"); 
 		}
 		
 		//If child has collider, remove from and add back to collision Engine as dynamic, in case it was registered as static
 		if ( child.hasCollider() ){ 
-			System.out.print("... Switched ["+child+ "] collider to dynamic");
+			System.out.print("|   Switched ["+child+ "] collider to dynamic");
 			child.getColliderComposite().disable();
 			child.getColliderComposite().addCompositeToPhysicsEngineDynamic(board.collisionEngine);
 			
-			child.setTranslationComposite( new TranslationCompositeActive() );
+			child.setTranslationComposite( new TranslationComposite.Active() );
 		} //else do nothing
 		
 		System.out.println("");

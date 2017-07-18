@@ -46,7 +46,7 @@ public class EntitySerializer {
 			}
 		}
 		
-		if ( entity.getTranslationComposite() instanceof TranslationCompositeActive ){
+		if ( entity.getTranslationComposite().exists() ){
 			isDynamic = true;
 		}
 		

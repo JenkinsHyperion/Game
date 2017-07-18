@@ -12,8 +12,6 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 	protected String compositeName = "DynamicRotationComposite";
 	private ListNodeTicket updaterSlot;
 	
-	protected ArrayList<DynamicRotateableComposite> rotateableChildren = new ArrayList<DynamicRotateableComposite>();
-	
 	private EntityStatic ownerEntity;
 	
 	//protected Boundary storedBounds; //So that rounding errors from rotation don't degrade the vertex locations

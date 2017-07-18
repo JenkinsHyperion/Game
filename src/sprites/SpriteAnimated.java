@@ -35,7 +35,7 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
 
 
     @Override
-    public void draw(ReferenceFrame camera , GraphicComposite composite ){
+    public void draw(ReferenceFrame camera , GraphicComposite.Active composite ){
 
     	AffineTransform entityTransformation = new AffineTransform();
 

@@ -86,7 +86,7 @@ public class VisualCollisionDynamicStatic extends Collision {
 				
 		) { //CLIPPING UPDATING
 					
-			entityPrimary.getTranslationComposite().setColliding(false);
+			//entityPrimary.getTranslationComposite().setColliding(false);
 			System.out.println( "\n[ "+closestResolution.FeaturePrimary() + " on " + entityPrimary +
 					" ] clipping with [ " + closestResolution.FeatureSecondary() + " on " + entitySecondary
 					+" ]");

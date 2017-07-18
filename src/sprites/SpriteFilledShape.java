@@ -39,7 +39,7 @@ public class SpriteFilledShape extends Sprite {
 	}
 
 	@Override
-	public void draw(ReferenceFrame camera , GraphicComposite composite ) {
+	public void draw(ReferenceFrame camera , GraphicComposite.Active composite ) {
 		
 		AffineTransform entityTransformation = new AffineTransform();
 

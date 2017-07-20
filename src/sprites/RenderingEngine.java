@@ -72,9 +72,9 @@ public class RenderingEngine {
 		this.graphics = g2;
 		camera.repaint(g2); 
 		
-		//for ( int i = layersList.length-1 ; i > -1  ; i-- ){
-			//layersList[i].draw(camera,);
-		//}	
+		for ( int i = layersList.length-1 ; i > -1  ; i-- ){
+			layersList[i].renderLayer(camera);
+		}	
 		//Layers
 		//layer1Head.beginDraw(); 
 		

@@ -132,7 +132,7 @@ public class CompositeFactory {
 	}
 	
 	private static void parentingFunctionality( EntityStatic child , EntityStatic parent , BoardAbstract board ){
-		
+
 		//CREATE COMPOSITE DECOSNTRUCTOR TO ENSURE REMOVAL
 		System.out.println("Composite Factory setting ["+child+"] as child of ["+parent+"]");
 		
@@ -199,6 +199,7 @@ public class CompositeFactory {
 		System.out.println("");
 		//parent.updateables.add(child);
 		//child.updateables.add( (UpdateableComposite) parent.getTranslationComposite() );
+
 		
 	}
 	

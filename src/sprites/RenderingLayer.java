@@ -8,8 +8,9 @@ import engine.ParallaxFrame;
 import engine.MovingCamera;
 import entityComposites.EntityStatic;
 import entityComposites.GraphicComposite;
+import entityComposites.GraphicComposite.Active;
 
-public class RenderingLayer implements Graphic {
+public class RenderingLayer {
 
 	private final double PARALLAX_X; // 1 = background moves as fast as entities, 100 = background nearly static relative to camera 
 	 // negative = parallax moves in opposite direction, 0 = divide by zero error so can you just not
@@ -18,7 +19,7 @@ public class RenderingLayer implements Graphic {
 	private MovingCamera camera1;
 	private final ParallaxFrame cam = new ParallaxFrame();
 	
-	protected ArrayList<GraphicComposite> entitiesList = new ArrayList<>(); 
+	protected ArrayList<GraphicComposite.Active> entitiesList = new ArrayList<>(); 
 	
 	public RenderingLayer( double parallax_x , double parallax_y , MovingCamera camera) {
 		PARALLAX_X = parallax_x;
@@ -26,11 +27,11 @@ public class RenderingLayer implements Graphic {
 		this.camera1 = camera;
 	}
 	
-	public void addEntity( EntityStatic entity ){
-		entitiesList.add( entity.getGraphicComposite() );
+	public void addGraphicToLayer( EntityStatic entity ){
+		this.entitiesList.add( (Active) entity.getGraphicComposite() ); //TODO REMOVAL INDEXING
 	}
-	@Override
-	public void draw( ReferenceFrame camera ,  GraphicComposite.Active composite ){ 
+
+	public void renderLayer( ReferenceFrame camera ){ 
 		
 		cam.setPosition( (int) ( camera1.getX()/PARALLAX_X ), 
 				(int) ( camera1.getY()/PARALLAX_Y ), 
@@ -38,9 +39,9 @@ public class RenderingLayer implements Graphic {
 				camera1.getObserver()
 				);
 		
-		for ( GraphicComposite comp : entitiesList  ){ //FIXME Redo this entire class
+		for ( GraphicComposite.Active comp : entitiesList  ){ //FIXME Redo this entire class
 
-			comp.getSprite().draw(cam, composite);
+			comp.getSprite().draw(cam, comp);
 
 		}
 			

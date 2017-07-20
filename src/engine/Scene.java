@@ -122,7 +122,7 @@ public class Scene {
 	
 	public void addBackgroundSprite( int layer , EntityStatic entity ){
 		entityList.add( new LayeredEntity(entity , (byte) layer) );
-		ownerBoard.renderingEngine.layersList[layer].addEntity(entity);
+		ownerBoard.renderingEngine.layersList[layer].addGraphicToLayer(entity);
 	}
 	
 	public EntityStatic[] listEntities(){

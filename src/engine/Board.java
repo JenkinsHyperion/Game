@@ -160,18 +160,10 @@ public class Board extends BoardAbstract {
         int offset_x = 400;
         int offset_y = 0;
         
-        renderingEngine.layersList[7].addEntity( EntityFactory.createBackgroundSprite("Prototypes/Sky.png", 0,0 ) );
-        /*
-        renderingEngine.layersList[6].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L7.png", 400-offset_x, 150-offset_y) );
-        renderingEngine.layersList[5].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L6.png", 260-offset_x, -450-offset_y) );//bass
-        renderingEngine.layersList[4].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L5.png", 600-offset_x, 300-offset_y) );
-        renderingEngine.layersList[3].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L4.png", 300-offset_x, -300-offset_y) );//base
-        renderingEngine.layersList[2].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L5.png", 450-offset_x, 680-offset_y) ); //forest
-        renderingEngine.layersList[1].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L2.png", 250-offset_x, -160-offset_y) );//pipe
-        renderingEngine.layersList[0].addEntity( EntityFactory.createBackgroundSprite("Prototypes/L1.png", 300-offset_x, -160-offset_y) );//base
-        */
-         //############################################### CAMERA #######################
-    	//camera = new Camera(this,player,g2 );
+        renderingEngine.layersList[7].addGraphicToLayer( EntityFactory.createBackgroundSprite("Prototypes/Sky.png", 0,0 ) );
+ 
+        
+        
         camera.setTarget( player );
 
         
@@ -184,7 +176,7 @@ public class Board extends BoardAbstract {
         currentScene.addBackgroundSprite( 0 , EntityFactory.createBackgroundSprite("Prototypes/L1_01.png", 300-offset_x, -160-offset_y) );//base
         
         //renderingEngine.layersList[4].addEntity( EntityFactory.createBackgroundScroll( "Prototypes/shader_rain01.png", getBoardWidth() ,getBoardHeight() ,0,-3  ) );
-        renderingEngine.layersList[1].addEntity( EntityFactory.createBackgroundScroll( "Prototypes/shader_rain03.png", getBoardWidth() ,getBoardHeight() ,0,-8  ) );
+        renderingEngine.layersList[1].addGraphicToLayer( EntityFactory.createBackgroundScroll( "Prototypes/shader_rain03.png", getBoardWidth() ,getBoardHeight() ,0,-8  ) );
        
         
         initBullets();

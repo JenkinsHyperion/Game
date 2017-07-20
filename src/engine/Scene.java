@@ -28,7 +28,7 @@ public class Scene {
 	
 	public void addEntity( EntityStatic entity ){
 		if (ownerBoard.editorPanel != null)
-			ownerBoard.editorPanel.getBrowserTreePanel().refreshTree();
+			ownerBoard.editorPanel.getBrowserTreePanel().notifyTreeAddedEntity(entity);
 		boolean updateableEntity = false;
 		System.out.println(I+"ADDING ENTITY ["+entity+"] to Current Scene, index "+entityList.size());
 		//ADD ENTITY TO SCENES MASTER ENTITY LIST

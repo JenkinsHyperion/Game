@@ -522,12 +522,13 @@ public class PlantTwigSegment extends EntityStatic{
 							sproutLeft.lastBranchedClockwise = true;
 							
 						}
-						
+						board.spawnNewSprout( sproutLeft );
+						board.spawnNewSprout( leafStemRight );
 						CompositeFactory.makeChildOfParent(sproutLeft, StemSegment.this , board);
 						CompositeFactory.makeChildOfParent(leafStemRight, StemSegment.this , board);
 						
-						board.spawnNewSprout( sproutLeft );
-						board.spawnNewSprout( leafStemRight );
+//						board.spawnNewSprout( sproutLeft );
+//						board.spawnNewSprout( leafStemRight );
 						
 						StemSegment.this.currentWaterTransportState = new ForkPushTransportState( leafStemRight, sproutLeft ) ;
 						StemSegment.this.currentSugarTransportState = new ForkSugarOverflowTransport( leafStemRight, sproutLeft ) ;
@@ -570,14 +571,14 @@ public class PlantTwigSegment extends EntityStatic{
 						sproutStem.setPreviousStem(StemSegment.this);
 						
 						sproutStem.getAngularComposite().setAngleInDegrees(thisSegmentAngle);
-						
+						board.spawnNewSprout( sproutStem ); //then spawn it in
 						CompositeFactory.makeChildOfParent(sproutStem, StemSegment.this , board);
 						
 						//sproutStem.getRotationComposite().setAngularVelocity(1f);
 		
 						sproutStem.numberFromLastBranch = numberFromLastBranch + 1 ; //Increment next branches number in this stem
 						sproutStem.lastBranchedClockwise = StemSegment.this.lastBranchedClockwise; //didn't branch so pass same direction to next
-						board.spawnNewSprout( sproutStem ); //then spawn it in
+//						board.spawnNewSprout( sproutStem ); //then spawn it in
 						
 						StemSegment.this.currentWaterTransportState = new StemPushTransportState( sproutStem ) ;
 						StemSegment.this.currentSugarTransportState = new StemSugarOverflowTransport( sproutStem ) ;
@@ -644,13 +645,13 @@ public class PlantTwigSegment extends EntityStatic{
 					sproutStem.setPreviousStem(StemSegment.this);
 						
 					sproutStem.getAngularComposite().setAngleInDegrees(thisSegmentAngle);
-						
+					board.spawnNewSprout( sproutStem ); //then spawn it in	
 					CompositeFactory.makeChildOfParent(sproutStem, StemSegment.this , board);
 						
 						//sproutStem.getRotationComposite().setAngularVelocity(1f);
 		
 					sproutStem.numberFromLastBranch = numberFromLastBranch + 1 ; //Increment next branches number in this stem
-					board.spawnNewSprout( sproutStem ); //then spawn it in
+//					board.spawnNewSprout( sproutStem ); //then spawn it in
 						
 					StemSegment.this.currentWaterTransportState = new StemPushTransportState( sproutStem ) ;
 					StemSegment.this.currentSugarTransportState = new StemSugarTerminal( sproutStem ) ;
@@ -742,18 +743,20 @@ public class PlantTwigSegment extends EntityStatic{
 					
 					sproutStem.getAngularComposite().setAngleInDegrees(thisSegmentAngle);
 					
+					board.spawnNewSprout( sproutStem ); //then spawn it in
 					CompositeFactory.makeChildOfParent(sproutStem, LeafStem.this , board);
 					
 					//sproutStem.getRotationComposite().setAngularVelocity(1f);
 	
 					sproutStem.numberFromLastBranch = numberFromLastBranch + 1 ; //Increment next branches number in this stem
-					board.spawnNewSprout( sproutStem ); //then spawn it in		
+					//board.spawnNewSprout( sproutStem ); //then spawn it in		
 				
 					PlantTwigSegment.Leaf newLeaf = new PlantTwigSegment.Leaf(tipX+10, tipY, thisMaxGrowth, board);
 					newLeaf.setPreviousStem(LeafStem.this);
 					
-					CompositeFactory.makeChildOfParent(newLeaf, LeafStem.this , board);
 					board.spawnNewSprout( newLeaf );
+					CompositeFactory.makeChildOfParent(newLeaf, LeafStem.this , board);
+//					board.spawnNewSprout( newLeaf );
 					
 					LeafStem.this.currentWaterTransportState = new ForkPushTransportState( newLeaf , sproutStem ) ;
 					LeafStem.this.currentSugarTransportState = new StemSugarOverflowTransport( sproutStem ) ;

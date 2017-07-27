@@ -216,7 +216,9 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 	public MovingCamera getCamera() {
 		return this.camera;
 	}
-	
+	public EditorPanel getEditorPanel() {
+		return this.editorPanel;
+	}
 	public void transferEditorPanel(EditorPanel instance){
 		this.editorPanel = instance; 
 	}

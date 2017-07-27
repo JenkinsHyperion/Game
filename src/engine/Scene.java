@@ -25,17 +25,18 @@ public class Scene {
 		entity.addEntityToScene( this, entityList.size() );
 		entityList.add( new LayeredEntity(entity,layer));
 	}
-	
+
 	public void addEntity( EntityStatic entity ){
+		//NOTIFY BROWSER TREE THAT ENTITY WAS ADDED TO SCENE
 		if (ownerBoard.editorPanel != null)
 			ownerBoard.editorPanel.getBrowserTreePanel().notifyTreeAddedEntity(entity);
 		boolean updateableEntity = false;
 		System.out.println(I+"ADDING ENTITY ["+entity+"] to Current Scene, index "+entityList.size());
 		//ADD ENTITY TO SCENES MASTER ENTITY LIST
 		addEntityToList(entity,(byte) 0);
-		
+
 		I = I+"|   ";//temporary visual indentation for console output
-		
+
 		//RUN THROUGH AND ADD UPDATEABLE COMPOSITES TO UPDATER LIST
 		///////////////////////////////////////////////////////////////////////////////////////////////////
 		
@@ -107,7 +108,7 @@ public class Scene {
 		
 		System.out.println( I+"----\n");
 		
-
+		
 		
 	}
 	

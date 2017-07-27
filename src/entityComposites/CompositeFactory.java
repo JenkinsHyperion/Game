@@ -3,6 +3,7 @@ package entityComposites;
 import java.awt.Color;
 import java.awt.geom.Line2D;
 
+import editing.BrowserTreePanel;
 import engine.BoardAbstract;
 import entityComposites.AngularComposite.AngleComposite;
 import physics.Boundary;
@@ -199,7 +200,11 @@ public class CompositeFactory {
 		System.out.println("");
 		//parent.updateables.add(child);
 		//child.updateables.add( (UpdateableComposite) parent.getTranslationComposite() );
-
+		
+		//#### AREA TO NOTIFY BrowserTree
+		//something like,
+		BrowserTreePanel browserTreePanel = board.getEditorPanel().getBrowserTreePanel();
+		browserTreePanel.notifyParentChildRelationshipChanged(child, parent);
 		
 	}
 	

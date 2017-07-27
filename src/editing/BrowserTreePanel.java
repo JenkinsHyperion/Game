@@ -3,11 +3,13 @@ package editing;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.LayoutManager;
+import java.util.Enumeration;
 
 import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeCellRenderer;
@@ -37,11 +39,17 @@ public class BrowserTreePanel extends JPanel {
 		sceneRoot.add(entitiesRoot);
 		defaultModel = new DefaultTreeModel(sceneRoot);
 		tree = new JTree(defaultModel);
-		refreshTree();
+		//refreshTree();
+		populateEntityFolder(entitiesRoot, board.listCurrentSceneEntities());
 		
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.addTreeSelectionListener(new TreeSelectionEventHandler());
 		tree.setFocusable(false);
+		
+		BasicTreeUI basicTreeUI = (BasicTreeUI) tree.getUI();
+		basicTreeUI.setRightChildIndent(5); 
+		basicTreeUI.setLeftChildIndent(1);
+		
 		this.add(tree);
 		this.setFocusable(false);
 		
@@ -49,16 +57,26 @@ public class BrowserTreePanel extends JPanel {
 	
 	//TREE SECTION
 		public void notifyTreeAddedEntity(EntityStatic newEnt) {
-			System.err.println("(browsertreepanel)Does "+newEnt.name+ "have children? "+newEnt.isParent());
-			System.err.println("(browsertreepanel)Does "+newEnt.name+ "have parents? "+newEnt.isChild());
-			if (newEnt.isChild()) 
-				return;
-			else {
-				DefaultMutableTreeNode newEntityNode = createSingleEntityNodeFolder(newEnt);
-				defaultModel.insertNodeInto(newEntityNode, entitiesRoot, entitiesRoot.getChildCount());
-				//entitiesRoot.add(createSingleEntityNodeFolder(newEnt));
-				//defaultModel.insertNodeInto(currentFolder, newRoot, newRoot.getChildCount());
+			DefaultMutableTreeNode newEntityNode = createSingleEntityNodeFolder(newEnt);
+			defaultModel.insertNodeInto(newEntityNode, entitiesRoot, entitiesRoot.getChildCount());
+			System.err.println("From notifyTreeAddedEntity()--- added "+newEnt.name+" to tree.");
+		}
+		
+		/**Tells the browser tree that relationship has changed, and updates the node display accordingly.
+		 * Will be the connection that outside methods have when an actual parent change happens on entities.
+		 * This will likely be called exclusively by CompositeFactory.makeChildOfParent()  */
+		public void notifyParentChildRelationshipChanged(EntityStatic child, EntityStatic parent) {
+			DefaultMutableTreeNode parentNode, childNode;
+			parentNode = containsEntity(parent);
+			childNode = containsEntity(child);
+			if (parentNode == null || childNode == null) {
+				System.err.println("BrowserTree was unable to modify parents for child "+child.name+" and parent "+parent.name);
+				return;  //if either of these nodes can't be found, there's no way to update the tree so break out.
 			}
+			defaultModel.removeNodeFromParent(childNode);
+			System.err.println("removed "+childNode.getUserObject().toString()+"from parent.");
+			defaultModel.insertNodeInto(childNode, parentNode, parentNode.getChildCount());
+			System.err.println("inserted "+childNode.getUserObject().toString()+"to parent "+parentNode.getUserObject().toString());
 		}
 		/**
 		 * Note** Only creates the current entity node. Doesn't create the main "Entities" folder in the same way that {@link #createCompositesNodeFolder(EntityStatic)} does.
@@ -67,16 +85,19 @@ public class BrowserTreePanel extends JPanel {
 		private DefaultMutableTreeNode createSingleEntityNodeFolder(EntityStatic entity) {
 			DefaultMutableTreeNode currentEntityNode = new DefaultMutableTreeNode(entity);
 			//append Composites folder to Entities folder
-			currentEntityNode.add(createCompositesNodeFolder(entity));
+			//currentEntityNode.add(createCompositesNodeFolder(entity));
+			defaultModel.insertNodeInto(createCompositesNodeFolder(entity), currentEntityNode, currentEntityNode.getChildCount());
+			return currentEntityNode;
+			
+			// vvvvv Broken stuff delete later vvvvv
 			//FIXME EntityStatic.isParent() doesn't work
-			if (entity.isParent()){
+			/*if (entity.isParent()){
 				EntityStatic[] children = entity.getChildrenEntities();
 				for (EntityStatic thisChildEntity: children) {
 					currentEntityNode.add(createSingleEntityNodeFolder(thisChildEntity));
 				}
 			}
-			// FIXME ask Matt to make some utility functions for easily navigating parent/child relationship.
-			return currentEntityNode;
+			// FIXME ask Matt to make some utility functions for easily navigating parent/child relationship. */
 		}
 		private void populateEntityFolder(DefaultMutableTreeNode newRoot, EntityStatic[] entityListRef) {
 			//DefaultMutableTreeNode entireEntityFolder = new DefaultMutableTreeNode("Entities");
@@ -103,6 +124,8 @@ public class BrowserTreePanel extends JPanel {
 			return newCompositesFolder;
 		}
 		
+		/**--WARNING--Not sure if I should use this method */
+		@Deprecated
 		public void refreshTree() {
 			try {
 				populateEntityFolder(entitiesRoot, board.listCurrentSceneEntities());
@@ -112,19 +135,10 @@ public class BrowserTreePanel extends JPanel {
 //				tree.expandPath(new TreePath(entitiesRootFolder.getPath()));
 				tree.scrollPathToVisible(new TreePath(entitiesRoot.getPath()));
 				//tree.scrollPathToVisible(new TreePath(new Object[]{"Current Scene", "Entities"}));
-				System.err.println("Path to entitiesRootFolder: " + entitiesRoot.toString());
-				//defaultModel.reload();
+				defaultModel.reload();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
-		
-		/** To be called by any method that tries to create a new entity (currently inside Scene.java) */
-		@Deprecated
-		public void addNewEntityNode(EntityStatic newEnt) {
-			//add some error handling later or something
-			DefaultMutableTreeNode newEntityNode = createSingleEntityNodeFolder(newEnt);
-			defaultModel.insertNodeInto(newEntityNode, entitiesRoot, entitiesRoot.getChildCount());
 		}
 	
 	public class TreeSelectionEventHandler implements TreeSelectionListener{
@@ -138,6 +152,7 @@ public class BrowserTreePanel extends JPanel {
 			if (objectInsideNode instanceof Entity) {
 				EntityStatic nodeIsEntity = (EntityStatic)objectInsideNode;
 				System.out.println("*** IS AN ENTITY ***");
+				/** TEST AREA **/
 				editorPanelRef.setMode(editorPanelRef.getEntitySelectMode());
 				editorPanelRef.selectSingleEntityGUIHouseKeeping();
 				//sets Board's current entity
@@ -155,5 +170,33 @@ public class BrowserTreePanel extends JPanel {
 	public void setNewRoot(DefaultMutableTreeNode newRoot) {
 		defaultModel.setRoot(newRoot);
 	}
+	/** Will search entire tree for a node that contains this entity */
+	public DefaultMutableTreeNode containsEntity(EntityStatic ent){
+		DefaultMutableTreeNode possibleNodeContainingEnt;
+		Enumeration e = ((DefaultMutableTreeNode)entitiesRoot).breadthFirstEnumeration();
+		if (e.hasMoreElements())
+			e.nextElement();
+		while (e.hasMoreElements()) {
+			possibleNodeContainingEnt = (DefaultMutableTreeNode)e.nextElement();
+			if (possibleNodeContainingEnt.getUserObject() == ent)
+				return possibleNodeContainingEnt;
+		}
+		return null;
+	}
+	/*
+	 * //from website:
+	public DefaultMutableTreeNode searchNode(String nodeStr) {
+    DefaultMutableTreeNode node = null;
+    Enumeration e = m_rootNode.breadthFirstEnumeration();
+    while (e.hasMoreElements()) {
+      node = (DefaultMutableTreeNode) e.nextElement();
+      if (nodeStr.equals(node.getUserObject().toString())) {
+        return node;
+      }
+    }
+    return null;
+}
+
+	 */
 	
 }

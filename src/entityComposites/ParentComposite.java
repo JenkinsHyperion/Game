@@ -8,7 +8,7 @@ import physics.ResolutionState;
 
 public abstract class ParentComposite implements EntityComposite {
 	
-	private static final ParentComposite.NullParentComposite nullParent = new NullParentComposite();
+	private static final ParentComposite.Null nullParent = new Null();
 
 	protected String compositeName = "ParentComposite";
 
@@ -116,12 +116,13 @@ public abstract class ParentComposite implements EntityComposite {
 
 	// #################################################################################################################################
 	
-	public static class NullParentComposite extends ParentComposite{
+	public static class Null extends ParentComposite{
+		
+		private static EntityStatic[] emptyChildrenArray = new EntityStatic[0];
 		
 		@Override
 		public EntityStatic[] getChildrenEntities() {
-			//return new EntityStatic[0];
-			return null;
+			return emptyChildrenArray;
 		}
 		
 		@Override
@@ -141,7 +142,7 @@ public abstract class ParentComposite implements EntityComposite {
 		}
 
 		@Override
-		public void disable() {
+		public void disableComposite() {
 			
 		}
 
@@ -158,7 +159,7 @@ public abstract class ParentComposite implements EntityComposite {
 	}
 
 	@Override
-	public void disable() {
+	public void disableComposite() {
 		// TODO Auto-generated method stub
 	}
 	@Override

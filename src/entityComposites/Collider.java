@@ -237,7 +237,7 @@ public class Collider implements EntityComposite{
 	}
 	
 	@Override
-	public void disable(){
+	public void disableComposite(){
 		this.engineSlot.removeSelf();
 	}
 	@Override

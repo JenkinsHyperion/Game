@@ -159,6 +159,10 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 	     
 	}
 	
+	protected void activeRenderingDraw(){
+		
+	}
+	
 	protected void paintFrame(){
 		
 	}
@@ -174,14 +178,14 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 	@Override
 	public void paintComponent(Graphics g) {  
         super.paintComponent(g);
-        
-        camera.repaint(g);
-        
+
         this.currentConsoleState.render(g);
-        //camera.overlay.drawOverlay();
-        g.drawString("ENTITIES UPDATED: "+this.updateableEntitiesList.size() , 20,20 );
-        //diagnostics.paintOverlay( (Graphics2D)g, camera);
     }
+	
+	public void activeRender( Graphics g ){
+
+        this.currentConsoleState.render(g);
+	}
 	
 	private interface ConsoleState{
 		abstract void render(Graphics g );

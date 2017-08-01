@@ -18,6 +18,12 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 	protected double angularVelocity = 0;
 	protected double angularAcc = 0;
 	
+	private static Null nullSingleton = new Null();
+	
+	protected static DynamicRotationComposite nullSingleton(){
+		return nullSingleton;
+	}
+	
 	public DynamicRotationComposite( EntityStatic owner ){
 		this.ownerEntity = owner;
 	}
@@ -51,8 +57,8 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 
 	public float getAngularAcc(){ return (float)angularAcc; }
 
-	public void removeUpdateable() {
-		this.updaterSlot.removeSelf();
+	public void removeThisUpdateable() {
+		this.updaterSlot.removeSelfFromList();
 	}
 
 	public boolean addCompositeToUpdater(BoardAbstract board) {
@@ -71,8 +77,9 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 	}
 	
 	@Override
-	public void disable() {
-		removeUpdateable();
+	public void disableComposite() {
+		removeThisUpdateable();
+		this.ownerEntity.nullifyRotationComposite();
 		
 		this.angularVelocity = 0;
 		this.angularAcc = 0;
@@ -138,6 +145,44 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 
 		}
 		
+	}
+	
+	
+	private static class Null extends DynamicRotationComposite {
+
+		public Null() {
+			super(null);
+		}
+		@Override
+		public void updateComposite() {}
+		@Override
+		public void updateEntity(EntityStatic entity) {}
+		public void setAngularVelocity( double angularVelocity ){
+			
+		}
+		public void setAngularAcceleration( double angularAcc ){
+			
+		}
+		public float getAngularVel(){ return (float)angularVelocity; }
+		public float getAngularAcc(){ return (float)angularAcc; }
+		public void removeThisUpdateable() {
+		}
+
+		public boolean addCompositeToUpdater(BoardAbstract board) {
+			return false;
+		}
+		@Override
+		public boolean exists() {
+			return false;
+		}
+		@Override
+		public void disableComposite() {
+			System.err.println("Warning: Attempted to disable null Rotation Composite");
+		}
+		@Override
+		public String toString() {
+			return this.getClass().getSimpleName();
+		}
 	}
 	
 }

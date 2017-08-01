@@ -46,8 +46,8 @@ public class CompositeFactory {
 		entity.updateablesList.add(rotation);
 	}
 	
-	public static TranslationComposite.Active addTranslationTo( EntityStatic entity ){
-		TranslationComposite.Active trans = new TranslationComposite.Active();
+	public static TranslationComposite addTranslationTo( EntityStatic entity ){
+		TranslationComposite trans = new TranslationComposite(entity);
 		entity.setTranslationComposite( trans );
 		entity.updateablesList.add(trans);
 		return trans;
@@ -56,7 +56,7 @@ public class CompositeFactory {
 	public static void flyweightTranslation( EntityStatic parent, EntityStatic child ){
 		if ( parent.hasTranslation() ){
 			child.setTranslationComposite( parent.getTranslationComposite() );
-			child.updateablesList.add( (TranslationComposite.Active) parent.getTranslationComposite() );
+			child.updateablesList.add( (TranslationComposite) parent.getTranslationComposite() );
 		}
 	}
 	@Deprecated
@@ -135,16 +135,18 @@ public class CompositeFactory {
 	private static void parentingFunctionality( EntityStatic child , EntityStatic parent , BoardAbstract board ){
 
 		//CREATE COMPOSITE DECOSNTRUCTOR TO ENSURE REMOVAL
-		System.out.println("Composite Factory setting ["+child+"] as child of ["+parent+"]");
+		System.out.println("PARENTING ["+child+"] as child of ["+parent+"]");
 		
 		if ( parent.hasTranslation() ){ 
 			
-			TranslationComposite.Active trans = (TranslationComposite.Active) parent.getTranslationComposite();
+			//child.addToUpdater(board); // add child to be updated
 			
-			if ( child.hasTranslation() ){  	
+			//TranslationComposite trans = (TranslationComposite) parent.getTranslationComposite();
+			
+			/*if ( child.hasTranslation() ){  	
 				
 				System.out.println("|   Swapped flyweighted translation "+trans.getDX());
-				child.translationType.disable();
+				child.translationType.disableComposite();
 				child.setTranslationComposite(trans );
 				child.addUpdateable( trans );
 
@@ -152,11 +154,11 @@ public class CompositeFactory {
 				
 				System.out.println("|   Flyweighted translation "+trans.getDX());
 				child.setTranslationComposite( trans );
+				child.getTranslationComposite().flyweightTranslation( trans );
 				child.updateablesList.add( trans );
 
-			}
+			}*/
 			
-			child.addToUpdater(board); // add child to be updated
 		}
 		else{ //parent has no translation, so 
 			System.err.println("|   Parent entity ["+parent+"] has no Translational composite");
@@ -191,10 +193,10 @@ public class CompositeFactory {
 		//If child has collider, remove from and add back to collision Engine as dynamic, in case it was registered as static
 		if ( child.hasCollider() ){ 
 			System.out.print("|   Switched ["+child+ "] collider to dynamic");
-			child.getColliderComposite().disable();
+			child.getColliderComposite().disableComposite();
 			child.getColliderComposite().addCompositeToPhysicsEngineDynamic(board.collisionEngine);
 			
-			child.setTranslationComposite( new TranslationComposite.Active() );
+			child.setTranslationComposite( new TranslationComposite(child) );
 		} //else do nothing
 		
 		System.out.println("");

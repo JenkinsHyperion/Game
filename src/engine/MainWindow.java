@@ -7,14 +7,17 @@ import editing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
+import java.util.Random;
 
-@SuppressWarnings("serial")
-public class MainWindow extends JPanel implements KeyListener, MouseListener{
-	private BoardAbstract board;
+public class MainWindow implements KeyListener, MouseListener{
+	private static BoardAbstract board;
 	private static EditorPanel editorPanel;
 	private JSplitPane splitPane;
     private boolean F1pressed = false;
     private Dimension editorPanelMinSize;
+    
+    private static boolean running = false;
     
     private static int width;
     private static int height;
@@ -129,78 +132,106 @@ public class MainWindow extends JPanel implements KeyListener, MouseListener{
 		frame.pack();
 	}
 	
-	
 	public static void main(String[] args) {
-
-		/*EventQueue.invokeLater(new Runnable() { 
-			@Override
-			public void run() {                
-				createAndShowGUI();   
-				
-			}
-		});*/
+		
 		createAndShowGUI(); 
-
-		
-		/*JFrame frame = new JFrame();
-		frame.setIgnoreRepaint(true);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		Canvas mainCanvas = new Canvas();
-		mainCanvas.setSize(width, height);
-		mainCanvas.setIgnoreRepaint(true);
-		
-		frame.add(mainCanvas);
-		frame.pack();
-		frame.setVisible( true );
-
-		mainCanvas.createBufferStrategy(2);
-		bufferStrat = mainCanvas.getBufferStrategy();
-
-		//createAndShowGUI(); 
-		//showGUI( frame );
-		
-		Graphics graphics = null;
-		
-		while ( true ) {
-		     // Prepare for rendering the next frame
-		     // ...
-
-		     // Render single frame
-		     do {
-		         // The following loop ensures that the contents of the drawing buffer
-		         // are consistent in case the underlying surface was recreated
-		         do {
-		             // Get a new graphics context every time through the loop
-		             // to make sure the strategy is validated
-		             graphics = bufferStrat.getDrawGraphics();
-		             Graphics2D g2 = (Graphics2D) graphics;
-		             
-		             // Render to graphics
-		             g2.setColor(Color.CYAN);
-		             g2.drawString("TEST", 100, 100);
-		             
-		             //System.out.println("TERSD");
-		             // Dispose the graphics
-		             graphics.dispose();
-
-		             // Repeat the rendering if the drawing buffer contents
-		             // were restored
-		         } while (bufferStrat.contentsRestored());
-
-		         // Display the buffer
-		         bufferStrat.show();
-
-		         // Repeat the rendering if the drawing buffer was lost
-		     } while (bufferStrat.contentsLost());
-		 }
-
-		 // Dispose the window
-		 //mainCanvas.setVisible(false);
-		 //w.dispose();
-		*/
+		//runActiveRenderLoop();
 		
 	}
+	
+	
+	
+	private static void runActiveRenderLoop(){
+		
+		// Create game window...
+	    JFrame frame = new JFrame();
+
+	    frame.setIgnoreRepaint( true );
+	    
+	    MainWindow mainWindow = new MainWindow(); //FIXME BOARD IS FUCKING THIS ALL UP
+	    //frame.add(board);
+	    frame.addKeyListener(mainWindow);
+	    frame.addKeyListener(board);
+	    frame.addMouseListener(mainWindow);
+	    
+	    frame.setUndecorated( true );
+	    
+	    frame.setResizable(false);
+	    frame.setVisible(true);
+
+	    frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+
+	    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); 
+
+	    
+	    frame.addKeyListener( new KeyAdapter() { //Anon listener for exiting on escape
+	      public void keyPressed( KeyEvent e ) {
+	        if( e.getKeyCode() == KeyEvent.VK_ESCAPE )
+	            running = false;
+	          }
+	    });
+	                
+	    // Get graphics configuration...
+	    GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	    GraphicsDevice graphicsDevice = graphicsEnvironment.getDefaultScreenDevice();
+	    GraphicsConfiguration graphicsConfig = graphicsDevice.getDefaultConfiguration();
+	    
+	    graphicsDevice.setFullScreenWindow( frame ); // Set to fullscreen
+	    
+	    if( graphicsDevice.isDisplayChangeSupported() ) {
+	    	
+	    	DisplayMode mode = new DisplayMode( 800, 600, 32, DisplayMode.REFRESH_RATE_UNKNOWN );
+	    	graphicsDevice.setDisplayMode( mode );
+
+	    }
+	    
+	    Graphics paintImage = null;
+	    Color background = Color.BLACK;
+	    Graphics2D g2 = null;    
+	    // Variables for counting frames per seconds
+    	
+	    frame.createBufferStrategy( 2 );
+	    BufferStrategy bufferStrategy = frame.getBufferStrategy();
+	    
+	    BufferedImage bufferedImage = graphicsConfig.createCompatibleImage(800, 600);
+	    Graphics2D g = bufferedImage.createGraphics();
+	    
+	    running = true;
+	    while( running ) { //OPTIMIZE INTO DO WHILE LOOPS FOR RESTORED CONTENTS
+	    	
+	    	try{
+
+		        g2 = bufferedImage.createGraphics(); //Clear back buffer image
+		        g2.setColor( background );
+		        g2.fillRect( 0, 0, 400, 400 );
+		        
+		        board.activeRender(g2); //Render game onto back buffer
+		        
+		        paintImage = bufferStrategy.getDrawGraphics(); 
+		        paintImage.drawImage( bufferedImage, 0, 0, null );
+		                                
+		        if( !bufferStrategy.contentsLost() ) //Blit and page-flip
+		        	bufferStrategy.show();
+		        
+	    	} finally {
+	            // release resources
+	            if( g2 != null ) 
+	            	g2.dispose();
+	            if( paintImage != null ) 
+	            	paintImage.dispose();
+	          }
+		    	
+	    	//try { Thread.sleep(1000); } catch (Exception e) {}
+	    	
+	    }
+	    
+	    
+	                
+	    graphicsDevice.setFullScreenWindow( null );
+	    System.exit(0);
+		
+	}
+	
 	
 	@Override
 	public void keyPressed(KeyEvent e) {

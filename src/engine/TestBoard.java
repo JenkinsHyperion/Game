@@ -113,6 +113,13 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
       			dragLine = new Line2D.Double( new Point() , new Point() );
     		}
     	});
+        this.inputController.createKeyBinding(KeyEvent.VK_T, new KeyCommand(){ //TEST BUTTON
+    		public void onPressed() { 
+    			System.err.println("REMOVING TRANSLATION");
+    			asteroid.removeTranslationComposite();
+    		}
+    	});
+        
     	
     	initBoard();
     	postInitializeBoard();
@@ -133,7 +140,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         CompositeFactory.addTranslationTo(asteroid);
         CompositeFactory.addDynamicRotationTo(asteroid);
         
-        //asteroid.getTranslationComposite().setDX(0.25f);
+        asteroid.getTranslationComposite().setDX(-0.25f);
         
         this.currentScene.addEntity(asteroid);
     	
@@ -217,8 +224,10 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
   	}
 
 	@Override
-	public void mouseWheelMoved(MouseWheelEvent e) {
+	public void mouseWheelMoved(MouseWheelEvent arg0) {
+		// TODO Auto-generated method stub
 		
 	}
+
     
 }

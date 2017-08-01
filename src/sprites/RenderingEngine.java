@@ -75,8 +75,6 @@ public class RenderingEngine {
 		for ( int i = layersList.length-1 ; i > -1  ; i-- ){
 			layersList[i].renderLayer(camera);
 		}	
-		//Layers
-		//layer1Head.beginDraw(); 
 		
 		int spriteNumber = 0;
 		
@@ -95,10 +93,6 @@ public class RenderingEngine {
 		for ( OverlayComposite overlay : visibleOverlayList ){
 			overlay.paintOverlay(g2, camera);
 		}
-		
-	}
-	
-	public void redraw( Graphics2D g2){ 
 		
 	}
 	
@@ -127,87 +121,7 @@ public class RenderingEngine {
 		
 	}
 	
-	//#### TESTING DOUBLE LINKED LIST #####
-/*	
-	private abstract class LinkedNode{ // make interface?
-		
-		LinkedNode nextNode;
-		LinkedNode prevNode;
-		
-		protected abstract void draw();
-		
-		protected void setPreviousNode( LinkedNode prevNode ){ this.prevNode = prevNode; }
-		protected void setNextNode( LinkedNode nextNode ){ this.nextNode = nextNode; }
-		protected LinkedNode getPreviousNode(){ return this.prevNode; }
-		protected LinkedNode getNextNode(){ return this.nextNode; }
-		
-	}
-	
-	private class LinkedHead extends LinkedNode{
-		
-		private LinkedTail tail; //useful having pointer to tail for end adding?
-		
-		public LinkedHead() {
-			this.tail = new LinkedTail( this );
-			this.setNextNode(tail);
-			tail.setPreviousNode( LinkedHead.this);
-		}
-		
-		public void beginDraw(){
-			this.draw();
-		}
-		@Override
-		public void draw(){
-			this.getNextNode().draw();
-		}
-		
-		public LinkedNodeElement addElement( SpriteComposite sprite ){
-			LinkedNodeElement newNode = new LinkedNodeElement( sprite );
-			
-			newNode.setNextNode( this.nextNode ); 	// Head     Add --> Tail^      order of these is important
 
-			newNode.setPreviousNode(this); 			// Head <-- Add     Tail
-			
-			this.nextNode.setPreviousNode(newNode); // Head     Add <-- Tail^
-			
-			this.nextNode = newNode;   				// Head --> Add     Tail**   change this.nextNode from tail to add LAST
-			
-			return newNode;
-		}
-		
-	}
-	
-	private class LinkedTail extends LinkedNode{
-		
-		public LinkedTail( LinkedHead head ) {
-			this.prevNode = head;
-		}
-		
-		@Override
-		public void draw(){
-			//END OF LIST
-		}
-	}
-	
-	private class LinkedNodeElement extends LinkedNode{
-
-		private SpriteComposite elementSprite;
-		
-		public LinkedNodeElement( SpriteComposite element ){
-			this.elementSprite = element;
-		}
-		@Override
-		protected void draw(){
-			elementSprite.getSprite().drawSprite( camera );
-			this.getNextNode().draw();
-		}
-		
-		public void removeSelf(){
-			this.prevNode.setNextNode( this.nextNode );
-			this.nextNode.setPreviousNode( this.prevNode );
-		}
-		
-	}*/
 	
 	public OverlayComposite addOverlay( Overlay overlay) {
 		OverlayComposite newOverlayComp = new OverlayComposite( overlay );

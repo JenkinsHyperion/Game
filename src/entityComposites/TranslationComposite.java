@@ -9,409 +9,535 @@ import physics.PointForce;
 import physics.Vector;
 import utility.ListNodeTicket;
 
-public abstract class TranslationComposite implements EntityComposite{
+public class TranslationComposite implements EntityComposite, UpdateableComposite{
+	
+	protected String compositeName = "TranslationComposite";
+	private TranslationMath coreMath = new TranslationMath();
+	private EntityStatic ownerEntity;
+	
+	private static final Null nullSingleton = new Null();
 
-	public abstract void halt();
-    public abstract double getDX();
-    public abstract double getDY();
-    public abstract void setDX(double setdx);
-    public abstract void setDY(double setdy) ;
-    public abstract void setVelocityVector( Vector vector);
-    public abstract void addVelocity( Vector vector);
-    public abstract double getDeltaX( EntityStatic owner );
-    public abstract double getDeltaY( EntityStatic owner );
-    public abstract void clipDX(double clipDX);
-    public abstract void clipDY(double clipDY);;
-    public abstract void clipAccX(float clipAccX);
-    public abstract void clipAccY(float clipAccY);
-    public abstract void setAccX(float setAX);
-    public abstract void setAccY(float setAY);
-    public abstract double getAccY();
-    public abstract double getAccX();
-    public abstract void setDampeningX(float decceleration);
-    public abstract void applyAccelerationX(float accX);
-    public abstract void applyAccelerationY(float accY);
-    public abstract Force addForce( Vector vector );
-    
-    public abstract void removeForce(int index);
-    //MOVE TO ROTATIONAL BODY
-    public abstract PointForce addPointForce( Vector vector , Point point );
-    public abstract void removePointForce(int index);
-    public abstract Vector[] debugForceArrows();
-	public abstract Vector sumOfForces();
-	public abstract void removeUpdateable();
-	public abstract Vector getVelocityVector();
-	
-	private static final TranslationComposite.Null nullSingleton = new Null();
-	
-	public static TranslationComposite.Null nullSingleton(){
+	public static TranslationComposite nullSingleton(){
 		return nullSingleton;
 	}
 	
-	//CONCRETE TRANSLATION COMPOSITE CLASS ################################################################
-	public static class Active extends TranslationComposite implements UpdateableComposite{
-		protected String compositeName = "TranslationCompositeActive";
-		private ListNodeTicket updaterSlot;	
-		protected double dx=0;
-	    protected double dy=0;
-	    protected double accY=0;
-	    protected double accX=0;
-	    protected double dxT=0;
-	    protected double dyT=0;
-	    protected double accYT=0;
-	    protected double accXT=0;
-		
-		protected Active(){ 
-		}
-
-		protected ArrayList<Force> forces = new ArrayList<>();
-		protected ArrayList<PointForce> pointForces = new ArrayList<>();
-	    
-	    protected boolean isColliding;
-	  
-	    @Override
-	    public void updateComposite() {
-	 
-	    	dx += accX; 
-	    	dy += accY;
-
-	    	Vector sum = this.sumOfForces();
-	    	accX = sum.getX();
-	    	accY = sum.getY();
-	 
-	    	
-	    }  
-	    @Override
-	    public void updateEntity( EntityStatic entity ) {
-	    	
-	    	entity.setX( entity.x + this.dx) ; 
-	    	entity.setY( entity.y + this.dy) ;
-	    	
-	    }  
-	    
-	    @Override
-	    public void halt(){
-	    	dx=0;
-	    	dy=0;
-	    	accX=0;
-	    	accY=0;
-	    }
-
-	    @Override
-	    public double getDX() {
-	    	return dx;
-	    }
-	    @Override
-	    public double getDY() {
-	    	return dy;
-	    }
-	    @Override
-	    public Vector getVelocityVector(){
-	    	return new Vector( dx , dy );
-	    }
-	    @Override
-	    public void setDX(double setdx) {
-	    	dx = setdx;
-	    }
-	    @Override
-	    public void setDY(double setdy) {
-	    	dy = setdy;
-	    }
-	    @Override
-	    public void setVelocityVector( Vector vector){
-	    	dx = vector.getX();
-	    	dy = vector.getY();
-	    }
-	    @Override
-	    public void addVelocity( Vector vector){
-	    	dx += vector.getX();
-	    	dy += vector.getY();
-	    }
-	    @Override
-	    public double getDeltaX( EntityStatic owner ){
-	    	return (owner.x + dx + accX);
-	    }
-	    @Override
-	    public double getDeltaY( EntityStatic owner ){
-	    	return (owner.y + dy + accY);
-	    }
-	    @Override
-	    public void clipDX(double clipDX) {
-	    	
-	    	double dxTemp = dx;
-	    	
-	    	if ( dx > 0 ){
-	    		if ( clipDX > 0){
-	    			
-	    		}
-	    		else if ( dx + clipDX < 0 ){
-	    			dx = 0;
-	    		}else{
-	    			dx = dx + clipDX;
-	    		}
-	    	}
-	    	else if ( dx < 0 ){
-	    		if ( clipDX < 0){
-	    			
-	    		}
-	    		else if ( dx + clipDX > 0 ){ 
-	    			dx = 0;
-	    		}else{
-	    			dx = dx + clipDX;
-	    		}
-	    	}else{
-	    		dx = 0;
-	    	}
-	    	System.out.println(dxTemp+" ->> "+clipDX+" ->> "+dx);
-	    	
-	    }
-	    @Override
-	    public void clipDY(double clipDY) { 
-	    	double dyTemp = dy;
-	    	if ( dy > 0 ){
-	    		if ( clipDY > 0){
-	    			
-	    		}
-	    		else if ( dy + clipDY < 0 ){
-	    			dy = 0;
-	    		}else{
-	    			dy = dy + clipDY;
-	    		}
-	    	}
-	    	else if ( dy < 0 ){
-	    		if ( clipDY < 0){
-	    			
-	    		}
-	    		else if ( dy + clipDY > 0 ){ 
-	    			dy = 0;
-	    		}else{
-	    			dy = dy + clipDY;
-	    		}
-	    	}else{
-	    		dy = 0;
-	    	}
-	    	System.out.println(dyTemp+" ->> "+clipDY+" ->> "+dy);
-	    }
-	    
-	    public void clampDX( int clamp ){
-	    	if ( dx > 0 ){
-	    		if (clamp < 0){
-	    			dx = 0;
-	    		}
-	    	}
-	    	else if (dx < 0){
-	    		if (clamp > 0){
-	    			dx=0;
-	    		}
-	    	}
-	    }
-	    
-	    public void clampDY( int clamp ){
-	    	if ( dy > 0 ){
-	    		if (clamp < 0){
-	    			dy = 0;
-	    		}
-	    	}
-	    	else if (dy < 0){
-	    		if (clamp > 0){
-	    			dy=0;
-	    		}
-	    	}
-	    }
-	    
-	    @Override
-	    public void clipAccX(float clipAccX) {
-	    	if ( accX > 0 ) {
-	    	    
-	    		if ( clipAccX < 0 ){ 
-	    			if ( clipAccX + accX > 0)
-	    				accX = (accX + clipAccX);
-	    			else
-	    				accX = 0;
-	    		}
-	    	}
-	    	else if ( accX < 0 ) {
-	    		
-	    		if ( clipAccX > 0 ){ 
-	    			if ( clipAccX + accX < 0)
-	    				accX = accX + clipAccX;
-	    			else
-	    				accX = 0;
-	    		}
-	    	}
-	    }
-	    @Override
-	    public void clipAccY(float clipAccY) { 
-	    	if ( accY > 0 ) {
-	    
-	    		if ( clipAccY < 0 ){ 
-	    			if ( clipAccY + accY > 0)
-	    				accY = accY + clipAccY;
-	    			else
-	    				accY = 0;
-	    		}
-	    	}
-	    	else if ( accY < 0 ) {
-	    		
-	    		if ( clipAccY > 0 ){ 
-	    			if ( clipAccY + accY < 0)
-	    				accY = (accY + clipAccY);
-	    			else
-	    				accY = 0;
-	    		}
-	    	}
-	    }
-	    @Override
-	    
-	    public void setAccX(float setAX) {
-	    	accXT = setAX;
-	    }
-	    @Override
-	    public void setAccY(float setAY) {
-	    	accYT = setAY;
-	    }
-	    @Override
-	    public double getAccY() {
-	    	return accY;
-	    }
-	    @Override
-	    public double getAccX() {
-	    	return accX;
-	    }
-	    @Override
-	    public void setDampeningX(float decceleration) { 
-	    	if (dx > (0.1))
-	    	{
-	    		applyAccelerationX( -decceleration );
-	    	}
-	    	else if (dx < (-0.1))
-	    	{
-	    		applyAccelerationX( decceleration );
-	    	}
-	    	else
-	    	{
-	    		accX=0;
-	    		dx=0;
-	    	}
-	    }
-	    @Override
-	    public void applyAccelerationX(float accX){
-	    	accX =+ accX;
-	    }
-	    @Override
-	    public void applyAccelerationY(float accY){
-	    	accY =+ accY;
-	    }
-
-	    @Override
-		/** Creates new Force on this Collidable out of input Vector, and returns the Force that was added
-		 * 
-		 * @param vector
-		 * @return
-		 */
-	    public Force addForce( Vector vector ){
-	    	
-	    	int indexID = forces.size();     	
-	    	Force newForce = new Force( vector , indexID );
-	    	forces.add( newForce ) ;
-	    	//System.out.print("Adding Force "+ indexID+" ... ");
-	    	return newForce;
-	    }
-	    @Override
-	    public void removeForce(int index){ 
-	    	//System.out.print("Removing Force "+ index+" ... ");
-
-		    for ( int i = index+1 ; i < forces.size() ; i++) {
-		    	forces.get(i).indexShift();
-		    } 
-	    	forces.remove(index); 
-		    
-	    }
-	    @Override
-	    //MOVE TO ROTATIONAL BODY
-	    public PointForce addPointForce( Vector vector , Point point ){
-
-	    	int indexID = pointForces.size();     	
-	    	PointForce newForce = new PointForce( vector, point , indexID );
-	    	pointForces.add( newForce ) ;
-	    	return newForce;
-	    }
-	    @Override
-	    public void removePointForce(int index){ 
-	    	
-	    	pointForces.remove(index); 
-		    for ( int i = index ; i < pointForces.size() ; i++) {
-		    	pointForces.get(i).indexShift();
-		    } 
-	    }
-	    
-	    @Override
-	    public Vector[] debugForceArrows(){
-	    	Vector[] returnVectors = new Vector[ forces.size() ];
-	    	for ( int i = 0 ; i < forces.size() ; i++ ){
-	    		returnVectors[i] = forces.get(i).getVector() ;
-	    	}
-	    	return returnVectors;
-	    }
-	    @Override
-	    public Vector sumOfForces(){
-	    	
-	    	Vector returnVector = new Vector(0,0);
-	    	for ( Force force : forces ){
-	    		returnVector = returnVector.add( force.getVector() );
-	    	}
-	    	
-	    	return returnVector;
-	    }
-	    
-	    /** Attempts to add this Composite to Board updater thread.
-	     * 
-	     * @param board 
-	     * @return True if this composite was added to updater thread. False if this composite is already in updater thread
-	     */
-	    @Override
-	    public boolean addCompositeToUpdater( BoardAbstract board){ 
-	    	if ( this.updaterSlot == null ){
-	    		this.updaterSlot = board.addCompositeToUpdater(this);
-	    		return true;
-	    	}
-	    	else{
-	    		return false;
-	    	}
-	    }
-	    @Override
-	    public void removeUpdateable(){
-	    	this.updaterSlot.removeSelf();
-			System.out.println("Removing "+this+" from updater");
-	    }
-	    @Override
-		public boolean exists(){
-			return true;
-		}
-	    
-	    @Override
-	    public void disable() {
-	    	// TODO Auto-generated method stub
-	    }
-
-	    @Override
-		public void setCompositeName(String newName) {
-			this.compositeName = newName;
-		}
-		@Override
-		public String getCompositeName() {
-			return this.compositeName;		
-		}
-		@Override
-		public String toString() {
-			return this.getClass().getSimpleName();
-		}
+	public TranslationComposite( EntityStatic ownerEntity ){
+		this.ownerEntity = ownerEntity;
 	}
+	
+	public void flyweightTranslation( TranslationComposite parentTranslation ){
+		this.coreMath = null;
+		this.coreMath = parentTranslation.coreMath;
+	}
+	
+	public void halt(){
+		coreMath.halt();
+	}
+
+	public double getDX() {
+		return coreMath.getDX();
+	}
+
+	public double getDY() {
+		return coreMath.getDY();
+	}
+
+	public Vector getVelocityVector(){
+		return new Vector( coreMath.getDX() , coreMath.getDY() );
+	}
+
+	public void setDX(double setdx) {
+		coreMath.setDX(setdx);
+	}
+
+	public void setDY(double setdy) {
+		coreMath.setDY(setdy);
+	}
+
+	public void setVelocityVector( Vector vector){
+		coreMath.setVelocityVector(vector);
+	}
+
+	public void addVelocity( Vector vector){
+		coreMath.addVelocity(vector);
+	}
+
+	public double getDeltaX( EntityStatic owner ){
+		return coreMath.getDeltaX(owner);
+	}
+
+	public double getDeltaY( EntityStatic owner ){
+		return coreMath.getDeltaY(owner);
+	}
+
+	public void clipDX(double clipDX) {
+		coreMath.clipDX(clipDX);
+	}
+
+	public void clipDY(double clipDY) { 
+		coreMath.clipDY(clipDY);
+	}
+
+	public void clampDX( int clamp ){
+		coreMath.clampDX(clamp);
+	}
+
+	public void clampDY( int clamp ){
+		coreMath.clampDY(clamp);
+	}
+
+
+	public void clipAccX(float clipAccX) {
+		coreMath.clipAccX(clipAccX);
+	}
+
+	public void clipAccY(float clipAccY) { 
+		coreMath.clipAccY(clipAccY);
+	}
+
+
+	public void setAccX(float setAX) {
+		coreMath.setAccX(setAX);
+	}
+
+	public void setAccY(float setAY) {
+		coreMath.setAccY(setAY);
+	}
+
+	public double getAccY() {
+		return coreMath.getAccY();
+	}
+
+	public double getAccX() {
+		return coreMath.getAccX();
+	}
+
+	public void setDampeningX(float decceleration) { 
+		coreMath.setDampeningX(decceleration);
+	}
+
+	public void applyAccelerationX(float accX){
+		coreMath.applyAccelerationX(accX);
+	}
+
+	public void applyAccelerationY(float accY){
+		coreMath.applyAccelerationY(accY);
+	}
+
+	/** Creates new Force on this Collidable out of input Vector, and returns the Force that was added
+	 * @param vector
+	 * @return
+	 */
+	public Force addForce( Vector vector ){
+		return coreMath.addForce(vector);
+	}
+
+	public void removeForce(int index){ 
+		coreMath.removeForce(index);
+	}
+
+	//MOVE TO ROTATIONAL BODY
+	public PointForce addPointForce( Vector vector , Point point ){
+		return coreMath.addPointForce(vector, point);
+	}
+
+	public void removePointForce(int index){ 
+		coreMath.removePointForce(index);
+	}
+
+
+	public Vector[] debugForceArrows(){
+		return coreMath.debugForceArrows();
+	}
+
+	public Vector sumOfForces(){
+		return coreMath.sumOfForces();
+	}
+
+	/** Attempts to add this Composite to Board updater thread.
+	 * 
+	 * @param board 
+	 * @return True if this composite was added to updater thread. False if this composite is already in updater thread
+	 */
+
+	public boolean addCompositeToUpdater( BoardAbstract board){ 
+		return coreMath.addCompositeToUpdater(board);
+	}
+
+	public void removeThisUpdateable(){
+		coreMath.removeThisUpdateable();
+	}
+	@Override
+	public boolean exists(){
+		return true;
+	}
+
+	@Override
+	public void disableComposite() {
+
+		//removeThisUpdateable();
+		//FIXME needs to happen only when no mor eentities are flyweighting this composite
+	}
+
+	@Override
+	public void setCompositeName(String newName) {
+		this.compositeName = newName;
+	}
+	@Override
+	public String getCompositeName() {
+		return this.compositeName;		
+	}
+
+	@Override
+	public void updateEntity(EntityStatic entity) {
+		coreMath.updateEntity(entity);
+	}
+
+	@Override
+	public void updateComposite() {
+		coreMath.updateComposite();
+	}
+	
+	
+	private class TranslationMath implements UpdateableComposite{
+	
+			private ListNodeTicket updaterSlot;	
+			protected double dx=0;
+			protected double dy=0;
+			protected double accY=0;
+			protected double accX=0;
+			protected double dxT=0;
+			protected double dyT=0;
+			protected double accYT=0;
+			protected double accXT=0;
+		
+			protected ArrayList<Force> forces = new ArrayList<>();
+			protected ArrayList<PointForce> pointForces = new ArrayList<>();
+		
+			protected boolean isColliding;
+		
+			@Override
+			public void updateComposite() {
+		
+				dx += accX; 
+				dy += accY;
+		
+				Vector sum = this.sumOfForces();
+				accX = sum.getX();
+				accY = sum.getY();
+		
+		
+			}  
+			@Override
+			public void updateEntity( EntityStatic entity ) {
+		
+				entity.setX( entity.x + this.dx) ; 
+				entity.setY( entity.y + this.dy) ;
+		
+			}  
+			
+			public void halt(){
+				dx=0;
+				dy=0;
+				accX=0;
+				accY=0;
+			}
+		
+			public double getDX() {
+				return dx;
+			}
+		
+			public double getDY() {
+				return dy;
+			}
+		
+			public Vector getVelocityVector(){
+				return new Vector( dx , dy );
+			}
+		
+			public void setDX(double setdx) {
+				dx = setdx;
+			}
+		
+			public void setDY(double setdy) {
+				dy = setdy;
+			}
+		
+			public void setVelocityVector( Vector vector){
+				dx = vector.getX();
+				dy = vector.getY();
+			}
+		
+			public void addVelocity( Vector vector){
+				dx += vector.getX();
+				dy += vector.getY();
+			}
+		
+			public double getDeltaX( EntityStatic owner ){
+				return (owner.x + dx + accX);
+			}
+		
+			public double getDeltaY( EntityStatic owner ){
+				return (owner.y + dy + accY);
+			}
+		
+			public void clipDX(double clipDX) {
+		
+				double dxTemp = dx;
+		
+				if ( dx > 0 ){
+					if ( clipDX > 0){
+		
+					}
+					else if ( dx + clipDX < 0 ){
+						dx = 0;
+					}else{
+						dx = dx + clipDX;
+					}
+				}
+				else if ( dx < 0 ){
+					if ( clipDX < 0){
+		
+					}
+					else if ( dx + clipDX > 0 ){ 
+						dx = 0;
+					}else{
+						dx = dx + clipDX;
+					}
+				}else{
+					dx = 0;
+				}
+				System.out.println(dxTemp+" ->> "+clipDX+" ->> "+dx);
+		
+			}
+		
+			public void clipDY(double clipDY) { 
+				double dyTemp = dy;
+				if ( dy > 0 ){
+					if ( clipDY > 0){
+		
+					}
+					else if ( dy + clipDY < 0 ){
+						dy = 0;
+					}else{
+						dy = dy + clipDY;
+					}
+				}
+				else if ( dy < 0 ){
+					if ( clipDY < 0){
+		
+					}
+					else if ( dy + clipDY > 0 ){ 
+						dy = 0;
+					}else{
+						dy = dy + clipDY;
+					}
+				}else{
+					dy = 0;
+				}
+				System.out.println(dyTemp+" ->> "+clipDY+" ->> "+dy);
+			}
+		
+			public void clampDX( int clamp ){
+				if ( dx > 0 ){
+					if (clamp < 0){
+						dx = 0;
+					}
+				}
+				else if (dx < 0){
+					if (clamp > 0){
+						dx=0;
+					}
+				}
+			}
+		
+			public void clampDY( int clamp ){
+				if ( dy > 0 ){
+					if (clamp < 0){
+						dy = 0;
+					}
+				}
+				else if (dy < 0){
+					if (clamp > 0){
+						dy=0;
+					}
+				}
+			}
+		
+		
+			public void clipAccX(float clipAccX) {
+				if ( accX > 0 ) {
+		
+					if ( clipAccX < 0 ){ 
+						if ( clipAccX + accX > 0)
+							accX = (accX + clipAccX);
+						else
+							accX = 0;
+					}
+				}
+				else if ( accX < 0 ) {
+		
+					if ( clipAccX > 0 ){ 
+						if ( clipAccX + accX < 0)
+							accX = accX + clipAccX;
+						else
+							accX = 0;
+					}
+				}
+			}
+		
+			public void clipAccY(float clipAccY) { 
+				if ( accY > 0 ) {
+		
+					if ( clipAccY < 0 ){ 
+						if ( clipAccY + accY > 0)
+							accY = accY + clipAccY;
+						else
+							accY = 0;
+					}
+				}
+				else if ( accY < 0 ) {
+		
+					if ( clipAccY > 0 ){ 
+						if ( clipAccY + accY < 0)
+							accY = (accY + clipAccY);
+						else
+							accY = 0;
+					}
+				}
+			}
+		
+		
+			public void setAccX(float setAX) {
+				accXT = setAX;
+			}
+		
+			public void setAccY(float setAY) {
+				accYT = setAY;
+			}
+		
+			public double getAccY() {
+				return accY;
+			}
+		
+			public double getAccX() {
+				return accX;
+			}
+		
+			public void setDampeningX(float decceleration) { 
+				if (dx > (0.1))
+				{
+					applyAccelerationX( -decceleration );
+				}
+				else if (dx < (-0.1))
+				{
+					applyAccelerationX( decceleration );
+				}
+				else
+				{
+					accX=0;
+					dx=0;
+				}
+			}
+		
+			public void applyAccelerationX(float accX){
+				accX =+ accX;
+			}
+		
+			public void applyAccelerationY(float accY){
+				accY =+ accY;
+			}
+		
+		
+			/** Creates new Force on this Collidable out of input Vector, and returns the Force that was added
+			 * 
+			 * @param vector
+			 * @return
+			 */
+			public Force addForce( Vector vector ){
+		
+				int indexID = forces.size();     	
+				Force newForce = new Force( vector , indexID );
+				forces.add( newForce ) ;
+				//System.out.print("Adding Force "+ indexID+" ... ");
+				return newForce;
+			}
+		
+			public void removeForce(int index){ 
+				//System.out.print("Removing Force "+ index+" ... ");
+		
+				for ( int i = index+1 ; i < forces.size() ; i++) {
+					forces.get(i).indexShift();
+				} 
+				forces.remove(index); 
+		
+			}
+		
+			//MOVE TO ROTATIONAL BODY
+			public PointForce addPointForce( Vector vector , Point point ){
+		
+				int indexID = pointForces.size();     	
+				PointForce newForce = new PointForce( vector, point , indexID );
+				pointForces.add( newForce ) ;
+				return newForce;
+			}
+		
+			public void removePointForce(int index){ 
+		
+				pointForces.remove(index); 
+				for ( int i = index ; i < pointForces.size() ; i++) {
+					pointForces.get(i).indexShift();
+				} 
+			}
+		
+		
+			public Vector[] debugForceArrows(){
+				Vector[] returnVectors = new Vector[ forces.size() ];
+				for ( int i = 0 ; i < forces.size() ; i++ ){
+					returnVectors[i] = forces.get(i).getVector() ;
+				}
+				return returnVectors;
+			}
+		
+			public Vector sumOfForces(){
+		
+				Vector returnVector = new Vector(0,0);
+				for ( Force force : forces ){
+					returnVector = returnVector.add( force.getVector() );
+				}
+		
+				return returnVector;
+			}
+		
+			/** Attempts to add this Composite to Board updater thread.
+			 * 
+			 * @param board 
+			 * @return True if this composite was added to updater thread. False if this composite is already in updater thread
+			 */
+		
+			public boolean addCompositeToUpdater( BoardAbstract board){ 
+				if ( this.updaterSlot == null ){
+					this.updaterSlot = board.addCompositeToUpdater(this);
+					return true;
+				}
+				else{
+					return false;
+				}
+			}
+		
+			public void removeThisUpdateable(){
+				this.updaterSlot.removeSelfFromList();
+				System.out.println("Removing "+this+" from updater");
+			}
+	
+	} // END INNER MATH CLASS
+	
 	
 	//NULL SINGLETON CLASS ###############################################################################
 	private static class Null extends TranslationComposite{
-		protected String compositeName = "Null Singleton Translation Composite";
 		protected Null(){
+			super(null);
+			this.compositeName = "Null Singleton Translation";
 		}
 	
 		protected ArrayList<Force> forces = new ArrayList<>();
@@ -542,7 +668,7 @@ public abstract class TranslationComposite implements EntityComposite{
 			return new Vector(0,0);
 		}
 		
-		public void removeUpdateable(){
+		public void removeThisUpdateable(){
 			System.err.println("Attempted to remove null Translation from updater");
 		}
 		
@@ -552,7 +678,7 @@ public abstract class TranslationComposite implements EntityComposite{
 		}
 	
 		@Override
-		public void disable() {
+		public void disableComposite() {
 			//TODO ENSURE THIS NULL COMPOSITE IS DESTROYED
 		}
 		@Override
@@ -572,4 +698,6 @@ public abstract class TranslationComposite implements EntityComposite{
 			return new Vector(0,0);
 		}
 	}
+	
+	
 }

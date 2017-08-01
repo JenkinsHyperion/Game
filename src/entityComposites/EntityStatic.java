@@ -127,6 +127,28 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		this.parentComposite = parentComposite;
 	}
 	
+	/* #########################################################################################################################
+	 *		Composite Nullifier Methods
+	 * #########################################################################################################################
+	 */
+	
+	protected void nullifyTranslationComposite(){
+		this.translationType = TranslationComposite.nullSingleton();
+	}
+	
+	public void removeTranslationComposite(){
+		
+		//this.nullifyTranslationComposite();
+		
+		for ( EntityStatic child : this.parentComposite.getChildrenEntities() ){
+			child.nullifyTranslationComposite();
+		}
+	}
+	
+	protected void nullifyRotationComposite(){
+		this.rotationType = DynamicRotationComposite.nullSingleton();
+	}
+	
 	/*public ParentComposite getParentComposite() {
 		return this.parentComposite;
 	}*/
@@ -267,13 +289,13 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	public void disable(){
 		System.out.println("DISABLING "+this);
 		
-		this.graphicsComposite.disable();
+		this.graphicsComposite.disableComposite();
 		this.graphicsComposite = null;
 		
-		this.collisionType.disable();
+		this.collisionType.disableComposite();
 		this.collisionType = null;		
 		
-		this.updaterSlot.removeSelf();
+		this.updaterSlot.removeSelfFromList();
 		
 		this.ownerScene.removeEntity(this.sceneIndex);
 
@@ -291,7 +313,7 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	}
 	
 	public void removeFromUpdater(){
-		this.updaterSlot.removeSelf();
+		this.updaterSlot.removeSelfFromList();
 	}
 
 	// PARENT CHILD METHODS
@@ -335,8 +357,8 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	}
 	
 	@Override
-	public void removeUpdateable() {
-		this.updaterSlot.removeSelf();
+	public void removeThisUpdateable() {
+		this.updaterSlot.removeSelfFromList();
 		this.updaterSlot = nullTicket;
 	}
 
@@ -383,7 +405,7 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	
 	private static class NullTicket extends ListNodeTicket{
 		 @Override
-		public void removeSelf() {
+		public void removeSelfFromList() {
 			//System.err.println( " was not in updater");
 		}
 		 @Override

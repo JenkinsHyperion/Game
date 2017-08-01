@@ -19,7 +19,7 @@ public interface UpdateableComposite {
 	/**Overriding methods should call on the concrete updateable composite's Ticket.removeSelf() method to remove itself from the updater thread
 	 * 
 	 */
-	public void removeUpdateable();
+	public void removeThisUpdateable();
 
 	
 	boolean addCompositeToUpdater(BoardAbstract board);

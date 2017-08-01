@@ -4,7 +4,7 @@ public interface EntityComposite {
 
 	public boolean exists();
 	
-	public void disable();
+	public void disableComposite();
 	
 	public void setCompositeName(String newName);
 	public String getCompositeName();

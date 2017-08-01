@@ -101,10 +101,10 @@ public abstract class GraphicComposite implements EntityComposite{
 		}
 		
 		@Override
-		public void disable() {
+		public void disableComposite() {
 			//more disabling 
 			System.out.println("Removing graphics from renderer");
-			rendererSlot.removeSelf();
+			rendererSlot.removeSelfFromList();
 		}
 		@Override
 		public void setCompositeName(String newName) {
@@ -157,7 +157,7 @@ public abstract class GraphicComposite implements EntityComposite{
 		}
 		
 		@Override
-		public void disable() {
+		public void disableComposite() {
 			System.err.println("No graphics to disable");
 		}
 		

@@ -162,7 +162,7 @@ public abstract class AngularComposite implements EntityComposite {
 		}
 	
 		@Override
-		public void disable() {
+		public void disableComposite() {
 			// TODO Auto-generated method stub
 		}
 		@Override
@@ -215,7 +215,7 @@ public abstract class AngularComposite implements EntityComposite {
 		}
 
 		@Override
-		public void disable() {
+		public void disableComposite() {
 		}
 		@Override
 		public Vector getOrientationVector() {

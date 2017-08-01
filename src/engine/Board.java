@@ -74,7 +74,7 @@ public class Board extends BoardAbstract {
     	
     	this.camera = renderingEngine.getCamera(); 
     	this.debugBoundaries = renderingEngine.addOverlay( new DebugBoundaryOverlay() );
-
+    	//this.debugBoundaries.toggle();
     	//this.diagnosticsOverlay = renderingEngine.addOverlay( new DiagnosticsOverlay() );
     	
     	
@@ -104,9 +104,6 @@ public class Board extends BoardAbstract {
         
         // initialize player
         player = new PlayerCharacter(ICRAFT_X, ICRAFT_Y,this);
-  
-        collisionEngine.addDynamicCollidable( player.getColliderComposite() );
-        renderingEngine.addSpriteComposite( player.getGraphicComposite() );
 
         currentScene.addEntity( player ); 
   
@@ -139,16 +136,16 @@ public class Board extends BoardAbstract {
         testEntity = new EntityStatic("Test Ground",700,500);  
         CompositeFactory.addColliderTo( testEntity , new BoundaryPolygonal.Box(446,100,-223,-50 ) );
         CompositeFactory.addGraphicTo(testEntity, new SpriteStillframe("ground_1.png" , -223 , -53 ));
-        CompositeFactory.addTranslationTo( testEntity );
+        //CompositeFactory.addTranslationTo( testEntity );
         //renderingEngine.addSpriteComposite( testEntity.getSpriteType() );
         //currentScene.addEntity( testEntity );
-        testEntity.getTranslationComposite().setDY(-0.1f);
+        //testEntity.getTranslationComposite().setDY(-0.1f);
         //currentScene.addEntity(new EntityPhysics(120,260,"box.png"));
         //dynamicEntitiesList.add(new Bullet(100,100,1,1));
         
       	//EntityRotationalDynamic rotationTest = new TestRotation(-400,400);
 
-      	//currentScene.addEntity( rotationTest );
+      	currentScene.addEntity( testEntity );
       	
         //test for LaserTest entity
         //laser = new Tracer(143,260, physicsEntitiesList.get(0) , this ); //later will be parent system

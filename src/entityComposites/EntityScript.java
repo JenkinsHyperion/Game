@@ -33,8 +33,8 @@ public abstract class EntityScript implements UpdateableComposite{
 	}
 	
 	@Override
-	public void removeUpdateable() {
-		this.updaterSlot.removeSelf();
+	public void removeThisUpdateable() {
+		this.updaterSlot.removeSelfFromList();
 	}
 	
 }

@@ -126,7 +126,7 @@ public class PlayerCharacter extends Player {
         // Find better method for casting
         
         Boundary boundarytemp =  new BoundaryPolygonal.EnhancedBox( 24,76 ,-12,-38, eventList );
-        //Boundary boundarytemp2 = new BoundarySingular();
+        Boundary boundarytemp2 = new BoundarySingular();
         Boundary boundarytemp3 = new BoundaryCircular(40,this);
 		
 		/*for ( BoundaryVertex corner : boundarytemp.getCornersVertex() ){
@@ -331,11 +331,9 @@ public class PlayerCharacter extends Player {
     			
     			Vector groundVector = ground.getSlopeVector().unitVector();
     			
-    			//movementForce.setVector(
-    			//	getOrientationVector().multiply(  playerDirection.normalize( 0.1 + runningForce  )  ) 
-    			//);
+    			translation.setDX( playerDirection.normalize( 2 ) );
     			
-    			movementForce.setVector( groundVector.multiply(  playerDirection.normalize( 0.1 + runningForce  ) ) );
+    			//movementForce.setVector( groundVector.multiply(  playerDirection.normalize( 0.1 + runningForce  ) ) );
     			
     		}
     	}

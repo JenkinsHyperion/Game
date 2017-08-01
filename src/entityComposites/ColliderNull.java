@@ -145,7 +145,7 @@ public final class ColliderNull extends Collider{
 	}
 	
 	@Override
-	public void disable() {
+	public void disableComposite() {
 		System.err.println("No collider to disable");
 	}
 	@Override

@@ -115,10 +115,10 @@ public class VisualCollisionDynamicStatic extends Collision {
 			
 			if ( closestResolution.FeatureSecondary().debugIsSide() ){
 				Vector slope = ((Side)closestResolution.FeatureSecondary()).getSlopeVector().unitVector();
-				Vector normal = new Vector(0,-0.2);
+				Vector normal = new Vector(0,-0.2).projectedOver( slope.normalLeft() );
 				normalForce.setVector( normal );
 
-				friction.setVector( dynamicPrimary.getVelocityVector().projectedOver(slope).inverse().multiply(0.01) );
+				friction.setVector( dynamicPrimary.getVelocityVector().projectedOver(slope).inverse().multiply(0.1) );
 				
 			}
 			else if ( closestResolution.FeatureSecondary().debugIsVertex() ){
@@ -164,8 +164,8 @@ public class VisualCollisionDynamicStatic extends Collision {
 			}
 			
 			
-			System.out.println("Triggering "+resolution.FeaturePrimary().getEvent() + 
-								" of "+ resolution.FeaturePrimary() + " on " + entityPrimary );
+			System.out.println("Triggering ["+resolution.FeaturePrimary().getEvent() + 
+								"] of ["+ resolution.FeaturePrimary() + "] on [" + entityPrimary+"]" );
 			//Trigger Boundary Collision Event on relevant side/vertex
 			resolution.FeaturePrimary().getEvent().run( resolution.FeaturePrimary() , resolution.FeatureSecondary() );
 			

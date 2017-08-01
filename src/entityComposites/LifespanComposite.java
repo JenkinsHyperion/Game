@@ -29,8 +29,8 @@ public class LifespanComposite implements EntityComposite, UpdateableComposite {
 	}
 
 	@Override
-	public void removeUpdateable() {
-		this.updaterSlot.removeSelf();
+	public void removeThisUpdateable() {
+		this.updaterSlot.removeSelfFromList();
 	}
 
 	@Override
@@ -50,8 +50,8 @@ public class LifespanComposite implements EntityComposite, UpdateableComposite {
 	}
 
 	@Override
-	public void disable() {
-		this.updaterSlot.removeSelf();
+	public void disableComposite() {
+		this.updaterSlot.removeSelfFromList();
 	}
 	@Override
 	public void setCompositeName(String newName) {

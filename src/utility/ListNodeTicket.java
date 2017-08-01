@@ -15,7 +15,7 @@ public class ListNodeTicket {
 		this.node = newElement;
 	}
 
-	public void removeSelf(){
+	public void removeSelfFromList(){
 		node.removeSelf();
 	}
 	

@@ -11,7 +11,7 @@ import physics.Vector;
  */
 
 public abstract class AngularComposite implements EntityComposite {
-	protected String compositeName = "AngularComposite";
+	protected String compositeName = "AngularCompositeAbstract";
 
 	private static final FixedAngleComposite fixedAngle = new AngularComposite.FixedAngleComposite();
 	

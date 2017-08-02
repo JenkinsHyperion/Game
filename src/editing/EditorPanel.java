@@ -8,6 +8,8 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
@@ -26,8 +28,12 @@ import java.io.File;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -38,6 +44,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTree;
 import javax.swing.SwingConstants;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ListDataListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -129,7 +137,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
     private String[] staticEntityStringArr;
 	
 // ###### COMPONENTS
-	private JLabel mousePosLabel;
+	//private JLabel mousePosLabel;
 	private JLabel entityCoordsLabel;
 	private JLabel selectedEntityNameLabel;
 	//private JTree tree;
@@ -155,6 +163,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	private JPanel entitiesComboBoxPanel;
 	//private JPanel treePanel;
 	private BrowserTreePanel browserTreePanel;
+	private CompositeEditorPanel compositeEditorPanel;
 	private JPanel labelsPanel;
 	private JPanel buttonPanel;
 	private JPanel propertyPanelTest;
@@ -250,7 +259,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		updateEntityStringArr(); //populates the entity string array representation with elements from Board's static entity arraylist
 		//populateListOfPropLists();
 		
-		mousePosLabel = new JLabel("Mouse Click: ");
+		//mousePosLabel = new JLabel("Mouse Click: ");
 		entityCoordsLabel = new JLabel("Coords of selected entity: ");
 		selectedEntityNameLabel = new JLabel("Nothing Selected");
 		
@@ -465,17 +474,23 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		// ###### adding the components to the Editor window		
 		//inline panel for text messages
 		labelsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		labelsPanel.setPreferredSize(new Dimension(215, 80));
+		labelsPanel.setPreferredSize(new Dimension(215, 50));
 		labelsPanel.setBackground(Color.GRAY);
 		labelsPanel.setBorder(BorderFactory.createEtchedBorder());
-		labelsPanel.add(mousePosLabel);
+		//labelsPanel.add(mousePosLabel);
 		labelsPanel.add(entityCoordsLabel);
 		labelsPanel.add(selectedEntityNameLabel);
 		/*propertyPanelTest = new JPanel();
 		propertyPanelTest.setPreferredSize(minimizedSize);
 		propertyPanelTest.setBackground(Color.GRAY);
 		propertyPanelTest.setBorder(BorderFactory.createTitledBorder("propertyPanelTest")); */
-	   
+		
+		
+		compositeEditorPanel = new CompositeEditorPanel();
+		JScrollPane compositeEditorScrollPane = new JScrollPane( compositeEditorPanel  );
+		compositeEditorScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		compositeEditorScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		compositeEditorScrollPane.setPreferredSize(new Dimension(220, 200));
 	    iconBarForEntPlacement.setBackground(Color.GRAY);
 	    iconBarForEntPlacement.setPreferredSize(new Dimension(195,200));
 	    iconBarForEntPlacement.setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -494,6 +509,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		add(loadButton);
 		add(labelsPanel);
 		add(treeScrollPane);
+		add(compositeEditorScrollPane);
 		add(buttonPanel);	
 		//add(propertyPanelTest);
 		add(new JLabel("        EntityPlacement         "));
@@ -590,15 +606,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
   		//setCurrentSelectedEntity( EntityNull.getNullEntity() );
   		enableEditPropertiesButton(false);
   	}
-	//this class will be the stand-in for my current shitty JOptionPane popup.
-	// will be created when createPropertiesFrame() is called.
-	@Deprecated	
-	public void createAndShowPropertiesFrame() {
-		PropertiesFrame propFrame = new PropertiesFrame(this);
-		propFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		propFrame.setLocationRelativeTo(null);
-		propFrame.setVisible(true);
-	}
 	public void createAndShowPropertiesPanel(BoardAbstract board2) {
 		propertyPanelTest.removeAll();
 		propertyPanelTest.add(new PropertiesPanel(this, board2));
@@ -769,7 +776,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 */	// #### End of section for prop lists
 	
 	public void setMousePosLabel(String text){
-		mousePosLabel.setText(text);
+		//mousePosLabel.setText(text);
 	}
 	public void setEntityCoordsLabel(String text){
 		entityCoordsLabel.setText(text);

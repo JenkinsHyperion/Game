@@ -150,6 +150,9 @@ public class MainWindow implements KeyListener, MouseListener{
 	    
 	    MainWindow mainWindow = new MainWindow(); //FIXME BOARD IS FUCKING THIS ALL UP
 	    //frame.add(board);
+	    
+	    Point resolution = new Point( board.B_WIDTH , board.B_HEIGHT );
+	    
 	    frame.addKeyListener(mainWindow);
 	    frame.addKeyListener(board);
 	    frame.addMouseListener(mainWindow);
@@ -180,7 +183,7 @@ public class MainWindow implements KeyListener, MouseListener{
 	    
 	    if( graphicsDevice.isDisplayChangeSupported() ) {
 	    	
-	    	DisplayMode mode = new DisplayMode( 800, 600, 32, DisplayMode.REFRESH_RATE_UNKNOWN );
+	    	DisplayMode mode = new DisplayMode( resolution.x, resolution.y, 32, DisplayMode.REFRESH_RATE_UNKNOWN );
 	    	graphicsDevice.setDisplayMode( mode );
 
 	    }
@@ -193,7 +196,7 @@ public class MainWindow implements KeyListener, MouseListener{
 	    frame.createBufferStrategy( 2 );
 	    BufferStrategy bufferStrategy = frame.getBufferStrategy();
 	    
-	    BufferedImage bufferedImage = graphicsConfig.createCompatibleImage(800, 600);
+	    BufferedImage bufferedImage = graphicsConfig.createCompatibleImage( resolution.x, resolution.y );
 	    Graphics2D g = bufferedImage.createGraphics();
 	    
 	    running = true;
@@ -203,7 +206,7 @@ public class MainWindow implements KeyListener, MouseListener{
 
 		        g2 = bufferedImage.createGraphics(); //Clear back buffer image
 		        g2.setColor( background );
-		        g2.fillRect( 0, 0, 400, 400 );
+		        g2.fillRect( 0, 0, resolution.x, resolution.y );
 		        
 		        board.activeRender(g2); //Render game onto back buffer
 		        

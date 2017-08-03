@@ -116,7 +116,7 @@ public abstract class GraphicComposite implements EntityComposite{
 		}
 		@Override
 		public String toString() {
-			return this.getClass().getSimpleName();
+			return this.getClass().getSimpleName() + " GraphicsComposite";
 		}
 	}
 	
@@ -161,12 +161,6 @@ public abstract class GraphicComposite implements EntityComposite{
 			System.err.println("No graphics to disable");
 		}
 		
-		@Override
-		public String toString() {
-			//FIXME come back to later to decide if this should return the current string, or getClass().getSimpleName()
-			return "Null Graphics Composite Singleton";
-		}
-
 		@Override
 		public void setCompositeName(String newName) {
 			// TODO Auto-generated method stub
@@ -215,6 +209,11 @@ public abstract class GraphicComposite implements EntityComposite{
 		@Override
 		public void setGraphicAngle(double d) {
 			System.err.println("Warning: Attempign to set ANgle of null graphics singleton");
+		}
+		@Override
+		public String toString() {
+			//FIXME come back to later to decide if this should return the current string, or getClass().getSimpleName()
+			return this.getClass().getSimpleName() + " GraphicsComposite";
 		}
 	}
 	

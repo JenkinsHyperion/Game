@@ -181,7 +181,7 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 		}
 		@Override
 		public String toString() {
-			return this.getClass().getSimpleName();
+			return this.getClass().getSimpleName() + " DynamicRotationComposite";
 		}
 	}
 	

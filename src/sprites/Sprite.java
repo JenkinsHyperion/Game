@@ -19,7 +19,7 @@ import physics.Vector;
 public abstract class Sprite implements Graphic{
 	
 	public static final SpriteStillframe missingSprite = new SpriteStillframe.MissingSprite("Missing");
-	
+	protected double alpha = 1.0;
     protected boolean visibility;
     protected int spriteOffsetX = 0;
     protected int spriteOffsetY = 0;
@@ -88,6 +88,15 @@ public abstract class Sprite implements Graphic{
     public double getAngle() {
     	return this.spriteAngle;
     }
+    public void setAlpha(double newAlpha) {
+    	if (newAlpha > 0.00001 && newAlpha <= 1.0000001)
+    		this.alpha = newAlpha;
+    	else
+    		this.alpha = 0.0;
+    }
+    public double getAlpha() {
+    	return this.alpha;
+    }
     public String getPathName(){
     	return this.fileName;
     }
@@ -98,5 +107,7 @@ public abstract class Sprite implements Graphic{
 	public double getSizeFactor() {
 		return spriteSizePercent;
 	}
-    
+    public String toString() {
+    	return this.getPathName();
+    }
 }

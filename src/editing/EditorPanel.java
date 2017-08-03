@@ -426,8 +426,13 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
         }*/
 		//separator.setPreferredSize(new Dimension(150,3));
 		
+		compositeEditorPanel = new CompositeEditorPanel();
+		JScrollPane compositeEditorScrollPane = new JScrollPane( compositeEditorPanel  );
+		compositeEditorScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		compositeEditorScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		compositeEditorScrollPane.setPreferredSize(new Dimension(220, 200));
 		
-		browserTreePanel = new BrowserTreePanel(new BorderLayout(),this, board);
+		browserTreePanel = new BrowserTreePanel(new BorderLayout(),this, board, compositeEditorPanel);
 //		browserTreePanel = new BrowserTreePanel(new FlowLayout(FlowLayout.LEFT),this,board);
 		JScrollPane treeScrollPane = new JScrollPane(browserTreePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		treeScrollPane.setFocusable(false);
@@ -485,12 +490,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		propertyPanelTest.setBackground(Color.GRAY);
 		propertyPanelTest.setBorder(BorderFactory.createTitledBorder("propertyPanelTest")); */
 		
-		
-		compositeEditorPanel = new CompositeEditorPanel();
-		JScrollPane compositeEditorScrollPane = new JScrollPane( compositeEditorPanel  );
-		compositeEditorScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		compositeEditorScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		compositeEditorScrollPane.setPreferredSize(new Dimension(220, 200));
 	    iconBarForEntPlacement.setBackground(Color.GRAY);
 	    iconBarForEntPlacement.setPreferredSize(new Dimension(195,200));
 	    iconBarForEntPlacement.setBorder(BorderFactory.createLineBorder(Color.BLACK));

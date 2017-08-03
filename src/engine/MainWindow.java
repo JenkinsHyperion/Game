@@ -145,6 +145,7 @@ public class MainWindow implements KeyListener, MouseListener{
 		
 		// Create game window...
 	    JFrame frame = new JFrame();
+	    System.err.println(Thread.currentThread().getName());
 
 	    frame.setIgnoreRepaint( true );
 	    
@@ -161,7 +162,7 @@ public class MainWindow implements KeyListener, MouseListener{
 	    
 	    frame.setResizable(false);
 	    frame.setVisible(true);
-
+	    frame.pack();
 	    frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
 
 	    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); 
@@ -189,10 +190,11 @@ public class MainWindow implements KeyListener, MouseListener{
 	    }
 	    
 	    Graphics paintImage = null;
+	   
 	    Color background = Color.BLACK;
 	    Graphics2D g2 = null;    
 	    // Variables for counting frames per seconds
-    	
+	    System.err.println("Frame displayable?" + frame.isDisplayable());
 	    frame.createBufferStrategy( 2 );
 	    BufferStrategy bufferStrategy = frame.getBufferStrategy();
 	    
@@ -206,7 +208,9 @@ public class MainWindow implements KeyListener, MouseListener{
 
 		        g2 = bufferedImage.createGraphics(); //Clear back buffer image
 		        g2.setColor( background );
+
 		        g2.fillRect( 0, 0, resolution.x, resolution.y );
+
 		        
 		        board.activeRender(g2); //Render game onto back buffer
 		        

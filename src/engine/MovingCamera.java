@@ -2,6 +2,7 @@ package engine;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -189,10 +190,12 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		cameraTransform.scale( zoomFactor , zoomFactor);
 		
 		cameraTransform.concatenate(entityTransform);
-		
+		Composite compositeBuffer = this.graphics.getComposite();
+		this.graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float)sprite.getSprite().getAlpha()));
 		this.graphics.drawImage(sprite.getSprite().getBufferedImage(), 
 				cameraTransform,
 				this.observer);
+		this.graphics.setComposite(compositeBuffer);
 	}
 
 	public void draw(Image image , int worldX, int worldY ){

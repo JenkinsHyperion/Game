@@ -63,7 +63,8 @@ public class PlantTwigSegment extends EntityStatic{
 	 */
 	
 	public static class StemSegment extends PlantTwigSegment{
-			
+		
+			public static int counter = 0;
 			protected Runnable currentWaterTransportState = new InactiveWaterTransportState();
 			protected SugarTransportState currentSugarTransportState = new InactiveSugarTransportState();
 			
@@ -76,7 +77,7 @@ public class PlantTwigSegment extends EntityStatic{
 			
 			public StemSegment(int x, int y, int maxGrowth , TestBoard board) {
 				super(x, y, maxGrowth, board);
-				
+				counter++;
 				//CompositeFactory.addDynamicRotationTo(this);
 				CompositeFactory.addCustomDynamicRotationTo(this, new DynamicRotationComposite.SineWave(this , waveCounter ) );
 				

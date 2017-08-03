@@ -23,15 +23,17 @@ import entityComposites.EntityStatic;
 import entityComposites.TranslationComposite;
 
 public class BrowserTreePanel extends JPanel {
-	
+	private CompositeEditorPanel compositeEditorPanelRef;
 	private JTree tree;
 	private DefaultTreeModel defaultModel;
 	private EditorPanel editorPanelRef;
 	protected BoardAbstract board;
 	protected DefaultMutableTreeNode sceneRoot;
 	protected DefaultMutableTreeNode entitiesRoot;
-	public BrowserTreePanel(LayoutManager layout, EditorPanel editorPanelRef, BoardAbstract boardRef) {
+	public BrowserTreePanel(LayoutManager layout, EditorPanel editorPanelRef, BoardAbstract boardRef, 
+							CompositeEditorPanel compositeEditorPanelArg) {
 		super(layout);
+		this.compositeEditorPanelRef = compositeEditorPanelArg;
 		this.editorPanelRef = editorPanelRef;
 		this.board = boardRef;
 		sceneRoot = new DefaultMutableTreeNode("Current Scene");
@@ -48,7 +50,7 @@ public class BrowserTreePanel extends JPanel {
 		
 		BasicTreeUI basicTreeUI = (BasicTreeUI) tree.getUI();
 		basicTreeUI.setRightChildIndent(5); 
-		basicTreeUI.setLeftChildIndent(1);
+		basicTreeUI.setLeftChildIndent(2);
 		
 		this.add(tree);
 		this.setFocusable(false);
@@ -59,7 +61,7 @@ public class BrowserTreePanel extends JPanel {
 		public void notifyTreeAddedEntity(EntityStatic newEnt) {
 			DefaultMutableTreeNode newEntityNode = createSingleEntityNodeFolder(newEnt);
 			defaultModel.insertNodeInto(newEntityNode, entitiesRoot, entitiesRoot.getChildCount());
-			System.err.println("From notifyTreeAddedEntity()--- added "+newEnt.name+" to tree.");
+			//System.err.println("From notifyTreeAddedEntity()--- added "+newEnt.name+" to tree.");
 		}
 		
 		/**Tells the browser tree that relationship has changed, and updates the node display accordingly.
@@ -74,9 +76,9 @@ public class BrowserTreePanel extends JPanel {
 				return;  //if either of these nodes can't be found, there's no way to update the tree so break out.
 			}
 			defaultModel.removeNodeFromParent(childNode);
-			System.err.println("removed "+childNode.getUserObject().toString()+"from parent.");
+			//System.err.println("removed "+childNode.getUserObject().toString()+"from parent.");
 			defaultModel.insertNodeInto(childNode, parentNode, parentNode.getChildCount());
-			System.err.println("inserted "+childNode.getUserObject().toString()+"to parent "+parentNode.getUserObject().toString());
+			//System.err.println("inserted "+childNode.getUserObject().toString()+"to parent "+parentNode.getUserObject().toString());
 		}
 		/**
 		 * Note** Only creates the current entity node. Doesn't create the main "Entities" folder in the same way that {@link #createCompositesNodeFolder(EntityStatic)} does.
@@ -159,10 +161,11 @@ public class BrowserTreePanel extends JPanel {
 				editorPanelRef.getEntitySelectMode().addSelectedEntity(nodeIsEntity);
 			}
 			else if (objectInsideNode instanceof EntityComposite) {
+				EntityComposite nodeIsComposite = (EntityComposite)objectInsideNode;
 				System.out.println("*** IS A COMPOSITE ***");
-				if (objectInsideNode instanceof TranslationComposite) {
-					System.out.println("*** IS TRANSLATEABLECOMPOSITE ***");
-				}
+				BrowserTreePanel.this.compositeEditorPanelRef.setCurrentComposite(nodeIsComposite);
+				BrowserTreePanel.this.compositeEditorPanelRef.runTemplate();
+				BrowserTreePanel.this.compositeEditorPanelRef.revalidate();
 			}
 
 		}	

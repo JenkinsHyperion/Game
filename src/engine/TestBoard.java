@@ -87,7 +87,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
       				100,
       				TestBoard.this
       			);
-    			sprout.name = "Seed";
+    			sprout.name = "Seed" + PlantTwigSegment.StemSegment.counter;
     			sprout.debugMakeWaterSource();
     			sprout.debugSetSugarLevel(700);
       			

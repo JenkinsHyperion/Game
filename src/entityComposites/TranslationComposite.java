@@ -175,7 +175,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	@Override
 	public void disableComposite() {
 
-		//removeThisUpdateable();
+		removeThisUpdateable();
 		//FIXME needs to happen only when no mor eentities are flyweighting this composite
 	}
 
@@ -196,6 +196,10 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	@Override
 	public void updateComposite() {
 		coreMath.updateComposite();
+	}
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName();
 	}
 	
 	
@@ -691,7 +695,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		}
 		@Override
 		public String toString() {
-			return this.getClass().getSimpleName();
+			return this.getClass().getSimpleName()+ " TranslationComposite";
 		}
 	
 		public Vector getVelocityVector() {

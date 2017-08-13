@@ -12,7 +12,7 @@ import physics.Vector;
 
 public abstract class AngularComposite implements EntityComposite {
 	protected String compositeName = "AngularCompositeAbstract";
-
+	protected EntityStatic ownerEntity;
 	private static final FixedAngleComposite fixedAngle = new AngularComposite.FixedAngleComposite();
 	
 	protected double angleDegrees = 0;
@@ -42,7 +42,6 @@ public abstract class AngularComposite implements EntityComposite {
 	
 	public static class AngleComposite extends AngularComposite{
 		private String compositeName = "AngleComposite";
-		protected EntityStatic ownerEntity;
 		protected Vector orientation = new Vector( 1 , 0 );
 		protected ArrayList<RotateableComposite> rotateableCompositeList = new ArrayList<RotateableComposite>();
 		
@@ -57,6 +56,10 @@ public abstract class AngularComposite implements EntityComposite {
 		public double getAngle(){ return angleDegrees ; }
 		@Override
 		public Vector getOrientationVector(){ return orientation; }
+		
+		public EntityStatic getOwnerEntity(){
+			return this.ownerEntity;
+		}
 		
 		private void updateOrientationVector( double angleRadians ){
 			this.orientation = new Vector( Math.cos(angleRadians) , Math.sin(angleRadians) );
@@ -221,6 +224,9 @@ public abstract class AngularComposite implements EntityComposite {
 		public Vector getOrientationVector() {
 			System.err.println("WARNING: Attempted to get Orientation Vector of fixed angle entity");
 			return new Vector(1,0);
+		}
+		public EntityStatic getOwnerEntity(){
+			return this.ownerEntity;
 		}
 		@Override
 		public void setCompositeName(String newName) {

@@ -42,6 +42,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
@@ -432,7 +433,9 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		compositeEditorScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		compositeEditorScrollPane.setPreferredSize(new Dimension(220, 200));
 		
-		browserTreePanel = new BrowserTreePanel(new BorderLayout(),this, board, compositeEditorPanel);
+		JToolBar filterToolBar = new JToolBar(JToolBar.HORIZONTAL); 
+		
+		browserTreePanel = new BrowserTreePanel(new BorderLayout(),this, board, compositeEditorPanel, filterToolBar);
 //		browserTreePanel = new BrowserTreePanel(new FlowLayout(FlowLayout.LEFT),this,board);
 		JScrollPane treeScrollPane = new JScrollPane(browserTreePanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		treeScrollPane.setFocusable(false);
@@ -507,6 +510,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		add(saveButton);
 		add(loadButton);
 		add(labelsPanel);
+		add(filterToolBar);
 		add(treeScrollPane);
 		add(compositeEditorScrollPane);
 		add(buttonPanel);	

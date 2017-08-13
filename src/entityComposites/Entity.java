@@ -18,7 +18,7 @@ public class Entity {
 	public static final int MISC = 13;
 	public static final int ENEMY = 14;
 	public static int count;
-	public String name = "blank entity" + count;
+	public String name;
 	protected boolean alive = true;
 	protected boolean collidable = true; //default to true
 	protected double x;
@@ -28,6 +28,7 @@ public class Entity {
 	public Entity(int x, int y){
     	setX(x);
     	setY(y);	
+    	name = "blank entity" + count;
     	count++;
 	}
     

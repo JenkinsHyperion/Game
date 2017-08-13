@@ -212,7 +212,6 @@ public class CompositeEditorPanel extends JPanel {
 			double newTransparency = (double)transparencyInt * .01;
 			if (currentSelectedSprite != null) {
 				currentSelectedSprite.setAlpha(newTransparency);
-				System.err.println("Inside stateChanged()--Setting transparency to: " +newTransparency);
 			}
 /*			if (receiver.getValueIsAdjusting() == false) {
 				int transparencyInt = receiver.getValue();

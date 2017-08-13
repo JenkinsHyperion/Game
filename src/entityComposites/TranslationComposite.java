@@ -11,7 +11,7 @@ import utility.ListNodeTicket;
 
 public class TranslationComposite implements EntityComposite, UpdateableComposite{
 	
-	protected String compositeName = "TranslationComposite";
+	protected String compositeName;
 	private TranslationMath coreMath = new TranslationMath();
 	private EntityStatic ownerEntity;
 	
@@ -23,6 +23,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	
 	public TranslationComposite( EntityStatic ownerEntity ){
 		this.ownerEntity = ownerEntity;
+		this.compositeName = this.getClass().getSimpleName();
 	}
 	
 	public void flyweightTranslation( TranslationComposite parentTranslation ){
@@ -187,7 +188,10 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	public String getCompositeName() {
 		return this.compositeName;		
 	}
-
+	@Override
+	public EntityStatic getOwnerEntity(){
+		return this.ownerEntity;
+	}
 	@Override
 	public void updateEntity(EntityStatic entity) {
 		coreMath.updateEntity(entity);
@@ -199,7 +203,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	}
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName();
+		return this.compositeName;
 	}
 	
 	
@@ -541,7 +545,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	private static class Null extends TranslationComposite{
 		protected Null(){
 			super(null);
-			this.compositeName = "Null Singleton Translation";
+			this.compositeName += "Null";
 		}
 	
 		protected ArrayList<Force> forces = new ArrayList<>();
@@ -695,7 +699,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		}
 		@Override
 		public String toString() {
-			return this.getClass().getSimpleName()+ " TranslationComposite";
+			return this.compositeName;
 		}
 	
 		public Vector getVelocityVector() {

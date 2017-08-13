@@ -21,7 +21,7 @@ import physics.Vector;
 import physics.VisualCollisionCheck;
 
 public class Collider implements EntityComposite{
-	protected String compositeName = "Collider";
+	protected String compositeName;
 	protected EntityStatic ownerEntity;
 	
 	protected CollisionEngine engine;
@@ -41,13 +41,14 @@ public class Collider implements EntityComposite{
 	protected Collider(){
 		this.boundary = null;
 		this.ownerEntity = null; 
+		compositeName = this.getClass().getSimpleName();
 	}
 	
 	public Collider( EntityStatic owner , Boundary boundary){
 		
 		this.boundary = boundary;
 		this.ownerEntity = owner; 
-		
+		compositeName = this.getClass().getSimpleName();
 	}
 	
 	public Collider( EntityStatic owner , Line2D[] lines){
@@ -56,7 +57,7 @@ public class Collider implements EntityComposite{
 		
 		this.boundary = new BoundaryPolygonal( lines ) ;
 		this.ownerEntity = owner; 
-		
+		compositeName = this.getClass().getSimpleName();
 	}
 
 	public void setBoundary( Boundary boundary ){
@@ -179,7 +180,7 @@ public class Collider implements EntityComposite{
 		for ( int i = 0 ; i < collisionInteractions.size() ; i++) 
 		System.out.println("---" + i + " " + collisionInteractions.get(i).collision().collisionDebugTag);
 	}
-	
+	@Override
 	public EntityStatic getOwnerEntity(){
 		return this.ownerEntity;
 	}
@@ -242,7 +243,7 @@ public class Collider implements EntityComposite{
 	}
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName();
+		return this.compositeName;
 	}
 
 	@Override

@@ -28,7 +28,7 @@ public abstract class GraphicComposite implements EntityComposite{
 	}
 	
 	public static class Active extends GraphicComposite{
-		protected String compositeName = "GraphicComposite";
+		protected String compositeName;
 		EntityStatic ownerEntity;
 		protected Sprite currentSprite = Sprite.missingSprite;
 		private ListNodeTicket rendererSlot;
@@ -40,13 +40,19 @@ public abstract class GraphicComposite implements EntityComposite{
 		protected Active( Sprite current , EntityStatic ownerEntity ){
 			this.ownerEntity = ownerEntity;
 			this.currentSprite = current;
+			this.compositeName = "Graphics"+this.getClass().getSimpleName();
 		}
 		
 		protected Active( EntityStatic ownerEntity ){
 			this.ownerEntity = ownerEntity;
+			this.compositeName = "Graphics"+this.getClass().getSimpleName();
 		}
 	
 		public EntityStatic ownerEntity(){
+			return getOwnerEntity();
+		}
+		/** created new method to remove refactoring issues with name inconsistency*/ 
+		public EntityStatic getOwnerEntity(){
 			return this.ownerEntity;
 		}
 		@Override
@@ -116,20 +122,24 @@ public abstract class GraphicComposite implements EntityComposite{
 		}
 		@Override
 		public String toString() {
-			return this.getClass().getSimpleName() + " GraphicsComposite";
+			return this.compositeName;
 		}
 	}
 	
 	private static class Null extends GraphicComposite{
-		protected String compositeName = "GraphicCompositeNull";
+		protected String compositeName;
 
 		//constructor
 		private Null() {
+			this.compositeName = "GraphicComposite"+this.getClass().getSimpleName();
 			//this.currentSprite = new SpriteStillframe( new MissingIcon().paintMissingSprite() );//new MissingIcon().paintMissingSprite();
 			//this.currentSprite = new SpriteStillframe("missing");
 		}
 		
 		public EntityStatic ownerEntity(){
+			return this.getOwnerEntity();		
+		}
+		public EntityStatic getOwnerEntity(){
 			return null;
 		}
 		@Override
@@ -213,7 +223,7 @@ public abstract class GraphicComposite implements EntityComposite{
 		@Override
 		public String toString() {
 			//FIXME come back to later to decide if this should return the current string, or getClass().getSimpleName()
-			return this.getClass().getSimpleName() + " GraphicsComposite";
+			return this.compositeName;
 		}
 	}
 	

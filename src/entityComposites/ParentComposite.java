@@ -20,7 +20,10 @@ public abstract class ParentComposite implements EntityComposite {
 	public abstract void setCompositedPosition( double x , double y);
 	public abstract EntityStatic[] getChildrenEntities();
 	public abstract boolean isParent();
-	
+	@Override
+	public EntityStatic getOwnerEntity(){   //ignore for this class. Needed because of implementation
+		return null;
+	}
 	public static ParentComposite nullParentComposite(){
 		return nullParent;
 	}

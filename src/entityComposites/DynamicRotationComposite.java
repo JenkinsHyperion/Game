@@ -9,7 +9,7 @@ import testEntities.PlantTwigSegment;
 import utility.ListNodeTicket;
 
 public class DynamicRotationComposite implements EntityComposite, UpdateableComposite{
-	protected String compositeName = "DynamicRotationComposite";
+	protected String compositeName;
 	private ListNodeTicket updaterSlot;
 	
 	private EntityStatic ownerEntity;
@@ -26,6 +26,7 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 	
 	public DynamicRotationComposite( EntityStatic owner ){
 		this.ownerEntity = owner;
+		compositeName = this.getClass().getSimpleName();
 	}
 	
 	@Override
@@ -94,9 +95,12 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 	public String getCompositeName() {
 		return this.compositeName;		
 	}
+	public EntityStatic getOwnerEntity() {
+		return this.ownerEntity;
+	}
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName();
+		return this.compositeName;
 	}
 
 	
@@ -115,6 +119,7 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 		public SineWave(EntityStatic owner , int[] phaseCounterIntRef) { 
 			super(owner);
 			this.phaseCounter = phaseCounterIntRef;
+			this.compositeName = "DynamicRotation"+this.getClass().getSimpleName();
 		}
 		
 		@Override
@@ -152,6 +157,7 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 
 		public Null() {
 			super(null);
+			this.compositeName += this.getClass().getSimpleName();
 		}
 		@Override
 		public void updateComposite() {}
@@ -181,7 +187,7 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 		}
 		@Override
 		public String toString() {
-			return this.getClass().getSimpleName() + " DynamicRotationComposite";
+			return this.compositeName;
 		}
 	}
 	

@@ -66,4 +66,10 @@ public class LifespanComposite implements EntityComposite, UpdateableComposite {
 		return this.getClass().getSimpleName();
 	}
 
+	@Override
+	public EntityStatic getOwnerEntity() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

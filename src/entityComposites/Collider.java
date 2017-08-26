@@ -95,11 +95,11 @@ public class Collider implements EntityComposite{
 		return boundary;
 	}
 
-    
+    @Deprecated
 	public Boundary getBoundaryLocal(){
 		return boundary.atPosition( ownerEntity.getPosition() );
 	}
-	
+	@Deprecated
 	public Boundary getBoundaryDelta(){
 		Point positionDelta = new Point( 
 				(int)ownerEntity.getTranslationComposite().getDeltaX(ownerEntity) , 
@@ -116,7 +116,7 @@ public class Collider implements EntityComposite{
 	 */
 	
 	public void onCollisionEvent(){ 
-		uponCollision.run(null, null);
+		uponCollision.run(null, null, null);
 	}
 	
 	public void onLeavingCollisionEvent(){
@@ -126,7 +126,7 @@ public class Collider implements EntityComposite{
 	
 	public void onLeavingAllCollisionsEvent(){
 		
-		uponLeavingCollision.run( null , null );
+		uponLeavingCollision.run( null , null , null );
 	}
 	
 	public void setLeavingCollisionEvent( CollisionEvent leavingEvent ){
@@ -223,13 +223,13 @@ public class Collider implements EntityComposite{
 	public void addCompositeToPhysicsEngineStatic( CollisionEngine engine ){ 
 		this.engineSlot = engine.addStaticCollidable( this );
 		this.engine = engine;
-		System.out.println("   "+this+" adding static to collision engine");
+		System.out.print("   "+this+" adding static to collision engine");
 	}
 	
-	public void addCompositeToPhysicsEngineDynamic( CollisionEngine engine ){ 
+	public void addCompositeToPhysicsEngineDynamic( CollisionEngine engine ){
+		System.out.print("Adding dynamic to collision engine ");
 		this.engineSlot = engine.addDynamicCollidable( this );
 		this.engine = engine;
-		System.out.println("   "+this+" adding dynamic to collision engine");
 	}
 
 	@Override

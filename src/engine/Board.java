@@ -4,6 +4,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 import java.util.*;
+
+import javax.swing.JFrame;
 import javax.swing.event.*;
 
 import editing.EditorPanel;
@@ -59,8 +61,8 @@ public class Board extends BoardAbstract {
         {820, 128}, {490, 170}, {700, 30}
     };
 
-    public Board(int width , int height ) {
-    	super(width,height);
+    public Board(int width , int height, JFrame frame ) {
+    	super(width,height,frame);
     	
     	initBoard();
     	postInitializeBoard();

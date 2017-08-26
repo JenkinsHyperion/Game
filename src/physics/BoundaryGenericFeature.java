@@ -2,7 +2,14 @@ package physics;
 
 import java.awt.geom.Point2D;
 
+import misc.CollisionEvent;
+
 public class BoundaryGenericFeature extends BoundaryFeature{
+	
+	@Override
+	protected CollisionEvent getEvent(){
+		return null;
+	}
 	
 	@Override
 	public Point2D getP1() {

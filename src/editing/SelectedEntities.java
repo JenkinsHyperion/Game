@@ -54,7 +54,7 @@ public class SelectedEntities {
 				//float tempAngle = entity.getRotationComposite().getAngle();
 				//AffineTransform xform = new AffineTransform();
 				//xform.rotate((double)Math.toRadians(tempAngle));
-				Polygon poly = Boundary.getPolygonFromBoundary(entity.getColliderComposite().getBoundary(), entity);
+				Polygon poly = entity.getColliderComposite().getBoundary().getPolygonBounds(entity);
 				Rectangle rect = poly.getBounds();
 				//camera.drawRect(rect, g, Color.BLUE, Color.CYAN, .2f);
 				camera.debugDrawPolygon(poly, Color.CYAN, entity.getPosition(), new AffineTransform(), .2f);

@@ -136,6 +136,14 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	public void removeForce(int index){ 
 		coreMath.removeForce(index);
 	}
+	
+	public Force addNormalForce( Vector vector ){
+		return coreMath.addNormalForce(vector);
+	}
+
+	public void removeNormalForce(int index){ 
+		coreMath.removeNormalForce(index);
+	}
 
 	//MOVE TO ROTATIONAL BODY
 	public PointForce addPointForce( Vector vector , Point point ){
@@ -221,6 +229,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		
 			protected ArrayList<Force> forces = new ArrayList<>();
 			protected ArrayList<PointForce> pointForces = new ArrayList<>();
+			protected ArrayList<Force> normalForces = new ArrayList<>();
 		
 			protected boolean isColliding;
 		
@@ -480,6 +489,25 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 				forces.remove(index); 
 		
 			}
+			
+			public Force addNormalForce( Vector vector ){
+				
+				int indexID = normalForces.size();     	
+				Force newForce = new Force( vector , indexID );
+				normalForces.add( newForce ) ;
+				//System.out.print("Adding Force "+ indexID+" ... ");
+				return newForce;
+			}
+			
+			public void removeNormalForce(int index){ 
+				//System.out.print("Removing Force "+ index+" ... ");
+		
+				for ( int i = index+1 ; i < normalForces.size() ; i++) {
+					normalForces.get(i).indexShift();
+				} 
+				normalForces.remove(index); 
+		
+			}
 		
 			//MOVE TO ROTATIONAL BODY
 			public PointForce addPointForce( Vector vector , Point point ){
@@ -500,9 +528,12 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		
 		
 			public Vector[] debugForceArrows(){
-				Vector[] returnVectors = new Vector[ forces.size() ];
+				Vector[] returnVectors = new Vector[ forces.size() + normalForces.size() ];
 				for ( int i = 0 ; i < forces.size() ; i++ ){
 					returnVectors[i] = forces.get(i).getVector() ;
+				}
+				for ( int j = forces.size() ; j < returnVectors.length ; j++ ){
+					returnVectors[j] = normalForces.get(j - forces.size() ).getVector() ;
 				}
 				return returnVectors;
 			}
@@ -512,6 +543,13 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 				Vector returnVector = new Vector(0,0);
 				for ( Force force : forces ){
 					returnVector = returnVector.add( force.getVector() );
+				}
+				
+				for ( Force normal : normalForces ){
+
+					returnVector = returnVector.subtract( 
+							returnVector.projectedOver( normal.getVector() )
+							);
 				}
 		
 				return returnVector;

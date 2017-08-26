@@ -15,6 +15,9 @@ public abstract class Boundary {
 	
 	protected VoronoiRegion[] regions = new VoronoiRegion[0]; //construxct with undefined region to prevent crashes
 
+	public static final byte CIRCULAR = 0;
+	public static final byte POLYGONAL = 1;
+	
 	public abstract Boundary atPosition( Point position );
 	
 	public abstract void rotateBoundaryFromTemplate( Point center, double angle , Boundary template );
@@ -27,8 +30,12 @@ public abstract class Boundary {
 	protected abstract Point2D[] getOuterPointsPair(Line2D axis);
 	
 	protected abstract Point2D farthestPointFromPoint(Point2D boundaryPoint, Line2D axis);
-	public abstract BoundaryVertex[] farthestVerticesFromPoint(BoundaryVertex boundaryVertex, Line2D axis);
+	
+	protected abstract Point2D farthestPointFromPoint( Point primaryOrigin, Point2D localPoint, Line2D axis);
+	
 	public abstract BoundaryVertex[] farthestVerticesFromPoint( Point2D point , Line2D axis);
+	
+	public abstract BoundaryFeature[] farthestFeatureFromPoint( Point primaryOrigin, Point secondaryOrigin, Point2D p2, Line2D axis );
 	
 	public abstract BoundaryVertex[] getCornersVertex();
 	public abstract Point2D[] getCornersPoint();
@@ -41,10 +48,16 @@ public abstract class Boundary {
 	protected abstract void constructVoronoiRegions();
 	protected VoronoiRegion[] getVoronoiRegions(){ return this.regions; }
 	
+	public abstract byte getTypeCode();
+	/** 
+	 * @param boundaryRaw - The real(raw) boundary to pass in. Inside this method it will deal with Local offset.
+	 * @param ent Entity to get boundary from
+	 * @return Polygon that hopefully is the same shape as the boundary
+	 */
+	public abstract Polygon getPolygonBounds( EntityStatic owner );
+	
 	public static Point2D[] getFarthestPointsBetween( Boundary b1 , Boundary b2 , Line2D axis ){
-		
 
-		
 		Point2D[] farthestPoints = new Point2D[]{ b1.getOuterPointsPair(axis)[0] , b2.getOuterPointsPair(axis)[0] };
 		
 		Point2D[] points1= b1.getOuterPointsPair(axis);
@@ -68,26 +81,57 @@ public abstract class Boundary {
 		return farthestPoints;
 	}
 	
-
-	/** 
-	 * @param boundaryRaw - The real(raw) boundary to pass in. Inside this method it will deal with Local offset.
-	 * @param ent Entity to get boundary from
-	 * @return Polygon that hopefully is the same shape as the boundary
-	 */
-	public static Polygon getPolygonFromBoundary(Boundary boundaryLocal, EntityStatic ent) {
-
-		int[] xpoints;
-		int[] ypoints;
-		xpoints = new int[boundaryLocal.getCornersPoint().length];
-		ypoints = new int[boundaryLocal.getCornersPoint().length];
+	public static Point2D shiftPoint( Point2D p , Point2D shift ){
 		
-		for (int i = 0; i < boundaryLocal.getCornersPoint().length; i++ ) {
-			xpoints[i] = (int)boundaryLocal.getCornersPoint()[i].getX();
-			ypoints[i] = (int)boundaryLocal.getCornersPoint()[i].getY();
-		}
-		Polygon polygonTest = new Polygon(xpoints, ypoints, boundaryLocal.getCornersPoint().length);
-		return polygonTest;
+		Point2D returnPoint = new Point.Double( p.getX() + shift.getX() , p.getY() + shift.getY() );
+		return returnPoint;
 	}
+	
+	/**Return is world positions
+	 * 
+	 * @param primary
+	 * @param b1
+	 * @param secondary
+	 * @param b2
+	 * @param axis
+	 * @return
+	 */
+	public static Point2D[] getFarthestPointsBetween( EntityStatic primary, Boundary b1 , EntityStatic secondary, Boundary b2 , Line2D axis ){
+		
+		final Point2D primaryPosition = primary.getPosition();
+		final Point2D secondaryPosition = secondary.getPosition();
+		
+		final Point2D[] points1= b1.getOuterPointsPair(axis); 
+		final Point2D[] points2= b2.getOuterPointsPair(axis); 
+		
+		Point2D localPointPlayer = shiftPoint( points1[0] , primaryPosition );
+		Point2D localPointStat = shiftPoint( points2[0] , secondaryPosition );
+		
+		Point2D[] farthestPoints = new Point2D[]{ localPointPlayer , localPointStat };
+		
+		for ( int i = 0 ; i < points1.length ; i++ ){
+			
+			localPointPlayer = getProjectionPoint( shiftPoint( points1[i] , primaryPosition) , axis );
+			
+			for ( int j = 0 ; j < points2.length ; j++ ){ 
+				
+				localPointStat = getProjectionPoint( shiftPoint( points2[j], secondaryPosition ) , axis );
+				
+				if ( localPointPlayer.distance( localPointStat ) 
+						> 
+					getProjectionPoint( farthestPoints[0] , axis ).distance( getProjectionPoint( farthestPoints[1] , axis ) ) 
+				){
+					// points i and j are farther apart on axis than whats stored 
+					farthestPoints[0] = shiftPoint(points1[i] , primaryPosition );
+					farthestPoints[1] = shiftPoint(points2[j] , secondaryPosition );
+				}
+				
+			}
+		}	
+		return farthestPoints;
+	}
+	
+
 	//SEPARATING AXIS THEORM METHODS
 	
 	public static double dotProduct(Line2D line1 , Line2D line2){ //Returns the magnitude of the projection vector

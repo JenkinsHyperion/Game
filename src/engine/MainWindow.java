@@ -22,7 +22,7 @@ public class MainWindow implements KeyListener, MouseListener{
     private static int width;
     private static int height;
 
-    private static BufferStrategy bufferStrat;
+    private static JFrame mainFrame;
     
 	public MainWindow() {
 		
@@ -33,9 +33,13 @@ public class MainWindow implements KeyListener, MouseListener{
 		System.out.println("Resolution set to "+ width + " by " + height);
 		
 		editorPanelMinSize = new Dimension(220,300);
+		
+		JFrame frame = new JFrame(System.getProperty("user.dir"));
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
 		//board = new BoardPhysicsTesting(width,height);
 		//board = new Board(width,height);
-		board = new TestBoard(width,height);
+		board = new TestBoard(width,height,frame);
 		
 		board.setPreferredSize(new Dimension(BoardAbstract.B_WIDTH, BoardAbstract.B_HEIGHT));
 		board.setMinimumSize(new Dimension(BoardAbstract.B_WIDTH, BoardAbstract.B_HEIGHT));
@@ -60,6 +64,9 @@ public class MainWindow implements KeyListener, MouseListener{
 	}
 	public JSplitPane getSplitPane() {
 		return splitPane;
+	}
+	public BoardAbstract getBoard(){
+		return board;
 	}
 	
 	@Deprecated
@@ -98,12 +105,11 @@ public class MainWindow implements KeyListener, MouseListener{
 	}
 
 	public static void createAndShowGUI() {
-		//Create and set up the window
-		JFrame frame = new JFrame(System.getProperty("user.dir"));
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		MainWindow splitPaneInstance = new MainWindow();
 
+		JFrame frame = board.mainFrame;
+		
 		frame.addFocusListener(new FocusListener() {
 	        private final KeyEventDispatcher altDisabler = new KeyEventDispatcher() {
 	            @Override
@@ -130,6 +136,9 @@ public class MainWindow implements KeyListener, MouseListener{
 		
 		frame.setVisible(true);
 		frame.pack();
+		
+		mainFrame = frame;
+		board.setMainFrame(frame);
 	}
 	
 	public static void main(String[] args) {

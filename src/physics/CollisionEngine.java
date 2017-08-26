@@ -116,17 +116,85 @@ public class CollisionEngine {
 	public ActiveCollider addDynamicCollidable( Collider collidable ){
 
 		ActiveCollider newDynamic = new ActiveCollider(collidable);
-		dynamicCollidables.add( newDynamic );
 
 		for ( ActiveCollider stat : staticCollidables ){
-			this.addPair( new CheckingPair( newDynamic , stat , 
-					VisualCollisionCheck.circlePoly(
-							newDynamic.collider.getOwnerEntity(),
-							stat.collider.getOwnerEntity(),
-							(BoundaryPolygonal) stat.collider.getBoundary() 
-					)
-			));
+			
+			if ( collidable.getBoundary().getTypeCode() == Boundary.CIRCULAR ){
+				
+				if ( stat.collider.getBoundary().getTypeCode() == Boundary.CIRCULAR ){
+					
+					this.addPair( new CheckingPair( newDynamic , stat , 
+							VisualCollisionCheck.circleCircle(
+									newDynamic.collider.getOwnerEntity(),
+									stat.collider.getOwnerEntity()
+							)
+					));
+					System.out.println( " circle-circle" );
+					
+				}
+				else if ( stat.collider.getBoundary().getTypeCode() == Boundary.POLYGONAL ){
+					
+					this.addPair( new CheckingPair( newDynamic , stat , 
+							VisualCollisionCheck.circlePoly(
+									newDynamic.collider.getOwnerEntity(),
+									stat.collider.getOwnerEntity(),
+									(BoundaryPolygonal) stat.collider.getBoundary() 
+							)
+					));
+					System.out.println( " circle-polygon" );
+				}
+				else{
+					System.err.println( stat.collider.getOwnerEntity() + " / "+ collidable.getOwnerEntity() +" could not be paired " );
+				}
+				
+			}
+			else {
+				System.err.println( stat.collider.getOwnerEntity() + " / "+ collidable.getOwnerEntity() +" could not be paired " );
+			}
+
+			
+			
 		}
+		
+		//DYNAMIC - DYNAMIC COLLISION PAIRS
+		
+		for ( ActiveCollider dynamic : dynamicCollidables ){
+			
+			if ( dynamic.collider.getBoundary().getTypeCode() == Boundary.CIRCULAR ){
+				
+				if ( collidable.getBoundary().getTypeCode() == Boundary.CIRCULAR ){
+					
+					this.addPair( new CheckingPair( newDynamic , dynamic , 
+							VisualCollisionCheck.circleCircle(
+									newDynamic.collider.getOwnerEntity(),
+									dynamic.collider.getOwnerEntity()
+							)
+					));
+					System.out.println( " circle-circle" );
+				}
+				
+			}
+			else if ( dynamic.collider.getBoundary().getTypeCode() == Boundary.POLYGONAL ){
+				
+				if ( collidable.getBoundary().getTypeCode() == Boundary.CIRCULAR ){
+					
+					this.addPair( new CheckingPair( newDynamic , dynamic , 
+							VisualCollisionCheck.circlePoly(
+									newDynamic.collider.getOwnerEntity(),
+									dynamic.collider.getOwnerEntity(),
+									(BoundaryPolygonal) dynamic.collider.getBoundary()
+							)
+					));
+					System.out.println( " poly-circle" );
+				}
+				
+			}
+			else{
+				System.err.println( dynamic.collider.getOwnerEntity() + " / "+ collidable.getOwnerEntity() +" could not be paired " );
+			}
+			
+		}
+		dynamicCollidables.add( newDynamic );
 		return newDynamic;
 	}
 	

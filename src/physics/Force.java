@@ -57,4 +57,12 @@ public class Force {
 		return "FORCE";
 	}
 	
+	private static class StaticNormal extends Force{
+		
+		public StaticNormal( Vector force , int ID ){
+			super( force , ID );
+		}
+		
+	}
+	
 }

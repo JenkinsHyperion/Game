@@ -4,6 +4,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 import java.util.*;
+
+import javax.swing.JFrame;
 import javax.swing.event.*;
 
 import Input.InputController;
@@ -14,8 +16,10 @@ import entities.*; //local imports
 import entityComposites.Collider;
 import entityComposites.CompositeFactory;
 import entityComposites.EntityStatic;
+import entityComposites.TranslationComposite;
 import entityComposites.Collider;
 import physics.*;
+import physics.Vector;
 import sprites.Background;
 import sprites.RenderingEngine;
 import sprites.Sprite;
@@ -31,12 +35,11 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 	private java.util.Timer updateEntitiesTimer;
 	
 	MouseHandlerClass myMouseHandler;
-	
-	private CollisionEngine collisionEngine = new CollisionEngine(this); //Refactor to a better name
 
 	private InputController boardInput = new InputController("Test Board Input");
 	
-    public Player player;
+    public TestPlayer player;
+    private Force gravity;
     private EntityStatic asteroid;
     
     private Line2D dragLine = new Line2D.Double();
@@ -45,15 +48,21 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     public static int B_HEIGHT;// = 300;
 
     public EntityStatic currentDebugEntity;
+    
+    private OverlayComposite boundaryOverlay;
+    private OverlayComposite forcesOverlay;
 
-    public TestBoard(int width , int height ) {
-    	super(width,height);
+    public TestBoard(int width , int height, JFrame frame ) {
+    	super(width,height,frame);
     	
     	this.renderingEngine = new RenderingEngine( this );
     	this.camera = this.renderingEngine.getCamera();
     	
     	this.diagnosticsOverlay = this.renderingEngine.addOverlay( this.new DiagnosticsOverlay() );
     	this.diagnosticsOverlay.toggle();
+    	
+    	this.boundaryOverlay = this.renderingEngine.addOverlay( this.new BoundaryOverlay() );
+    	//this.boundaryOverlay.toggle();
     	
     	this.inputController.createKeyBinding(KeyEvent.VK_W, new KeyCommand(){
     		public void onPressed() { camera.setDY(-10f); }
@@ -113,13 +122,10 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
       			dragLine = new Line2D.Double( new Point() , new Point() );
     		}
     	});
-        this.inputController.createKeyBinding(KeyEvent.VK_T, new KeyCommand(){ //TEST BUTTON
-    		public void onPressed() { 
-    			System.err.println("REMOVING TRANSLATION");
-    			asteroid.removeTranslationComposite();
-    		}
-    	});
         
+    	this.collisionEngine = new VisualCollisionEngine(this,renderingEngine); //Refactor to a better name
+    	
+    	this.forcesOverlay = renderingEngine.addOverlay( ((VisualCollisionEngine)collisionEngine).createForcesOverlay() );
     	
     	initBoard();
     	postInitializeBoard();
@@ -139,11 +145,20 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         CompositeFactory.addGraphicTo(asteroid, new SpriteStillframe("box.png", Sprite.CENTERED ) );
         CompositeFactory.addTranslationTo(asteroid);
         CompositeFactory.addDynamicRotationTo(asteroid);
+
+        //CompositeFactory.addColliderTo(asteroid,  new BoundaryCircular(300, asteroid) );
         
-        asteroid.getTranslationComposite().setDX(-0.25f);
+        //CompositeFactory.addColliderTo(asteroid,  new BoundaryPolygonal.Box(500, 200, -250,-100) );
+        //asteroid.getTranslationComposite().setDX(-0.25f);
         
         this.currentScene.addEntity(asteroid);
-    	
+        
+        /*
+        player = new TestPlayer(20,-400 );
+        this.currentScene.addEntity(player);
+        gravity = player.getTranslationComposite().addForce( new Vector(0,0) );
+        this.addInputController(player.inputController);
+    	*/
     }
     
     @Override
@@ -155,6 +170,11 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     	}else{
     		PlantTwigSegment.waveCounter[0] = -100;
     	}
+    	
+
+    	collisionEngine.checkCollisions();
+
+    	//gravity.setVector( player.getSeparationUnitVector(asteroid).multiply(0.2) );
     	
     }
 
@@ -189,9 +209,80 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
      */
     
     //KEY COMMANDS
+
+    private class TestPlayer extends Player{
+    	
+    	TranslationComposite trans;
+    	Collider collider;
+    	private final State moving = new MovingState();
+    	State currentState = moving;
+    	
+    	private Force movementForce;
+    	
+		public TestPlayer(int x, int y) {
+			super(x, y);
+			
+			CompositeFactory.addGraphicTo(this, new SpriteStillframe("box.png", Sprite.CENTERED) );
+			
+			Boundary boundary = new BoundarySingular( new Event() );
+			Boundary boundary2 = new BoundaryCircular( 80 , this );
+			Boundary boundary3 = new BoundaryPolygonal.Box( 20,20,-10,-10 );
+			CompositeFactory.addColliderTo(this, boundary2 );
     
-    
-    
+			CompositeFactory.addTranslationTo(this);
+			
+			trans = this.getTranslationComposite();
+			collider = this.getColliderComposite();
+			
+			movementForce = trans.addForce( new Vector(0,0) );
+			
+			this.inputController.createKeyBinding(KeyEvent.VK_LEFT, new KeyCommand(){
+				@Override
+				public void onPressed() {
+					currentState.onLeft();
+				}
+			});
+			
+		}
+		
+		public void updatePlayer(){
+			this.currentState.run();
+		}
+		
+		private class Event extends CollisionEvent{
+			@Override
+			public void run(BoundaryFeature source, BoundaryFeature collidingWith, Vector separation) {
+				
+			}
+			@Override
+			public String toString() {
+				return "Hit Something Event";
+			}
+		}
+		
+    	private abstract class State implements Runnable{
+    		public abstract void onLeft();
+    		public abstract void onRight();
+    	}
+    	
+    	private class MovingState extends State{
+			@Override
+			public void run() {
+				
+			}
+			@Override
+			public void onLeft() {
+				
+			}
+			@Override
+			public void onRight() {
+				
+			}
+			
+    		
+    	}
+    	
+    }
     
 	  //MOUSE INPUT
     

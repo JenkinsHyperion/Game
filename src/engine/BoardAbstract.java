@@ -12,11 +12,13 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.util.*;
 
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import Input.InputController;
 import Input.KeyCommand;
 import editing.EditorPanel;
+import entityComposites.Collider;
 import entityComposites.EntityStatic;
 import entityComposites.UpdateableComposite;
 import misc.PaintOverlay;
@@ -30,7 +32,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 
     public static int B_WIDTH;// = 400;	
     public static int B_HEIGHT;// = 300;
-    
+
     private final EntityUpdater activeUpdater = new EntityUpdater();
     private final InactiveEntityUpdater inactiveUpdater = new InactiveEntityUpdater();
     private EntityUpdater currentState = activeUpdater;
@@ -64,13 +66,15 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 	protected int[] speedLog = new int[300];
     
 	protected EditorPanel editorPanel;
+	protected JFrame mainFrame;
 	
 	protected InputController inputController = new InputController("Abstract Board Input Controller");
 	
-	public BoardAbstract( int width , int height ){
+	public BoardAbstract( int width , int height, JFrame frame ){
 		
 		B_WIDTH = width;
 	    B_HEIGHT = height;
+	    mainFrame = frame;
 	    
 	    console = new Console( 20 , B_HEIGHT-200 , this);
 	    inputController.createKeyBinding( 192 , new KeyCommand(){ // 192 is grave accent / tilde key 
@@ -157,6 +161,13 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 	     repaintTimer.setRepeats(true);
 	     repaintTimer.start();
 	     
+	}
+	public void setMainFrame( JFrame frame ){
+		this.mainFrame = frame;
+	}
+	
+	protected void addInputController( InputController inputController ){
+		mainFrame.addKeyListener(inputController);
 	}
 	
 	protected void activeRenderingDraw(){
@@ -251,6 +262,18 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 		return updateablesList.size();
 	}
 	
+	protected class BoundaryOverlay implements Overlay{
+		
+		@Override
+		public void paintOverlay(Graphics2D g2 , MovingCamera cam) {
+			
+			for ( Collider collider : collisionEngine.debugListActiveColliders() ){
+				collider.debugDrawBoundary(cam, g2);
+			}
+			
+		}
+	}
+	
 	protected class DiagnosticsOverlay implements Overlay{
 		
 		@Override
@@ -302,6 +325,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 			//DO NOTHING
 		}	
 	}
+	
 	@Override
 	public void keyPressed(KeyEvent e) {
 		this.inputController.keyPressed(e);

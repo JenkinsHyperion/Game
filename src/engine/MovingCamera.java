@@ -286,8 +286,10 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		Graphics2D g2Temp = (Graphics2D) this.graphics.create();
 		
 		cameraTransform.translate( this.getRelativeX( worldPosition.x ) , this.getRelativeY( worldPosition.y ) );
+		cameraTransform.scale( zoomFactor , zoomFactor);
 		
 		g2Temp.transform(cameraTransform);
+		
 		
 		g2Temp.draw( shape );
 		g2Temp.dispose();
@@ -328,6 +330,20 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 
 	public void drawCrossInWorld( Point2D point , Graphics2D g2){
 		drawCross( (int)this.getRelativeX( point.getX() ) , (int)this.getRelativeY( point.getY() ) , g2);
+	}
+	
+	public void drawLineInWorld( Line2D line , Graphics2D g2 ){
+		g2.drawLine(
+				(int)line.getX1(),
+				(int)line.getY1(),
+				(int)line.getX2(),
+				(int)line.getY2()
+				);
+		
+	}
+	
+	public void drawCrossInWorldRelativeTo( Point2D point , Point origin , Graphics2D g2){
+		drawCross( (int)this.getRelativeX( point.getX() + origin.x ) , (int)this.getRelativeY( point.getY() + origin.y ) , g2);
 	}
 	
 	public void drawCrossInFrame( int worldX, int worldY , Graphics g ){

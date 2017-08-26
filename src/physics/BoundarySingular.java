@@ -2,15 +2,17 @@ package physics;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 
 import engine.MovingCamera;
 import entityComposites.EntityStatic;
+import misc.CollisionEvent;
 
 public class BoundarySingular extends Boundary{
 
-	protected BoundaryVertex origin = new BoundaryVertex( new Point(0,0) ); //move into boundary
+	protected BoundaryVertex vertex;//move into boundary
 	
 	protected Point center;
 	
@@ -18,10 +20,16 @@ public class BoundarySingular extends Boundary{
 		center = new Point(0,0);
 	}
 	
-	private BoundarySingular( Point center ){ //CLONGING CONSTRUCTOR
+	private BoundarySingular( Point center ){ //CLONING CONSTRUCTOR
 		this.center = center;
-		this.origin.setPos(center);
+		this.vertex = new BoundaryVertex( new Point(0,0) );
+		this.vertex.setPos(center);
 		this.constructVoronoiRegions();
+	}
+	
+	public BoundarySingular( CollisionEvent event ){
+		center = new Point(0,0);
+		vertex = new BoundaryVertex( new Point(0,0) , event );
 	}
 	
 	@Override
@@ -40,43 +48,48 @@ public class BoundarySingular extends Boundary{
 	
 	@Override
 	public void constructVoronoiRegions() {
-		this.regions = new VoronoiRegion[]{ VoronoiRegion.getUndefinedVoronoiRegion( origin ) };
+		this.regions = new VoronoiRegion[]{ VoronoiRegion.getUndefinedVoronoiRegion( vertex ) };
 	}
 
 	@Override
 	public void debugDrawBoundary(MovingCamera cam, Graphics2D g2, EntityStatic ownerEntity) {
-		cam.drawCrossInWorld( origin.toPoint() ); 
-		cam.drawString( "Point Boundary", origin.toPoint() );
-	}
-	
-	@Override
-	public BoundaryVertex[] farthestVerticesFromPoint(BoundaryVertex boundaryVertex, Line2D axis) {
-		return new BoundaryVertex[]{ origin };
+		cam.drawCrossInWorld( vertex.toPoint() ); 
+		cam.drawString( "Point Boundary", vertex.toPoint() );
 	}
 	
 	@Override
 	protected Point2D[] getOuterPointsPair(Line2D axis) {
-		return new Point2D[]{ origin.toPoint(), origin.toPoint() };
+		return new Point2D[]{ vertex.toPoint(), vertex.toPoint() };
 	}
 
 	@Override
 	protected Point2D farthestPointFromPoint(Point2D boundaryPoint, Line2D axis) {
-		return origin.toPoint();
+		return vertex.toPoint();
+	}
+	
+	@Override
+	protected Point2D farthestPointFromPoint(Point primaryOrigin, Point2D localPoint, Line2D axis) {
+		return vertex.toPoint();
 	}
 
 	@Override
 	public BoundaryVertex[] farthestVerticesFromPoint(Point2D point, Line2D axis) {
-		return new BoundaryVertex[]{ origin };
+		return new BoundaryVertex[]{ vertex };
+	}
+	
+	@Override
+	public BoundaryFeature[] farthestFeatureFromPoint(Point primary, Point secondary, Point2D p2, Line2D axis) {
+		return new BoundaryVertex[]{ vertex };
 	}
 
 	@Override
 	public BoundaryVertex[] getCornersVertex() {
-		return new BoundaryVertex[]{ origin };
+		return new BoundaryVertex[]{ vertex };
 	}
 
 	@Override
 	public Point2D[] getCornersPoint() {
-		return new Point2D[]{ origin.toPoint() };
+		return new Point2D[]{ vertex.toPoint() };
 	}
 
 	@Override
@@ -112,6 +125,16 @@ public class BoundarySingular extends Boundary{
 	public void scaleBoundary(double scaleFactor, Point center) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	@Override
+	public byte getTypeCode() {
+		return 0;
+	}
+	
+	@Override
+	public Polygon getPolygonBounds( EntityStatic owner ) {
+		return new Polygon();
 	}
 
 }

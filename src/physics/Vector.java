@@ -20,6 +20,11 @@ public class Vector implements Serializable{
 			this.y = p2.getY() - p1.getY();
 		}
 		
+		public Vector( Line2D line ){
+			this.x = line.getP2().getX() - line.getP1().getX();
+			this.y = line.getP2().getY() - line.getP1().getY();
+		}
+		
 		public double getX(){ return x; }
 		public double getY(){ return y; }
 		public void setX(double newX) {
@@ -252,7 +257,7 @@ public class Vector implements Serializable{
 			return "Vector("+ x + "," + y +")";
 		}
 
-		public double getLength() {
+		public double getMagnitude() {
 			return new Point2D.Double(0,0).distance( new Point2D.Double( this.x, this.y ) ) ;
 		}
 

@@ -3,10 +3,11 @@ package Input;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
-public class InputController {
+public class InputController implements KeyListener{
 
 	private String name;
 	
@@ -152,7 +153,7 @@ public class InputController {
 		button.mousePressed(); // trigger pressed event for that key
 
 	}
-	
+	@Override
 	public void keyPressed( KeyEvent e ){ // being spammed from fucking keyEvent
 		
 		if ( e.getModifiers() != 0 ){ //mod key was pressed
@@ -188,7 +189,7 @@ public class InputController {
 		}
 		
 	}
-	
+	@Override
 	public void keyReleased( KeyEvent e ){ 
 					
 		
@@ -385,6 +386,12 @@ public class InputController {
     	
 
     }
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	
 }

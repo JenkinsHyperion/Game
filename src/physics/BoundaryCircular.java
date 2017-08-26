@@ -2,6 +2,8 @@ package physics;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
@@ -55,11 +57,6 @@ public class BoundaryCircular extends Boundary{
 	}
 
 	@Override
-	public BoundaryVertex[] farthestVerticesFromPoint(BoundaryVertex boundaryVertex, Line2D axis) {
-		return new BoundaryVertex[0]; //NO VERTICES ON CIRCLE
-	}
-
-	@Override
 	protected Point2D farthestPointFromPoint(Point2D boundaryPoint, Line2D axis) {
 		
 		Point2D projection = getProjectionPoint( boundaryPoint , axis);
@@ -106,6 +103,24 @@ public class BoundaryCircular extends Boundary{
 			}
 		}
 		
+	}
+	
+	@Override
+	protected Point2D farthestPointFromPoint(Point primaryOrigin, Point2D localPoint, Line2D axis) { //OPTIMIZE REDUCE RELATIVISM
+		
+		Point2D relativePosition = new Point2D.Double( 
+				localPoint.getX() - primaryOrigin.x , 
+				localPoint.getY() - primaryOrigin.y
+				);
+		
+		Point2D returnPoint = farthestPointFromPoint(relativePosition, axis);
+		
+		relativePosition = new Point2D.Double( 
+				returnPoint.getX() + primaryOrigin.getX() , 
+				returnPoint.getY() + primaryOrigin.getY()
+				);
+		
+		return relativePosition;
 	}
 
 	@Override
@@ -154,8 +169,12 @@ public class BoundaryCircular extends Boundary{
 
 	@Override
 	public BoundaryCorner[] farthestVerticesFromPoint(Point2D point, Line2D axis) {
-		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	@Override
+	public BoundaryFeature[] farthestFeatureFromPoint(Point primary, Point secondary, Point2D p2, Line2D axis) {
+		return new BoundaryFeature[]{ this.centerVertex };
 	}
 
 	@Override
@@ -204,5 +223,14 @@ public class BoundaryCircular extends Boundary{
 		
 	}
 	
+	@Override
+	public byte getTypeCode() {
+		return 0;
+	}
+	
+	@Override
+	public Polygon getPolygonBounds( EntityStatic owner ) {
+		return new Polygon();
+	}
 
 }

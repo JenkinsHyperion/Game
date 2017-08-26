@@ -11,6 +11,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 
+import javax.swing.JFrame;
 import javax.swing.event.MouseInputAdapter;
 
 import Input.InputController;
@@ -42,8 +43,8 @@ public class BoardPhysicsTesting extends BoardAbstract{
 	
 	private InputController inputController = new InputController("Main editor controller");
 	
-	public BoardPhysicsTesting( int width, int height) {
-		super(width,height);
+	public BoardPhysicsTesting( int width, int height, JFrame frame) {
+		super(width,height,frame);
 		
 		renderingEngine = new RenderingEngine(this);
 		this.camera = renderingEngine.getCamera(); 
@@ -170,7 +171,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
         
         spaceship.getColliderComposite().setCollisionEvent( new CollisionEvent(){ 			//Make anonymous collision event to maek explosion
 			@Override
-			public void run(BoundaryFeature source, BoundaryFeature collidingWith) { //TAKE OUT OF EVENT
+			public void run(BoundaryFeature source, BoundaryFeature collidingWith, Vector separation) { //TAKE OUT OF EVENT
 				
 				EntityStatic explosion = new EntityStatic("boom", spaceship.getPosition() );
 				CompositeFactory.addGraphicTo(explosion, explosionSprite );

@@ -49,7 +49,7 @@ public class CompositeFactory {
 	public static TranslationComposite addTranslationTo( EntityStatic entity ){
 		TranslationComposite trans = new TranslationComposite(entity);
 		entity.setTranslationComposite( trans );
-		entity.updateablesList.add(trans);
+		entity.addUpdateableComposite(trans);
 		return trans;
 	}
 	@Deprecated

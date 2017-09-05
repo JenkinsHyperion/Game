@@ -33,9 +33,9 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
     public static int B_WIDTH;// = 400;	
     public static int B_HEIGHT;// = 300;
 
-    private final EntityUpdater activeUpdater = new EntityUpdater();
-    private final InactiveEntityUpdater inactiveUpdater = new InactiveEntityUpdater();
-    private EntityUpdater currentState = activeUpdater;
+    private final EntityUpdater updatingState = new EntityUpdater();
+    private final InactiveEntityUpdater pausedState = new InactiveEntityUpdater();
+    private EntityUpdater currentState = updatingState;
 
 	Timer updateEntitiesTimer;
 	
@@ -67,8 +67,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
     
 	protected EditorPanel editorPanel;
 	protected JFrame mainFrame;
-	
-	protected InputController inputController = new InputController("Abstract Board Input Controller");
+
 	
 	public BoardAbstract( int width , int height, JFrame frame ){
 		
@@ -77,32 +76,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 	    mainFrame = frame;
 	    
 	    console = new Console( 20 , B_HEIGHT-200 , this);
-	    inputController.createKeyBinding( 192 , new KeyCommand(){ // 192 is grave accent / tilde key 
-	    	
-	    	private boolean consoleIsVisible = false;
-	    	public void onPressed(){
-	    		diagnosticsOverlay.toggle();
-	    		if (consoleIsVisible){
-	    			currentConsoleState = consoleDisabled;
-	    			consoleIsVisible=false;
-	    		}else{
-	    			currentConsoleState = consoleActive;
-	    			consoleIsVisible=true;
-	    		}
-	    	}
-	    });
-	    inputController.createKeyBinding(KeyEvent.VK_PAUSE, new KeyCommand(){
-	    	private boolean isPaused = false;
-	    	public void onPressed(){
-	    		if (isPaused){
-	    			activateUpdater();
-	    			isPaused=false;
-	    		}else{
-	    			pauseUpdater();
-	    			isPaused=true;
-	    		}
-	    	}
-	    });
+	    
 	    
 	    this.setIgnoreRepaint(true);
 	    
@@ -178,13 +152,29 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 		
 	}
 	
-	protected void pauseUpdater(){ 
-		this.currentState = this.inactiveUpdater;
+	protected InputController getUnpausedInputController(){
+		return this.updatingState.inputController;
 	}
-	protected void activateUpdater(){
-		this.currentState = this.activeUpdater;
+	protected InputController getPausedInputController(){
+		return this.pausedState.inputController;
+	}
+	protected InputController getCurrentBoardInputController(){
+		return this.currentState.inputController;
 	}
 	
+	protected void pauseUpdater(){ 
+		this.currentState = this.pausedState;
+	}
+	protected void activateUpdater(){
+		this.currentState = this.updatingState;
+	}
+	protected void advanceUpdater(){
+		this.updatingState.update();
+	}
+	protected void advanceUpdater( byte frames ){
+		for ( int i = 0 ; i < frames ; i++)
+			this.updatingState.update();
+	}
 	
 	@Override
 	public void paintComponent(Graphics g) {  
@@ -303,6 +293,39 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 	
 	
 	private class EntityUpdater{
+
+		protected InputController inputController;
+		
+		protected EntityUpdater( InputController inputController ){
+			this.inputController = inputController;
+		}
+		
+		protected EntityUpdater(){
+			
+			inputController = new InputController( "Abstract Board Updating Input Controller" ); 
+			
+			inputController.createKeyBinding( 192 , new KeyCommand(){ // 192 is grave accent / tilde key 
+		    	
+		    	private boolean consoleIsVisible = false;
+		    	public void onPressed(){
+		    		diagnosticsOverlay.toggle();
+		    		if (consoleIsVisible){
+		    			currentConsoleState = consoleDisabled;
+		    			consoleIsVisible=false;
+		    		}else{
+		    			currentConsoleState = consoleActive;
+		    			consoleIsVisible=true;
+		    		}
+		    	}
+		    });
+		    inputController.createKeyBinding(KeyEvent.VK_PAUSE, new KeyCommand(){
+
+		    	public void onPressed(){
+		    			pauseUpdater();
+		    	}
+		    });
+			
+		}
 		
 		public void update(){
 			
@@ -321,19 +344,35 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 	
 	private class InactiveEntityUpdater extends EntityUpdater{
 		
+		protected InactiveEntityUpdater(){
+			super( new InputController("Board Abstract Pauced Input Controller") );
+			
+			inputController.createKeyBinding(KeyEvent.VK_PAUSE, new KeyCommand(){
+		    	public void onPressed(){
+		    			activateUpdater();
+		    	}
+		    });
+			inputController.createKeyBinding(KeyEvent.VK_DIVIDE, new KeyCommand(){
+		    	public void onPressed(){
+		    			advanceUpdater();
+		    	}
+		    });
+		}
+		
 		public void update(){
-			//DO NOTHING
+			//FIXME STOP TIMER RATHER THAN DOING NOTHING at 60FPS
 		}	
+		
 	}
 	
 	@Override
 	public void keyPressed(KeyEvent e) {
-		this.inputController.keyPressed(e);
+		this.currentState.inputController.keyPressed(e);
 		this.currentConsoleState.keyPressed(e);
 	}
 	@Override
 	public void keyReleased(KeyEvent e) {
-		this.inputController.keyReleased(e);
+		this.currentState.inputController.keyReleased(e);
 	}
 	@Override
 	public void keyTyped(KeyEvent e) {

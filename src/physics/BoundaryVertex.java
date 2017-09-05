@@ -11,6 +11,7 @@ public class BoundaryVertex extends BoundaryFeature{
 
 	protected BoundaryVertex( Point position ){
 		this.position = position;
+		//System.err.println( " CREATING NEW VERTEX BOUNDARY FEATURE " );
 	}
 	protected BoundaryVertex( Point2D position ){
 		this.position = new Point( (int)position.getX(), (int)position.getY() );

@@ -131,7 +131,9 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 		@Override
 		public void paintOverlay(Graphics2D g2, MovingCamera cam) {
 			
-			g2.drawString( " FORCES OVERLAY "+dynamicCollidables.size(), 20, 20 );
+			g2.drawString( " VISUAL COLLISION ENGINE OVERLAY ", 20, 20 );
+			g2.drawString( staticCollidables.size() + " static colliders", 20, 35 );
+			g2.drawString( dynamicCollidables.size() + " dynamic colliders", 20, 50 );
 			
 			for ( ActiveCollider active : dynamicCollidables ){
 				

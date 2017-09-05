@@ -18,8 +18,11 @@ import utility.Trigger;
 
 public class PlantTwigSegment extends EntityStatic{
 	
-	protected static Sprite twigSmallSprite = new SpriteStillframe("Prototypes/twig.png" , -4 , -40);
-	protected static Sprite twigMediumSprite = new SpriteStillframe("Prototypes/twig2.png" , -8 , -40);
+	//protected static Sprite twigSmallSprite = new SpriteStillframe("Prototypes/twig.png" , -4 , -40);
+	//protected static Sprite twigMediumSprite = new SpriteStillframe("Prototypes/twig2.png" , -8 , -40);
+	
+	protected static Sprite twigSmallSprite = new SpriteStillframe("Prototypes/twig1.png" , -4 , -80);
+	protected static Sprite twigMediumSprite = new SpriteStillframe("Prototypes/twig3.png" , -8 , -80);
 	
 	protected TestBoard board;
 
@@ -478,7 +481,7 @@ public class PlantTwigSegment extends EntityStatic{
 		
 					float oldMaxGrowth = getMaxGrowth();
 					
-					float oldRadius = oldMaxGrowth/100*40;
+					float oldRadius = oldMaxGrowth/100*80;
 
 					Point relativeTip = StemSegment.this.getPosition();
 					int tipX = relativeTip.x;
@@ -608,7 +611,7 @@ public class PlantTwigSegment extends EntityStatic{
 		
 					float oldMaxGrowth = getMaxGrowth();
 					
-					float oldRadius = oldMaxGrowth/100*40;
+					float oldRadius = oldMaxGrowth/100*80;
 
 					Point relativeTip = StemSegment.this.getPosition();
 					int tipX = relativeTip.x;
@@ -708,7 +711,7 @@ public class PlantTwigSegment extends EntityStatic{
 			public void activate() {
 			
 				float oldMaxGrowth = LeafStem.this.getMaxGrowth();
-				float oldRadius = oldMaxGrowth/100*40;
+				float oldRadius = oldMaxGrowth/100*80;
 	
 				if ( oldMaxGrowth > 30 ){
 					

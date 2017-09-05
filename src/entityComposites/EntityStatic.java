@@ -69,8 +69,15 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		 
 	}
 	
-	protected void addUpdateable( UpdateableComposite updateable){
+	protected void addUpdateableComposite( UpdateableComposite updateable){
+		
+		updateable.setUpdateablesIndex( updateablesList.size() );
+		
 		updateablesList.add(updateable);
+	}
+	
+	protected void removeUpdateableComposite( int index ){
+		updateablesList.remove(index);
 	}
 	/**BE ADVISED: WHEN OVERRIDING IN A SUBCLASS, ALWAYS CALL super.updateComposite() which contains core composite updater functionality.
 	 * 
@@ -134,8 +141,9 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	
 	protected void nullifyTranslationComposite(){
 		this.translationType = TranslationComposite.nullSingleton();
+		System.out.println("Nullify");
 	}
-	
+	@Deprecated
 	public void removeTranslationComposite(){
 		
 		//this.nullifyTranslationComposite();
@@ -412,6 +420,11 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		public boolean isActive() {
 			return false;
 		}
+	}
+
+	@Override
+	public void setUpdateablesIndex(int index) {
+		// TODO DO NOTHING
 	}
 	
 }

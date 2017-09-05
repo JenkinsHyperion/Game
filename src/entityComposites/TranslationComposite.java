@@ -14,6 +14,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	protected String compositeName;
 	private TranslationMath coreMath = new TranslationMath();
 	private EntityStatic ownerEntity;
+	private int ownerEntityIndex;
 	
 	private static final Null nullSingleton = new Null();
 
@@ -61,6 +62,10 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 
 	public void addVelocity( Vector vector){
 		coreMath.addVelocity(vector);
+	}
+	
+	public void subtractVelocity( Vector vector){
+		coreMath.subtractVelocity(vector);
 	}
 
 	public double getDeltaX( EntityStatic owner ){
@@ -174,6 +179,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	}
 
 	public void removeThisUpdateable(){
+
 		coreMath.removeThisUpdateable();
 	}
 	@Override
@@ -182,10 +188,24 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	}
 
 	@Override
-	public void disableComposite() {
+	public void disableComposite() { //DISABLING OF CONCRETE TRANSLATION COMPOSITE Consider condensing into one utility method
 
-		removeThisUpdateable();
-		//FIXME needs to happen only when no mor eentities are flyweighting this composite
+		this.coreMath.removeThisUpdateable(); //Remove math calculations from updater thread
+		
+		this.ownerEntity.removeUpdateableComposite( this.ownerEntityIndex ); //Remove this composite's calculations from owner
+		
+		this.ownerEntity.nullifyTranslationComposite(); //Call owner entity to rereference its null translation singleton
+		
+		this.ownerEntity.getColliderComposite().notifyEngineOfChangeToStatic(); 
+		/*		This translation being removed from ownerEntity means that ownerEntity will now be static. If ownerEntity
+		 *  has a collider, tell it to notify the Collision Engine of this change. Collision Engine will then remove any
+		 *	collision pairs with other statics, since static owner Entity will never collide with other statics.
+		 */ 
+	}
+	
+	@Override
+	public void setUpdateablesIndex(int index) {
+		this.ownerEntityIndex = index;
 	}
 
 	@Override
@@ -288,6 +308,11 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 			public void addVelocity( Vector vector){
 				dx += vector.getX();
 				dy += vector.getY();
+			}
+			
+			public void subtractVelocity( Vector vector ){
+				dx -= vector.getX();
+				dy -= vector.getY();
 			}
 		
 			public double getDeltaX( EntityStatic owner ){
@@ -528,7 +553,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		
 		
 			public Vector[] debugForceArrows(){
-				Vector[] returnVectors = new Vector[ forces.size() + normalForces.size() ];
+				final Vector[] returnVectors = new Vector[ forces.size() + normalForces.size() ];
 				for ( int i = 0 ; i < forces.size() ; i++ ){
 					returnVectors[i] = forces.get(i).getVector() ;
 				}
@@ -547,9 +572,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 				
 				for ( Force normal : normalForces ){
 
-					returnVector = returnVector.subtract( 
-							returnVector.projectedOver( normal.getVector() )
-							);
+					returnVector = returnVector.add( normal.getVector() );
 				}
 		
 				return returnVector;
@@ -573,7 +596,12 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		
 			public void removeThisUpdateable(){
 				this.updaterSlot.removeSelfFromList();
-				System.out.println("Removing "+this+" from updater");
+				System.out.println("Removing "+TranslationComposite.this+" on ["+ownerEntity+"] from updater");
+			}
+			
+			@Override
+			public void setUpdateablesIndex(int index) {
+				//TODO DO NOTHING
 			}
 	
 	} // END INNER MATH CLASS
@@ -706,7 +734,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	    
 	    public Vector[] debugForceArrows(){
 	    	System.err.println("Attempted to get forces of static");
-	    	return null;
+	    	return new Vector[0];
 	    }
 	
 		public Vector sumOfForces() {
@@ -725,7 +753,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	
 		@Override
 		public void disableComposite() {
-			//TODO ENSURE THIS NULL COMPOSITE IS DESTROYED
+			System.err.println("Attempted to disable null Translation");
 		}
 		@Override
 		public void setCompositeName(String newName) {

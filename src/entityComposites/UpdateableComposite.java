@@ -24,4 +24,6 @@ public interface UpdateableComposite {
 	
 	boolean addCompositeToUpdater(BoardAbstract board);
 	
+	void setUpdateablesIndex( int index );
+	
 }

@@ -83,7 +83,7 @@ public class CollisionEngine {
 	
 	public ActiveCollider addStaticCollidable( Collider collidable ){ //returns hashID index to collider composite
 		
-		ActiveCollider newStatic = new ActiveCollider(collidable);
+		ActiveCollider newStatic = new StaticActiveCollider( collidable , staticCollidables.size() );
 		staticCollidables.add( newStatic );
 		//Create pairs with dynamics
 		for ( ActiveCollider dynamic : dynamicCollidables ){
@@ -115,7 +115,7 @@ public class CollisionEngine {
 	
 	public ActiveCollider addDynamicCollidable( Collider collidable ){
 
-		ActiveCollider newDynamic = new ActiveCollider(collidable);
+		ActiveCollider newDynamic = new DynamicActiveCollider( collidable,dynamicCollidables.size() );
 
 		for ( ActiveCollider stat : staticCollidables ){
 			
@@ -201,7 +201,6 @@ public class CollisionEngine {
 	private void addPair( CheckingPair pair ){
 		pair.listSlot = checkingPairs.add(pair);
 	}
-	    
 	
     //COLLISION ENGINE MAIN LOOP METHODS
     public void checkCollisions() { 
@@ -294,9 +293,9 @@ public class CollisionEngine {
     }
     
     
-	public class ActiveCollider{
+	public abstract class ActiveCollider{
 		protected Collider collider;
-		private CheckingPair[] pairs;
+		protected ArrayList<CheckingPair> pairsList = new ArrayList<CheckingPair>();
 		
 		public ActiveCollider( Collider collider ){
 			this.collider = collider;
@@ -304,6 +303,50 @@ public class CollisionEngine {
 
 		public void removeSelf() {
 			//TODO
+		}
+		
+		public abstract void notifyChangeToStatic();
+		
+		protected void dissolveAllPairs(){
+			for ( CheckingPair obsoletePair : pairsList ){
+				obsoletePair.removeSelf();
+			}
+			pairsList.clear();
+		}
+		
+	}
+
+	private class StaticActiveCollider extends ActiveCollider{
+
+		private int staticListIndex;
+		
+		public StaticActiveCollider(Collider collider, int index ) {
+			super(collider);
+			this.staticListIndex = index;
+		}
+		
+		public void notifyChangeToStatic(){
+			//ALREADY STATIC SO DO NOTHING
+		}
+		
+	}
+	
+	private class DynamicActiveCollider extends ActiveCollider{
+
+		private int dynamicListIndex;
+		
+		public DynamicActiveCollider(Collider collider, int index) {
+			super(collider);
+			this.dynamicListIndex = index;
+		}
+		
+		public void notifyChangeToStatic(){
+			
+			dissolveAllPairs(); //FIXME Allow only dynamic/statics to be removed rather than blitzing all pairs
+
+			dynamicCollidables.remove(dynamicListIndex); //Remove from dynamic colliders list
+			
+			addStaticCollidable( this.collider );
 		}
 		
 	}
@@ -320,10 +363,16 @@ public class CollisionEngine {
 			this.primary = collider1;
 			this.secondary = collider2;
 			this.check = check;
+			collider1.pairsList.add(this);
+			collider2.pairsList.add(this);
 		}
 		
 		public void addToList( DoubleLinkedList<CheckingPair> list ){
 			this.listSlot = list.add( this );
+		}
+		
+		protected void removeSelf(){
+			this.listSlot.removeSelfFromList();
 		}
 		
 		public void check(){

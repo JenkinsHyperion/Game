@@ -11,30 +11,38 @@ import java.awt.geom.Point2D;
 
 import engine.MovingCamera;
 import entityComposites.EntityStatic;
+import misc.CollisionEvent;
 
 public class BoundaryCircular extends Boundary{
 
-	private EntityStatic ownerEntity;
+
 	
 	private BoundaryVertex centerVertex;
 	private Point center;
 	private Point origin;
 	private int radius;
 	
-	public BoundaryCircular( int radius , EntityStatic ownerEntity ) {
+	public BoundaryCircular( int radius ) {
 		this.radius = radius;
 		this.center = new Point(0,0);
 		this.origin = new Point(-radius,-radius);
-		this.ownerEntity = ownerEntity;
 		this.centerVertex = new BoundaryVertex(center);
 		this.constructVoronoiRegions();
 	}
 	
-	private BoundaryCircular( int radius , Point center , EntityStatic ownerEntity){ // FOR CLONING ONLY
+	public BoundaryCircular( int radius , CollisionEvent event ) {
+		this.radius = radius;
+		this.center = new Point(0,0);
+		this.origin = new Point(-radius,-radius);
+		this.centerVertex = new BoundaryVertex(center,event);
+		this.constructVoronoiRegions();
+	}
+	
+	private BoundaryCircular( int radius , Point center ){ // FOR CLONING ONLY
+
 		this.radius = radius;
 		this.center = new Point( center.x , center.y );
 		this.origin = new Point( center.x-radius , center.y-radius );
-		this.ownerEntity = ownerEntity;
 		this.centerVertex = new BoundaryVertex(center);
 		this.constructVoronoiRegions();
 	}
@@ -192,7 +200,7 @@ public class BoundaryCircular extends Boundary{
 	@Override
 	public Boundary atPosition(Point position) {
 		//System.err.println("Circular Boundary was not cloned");
-		return new BoundaryCircular( this.radius , position , this.ownerEntity);
+		return new BoundaryCircular( this.radius , position);
 	}
 
 	@Override

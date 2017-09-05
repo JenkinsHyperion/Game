@@ -116,7 +116,7 @@ public class Collider implements EntityComposite{
 	 */
 	
 	public void onCollisionEvent(){ 
-		uponCollision.run(null, null, null);
+		//uponCollision.run(null, null, null);
 	}
 	
 	public void onLeavingCollisionEvent(){
@@ -241,6 +241,11 @@ public class Collider implements EntityComposite{
 	public void disableComposite(){
 		this.engineSlot.removeSelf();
 	}
+	
+	protected void notifyEngineOfChangeToStatic(){
+		this.engineSlot.notifyChangeToStatic();
+	}
+	
 	@Override
 	public String toString() {
 		return this.compositeName;

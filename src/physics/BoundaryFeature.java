@@ -13,7 +13,6 @@ abstract public class BoundaryFeature {
 	protected CollisionEvent collisionEvent;
 
 	public BoundaryFeature(){
-		System.err.println( " CREATING NEW BOUNDARY FEATURE " );
 		this.collisionEvent = new DefaultCollisionEvent();
 	}
 	

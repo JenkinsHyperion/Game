@@ -126,7 +126,7 @@ public class PlayerCharacter extends Player {
         
         Boundary boundarytemp =  new BoundaryPolygonal.EnhancedBox( 24,76 ,-12,-38, eventList );
         Boundary boundarytemp2 = new BoundarySingular();
-        Boundary boundarytemp3 = new BoundaryCircular(40,this);
+        Boundary boundarytemp3 = new BoundaryCircular(40);
 		
 		/*for ( BoundaryVertex corner : boundarytemp.getCornersVertex() ){
 			corner.setCollisionEvent( cornerCollision );

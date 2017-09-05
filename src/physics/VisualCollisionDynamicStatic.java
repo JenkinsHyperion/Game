@@ -69,22 +69,33 @@ public class VisualCollisionDynamicStatic extends Collision {
 	
 	@Override
 	public void updateCollision(){ 
-
+		
 		Resolution closestResolution = getClosestResolution();
 		
 		TranslationComposite dynamicPrimary = entityPrimary.getTranslationComposite(); //OPTIMIZE See about moving to initialization
 		AngularComposite angularPrimary = entityPrimary.getAngularComposite();
 
-		normalForce.setVector( closestResolution.getSeparationVector().unitVector().multiply(-0.2) );
+		final Vector unitNormal = closestResolution.getSeparationVector().unitVector();
+		
+		final Vector normal = unitNormal.multiply(-0.2);
+		
+		final double tangentalVelocity = dynamicPrimary.getVelocityVector().projectedOver( normal.normalRight() ).getMagnitude();
+		
+		final double distanceA = entityPrimary.getPosition().distance(entitySecondary.getPosition()) ;
+		
+		final double centripetalForce = tangentalVelocity*tangentalVelocity/ ( distanceA  );
+		
+		//testing for centripetal acceleration
+		final Vector rotatingNormal = normal.add( unitNormal.multiply( centripetalForce ) );
+		
+		normalForce.setVector( rotatingNormal );
+		
+		//System.err.println(dynamicPrimary.getVelocityVector());
 		
 		if ( 
-				(	/*(int)closestResolution.getDistanceVector().getY()-(int)entityPrimary.getDY() != 0  
-					&&*/ ( closestResolution.getClippingVector().getY() ) != 0 
-				)
-				||
-				(	/*(int)closestResolution.getDistanceVector().getX()-(int)entityPrimary.getDX() != 0
-					&&*/ closestResolution.getClippingVector().getX() != 0 
-				)
+				
+					 closestResolution.getClippingVector().getMagnitude() > 2
+	
 				
 		) { //CLIPPING UPDATING
 					
@@ -98,18 +109,24 @@ public class VisualCollisionDynamicStatic extends Collision {
 			depthX = resolution.getX();
 			depthY = resolution.getY();
 
-			closestResolution.FeaturePrimary().getEvent().run(
+			/*closestResolution.FeaturePrimary().getEvent().run(
 					closestResolution.FeaturePrimary(),
 					closestResolution.FeatureSecondary(),
 					closestResolution.getSeparationVector().unitVector()
-					);
+					);*/
 			
 			//TODO GET NORMAL FROM BOUDNARY FEATURE INSTEAD
 
 			System.out.println("Will clip by "+ depthX +" , "+ depthY + " ... ");
 			
-			dynamicPrimary.clipDX(depthX);
-			dynamicPrimary.clipDY(depthY);
+			entityPrimary.setPos(
+					dynamicPrimary.getDeltaX(entityPrimary) + depthX,
+					dynamicPrimary.getDeltaY(entityPrimary) + depthY
+					);
+			
+			//dynamicPrimary.halt();
+			dynamicPrimary.setVelocityVector( dynamicPrimary.getVelocityVector().projectedOver(unitNormal.normalLeft()) );
+
 
 			//normalForce.setVector( 0,-0.2 );
 			//normalForce.setVector( new Vector(0,-0.2) );
@@ -121,7 +138,6 @@ public class VisualCollisionDynamicStatic extends Collision {
 			
 			if ( closestResolution.FeatureSecondary().debugIsSide() ){
 				Vector slope = ((Side)closestResolution.FeatureSecondary()).getSlopeVector().unitVector();
-				Vector normal = new Vector(0,-0.2).projectedOver( slope.normalLeft() );
 
 				frictionForce.setVector( dynamicPrimary.getVelocityVector().projectedOver(slope).inverse().multiply(0.1) );
 				
@@ -561,26 +577,26 @@ public class VisualCollisionDynamicStatic extends Collision {
 
 	    	if (centerDistanceX>0){
 	    		//centerDistanceX -= 1;
-	    		penetrationX = ( playerProjectionX + statProjectionX - centerDistanceX +1 );
-	    		shiftedX = penetrationX-1;
+	    		penetrationX = ( playerProjectionX + statProjectionX - centerDistanceX +2 );
+	    		shiftedX = penetrationX-2;
 	    	}
 	    	else if (centerDistanceX<0){
 	    		//centerDistanceX += 1;  //NEEDS HIGHER LEVEL SOLUTION
-	    		penetrationX = ( playerProjectionX + statProjectionX - centerDistanceX -1 );
-	    		shiftedX = penetrationX+1;
+	    		penetrationX = ( playerProjectionX + statProjectionX - centerDistanceX -2 );
+	    		shiftedX = penetrationX+2;
 	    	}
 	    	else
 	    		penetrationX = Math.abs(playerProjectionX) + Math.abs(statProjectionX);
 
 	    	if (centerDistanceY>0){
 	    		//centerDistanceY -= 1;
-	    		penetrationY = ( playerProjectionY + statProjectionY - centerDistanceY+1 ); 
-	    		shiftedY = penetrationY-1;
+	    		penetrationY = ( playerProjectionY + statProjectionY - centerDistanceY+2 ); 
+	    		shiftedY = penetrationY-2;
 	    	}
 	    	else if (centerDistanceY<0){
 	    		//centerDistanceY += 1; 
-	    		penetrationY =  ( playerProjectionY + statProjectionY - centerDistanceY-1 ); 
-	    		shiftedY = penetrationY+1;
+	    		penetrationY =  ( playerProjectionY + statProjectionY - centerDistanceY-2 ); 
+	    		shiftedY = penetrationY+2;
 	    	}else
 	    		penetrationY = Math.abs(playerProjectionY) + Math.abs(statProjectionY);
 	    	
@@ -634,8 +650,8 @@ public class VisualCollisionDynamicStatic extends Collision {
 	    	}
 			
 
-			final int square = 5;
-			if ( shiftedX*shiftedX + shiftedY*shiftedY > square*square ){  // PENETRATION DISTANCE OUTSIDE THRESHOLD SO END COLLISION
+			final int square = 10;
+			if ( penetrationX*penetrationX + penetrationY*penetrationY > square*square ){  // PENETRATION DISTANCE OUTSIDE THRESHOLD SO END COLLISION
 				isComplete = true;
 				System.out.println("Collision Dropped by (" +
 						penetrationX+ " - " +penetrationY +")");

@@ -123,12 +123,13 @@ public class BoardPhysicsTesting extends BoardAbstract{
         CompositeFactory.addDynamicRotationTo(spaceship);
         
         //CompositeFactory.addColliderTo(spaceship, new BoundaryPolygonal.Box(10, 10, -5, -5));
-        CompositeFactory.addColliderTo(spaceship, new BoundaryCircular( 10 , spaceship) ); 	//Add collider
+        CompositeFactory.addColliderTo(spaceship, new BoundaryCircular( 10 ) ); 	//Add collider
         //CompositeFactory.addColliderTo(spaceship, new BoundarySingular() ); 	//Add collider
 
         CompositeFactory.addScriptTo(spaceship, new EntityScript(){
         	
         	private EntityStatic target = followerEntity;
+        	private int targetUpdatableIndex;
         	private float VELOCITY = 4;
         	
 			@Override
@@ -151,6 +152,11 @@ public class BoardPhysicsTesting extends BoardAbstract{
 			
 			@Override
 			protected void updateScript() {
+			}
+			
+			@Override
+			public void setUpdateablesIndex(int index) {
+				this.targetUpdatableIndex = index;
 			}
 			
         });

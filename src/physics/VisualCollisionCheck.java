@@ -181,7 +181,7 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 		    	g2.setColor(Color.DARK_GRAY);
 		    	camera.drawDebugAxis(axis , g2 );    	
 		    	
-		    	if ( penetrationX + penetrationY == 0 ){
+		    	if ( penetrationX * penetrationY == 0 ){
 		    		//return false;
 		    		isColliding = false;
 			    	g2.setColor(Color.YELLOW);

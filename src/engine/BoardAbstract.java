@@ -2,6 +2,7 @@ package engine;
 
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
@@ -101,7 +102,9 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 	    });
 	    
 	    this.setIgnoreRepaint(true);
-	    
+	    editorPanel = new EditorPanel(this);
+		editorPanel.setSize(new Dimension(240, 300));
+		editorPanel.setPreferredSize(new Dimension(240, 300));
 	}
 	
 	protected void postInitializeBoard(){
@@ -156,9 +159,8 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 	     javax.swing.Timer repaintTimer = new javax.swing.Timer(16, repaintUpdateTaskSwing);
 	     repaintTimer.setRepeats(true);
 	     repaintTimer.start();
-	     
 	}
-	
+	protected abstract void initEditorPanel();
 	protected void activeRenderingDraw(){
 		
 	}
@@ -217,12 +219,13 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 		return this.currentScene.listEntities();
 	}
 	
-	public MovingCamera getCamera() {
+	public MovingCamera getCamera() throws NullPointerException{
 		return this.camera;
 	}
 	public EditorPanel getEditorPanel() {
 		return this.editorPanel;
 	}
+	
 	public void transferEditorPanel(EditorPanel instance){
 		this.editorPanel = instance; 
 	}

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.geom.Line2D;
 
 import editing.BrowserTreePanel;
+import editing.EditorPanel;
 import engine.BoardAbstract;
 import entityComposites.AngularComposite.AngleComposite;
 import physics.Boundary;

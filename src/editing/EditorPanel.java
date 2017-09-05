@@ -161,7 +161,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	protected JButton boundaryVertexPlaceButton;
 	
 //	Panels
-	private JPanel entitiesComboBoxPanel;
+	//private JPanel entitiesComboBoxPanel;
 	//private JPanel treePanel;
 	private BrowserTreePanel browserTreePanel;
 	private CompositeEditorPanel compositeEditorPanel;
@@ -182,6 +182,11 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		
 		//initializing some of the fields
 		this.board = board2;
+		/*try {
+			this.camera = board.getCamera();
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+		}*/
 		this.camera = board.getCamera();
 		oldMousePanPos = new Point();
 		oldCameraPos = new Point();
@@ -465,19 +470,19 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		
 
 		// ## The drop down box for the list of all entities in board ###	
-		allEntitiesComboBox = new JComboBox<>(staticEntityStringArr);
+		/*allEntitiesComboBox = new JComboBox<>(staticEntityStringArr);
 		allEntitiesComboBox.setPreferredSize(allEntitiesComboBoxDefSize);
 		allEntitiesComboBox.setFocusable(false);
-		allEntitiesComboBox.setSelectedIndex(0); //give it a default value
+		//allEntitiesComboBox.setSelectedIndex(0); //give it a default value
 		
-		allEntitiesComboBox.addActionListener(new EntitiesComboBoxActionHandler());
+		allEntitiesComboBox.addActionListener(new EntitiesComboBoxActionHandler());*/
 		
 
 		// Panel to contain allEntitiesComboBox drop down panel
-		entitiesComboBoxPanel = new JPanel(new BorderLayout());
+		/*entitiesComboBoxPanel = new JPanel(new BorderLayout());
 		entitiesComboBoxPanel.setBackground(Color.GRAY);
 		entitiesComboBoxPanel.setPreferredSize(allEntitiesComboBox.getPreferredSize());
-		entitiesComboBoxPanel.add(allEntitiesComboBox);
+		entitiesComboBoxPanel.add(allEntitiesComboBox);*/
 		
 		// ###### adding the components to the Editor window		
 		//inline panel for text messages
@@ -506,7 +511,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		
 		
 		// #### add everything to the editor's scroll pane
-		add(entitiesComboBoxPanel);
+		//add(entitiesComboBoxPanel);
 		add(saveButton);
 		add(loadButton);
 		add(labelsPanel);
@@ -540,7 +545,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		boundaryVertexSelectButton.setEnabled(true);
 		boundaryVertexPlaceButton.setEnabled(true);
 	}
-	public class EntitiesComboBoxActionHandler implements ActionListener{
+	/*public class EntitiesComboBoxActionHandler implements ActionListener{
 		
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -563,7 +568,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			}
 		}	
 	} //end of EntitiesComboBoxActionHandler inner class
-	
+*/	
 	
 	// ########## MOUSE HANDLING SECTION ##############
 	public void mousePressed(MouseEvent e) {
@@ -730,11 +735,10 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		//board.getStaticEntities().add(newEnt);
 		//addEntryToListOfPropLists(new PropertiesList(newEnt));
 		//updateAllEntitiesComboBox();
-        allEntitiesComboBox.setSelectedIndex(allEntitiesComboBox.getItemCount()-1);
 	}
 	//will refresh(create a new one of)staticEntityStringArr, remove old comboBox and then create & add a new updated one
 	//PROBLEM AREA, still a problem. Thought was fixed but has an issue when deleting entities
-	public void updateAllEntitiesComboBox() {
+	/*public void updateAllEntitiesComboBox() {
 		System.out.println("item count: "+ allEntitiesComboBox.getItemCount());
 		int prevIndex = allEntitiesComboBox.getSelectedIndex();
 		int prevMax = allEntitiesComboBox.getItemCount();
@@ -749,7 +753,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		entitiesComboBoxPanel.add(allEntitiesComboBox);
 		revalidate();
 		repaint();
-	}
+	}*/
 	// #############
 	// #### End of entity add/removal section
 	// ----------------------------------------------------------------------------------
@@ -788,12 +792,12 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	public void setSelectedEntityNameLabel(String text){
 		selectedEntityNameLabel.setText(text);
 	}
-	public void setAllEntitiesComboBoxIndex(int index) {
+	/*public void setAllEntitiesComboBoxIndex(int index) {
 		if (index >= 0 && index < allEntitiesComboBox.getItemCount())
 			allEntitiesComboBox.setSelectedIndex(index);
 		else
 			allEntitiesComboBox.setSelectedIndex(0);
-	}
+	}*/
 	/**
 	 * Makes "Edit Properties" button enabled and clickable.
 	 * @param choice

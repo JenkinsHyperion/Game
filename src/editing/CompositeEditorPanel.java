@@ -153,14 +153,14 @@ public class CompositeEditorPanel extends JPanel {
 	}
 	public void createSharedComponents(){
 		//test area
-		EnabledCheckBoxListener enabledCheckBoxListener = new EnabledCheckBoxListener();
+		//EnabledCheckBoxListener enabledCheckBoxListener = new EnabledCheckBoxListener();
 		//shared components
 		// VVVVVV won't work because not all composites have reference to owner entity
 		//compositeName.setText(currentComposite.getCompositeName());
 		//this.add(compositeName);
 		//add back to this panel.
-		this.add(enabledCheckBox);
-		enabledCheckBox.setSelected(checkIfCompositeExists());
+		//this.add(enabledCheckBox);
+		//enabledCheckBox.setSelected(checkIfCompositeExists());
 		this.revalidate();
 	}
 	public boolean checkIfCompositeExists(){

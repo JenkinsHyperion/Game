@@ -10,16 +10,21 @@ abstract public class BoundaryFeature {
 	
 	protected Boundary owner;
 	protected int ID;
-	private CollisionEvent collisionEvent = new DefaultCollisionEvent();
+	protected CollisionEvent collisionEvent;
 
+	public BoundaryFeature(){
+		this.collisionEvent = new DefaultCollisionEvent();
+	}
 	
-	public void setCollisionEvent( CollisionEvent event){
+	public BoundaryFeature( CollisionEvent event){
 		this.collisionEvent = event;
 	}
 	
-	protected CollisionEvent getEvent(){
-		return this.collisionEvent;
+	public void setCollisionEvent( CollisionEvent event){
+		collisionEvent = event;
 	}
+	
+	protected abstract CollisionEvent getEvent();
 	
 	protected void onCollision(){}
 	

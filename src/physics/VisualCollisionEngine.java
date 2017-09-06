@@ -11,6 +11,7 @@ import engine.MovingCamera;
 import engine.Overlay;
 import engine.OverlayComposite;
 import entityComposites.Collider;
+import entityComposites.EntityStatic;
 import sprites.RenderingEngine;
 import utility.DoubleLinkedList;
 import utility.ListNodeTicket;
@@ -119,6 +120,32 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 			
 		}
 		
+	}
+	
+	public Overlay createForcesOverlay(){
+		return new ForcesOverlay();
+	}
+	
+	public class ForcesOverlay implements Overlay{
+
+		@Override
+		public void paintOverlay(Graphics2D g2, MovingCamera cam) {
+			
+			g2.drawString( " VISUAL COLLISION ENGINE OVERLAY ", 20, 20 );
+			g2.drawString( staticCollidables.size() + " static colliders", 20, 35 );
+			g2.drawString( dynamicCollidables.size() + " dynamic colliders", 20, 50 );
+			
+			for ( ActiveCollider active : dynamicCollidables ){
+				
+				EntityStatic entity = active.collider.getOwnerEntity();
+				
+				for ( Vector line : entity.getTranslationComposite().debugForceArrows() ){
+					
+					cam.draw(line.multiply(400).toLine( entity.getPosition() ));
+				}
+			}
+			
+		}
 	}
 
 }

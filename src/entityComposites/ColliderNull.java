@@ -145,6 +145,11 @@ public final class ColliderNull extends Collider{
 	}
 	
 	@Override
+	protected void notifyEngineOfChangeToStatic() {
+		//DO NOTHING, DYMAMIC ENTITY HAD NO COLLIDER
+	}
+	
+	@Override
 	public void disableComposite() {
 		System.err.println("No collider to disable");
 	}

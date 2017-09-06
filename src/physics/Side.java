@@ -125,4 +125,9 @@ public class Side extends BoundaryFeature{
 		return this.getSlopeVector().normalLeft();
 	}
 	
+	@Override
+	protected CollisionEvent getEvent() {
+		return this.collisionEvent;
+	}
+	
 }

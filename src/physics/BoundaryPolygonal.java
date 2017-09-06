@@ -3,6 +3,7 @@ package physics;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -500,7 +501,7 @@ public class BoundaryPolygonal extends Boundary {
 				}
 				
 			}
-		}	
+		}
 		return outerPoints;
 	}
 	
@@ -544,20 +545,32 @@ public class BoundaryPolygonal extends Boundary {
 			return returnFarthestPoints;
 		
 	}
-	@Override
-	public BoundaryVertex[] farthestVerticesFromPoint(BoundaryVertex boundaryVertex , Line2D axis){
-		
-		return farthestCorner( boundaryVertex.toPoint() , axis);
-		
-	}
+
 	@Override
 	public BoundaryCorner[] farthestVerticesFromPoint(Point2D origin , Line2D axis){ //RETURNING DUPLICATES?	
 		return farthestCorner(origin, axis);
 	}
 	
 	@Override
+	public BoundaryFeature[] farthestFeatureFromPoint(Point primaryOrigin, Point secondaryOrigin, Point2D pointRel, Line2D axis) {
+		
+		Point relativeSecondary = new Point( secondaryOrigin.x - primaryOrigin.x , secondaryOrigin.y - primaryOrigin.y );
+		
+		Point2D origin = new Point2D.Double( relativeSecondary.x + pointRel.getX() , relativeSecondary.y + pointRel.getY() );
+		
+		return farthestCorner(origin, axis);
+	}
+	
+	@Override
 	protected Point2D farthestPointFromPoint(Point2D boundaryPoint, Line2D axis) {
 		return farthestCorner( boundaryPoint , axis )[0].toPoint();
+	}
+	
+	@Override
+	protected Point2D farthestPointFromPoint(Point primaryOrigin, Point2D localPoint, Line2D axis) {
+		
+		
+		return null;
 	}
 	
 	public BoundaryVertex[] nearestVerticesFromPoint(Point2D origin , Line2D axis){ //RETURNING DUPLICATES?
@@ -673,6 +686,27 @@ public class BoundaryPolygonal extends Boundary {
 	public void scaleBoundary(double scaleFactor, Point center) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	@Override
+	public byte getTypeCode() {
+		return 1;
+	}
+
+	@Override
+	public Polygon getPolygonBounds( EntityStatic owner ) {
+
+		int[] xpoints;
+		int[] ypoints;
+		xpoints = new int[this.getCornersPoint().length];
+		ypoints = new int[this.getCornersPoint().length];
+
+		for (int i = 0; i < this.getCornersPoint().length; i++ ) {
+			xpoints[i] = (int)this.getCornersPoint()[i].getX();
+			ypoints[i] = (int)this.getCornersPoint()[i].getY();
+		}
+		Polygon polygonTest = new Polygon(xpoints, ypoints, this.getCornersPoint().length);
+		return polygonTest;
 	}
 
 }

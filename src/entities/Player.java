@@ -10,14 +10,11 @@ import engine.BoardAbstract;
 import entityComposites.EntityStatic;
 
 public class Player extends EntityStatic {
-
-	protected transient BoardAbstract board;
 	
-    public Player(int x, int y , BoardAbstract testBoard) {
+    public Player(int x, int y) {
         super(x, y);
 
 		name = "Player"+count;
-        board = testBoard;
         initPlayer();
     }
 

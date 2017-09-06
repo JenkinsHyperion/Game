@@ -2,6 +2,8 @@ package physics;
 
 import java.awt.geom.Point2D;
 
+import misc.CollisionEvent;
+
 public class NullFeature extends BoundaryFeature{
 	
 	final NullFeature nullFeature= new NullFeature();
@@ -34,6 +36,11 @@ public class NullFeature extends BoundaryFeature{
 	public Vector getNormal() {
 		System.err.println("Attempted normal on Null Feature");
 		return null;
+	}
+	
+	@Override
+	protected CollisionEvent getEvent() {
+		return this.collisionEvent;
 	}
 	
 }

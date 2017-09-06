@@ -13,6 +13,7 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 	private ListNodeTicket updaterSlot;
 	
 	private EntityStatic ownerEntity;
+	private int ownerEntityIndex;
 	
 	//protected Boundary storedBounds; //So that rounding errors from rotation don't degrade the vertex locations
 	protected double angularVelocity = 0;
@@ -189,6 +190,12 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 		public String toString() {
 			return this.compositeName;
 		}
+	}
+
+
+	@Override
+	public void setUpdateablesIndex(int index) {
+		this.ownerEntityIndex = index;
 	}
 	
 }

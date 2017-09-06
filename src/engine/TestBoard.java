@@ -4,6 +4,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 import java.util.*;
+
+import javax.swing.JFrame;
 import javax.swing.event.*;
 
 import Input.InputController;
@@ -14,8 +16,10 @@ import entities.*; //local imports
 import entityComposites.Collider;
 import entityComposites.CompositeFactory;
 import entityComposites.EntityStatic;
+import entityComposites.TranslationComposite;
 import entityComposites.Collider;
 import physics.*;
+import physics.Vector;
 import sprites.Background;
 import sprites.RenderingEngine;
 import sprites.Sprite;
@@ -31,12 +35,11 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 	private java.util.Timer updateEntitiesTimer;
 	
 	MouseHandlerClass myMouseHandler;
-	
-	private CollisionEngine collisionEngine = new CollisionEngine(this); //Refactor to a better name
 
 	private InputController boardInput = new InputController("Test Board Input");
 	
-    public Player player;
+    public TestPlayer player;
+    private Force gravity;
     private EntityStatic asteroid;
     
     private Line2D dragLine = new Line2D.Double();
@@ -45,9 +48,12 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     public static int B_HEIGHT;// = 300;
 
     public EntityStatic currentDebugEntity;
+    
+    private OverlayComposite boundaryOverlay;
+    private OverlayComposite forcesOverlay;
 
-    public TestBoard(int width , int height ) {
-    	super(width,height);
+    public TestBoard(int width , int height, JFrame frame ) {
+    	super(width,height,frame);
     	
     	this.renderingEngine = new RenderingEngine( this );
     	this.camera = this.renderingEngine.getCamera();
@@ -55,27 +61,30 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     	this.diagnosticsOverlay = this.renderingEngine.addOverlay( this.new DiagnosticsOverlay() );
     	this.diagnosticsOverlay.toggle();
     	
-    	this.inputController.createKeyBinding(KeyEvent.VK_W, new KeyCommand(){
+    	this.boundaryOverlay = this.renderingEngine.addOverlay( this.new BoundaryOverlay() );
+    	//this.boundaryOverlay.toggle();
+    	
+    	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_W, new KeyCommand(){
     		public void onPressed() { camera.setDY(-10f); }
     		public void onReleased() { camera.setDY(0); }
     	});
-    	this.inputController.createKeyBinding(KeyEvent.VK_A, new KeyCommand(){
+    	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_A, new KeyCommand(){
     		public void onPressed() { camera.setDX(-10f); }
     		public void onReleased() { camera.setDX(0); }
     	});
-    	this.inputController.createKeyBinding(KeyEvent.VK_S, new KeyCommand(){
+    	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_S, new KeyCommand(){
     		public void onPressed() { camera.setDY(10f); }
     		public void onReleased() { camera.setDY(0); }
     	});
-    	this.inputController.createKeyBinding(KeyEvent.VK_D, new KeyCommand(){
+    	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_D, new KeyCommand(){
     		public void onPressed() { camera.setDX(10f); }
     		public void onReleased() { camera.setDX(0); }
     	});
-    	this.inputController.createMouseBinding(MouseEvent.CTRL_MASK , MouseEvent.BUTTON3, new MouseCommand(){
+    	this.getUnpausedInputController().createMouseBinding(MouseEvent.CTRL_MASK , MouseEvent.BUTTON3, new MouseCommand(){
     		public void mousePressed() { asteroid.getRotationComposite().setAngularVelocity(0.1f); }
     	});
     	//MOUSE COMMAND FOR GROWING NEW PLANT  
-        this.inputController.createMouseBinding( MouseEvent.CTRL_MASK , MouseEvent.BUTTON1 , new MouseCommand(){
+        this.getUnpausedInputController().createMouseBinding( MouseEvent.CTRL_MASK , MouseEvent.BUTTON1 , new MouseCommand(){
     		public void mousePressed() {
       			//editorPanel.getWorldGeom().mousePressed(e);
     		}
@@ -113,13 +122,10 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
       			dragLine = new Line2D.Double( new Point() , new Point() );
     		}
     	});
-        this.inputController.createKeyBinding(KeyEvent.VK_T, new KeyCommand(){ //TEST BUTTON
-    		public void onPressed() { 
-    			System.err.println("REMOVING TRANSLATION");
-    			asteroid.removeTranslationComposite();
-    		}
-    	});
         
+    	this.collisionEngine = new VisualCollisionEngine(this,renderingEngine); //Refactor to a better name
+    	
+    	this.forcesOverlay = renderingEngine.addOverlay( ((VisualCollisionEngine)collisionEngine).createForcesOverlay() );
     	
     	initBoard();
     	postInitializeBoard();
@@ -138,12 +144,21 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         asteroid = new EntityStatic( "Asteroid" , 0 , 0 );
         
         CompositeFactory.addGraphicTo(asteroid, new SpriteStillframe("box.png", Sprite.CENTERED ) );
-        CompositeFactory.addTranslationTo(asteroid);
+        //CompositeFactory.addTranslationTo(asteroid);
         CompositeFactory.addDynamicRotationTo(asteroid);
+
+        CompositeFactory.addColliderTo(asteroid,  new BoundaryCircular(300) );
         
-        asteroid.getTranslationComposite().setDX(-0.25f);
+        //CompositeFactory.addColliderTo(asteroid,  new BoundaryPolygonal.Box(500, 200, -250,-100) );
+        //asteroid.getTranslationComposite().setDX(-0.25f);
         
         this.currentScene.addEntity(asteroid);
+
+        player = new TestPlayer(20,-400 );
+        this.currentScene.addEntity(player);
+        gravity = player.getTranslationComposite().addForce( new Vector(0,0) );
+        this.addInputController(player.inputController);
+
     }
     
     @Override
@@ -155,6 +170,11 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     	}else{
     		PlantTwigSegment.waveCounter[0] = -100;
     	}
+    	
+
+    	collisionEngine.checkCollisions();
+
+    	gravity.setVector( player.getSeparationUnitVector(asteroid).multiply(0.2) );
     	
     }
 
@@ -188,12 +208,185 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
      * ########################################################################################################################
      */
     
-    //KEY COMMANDS
+    //PLAYER  ########################################################################################################################
+
+    private class TestPlayer extends Player{
+    	
+    	TranslationComposite trans;
+    	Collider collider;
+    	private final MovingState movingLeft = new MovingState();
+    	private final StandingState standing = new StandingState();
+    	private final FallingState falling = new FallingState();
+    	State currentState = falling;
+    	
+    	private Force movementForce;
+    	
+		public TestPlayer(int x, int y) {
+			super(x, y);
+			
+			CompositeFactory.addGraphicTo(this, new SpriteStillframe("box.png", Sprite.CENTERED) );
+			
+			Boundary boundary = new BoundarySingular( new Event() );
+			Boundary boundary2 = new BoundaryCircular( 80 , new Event() );
+			Boundary boundary3 = new BoundaryPolygonal.Box( 20,20,-10,-10 );
+			CompositeFactory.addColliderTo(this, boundary2 );
+    
+			CompositeFactory.addTranslationTo(this);
+			
+			trans = this.getTranslationComposite();
+			collider = this.getColliderComposite();
+			
+			movementForce = trans.addForce( new Vector(0,0) );
+			
+			this.inputController.createKeyBinding(KeyEvent.VK_LEFT, new KeyCommand(){
+				@Override
+				public void onPressed() {
+					currentState.onLeft();
+				}
+				@Override
+				public void onReleased() {
+					currentState.offLeft();
+				}
+			});
+			this.inputController.createKeyBinding(KeyEvent.VK_RIGHT, new KeyCommand(){
+				@Override
+				public void onPressed() {
+					currentState.onRight();
+				}
+				@Override
+				public void onReleased() {
+					currentState.offRight();
+				}
+			});
+			this.inputController.createKeyBinding(KeyEvent.VK_SPACE, new KeyCommand(){
+				@Override
+				public void onPressed() {
+					currentState.onJump();
+				}
+				@Override
+				public void onReleased() {
+					currentState.offJump();
+				}
+			});
+			
+			this.inputController.createKeyBinding(KeyEvent.VK_DELETE, new KeyCommand(){
+				@Override
+				public void onPressed() {
+					trans.disableComposite();
+				}
+			});
+			
+			this.collider.setLeavingCollisionEvent( new CollisionEvent(){
+				@Override
+				public void run(BoundaryFeature source, BoundaryFeature collidingWith, Vector normal) {
+					changeState(falling);
+				}
+			});
+			
+		}
+		
+		@Override
+		public void updateComposite() {
+			super.updateComposite();
+			this.currentState.run();
+		}
+
+		private class Event extends CollisionEvent{
+			@Override
+			public void run(BoundaryFeature source, BoundaryFeature collidingWith, Vector separation) {
+				changeState(standing);
+				System.out.println("HITTING GROUND");
+			}
+			@Override
+			public String toString() {
+				return "Hit Something Event";
+			}
+		}
+		
+		private void changeState( State state ){
+			System.err.println("CHANGE STATE "+currentState+" TO "+state);
+			this.currentState = state;
+		}
+		
+    	private abstract class State implements Runnable{
+    		public abstract void onLeft();
+    		public abstract void offLeft();
+    		public abstract void onRight();
+    		public abstract void offRight();
+    		public abstract void onJump();
+    		public abstract void offJump();
+    	}
+    	
+    	
+    	private class StandingState extends State{
+    		@Override
+			public void run() {}
+			@Override
+			public void onLeft() {
+				changeState(movingLeft);
+				movingLeft.leftRight = 1;
+			}
+			@Override
+			public void onRight() {
+				changeState(movingLeft);
+				movingLeft.leftRight = -1;
+			}
+			@Override
+			public void onJump() {
+				//movementForce.setVector( gravity.getVector().unitVector().multiply(-1) );
+				trans.addVelocity( gravity.getVector().unitVector().multiply(-5) );
+			}
+			@Override public void offLeft(){};
+			@Override public void offRight(){};
+			@Override public void offJump(){};
+    	}
+    	
+    	private class FallingState extends State{
+			@Override
+			public void run() {}
+			@Override public void onLeft(){};
+			@Override public void offLeft(){};
+			@Override public void onRight(){};
+			@Override public void offRight(){};
+			@Override public void onJump(){};
+			@Override public void offJump(){};
+			
+    	}
+    	
+    	private class MovingState extends State{
+    		
+    		protected byte leftRight;
+    		protected boolean running = false;
+    		
+			@Override
+			public void run() {
+				trans.setVelocityVector( gravity.getVector().normalLeft().unitVector().multiply(5*leftRight) );
+			}
+			@Override
+			public void offRight() {
+				trans.halt();
+				changeState(standing);
+			}
+			@Override
+			public void offLeft() {
+				System.err.println("STOPPIGN");
+				trans.halt();
+				changeState(standing);
+			}
+			@Override
+			public void onJump() {
+				trans.addVelocity( gravity.getVector().inverse().unitVector().multiply(5) );
+			}
+			
+			@Override public void onLeft(){};
+			@Override public void onRight(){};
+			@Override public void offJump(){};
+    	}
+    	
+    }
     
     
-    
-    
-	  //MOUSE INPUT
+	//MOUSE INPUT ########################################################################################################################
     
   	protected class MouseHandlerClass extends MouseInputAdapter  { 	   
 
@@ -201,7 +394,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
   		public void mousePressed(MouseEvent e){  	
   			dragLine.setLine( e.getPoint() , e.getPoint() );
   			editorPanel.mousePressed(e);
-  			inputController.mousePressed(e);
+  			getCurrentBoardInputController().mousePressed(e);
   		}
   		@Override
   		public void mouseDragged(MouseEvent e){ 		
@@ -218,7 +411,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
   		@Override
   		public void mouseReleased(MouseEvent e) {	
   			editorPanel.mouseReleased(e);
-  			inputController.mouseReleased(e);
+  			getCurrentBoardInputController().mouseReleased(e);
   		}
   			
   	}

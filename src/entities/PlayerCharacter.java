@@ -94,13 +94,12 @@ public class PlayerCharacter extends Player {
     private final CollisionEvent onSideCollision = new SideCollisionEvent();
 
     public PlayerCharacter(int x, int y , BoardAbstract testBoard) {
-        super(x, y, testBoard);
+        super(x, y);
         
         RUN_RIGHT.getAnimation().setReverse();
         SPRINT_RIGHT.getAnimation().setReverse();
 
 		name = "Player"+count;
-        board = testBoard;
         initPlayer();
     }
 
@@ -127,7 +126,7 @@ public class PlayerCharacter extends Player {
         
         Boundary boundarytemp =  new BoundaryPolygonal.EnhancedBox( 24,76 ,-12,-38, eventList );
         Boundary boundarytemp2 = new BoundarySingular();
-        Boundary boundarytemp3 = new BoundaryCircular(40,this);
+        Boundary boundarytemp3 = new BoundaryCircular(40);
 		
 		/*for ( BoundaryVertex corner : boundarytemp.getCornersVertex() ){
 			corner.setCollisionEvent( cornerCollision );
@@ -198,7 +197,7 @@ public class PlayerCharacter extends Player {
 
     private class OnLeavingCollision extends CollisionEvent{
 		@Override
-		public void run( BoundaryFeature source , BoundaryFeature collidingWith ) {
+		public void run( BoundaryFeature source , BoundaryFeature collidingWith, Vector separation ) {
 			changePlayerState( fallingLeft );
 			
 		}	
@@ -207,7 +206,7 @@ public class PlayerCharacter extends Player {
     private class FloorCollisionEvent extends CollisionEvent {
 
 		@Override
-		public void run( BoundaryFeature source , BoundaryFeature collidingWith ) {
+		public void run( BoundaryFeature source , BoundaryFeature collidingWith, Vector separation ) {
 			playerState.onCollision();
 			changePlayerState( playerStateBuffer );
 			if ( collidingWith.debugIsSide() ){
@@ -227,7 +226,7 @@ public class PlayerCharacter extends Player {
     private class SideCollisionEvent extends CollisionEvent{
 	
 		@Override
-		public void run( BoundaryFeature source , BoundaryFeature collidingWith ) {
+		public void run( BoundaryFeature source , BoundaryFeature collidingWith, Vector separation ) {
 			
 			
 			//CLIMBING MECHANIC

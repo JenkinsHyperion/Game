@@ -3,15 +3,23 @@ package physics;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 
+import misc.CollisionEvent;
+
 public class BoundaryVertex extends BoundaryFeature{
 
 	protected Point position;
 
 	protected BoundaryVertex( Point position ){
 		this.position = position;
+		//System.err.println( " CREATING NEW VERTEX BOUNDARY FEATURE " );
 	}
 	protected BoundaryVertex( Point2D position ){
 		this.position = new Point( (int)position.getX(), (int)position.getY() );
+	}
+	
+	protected BoundaryVertex( Point position, CollisionEvent event ){
+		super(event);
+		this.position = position;
 	}
 	
 	public Point toPoint() {
@@ -52,6 +60,15 @@ public class BoundaryVertex extends BoundaryFeature{
 	public Vector getNormal() {
 		System.err.println("Attempted to get Normal Vector on BOundaryVertex (not Corner)");
 		return null;
+	}
+	
+	@Override
+	public String toString() {
+		return "Boundary Vertex";
+	}
+	@Override
+	protected CollisionEvent getEvent() {
+		return this.collisionEvent;
 	}
 
 }

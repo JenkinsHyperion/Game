@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.io.Serializable;
 
 import engine.MovingCamera;
+import physics.Vector;
 
 /* This is the base class for all game objects. Contains only position variables. 
  * 
@@ -129,6 +130,13 @@ public class Entity {
         			point_on_entity.x + this.getX(),
         			point_on_entity.y + this.getY()
         		);
+    }
+    
+    public Vector getSeparationVector( Entity partner ){
+    	return new Vector( partner.x - this.x  , partner.y - this.y  );
+    }
+    public Vector getSeparationUnitVector( Entity partner ){
+    	return new Vector( partner.x - this.x  , partner.y - this.y ).unitVector();
     }
 
 }

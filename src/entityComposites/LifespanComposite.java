@@ -9,6 +9,8 @@ public class LifespanComposite implements EntityComposite, UpdateableComposite {
 	
 	private int lifespan;
 	
+	private int ownerEntityIndex;
+	
 	protected LifespanComposite( int lifespan ){
 		this.lifespan = lifespan;
 	}
@@ -70,6 +72,11 @@ public class LifespanComposite implements EntityComposite, UpdateableComposite {
 	public EntityStatic getOwnerEntity() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	@Override
+	public void setUpdateablesIndex(int index) {
+		this.ownerEntityIndex = index;
 	}
 
 }

@@ -2,6 +2,8 @@ package physics;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
@@ -9,30 +11,38 @@ import java.awt.geom.Point2D;
 
 import engine.MovingCamera;
 import entityComposites.EntityStatic;
+import misc.CollisionEvent;
 
 public class BoundaryCircular extends Boundary{
 
-	private EntityStatic ownerEntity;
+
 	
 	private BoundaryVertex centerVertex;
 	private Point center;
 	private Point origin;
 	private int radius;
 	
-	public BoundaryCircular( int radius , EntityStatic ownerEntity ) {
+	public BoundaryCircular( int radius ) {
 		this.radius = radius;
 		this.center = new Point(0,0);
 		this.origin = new Point(-radius,-radius);
-		this.ownerEntity = ownerEntity;
 		this.centerVertex = new BoundaryVertex(center);
 		this.constructVoronoiRegions();
 	}
 	
-	private BoundaryCircular( int radius , Point center , EntityStatic ownerEntity){ // FOR CLONING ONLY
+	public BoundaryCircular( int radius , CollisionEvent event ) {
+		this.radius = radius;
+		this.center = new Point(0,0);
+		this.origin = new Point(-radius,-radius);
+		this.centerVertex = new BoundaryVertex(center,event);
+		this.constructVoronoiRegions();
+	}
+	
+	private BoundaryCircular( int radius , Point center ){ // FOR CLONING ONLY
+
 		this.radius = radius;
 		this.center = new Point( center.x , center.y );
 		this.origin = new Point( center.x-radius , center.y-radius );
-		this.ownerEntity = ownerEntity;
 		this.centerVertex = new BoundaryVertex(center);
 		this.constructVoronoiRegions();
 	}
@@ -52,11 +62,6 @@ public class BoundaryCircular extends Boundary{
 		Shape boundary = new Ellipse2D.Float( -radius , -radius , 2*radius, 2*radius );
 		cam.drawCrossInWorld( center );
 		cam.drawShapeInWorld( boundary , ownerEntity.getPosition() );
-	}
-
-	@Override
-	public BoundaryVertex[] farthestVerticesFromPoint(BoundaryVertex boundaryVertex, Line2D axis) {
-		return new BoundaryVertex[0]; //NO VERTICES ON CIRCLE
 	}
 
 	@Override
@@ -107,6 +112,24 @@ public class BoundaryCircular extends Boundary{
 		}
 		
 	}
+	
+	@Override
+	protected Point2D farthestPointFromPoint(Point primaryOrigin, Point2D localPoint, Line2D axis) { //OPTIMIZE REDUCE RELATIVISM
+		
+		Point2D relativePosition = new Point2D.Double( 
+				localPoint.getX() - primaryOrigin.x , 
+				localPoint.getY() - primaryOrigin.y
+				);
+		
+		Point2D returnPoint = farthestPointFromPoint(relativePosition, axis);
+		
+		relativePosition = new Point2D.Double( 
+				returnPoint.getX() + primaryOrigin.getX() , 
+				returnPoint.getY() + primaryOrigin.getY()
+				);
+		
+		return relativePosition;
+	}
 
 	@Override
 	protected Point2D[] getOuterPointsPair(Line2D axis) {
@@ -154,8 +177,12 @@ public class BoundaryCircular extends Boundary{
 
 	@Override
 	public BoundaryCorner[] farthestVerticesFromPoint(Point2D point, Line2D axis) {
-		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	@Override
+	public BoundaryFeature[] farthestFeatureFromPoint(Point primary, Point secondary, Point2D p2, Line2D axis) {
+		return new BoundaryFeature[]{ this.centerVertex };
 	}
 
 	@Override
@@ -173,7 +200,7 @@ public class BoundaryCircular extends Boundary{
 	@Override
 	public Boundary atPosition(Point position) {
 		//System.err.println("Circular Boundary was not cloned");
-		return new BoundaryCircular( this.radius , position , this.ownerEntity);
+		return new BoundaryCircular( this.radius , position);
 	}
 
 	@Override
@@ -204,5 +231,14 @@ public class BoundaryCircular extends Boundary{
 		
 	}
 	
+	@Override
+	public byte getTypeCode() {
+		return 0;
+	}
+	
+	@Override
+	public Polygon getPolygonBounds( EntityStatic owner ) {
+		return new Polygon();
+	}
 
 }

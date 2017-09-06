@@ -58,17 +58,17 @@ public abstract class Collision {
 		private BoundaryFeature closestFeaturePrimary;
 		private BoundaryFeature closestFeatureSecondary;
 		private Vector resolutionVector;
-		private Vector distanceVector;
+		private Vector axisVector;
 		
-		protected Resolution( BoundaryFeature featurePrimary , BoundaryFeature featureSecondary  , Vector resolution , Vector distance){
+		protected Resolution( BoundaryFeature featurePrimary , BoundaryFeature featureSecondary  , Vector resolution , Vector axis){
 			this.closestFeaturePrimary = featurePrimary;
 			this.closestFeatureSecondary = featureSecondary;
 			this.resolutionVector = resolution;
-			this.distanceVector = distance;
+			this.axisVector = axis;
 		}
 		
 		protected Vector getClippingVector(){ return resolutionVector; }
-		protected Vector getDistanceVector(){ return distanceVector; }
+		protected Vector getSeparationVector(){ return axisVector; }
 		
 		protected BoundaryFeature FeaturePrimary(){ return closestFeaturePrimary; }
 		protected BoundaryFeature FeatureSecondary(){ return closestFeatureSecondary; }

@@ -21,6 +21,7 @@ import Input.KeyCommand;
 import editing.EditorPanel;
 import entityComposites.Collider;
 import entityComposites.EntityStatic;
+import entityComposites.GraphicComposite;
 import entityComposites.UpdateableComposite;
 import misc.PaintOverlay;
 import physics.CollisionEngine;
@@ -238,10 +239,16 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 		this.currentScene = scene;
 	}
 	
+	//ENTITY ADDING AND NOTIFYING
 	
 	public void addStaticEntity(EntityStatic entity) {
 		this.currentScene.addEntity( entity );
 	}
+	
+	public void notifyGraphicsChange(GraphicComposite graphicsComposite){
+		this.renderingEngine.addGraphicsCompositeToRenderer(graphicsComposite);
+	}
+	
 	
 	public ListNodeTicket addCompositeToUpdater( UpdateableComposite updateable ){
 		return updateablesList.add(updateable);

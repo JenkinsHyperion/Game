@@ -96,7 +96,7 @@ public class RenderingEngine {
 		
 	}
 	
-	public ListNodeTicket addSpriteComposite( GraphicComposite sprite ){
+	public ListNodeTicket addGraphicsCompositeToRenderer( GraphicComposite sprite ){
 		
 		try{
 			return spriteCompositeList.add( sprite );

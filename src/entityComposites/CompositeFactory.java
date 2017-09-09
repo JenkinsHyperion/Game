@@ -93,13 +93,26 @@ public class CompositeFactory {
 		
 	}
 	
-	public static void addGraphicTo( EntityStatic entity , Sprite sprite ){
+	public static GraphicComposite addGraphicTo( EntityStatic entity , Sprite sprite ){
+		
+		final GraphicComposite graphic = entity.getGraphicComposite();
+		
+		if ( graphic.exists() ){
+			
+			return graphic;
+			
+		}
+		else{
 		
 		GraphicComposite.Active graphicComposite = new GraphicComposite.Active( entity );
 		
 		graphicComposite.setSprite( sprite );
 		
 		entity.setGraphicComposite( graphicComposite );
+		
+		return graphicComposite;
+		
+		}
 	}
 	/**Adds anonymous graphicComposite to this entity, probably with the intention of overriding the GraphicComposite draw() Method
 	 * with custom functionality

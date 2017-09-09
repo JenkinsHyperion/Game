@@ -15,6 +15,7 @@ import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.activation.UnsupportedDataTypeException;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -32,6 +33,7 @@ import javax.swing.tree.TreeSelectionModel;
 import engine.BoardAbstract;
 import entityComposites.AngularComposite;
 import entityComposites.Collider;
+import entityComposites.CompositeFactory;
 import entityComposites.DynamicRotationComposite;
 import entityComposites.Entity;
 import entityComposites.EntityComposite;
@@ -151,10 +153,7 @@ public class BrowserTreePanel extends JPanel {
 			popUp.add(deleteComposite);
 			
 		}
-		public void removeNode(DefaultMutableTreeNode nodeToRemove) {
-			//DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode)nodeToRemove.getParent();
-			defaultModel.removeNodeFromParent(nodeToRemove);
-		}
+
 		/** Remove the currently selected node. Valid only for removing composites.
 		 */
 	    public void removeCurrentNode() {
@@ -177,32 +176,80 @@ public class BrowserTreePanel extends JPanel {
 		                }
 		                // TODO SECTION TO DEACTIVATE COMPOSITE
 		                // ________________
+		               ((EntityComposite)currentNode.getUserObject()).disableComposite();
+		                searchAndRemoveCompositeFromAllRoots(currentNode);
 		            }
 	        	}
 	        } 
 	    }
+
+	    private void addCompositeToEntity(JMenuItem selectedOption) {
+	    	if (theEntity != null) {
+	    		if (selectedOption.getText().equalsIgnoreCase("Graphics")) 
+	    		{
+	    			System.err.println("IN BROWSERTREE: REACHED 'GRAPHICS' CHECK, for entity:" + theEntity.name);
+	    			//if (checkIfCompositeIsActive(theEntity.getGraphicComposite()) == false)
+	    			if (theEntity.getGraphicComposite().exists() == false)
+	    			{
+		    			System.err.println("Success"); 		
+		    			//theEntity now has new graphicsComposite, so retreive it.
+		    			GraphicComposite newGraphicsComposite = CompositeFactory.addGraphicTo(theEntity, Sprite.missingSprite);
+		    			
+		    			BrowserTreePanel.this.board.notifyGraphicsChange(newGraphicsComposite);
+		    			
+		    			insertCompositeIntoRespectiveFolder(newGraphicsComposite);
+		    			try {
+		    				DefaultMutableTreeNode entityNode = containsEntity(theEntity, sceneRoot);
+		    				addNewNodeOfAnyType( (DefaultMutableTreeNode)entityNode.getFirstChild(), newGraphicsComposite);
+		    			}catch (UnsupportedDataTypeException e) { e.printStackTrace(); }
+	    			}
+	    		}
+	    	}
+	    }
+	    private void searchAndDeleteParentNodes( 
+	    		DefaultMutableTreeNode nodeToSearchFor, 
+	    		DefaultMutableTreeNode rootToRemoveFrom,
+	    		EntityComposite comp
+	    		){
+
+		    	DefaultMutableTreeNode possibleNodeContainingEnt;
+				Enumeration e = ((DefaultMutableTreeNode)rootToRemoveFrom).breadthFirstEnumeration();
+				while (e.hasMoreElements()){
+					possibleNodeContainingEnt = (DefaultMutableTreeNode)e.nextElement();
+					if (possibleNodeContainingEnt.getUserObject() == comp) {
+						DefaultMutableTreeNode itsParent = (DefaultMutableTreeNode)possibleNodeContainingEnt.getParent();
+						System.err.println("IN BROWSERTREE: was able to remove " + possibleNodeContainingEnt.toString() + "from parent: " + itsParent.toString());
+
+						defaultModel.removeNodeFromParent(itsParent);
+
+						comp.disableComposite();
+					}
+				}
+	    }
+	    
 	    public void searchAndRemoveCompositeFromAllRoots(DefaultMutableTreeNode nodeToSearchFor){
-	    	DefaultMutableTreeNode possibleNodeContainingEnt;
+
 	    	EntityComposite currentComposite = (EntityComposite)nodeToSearchFor.getUserObject();
 	    	if (nodeToSearchFor == null) return;
 			else {
 				if (nodeToSearchFor.getUserObject() instanceof GraphicComposite) {
-					Enumeration e = ((DefaultMutableTreeNode)graphicsRootNode).breadthFirstEnumeration();
-					while (e.hasMoreElements()){
-						possibleNodeContainingEnt = (DefaultMutableTreeNode)e.nextElement();
-						if (possibleNodeContainingEnt.getUserObject() == currentComposite) {
-							
-						}
-					}
+					searchAndDeleteParentNodes( nodeToSearchFor , graphicsRootNode,  currentComposite );
 				}
 				else if(nodeToSearchFor.getUserObject() instanceof AngularComposite) {
+					searchAndDeleteParentNodes( nodeToSearchFor , angularRootNode, currentComposite );
 				}
 				else if(nodeToSearchFor.getUserObject() instanceof Collider) {
+					searchAndDeleteParentNodes( nodeToSearchFor , colliderRootNode, currentComposite );
 				}
 				else if(nodeToSearchFor.getUserObject() instanceof TranslationComposite) {
+					searchAndDeleteParentNodes( nodeToSearchFor , translationRootNode, currentComposite );
 				}
 				else if(nodeToSearchFor.getUserObject() instanceof DynamicRotationComposite) {
+					searchAndDeleteParentNodes( nodeToSearchFor , dynamicRotationRootNode, currentComposite );
 				}
+				/*else {
+					searchAndDeleteParentNodes(sceneRoot, sceneRoot, currentComposite);
+				}*/
 			}
 	    	
 /*//			Enumeration e = ((DefaultMutableTreeNode)entitiesRoot).breadthFirstEnumeration();
@@ -281,7 +328,7 @@ public class BrowserTreePanel extends JPanel {
 		private class AddGraphicsCompositeEvent implements ActionListener{
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.err.println("Adding graphics composite...");
+				addCompositeToEntity( (JMenuItem)e.getSource());
 			}
 		}
 		private class AddAngularCompositeEvent implements ActionListener{
@@ -389,7 +436,6 @@ public class BrowserTreePanel extends JPanel {
 		}
 	}
 	private void insertCompositeIntoRespectiveFolder(EntityComposite currentComposite) {
-		// vvvvvv  FROM COMPOSITEEDITOR--JUST CHANGE NAMES vvvvvv
 		if (currentComposite == null) return;
 		else {
 			if (currentComposite instanceof GraphicComposite) {
@@ -398,18 +444,24 @@ public class BrowserTreePanel extends JPanel {
 				this.defaultModel.insertNodeInto(new DefaultMutableTreeNode(currentComposite), entityNode, entityNode.getChildCount());
 			}
 			else if(currentComposite instanceof AngularComposite) {
-				this.defaultModel.insertNodeInto(new DefaultMutableTreeNode(currentComposite), angularRootNode, angularRootNode.getChildCount());
-				//this.defaultModel.reload(angularRootNode);
+				DefaultMutableTreeNode entityNode = new DefaultMutableTreeNode(new String(currentComposite.getOwnerEntity().name));
+				this.defaultModel.insertNodeInto(entityNode, angularRootNode, angularRootNode.getChildCount());
+				this.defaultModel.insertNodeInto(new DefaultMutableTreeNode(currentComposite), entityNode, entityNode.getChildCount());
 			}
 			else if(currentComposite instanceof Collider) {
-				//this.colliderRootNode.add(new DefaultMutableTreeNode(currentComposite));
-				this.defaultModel.insertNodeInto(new DefaultMutableTreeNode(currentComposite), colliderRootNode, colliderRootNode.getChildCount());
+				DefaultMutableTreeNode entityNode = new DefaultMutableTreeNode(new String(currentComposite.getOwnerEntity().name));
+				this.defaultModel.insertNodeInto(entityNode, colliderRootNode, colliderRootNode.getChildCount());
+				this.defaultModel.insertNodeInto(new DefaultMutableTreeNode(currentComposite), entityNode, entityNode.getChildCount());
 			}
 			else if(currentComposite instanceof TranslationComposite) {
-				this.defaultModel.insertNodeInto(new DefaultMutableTreeNode(currentComposite), translationRootNode, translationRootNode.getChildCount());
+				DefaultMutableTreeNode entityNode = new DefaultMutableTreeNode(new String(currentComposite.getOwnerEntity().name));
+				this.defaultModel.insertNodeInto(entityNode, translationRootNode, translationRootNode.getChildCount());
+				this.defaultModel.insertNodeInto(new DefaultMutableTreeNode(currentComposite), entityNode, entityNode.getChildCount());
 			}
 			else if(currentComposite instanceof DynamicRotationComposite) {
-				this.defaultModel.insertNodeInto(new DefaultMutableTreeNode(currentComposite), dynamicRotationRootNode, dynamicRotationRootNode.getChildCount());
+				DefaultMutableTreeNode entityNode = new DefaultMutableTreeNode(new String(currentComposite.getOwnerEntity().name));
+				this.defaultModel.insertNodeInto(entityNode, dynamicRotationRootNode, dynamicRotationRootNode.getChildCount());
+				this.defaultModel.insertNodeInto(new DefaultMutableTreeNode(currentComposite), entityNode, entityNode.getChildCount());
 			}
 		}
 	}
@@ -457,7 +509,15 @@ public class BrowserTreePanel extends JPanel {
 			e.printStackTrace();
 		}
 	}
-
+	public <T>DefaultMutableTreeNode addNewNodeOfAnyType(DefaultMutableTreeNode parentNode, T userType ) throws UnsupportedDataTypeException{
+		DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(userType);
+		if (parentNode != null){
+			defaultModel.insertNodeInto(newNode, parentNode, parentNode.getChildCount());
+			return newNode;
+		}
+		else
+			throw new UnsupportedDataTypeException("parentNode was null");
+	}
 	public class TreeSelectionEventHandler implements TreeSelectionListener{
 		@Override
 		public void valueChanged(TreeSelectionEvent e) {

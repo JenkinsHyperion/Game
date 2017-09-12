@@ -7,6 +7,8 @@ import java.io.Serializable;
 
 public class Vector implements Serializable{
 		
+		public final static Vector zeroVector = new Vector(0,0);
+	
 		private double x;
 		private double y;
 		

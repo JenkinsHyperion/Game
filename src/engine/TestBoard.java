@@ -345,8 +345,8 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 				//movementForce.setVector( gravity.getVector().unitVector().multiply(-1) );
 				trans.addVelocity( gravity.getVector().unitVector().multiply(-5) );
 			}
-			@Override public void offLeft(){};
-			@Override public void offRight(){};
+			@Override public void offLeft(){trans.resetVelocityVector();};
+			@Override public void offRight(){trans.resetVelocityVector();};
 			@Override public void offJump(){};
     	}
     	
@@ -354,9 +354,9 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 			@Override
 			public void run() {}
 			@Override public void onLeft(){};
-			@Override public void offLeft(){};
+			@Override public void offLeft(){ trans.resetVelocityVector();}
 			@Override public void onRight(){};
-			@Override public void offRight(){};
+			@Override public void offRight(){ trans.resetVelocityVector(); }
 			@Override public void onJump(){};
 			@Override public void offJump(){};
 			

@@ -56,6 +56,10 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		coreMath.setDY(setdy);
 	}
 
+	public void resetVelocityVector(){
+		coreMath.setVelocityVector(Vector.zeroVector);
+	}
+	
 	public void setVelocityVector( Vector vector){
 		coreMath.setVelocityVector(vector);
 	}

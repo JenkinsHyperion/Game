@@ -14,7 +14,7 @@ import misc.DefaultCollisionEvent;
 import physics.Collision;
 import sprites.RenderingEngine;
 
-public class VisualCollisionDynamicStatic extends Collision {
+public class VisualCollisionDynamicStatic extends Collision implements VisualCollision{
 	
 	RenderingEngine debugRenderer;
 	
@@ -29,9 +29,9 @@ public class VisualCollisionDynamicStatic extends Collision {
 	
 	private ResolutionEvent resolutionEvent = new ResolutionEvent();
 	
-	public VisualCollisionDynamicStatic(Collider collidable1, Collider collidable2 , SeparatingAxisCollector axisCollector , CollisionEngine ownerEngine){
+	public VisualCollisionDynamicStatic(Collider collidable1, Collider collidable2 , SeparatingAxisCollector axisCollector , RenderingEngine renderer){
 		
-		super( collidable1.getOwnerEntity() , collidable2.getOwnerEntity() , ownerEngine);
+		super( collidable1 , collidable2 );
 		
 		this.axisCollector = axisCollector;
 		
@@ -41,7 +41,7 @@ public class VisualCollisionDynamicStatic extends Collision {
 		collidingPrimary = collidable1; // TAKE COLLIDABLE IN COSNTRUCTOR INSTEAD OF ENTITY
 		collidingSecondary = collidable2;
 		
-		debugRenderer = ownerEngine.getBoard().renderingEngine;
+		debugRenderer = renderer;
 		
 		initCollision();
 		
@@ -66,11 +66,10 @@ public class VisualCollisionDynamicStatic extends Collision {
 		
 		// Later on events will go here (damage, triggering, etc)
 	}
-	
 	@Override
-	public void updateCollision(){ 
-		
-		Resolution closestResolution = getClosestResolution();
+	public void updateVisualCollision( MovingCamera camera , Graphics2D g2){ 
+
+		Resolution closestResolution = getClosestResolution( camera , g2 );
 		
 		TranslationComposite dynamicPrimary = entityPrimary.getTranslationComposite(); //OPTIMIZE See about moving to initialization
 		AngularComposite angularPrimary = entityPrimary.getAngularComposite();
@@ -83,7 +82,7 @@ public class VisualCollisionDynamicStatic extends Collision {
 		
 		final double distanceA = entityPrimary.getPosition().distance(entitySecondary.getPosition()) ;
 		
-		final double centripetalForce = tangentalVelocity*tangentalVelocity/ ( distanceA  );
+		final double centripetalForce = tangentalVelocity*tangentalVelocity/ ( distanceA -80 );
 		
 		//testing for centripetal acceleration
 		final Vector rotatingNormal = normal.add( unitNormal.multiply( centripetalForce ) );
@@ -244,7 +243,7 @@ public class VisualCollisionDynamicStatic extends Collision {
 	}
 	
 	//Resolution calculation
-	private Resolution getClosestResolution() { 
+	private Resolution getClosestResolution( MovingCamera camera, Graphics2D g2) { 
 		//System.out.println("Checking best resolution"); 
 		ArrayList<Resolution> penetrations = new ArrayList<>();
     	
@@ -252,11 +251,12 @@ public class VisualCollisionDynamicStatic extends Collision {
 		//Line2D[] separatingSides = Boundary.getSeparatingSidesBetween( collidingPrimary.getBoundaryDelta() , collidingSecondary.getBoundaryLocal() );
 		Line2D[] separatingSides = this.axisCollector.getSeparatingAxes( 
 				collidingPrimary.getBoundary(), 
-				collidingSecondary.getBoundary()
+				collidingSecondary.getBoundary(),
+				camera,g2
 				);
 		
 		for ( Line2D side : separatingSides ){
-		    	penetrations.add( this.resolver.resolveAxis( side ));
+		    	penetrations.add( this.resolver.resolveAxis( side , camera, g2 ));
 		}
     	double penetrationX = 0;
     	double penetrationY = 0;
@@ -307,12 +307,12 @@ public class VisualCollisionDynamicStatic extends Collision {
 
 	
 	private abstract class Resolver{
-		abstract Resolution resolveAxis( Line2D separatingSide);
+		abstract Resolution resolveAxis( Line2D separatingSide , MovingCamera camera, Graphics2D g2);
 	}
 	
 	private class ResolverSAT_1 extends Resolver{
 		
-		public Resolution resolveAxis( Line2D separatingSide){
+		public Resolution resolveAxis( Line2D separatingSide , MovingCamera camera, Graphics2D g2){
 			
 		    EntityStatic stat = entitySecondary;
 		    
@@ -340,10 +340,10 @@ public class VisualCollisionDynamicStatic extends Collision {
 	    	//Point2D nearStatPoint = statBoundsRelative.farthestPointFromPoint( outerPoints[1] , axis );
 	    	//Point2D nearPlayerPoint = playerBoundsRelative.farthestPointFromPoint( outerPoints[0] , axis ); //OPTIMIZE MERGE INTO CLASS WITH ABOVE
 	    	
-	    	Point2D nearStatPoint = statBoundsRelative.farthestPointFromPoint( 
+	    	Point2D nearStatPoint = statBoundsRelative.farthestLocalPointFromPoint( 
 	    			entitySecondary.getPosition(), outerPoints[1], axis 
 	    			);
-	    	Point2D nearPlayerPoint = playerBoundsRelative.farthestPointFromPoint( 
+	    	Point2D nearPlayerPoint = playerBoundsRelative.farthestLocalPointFromPoint( 
 	    			deltaPosition, outerPoints[0], axis 
 	    			);
 	    	
@@ -422,8 +422,14 @@ public class VisualCollisionDynamicStatic extends Collision {
 	    	if ( penetrationX * centerDistanceX < 0 ){ //SIGNS ARE NOT THE SAME
 				penetrationX = 0;
 	    	}
+	    	else{
+	    		distX = 0;
+	    	}
 	    	if ( penetrationY * centerDistanceY < 0 ){
 				penetrationY = 0;
+	    	}
+	    	else{
+	    		distY = 0;
 	    	}
 
 	    	if ( shiftedX * centerDistanceX > 0 ){ //SIGNS ARE NOT THE SAME
@@ -433,6 +439,18 @@ public class VisualCollisionDynamicStatic extends Collision {
 	    		shiftedY = 0;
 	    	}
 		
+	    	
+	    	g2.setColor(Color.DARK_GRAY);
+	    	camera.drawDebugAxis(axis , g2 );   
+	    	
+	    	camera.drawDebugAxis(statHalf , g2 );
+	    	
+	    	g2.setColor(Color.GREEN);
+	    	camera.drawDebugAxis(playerHalf , g2 );
+	    	
+	    	camera.drawString( "   Depth: "+penetrationX+","+penetrationY , playerHalf.getP1() , g2);
+	    	camera.drawString( "   Depth: "+distX+","+distY , playerHalf.getP2() , g2);
+	    	
 			//Calculate near Vertices
 	    	
 	    	BoundaryFeature[] nearStatCorner = statBoundsRelative.farthestFeatureFromPoint( 
@@ -442,8 +460,7 @@ public class VisualCollisionDynamicStatic extends Collision {
 	    	BoundaryFeature[] nearPlayerCorner = playerBoundsRelative.farthestFeatureFromPoint( 
 		    		entityPrimary.getPosition(), entitySecondary.getPosition(), outerPoints[0] , axis
 		    		);
-	    	
-		    
+
 	    	BoundaryFeature featurePrimary = null;
 	    	BoundaryFeature featureSecondary = null;
 	    	
@@ -467,11 +484,11 @@ public class VisualCollisionDynamicStatic extends Collision {
 
 			
 
-			final int square = 2;
-			if ( shiftedX*shiftedX + shiftedY*shiftedY > square*square ){  // PENETRATION DISTANCE OUTSIDE THRESHOLD SO END COLLISION
+			final int square = 3;
+			if ( distX*distX + distY*distY > square*square ){  // PENETRATION DISTANCE OUTSIDE THRESHOLD SO END COLLISION
 				isComplete = true;
 				System.out.println("Collision Dropped by (" +
-						penetrationX+ " - " +penetrationY +")");
+						distX+ " - " +distX +")");
 				
 				return new Resolution( 
 						featurePrimary, //construct sides 
@@ -492,7 +509,7 @@ public class VisualCollisionDynamicStatic extends Collision {
 			}
 		}
 		
-		
+		/*
 		public Resolution resolveAxis2( Line2D separatingSide){
 		
 		    EntityStatic stat = entitySecondary;
@@ -673,7 +690,7 @@ public class VisualCollisionDynamicStatic extends Collision {
 						new Vector( axis )
 				);
 			}
-		}
+		}*/
 
 	}
 	

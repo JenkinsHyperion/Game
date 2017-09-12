@@ -114,7 +114,7 @@ public class BoundaryCircular extends Boundary{
 	}
 	
 	@Override
-	protected Point2D farthestPointFromPoint(Point primaryOrigin, Point2D localPoint, Line2D axis) { //OPTIMIZE REDUCE RELATIVISM
+	protected Point2D farthestLocalPointFromPoint(Point primaryOrigin, Point2D localPoint, Line2D axis) { //OPTIMIZE REDUCE RELATIVISM
 		
 		Point2D relativePosition = new Point2D.Double( 
 				localPoint.getX() - primaryOrigin.x , 
@@ -174,11 +174,6 @@ public class BoundaryCircular extends Boundary{
 		}
 		
 	}
-
-	@Override
-	public BoundaryCorner[] farthestVerticesFromPoint(Point2D point, Line2D axis) {
-		return null;
-	}
 	
 	@Override
 	public BoundaryFeature[] farthestFeatureFromPoint(Point primary, Point secondary, Point2D p2, Line2D axis) {
@@ -193,6 +188,11 @@ public class BoundaryCircular extends Boundary{
 
 	@Override
 	public Point2D[] getCornersPoint() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public Point2D[] getLocalCornersPoint( Point localEntityPosition ) {
 		// TODO Auto-generated method stub
 		return null;
 	}

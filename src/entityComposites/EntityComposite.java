@@ -8,4 +8,5 @@ public interface EntityComposite {
 	public EntityStatic getOwnerEntity();
 	public void setCompositeName(String newName);
 	public String getCompositeName();
+
 }

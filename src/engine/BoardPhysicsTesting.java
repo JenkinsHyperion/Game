@@ -232,8 +232,8 @@ public class BoardPhysicsTesting extends BoardAbstract{
 
 		g.drawString( (float)this.followerEntity.getTranslationComposite().getDY() + " dy " +(float)this.followerEntity.getTranslationComposite().getDX(), margin.x, 35);
 		g.drawString( this.currentScene.listEntities().length + " entities" , margin.x, 50);
-		g.drawString( collisionEngine.debugNumberofStaticCollidables() + " static collidables" , margin.x, 65);
-		g.drawString( collisionEngine.debugNumberofDynamicCollidables() + " dynamic collidables" , margin.x, 80);
+		g.drawString( collisionEngine.debugNumberofStaticCollidableGroups() + " static collidable groups" , margin.x, 65);
+		g.drawString( collisionEngine.debugNumberofDynamicCollidableGroups() + " dynamic collidable groups" , margin.x, 80);
 		g.drawString( collisionEngine.debugNumberOfCollisions() + " collisions" , margin.x, 95);
 		g.drawString( this.followerEntity.getTranslationComposite().getAccY() + " accY" , margin.x, 110);
 		g.drawString( this.updateableEntities() + " updateable entities" , margin.x, 180);

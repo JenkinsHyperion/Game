@@ -16,6 +16,7 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 
 	protected SeparatingAxisCollector axisCollector;
 	
+	public abstract boolean check( Collider c1 , Collider c2 ) ;
 	public abstract boolean check( Collider c1 , Collider c2 , MovingCamera cam , Graphics2D g2 ) ;
 	
 	private VisualCollisionCheck(){
@@ -36,9 +37,15 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 		return returnCheck;
 	}
 
-	protected static VisualCollisionCheck circlePoly( EntityStatic circle , EntityStatic polygonEntity , BoundaryPolygonal polygonBoudnary ){
+	protected static VisualCollisionCheck circlePoly( EntityStatic circle , EntityStatic polygonEntity , BoundaryPolygonal polygonBoundary ){
 		VisualCollisionCheck returnCheck = new VisualCollisionCheck.VisualSAT();
-		returnCheck.setAxisCollector( new SeparatingAxisCollector.AxisByRegion( polygonBoudnary ,polygonEntity , circle) );
+		returnCheck.setAxisCollector( new SeparatingAxisCollector.AxisByRegion( polygonBoundary , polygonEntity , circle) );
+		return returnCheck;
+	}
+	
+	protected static VisualCollisionCheck linePoly( EntityStatic lineEntity , EntityStatic polygonEntity , BoundaryLinear line, BoundaryPolygonal polygonBoundary ){
+		VisualCollisionCheck returnCheck = new VisualCollisionCheck.VisualSAT();
+		returnCheck.setAxisCollector( SeparatingAxisCollector.polygonPolygon() );
 		return returnCheck;
 	}
 	
@@ -51,18 +58,16 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 	// CHECK CLASSES
 	
 	protected static class VisualSAT extends VisualCollisionCheck{
-		
+		@Override
 		public boolean check( Collider collidablePrimary , Collider collidableSecondary ){
+			System.err.println("VisualCOllisionCheck calling normal check on visual check");
 			return false;
 		}
 		
 		@Override
 		public boolean check( Collider collidablePrimary , Collider collidableSecondary , MovingCamera camera , Graphics2D g2 ) {
 			boolean isColliding = true;
-			
-			//final Boundary statBounds = collidableSecondary.getBoundaryLocal();
-		    //final Boundary playerBounds = collidablePrimary.getBoundaryDelta();
-		    
+
 		    final Boundary statBoundsRel = collidableSecondary.getBoundary();
 		    final Boundary playerBoundsRel = collidablePrimary.getBoundary();
 		    
@@ -73,7 +78,7 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 		    Point2D statCenter = new Point2D.Double(collidableSecondary.getOwnerEntity().getX(), collidableSecondary.getOwnerEntity().getY());
 	
 		   // Line2D[] separatingSides = Boundary.getSeparatingSidesBetween( playerBounds , statBounds );
-		    Line2D[] separatingSides = this.axisCollector.getSeparatingAxes( statBoundsRel, playerBoundsRel );
+		    Line2D[] separatingSides = this.axisCollector.getSeparatingAxes( statBoundsRel, playerBoundsRel , camera, g2);
 		    
 		    
 		    final double deltaX = player.getTranslationComposite().getDeltaX(player) ;
@@ -105,11 +110,11 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 		    			outerPointsRel[0], axis
 		    			);*/
 		    	
-		    	Point2D nearStatCorner = statBoundsRel.farthestPointFromPoint(
+		    	Point2D nearStatCorner = statBoundsRel.farthestLocalPointFromPoint(
 		    			stat.getPosition(), outerPointsRel[1], axis
 		    			);
 		    	
-		    	Point2D nearPlayerCorner = playerBoundsRel.farthestPointFromPoint(
+		    	Point2D nearPlayerCorner = playerBoundsRel.farthestLocalPointFromPoint(
 		    			deltaPosition, outerPointsRel[0], axis
 		    			);
 	
@@ -175,11 +180,7 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 		    	if ( penetrationX * centerDistanceX < 0 ) //SIGNS ARE NOT THE SAME
 					penetrationX = 0;
 		    	if ( penetrationY * centerDistanceY < 0 )
-					penetrationY = 0;
-				
-		    	
-		    	g2.setColor(Color.DARK_GRAY);
-		    	camera.drawDebugAxis(axis , g2 );    	
+					penetrationY = 0; 	
 		    	
 		    	if ( penetrationX * penetrationY == 0 ){
 		    		//return false;
@@ -189,13 +190,17 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 			    	g2.setColor(Color.CYAN);
 		    	}
 			    	
+		    	/*
+		    	g2.setColor(Color.DARK_GRAY);
+		    	camera.drawDebugAxis(axis , g2 );   
+		    	
 		    	camera.drawDebugAxis(statHalf , g2 );
 		    	
 		    	g2.setColor(Color.GREEN);
 		    	camera.drawDebugAxis(playerHalf , g2 );
 		    	
 		    	camera.drawString( "   Depth: "+penetrationX+","+penetrationY , playerHalf.getP1() , g2);
-
+		    	 */
 		    	
 		    	//camera.drawCrossInWorld(outerPoints[1] , g2);
 		    	

@@ -2,6 +2,7 @@ package testEntities;
 
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.geom.Line2D;
 import java.util.concurrent.ThreadLocalRandom;
 import engine.ReferenceFrame;
 import engine.TestBoard;
@@ -11,6 +12,7 @@ import entityComposites.CompositeFactory;
 import entityComposites.DynamicRotationComposite;
 import entityComposites.EntityStatic;
 import entityComposites.GraphicComposite;
+import physics.BoundaryLinear;
 import sprites.Sprite;
 import sprites.SpriteStillframe;
 //import sun.management.counter.Counter;
@@ -34,19 +36,23 @@ public class PlantTwigSegment extends EntityStatic{
 	protected int waterLevel = 0; 
 	
 	protected StemSegment previousSegment;
+	protected static int colliderGroup;
 	
 	protected Runnable currentGrowthState;
 	
 	protected boolean dead;
 	
-	public PlantTwigSegment(int x, int y, int maxGrowth , TestBoard board) {
+	public PlantTwigSegment(int x, int y, int maxGrowth, TestBoard board) {
 		super(x,y);
 		this.board = board;
 		this.maxGrowth = maxGrowth;
-
 	}
 	
 	protected void setPreviousStem(StemSegment previous){ this.previousSegment = previous; }
+	
+	public void setColliderGroup(int i){
+		colliderGroup = i;
+	}
 	
 	protected class FullyGrownState implements Runnable{
 		@Override
@@ -82,7 +88,7 @@ public class PlantTwigSegment extends EntityStatic{
 				super(x, y, maxGrowth, board);
 				counter++;
 				//CompositeFactory.addDynamicRotationTo(this);
-				CompositeFactory.addCustomDynamicRotationTo(this, new DynamicRotationComposite.SineWave(this , waveCounter ) );
+				//CompositeFactory.addCustomDynamicRotationTo(this, new DynamicRotationComposite.SineWave(this , waveCounter ) );
 				
 				this.currentGrowthState = new GrowingState( new FullyGrownEvent() , new FullyGrownState() );
 				
@@ -104,7 +110,8 @@ public class PlantTwigSegment extends EntityStatic{
 				});
 				this.getGraphicComposite().setSprite(twigSmallSprite);
 				this.getGraphicComposite().setGraphicSizeFactor(0);
-		        
+				
+				CompositeFactory.addColliderTo( this, new BoundaryLinear( new Line2D.Double( 0,0 , 0,-80 ) ) );
 			}
 			
 			public void debugSetSugarLevel( int level ){

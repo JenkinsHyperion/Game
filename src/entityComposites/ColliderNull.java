@@ -66,11 +66,7 @@ public final class ColliderNull extends Collider{
 		System.err.println("Warning: Attempted to get Boundary on NonCollidable ");
 		return boundary;
 	}
-	@Override
-	public Boundary getBoundaryDelta(){
-		System.err.println("Warning: Attempted to get Boundary on NonCollidable ");
-		return boundary;
-	}
+
 	
 	/* #################################################################################
 	 * 
@@ -120,11 +116,7 @@ public final class ColliderNull extends Collider{
 	public void debugDrawBoundary(MovingCamera camera , Graphics2D g){
 		System.err.println("Warning: Attempted to draw Boundary of NonCollidable ");
 	}
-	@Override
-	public float getMass(){ 
-		System.err.println("Warning: Attempted to get mass of NonCollidable ");
-		return 1; 
-		}
+
 	@Override	
 	public void applyPointMomentum( Vector momentum , Point2D point ){
 		System.err.println("Warning: Attempted to apply Point Momentum on NonCollidable ");

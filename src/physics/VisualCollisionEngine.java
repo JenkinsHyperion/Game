@@ -52,7 +52,24 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
     }
 	
 	@Override
-	public void registerCollision( boolean bool , Collider collidable1 , Collider collidable2 , CollisionCheck checkType){
+	protected void updateCollisions(){
+    	
+	    for ( int i = 0 ; i < collisionsList.size() ; i++ ){
+	    		
+	    	//if collision is complete, remove from active list
+	    	if (!collisionsList.get(i).isComplete() ) {
+	    		((VisualCollision)collisionsList.get(i)).updateVisualCollision( camera , gOverlay ); //Run commands from inside collision object
+	    		
+	    	}
+	    	else {
+	    		collisionsList.get(i).completeCollision();
+	    		collisionsList.remove(i);	
+    		}	
+    	}	
+    }
+	
+	@Override
+	public void registerDynamicStaticCollision( boolean bool , Collider collidable1 , Collider collidable2 , CollisionCheck checkType){
     	
     	if ( bool ) { 
 		 //check to see if collision isn't already occurring
@@ -63,7 +80,7 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
     			collisionsList.add(new VisualCollisionDynamicStatic( 
     					collidable1 , collidable2 , 
     					((VisualCollisionCheck)checkType).getCollector() , 
-    					this 
+    					this.getBoard().renderingEngine
     					)); 
 			} 	
     	}
@@ -132,16 +149,21 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 		public void paintOverlay(Graphics2D g2, MovingCamera cam) {
 			
 			g2.drawString( " VISUAL COLLISION ENGINE OVERLAY ", 20, 20 );
-			g2.drawString( staticCollidables.size() + " static colliders", 20, 35 );
-			g2.drawString( dynamicCollidables.size() + " dynamic colliders", 20, 50 );
+			g2.drawString( staticCollidables.size() + " static collider groups", 20, 35 );
+			g2.drawString( dynamicCollidables.size() + " dynamic collider groups", 20, 50 );
 			
-			for ( ActiveCollider active : dynamicCollidables ){
+			g2.drawString( collisionsList.size() + " collisions", 20, 65 );
+			
+			for ( ArrayList<ActiveCollider> dynamicsGroup : dynamicCollidables ){
 				
-				EntityStatic entity = active.collider.getOwnerEntity();
+				for ( ActiveCollider dynamic : dynamicsGroup ){
 				
-				for ( Vector line : entity.getTranslationComposite().debugForceArrows() ){
+					EntityStatic entity = dynamic.collider.getOwnerEntity();
 					
-					cam.draw(line.multiply(400).toLine( entity.getPosition() ));
+					for ( Vector line : entity.getTranslationComposite().debugForceArrows() ){
+						
+						cam.draw(line.multiply(400).toLine( entity.getPosition() ));
+					}
 				}
 			}
 			

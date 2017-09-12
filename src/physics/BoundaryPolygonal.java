@@ -17,26 +17,22 @@ import misc.*;
 public class BoundaryPolygonal extends Boundary {
 	
 
-	protected Side[] sides = new Side[1]; 
-	private BoundaryCorner[] corners;
-	private ArrayList<Point2D> oldCornersReference;
+	protected Side[] sides; 
+	protected BoundaryCorner[] corners;
 	protected CollisionEvent defaultCollisionEvent = new DefaultCollisionEvent();
 
 	private BoundaryPolygonal(){
-		oldCornersReference = new ArrayList<>();
 		sides = new Side[0];
 		corners = new BoundaryCorner[0];
 		//this.ownerCollidable = ownerCollidable;
 	} //use cloning instead
 	//FOR CLONING ONLY
 	private BoundaryPolygonal( Side[] sides , BoundaryCorner[] corners){
-		oldCornersReference = new ArrayList<>();
 		this.sides = sides;
 		this.corners = corners;
 	}
 	
 	public BoundaryPolygonal(Line2D line){
-		oldCornersReference = new ArrayList<>();
 		sides[0] = new Side(line , this , 0, defaultCollisionEvent); 
 		corners = new BoundaryCorner[]{ new BoundaryCorner(line.getP1() , this , 0 , defaultCollisionEvent) 
 				, new BoundaryCorner(line.getP2() , this , 1 , defaultCollisionEvent) };
@@ -46,7 +42,6 @@ public class BoundaryPolygonal extends Boundary {
 	}
 	
 	public BoundaryPolygonal(Side[] bounds ) {
-		oldCornersReference = new ArrayList<>();
 		sides = bounds;
 		connectBoundaryMap( defaultCollisionEvent );
 		//constructVoronoiRegions();
@@ -54,7 +49,6 @@ public class BoundaryPolygonal extends Boundary {
 	
 	public BoundaryPolygonal(Line2D[] bounds) {
 		
-		oldCornersReference = new ArrayList<>();
 		sides = new Side[ bounds.length ];
 		
 		for ( int i = 0 ; i < bounds.length ; i++ ){
@@ -466,10 +460,19 @@ public class BoundaryPolygonal extends Boundary {
 	 * @return
 	 */
 	@Override
-	public Point2D[] getCornersPoint(){
+	public Point2D[] getCornersPoint(){ //FIXME just get corners instead of line endpoints
 		Point2D[] corners = new Point2D[sides.length];
 		for (int i = 0 ; i < sides.length ; i++){
 			corners[i] = sides[i].getP1();
+		}
+		return corners;
+	}
+	
+	@Override
+	public Point2D[] getLocalCornersPoint(Point localEntityPosition){
+		Point2D[] corners = new Point2D[sides.length];
+		for (int i = 0 ; i < sides.length ; i++){
+			corners[i] = new Point2D.Double( sides[i].getX1() + localEntityPosition.getX() , sides[i].getY1() + localEntityPosition.getY() );
 		}
 		return corners;
 	}
@@ -545,11 +548,6 @@ public class BoundaryPolygonal extends Boundary {
 			return returnFarthestPoints;
 		
 	}
-
-	@Override
-	public BoundaryCorner[] farthestVerticesFromPoint(Point2D origin , Line2D axis){ //RETURNING DUPLICATES?	
-		return farthestCorner(origin, axis);
-	}
 	
 	@Override
 	public BoundaryFeature[] farthestFeatureFromPoint(Point primaryOrigin, Point secondaryOrigin, Point2D pointRel, Line2D axis) {
@@ -567,10 +565,11 @@ public class BoundaryPolygonal extends Boundary {
 	}
 	
 	@Override
-	protected Point2D farthestPointFromPoint(Point primaryOrigin, Point2D localPoint, Line2D axis) {
+	protected Point2D farthestLocalPointFromPoint(Point primaryOrigin, Point2D localPoint, Line2D axis) {
 		
+		final Point farthestLocal = farthestCorner( localPoint , axis )[0].toPoint();
 		
-		return null;
+		return new Point( (int)farthestLocal.getX() + primaryOrigin.x , (int)farthestLocal.getY() + primaryOrigin.y );
 	}
 	
 	public BoundaryVertex[] nearestVerticesFromPoint(Point2D origin , Line2D axis){ //RETURNING DUPLICATES?
@@ -603,14 +602,6 @@ public class BoundaryPolygonal extends Boundary {
 			returnFarthestPoints[i] = farthestVertices.get(i);
 		}
 		return returnFarthestPoints;
-	}
-	
-	public void updateOldCornersPositions(){
-		oldCornersReference.clear();
-		Point2D[] tempCornersReference = getCornersPoint();
-		for (Point2D corner: tempCornersReference) {
-			oldCornersReference.add(new Point2D.Double(corner.getX(), corner.getY()));
-		}
 	}
 	
 	public Point2D[] getNearestPoints(Boundary bounds , Line2D axis){ //same deal as above just witht he closest points
@@ -672,7 +663,7 @@ public class BoundaryPolygonal extends Boundary {
 			VoronoiRegionDefined.splitAdjacentSideRegions( newRegions[i] , newRegions[iNext] );
 	    }
 		
-		VoronoiRegionDefined.splitOpposingSides( newRegions[1] , newRegions[5] );
+		VoronoiRegionDefined.splitOpposingSides( newRegions[1] , newRegions[5] ); //FIXME insufficient for large polygons
 		
 		this.regions = newRegions;
 		
@@ -690,7 +681,7 @@ public class BoundaryPolygonal extends Boundary {
 	
 	@Override
 	public byte getTypeCode() {
-		return 1;
+		return Boundary.POLYGONAL;
 	}
 
 	@Override

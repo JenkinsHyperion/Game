@@ -29,9 +29,7 @@ public class Collider implements EntityComposite{
 	protected CollisionEngine.ActiveCollider engineSlot;
 
 	protected Boundary boundary;
-	
-	protected float friction = 1;
-	protected float mass = 1;
+
 	
 	protected ArrayList<CollidingPair> collisionInteractions = new ArrayList<>();
 
@@ -73,7 +71,7 @@ public class Collider implements EntityComposite{
 		//We know owner entity has composite collidable, which is THIS instance of collidable, so pass owner's physical
 		// information to the other entity
 		
-		engine.registerCollision( checkType.check(this, entity) , this , entity , checkType );
+		engine.registerDynamicStaticCollision( checkType.check(this, entity) , this , entity , checkType );
 		//Physical constants like mass, restitution (bounciness), rotational friction and other stuff to be passed 
 		// to collisionEngine here:
 		
@@ -98,14 +96,6 @@ public class Collider implements EntityComposite{
     @Deprecated
 	public Boundary getBoundaryLocal(){
 		return boundary.atPosition( ownerEntity.getPosition() );
-	}
-	@Deprecated
-	public Boundary getBoundaryDelta(){
-		Point positionDelta = new Point( 
-				(int)ownerEntity.getTranslationComposite().getDeltaX(ownerEntity) , 
-				(int)ownerEntity.getTranslationComposite().getDeltaY(ownerEntity) 
-		);
-		return boundary.atPosition( positionDelta );
 	}
 	
 	/* #################################################################################
@@ -186,14 +176,9 @@ public class Collider implements EntityComposite{
 	}
 
 	public void debugDrawBoundary(MovingCamera camera , Graphics2D g){
-		this.getBoundaryLocal().debugDrawBoundary( camera , g, this.ownerEntity );
+		//this.getBoundaryLocal().debugDrawBoundary( camera , g, this.ownerEntity );
+		this.getBoundary().debugDrawBoundary(camera, g, this.ownerEntity);
 	}
-	
-	public void debugDrawBoundaryDelta(MovingCamera camera , Graphics2D g){
-		this.getBoundaryDelta().debugDrawBoundary( camera , g, this.ownerEntity );
-	}
-	
-	public float getMass(){ return mass; }
 	
 	public void applyPointMomentum( Vector momentum , Point2D point ){
 		
@@ -219,7 +204,6 @@ public class Collider implements EntityComposite{
 		
 	}
 	
-	
 	public void addCompositeToPhysicsEngineStatic( CollisionEngine engine ){ 
 		this.engineSlot = engine.addStaticCollidable( this );
 		this.engine = engine;
@@ -227,6 +211,18 @@ public class Collider implements EntityComposite{
 	}
 	
 	public void addCompositeToPhysicsEngineDynamic( CollisionEngine engine ){
+		System.out.print("Adding dynamic to collision engine ");
+		this.engineSlot = engine.addDynamicCollidable( this );
+		this.engine = engine;
+	}
+	
+	public void addCompositeToPhysicsEngineStatic( CollisionEngine engine, int group ){ 
+		this.engineSlot = engine.addStaticCollidable( this );
+		this.engine = engine;
+		System.out.print("   "+this+" adding static to collision engine");
+	}
+	
+	public void addCompositeToPhysicsEngineDynamic( CollisionEngine engine, int group ){
 		System.out.print("Adding dynamic to collision engine ");
 		this.engineSlot = engine.addDynamicCollidable( this );
 		this.engine = engine;
@@ -244,6 +240,14 @@ public class Collider implements EntityComposite{
 	
 	protected void notifyEngineOfChangeToStatic(){
 		this.engineSlot.notifyChangeToStatic();
+	}
+	
+	protected void notifyEngineOfChangeToDynamic(){
+		this.engineSlot.notifyChangeToDynamic();
+	}
+	
+	public int getCollisionEngineGroupIndex(){
+		return this.engineSlot.getGroupIndex();
 	}
 	
 	@Override

@@ -68,13 +68,8 @@ public class BoundarySingular extends Boundary{
 	}
 	
 	@Override
-	protected Point2D farthestPointFromPoint(Point primaryOrigin, Point2D localPoint, Line2D axis) {
+	protected Point2D farthestLocalPointFromPoint(Point primaryOrigin, Point2D localPoint, Line2D axis) {
 		return vertex.toPoint();
-	}
-
-	@Override
-	public BoundaryVertex[] farthestVerticesFromPoint(Point2D point, Line2D axis) {
-		return new BoundaryVertex[]{ vertex };
 	}
 	
 	@Override
@@ -90,6 +85,11 @@ public class BoundarySingular extends Boundary{
 	@Override
 	public Point2D[] getCornersPoint() {
 		return new Point2D[]{ vertex.toPoint() };
+	}
+	
+	@Override
+	public Point2D[] getLocalCornersPoint( Point localEntityPosition ) {
+		return new Point2D[]{ new Point2D.Double( vertex.toPoint().getX() + localEntityPosition.getX(), vertex.toPoint().getY() + localEntityPosition.getY() ) };
 	}
 
 	@Override

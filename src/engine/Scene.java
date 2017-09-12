@@ -25,7 +25,7 @@ public class Scene {
 		entity.addEntityToScene( this, entityList.size() );
 		entityList.add( new LayeredEntity(entity,layer));
 	}
-
+	
 	public void addEntity( EntityStatic entity ){
 		//NOTIFY BROWSER TREE THAT ENTITY WAS ADDED TO SCENE
 		if (ownerBoard.editorPanel != null)
@@ -40,13 +40,8 @@ public class Scene {
 		//RUN THROUGH AND ADD UPDATEABLE COMPOSITES TO UPDATER LIST
 		///////////////////////////////////////////////////////////////////////////////////////////////////
 		
-		if ( (entity.getTranslationComposite() instanceof UpdateableComposite) ){
-			UpdateableComposite trans = (UpdateableComposite) entity.getTranslationComposite();
+		if ( checkTranslation(entity) ){
 			updateableEntity = true;
-			if ( trans.addCompositeToUpdater(ownerBoard) ){
-				System.out.println( I+"Adding dynamic translation composite to updater");
-			}else
-				System.err.println( I+"Dynamic translation composite was not added to updater");
 		}
 		
 		//ROTATION 
@@ -73,18 +68,7 @@ public class Scene {
 		
 		//COLLIDER COMPOSITE
 		
-		if ( !(entity.getColliderComposite() instanceof ColliderNull) ){
-			
-			if ( entity.getTranslationComposite().exists() ){  
-				//System.out.println("     Adding "+entity+" as dynamic");
-				entity.getColliderComposite().addCompositeToPhysicsEngineDynamic( ownerBoard.collisionEngine );
-			}
-			else{ 
-				//System.out.println("     Adding "+entity+" as static");
-				entity.getColliderComposite().addCompositeToPhysicsEngineStatic( ownerBoard.collisionEngine );
-			}
-			
-		}else{System.out.println(I+"No collider detected"); }
+		checkForAndRegisterCollider(entity);
 		
 		/*if ( entity.hasUpdateables() ){
 			System.out.println(I+"Collecting updateables");
@@ -110,6 +94,63 @@ public class Scene {
 		
 		
 		
+	}
+	
+	 /* #################################################################################################################
+	 *	INTERNAL ADDER FUCNTIONALITY
+	 */
+	
+	private boolean checkTranslation( EntityStatic entity ){
+		
+		if ( (entity.getTranslationComposite() instanceof UpdateableComposite) ){
+			UpdateableComposite trans = (UpdateableComposite) entity.getTranslationComposite();
+
+			if ( trans.addCompositeToUpdater(ownerBoard) ){
+				System.out.println( I+"Adding dynamic translation composite to updater");
+			}else
+				System.err.println( I+"Dynamic translation composite was not added to updater");
+			
+			return true;
+		}else{
+			return false;
+		}
+		
+	}
+	
+	private void checkForAndRegisterCollider( EntityStatic entity ){
+		
+		if ( entity.getColliderComposite().exists() ){
+			
+			if ( entity.getTranslationComposite().exists() ){  
+				//System.out.println("     Adding "+entity+" as dynamic");
+				entity.getColliderComposite().addCompositeToPhysicsEngineDynamic( ownerBoard.collisionEngine );
+			}
+			else{ 
+				//System.out.println("     Adding "+entity+" as static");
+				entity.getColliderComposite().addCompositeToPhysicsEngineStatic( ownerBoard.collisionEngine );
+			}
+			
+		}else{
+			System.out.println(I+"No collider detected"); 
+		}
+	}
+	
+	private void checkForAndRegisterGroupedCollider( EntityStatic entity, int group ){
+		
+		if ( entity.getColliderComposite().exists() ){
+			
+			if ( entity.getTranslationComposite().exists() ){  
+				//System.out.println("     Adding "+entity+" as dynamic");
+				entity.getColliderComposite().addCompositeToPhysicsEngineDynamic( ownerBoard.collisionEngine );
+			}
+			else{ 
+				//System.out.println("     Adding "+entity+" as static");
+				entity.getColliderComposite().addCompositeToPhysicsEngineStatic( ownerBoard.collisionEngine );
+			}
+			
+		}else{
+			System.out.println(I+"No collider detected"); 
+		}
 	}
 	
 	

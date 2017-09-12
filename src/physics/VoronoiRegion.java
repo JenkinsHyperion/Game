@@ -21,11 +21,8 @@ public class VoronoiRegion {
 		returnRegion.checkMath = returnRegion.new UndefinedCheck();
 		return returnRegion;
 	}
-	
-	@Deprecated
-	public VoronoiRegion getEscapedRegion( Point point , Point localPos){
-		return this.checkMath.pointIsOutsideRegion(point,localPos);
-	}
+
+	protected int debugNumberOfBounds(){ return 0; }
 	
 	public VoronoiRegion getEscapedRegion( Point relativePos){
 		return this.checkMath.pointIsOutsideRegion(relativePos);
@@ -40,13 +37,8 @@ public class VoronoiRegion {
 	 * @param center
 	 * @return
 	 */
-	@Deprecated
-	public Line2D constructDistanceLine( Point center , Point boundaryEntityPosition){
-		return this.checkMath.getSeparation(center , boundaryEntityPosition );
-	}
-	
-	public Line2D constructDistanceLine( Point relativeCirclePosition){
-		return this.checkMath.getSeparation( relativeCirclePosition );
+	public Line2D constructDistanceLine( Point relativePosition){
+		return this.checkMath.getSeparation( relativePosition );
 	}
 	
 	public Point getFeaturePoint(){
@@ -68,12 +60,10 @@ public class VoronoiRegion {
 
 	protected interface RegionCheck{ // Interface for intersection math, depending on owner boundary feature (side, corner )
 		/**
-		 * Returns the adjacent region that input Point has escaped. 
+		 * Returns the adjacent VoronoiRegionDefined that input Point has escaped to. Returns null if input Point has not escaped. 
 		 * @param point
 		 * @return Adjacent region that point has escaped. Null if point is still within this region.
 		 */
-		@Deprecated
-		public VoronoiRegion pointIsOutsideRegion( Point point , Point localPos );
 		public VoronoiRegion pointIsOutsideRegion( Point relativePos );
 		public boolean pointIsInRegion(Point point, Point localPos);
 		@Deprecated
@@ -83,10 +73,7 @@ public class VoronoiRegion {
 	}
 	
 	private class UndefinedCheck implements RegionCheck{
-		@Override
-		public VoronoiRegion pointIsOutsideRegion(Point point , Point localPos) {
-			return null; 
-		}
+
 		@Override
 		public VoronoiRegion pointIsOutsideRegion( Point relativePos) {
 			return null; 

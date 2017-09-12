@@ -31,14 +31,13 @@ public abstract class Boundary {
 	
 	protected abstract Point2D farthestPointFromPoint(Point2D boundaryPoint, Line2D axis);
 	
-	protected abstract Point2D farthestPointFromPoint( Point primaryOrigin, Point2D localPoint, Line2D axis);
-	
-	public abstract BoundaryVertex[] farthestVerticesFromPoint( Point2D point , Line2D axis);
-	
+	protected abstract Point2D farthestLocalPointFromPoint( Point primaryOrigin, Point2D localPoint, Line2D axis);
+		
 	public abstract BoundaryFeature[] farthestFeatureFromPoint( Point primaryOrigin, Point secondaryOrigin, Point2D p2, Line2D axis );
 	
 	public abstract BoundaryVertex[] getCornersVertex();
 	public abstract Point2D[] getCornersPoint();
+	public abstract Point2D[] getLocalCornersPoint( Point localEntityPosition );
 	
 	public abstract <T> Boundary temporaryClone();
 	

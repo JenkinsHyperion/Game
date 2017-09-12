@@ -34,6 +34,7 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	protected GraphicComposite graphicsComposite = GraphicComposite.nullSingleton(); 
 	protected Collider collisionType = ColliderNull.nullColliderComposite();
 	protected AngularComposite angularType = new AngularComposite.AngleComposite(this);
+	protected Rigidbody rigidbodyComposite = Rigidbody.nullSingleton();
 	
 	protected ParentComposite parentComposite = ParentComposite.nullParentComposite();
 	protected ChildComposite childComposite = ChildComposite.nullChildComposite();
@@ -97,23 +98,22 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	protected void setGraphicComposite(GraphicComposite spriteType){ 
 		this.graphicsComposite = spriteType; 
 		}
-	
 	public GraphicComposite getGraphicComposite(){ 	
 		return this.graphicsComposite; 
 	}
 	
+	
 	protected void setTranslationComposite( TranslationComposite translationType ){ 
 		this.translationType = translationType; 
 	}
-	
 	public TranslationComposite getTranslationComposite(){
 		return this.translationType;
 	}
 	
+	
 	protected void setRotationComposite( DynamicRotationComposite rotationType ){ 
 		this.rotationType = rotationType; 
 	}
-	
 	public DynamicRotationComposite getRotationComposite(){
 		return this.rotationType;
 	}
@@ -122,13 +122,22 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		return this.angularType;
 	}
 	
+	
 	protected void setCollisionComposite(Collider collisionType){ 
 		this.collisionType = collisionType; 
 	}
-
 	public Collider getColliderComposite(){
 		return this.collisionType;			
 	}
+	
+	
+	protected void setRigidbody( Rigidbody rigidbody){ 
+		this.rigidbodyComposite = rigidbody; 
+	}
+	public Rigidbody getRigidbody(){
+		return this.rigidbodyComposite;			
+	}
+	
 	
 	protected void addParentComposite( ParentComposite parentComposite ){
 		this.parentComposite = parentComposite;

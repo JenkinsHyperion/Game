@@ -1,16 +1,16 @@
 package physics;
 
+import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import engine.MovingCamera;
 import entities.*;
 import entityComposites.*;
 
 public abstract class Collision {
-	
-	protected CollisionEngine ownerEngine; //REMOVE LATER
 	
 	protected ResolutionState resolutionState;
 	
@@ -35,21 +35,19 @@ public abstract class Collision {
 	protected Point2D[] contactPoints = new Point2D[2];
 	protected ArrayList<Point2D> debugIntersectionPoints = new ArrayList<>();
 	
-	public Collision(EntityStatic e1, EntityStatic e2, CollisionEngine ownerEngine){
+	public Collision(Collider e1, Collider e2 ){
 		
-		this.ownerEngine = ownerEngine;
+		entityPrimary = e1.getOwnerEntity();
+		entitySecondary = e2.getOwnerEntity();
 		
-		entityPrimary = e1;
-		entitySecondary = e2;
+		collidingPrimary = e1; 
+		collidingSecondary = e2;
 		
-		collidingPrimary = e1.getColliderComposite(); //TRACE ALL CASTS BACK TO PASSING COLLIDABLE IN CONSTRUCTOR
-		collidingSecondary = e2.getColliderComposite();
-		
-		collisionDebugTag = e1.name + " + " + e2.name;
+		collisionDebugTag = entityPrimary.name + " + " + entitySecondary.name;
 		
 		//THIS TEST COLLISION IS A NORMAL SURFACE SUCH AS A FLAT PLATFORM
-		entityPairIndex[0] = e1.getColliderComposite().addCollision(this,true); 
-		entityPairIndex[1] = e2.getColliderComposite().addCollision(this,false); 
+		entityPairIndex[0] = entityPrimary.getColliderComposite().addCollision(this,true); 
+		entityPairIndex[1] = entitySecondary.getColliderComposite().addCollision(this,false); 
 		//initCollision();
 	}
 	
@@ -80,9 +78,7 @@ public abstract class Collision {
 	}
 
 	//INITAL COLLISION COMMANDS - Run once, the first time collision occurs
-	public void initCollision(){
-		
-	}
+	public abstract void initCollision();
 	
 	//CONTINUOUS COLLISION COMMANDS - Ongoing commands during collision like particle effects, sound, etc.
 	public void updateCollision(){ 
@@ -192,6 +188,45 @@ public abstract class Collision {
 
 	protected void triggerResolutionEvent(Resolution closest) {
 				
+	}
+	
+	
+	
+	public static class BasicCheck extends Collision implements VisualCollision{
+
+		private VisualCollisionCheck check;
+		private boolean isComplete = false;
+		
+		public BasicCheck(Collider e1, Collider e2, VisualCollisionCheck check) {
+			super( e1 , e2 );
+			this.check = check;
+		}
+		
+		@Override
+		public void initCollision() {
+			this.collidingPrimary.onCollisionEvent();
+			this.collidingSecondary.onCollisionEvent();
+		}
+		
+		@Override
+		public void updateVisualCollision(MovingCamera camera, Graphics2D g2) {
+			
+			if ( !check.check(collidingPrimary, collidingSecondary, camera, g2) ){
+				isComplete = true;
+			}
+		}
+
+		@Override
+		public void completeCollision() {
+			this.collidingPrimary.onLeavingCollisionEvent();
+			this.collidingSecondary.onLeavingCollisionEvent();
+		}
+
+		@Override
+		public boolean isComplete() {
+			return isComplete;
+		}
+		
 	}
 	
 

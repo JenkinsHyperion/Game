@@ -80,16 +80,43 @@ public class CompositeFactory {
 		
 	}
 
-	public static void addColliderTo( EntityStatic entity , Boundary boundary ){
+	public static Collider addColliderTo( EntityStatic entity , Boundary boundary ){
 
 		if ( entity.getColliderComposite().exists() ){
 			entity.getColliderComposite().setBoundary(boundary);
+			return entity.getColliderComposite();
 		}
 		else {
 			Collider newCollider = new Collider( entity , boundary );
 			entity.setCollisionComposite( newCollider );
+			return newCollider;
 		}
 		
+	}
+	
+	public static Collider addColliderTo( EntityStatic entity , Boundary boundary , int colliderGroup ){
+
+		if ( entity.getColliderComposite().exists() ){
+			entity.getColliderComposite().setBoundary(boundary);
+			return entity.getColliderComposite();
+		}
+		else {
+			Collider newCollider = new Collider( entity , boundary );
+			entity.setCollisionComposite( newCollider );
+			return newCollider;
+		}
+		
+	}
+	
+	public static void addRigidbodyTo( EntityStatic entity ){
+
+		if ( entity.getColliderComposite().exists() ){
+			//Add reference to collider or vice versa
+		}
+		else {
+			
+		}
+		entity.setRigidbody( new Rigidbody(entity) );
 	}
 	
 	public static void addGraphicTo( EntityStatic entity , Sprite sprite ){
@@ -194,7 +221,8 @@ public class CompositeFactory {
 		if ( child.hasCollider() ){ 
 			System.out.print("|   Switched ["+child+ "] collider to dynamic");
 			child.getColliderComposite().disableComposite();
-			child.getColliderComposite().addCompositeToPhysicsEngineDynamic(board.collisionEngine);
+
+			child.getColliderComposite().notifyEngineOfChangeToDynamic();
 			
 			child.setTranslationComposite( new TranslationComposite(child) );
 		} //else do nothing

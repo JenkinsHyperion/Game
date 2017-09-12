@@ -393,9 +393,9 @@ public class Board extends BoardAbstract {
 		        g2.fillRect(0, 0, B_WIDTH, B_HEIGHT);
 		        
 		        g2.setColor(Color.GRAY);
-			    g2.drawString("Entities: "+ currentScene.listEntities().length + " , Collidables:"+
-			    		collisionEngine.debugNumberofStaticCollidables() +" + "+
-			    		collisionEngine.debugNumberofDynamicCollidables() ,5,15);
+			    g2.drawString("Entities: "+ currentScene.listEntities().length + " , Collidable:"+
+			    		collisionEngine.debugNumberofStaticCollidableGroups() +" + "+
+			    		collisionEngine.debugNumberofDynamicCollidableGroups() ,5,15);
 			    g2.drawString("DX: "+player.getTranslationComposite().getDX() + " DY: " + player.getTranslationComposite().getDY(),5,30);
 			    g2.drawString("AccX: " + player.getTranslationComposite().getAccX() + "  AccY: " + player.getTranslationComposite().getAccY(),5,45);
 			    g2.drawString("Rotation: " + (int)player.getAngularComposite().getAngle() + " degrees " + player.getRotationComposite().getAngularVel() + " " + player.getRotationComposite().getAngularAcc(),5,60);
@@ -410,11 +410,11 @@ public class Board extends BoardAbstract {
 			    //collisionEngine.debugPrintCollisionList(5, 105, g2);
 			    
 			    
-			    player.getColliderComposite().getBoundaryLocal().debugDrawBoundary(camera , g2, player);
+			    player.getColliderComposite().getBoundary().debugDrawBoundary(camera , g2, player);
 			    
 			    for (Collider collider : collisionEngine.debugListActiveColliders() ){
 			    	
-			    	collider.getBoundaryLocal().debugDrawBoundary(camera , g2, collider.getOwnerEntity() );
+			    	collider.getBoundary().debugDrawBoundary(camera , g2, collider.getOwnerEntity() );
 			    	camera.drawCrossInWorld( collider.getOwnerEntity().getPosition());
 			    	
 			    }

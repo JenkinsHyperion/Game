@@ -17,7 +17,6 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 	public VoronoiRegionDefined( BoundaryFeature feature ){
 		super(feature);
 	}
-	
 	protected void addRegionBoundary( RegionBoundary addBound ){
 		RegionBoundary[] newBounds = new RegionBoundary[ bounds.length +1 ];
 		for ( int i = 0 ; i < bounds.length ; i++ ){
@@ -27,6 +26,8 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 		bounds = null;
 		bounds = newBounds;
 	}
+	@Override
+	protected int debugNumberOfBounds(){ return this.bounds.length; }
 	
 	public static void addSideOuterBounds( VoronoiRegionDefined cornerCCW , VoronoiRegionDefined region, VoronoiRegionDefined cornerCW , Side side ){ //CONSTRCT ADJACENT CORNERS
 		
@@ -201,16 +202,6 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 		public GeneralSideCheck(Side side){
 			this.side = side;
 		}
-		
-		@Override @Deprecated
-		public VoronoiRegion pointIsOutsideRegion( Point point , Point localPos) {
-			for ( RegionBoundary bound : bounds ){
-				if ( !bound.pointIsWithinBound(point , localPos) ){ 
-					return bound.adjacentRegion;
-				}
-			}
-			return null ;
-		}
 		@Override
 		public VoronoiRegion pointIsOutsideRegion( Point relativePos ) {
 			for ( RegionBoundary bound : bounds ){
@@ -224,11 +215,11 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 		@Override
 		public boolean pointIsInRegion(Point point , Point localPos){
 			for ( RegionBoundary bound : bounds ){
-				if ( !bound.pointIsWithinBound(point,localPos) ){
-					return false;
+				if ( bound.pointIsWithinBound(point,localPos) ){
+					return true;
 				}
 			}
-			return true;
+			return false;
 		}
 
 		@Override
@@ -255,16 +246,6 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 			this.ownerCorner = ownerCorner;
 		}
 		
-		@Override @Deprecated
-		public VoronoiRegion pointIsOutsideRegion( Point point , Point localPos ) { 
-			
-			for ( RegionBoundary bound : bounds ){
-				if ( !bound.pointIsWithinBound(point,localPos) ){
-					return bound.adjacentRegion;
-				}
-			}
-			return null;
-		}
 		@Override
 		public VoronoiRegion pointIsOutsideRegion( Point relativePos ) { 
 			

@@ -99,7 +99,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     			sprout.name = "Seed" + PlantTwigSegment.StemSegment.counter;
     			sprout.debugMakeWaterSource();
     			sprout.debugSetSugarLevel(700);
-      			
+    			
       			int angle = 0;
       			
       			if (dragLine.getX2() - dragLine.getX1() < 0)
@@ -114,6 +114,8 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
       			currentScene.addEntity(sprout);
       			
       			sprout.getAngularComposite().setAngleInDegrees( angle);
+      			
+      			sprout.setColliderGroup( sprout.getColliderComposite().getCollisionEngineGroupIndex() );
       			
       			CompositeFactory.makeChildOfParent(sprout, asteroid, TestBoard.this);
       			
@@ -140,13 +142,17 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         setFocusable(true);
         setBackground(Color.BLACK);
         
-        asteroid = new EntityStatic( "Asteroid" , 0 , 0 );
+        asteroid = new EntityStatic( "Asteroid" , 0 , 1100 );
         
         CompositeFactory.addGraphicTo(asteroid, new SpriteStillframe("box.png", Sprite.CENTERED ) );
         //CompositeFactory.addTranslationTo(asteroid);
         CompositeFactory.addDynamicRotationTo(asteroid);
 
-        CompositeFactory.addColliderTo(asteroid,  new BoundaryCircular(300) );
+        CompositeFactory.addColliderTo(asteroid,  new BoundaryCircular(1000) );
+        //CompositeFactory.addColliderTo(asteroid,  new BoundaryLinear( new Line2D.Double( 20 , 100 , -20, -100 ) ) );
+        //CompositeFactory.addColliderTo(asteroid,  new BoundaryPolygonal.Box(100, 20, -50, -10) );
+        
+        CompositeFactory.addRigidbodyTo(asteroid);
         
         //CompositeFactory.addColliderTo(asteroid,  new BoundaryPolygonal.Box(500, 200, -250,-100) );
         //asteroid.getTranslationComposite().setDX(-0.25f);
@@ -154,7 +160,8 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         this.currentScene.addEntity(asteroid);
         
         
-        player = new TestPlayer(20,-400 );
+        player = new TestPlayer(30,0 );
+        CompositeFactory.addRigidbodyTo(player);
         this.currentScene.addEntity(player);
         gravity = player.getTranslationComposite().addForce( new Vector(0,0) );
         this.addInputController(player.inputController);

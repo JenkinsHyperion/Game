@@ -42,6 +42,20 @@ import entityComposites.GraphicComposite;
 import entityComposites.TranslationComposite;
 import sprites.Sprite;
 
+/** Task area. Consult every time opening this file. 
+ * Last check: 2:22pm 9/9/17
+ * 
+ * Last thing I was working on was handling deleting composites from all root folders, as well as
+ * handling what happens when you try to add a new composite. Currently only made progress on Graphics. But the framework
+ * is mostly there for the others. 
+ * TODO: Create a checker to check if the entity already has the composite, and don't let it create new node if true.
+ * 
+ * 
+ * 
+ * 
+ * @author Dave
+ *
+ */
 public class BrowserTreePanel extends JPanel {
 	private static final Logger myLogger = Logger.getLogger( BrowserTreePanel.class.getName() );
 	private CompositeEditorPanel compositeEditorPanelRef;

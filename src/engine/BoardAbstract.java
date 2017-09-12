@@ -2,6 +2,7 @@ package engine;
 
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
@@ -20,6 +21,7 @@ import Input.KeyCommand;
 import editing.EditorPanel;
 import entityComposites.Collider;
 import entityComposites.EntityStatic;
+import entityComposites.GraphicComposite;
 import entityComposites.UpdateableComposite;
 import misc.PaintOverlay;
 import physics.CollisionEngine;
@@ -79,7 +81,9 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 	    
 	    
 	    this.setIgnoreRepaint(true);
-	    
+	    editorPanel = new EditorPanel(this);
+		editorPanel.setSize(new Dimension(240, 300));
+		editorPanel.setPreferredSize(new Dimension(240, 300));
 	}
 	
 	protected void postInitializeBoard(){
@@ -134,8 +138,10 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 	     javax.swing.Timer repaintTimer = new javax.swing.Timer(16, repaintUpdateTaskSwing);
 	     repaintTimer.setRepeats(true);
 	     repaintTimer.start();
-	     
 	}
+
+	protected abstract void initEditorPanel();
+
 	public void setMainFrame( JFrame frame ){
 		this.mainFrame = frame;
 	}
@@ -143,7 +149,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 	protected void addInputController( InputController inputController ){
 		mainFrame.addKeyListener(inputController);
 	}
-	
+
 	protected void activeRenderingDraw(){
 		
 	}
@@ -218,12 +224,13 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 		return this.currentScene.listEntities();
 	}
 	
-	public MovingCamera getCamera() {
+	public MovingCamera getCamera() throws NullPointerException{
 		return this.camera;
 	}
 	public EditorPanel getEditorPanel() {
 		return this.editorPanel;
 	}
+	
 	public void transferEditorPanel(EditorPanel instance){
 		this.editorPanel = instance; 
 	}
@@ -232,10 +239,16 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 		this.currentScene = scene;
 	}
 	
+	//ENTITY ADDING AND NOTIFYING
 	
 	public void addStaticEntity(EntityStatic entity) {
 		this.currentScene.addEntity( entity );
 	}
+	
+	public void notifyGraphicsChange(GraphicComposite graphicsComposite){
+		this.renderingEngine.addGraphicsCompositeToRenderer(graphicsComposite);
+	}
+	
 	
 	public ListNodeTicket addCompositeToUpdater( UpdateableComposite updateable ){
 		return updateablesList.add(updateable);

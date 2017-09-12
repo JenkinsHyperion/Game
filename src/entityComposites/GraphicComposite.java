@@ -98,7 +98,7 @@ public abstract class GraphicComposite implements EntityComposite{
 		}
 		
 		public void addCompositeToRenderer( RenderingEngine engine ){
-			rendererSlot = engine.addSpriteComposite( this );
+			rendererSlot = engine.addGraphicsCompositeToRenderer( this );
 		}
 	
 		@Override
@@ -111,6 +111,8 @@ public abstract class GraphicComposite implements EntityComposite{
 			//more disabling 
 			System.out.println("Removing graphics from renderer");
 			rendererSlot.removeSelfFromList();
+			
+			this.ownerEntity.nullifyGraphicsComposite();
 		}
 		@Override
 		public void setCompositeName(String newName) {

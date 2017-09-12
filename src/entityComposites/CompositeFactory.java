@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.geom.Line2D;
 
 import editing.BrowserTreePanel;
+import editing.EditorPanel;
 import engine.BoardAbstract;
 import entityComposites.AngularComposite.AngleComposite;
 import physics.Boundary;
@@ -119,13 +120,15 @@ public class CompositeFactory {
 		entity.setRigidbody( new Rigidbody(entity) );
 	}
 	
-	public static void addGraphicTo( EntityStatic entity , Sprite sprite ){
+	public static GraphicComposite addGraphicTo( EntityStatic entity , Sprite sprite ){
 		
 		GraphicComposite.Active graphicComposite = new GraphicComposite.Active( entity );
 		
 		graphicComposite.setSprite( sprite );
 		
 		entity.setGraphicComposite( graphicComposite );
+		
+		return graphicComposite;
 	}
 	/**Adds anonymous graphicComposite to this entity, probably with the intention of overriding the GraphicComposite draw() Method
 	 * with custom functionality

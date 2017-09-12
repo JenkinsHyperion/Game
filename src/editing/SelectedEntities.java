@@ -7,6 +7,8 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
+import java.util.logging.Logger;
+
 import entityComposites.*;
 import physics.Boundary;
 import engine.MovingCamera;

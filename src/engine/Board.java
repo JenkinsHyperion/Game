@@ -186,7 +186,7 @@ public class Board extends BoardAbstract {
         for ( EntityStatic stat : this.currentScene. ){
         	collisionEngine.addStaticCollidable( (Collider) stat.getCollisionType() );
         }*/
-
+        initEditorPanel();
         
     } 
     //END INITIALIZE #############################################################################
@@ -474,6 +474,13 @@ public class Board extends BoardAbstract {
 		//put player back into rendering
 		((GraphicComposite.Active) player.getGraphicComposite()).addCompositeToRenderer(renderingEngine);
 		
+	}
+	@Override
+	protected void initEditorPanel() {
+		editorPanel = new EditorPanel(this);
+		editorPanel.setSize(new Dimension(240, 300));
+		editorPanel.setPreferredSize(new Dimension(240, 300));
+
 	}
 	
 	

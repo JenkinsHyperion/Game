@@ -148,9 +148,12 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	 * #########################################################################################################################
 	 */
 	
+	protected void nullifyGraphicsComposite(){
+		this.graphicsComposite = GraphicComposite.nullSingleton();
+	}
+	
 	protected void nullifyTranslationComposite(){
 		this.translationType = TranslationComposite.nullSingleton();
-		System.out.println("Nullify");
 	}
 	@Deprecated
 	public void removeTranslationComposite(){

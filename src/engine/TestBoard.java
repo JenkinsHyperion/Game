@@ -131,6 +131,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     	
     	initBoard();
     	postInitializeBoard();
+    	initEditorPanel();
     }
 
 
@@ -162,6 +163,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         
         player = new TestPlayer(30,0 );
         CompositeFactory.addRigidbodyTo(player);
+
         this.currentScene.addEntity(player);
         gravity = player.getTranslationComposite().addForce( new Vector(0,0) );
         this.addInputController(player.inputController);
@@ -426,8 +428,12 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent arg0) {
 		// TODO Auto-generated method stub
-		
 	}
+	@Override
+	protected void initEditorPanel() {
+		editorPanel = new EditorPanel(this);
+		editorPanel.setSize(new Dimension(240, 300));
+		editorPanel.setPreferredSize(new Dimension(240, 300));
 
-    
+	}
 }

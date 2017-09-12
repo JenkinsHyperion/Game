@@ -31,34 +31,35 @@ public class MainWindow implements KeyListener, MouseListener{
 		width = (int) screenSize.getWidth();
 		height = (int) screenSize.getHeight();
 		System.out.println("Resolution set to "+ width + " by " + height);
-		
+
+
 		editorPanelMinSize = new Dimension(220,300);
 		
 		JFrame frame = new JFrame(System.getProperty("user.dir"));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		//board = new BoardPhysicsTesting(width,height);
-		//board = new Board(width,height);
+
+		//board = new BoardPhysicsTesting(width,height,frame);
+		//board = new Board(width,height,frame);
 		board = new TestBoard(width,height,frame);
 		
 		board.setPreferredSize(new Dimension(BoardAbstract.B_WIDTH, BoardAbstract.B_HEIGHT));
 		board.setMinimumSize(new Dimension(BoardAbstract.B_WIDTH, BoardAbstract.B_HEIGHT));
 		
-		editorPanel = new EditorPanel(board);
+		/*editorPanel = new EditorPanel(board);
 		editorPanel.setSize(new Dimension(240, 300));
-		editorPanel.setPreferredSize(new Dimension(240, 300));
-		JScrollPane editorPanelScrollPane = new JScrollPane(editorPanel);
+		editorPanel.setPreferredSize(new Dimension(240, 300));*/
+		//JScrollPane editorPanelScrollPane = new JScrollPane(editorPanel);
+		JScrollPane editorPanelScrollPane = new JScrollPane(board.getEditorPanel());
 		editorPanelScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		//editorPanel.setMinimumSize(editorPanelMinSize);
-		board.transferEditorPanel(editorPanel);
+		//board.transferEditorPanel(editorPanel);
 		
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, editorPanelScrollPane, board); // 
 		splitPane.setOneTouchExpandable(true);
-		splitPane.setDividerLocation(editorPanel.getWidth());
+		splitPane.setDividerLocation(board.getEditorPanel().getWidth());
 		//board.setFocusable(true);
 		
-		splitPane.setSize(new Dimension(board.getWidth() + editorPanel.getWidth(), 300));
-		splitPane.setMinimumSize(new Dimension(board.getWidth() + editorPanel.getWidth(), 300));
+		splitPane.setSize(new Dimension(board.getWidth() + board.getEditorPanel().getWidth(), 300));
+		splitPane.setMinimumSize(new Dimension(board.getWidth() + board.getEditorPanel().getWidth(), 300));
 		
 		
 	}
@@ -252,12 +253,12 @@ public class MainWindow implements KeyListener, MouseListener{
 	@Override
 	public void keyPressed(KeyEvent e) {
 		board.keyPressed(e);
-		editorPanel.keyPressed(e);
+		board.getEditorPanel().keyPressed(e);
 	}
 	@Override
 	public void keyReleased(KeyEvent e) {
 		board.keyReleased(e);
-		editorPanel.keyReleased(e);
+		board.getEditorPanel().keyReleased(e);
 		
 	}
 	@Override

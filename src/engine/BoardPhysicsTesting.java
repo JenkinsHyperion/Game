@@ -2,6 +2,7 @@ package engine;
 
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -18,6 +19,7 @@ import Input.InputController;
 import Input.KeyBinding;
 import Input.KeyCommand;
 import Input.MouseCommand;
+import editing.EditorPanel;
 import engine.Board.MouseHandlerClass;
 import engine.BoardAbstract.DiagnosticsOverlay;
 import entityComposites.*;
@@ -195,6 +197,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
         
         
     	postInitializeBoard();
+    	initEditorPanel();
 	}
 
 	//INPUT CONTROL
@@ -301,7 +304,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 		//camera.drawCrossInFrame( point );
 		//camera.drawCrossInFrame( point );
 		//camera.drawCrossInFrame( camera.getRelativePoint( followerEntity.getPosition() ) );
-		
+
 	}
 
 	@Override
@@ -309,100 +312,106 @@ public class BoardPhysicsTesting extends BoardAbstract{
 		// TODO Auto-generated method stub
 		camera.updatePosition();
 		currentFollowerAI.update();
-    	collisionEngine.checkCollisions();
+		collisionEngine.checkCollisions();
 	}
-	
+
+	protected void initEditorPanel() {
+		editorPanel = new EditorPanel(this);
+		editorPanel.setSize(new Dimension(240, 300));
+		editorPanel.setPreferredSize(new Dimension(240, 300));
+
+	}
 	private interface FollowerAI{
 		public void update();
 	}
-	
+
 	private class Sleep implements FollowerAI{
 		public void update(){ /*Sleeping*/ }
 	}
-	
+
 	private class Follow implements FollowerAI{
-		
+
 		private Point target;
-		
+
 		public Follow(Point target){
 			this.target = target;
 		}
-		
+
 		public void update(){
-			
+
 			float distX =  (float)(-camera.getRelativeX( followerEntity.getX() ) + target.getX()) ;
 			float distY =	(float)(-camera.getRelativeY( followerEntity.getY() ) + target.getY()) ;
-			
-  			Vector followVelocity = new Vector(
-  					Math.signum(distX)*(distX*distX)/50000.0  +  distX/20.0 ,    //like Linear Follow, this is a Quadratic Follow
-  					Math.signum(distY)*(distY*distY)/50000.0  +  distY/20.0
-  			);
-  			followerEntity.getTranslationComposite().setVelocityVector( followVelocity );
+
+			Vector followVelocity = new Vector(
+					Math.signum(distX)*(distX*distX)/50000.0  +  distX/20.0 ,    //like Linear Follow, this is a Quadratic Follow
+					Math.signum(distY)*(distY*distY)/50000.0  +  distY/20.0
+					);
+			followerEntity.getTranslationComposite().setVelocityVector( followVelocity );
 		}
 	}
-	
+
 	private Point mouseOrigin;
-	
- 	protected class MouseHandlerClass extends MouseInputAdapter implements MouseWheelListener { 		
-  	    /*public int clickPositionXOffset;
+
+	protected class MouseHandlerClass extends MouseInputAdapter implements MouseWheelListener { 		
+		/*public int clickPositionXOffset;
   	    public int clickPositionYOffset;*/
 
-  		@Override
-  		public void mousePressed(MouseEvent e)
-  		{  	
-  			if (e.getButton() == MouseEvent.BUTTON2){
-  				currentFollowerAI = new Follow( e.getPoint() );
-  			}
-  			
-  			if (e.getButton() == MouseEvent.MOUSE_WHEEL){
-  				System.err.println("WHEELW");
-  			}
-  			
-  			editorPanel.mousePressed(e);
+		@Override
+		public void mousePressed(MouseEvent e)
+		{  	
+			if (e.getButton() == MouseEvent.BUTTON2){
+				currentFollowerAI = new Follow( e.getPoint() );
+			}
 
-  			inputController.mousePressed(e);
-  			
-  			mouseOrigin = e.getPoint();
-  			
-  		}
-  		@Override
-  		public void mouseDragged(MouseEvent e) 
-  		{ 		
-  			editorPanel.mouseDragged(e);
-  			
-  			
-  			
-  			if (e.getButton() == MouseEvent.BUTTON2){
-  				currentFollowerAI = new Follow( e.getPoint() );
-  			}
-  			//gravity.setVector( 0,0);
-  			//rotateTest.getRotationComposite().setAngleInDegrees( new Vector( e.getX()-mouseOrigin.x , e.getY()-mouseOrigin.y ).angleFromVectorInDegrees() );
-  			
-  		}
-  		@Override
-  		public void mouseMoved(MouseEvent e){
-  			editorPanel.mouseMoved(e);
-  			//editorPanel.getWorldGeom().mouseMoved(e);
-  		}
-  		@Override
-  		public void mouseReleased(MouseEvent e) 
-  		{	
-  			
-  			inputController.mouseReleased(e);
-  			
-  			//followerEntity.getTranslationComposite().setVelocity( new Vector( 0,0 ) );
-  			currentFollowerAI = followerSleep;
-  			//gravity.setVector( 0,0.2);
-  			//player.inputController.mouseReleased(e);
+			if (e.getButton() == MouseEvent.MOUSE_WHEEL){
+				System.err.println("WHEELW");
+			}
 
-  			//editorPanel.getWorldGeom().mouseReleased(e);
-  			
-  			editorPanel.mouseReleased(e);
-  		}
-  		
-  	}
- 	
- 	private class PauseEvent extends KeyCommand{
+			editorPanel.mousePressed(e);
+
+			inputController.mousePressed(e);
+
+			mouseOrigin = e.getPoint();
+
+		}
+		@Override
+		public void mouseDragged(MouseEvent e) 
+		{ 		
+			editorPanel.mouseDragged(e);
+
+
+
+			if (e.getButton() == MouseEvent.BUTTON2){
+				currentFollowerAI = new Follow( e.getPoint() );
+			}
+			//gravity.setVector( 0,0);
+			//rotateTest.getRotationComposite().setAngleInDegrees( new Vector( e.getX()-mouseOrigin.x , e.getY()-mouseOrigin.y ).angleFromVectorInDegrees() );
+
+		}
+		@Override
+		public void mouseMoved(MouseEvent e){
+			editorPanel.mouseMoved(e);
+			//editorPanel.getWorldGeom().mouseMoved(e);
+		}
+		@Override
+		public void mouseReleased(MouseEvent e) 
+		{	
+
+			inputController.mouseReleased(e);
+
+			//followerEntity.getTranslationComposite().setVelocity( new Vector( 0,0 ) );
+			currentFollowerAI = followerSleep;
+			//gravity.setVector( 0,0.2);
+			//player.inputController.mouseReleased(e);
+
+			//editorPanel.getWorldGeom().mouseReleased(e);
+
+			editorPanel.mouseReleased(e);
+		}
+
+	}
+
+	private class PauseEvent extends KeyCommand{
  		private boolean isPaused = false;
  		@Override
  		public void onPressed() {
@@ -474,8 +483,6 @@ public class BoardPhysicsTesting extends BoardAbstract{
 			// TODO Auto-generated method stub
 			
 		}
- 		
  	}
-	
-	
+ 	
 }

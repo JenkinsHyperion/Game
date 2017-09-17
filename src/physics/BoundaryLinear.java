@@ -27,12 +27,6 @@ public class BoundaryLinear extends BoundaryPolygonal {
 	}
 
 	@Override
-	public void rotateBoundaryFromTemplate(Point center, double angle, Boundary template) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public Line2D[] getSeparatingSides() {
 		return new Line2D[]{ sides[0].toLine() };
 	}
@@ -69,9 +63,11 @@ public class BoundaryLinear extends BoundaryPolygonal {
 	@Override
 	protected Point2D farthestLocalPointFromPoint(Point primaryOrigin, Point2D localPoint, Line2D axis) {
 		
-		if ( localPoint.distance( corners[0].toPoint() ) > localPoint.distance( corners[1].toPoint() ) ){
+		final Point2D relativePoint = new Point2D.Double( localPoint.getX() - primaryOrigin.x , localPoint.getY() - primaryOrigin.y );
+		
+		if ( relativePoint.distance( corners[0].toPoint() ) > relativePoint.distance( corners[1].toPoint() ) ){
 			
-			final Point2D returnP1 = new Point2D.Double( corners[0].toPoint().getX() + primaryOrigin.x , 
+			final Point2D returnP1 = new Point2D.Double( corners[0].toPoint().getX() + primaryOrigin.x  , 
 					corners[0].toPoint().getY() + primaryOrigin.y );
 			return returnP1;
 		}else{
@@ -118,7 +114,10 @@ public class BoundaryLinear extends BoundaryPolygonal {
 		return new Point2D[]{ p1,p2 };
 	}
 
-
+	@Override
+	public <B extends Boundary> void rotateBoundaryFromTemplate(Point center, double radians, B template) {
+		super.rotateBoundaryFromTemplate(center, radians, template);
+	}
 
 	@Override
 	public void constructVoronoiRegions(){

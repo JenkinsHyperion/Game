@@ -13,6 +13,8 @@ import physics.Vector;
 public class Entity { 
 	//some static fields to indicate the type of entity
 	//will be heavily fleshed out later when organizing large amounts of entities becomes an issue
+	public static final Point origin = new Point(0,0);
+	
 	public static final int PLATFORM = 10;
 	public static final int GROUND = 11;
 	public static final int PLANT = 12;

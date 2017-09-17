@@ -43,8 +43,8 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 		this.gOverlay = renderer.debugGetOverlayGraphics();
 		this.camera = renderer.getCamera();
 		
-		while ( checkingPairs.hasNext() ){
-			checkingPairs.get().visualCheck( camera , gOverlay);
+		while ( activeCheckingPairs.hasNext() ){
+			activeCheckingPairs.get().visualCheck( camera , gOverlay);
 		}
 
     	updateCollisions();    
@@ -151,8 +151,9 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 			g2.drawString( " VISUAL COLLISION ENGINE OVERLAY ", 20, 20 );
 			g2.drawString( staticCollidables.size() + " static collider groups", 20, 35 );
 			g2.drawString( dynamicCollidables.size() + " dynamic collider groups", 20, 50 );
+			g2.drawString( activeCheckingPairs.size() + " active collider pairs", 20, 65 );
 			
-			g2.drawString( collisionsList.size() + " collisions", 20, 65 );
+			g2.drawString( collisionsList.size() + " collisions", 20, 80 );
 			
 			for ( ArrayList<ActiveCollider> dynamicsGroup : dynamicCollidables ){
 				

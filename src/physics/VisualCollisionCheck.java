@@ -76,22 +76,25 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 	
 		    Point2D playerCenter = new Point2D.Double(collidablePrimary.getOwnerEntity().getX(), collidablePrimary.getOwnerEntity().getY());
 		    Point2D statCenter = new Point2D.Double(collidableSecondary.getOwnerEntity().getX(), collidableSecondary.getOwnerEntity().getY());
-	
-		   // Line2D[] separatingSides = Boundary.getSeparatingSidesBetween( playerBounds , statBounds );
-		    Line2D[] separatingSides = this.axisCollector.getSeparatingAxes( statBoundsRel, playerBoundsRel , camera, g2);
-		    
 		    
 		    final double deltaX = player.getTranslationComposite().getDeltaX(player) ;
 		    final double deltaY = player.getTranslationComposite().getDeltaY(player) ;
 		    final Point deltaPosition = new Point( (int)deltaX , (int)deltaY );
 		    
-		    g2.setColor(Color.CYAN);
-		    g2.drawString("Axes of Separations: "+separatingSides.length, 300, 20);
+			  // OPTIMIZATION pull axis collection into initialized field and notify changes rather than rapid calling
+		    SeparatingAxisCollector.Axis[] separatingAxes = this.axisCollector.getSeparatingAxes( stat, stat.getPosition(), statBoundsRel, player , deltaPosition, playerBoundsRel, camera, g2 );
+
+		    /*
+		    g2.setColor(Color.WHITE);
+		    this.axisCollector.drawSeparation(camera, g2);
 		    
-		    for ( int i = 0 ; i < separatingSides.length ; i++ ){
-		    	Line2D axis = BoundaryPolygonal.getSeparatingAxis( separatingSides[i] ); 
-		    	//g2.setColor(Color.CYAN);
-		    	//g2.draw(separatingSides[i]);
+		    g2.setColor(Color.CYAN);
+		    g2.drawString("Axes of Separations: "+separatingAxes.length, 300, 20);
+			*/
+		    
+		    for ( SeparatingAxisCollector.Axis separatingAxis : separatingAxes ){
+		    	
+		    	Line2D axis = separatingAxis.getAxisLine(); 
 
 		    	Point2D[] outerPointsRel = 
 		    			Boundary.getFarthestPointsBetween( player, playerBoundsRel, stat, statBoundsRel, axis );
@@ -135,54 +138,59 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 		    			Boundary.getProjectionPoint(nearStatCorner,axis) 
 		    			);
 		    	
-		    	
-		    	g2.setColor(Color.GREEN);
 
-		    	g2.setColor(Color.RED);
-		    	camera.drawCrossInWorld( outerPointsRel[0] , g2 );
+		    	g2.setColor(Color.GREEN);
+		    	camera.drawCrossInWorld( nearStatCorner , g2 );
+		    	//camera.drawCrossInWorld( nearStatCorner, g2 );
 	
-		    	int centerDistanceX = (int)(centerProjection.getX1() -  centerProjection.getX2()  );
-		    	int centerDistanceY = (int)(centerProjection.getY1() -  centerProjection.getY2()  );
+		    	double centerDistanceX = (centerProjection.getX1() -  centerProjection.getX2()  );
+		    	double centerDistanceY = (centerProjection.getY1() -  centerProjection.getY2()  );
 	
-		    	int playerProjectionX = (int)(playerHalf.getX1() -  playerHalf.getX2());
-		    	int playerProjectionY = (int)(playerHalf.getY1() -  playerHalf.getY2());
+		    	double playerProjectionX = (playerHalf.getX1() -  playerHalf.getX2());
+		    	double playerProjectionY = (playerHalf.getY1() -  playerHalf.getY2());
 	
-		    	int statProjectionX = (int)(statHalf.getX2() -  statHalf.getX1());
-		    	int statProjectionY = (int)(statHalf.getY2() -  statHalf.getY1()); 
+		    	double statProjectionX = (statHalf.getX2() -  statHalf.getX1());
+		    	double statProjectionY = (statHalf.getY2() -  statHalf.getY1()); 
 	
-		    	int penetrationX = 0;
-		    	int penetrationY = 0;  
+		    	double penetrationX = 0;
+		    	double penetrationY = 0;  
 		    	
 	
 		    	if (centerDistanceX>0){
 		    		//centerDistanceX -= 1;
-		    		penetrationX = playerProjectionX + statProjectionX - centerDistanceX +1;
+		    		penetrationX = playerProjectionX + statProjectionX - centerDistanceX +0;
 		    	}
 		    	else if (centerDistanceX<0){
 		    		//centerDistanceX += 1;  //NEEDS HIGHER LEVEL SOLUTION
-		    		penetrationX = playerProjectionX + statProjectionX - centerDistanceX -1;
+		    		penetrationX = playerProjectionX + statProjectionX - centerDistanceX -0;
 		    	}
 		    	else
 		    		penetrationX = Math.abs(playerProjectionX) + Math.abs(statProjectionX);
 	
+		    	//################
+		    	
 		    	if (centerDistanceY>0){
-		    		//centerDistanceY -= 1;
-		    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY+1; 
+
+		    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY+0; 
 		    	}
 		    	else if (centerDistanceY<0){
 		    		//centerDistanceY += 1; 
-		    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY-1; 
-		    	}else
+		    		
+		    		penetrationY = playerProjectionY + statProjectionY - centerDistanceY-0; 
+		    		
+		    	}
+		    	else{
 		    		penetrationY = Math.abs(playerProjectionY) + Math.abs(statProjectionY);
+		    	}
 	
-	
+		    	//#################
 		    	
 		    	if ( penetrationX * centerDistanceX < 0 ) //SIGNS ARE NOT THE SAME
 					penetrationX = 0;
 		    	if ( penetrationY * centerDistanceY < 0 )
 					penetrationY = 0; 	
 		    	
-		    	if ( penetrationX * penetrationY == 0 ){
+		    	if ( penetrationX + penetrationY == 0 ){ 
 		    		//return false;
 		    		isColliding = false;
 			    	g2.setColor(Color.YELLOW);
@@ -190,18 +198,14 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 			    	g2.setColor(Color.CYAN);
 		    	}
 			    	
-		    	/*
-		    	g2.setColor(Color.DARK_GRAY);
-		    	camera.drawDebugAxis(axis , g2 );   
 		    	
-		    	camera.drawDebugAxis(statHalf , g2 );
+		    	//g2.setColor(Color.DARK_GRAY);
+		    	//camera.drawDebugAxis(axis , g2 );   
 		    	
-		    	g2.setColor(Color.GREEN);
-		    	camera.drawDebugAxis(playerHalf , g2 );
+		    	//camera.drawDebugAxis(statHalf , g2 );
+		 
 		    	
-		    	camera.drawString( "   Depth: "+penetrationX+","+penetrationY , playerHalf.getP1() , g2);
-		    	 */
-		    	
+
 		    	//camera.drawCrossInWorld(outerPoints[1] , g2);
 		    	
 		    	Line2D projCenter = new Line2D.Double( 
@@ -229,12 +233,21 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 		    			nearStatCorner.getY()
 		    	);
 		    	
+		    	/*
+		    	g2.setColor(Color.GREEN);
+		    	camera.drawDebugAxis(playerHalf , g2 );
+		    	
+		    	camera.drawString( "   Depth: "+penetrationX+","+penetrationY , playerHalf.getP1() , g2);
+		    	
+		    	g2.setColor(Color.BLUE);
+		    	camera.drawDebugAxis(statHalf , g2 );
+		    	
 		    	g2.setColor(Color.DARK_GRAY);
 		    	camera.drawDebugAxis(projCenter, g2);
 		    	camera.drawDebugAxis(projOuter, g2);
 		    	camera.drawDebugAxis(projCenterStat, g2);
 		    	camera.drawDebugAxis(projOuterStat, g2);
-		
+		*/
 		    }
 		    
 		    return isColliding;

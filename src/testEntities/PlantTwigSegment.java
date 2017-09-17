@@ -7,6 +7,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import engine.ReferenceFrame;
 import engine.TestBoard;
 import entities.*;
+import entityComposites.AngularComposite;
 import entityComposites.ColliderNull;
 import entityComposites.CompositeFactory;
 import entityComposites.DynamicRotationComposite;
@@ -98,6 +99,8 @@ public class PlantTwigSegment extends EntityStatic{
 			
 			protected void init( int percentMax){
 		
+				AngularComposite angularComposite = CompositeFactory.addAngularComposite(this);
+				
 				CompositeFactory.addAnonymousGraphicTo(this, new GraphicComposite.Active(this){
 					@Override
 					public void draw(ReferenceFrame camera) {
@@ -111,7 +114,11 @@ public class PlantTwigSegment extends EntityStatic{
 				this.getGraphicComposite().setSprite(twigSmallSprite);
 				this.getGraphicComposite().setGraphicSizeFactor(0);
 				
-				CompositeFactory.addColliderTo( this, new BoundaryLinear( new Line2D.Double( 0,0 , 0,-80 ) ) );
+				CompositeFactory.addRotationalColliderTo( 
+						this, 
+						new BoundaryLinear( new Line2D.Double( 0,0 , 0, (int)(-80*(maxGrowth/100.0)) ) ), 
+						angularComposite 
+						);
 			}
 			
 			public void debugSetSugarLevel( int level ){

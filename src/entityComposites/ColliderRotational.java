@@ -6,7 +6,7 @@ import physics.Boundary;
 
 public class ColliderRotational extends Collider implements RotateableComposite{
 
-	private Boundary storedBounds;
+	private Boundary storedBounds; // zero angle boundary that angled boundaries calculate from
 	
 	public ColliderRotational(EntityStatic owner , Boundary boundary) {
 		super(owner , boundary);
@@ -21,13 +21,14 @@ public class ColliderRotational extends Collider implements RotateableComposite{
 	}
 	
 	@Override
-	public void setAngle(double angleRadians) {
-		this.boundary.rotateBoundaryFromTemplate( new Point(0,0) , angleRadians , storedBounds ); 
+	public void setAngle(double angleDegrees) {
+		this.boundary.rotateBoundaryFromTemplate( Entity.origin , Math.toRadians(angleDegrees) , storedBounds ); 
+		//this.boundary.constructVoronoiRegions();
 	}
 	
 	@Override
 	public void addAngle(double angleRadians) {
-		// TODO Auto-generated method stub
+		
 	}
 	
 	@Override

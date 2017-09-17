@@ -6,7 +6,7 @@ import java.awt.geom.Line2D;
 
 import engine.MovingCamera;
 
-public class VoronoiRegion {
+public abstract class VoronoiRegion {
 
 	protected BoundaryFeature ownerFeature;
 	protected RegionCheck checkMath;
@@ -17,10 +17,12 @@ public class VoronoiRegion {
 	
 	public static VoronoiRegion getUndefinedVoronoiRegion( BoundaryFeature feature ){ 
 		
-		VoronoiRegion returnRegion = new VoronoiRegion(feature);
+		VoronoiRegion returnRegion = new VoronoiRegion.Undefined(feature);
 		returnRegion.checkMath = returnRegion.new UndefinedCheck();
 		return returnRegion;
 	}
+	
+	protected abstract void notifySetAngle( double setAngle );
 
 	protected int debugNumberOfBounds(){ return 0; }
 	
@@ -28,8 +30,8 @@ public class VoronoiRegion {
 		return this.checkMath.pointIsOutsideRegion(relativePos);
 	}
 	
-	public boolean pointIsInRegion( Point point , Point localPos){
-		return this.checkMath.pointIsInRegion(point,localPos);
+	public boolean pointIsInRegion( Point relativePosition ){
+		return this.checkMath.pointIsInRegion( relativePosition );
 	}
 	
 	/** Constructs the separation line between this region's boundary feature, and the given point inside the region.
@@ -52,8 +54,25 @@ public class VoronoiRegion {
 		return ownerFeature;
 	}
 	
-	public void debugDrawRegion( MovingCamera camera , Graphics2D g2 ){	
-		this.checkMath.debugDraw(camera, g2);
+	public void debugDrawRegion( Point absPos, MovingCamera camera , Graphics2D g2 ){	
+		this.checkMath.debugDraw( absPos, camera, g2);
+	}
+	
+	public void rotateRegion( double angle ){}
+	
+	//##########################################################################
+
+	protected static class Undefined extends VoronoiRegion{
+
+		protected Undefined(BoundaryFeature feature) {
+			super(feature);
+		}
+
+		@Override
+		protected void notifySetAngle(double setAngle) {
+			// DO NOTHING
+		}
+		
 	}
 	
 	//##########################################################################
@@ -65,11 +84,9 @@ public class VoronoiRegion {
 		 * @return Adjacent region that point has escaped. Null if point is still within this region.
 		 */
 		public VoronoiRegion pointIsOutsideRegion( Point relativePos );
-		public boolean pointIsInRegion(Point point, Point localPos);
-		@Deprecated
-		public Line2D getSeparation( Point center , Point boundaryEntityPosition );
+		public boolean pointIsInRegion(Point relativePosition );
 		public Line2D getSeparation( Point relativeCirclePosition );
-		public void debugDraw(MovingCamera cam , Graphics2D g2);
+		public void debugDraw(Point absPos, MovingCamera cam , Graphics2D g2);
 	}
 	
 	private class UndefinedCheck implements RegionCheck{
@@ -78,19 +95,12 @@ public class VoronoiRegion {
 		public VoronoiRegion pointIsOutsideRegion( Point relativePos) {
 			return null; 
 		}
+		
 		@Override
-		public boolean pointIsInRegion(Point point , Point localPos){
+		public boolean pointIsInRegion( Point relativePosition ){
 			return true;
 		}
-		@Override
-		public Line2D getSeparation( Point center , Point boundaryEntityPosition ) {
-			return new Line2D.Double(
-					-center.y,
-					center.x,
-					-ownerFeature.getP1().getY() - boundaryEntityPosition.y,
-					ownerFeature.getP1().getX() - boundaryEntityPosition.x
-			);
-		}
+
 		@Override
 		public Line2D getSeparation( Point relativeCirclePosition ) {
 			return new Line2D.Double(
@@ -101,7 +111,7 @@ public class VoronoiRegion {
 			);
 		}
 		@Override
-		public void debugDraw(MovingCamera cam, Graphics2D g2) {
+		public void debugDraw(Point absPos, MovingCamera cam, Graphics2D g2) {
 			
 		}
 		

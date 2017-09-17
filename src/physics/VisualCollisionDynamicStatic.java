@@ -87,9 +87,7 @@ public class VisualCollisionDynamicStatic extends Collision implements VisualCol
 		//testing for centripetal acceleration
 		final Vector rotatingNormal = normal.add( unitNormal.multiply( centripetalForce ) );
 		
-		normalForce.setVector( rotatingNormal );
-		
-		//System.err.println(dynamicPrimary.getVelocityVector());
+		normalForce.setVector( rotatingNormal.inverse() );
 		
 		if ( 
 				
@@ -247,16 +245,21 @@ public class VisualCollisionDynamicStatic extends Collision implements VisualCol
 		//System.out.println("Checking best resolution"); 
 		ArrayList<Resolution> penetrations = new ArrayList<>();
     	
-    	 
-		//Line2D[] separatingSides = Boundary.getSeparatingSidesBetween( collidingPrimary.getBoundaryDelta() , collidingSecondary.getBoundaryLocal() );
-		Line2D[] separatingSides = this.axisCollector.getSeparatingAxes( 
-				collidingPrimary.getBoundary(), 
+		SeparatingAxisCollector.Axis[] separatingAxes = this.axisCollector.getSeparatingAxes(
+
+				entitySecondary, entitySecondary.getPosition(),
 				collidingSecondary.getBoundary(),
-				camera,g2
+				
+				entityPrimary, entityPrimary.getPosition(), 
+				collidingPrimary.getBoundary(),
+				camera, g2
 				);
 		
-		for ( Line2D side : separatingSides ){
-		    	penetrations.add( this.resolver.resolveAxis( side , camera, g2 ));
+		for ( SeparatingAxisCollector.Axis separatingAxis : separatingAxes ){
+			
+			Line2D axis = separatingAxis.getAxisLine();	
+			
+		    penetrations.add( this.resolver.resolveAxis( axis , camera, g2 ));
 		}
     	double penetrationX = 0;
     	double penetrationY = 0;
@@ -307,12 +310,12 @@ public class VisualCollisionDynamicStatic extends Collision implements VisualCol
 
 	
 	private abstract class Resolver{
-		abstract Resolution resolveAxis( Line2D separatingSide , MovingCamera camera, Graphics2D g2);
+		abstract Resolution resolveAxis( Line2D separatingAxis , MovingCamera camera, Graphics2D g2);
 	}
 	
 	private class ResolverSAT_1 extends Resolver{
 		
-		public Resolution resolveAxis( Line2D separatingSide , MovingCamera camera, Graphics2D g2){
+		public Resolution resolveAxis( Line2D axis , MovingCamera camera, Graphics2D g2){
 			
 		    EntityStatic stat = entitySecondary;
 		    
@@ -326,7 +329,7 @@ public class VisualCollisionDynamicStatic extends Collision implements VisualCol
 		    final double deltaY = entityPrimary.getTranslationComposite().getDeltaY(entityPrimary) ;
 		    final Point deltaPosition = new Point( (int)deltaX , (int)deltaY );
 
-			final Line2D axis = BoundaryPolygonal.getSeparatingAxis(separatingSide); //OPTIMIZE TO SLOPE ONLY CALCULATIONS
+			//final Line2D axis = BoundaryPolygonal.getSeparatingAxis(separatingSide); //OPTIMIZE TO SLOPE ONLY CALCULATIONS
 			
 			//final Point2D[] outerPoints = Boundary.getFarthestPointsBetween(playerBounds ,statBounds, axis); 
 			

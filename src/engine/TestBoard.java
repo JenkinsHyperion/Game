@@ -149,9 +149,15 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         //CompositeFactory.addTranslationTo(asteroid);
         CompositeFactory.addDynamicRotationTo(asteroid);
 
-        CompositeFactory.addColliderTo(asteroid,  new BoundaryCircular(1000) );
-        //CompositeFactory.addColliderTo(asteroid,  new BoundaryLinear( new Line2D.Double( 20 , 100 , -20, -100 ) ) );
-        //CompositeFactory.addColliderTo(asteroid,  new BoundaryPolygonal.Box(100, 20, -50, -10) );
+        Boundary bounds1 = new BoundaryCircular(1000) ;
+        //CompositeFactory.addColliderTo(asteroid,  new BoundaryLinear( new Line2D.Double( 0 , 100 , 0, -100 ) ) );
+        //CompositeFactory.addColliderTo(asteroid,  new BoundaryPolygonal.Box(100, 200, -50, -100) );
+        
+        CompositeFactory.addRotationalColliderTo(
+        		asteroid, 
+        		bounds1, 
+        		asteroid.getAngularComposite()
+        		);
         
         CompositeFactory.addRigidbodyTo(asteroid);
         
@@ -184,7 +190,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     	collisionEngine.checkCollisions();
 
     	gravity.setVector( player.getSeparationUnitVector(asteroid).multiply(0.2) );
-    	
+   
     }
 
     public void spawnNewSprout( EntityStatic newTwig ){
@@ -281,13 +287,15 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 			this.inputController.createKeyBinding(KeyEvent.VK_DELETE, new KeyCommand(){
 				@Override
 				public void onPressed() {
-					trans.disableComposite();
+					//trans.disableComposite();
+					asteroid.getAngularComposite().setAngleInDegrees(45);
 				}
 			});
 			
 			this.collider.setLeavingCollisionEvent( new CollisionEvent(){
 				@Override
 				public void run(BoundaryFeature source, BoundaryFeature collidingWith, Vector normal) {
+					movementForce.setVector(Vector.zeroVector);
 					changeState(falling);
 				}
 			});
@@ -343,10 +351,10 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 			@Override
 			public void onJump() {
 				//movementForce.setVector( gravity.getVector().unitVector().multiply(-1) );
-				trans.addVelocity( gravity.getVector().unitVector().multiply(-5) );
+				//trans.addVelocity( gravity.getVector().unitVector().multiply(-5) );
 			}
-			@Override public void offLeft(){trans.resetVelocityVector();};
-			@Override public void offRight(){trans.resetVelocityVector();};
+			@Override public void offLeft(){};
+			@Override public void offRight(){};
 			@Override public void offJump(){};
     	}
     	
@@ -354,9 +362,9 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 			@Override
 			public void run() {}
 			@Override public void onLeft(){};
-			@Override public void offLeft(){ trans.resetVelocityVector();}
+			@Override public void offLeft(){ }
 			@Override public void onRight(){};
-			@Override public void offRight(){ trans.resetVelocityVector(); }
+			@Override public void offRight(){  }
 			@Override public void onJump(){};
 			@Override public void offJump(){};
 			
@@ -367,28 +375,49 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     		protected byte leftRight;
     		protected boolean running = false;
     		
+    		private final Runnable accelerating = new Runnable(){
+    			public void run(){
+    				movementForce.setVector( gravity.getVector().normalLeft().unitVector().multiply(0.1*leftRight) );
+    			}
+    		};
+    		
+    		private final Runnable coasting = new Runnable(){
+    			public void run(){}
+    		};
+    		
+    		private Runnable currentMovementState = accelerating;
+    		
 			@Override
 			public void run() {
-				trans.setVelocityVector( gravity.getVector().normalLeft().unitVector().multiply(5*leftRight) );
+				currentMovementState.run();
 			}
 			@Override
 			public void offRight() {
-				trans.halt();
-				changeState(standing);
+				movementForce.setVector(0,0);
+				currentMovementState = coasting;
 			}
 			@Override
 			public void offLeft() {
-				System.err.println("STOPPIGN");
-				trans.halt();
-				changeState(standing);
+				movementForce.setVector(0,0);
+				currentMovementState = coasting;
 			}
 			@Override
 			public void onJump() {
 				trans.addVelocity( gravity.getVector().inverse().unitVector().multiply(5) );
 			}
 			
-			@Override public void onLeft(){};
-			@Override public void onRight(){};
+			@Override public void onLeft(){
+				if ( leftRight < 0 )
+					leftRight = 1;
+				
+				currentMovementState = accelerating;
+			};
+			@Override public void onRight(){
+				if( leftRight > 0 )
+					leftRight = -1;
+
+				currentMovementState = accelerating;
+			};
 			@Override public void offJump(){};
     	}
     	

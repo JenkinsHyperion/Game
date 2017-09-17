@@ -142,7 +142,7 @@ public class BoundaryPolygonal extends Boundary {
 
 	
 	@Override
-	public void rotateBoundaryFromTemplate(Point center, double radians , Boundary template){ //OPTIMIZATION TRIG FUNCTIONS ARE NOTORIOUSLY EXPENSIVE Look into performing some trig magic
+	public <B extends Boundary> void rotateBoundaryFromTemplate(Point center, double radians , B template){ //OPTIMIZATION TRIG FUNCTIONS ARE NOTORIOUSLY EXPENSIVE Look into performing some trig magic
 		// with fast trig approximations
 		//THIS IS DOUBLING EVERY VERTEX BY DOING LINES, DO BY VERTEX INSTEAD!!!
 		BoundaryPolygonal templatePolygonal = (BoundaryPolygonal) template;
@@ -170,9 +170,14 @@ public class BoundaryPolygonal extends Boundary {
 			this.sides[i].setLine( this.corners[i].toPoint() , this.corners[indexNext].toPoint() );
 			
 		}
-
+		
+		//this.getVoronoiRegions(); //ADJUST VORONOI REGIONS HERE gdf
+		for( VoronoiRegion region : this.getVoronoiRegions() ){
+			region.notifySetAngle(radians);
+		}
+		
 	}
-	
+
 	public Point rotateBoundaryFromTemplatePoint(Point center, double angle , BoundaryPolygonal template){ //OPTIMIZATION TRIG FUNCTIONS ARE NOTORIOUSLY EXPENSIVE Look into performing some trig magic
 
 		for ( int i = 0 ; i < template.corners.length ; i++ ) {
@@ -393,9 +398,7 @@ public class BoundaryPolygonal extends Boundary {
 					(separatingSide.getY2() - separatingSide.getY1() ), 
 					-(separatingSide.getX2() - separatingSide.getX1() )
 					);
-			
 		}
-		
 	}
 	
 	

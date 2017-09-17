@@ -200,10 +200,12 @@ public abstract class Collision {
 		public BasicCheck(Collider e1, Collider e2, VisualCollisionCheck check) {
 			super( e1 , e2 );
 			this.check = check;
+			initCollision();
 		}
 		
 		@Override
 		public void initCollision() {
+			System.out.println("COLLISION START BASIC");
 			this.collidingPrimary.onCollisionEvent();
 			this.collidingSecondary.onCollisionEvent();
 		}

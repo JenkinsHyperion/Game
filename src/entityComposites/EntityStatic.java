@@ -33,7 +33,7 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	protected DynamicRotationComposite rotationType = new DynamicRotationComposite(this);
 	protected GraphicComposite graphicsComposite = GraphicComposite.nullSingleton(); 
 	protected Collider collisionType = ColliderNull.nullColliderComposite();
-	protected AngularComposite angularType = new AngularComposite.AngleComposite(this);
+	protected AngularComposite angularType = AngularComposite.getFixedAngleSingleton();
 	protected Rigidbody rigidbodyComposite = Rigidbody.nullSingleton();
 	
 	protected ParentComposite parentComposite = ParentComposite.nullParentComposite();
@@ -95,6 +95,11 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		System.err.println("ENTITY STATIC WARNING");
 	}
 	
+	/*#####################################################################################################################
+	 * 		COMPOSITE GET/SETTERS
+	 */
+	
+	
 	protected void setGraphicComposite(GraphicComposite spriteType){ 
 		this.graphicsComposite = spriteType; 
 		}
@@ -118,6 +123,10 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		return this.rotationType;
 	}
 	
+	
+	protected void setAngularComposite( AngularComposite angularType ){ 
+		this.angularType = angularType; 
+	}
 	public AngularComposite getAngularComposite(){
 		return this.angularType;
 	}

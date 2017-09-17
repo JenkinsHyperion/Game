@@ -258,7 +258,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 			//	camera.debugDrawPolygon( Boundary.getPolygonFromBoundary( collider.getBoundary(), collider.getOwnerEntity() ) , Color.CYAN, collider.getOwnerEntity() , new AffineTransform() );
 			//}
 			collider.debugDrawBoundary( renderingEngine.getCamera(), (Graphics2D) g);
-			collider.getBoundary().debugDrawVoronoiRegions( renderingEngine.getCamera(), (Graphics2D) g);
+			collider.getBoundary().debugDrawVoronoiRegions( collider.getOwnerEntity().getPosition(), renderingEngine.getCamera(), (Graphics2D) g);
 		}
 		
 		Point relativePosition = rotateTest.getRelativePositionOf(followerEntity);

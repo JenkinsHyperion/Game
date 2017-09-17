@@ -207,11 +207,11 @@ public class Collider implements EntityComposite{
 	public void addCompositeToPhysicsEngineStatic( CollisionEngine engine ){ 
 		this.engineSlot = engine.addStaticCollidable( this );
 		this.engine = engine;
-		System.out.print("   "+this+" adding static to collision engine");
+		System.out.println("|  "+this+" adding static to collision engine");
 	}
 	
 	public void addCompositeToPhysicsEngineDynamic( CollisionEngine engine ){
-		System.out.print("Adding dynamic to collision engine ");
+		System.out.println("|   Adding dynamic to collision engine ");
 		this.engineSlot = engine.addDynamicCollidable( this );
 		this.engine = engine;
 	}
@@ -219,11 +219,11 @@ public class Collider implements EntityComposite{
 	public void addCompositeToPhysicsEngineStatic( CollisionEngine engine, int group ){ 
 		this.engineSlot = engine.addStaticCollidable( this );
 		this.engine = engine;
-		System.out.print("   "+this+" adding static to collision engine");
+		System.out.println("|   "+this+" adding static to collision engine");
 	}
 	
 	public void addCompositeToPhysicsEngineDynamic( CollisionEngine engine, int group ){
-		System.out.print("Adding dynamic to collision engine ");
+		System.out.println("|   Adding dynamic to collision engine ");
 		this.engineSlot = engine.addDynamicCollidable( this );
 		this.engine = engine;
 	}

@@ -6,7 +6,7 @@ import java.awt.geom.Line2D;
 import editing.BrowserTreePanel;
 import editing.EditorPanel;
 import engine.BoardAbstract;
-import entityComposites.AngularComposite.AngleComposite;
+import entityComposites.AngularComposite.Angled;
 import physics.Boundary;
 import physics.BoundaryPolygonal;
 import sprites.Sprite;
@@ -14,14 +14,28 @@ import sprites.SpriteFilledShape;
 
 public class CompositeFactory {
 
+	public static AngularComposite addAngularComposite( EntityStatic entity ){
+		
+		final AngularComposite returnAngular = new AngularComposite.Angled(entity);
+		entity.setAngularComposite(returnAngular);
+		
+		return returnAngular;
+	}
+	
 	public static DynamicRotationComposite addDynamicRotationTo( EntityStatic entity ){
 		
 		if ( entity.getRotationComposite().exists() ){
-			System.out.println("Overriding dynamic rotation composite of "+entity);
+			System.out.println("TODO Overriding dynamic rotation composite of "+entity);
 		}else{
-			System.out.println("Adding dynamic rotation composite to "+entity);
+			System.out.println("TODO Adding dynamic rotation composite to "+entity);
 		}
-		DynamicRotationComposite rotation = new DynamicRotationComposite( entity );
+		
+		if ( !entity.getAngularComposite().exists() ){
+			System.out.println("Post adding angular composite of "+entity);
+			addAngularComposite(entity);
+		}
+		
+		final DynamicRotationComposite rotation = new DynamicRotationComposite( entity );
 		entity.setRotationComposite( rotation );
 		entity.updateablesList.add(rotation);
 		
@@ -104,6 +118,29 @@ public class CompositeFactory {
 		else {
 			Collider newCollider = new Collider( entity , boundary );
 			entity.setCollisionComposite( newCollider );
+			return newCollider;
+		}
+		
+	}
+	
+	public static Collider addRotationalColliderTo( EntityStatic entity , Boundary boundary, AngularComposite angular ){
+
+		if ( entity.getColliderComposite().exists() ){
+			entity.getColliderComposite().setBoundary(boundary);
+			return entity.getColliderComposite();
+		}
+		else {
+			ColliderRotational newCollider = new ColliderRotational( entity , boundary );
+			entity.setCollisionComposite( newCollider );
+			
+			if ( entity.getAngularComposite().exists() ){
+				( (Angled) entity.getAngularComposite() ).addRotateable(newCollider);
+				System.err.println("Linking Angular");
+			}else{
+				System.err.println("Couldn't find Angular");
+			}
+			
+			
 			return newCollider;
 		}
 		
@@ -201,19 +238,18 @@ public class CompositeFactory {
 			DynamicRotationComposite parentRotation;
 			
 			parentRotation = (DynamicRotationComposite) parent.getRotationComposite();
-			AngleComposite parentAngular = (AngleComposite) parent.getAngularComposite();
+			Angled parentAngular = (Angled) parent.getAngularComposite();
 			
 			ParentComposite.ParentRotateableComposite parentComposite = new ParentComposite.ParentRotateableComposite(parent);
 			parent.addParentComposite( parentComposite );		//Give parent list of children			FIXME CHECK FOR EXISTING PARENT
 			parentAngular.addRotateable( parentComposite );	//Add children list to rotateables
 			
-			ChildComposite.Rotateable childComposite = parentComposite.registerChild(child);	
-			( ( AngleComposite ) child.getAngularComposite() ).addRotateable( childComposite );
+			final ChildComposite.Rotateable childComposite = parentComposite.registerChild(child);	
+			//( ( Angled ) child.getAngularComposite() ).addRotateable( childComposite );
 			
-			/*if ( child.getAngularComposite().exists() ){
-				AngleComposite childAngular = (AngleComposite) child.getAngularComposite();
-				childAngular.addRotateable( childComposite );
-			}*/
+			if ( !child.getAngularComposite().exists() ){
+				addAngularComposite(child);
+			}
 			
 
 		}else{ 

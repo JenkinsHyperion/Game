@@ -20,7 +20,7 @@ public abstract class Boundary {
 	
 	public abstract Boundary atPosition( Point position );
 	
-	public abstract void rotateBoundaryFromTemplate( Point center, double angle , Boundary template );
+	public abstract <B extends Boundary> void rotateBoundaryFromTemplate( Point center, double angle , B template );
 	//public abstract Point rotateBoundaryFromTemplatePoint(Point center, double angle , Boundary template);
 	
 	protected abstract Line2D[] getSeparatingSides();
@@ -44,7 +44,7 @@ public abstract class Boundary {
 	public abstract void scaleBoundary(double scaleFactor);
 	public abstract void scaleBoundary(double scaleFactor, Point center);
 	
-	protected abstract void constructVoronoiRegions();
+	public abstract void constructVoronoiRegions();
 	protected VoronoiRegion[] getVoronoiRegions(){ return this.regions; }
 	
 	public abstract byte getTypeCode();
@@ -203,10 +203,10 @@ public abstract class Boundary {
 		
 	}
 
-	public void debugDrawVoronoiRegions( MovingCamera cam , Graphics2D g2 ){
+	public void debugDrawVoronoiRegions( Point absPos, MovingCamera cam , Graphics2D g2 ){
 		
 		for (VoronoiRegion region : regions ){
-			region.debugDrawRegion(cam, g2);
+			region.debugDrawRegion( absPos ,cam, g2);
 		}
 		
 	}

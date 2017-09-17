@@ -21,6 +21,8 @@ public abstract class AngularComposite implements EntityComposite {
 		return fixedAngle;
 	}
 	
+	public abstract Point relativePositionOf(EntityStatic entity);
+
 	public abstract double getAngle();
 	public abstract void setAngleInDegrees( double angle);
 	public abstract void setAngleInRadians( double angle);
@@ -40,12 +42,12 @@ public abstract class AngularComposite implements EntityComposite {
 		return this.getClass().getSimpleName();
 	}
 	
-	public static class AngleComposite extends AngularComposite{
+	public static class Angled extends AngularComposite{
 		private String compositeName = "AngleComposite";
 		protected Vector orientation = new Vector( 1 , 0 );
 		protected ArrayList<RotateableComposite> rotateableCompositeList = new ArrayList<RotateableComposite>();
 		
-		public AngleComposite(EntityStatic ownerEnttiy){
+		public Angled(EntityStatic ownerEnttiy){
 			this.ownerEntity = ownerEnttiy;
 			orientation = new Vector( 1 , 0 );
 		}
@@ -158,6 +160,23 @@ public abstract class AngularComposite implements EntityComposite {
 			
 			return returnPoint;
 		}
+		@Override
+		public Point relativePositionOf( EntityStatic entity ){
+			
+			double x = entity.getX() - this.ownerEntity.getX();
+			double y = entity.getY() - this.ownerEntity.getY();
+
+			double cosineTheta = Math.cos( Math.toRadians(-this.angleDegrees) );
+			double sineTheta = Math.sin( Math.toRadians(-this.angleDegrees) );
+			
+			Point returnPoint = new Point( 
+				(int)( x*cosineTheta - y*sineTheta ),
+				(int)( y*cosineTheta + x*sineTheta )
+				);
+			
+			return returnPoint;
+			
+		}
 		
 		@Override
 		public boolean exists() {
@@ -187,6 +206,11 @@ public abstract class AngularComposite implements EntityComposite {
 
 		private String compositeName = "FixedAngleComposite";
 
+		@Override
+		public Point relativePositionOf(EntityStatic entity) {
+			return getOwnerEntity().getRelativePositionOf(entity);
+		}
+		
 		public void setAngle(double angleRadians) {
 			System.err.println("WARNING: Attempted to set angle on fixed angle entity");
 		}

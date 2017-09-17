@@ -12,22 +12,30 @@ import entityComposites.EntityStatic;
 
 public class VoronoiRegionDefined extends VoronoiRegion{
 	
-	private RegionBoundary[] bounds = new RegionBoundary[0];
+	private RegionBoundary[] boundsList = new RegionBoundary[0];
 	
 	public VoronoiRegionDefined( BoundaryFeature feature ){
 		super(feature);
 	}
 	protected void addRegionBoundary( RegionBoundary addBound ){
-		RegionBoundary[] newBounds = new RegionBoundary[ bounds.length +1 ];
-		for ( int i = 0 ; i < bounds.length ; i++ ){
-			newBounds[i] = bounds[i];
+		RegionBoundary[] newBounds = new RegionBoundary[ boundsList.length +1 ];
+		for ( int i = 0 ; i < boundsList.length ; i++ ){
+			newBounds[i] = boundsList[i];
 		}
 		newBounds[ newBounds.length-1 ] = addBound;
-		bounds = null;
-		bounds = newBounds;
+		boundsList = null;
+		boundsList = newBounds;
 	}
+	
 	@Override
-	protected int debugNumberOfBounds(){ return this.bounds.length; }
+	protected int debugNumberOfBounds(){ return this.boundsList.length; }
+	
+	@Override
+	protected void notifySetAngle(double setAngle) {
+		for ( RegionBoundary bound : this.boundsList ){
+			
+		}
+	}
 	
 	public static void addSideOuterBounds( VoronoiRegionDefined cornerCCW , VoronoiRegionDefined region, VoronoiRegionDefined cornerCW , Side side ){ //CONSTRCT ADJACENT CORNERS
 		
@@ -194,6 +202,12 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 		
 	}
 	
+	@Override
+	public void rotateRegion(double angle) {
+		
+		
+	}
+	
 	//##############################################################################################################
 	// BOUNDARY CHECKS
 	
@@ -204,7 +218,7 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 		}
 		@Override
 		public VoronoiRegion pointIsOutsideRegion( Point relativePos ) {
-			for ( RegionBoundary bound : bounds ){
+			for ( RegionBoundary bound : boundsList ){
 				if ( !bound.pointIsWithinBound(relativePos) ){ 
 					return bound.adjacentRegion;
 				}
@@ -213,28 +227,23 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 		}
 		
 		@Override
-		public boolean pointIsInRegion(Point point , Point localPos){
-			for ( RegionBoundary bound : bounds ){
-				if ( bound.pointIsWithinBound(point,localPos) ){
+			public boolean pointIsInRegion(Point relativePosition) {
+			for ( RegionBoundary bound : boundsList ){
+				if ( bound.pointIsWithinBound(relativePosition) ){
 					return true;
 				}
 			}
 			return false;
-		}
-
-		@Override
-		public Line2D getSeparation( Point center , Point boundaryEntityPosition) {
-			return this.side.toLine();
-		}
+			}
 		
 		public Line2D getSeparation( Point relativeCirclePosition ){
 			return this.side.toLine();
 		}
 
 		@Override
-		public void debugDraw(MovingCamera cam, Graphics2D g2) {
-			for( RegionBoundary bound : bounds ){
-				bound.draw( cam , g2 , ownerFeature.getP2() );
+		public void debugDraw(Point absPos, MovingCamera cam, Graphics2D g2) {
+			for( RegionBoundary bound : boundsList ){
+				bound.draw( absPos, cam , g2 , ownerFeature.getP2() );
 			}
 		}
 		
@@ -249,30 +258,22 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 		@Override
 		public VoronoiRegion pointIsOutsideRegion( Point relativePos ) { 
 			
-			for ( RegionBoundary bound : bounds ){
+			for ( RegionBoundary bound : boundsList ){
 				if ( !bound.pointIsWithinBound(relativePos) ){
 					return bound.adjacentRegion;
 				}
 			}
 			return null;
 		}
+		
 		@Override
-		public boolean pointIsInRegion(Point point , Point localPos){
-			for ( RegionBoundary bound : bounds ){
-				if ( !bound.pointIsWithinBound(point , localPos) ){
+		public boolean pointIsInRegion(Point relativePosition) {
+			for ( RegionBoundary bound : boundsList ){
+				if ( !bound.pointIsWithinBound(relativePosition) ){
 					return false;
 				}
 			}
 			return true;
-		}
-		
-		public Line2D getSeparation( Point center , Point boundaryEntityPosition){
-			return new Line2D.Double(
-					-center.y,
-					center.x,
-					-this.ownerCorner.getY() - boundaryEntityPosition.y,
-					this.ownerCorner.getX() + boundaryEntityPosition.x
-			);
 		}
 		
 		public Line2D getSeparation( Point relativeCirclePosition ){
@@ -284,9 +285,9 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 			);
 		}
 		
-		public void debugDraw(MovingCamera cam , Graphics2D g2){
-			for( RegionBoundary bound : bounds ){
-				bound.draw( cam , g2 , ownerFeature.getP2() );
+		public void debugDraw(Point absPos, MovingCamera cam , Graphics2D g2){
+			for( RegionBoundary bound : boundsList ){
+				bound.draw( absPos, cam , g2 , ownerFeature.getP2() );
 			}
 		}
 	}
@@ -295,9 +296,9 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 	
 	private abstract class RegionBoundary{
 		protected VoronoiRegion adjacentRegion;
-		public abstract boolean pointIsWithinBound( Point point , Point localPos);
 		public abstract boolean pointIsWithinBound( Point relativePos);
-		public abstract void draw( MovingCamera cam , Graphics2D g2 , Point2D point );
+		public abstract void notifySetAngle( double radians );
+		public abstract void draw( Point absPos, MovingCamera cam , Graphics2D g2 , Point2D point );
 	}
 	
 	private class RegionBoundaryVertical extends RegionBoundary{
@@ -310,18 +311,19 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 			this.leftRight = leftRight;
 			this.adjacentRegion = adjacent;
 		}
-		
-		@Override
-		public boolean pointIsWithinBound( Point point , Point localPos) {
-			return ( leftRight*( (point.x - localPos.x) - x  ) >= 0 );
-		}
+
 		@Override
 		public boolean pointIsWithinBound( Point relativePos) {
 			return ( leftRight*( relativePos.x - x ) >= 0 );
 		}
 		@Override
-		public void draw(MovingCamera cam, Graphics2D g2, Point2D point) {
-			cam.drawVerticalLine( x , ""+ownerFeature , g2);
+		public void notifySetAngle(double radians) {
+			// TODO Auto-generated method stub
+			
+		}
+		@Override
+		public void draw(Point absPos ,MovingCamera cam, Graphics2D g2, Point2D point) {
+			cam.drawVerticalLine( x + absPos.x , ""+ownerFeature , g2);
 			g2.drawString(""+ownerFeature, cam.getRelativeX(point.getX()), cam.getRelativeY(point.getY()) );
 		}
 		
@@ -339,62 +341,20 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 			this.topBottom = topBottom;
 			this.adjacentRegion = adjacent;
 		}
-		@Deprecated
-		public RegionBoundarySlope( Side side , Side side2 ){
 
-			Vector bisection = side.toVector().bisectingVector( side2.toVector().inverse() );
-			slope = bisection.getY() / bisection.getX();
-			if ( bisection.getX() >= 0){
-				topBottom = -1;
-			}else{
-				topBottom = 1;
-			}
-			
-			if (side.getX1() - side.getX2() != 0){ //side 1 is not vertical
-				double m1 = (side.getY2() - side.getY1() )/( side.getX2() - side.getX1() );
-				int b1 = (int) (side.getY1() - m1 * side.getX1());
-
-				if (side2.getX1() - side2.getX2() != 0){ // side 1 and side 2 both arent vertical
-					double m2 = side2.getY2() - side2.getY1() / side2.getX2() - side2.getX1() ;
-					int b2 = (int) (side2.getY1() - m2 * side2.getX1());
-					
-					int intersectX = (int) (( b2 - b1 )/( m1 - m2 ));
-					int interceptY = (int) (m1 * intersectX + b1);
-					yIntercept = (int) (interceptY - (slope * intersectX));
-				} // side 2 is vertical, side 1 isnt
-				else{ 
-					int interceptY = (int) (m1 * side2.getX1() + b1);
-					yIntercept = (int) (interceptY - (slope * side2.getX1()) );
-				}
-			}
-			else{ // side 1 is vertical
-				
-				if (side2.getX1() - side2.getX2() != 0){ // side 1 is vertical, side 2 isnt
-					double m2 = (side2.getY2() - side2.getY1()) / (side2.getX2() - side2.getX1()) ;
-					int b2 = (int) (side2.getY1() - m2 * side2.getX1());
-					
-					int interceptY = (int) ( m2 * side.getX1() + b2 );
-					yIntercept = (int) (interceptY - (slope * side.getX1()) );
-					
-				} // both sides are vertical
-				else{ 
-					
-				}
-				
-			}
-			
-		}
-		@Override
-		public boolean pointIsWithinBound( Point point , Point localPos){
-			return ( topBottom * (slope*(point.x-localPos.x) + yIntercept - (point.y-localPos.y)) >= 0 );
-		}
 		@Override
 		public boolean pointIsWithinBound( Point relativePos) {
 			return ( topBottom * (slope*( relativePos.x ) + yIntercept - relativePos.y) >= 0 );
 		}
 		@Override
-		public void draw(MovingCamera cam, Graphics2D g2, Point2D p) {
-			cam.drawDebugAxis( this.slope , this.yIntercept , g2);
+		public void notifySetAngle(double radians) {
+			
+			
+			
+		}
+		@Override
+		public void draw(Point absPos,MovingCamera cam, Graphics2D g2, Point2D p) {
+			cam.drawDebugAxis( this.slope , this.yIntercept + absPos.y , g2);
 		}
 		
 	}

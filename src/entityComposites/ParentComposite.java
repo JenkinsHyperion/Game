@@ -2,7 +2,7 @@ package entityComposites;
 
 import java.util.ArrayList;
 
-import entityComposites.AngularComposite.AngleComposite;
+import entityComposites.AngularComposite.Angled;
 import physics.ResolutionState;
 
 
@@ -62,7 +62,7 @@ public abstract class ParentComposite implements EntityComposite {
 
 			if ( ownerParentEntity.getAngularComposite().exists() ){
 				
-				AngleComposite angularParent = (AngleComposite) ownerParentEntity.getAngularComposite();
+				Angled angularParent = (Angled) ownerParentEntity.getAngularComposite();
 			
 				ChildComposite.Rotateable childComposite = new ChildComposite.Rotateable(child , ownerParentEntity, ownerParentEntity.getTranslationComposite(), ownerParentEntity.getRotationComposite(), childrenCompositesList.size() , ownerParentEntity.getPosition() , angularParent.getAngle() );
 

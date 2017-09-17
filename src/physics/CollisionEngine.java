@@ -26,7 +26,9 @@ public class CollisionEngine {
 	
 	protected LinkedList<Collision> collisionsList = new LinkedList<Collision>(); 
 	
-	protected DoubleLinkedList<CheckingPair> checkingPairs = new DoubleLinkedList<CheckingPair>();
+	protected DoubleLinkedList<CheckingPair> activeCheckingPairs = new DoubleLinkedList<CheckingPair>();
+	
+	protected DoubleLinkedList<CheckingPair> inactiveCheckingPairs = new DoubleLinkedList<CheckingPair>();
 
 	public CollisionEngine(BoardAbstract testBoard){
 		currentBoard = testBoard;
@@ -90,7 +92,7 @@ public class CollisionEngine {
 		//Create pairs with dynamics
 		for ( ArrayList<ActiveCollider> dynamicsGroup : dynamicCollidables ){
 			
-			createPairsWithStaticCollidersInGroup( newStatic , dynamicsGroup );
+			createDynamicStaticPairsWithDynamicCollidersInGroup( newStatic , dynamicsGroup );
 		}
 		
 		return newStatic;
@@ -103,9 +105,8 @@ public class CollisionEngine {
 
 		for ( ArrayList<ActiveCollider> staticsGroup : staticCollidables ){
 			
-			createPairsWithStaticCollidersInGroup( newDynamic, staticsGroup);
+			createDynamicStaticPairsWithStaticCollidersInGroup( newDynamic, staticsGroup);
 		}
-		
 		//DYNAMIC - DYNAMIC COLLISION PAIRS
 		
 		for ( ArrayList<ActiveCollider> dynamicsGroup : dynamicCollidables ){
@@ -120,7 +121,45 @@ public class CollisionEngine {
 		return newDynamic;
 	}
 	
-	private void createPairsWithStaticCollidersInGroup( ActiveCollider newCollidable , ArrayList<ActiveCollider> staticsGroup){
+private void createDynamicStaticPairsWithDynamicCollidersInGroup( ActiveCollider newStatic , ArrayList<ActiveCollider> dynamicsGroup){
+		
+		for ( ActiveCollider active : dynamicsGroup ){
+
+			if ( newStatic.collider.getBoundary().getTypeCode() == Boundary.CIRCULAR ){
+				
+				if ( active.collider.getBoundary().getTypeCode() == Boundary.CIRCULAR ){
+					
+					System.out.print("|      "+" circle-circle" );
+					
+					this.addPair( new DynamicStaticPair( active , newStatic , 
+							VisualCollisionCheck.circleCircle(
+									newStatic.collider.getOwnerEntity(),
+									active.collider.getOwnerEntity()
+							)
+					));
+					return;
+				}
+				else if ( active.collider.getBoundary().getTypeCode() == Boundary.POLYGONAL ){
+					
+					System.out.print("|      "+newStatic.collider.getOwnerEntity()+" static circle - dynamic polygon "+active.collider.getOwnerEntity()  );
+					
+					this.addPair( new DynamicStaticPair( active , newStatic , 
+							VisualCollisionCheck.circlePoly(
+									newStatic.collider.getOwnerEntity(),
+									active.collider.getOwnerEntity(),
+									(BoundaryPolygonal) active.collider.getBoundary() 
+							)
+					));
+					return;
+				}
+				
+			}
+
+			System.err.println("|      dynamic "+ active.collider.getOwnerEntity() + " / static "+ newStatic.collider.getOwnerEntity() +" could not be paired " );
+		}
+	}
+	
+	private void createDynamicStaticPairsWithStaticCollidersInGroup( ActiveCollider newCollidable , ArrayList<ActiveCollider> staticsGroup){
 		
 		for ( ActiveCollider active : staticsGroup ){
 
@@ -128,17 +167,20 @@ public class CollisionEngine {
 				
 				if ( active.collider.getBoundary().getTypeCode() == Boundary.CIRCULAR ){
 					
+					System.out.print("|      "+newCollidable.collider.getOwnerEntity()+" dynamic circle - static circle "+active.collider.getOwnerEntity()  );
+					
 					this.addPair( new DynamicStaticPair( newCollidable , active , 
 							VisualCollisionCheck.circleCircle(
 									newCollidable.collider.getOwnerEntity(),
 									active.collider.getOwnerEntity()
 							)
 					));
-					System.out.println( " circle-circle" );
+					return;
 					
 				}
 				else if ( active.collider.getBoundary().getTypeCode() == Boundary.POLYGONAL ){
 					
+					System.out.print("|      "+newCollidable.collider.getOwnerEntity()+" dynamic circle - static polygon "+active.collider.getOwnerEntity()  );
 					this.addPair( new DynamicStaticPair( newCollidable , active , 
 							VisualCollisionCheck.circlePoly(
 									newCollidable.collider.getOwnerEntity(),
@@ -146,16 +188,14 @@ public class CollisionEngine {
 									(BoundaryPolygonal) active.collider.getBoundary() 
 							)
 					));
-					System.out.println( " circle-polygon" );
-				}
-				else{
-					System.err.println( active.collider.getOwnerEntity() + " / "+ newCollidable.collider.getOwnerEntity() +" could not be paired " );
+					
+					return;
 				}
 				
 			}
-			else {
-				System.err.println( active.collider.getOwnerEntity() + " / "+ newCollidable.collider.getOwnerEntity() +" could not be paired24 " );
-			}
+
+			System.err.println("|        "+ active.collider.getOwnerEntity() + " / "+ newCollidable.collider.getOwnerEntity() +" could not be paired24 " );
+
 		}
 	}
 	
@@ -167,24 +207,26 @@ public class CollisionEngine {
 				
 				if ( newDynamic.collider.getBoundary().getTypeCode() == Boundary.CIRCULAR ){
 					
+					System.out.print("|      "+newDynamic.collider.getOwnerEntity()+" dynamic circle - dynamic circle "+dynamic.collider.getOwnerEntity()  );
 					this.addPair( new DynamicDynamicPair( newDynamic , dynamic , 
 							VisualCollisionCheck.circleCircle(
 									newDynamic.collider.getOwnerEntity(),
 									dynamic.collider.getOwnerEntity() )
 					));
-					System.out.println( " circle-circle" );
+					
+					return;
 				}
 				else if ( newDynamic.collider.getBoundary().getTypeCode() == Boundary.POLYGONAL ){
 					
+					System.out.print("|      "+dynamic.collider.getOwnerEntity()+" dynamic circle - dynamic polygon "+newDynamic.collider.getOwnerEntity()  );
 					this.addPair( new DynamicDynamicPair( newDynamic , dynamic , 
 							VisualCollisionCheck.circlePoly(
 									dynamic.collider.getOwnerEntity(),
 									newDynamic.collider.getOwnerEntity() ,
 									(BoundaryPolygonal) newDynamic.collider.getBoundary() )
 					));
-				}
-				else{
-					System.err.println( dynamic.collider.getOwnerEntity() + " / "+ newDynamic.collider.getOwnerEntity() +" could not be paired dynamic-dynamic " );
+					
+					return;
 				}
 				
 			}
@@ -192,6 +234,7 @@ public class CollisionEngine {
 				
 				if ( newDynamic.collider.getBoundary().getTypeCode() == Boundary.CIRCULAR ){
 					
+					System.out.print( "|      poly-circle" );
 					this.addPair( new DynamicDynamicPair( newDynamic , dynamic , 
 							VisualCollisionCheck.circlePoly(
 									newDynamic.collider.getOwnerEntity(),
@@ -199,18 +242,18 @@ public class CollisionEngine {
 									(BoundaryPolygonal) dynamic.collider.getBoundary()
 							)
 					));
-					System.out.println( " poly-circle" );
+					return;
 				}
 				
 			}
-			else{
-				System.err.println( dynamic.collider.getOwnerEntity() + " / "+ newDynamic.collider.getOwnerEntity() +" could not be paired dynamic-dynamic " );
-			}
+
+			System.err.println("|      "+dynamic.collider.getOwnerEntity() + " / "+ newDynamic.collider.getOwnerEntity() +" could not be paired dynamic-dynamic " );
+
 		}
 	}
 	
 	private void addPair( CheckingPair pair ){
-		pair.listSlot = checkingPairs.add(pair);
+		pair.listSlot = activeCheckingPairs.add(pair);
 	}
 	
     //COLLISION ENGINE MAIN LOOP METHODS
@@ -327,8 +370,12 @@ public class CollisionEngine {
 		
 		public abstract void notifyChangeToStatic(); //OPTIMIZE abstract on a higher level than here
 		public abstract void notifyChangeToDynamic();
-		public abstract void decrementIndex();
-		public abstract int getGroupIndex();
+		
+		public abstract void notifySetAngle( double angleDegrees );
+		
+		public abstract int getGroupIndex();	
+		protected abstract void decrementIndex();
+
 		
 		protected void dissolveAllPairs(){
 			for ( CheckingPair obsoletePair : pairsList ){
@@ -363,6 +410,12 @@ public class CollisionEngine {
 			}
 			
 			addDynamicCollidable( this.collider );
+		}
+
+		@Override
+		public void notifySetAngle(double angleDegrees) {
+			// TODO Auto-generated method stub
+			
 		}
 		
 		@Override
@@ -400,6 +453,12 @@ public class CollisionEngine {
 		
 		public void notifyChangeToDynamic(){
 			//ALREADY DYNAMIC SO DO NOTHING
+		}
+
+		@Override
+		public void notifySetAngle(double angleDegrees) {
+			// TODO Auto-generated method stub
+			
 		}
 		
 		@Override
@@ -454,9 +513,11 @@ public class CollisionEngine {
 			){
 				
 				this.collisionType = CollisionFactory.dynamicStatic();
+				System.out.println( " [RIGID pair]");
 				
 			}else{
 				this.collisionType = CollisionFactory.rigidlessDynamicStatic();
+				System.out.println(" [FIELD pair]");
 			}				
 		}
 		
@@ -479,28 +540,41 @@ public class CollisionEngine {
 	protected class DynamicDynamicPair extends CheckingPair{
 		private ListNodeTicket listSlot;
 		
-		private ActiveCollider dynamicCollider1;
-		private ActiveCollider dynamicCollider2;
+		private ActiveCollider dynamic1;
+		private ActiveCollider dynamic2;
 		
-		private CollisionCheck check;
+		private VisualCollisionCheck check;
 
-		public DynamicDynamicPair( ActiveCollider dynamicCollider1 , ActiveCollider dynamicCollider2 , CollisionCheck check ){
-			this.dynamicCollider1 = dynamicCollider1;
-			this.dynamicCollider2 = dynamicCollider2;
+		public DynamicDynamicPair( ActiveCollider dynamicCollider1 , ActiveCollider dynamicCollider2 , VisualCollisionCheck check ){
+			this.dynamic1 = dynamicCollider1;
+			this.dynamic2 = dynamicCollider2;
 			this.check = check;
 			dynamicCollider1.pairsList.add(this);
 			dynamicCollider2.pairsList.add(this);
 
-			this.collisionType = CollisionFactory.rigidlessDynamicStatic();
+			//Check for rigid bodies on both entities
+			if ( 
+				dynamicCollider1.collider.getOwnerEntity().getRigidbody().exists() 
+					&& 
+				dynamicCollider2.collider.getOwnerEntity().getRigidbody().exists() 
+			){
+				
+				this.collisionType = CollisionFactory.dynamicStatic();
+				System.out.println(" [RIGID pair]");
+			}else{
+				this.collisionType = CollisionFactory.rigidlessDynamicStatic();
+				System.out.println(" [FIELD pair]");
+			}	
 		}
 		
 		public void check(){
-			registerDynamicStaticCollision(check.check(dynamicCollider1.collider, dynamicCollider2.collider), dynamicCollider1.collider , dynamicCollider2.collider , this.check);
+			registerDynamicStaticCollision(check.check(dynamic1.collider, dynamic2.collider), dynamic1.collider , dynamic2.collider , this.check);
 		}
 		
 		public void visualCheck( MovingCamera cam, Graphics2D g2 ){
-			registerDynamicStaticCollision(((VisualCollisionCheck)check).check(dynamicCollider1.collider, dynamicCollider2.collider, cam , g2), 
-					dynamicCollider1.collider , dynamicCollider2.collider , this.check);
+			if ( check.check( dynamic1.collider, dynamic2.collider, cam , g2) ){
+				registerCollision(collisionType, dynamic1.collider, dynamic2.collider, check);
+			}
 		}
 		
 	}

@@ -33,7 +33,8 @@ public class Force {
 	}
 	
 	public void setVector( double x , double y ){
-		this.force = new Vector(x,y);
+		this.force.setX(x);
+		this.force.setY(y);
 	}
 	
 	public void addVector( Vector input ){

@@ -14,7 +14,8 @@ public class EntitySerializer {
 		ColliderData colliderData = null; //better way of 
 		GraphicData graphicData = null;
 		
-		if ( entity.getColliderComposite() instanceof Collider ){	
+		if ( entity.getColliderComposite().exists() ){	
+			
 			Boundary boundary = entity.getColliderComposite().getBoundary();
 			if ( boundary instanceof BoundaryPolygonal ){
 				colliderData = new ColliderData( entity.getColliderComposite().getBoundary().getCornersVertex() );
@@ -32,15 +33,16 @@ public class EntitySerializer {
 		
 		if ( entity.getGraphicComposite() instanceof GraphicComposite ){
 			Sprite sprite = entity.getGraphicComposite().getSprite();
-			if ( sprite instanceof SpriteStillframe ){
-				graphicData= GraphicData.createStillFrameData( sprite.getPathName() , sprite.getOffsetX() , sprite.getOffsetY() );
-				System.out.println("     Saved "+sprite+ " of "+entity+ " with path "+sprite.getPathName());
+			if ( sprite instanceof Sprite.Stillframe ){
+				Sprite.Stillframe stillframe = (Sprite.Stillframe)sprite;
+				graphicData= GraphicData.createStillFrameData( stillframe.getPathName() , stillframe.getOffsetX() , stillframe.getOffsetY() );
+				System.out.println("     Saved "+stillframe+ " of "+entity+ " with path "+stillframe.getPathName());
 			}
 			else if ( sprite instanceof SpriteAnimated){
 				SpriteAnimated anim = (SpriteAnimated) sprite;
 				graphicData= GraphicData.createAnimationData( anim.getPathName() , anim.getOffsetX() , anim.getOffsetY(), 
 						anim.getFrameCount(), anim.getRow(), anim.getFrameWidth(), anim.getFrameHeight(), anim.getDelay() );
-				System.out.println("     Saved "+sprite+ " of "+entity+ " with path "+sprite.getPathName());
+				System.out.println("     Saved "+anim+ " of "+entity+ " with path "+anim.getPathName());
 			}else{
 				System.err.println("     Failed to save "+sprite+ " of "+entity);
 			}

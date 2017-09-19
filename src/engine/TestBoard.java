@@ -23,7 +23,7 @@ import physics.Vector;
 import sprites.Background;
 import sprites.RenderingEngine;
 import sprites.Sprite;
-import sprites.SpriteStillframe;
+import sprites.Sprite.Stillframe;
 import testEntities.*;
 import misc.*;
 
@@ -145,11 +145,11 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         
         asteroid = new EntityStatic( "Asteroid" , 0 , 1100 );
         
-        CompositeFactory.addGraphicTo(asteroid, new SpriteStillframe("box.png", Sprite.CENTERED ) );
+        CompositeFactory.addGraphicTo(asteroid, new Sprite.Stillframe("box.png", Sprite.CENTERED ) );
         //CompositeFactory.addTranslationTo(asteroid);
         CompositeFactory.addDynamicRotationTo(asteroid);
 
-        Boundary bounds1 = new BoundaryCircular(1000) ;
+        Boundary bounds1 = new BoundaryCircular(1000);
         //CompositeFactory.addColliderTo(asteroid,  new BoundaryLinear( new Line2D.Double( 0 , 100 , 0, -100 ) ) );
         //CompositeFactory.addColliderTo(asteroid,  new BoundaryPolygonal.Box(100, 200, -50, -100) );
         
@@ -174,6 +174,10 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         gravity = player.getTranslationComposite().addForce( new Vector(0,0) );
         this.addInputController(player.inputController);
 
+        final EntityStatic testSaving = new EntityStatic( "TestSaving", -100,-100 );
+        testSaving.addGraphicTo( new Sprite.Stillframe("box.png",Sprite.CENTERED) );
+        this.currentScene.addEntity(testSaving);
+        
     }
     
     @Override
@@ -239,7 +243,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 		public TestPlayer(int x, int y) {
 			super(x, y);
 			
-			CompositeFactory.addGraphicTo(this, new SpriteStillframe("box.png", Sprite.CENTERED) );
+			CompositeFactory.addGraphicTo(this, new Sprite.Stillframe("box.png", Sprite.CENTERED) );
 			
 			Boundary boundary = new BoundarySingular( new Event() );
 			Boundary boundary2 = new BoundaryCircular( 80 , new Event() );
@@ -287,8 +291,14 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 			this.inputController.createKeyBinding(KeyEvent.VK_DELETE, new KeyCommand(){
 				@Override
 				public void onPressed() {
-					//trans.disableComposite();
-					asteroid.getAngularComposite().setAngleInDegrees(45);
+					//TESTING
+					Collider collider = player.getColliderComposite();
+					if ( collider.isActive() ){
+						collider.deactivateCollider();
+					}else{
+						collider.activateCollider();
+					}
+					//TESTING
 				}
 			});
 			
@@ -364,7 +374,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 			@Override public void onLeft(){};
 			@Override public void offLeft(){ }
 			@Override public void onRight(){};
-			@Override public void offRight(){  }
+			@Override public void offRight(){ }
 			@Override public void onJump(){};
 			@Override public void offJump(){};
 			

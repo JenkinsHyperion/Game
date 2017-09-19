@@ -17,7 +17,7 @@ import sprites.Background;
 import sprites.Sprite;
 import sprites.SpriteAnimated;
 import sprites.SpriteFilledShape;
-import sprites.SpriteStillframe;
+import sprites.Sprite.Stillframe;
 
 public class EntityFactory {
 	
@@ -39,7 +39,7 @@ public class EntityFactory {
 	
 	public static EntityStatic createBackgroundSprite( String path, int x, int y ){
 		EntityStatic testEntity = new EntityStatic(x,y);
-        SpriteStillframe sprite = new SpriteStillframe(path);
+        Sprite.Stillframe sprite = new Sprite.Stillframe(path);
         CompositeFactory.addGraphicTo(testEntity, sprite);
         return testEntity;
 	}
@@ -111,7 +111,7 @@ public class EntityFactory {
 	
 	public static void deserializeEntityData( EntityData[] dataArray , BoardAbstract board ){
 		
-		System.out.println("\nSTARTING ENTITY DESERIALIZATION ####################");
+		System.out.println("\nENTITY FACTORY STARTING ENTITY DESERIALIZATION ####################");
 		
 		EntityStatic[] newEntityList = new EntityStatic[ dataArray.length ];
 		
@@ -136,7 +136,7 @@ public class EntityFactory {
 				//newEntityList[i] = createEntityFromBoundary( pos.x , pos.y , sideLines );
 				CompositeFactory.addColliderTo( newEntity , sideLines );
 			}else
-				System.out.println("     Collider failed");
+				System.out.println("     Collider was not loaded");
 			//CONSTRUCT GRAPHIC
 			
 			if ( dataArray[i].getGraphicData() != null ){
@@ -160,7 +160,7 @@ public class EntityFactory {
 				else if ( data.getSpriteData() instanceof GraphicData.SpriteData ){
 					SpriteData spriteData = data.getSpriteData();
 					System.out.println("     Constructing sprite "+spriteData.getPath());
-					SpriteStillframe sprite = new SpriteStillframe(
+					Sprite.Stillframe sprite = new Sprite.Stillframe(
 							spriteData.getPath(),
 							spriteData.getOffsetX(),
 							spriteData.getOffsetY()
@@ -168,7 +168,7 @@ public class EntityFactory {
 					CompositeFactory.addGraphicTo( newEntity , sprite );
 				}
 				else {
-					System.out.println("     Failed to construct sprite");
+					System.out.println("     Sprite was not loaded");
 				}
 				
 			}

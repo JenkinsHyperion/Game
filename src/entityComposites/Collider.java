@@ -15,6 +15,7 @@ import physics.BoundaryPolygonal;
 import physics.CollidingPair;
 import physics.CollisionCheck;
 import physics.CollisionEngine;
+import physics.CollisionEngine.ActiveCollider;
 import physics.Collision;
 import physics.Side;
 import physics.Vector;
@@ -30,6 +31,7 @@ public class Collider implements EntityComposite{
 
 	protected Boundary boundary;
 
+	private boolean active = true;
 	
 	protected ArrayList<CollidingPair> collisionInteractions = new ArrayList<>();
 
@@ -204,30 +206,64 @@ public class Collider implements EntityComposite{
 		
 	}
 	
+	public static void customCollisionDynamicStaticPair( Collider dynamicCollider, Collider staticCollider, Collision customCollision, CollisionEngine engine ){
+		
+		ActiveCollider[] activeColliders = engine.customDynamicStaticPair( dynamicCollider , staticCollider, customCollision );
+		
+		dynamicCollider.engineSlot = activeColliders[0] ;
+		dynamicCollider.engine = engine;
+		
+		staticCollider.engineSlot = activeColliders[1] ;
+		staticCollider.engine = engine;
+		
+	}
+	
 	public void addCompositeToPhysicsEngineStatic( CollisionEngine engine ){ 
-		this.engineSlot = engine.addStaticCollidable( this );
-		this.engine = engine;
-		System.out.println("|  "+this+" adding static to collision engine");
+		if ( this.engineSlot == null){
+			this.engineSlot = engine.addStaticCollidable( this );
+			this.engine = engine;
+			System.out.println("|  "+this+" adding static to collision engine");
+		}
 	}
 	
 	public void addCompositeToPhysicsEngineDynamic( CollisionEngine engine ){
-		System.out.println("|   Adding dynamic to collision engine ");
-		this.engineSlot = engine.addDynamicCollidable( this );
-		this.engine = engine;
+		if ( this.engineSlot == null ){
+			System.out.println("|   Adding dynamic to collision engine ");
+			this.engineSlot = engine.addDynamicCollidable( this );
+			this.engine = engine;
+		}
 	}
 	
 	public void addCompositeToPhysicsEngineStatic( CollisionEngine engine, int group ){ 
-		this.engineSlot = engine.addStaticCollidable( this );
-		this.engine = engine;
-		System.out.println("|   "+this+" adding static to collision engine");
+		if ( this.engineSlot == null ){
+			this.engineSlot = engine.addStaticCollidable( this );
+			this.engine = engine;
+			System.out.println("|   "+this+" adding static to collision engine");
+		}
 	}
 	
 	public void addCompositeToPhysicsEngineDynamic( CollisionEngine engine, int group ){
-		System.out.println("|   Adding dynamic to collision engine ");
-		this.engineSlot = engine.addDynamicCollidable( this );
-		this.engine = engine;
+		if ( this.engineSlot == null ){
+			System.out.println("|   Adding dynamic to collision engine ");
+			this.engineSlot = engine.addDynamicCollidable( this );
+			this.engine = engine;
+		}
 	}
 
+	public boolean isActive(){
+		return this.active;
+	}
+	
+	public void deactivateCollider(){
+		this.engineSlot.notifyDeactivatedCollider();
+		this.active = false;
+	}
+	
+	public void activateCollider(){
+		this.engineSlot.notifyActivatedCollider();
+		this.active = true;
+	}
+	
 	@Override
 	public boolean exists() {
 		return true;
@@ -236,6 +272,7 @@ public class Collider implements EntityComposite{
 	@Override
 	public void disableComposite(){
 		this.engineSlot.removeSelf();
+		//TODO MORE DEREFERENCING CODE
 	}
 	
 	protected void notifyEngineOfChangeToStatic(){

@@ -78,7 +78,7 @@ import physics.BoundaryPolygonal;
 import physics.Vector;
 import saving_loading.SavingLoading;
 import sprites.Sprite;
-import sprites.SpriteStillframe;
+import sprites.Sprite.Stillframe;
 
 //TASK LIST:
 @SuppressWarnings("serial")
@@ -816,7 +816,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		return ghostSprite;
 	}
 	public void setGhostSprite(String path) {
-		ghostSprite = new SpriteStillframe(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path);
+		ghostSprite = new Sprite.Stillframe(System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path);
 	}
 	public String getNewEntityPath() {
 		return newEntityPath;
@@ -1720,7 +1720,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			this.currentSelectedEntity.getColliderComposite().setBoundary(newBoundary);
 			getVertexSelectMode().selectedVertices.clearSelectedVertices();*/
 			
-			SpriteStillframe replacementSprite = new SpriteStillframe("SpriteHotSwap\\" + path);
+			Sprite.Stillframe replacementSprite = new Sprite.Stillframe("SpriteHotSwap\\" + path);
 //			replacementSprite.setOffset(replacementSprite.getBufferedImage().getWidth() - (replacementSprite.getBufferedImage().getWidth() / 2), 
 //										replacementSprite.getBufferedImage().getHeight() - (replacementSprite.getBufferedImage().getHeight() / 2));
 			//replacementSprite.setOffset(replacementSprite.getBufferedImage().getWidth() / 2, replacementSprite.getBufferedImage().getHeight() / 2);

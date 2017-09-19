@@ -35,6 +35,24 @@ public abstract class CollisionFactory {
 					); 
 		}
 	}
+	
+	public static class Custom extends CollisionFactory{
+
+		private final Collision customCollision;
+		
+		public Custom( Collision customCollision ){
+			this.customCollision = customCollision;
+		}
+		
+		@Override
+		Collision createVisualCollision(Collider collider1, Collider collider2, VisualCollisionCheck check,
+				RenderingEngine engine) {
+			
+			return customCollision;
+			
+		}
+		
+	}
 
 	
 }

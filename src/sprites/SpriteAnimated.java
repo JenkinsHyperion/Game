@@ -14,25 +14,32 @@ import entityComposites.GraphicComposite;
 
 public class SpriteAnimated extends Sprite {  // Sprite with animation
 
+	private String path;
+	
     private Animation spriteAnimation;
     private int tileWidth;
     private int tileHeight;
     private int row;
     
     public SpriteAnimated( String path ,int offset_x, int offset_y , int length , int row, int tileWidth, int tileHeight , int delay ){
-    	super( path, offset_x, offset_y );
+    	super( offset_x, offset_y );
+    	this.path = path;
     	spriteAnimation = new Animation( LoadAnimation.buildAnimation(length, row, tileWidth, tileHeight, path) , delay );
     	spriteAnimation.start();
     }
     
     
     public SpriteAnimated( String path , int delay ){
-    	super( path , 0 , 0 );
+    	super( 0 , 0 );
+    	this.path = path;
     	spriteAnimation = Animation.animationFromGif( path, delay );
     	spriteAnimation.start();
     }
     // IMPLEMENTED METHODS
 
+    public String getPathName(){
+    	return this.path;
+    }
 
     @Override
     public void draw(ReferenceFrame camera , GraphicComposite.Active composite ){

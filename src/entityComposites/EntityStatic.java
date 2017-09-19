@@ -12,7 +12,6 @@ import physics.Boundary;
 import physics.BoundaryPolygonal;
 import physics.CollisionEngine;
 import sprites.SpriteAnimated;
-import sprites.SpriteStillframe;
 import utility.DoubleLinkedList;
 import utility.ListNodeTicket;
 import sprites.RenderingEngine;
@@ -95,10 +94,11 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		System.err.println("ENTITY STATIC WARNING");
 	}
 	
-	/*#####################################################################################################################
-	 * 		COMPOSITE GET/SETTERS
+	/*######################################################################################################################
+	 * 		COMPOSITE GET/SETTERS    
+	 * Getters are public, Setters are protected to be used by CompositeFactory
+	 * #####################################################################################################################
 	 */
-	
 	
 	protected void setGraphicComposite(GraphicComposite spriteType){ 
 		this.graphicsComposite = spriteType; 
@@ -153,6 +153,40 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	}
 	
 	/* #########################################################################################################################
+	 *		CompositeFactory utility methods
+	 * #########################################################################################################################
+	 */
+	
+	public void addAngularComposite(){
+		CompositeFactory.addAngularComposite(this);
+	}
+
+	public void addTranslationTo(){
+		CompositeFactory.addTranslationTo(this);
+	}
+	
+	public void addColliderTo( Boundary bounds ){
+		CompositeFactory.addColliderTo(this, bounds);
+	}
+	
+	public void addRotationalColliderTo( AngularComposite angularComposite , Boundary bounds ){
+		CompositeFactory.addRotationalColliderTo(this, bounds, angularComposite );
+	}
+	
+	public void addDynamicRotationTo(){
+		CompositeFactory.addDynamicRotationTo(this);
+	}
+	
+	public void addGraphicTo( Sprite sprite ){
+		CompositeFactory.addGraphicTo(this,sprite);
+	}
+	
+	public void addRigidbodyTo(){
+		CompositeFactory.addRigidbodyTo(this);
+	}
+	
+	
+	/* #########################################################################################################################
 	 *		Composite Nullifier Methods
 	 * #########################################################################################################################
 	 */
@@ -178,22 +212,6 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		this.rotationType = DynamicRotationComposite.nullSingleton();
 	}
 	
-	/*public ParentComposite getParentComposite() {
-		return this.parentComposite;
-	}*/
-	
-	/*protected void addParentComposite( ParentComposite relationship ){
-		ParentComposite[] returnArray = new ParentComposite[family.length+1];
-		for ( int i = 0 ; i < family.length ; i++ ){
-			returnArray[i] = family[i];
-		}
-		this.family = null;
-		returnArray[ returnArray.length-1 ] = relationship;
-		this.family = returnArray;
-	}
-	public ParentComposite[] getParentChildRelationship() {
-		return this.family;
-	}*/
 	public void setCompositedPos( double x , double y ){
 		this.x = x;
 		this.y = y;
@@ -228,7 +246,7 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	@Deprecated
     public void loadSprite(String path){ // needs handling if failed. Also needs to be moved out of object class into sprites
 
-		CompositeFactory.addGraphicTo( this , new SpriteStillframe( path ) );
+		CompositeFactory.addGraphicTo( this , new Sprite.Stillframe( path ) );
     	
     }
 

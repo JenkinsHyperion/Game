@@ -4,7 +4,7 @@ import entities.*;
 import entityComposites.Collider;
 import entityComposites.CompositeFactory;
 import physics.BoundaryPolygonal;
-import sprites.SpriteStillframe;
+import sprites.Sprite;
 
 public class TestRotation extends EntityRotationalDynamic{
 
@@ -19,7 +19,7 @@ public class TestRotation extends EntityRotationalDynamic{
 
         this.storedBounds = new BoundaryPolygonal.Box(446,100,-223,-50 );
         
-        SpriteStillframe sprite = new SpriteStillframe("ground_1.png" , -223 , -53 );
+        Sprite.Stillframe sprite = new Sprite.Stillframe("ground_1.png" , -223 , -53 );
 		
         CompositeFactory.addGraphicTo( this , sprite);
         

@@ -199,7 +199,7 @@ public class CompositeEditorPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			JComboBox<?> receiver = (JComboBox<?>)e.getSource();
 			Sprite selectedSprite = (Sprite)receiver.getSelectedItem();
-			System.err.println("Was able to select sprite: " +selectedSprite.getPathName());
+			System.err.println("Was able to select sprite: " +selectedSprite.toString());
 		}
 	}
 

@@ -62,7 +62,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
     	//CompositeFactory.addColliderTo(followerEntity, new BoundaryPolygonal.Box(60, 60, -30, -30) );
 
     	//CompositeFactory.addGraphicFromCollider( followerEntity , followerEntity.getColliderComposite() );
-    	CompositeFactory.addGraphicTo(followerEntity, new SpriteStillframe("box.png") );
+    	CompositeFactory.addGraphicTo(followerEntity, new Sprite.Stillframe("box.png") );
     	CompositeFactory.addTranslationTo(followerEntity);
     	
     	//gravity = followerEntity.getTranslationComposite().addForce(new Vector( 0,0.2 ) );
@@ -87,7 +87,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
         CompositeFactory.addColliderTo( rotateTest , new BoundaryPolygonal.Box(446,100,-223,-50 ) );
     	//CompositeFactory.addColliderTo(rotateTest, new BoundaryCircular(40,rotateTest) );
         
-        CompositeFactory.addGraphicTo(rotateTest, new SpriteStillframe("ground_1.png" , -223 , -53 ) );
+        CompositeFactory.addGraphicTo(rotateTest, new Sprite.Stillframe("ground_1.png" , -223 , -53 ) );
         
     	CompositeFactory.addDynamicRotationTo(rotateTest);
     	//rotateTest.getRotationComposite().setAngleInDegrees(30);
@@ -95,13 +95,13 @@ public class BoardPhysicsTesting extends BoardAbstract{
     	currentScene.addEntity( rotateTest );
 		
         EntityStatic orbiter = new EntityStatic("Orbiter",-300,0); 
-        CompositeFactory.addGraphicTo( orbiter, new SpriteStillframe("box.png" , Sprite.CENTERED ) );
+        CompositeFactory.addGraphicTo( orbiter, new Sprite.Stillframe("box.png" , Sprite.CENTERED ) );
         //CompositeFactory.addColliderTo(orbiter, new BoundaryPolygonal.Box(20,20,-10,-10 ) );
         //CompositeFactory.addTranslationTo(child);
         currentScene.addEntity( orbiter );
         
         EntityStatic parent = new EntityStatic("parent",-300,100); 
-        CompositeFactory.addGraphicTo( parent, new SpriteStillframe("box.png" , Sprite.CENTERED ) );
+        CompositeFactory.addGraphicTo( parent, new Sprite.Stillframe("box.png" , Sprite.CENTERED ) );
         DynamicRotationComposite parentRotation = CompositeFactory.addDynamicRotationTo(parent);
         parentRotation.setAngularVelocity(0.1);
         currentScene.addEntity( parent );
@@ -118,7 +118,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
         
         	SpriteAnimated explosionSprite = new SpriteAnimated("boom.png", -200, -150, 26, 0, 400, 300, 1);
         
-        CompositeFactory.addGraphicTo(spaceship, new SpriteStillframe("spaceship01.png" , Sprite.CENTERED) ); 
+        CompositeFactory.addGraphicTo(spaceship, new Sprite.Stillframe("spaceship01.png" , Sprite.CENTERED) ); 
         
         CompositeFactory.addTranslationTo(spaceship);
         

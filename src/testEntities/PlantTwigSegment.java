@@ -15,17 +15,17 @@ import entityComposites.EntityStatic;
 import entityComposites.GraphicComposite;
 import physics.BoundaryLinear;
 import sprites.Sprite;
-import sprites.SpriteStillframe;
+import sprites.Sprite.Stillframe;
 //import sun.management.counter.Counter;
 import utility.Trigger;
 
 public class PlantTwigSegment extends EntityStatic{
 	
-	//protected static Sprite twigSmallSprite = new SpriteStillframe("Prototypes/twig.png" , -4 , -40);
-	//protected static Sprite twigMediumSprite = new SpriteStillframe("Prototypes/twig2.png" , -8 , -40);
+	//protected static Sprite twigSmallSprite = new Sprite.Stillframe("Prototypes/twig.png" , -4 , -40);
+	//protected static Sprite twigMediumSprite = new Sprite.Stillframe("Prototypes/twig2.png" , -8 , -40);
 	
-	protected static Sprite twigSmallSprite = new SpriteStillframe("Prototypes/twig1.png" , -4 , -80);
-	protected static Sprite twigMediumSprite = new SpriteStillframe("Prototypes/twig3.png" , -8 , -80);
+	protected static Sprite twigSmallSprite = new Sprite.Stillframe("Prototypes/twig1.png" , -4 , -80);
+	protected static Sprite twigMediumSprite = new Sprite.Stillframe("Prototypes/twig3.png" , -8 , -80);
 	
 	protected TestBoard board;
 
@@ -37,6 +37,7 @@ public class PlantTwigSegment extends EntityStatic{
 	protected int waterLevel = 0; 
 	
 	protected StemSegment previousSegment;
+	protected StemSegment nextSegment;
 	protected static int colliderGroup;
 	
 	protected Runnable currentGrowthState;
@@ -114,11 +115,13 @@ public class PlantTwigSegment extends EntityStatic{
 				this.getGraphicComposite().setSprite(twigSmallSprite);
 				this.getGraphicComposite().setGraphicSizeFactor(0);
 				
-				CompositeFactory.addRotationalColliderTo( 
-						this, 
-						new BoundaryLinear( new Line2D.Double( 0,0 , 0, (int)(-80*(maxGrowth/100.0)) ) ), 
-						angularComposite 
-						);
+				if ( this.maxGrowth > 50 ){
+					CompositeFactory.addRotationalColliderTo( 
+							this, 
+							new BoundaryLinear( new Line2D.Double( 0,0 , 0, (int)(-80*(maxGrowth/100.0)) ) ), 
+							angularComposite 
+							);
+				}
 			}
 			
 			public void debugSetSugarLevel( int level ){
@@ -202,7 +205,7 @@ public class PlantTwigSegment extends EntityStatic{
 				growth.updateCounter(); // Counter "growth" counts up and then fires FullyGrown trigger when done
 				lifespan.updateCounter();
 				
-		    	(( SpriteStillframe )this.getEntitySprite()).setResizeFactor( growth.getCount() );
+		    	(( Sprite.Stillframe )this.getEntitySprite()).setResizeFactor( growth.getCount() );
 		
 			}*/
 			public void debugSetWaterPercent( int waterLevel ){
@@ -796,7 +799,7 @@ public class PlantTwigSegment extends EntityStatic{
 		public Leaf(int x, int y, int maxGrowth, TestBoard board) {
 			super(x, y, maxGrowth, board);
 			
-			CompositeFactory.addGraphicTo(this, new SpriteStillframe("box.png",Sprite.CENTERED) );
+			CompositeFactory.addGraphicTo(this, new Sprite.Stillframe("box.png",Sprite.CENTERED) );
 			this.getGraphicComposite().setGraphicSizeFactor( Leaf.this.growthLevel / 100.0 );
 			
 			this.currentGrowthState = new LeafGrowingState();

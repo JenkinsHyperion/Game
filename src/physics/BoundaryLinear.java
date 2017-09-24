@@ -151,10 +151,10 @@ public class BoundaryLinear extends BoundaryPolygonal {
 	@Override
 	public Polygon getPolygonBounds(EntityStatic owner) {
 		
-		Rectangle b = sides[0].toLine().getBounds();
+		Rectangle rect = sides[0].toLine().getBounds();
 		
-		int[] xpoints = {b.x, b.x + b.width, b.x + b.width, b.x};
-		int[] ypoints = {b.y, b.y, b.y + b.height, b.y + b.height};
+		int[] xpoints = {rect.x, rect.x + rect.width, rect.x + rect.width, rect.x};
+		int[] ypoints = {rect.y, rect.y, rect.y + rect.height, rect.y + rect.height};
 		return new Polygon(xpoints, ypoints, 4); 
 	}
 

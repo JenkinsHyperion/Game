@@ -105,23 +105,6 @@ public class BrowserTreePanel extends JPanel {
 						//create new popup upon right click that contains reference to the selected Node.
 						MyPopup newPopup = new MyPopup(currentNode);
 						newPopup.show(tree, e.getX(), e.getY());
-					/*	JMenu addCompositeMenu = new JMenu("New Composite");
-						JMenuItem graphics = new JMenuItem("Graphics");
-						graphics.addActionListener(new AddGraphicsCompositeEvent());
-						JMenuItem collider = new JMenuItem("Collider");
-						JMenuItem angular = new JMenuItem("Angular");
-						JMenuItem dynamicRotation = new JMenuItem("DynamicRotation");
-						JMenuItem translation = new JMenuItem("Translation");
-						JMenuItem deleteComposite = new JMenuItem("Delete");
-						JPopupMenu popUp = new JPopupMenu();
-						addCompositeMenu.add(graphics);
-						addCompositeMenu.add(collider);
-						addCompositeMenu.add(angular);
-						addCompositeMenu.add(dynamicRotation);
-						addCompositeMenu.add(translation);
-						popUp.add(addCompositeMenu);
-						popUp.add(deleteComposite);
-						popUp.show(tree, e.getX(), e.getY());*/
 					}
 				}
 			}
@@ -168,34 +151,7 @@ public class BrowserTreePanel extends JPanel {
 			
 		}
 
-		/** Remove the currently selected node. Valid only for removing composites.
-		 */
-	    public void removeCurrentNode() {
-	        DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
-	        if (currentNode != null) {
-	        	if (currentNode.getUserObject() instanceof EntityComposite) {
-		            DefaultMutableTreeNode parent = (DefaultMutableTreeNode)(currentNode.getParent());
-		            if (parent != null) {
-		            	DefaultMutableTreeNode currentNodesParent = (DefaultMutableTreeNode)currentNode.getParent();
-		                defaultModel.removeNodeFromParent(currentNode);
-		                DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode)defaultModel.getRoot();
-		                //FIXME will actually want something that refreshes all the other root nodes.
-		                /** know what you'll have to do:
-		                 *  Pass the node through a method that does a breadthfirstenumeration check
-		                 *  across all the root nodes (graphics, collider, etc.) and when it finds that node,
-		                 *  delete its parent.
-		                 */
-		                if ( !((String)theRoot.getUserObject()).equals("Current Scene")) {
-		                	defaultModel.removeNodeFromParent(currentNodesParent);
-		                }
-		                // TODO SECTION TO DEACTIVATE COMPOSITE
-		                // ________________
-		               ((EntityComposite)currentNode.getUserObject()).disableComposite();
-		                searchAndRemoveCompositeFromAllRoots(currentNode);
-		            }
-	        	}
-	        } 
-	    }
+	
 
 	    private void addCompositeToEntity(JMenuItem selectedOption) {
 	    	if (theEntity != null) {
@@ -220,50 +176,58 @@ public class BrowserTreePanel extends JPanel {
 	    		}
 	    	}
 	    }
-	    private void searchAndDeleteParentNodes( 
-	    		DefaultMutableTreeNode nodeToSearchFor, 
-	    		DefaultMutableTreeNode rootToRemoveFrom,
-	    		EntityComposite comp
-	    		){
-
-		    	DefaultMutableTreeNode possibleNodeContainingEnt;
-				Enumeration e = ((DefaultMutableTreeNode)rootToRemoveFrom).breadthFirstEnumeration();
-				while (e.hasMoreElements()){
-					possibleNodeContainingEnt = (DefaultMutableTreeNode)e.nextElement();
-					if (possibleNodeContainingEnt.getUserObject() == comp) {
-						DefaultMutableTreeNode itsParent = (DefaultMutableTreeNode)possibleNodeContainingEnt.getParent();
-						System.err.println("IN BROWSERTREE: was able to remove " + possibleNodeContainingEnt.toString() + "from parent: " + itsParent.toString());
-
-						defaultModel.removeNodeFromParent(itsParent);
-
-						comp.disableComposite();
-					}
-				}
+	  
+		/** Remove the currently selected node. Valid only for removing composites.
+		 */
+	    public void removeCurrentNode() {
+	        DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
+	        if (currentNode != null) {
+	        	if (currentNode.getUserObject() instanceof EntityComposite) {
+		            DefaultMutableTreeNode parent = (DefaultMutableTreeNode)(currentNode.getParent());
+		            if (parent != null) {
+		                defaultModel.removeNodeFromParent(currentNode); //deletes selected node
+		                DefaultMutableTreeNode theRoot = (DefaultMutableTreeNode)defaultModel.getRoot();
+		                if ( theRoot != sceneRoot) {
+		                	defaultModel.removeNodeFromParent(parent);
+		                }
+		                // TODO SECTION TO DEACTIVATE COMPOSITE
+		                // ________________
+		               ((EntityComposite)currentNode.getUserObject()).disableComposite();
+		                searchAndRemoveCompositeFromAllRoots(currentNode);
+		            }
+	        	}
+	        } 
 	    }
-	    
 	    public void searchAndRemoveCompositeFromAllRoots(DefaultMutableTreeNode nodeToSearchFor){
 
 	    	EntityComposite currentComposite = (EntityComposite)nodeToSearchFor.getUserObject();
 	    	if (nodeToSearchFor == null) return;
 			else {
-				if (nodeToSearchFor.getUserObject() instanceof GraphicComposite) {
-					searchAndDeleteParentNodes( nodeToSearchFor , graphicsRootNode,  currentComposite );
+				if ( (DefaultMutableTreeNode)defaultModel.getRoot() == sceneRoot) {
+					if (nodeToSearchFor.getUserObject() instanceof GraphicComposite) {
+						searchAndDeleteParentNodes( nodeToSearchFor , graphicsRootNode,  currentComposite, false );
+					}
+					else if(nodeToSearchFor.getUserObject() instanceof AngularComposite) {
+						searchAndDeleteParentNodes( nodeToSearchFor , angularRootNode, currentComposite, false );
+					}
+					else if(nodeToSearchFor.getUserObject() instanceof Collider) {
+						searchAndDeleteParentNodes( nodeToSearchFor , colliderRootNode, currentComposite, false );
+					}
+					else if(nodeToSearchFor.getUserObject() instanceof TranslationComposite) {
+						searchAndDeleteParentNodes( nodeToSearchFor , translationRootNode, currentComposite, false );
+					}
+					else if(nodeToSearchFor.getUserObject() instanceof DynamicRotationComposite) {
+						searchAndDeleteParentNodes( nodeToSearchFor , dynamicRotationRootNode, currentComposite, false );
+					}
 				}
-				else if(nodeToSearchFor.getUserObject() instanceof AngularComposite) {
-					searchAndDeleteParentNodes( nodeToSearchFor , angularRootNode, currentComposite );
+				else { //meaning the user is deleting composite node from within a filter mode
+					//must delete from Current Scene root as well.
+					searchAndDeleteParentNodes(nodeToSearchFor, sceneRoot, currentComposite, true);
+
 				}
-				else if(nodeToSearchFor.getUserObject() instanceof Collider) {
-					searchAndDeleteParentNodes( nodeToSearchFor , colliderRootNode, currentComposite );
-				}
-				else if(nodeToSearchFor.getUserObject() instanceof TranslationComposite) {
-					searchAndDeleteParentNodes( nodeToSearchFor , translationRootNode, currentComposite );
-				}
-				else if(nodeToSearchFor.getUserObject() instanceof DynamicRotationComposite) {
-					searchAndDeleteParentNodes( nodeToSearchFor , dynamicRotationRootNode, currentComposite );
-				}
-				/*else {
-					searchAndDeleteParentNodes(sceneRoot, sceneRoot, currentComposite);
-				}*/
+					/*else {
+						searchAndDeleteParentNodes(sceneRoot, sceneRoot, currentComposite);
+					}*/
 			}
 	    	
 /*//			Enumeration e = ((DefaultMutableTreeNode)entitiesRoot).breadthFirstEnumeration();
@@ -283,6 +247,29 @@ public class BrowserTreePanel extends JPanel {
 			}
 			return null;*/
 		}
+	    private void searchAndDeleteParentNodes( 
+	    		DefaultMutableTreeNode nodeToSearchFor, 
+	    		DefaultMutableTreeNode rootToRemoveFrom,
+	    		EntityComposite comp,
+	    		boolean isSceneRoot
+	    		){
+
+		    	DefaultMutableTreeNode possibleNodeContainingEnt;
+				Enumeration e = ((DefaultMutableTreeNode)rootToRemoveFrom).breadthFirstEnumeration();
+				while (e.hasMoreElements()){
+					possibleNodeContainingEnt = (DefaultMutableTreeNode)e.nextElement();
+					if (possibleNodeContainingEnt.getUserObject() == comp) {
+						DefaultMutableTreeNode itsParent = (DefaultMutableTreeNode)possibleNodeContainingEnt.getParent();
+						System.err.println("IN BROWSERTREE: was able to remove " + possibleNodeContainingEnt.toString() + "from parent: " + itsParent.toString());
+						if (isSceneRoot) 
+							defaultModel.removeNodeFromParent(possibleNodeContainingEnt);
+						else
+							defaultModel.removeNodeFromParent(itsParent);
+						comp.disableComposite();
+						break;
+					}
+				}
+	    }
 	    public void checkIfDeleteButtonValid() {
 	    	if (clickedNode.getUserObject() instanceof EntityComposite)
 	    		deleteComposite.setEnabled(true);
@@ -298,7 +285,8 @@ public class BrowserTreePanel extends JPanel {
 			//3) if "Composites" clicked: valid, need it to point to owner entity
 			//4) if one of the composite names clicked: get parent's parent, get userobject
 	    	DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
-	    	if (currentNode != null) {
+	    	if (currentNode != null   && 
+	    			(DefaultMutableTreeNode)defaultModel.getRoot() == sceneRoot ) {
 	    		
 	    		if (currentNode.getUserObject() instanceof String) {
 	    			if ( ((String)currentNode.getUserObject()).equals("Composites")) {
@@ -452,29 +440,26 @@ public class BrowserTreePanel extends JPanel {
 	private void insertCompositeIntoRespectiveFolder(EntityComposite currentComposite) {
 		if (currentComposite == null) return;
 		else {
+			DefaultMutableTreeNode rootNodeToInsertInto = null;
+			DefaultMutableTreeNode entityNode = new DefaultMutableTreeNode(new String(currentComposite.getOwnerEntity().name));
 			if (currentComposite instanceof GraphicComposite) {
-				DefaultMutableTreeNode entityNode = new DefaultMutableTreeNode(new String(currentComposite.getOwnerEntity().name));
-				this.defaultModel.insertNodeInto(entityNode, graphicsRootNode, graphicsRootNode.getChildCount());
-				this.defaultModel.insertNodeInto(new DefaultMutableTreeNode(currentComposite), entityNode, entityNode.getChildCount());
+				rootNodeToInsertInto = graphicsRootNode;
 			}
 			else if(currentComposite instanceof AngularComposite) {
-				DefaultMutableTreeNode entityNode = new DefaultMutableTreeNode(new String(currentComposite.getOwnerEntity().name));
-				this.defaultModel.insertNodeInto(entityNode, angularRootNode, angularRootNode.getChildCount());
-				this.defaultModel.insertNodeInto(new DefaultMutableTreeNode(currentComposite), entityNode, entityNode.getChildCount());
+				rootNodeToInsertInto = angularRootNode;
 			}
 			else if(currentComposite instanceof Collider) {
-				DefaultMutableTreeNode entityNode = new DefaultMutableTreeNode(new String(currentComposite.getOwnerEntity().name));
-				this.defaultModel.insertNodeInto(entityNode, colliderRootNode, colliderRootNode.getChildCount());
-				this.defaultModel.insertNodeInto(new DefaultMutableTreeNode(currentComposite), entityNode, entityNode.getChildCount());
+				rootNodeToInsertInto = colliderRootNode;
 			}
 			else if(currentComposite instanceof TranslationComposite) {
-				DefaultMutableTreeNode entityNode = new DefaultMutableTreeNode(new String(currentComposite.getOwnerEntity().name));
-				this.defaultModel.insertNodeInto(entityNode, translationRootNode, translationRootNode.getChildCount());
-				this.defaultModel.insertNodeInto(new DefaultMutableTreeNode(currentComposite), entityNode, entityNode.getChildCount());
+				rootNodeToInsertInto = translationRootNode;
 			}
 			else if(currentComposite instanceof DynamicRotationComposite) {
-				DefaultMutableTreeNode entityNode = new DefaultMutableTreeNode(new String(currentComposite.getOwnerEntity().name));
-				this.defaultModel.insertNodeInto(entityNode, dynamicRotationRootNode, dynamicRotationRootNode.getChildCount());
+				rootNodeToInsertInto = dynamicRotationRootNode;
+			}
+			//area to do the actual hard lifting
+			if(rootNodeToInsertInto != null) {
+				this.defaultModel.insertNodeInto(entityNode, rootNodeToInsertInto, rootNodeToInsertInto.getChildCount());
 				this.defaultModel.insertNodeInto(new DefaultMutableTreeNode(currentComposite), entityNode, entityNode.getChildCount());
 			}
 		}

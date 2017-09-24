@@ -696,6 +696,22 @@ public class BoundaryPolygonal extends Boundary {
 		ypoints = new int[this.getCornersPoint().length];
 
 		for (int i = 0; i < this.getCornersPoint().length; i++ ) {
+			xpoints[i] = (int)(this.getCornersPoint()[i].getX() + owner.getPosition().getX() );
+			ypoints[i] = (int)(this.getCornersPoint()[i].getY() + owner.getPosition().getY() );
+		}
+		Polygon polygonTest = new Polygon(xpoints, ypoints, this.getCornersPoint().length);
+		return polygonTest;
+	}
+	
+	@Override
+	public Polygon getPolygonBounds() {
+
+		int[] xpoints;
+		int[] ypoints;
+		xpoints = new int[this.getCornersPoint().length];
+		ypoints = new int[this.getCornersPoint().length];
+
+		for (int i = 0; i < this.getCornersPoint().length; i++ ) {
 			xpoints[i] = (int)this.getCornersPoint()[i].getX();
 			ypoints[i] = (int)this.getCornersPoint()[i].getY();
 		}

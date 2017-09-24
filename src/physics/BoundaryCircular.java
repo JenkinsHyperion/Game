@@ -239,7 +239,14 @@ public class BoundaryCircular extends Boundary{
 	
 	@Override
 	public Polygon getPolygonBounds( EntityStatic owner ) {
-		return new Polygon();
+		return new Polygon(new int[]{-this.radius+owner.getPosition().x, this.radius+owner.getPosition().x, this.radius+owner.getPosition().x, -this.radius+owner.getPosition().x}, 
+							new int[]{-this.radius+owner.getPosition().y,-this.radius+owner.getPosition().y, this.radius+owner.getPosition().y, this.radius+owner.getPosition().y}, 4 );
+	}
+	
+	@Override
+	public Polygon getPolygonBounds() {
+		return new Polygon(new int[]{-this.radius, this.radius, this.radius, -this.radius}, 
+							new int[]{-this.radius,-this.radius, this.radius, this.radius}, 4 );
 	}
 
 }

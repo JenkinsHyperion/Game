@@ -133,6 +133,11 @@ public class BoundarySingular extends Boundary{
 	}
 	
 	@Override
+	public Polygon getPolygonBounds( ) {
+		return new Polygon();
+	}
+	
+	@Override
 	public Polygon getPolygonBounds( EntityStatic owner ) {
 		return new Polygon();
 	}

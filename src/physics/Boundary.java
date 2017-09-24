@@ -53,6 +53,8 @@ public abstract class Boundary {
 	 * @param ent Entity to get boundary from
 	 * @return Polygon that hopefully is the same shape as the boundary
 	 */
+	public abstract Polygon getPolygonBounds( );
+
 	public abstract Polygon getPolygonBounds( EntityStatic owner );
 	
 	public static Point2D[] getFarthestPointsBetween( Boundary b1 , Boundary b2 , Line2D axis ){

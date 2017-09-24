@@ -111,11 +111,9 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 
       			CompositeFactory.addTranslationTo(sprout);
       			
-      			currentScene.addEntity(sprout);
+      			currentScene.addEntity(sprout,"Tree");
       			
       			sprout.getAngularComposite().setAngleInDegrees( angle);
-      			
-      			sprout.setColliderGroup( sprout.getColliderComposite().getCollisionEngineGroupIndex() );
       			
       			CompositeFactory.makeChildOfParent(sprout, asteroid, TestBoard.this);
       			
@@ -136,6 +134,13 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 
 
     private void initBoard() {
+    	
+    	collisionEngine.createColliderGroup("Player");
+    	collisionEngine.createColliderGroup("Ground");
+        collisionEngine.createColliderGroup("Tree");
+        
+        collisionEngine.addCustomCollisionsBetween("Player", "Ground", CollisionBuilder.DYNAMIC_STATIC );
+        collisionEngine.addCustomCollisionsBetween("Player", "Tree", new PlayerOnTreeCollisions() );
     	
     	myMouseHandler = new MouseHandlerClass();
   		addMouseListener(myMouseHandler);
@@ -164,21 +169,55 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         //CompositeFactory.addColliderTo(asteroid,  new BoundaryPolygonal.Box(500, 200, -250,-100) );
         //asteroid.getTranslationComposite().setDX(-0.25f);
         
-        this.currentScene.addEntity(asteroid);
+        this.currentScene.addEntity(asteroid,"Ground");
         
         
         player = new TestPlayer(30,0 );
         CompositeFactory.addRigidbodyTo(player);
 
-        this.currentScene.addEntity(player);
+        this.currentScene.addEntity(player,"Player");
         gravity = player.getTranslationComposite().addForce( new Vector(0,0) );
         this.addInputController(player.inputController);
 
         final EntityStatic testSaving = new EntityStatic( "TestSaving", -100,-100 );
         testSaving.addGraphicTo( new Sprite.Stillframe("box.png",Sprite.CENTERED) );
-        this.currentScene.addEntity(testSaving);
         
+        testSaving.addRotationalColliderTo( testSaving.addAngularComposite(), new BoundaryLinear( new Line2D.Double(0,100,0,-100)));
+        
+        this.currentScene.addEntity(testSaving,"Ground");
+        testSaving.getAngularComposite().setAngleInDegrees(45);
+
     }
+    
+    private class PlayerOnTreeCollisions extends CollisionBuilder{
+
+		@Override
+		public Collision createVisualCollision(Collider collider1, Collider collider2, VisualCollisionCheck check,
+				RenderingEngine engine) {
+			System.err.println("PLAYAR ON TEREE");
+			return new Collision( collider1, collider2){
+				
+				@Override
+				public void initCollision() {
+					
+				}
+
+				@Override
+				public void completeCollision() {
+					System.out.println("PLAYAR OFF TEREE");
+				}
+
+				@Override
+				public void updateVisualCollision(MovingCamera camera, Graphics2D gOverlay) {
+					isComplete = !check.check(collider1, collider2, camera, gOverlay);
+				}
+				
+			};
+			
+		}
+    	
+    }
+
     
     @Override
     protected void entityThreadRun() {
@@ -198,7 +237,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     }
 
     public void spawnNewSprout( EntityStatic newTwig ){
-    	this.currentScene.addEntity(newTwig);
+    	this.currentScene.addEntity(newTwig,"Tree");
     }
 
 /* ########################################################################################################################

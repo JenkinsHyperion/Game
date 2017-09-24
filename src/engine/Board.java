@@ -387,8 +387,10 @@ public class Board extends BoardAbstract {
 
 			g2.setColor(Color.GRAY);
 			g2.drawString("Entities: " + currentScene.listEntities().length + " , Collidable:"
-					+ collisionEngine.debugNumberofStaticCollidableGroups() + " + "
-					+ collisionEngine.debugNumberofDynamicCollidableGroups(), 5, 15);
+					//
+					//
+					//
+					, 5, 15);
 			g2.drawString("DX: " + player.getTranslationComposite().getDX() + " DY: "
 					+ player.getTranslationComposite().getDY(), 5, 30);
 			g2.drawString("AccX: " + player.getTranslationComposite().getAccX() + "  AccY: "

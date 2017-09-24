@@ -20,8 +20,6 @@ public class VisualCollisionDynamicStatic extends Collision implements VisualCol
 	
 	private SeparatingAxisCollector axisCollector;
 	
-	boolean isComplete = false;
-	
 	private Force normalForce;
 	private Force frictionForce;
 	
@@ -232,14 +230,6 @@ public class VisualCollisionDynamicStatic extends Collision implements VisualCol
 	 * ######################
 	 */
 	
-	//Completion Condition
-	@Override
-	public boolean isComplete(){ // Check if entities are no longer colliding //OPTIMIZATION - HANDLE AS EVENT RATEHR THAN CHECK
-		//CHECK FOR COLLISIONS IS BEING DOUBLE CHECKED IN COLLISION ENGINE
-		
-		return isComplete;
-	}
-	
 	//Resolution calculation
 	private Resolution getClosestResolution( MovingCamera camera, Graphics2D g2) { 
 		//System.out.println("Checking best resolution"); 
@@ -251,8 +241,8 @@ public class VisualCollisionDynamicStatic extends Collision implements VisualCol
 				collidingSecondary.getBoundary(),
 				
 				entityPrimary, entityPrimary.getPosition(), 
-				collidingPrimary.getBoundary(),
-				camera, g2
+				collidingPrimary.getBoundary()
+				//,camera, g2
 				);
 		
 		for ( SeparatingAxisCollector.Axis separatingAxis : separatingAxes ){

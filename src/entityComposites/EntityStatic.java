@@ -157,28 +157,28 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	 * #########################################################################################################################
 	 */
 	
-	public void addAngularComposite(){
-		CompositeFactory.addAngularComposite(this);
+	public AngularComposite addAngularComposite(){
+		return CompositeFactory.addAngularComposite(this);
 	}
 
-	public void addTranslationTo(){
-		CompositeFactory.addTranslationTo(this);
+	public TranslationComposite addTranslationTo(){
+		return CompositeFactory.addTranslationTo(this);
 	}
 	
-	public void addColliderTo( Boundary bounds ){
-		CompositeFactory.addColliderTo(this, bounds);
+	public Collider addColliderTo( Boundary bounds ){
+		return CompositeFactory.addColliderTo(this, bounds);
 	}
 	
-	public void addRotationalColliderTo( AngularComposite angularComposite , Boundary bounds ){
-		CompositeFactory.addRotationalColliderTo(this, bounds, angularComposite );
+	public Collider addRotationalColliderTo( AngularComposite angularComposite , Boundary bounds ){
+		return CompositeFactory.addRotationalColliderTo(this, bounds, angularComposite );
 	}
 	
-	public void addDynamicRotationTo(){
-		CompositeFactory.addDynamicRotationTo(this);
+	public DynamicRotationComposite addDynamicRotationTo(){
+		return CompositeFactory.addDynamicRotationTo(this);
 	}
 	
-	public void addGraphicTo( Sprite sprite ){
-		CompositeFactory.addGraphicTo(this,sprite);
+	public GraphicComposite addGraphicTo( Sprite sprite ){
+		return CompositeFactory.addGraphicTo(this,sprite);
 	}
 	
 	public void addRigidbodyTo(){
@@ -437,16 +437,26 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		
 		Point returnPoint = this.getRelativeTranslationalPositionOf(entity);
 
-		returnPoint = this.angularType.getRotationalPositionRelativeTo(returnPoint);
+		returnPoint = this.angularType.getRotationalRelativePositionOf(returnPoint);
 		
 		return returnPoint;
 	}
 	
 	public Point getRelativePositionOf(Point point_on_entity ){
 		
+		Point returnPoint = this.getRelativeTranslationalPositionOf( point_on_entity );
 		
-		Point returnPoint = this.angularType.getRotationalPositionRelativeTo(point_on_entity);
-		returnPoint = this.getRelativeTranslationalPositionOf( returnPoint );
+		returnPoint = this.angularType.getRotationalRelativePositionOf(returnPoint);
+		
+		return returnPoint;
+	}
+	
+	public Point getAbsolutePositionOf(Point relativePoint ){
+		
+		Point returnPoint = this.angularType.getRotationalAbsolutePositionOf(relativePoint);
+		
+		returnPoint = this.getTranslationalAbsolutePositionOf( returnPoint );
+		
 		return returnPoint;
 	}
 	

@@ -39,11 +39,7 @@ public final class ColliderNull extends Collider{
 	 * 		ENGINE FUNCTIONALITY
 	 * #################################################################
 	 */
-	@Override
-	public void checkForInteractionWith( Collider entity, CollisionCheck checkType ,CollisionEngine engine){ 
-		System.err.println("Warning: Collision info checked on NonCollidable ");
-	}
-	
+
 	//################################################
 	
 	   /**

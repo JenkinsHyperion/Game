@@ -26,7 +26,7 @@ public class Scene {
 		entityList.add( new LayeredEntity(entity,layer));
 	}
 	
-	public void addEntity( EntityStatic entity ){
+	public void addEntity( EntityStatic entity, String...groups ){
 		//NOTIFY BROWSER TREE THAT ENTITY WAS ADDED TO SCENE
 		if (ownerBoard.editorPanel != null)
 			ownerBoard.editorPanel.getBrowserTreePanel().notifyTreeAddedEntity(entity);
@@ -67,8 +67,15 @@ public class Scene {
 		}else{System.err.println(I+"Couldn't add ["+entity+"] to renderer because it's missing a Graphic Composite ");}
 		
 		//COLLIDER COMPOSITE
-		
-		checkForAndRegisterCollider(entity);
+		if ( groups.length == 0){
+			checkForAndRegisterCollider(entity);
+		}else{
+			for ( String group : groups ){
+				System.err.println(I+"Adding ["+entity+"] to Collider Group "+group);
+				checkForAndRegisterGroupedCollider(entity,group);
+			}
+
+		}
 		
 		/*if ( entity.hasUpdateables() ){
 			System.out.println(I+"Collecting updateables");
@@ -135,17 +142,16 @@ public class Scene {
 		}
 	}
 	
-	private void checkForAndRegisterGroupedCollider( EntityStatic entity, int group ){
+	private void checkForAndRegisterGroupedCollider( EntityStatic entity, String groupName ){
 		
 		if ( entity.getColliderComposite().exists() ){
 			
 			if ( entity.getTranslationComposite().exists() ){  
-				//System.out.println("     Adding "+entity+" as dynamic");
-				entity.getColliderComposite().addCompositeToPhysicsEngineDynamic( ownerBoard.collisionEngine );
+				
+				entity.getColliderComposite().addCompositeToPhysicsEngineDynamic( ownerBoard.collisionEngine, groupName );
 			}
 			else{ 
-				//System.out.println("     Adding "+entity+" as static");
-				entity.getColliderComposite().addCompositeToPhysicsEngineStatic( ownerBoard.collisionEngine );
+				entity.getColliderComposite().addCompositeToPhysicsEngineStatic( ownerBoard.collisionEngine, groupName );
 			}
 			
 		}else{

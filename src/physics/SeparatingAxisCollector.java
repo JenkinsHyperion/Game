@@ -13,6 +13,9 @@ import entityComposites.TranslationComposite;
 public abstract class SeparatingAxisCollector {
 
 	public static final AxesByPolygonFeatures poly = new AxesByPolygonFeatures();
+	
+	protected abstract Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2 , Boundary b2 );
+	
 	protected abstract Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2 , Boundary b2, MovingCamera cam, Graphics2D g2 );
 	
 	public abstract void drawSeparation( MovingCamera cam , Graphics2D g2 );
@@ -40,7 +43,11 @@ public abstract class SeparatingAxisCollector {
 		
 		@Override
 		protected Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2, Boundary b2, MovingCamera cam, Graphics2D g2) {
-
+			return constructNewAxes(e1, e2, b1, b2, pos1, pos2);
+		}
+		
+		@Override	
+		protected Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2, Boundary b2) {
 			return constructNewAxes(e1, e2, b1, b2, pos1, pos2);
 		}
 		
@@ -70,9 +77,14 @@ public abstract class SeparatingAxisCollector {
 	}
 	
 	public static class AxesByPolygonFeatures extends SeparatingAxisCollector{
-		
+
 		@Override
 		protected Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2, Boundary b2, MovingCamera cam, Graphics2D g2) {
+			return getSeparatingAxes(e1, pos1, b1, e2, pos2, b2);
+		}
+		
+		@Override
+		protected Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2, Boundary b2) {
 			Line2D[] sides = Boundary.getSeparatingSidesBetween( b1 , b2 );
 			Axis[] returnAxes = new Axis[ sides.length ];
 			for ( int i = 0 ; i < sides.length ; i++ ){
@@ -123,10 +135,19 @@ public abstract class SeparatingAxisCollector {
 		
 		@Override
 		protected Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2, Boundary b2, MovingCamera cam, Graphics2D g2) {
+
+			//currentRegion.debugDrawRegion(EntityStatic.origin, cam, g2);
+			//cam.drawCrossInWorld(relativePoint , g2);
 			
-			AngularComposite polygonAngular = polygon.getAngularComposite();
+			return getSeparatingAxes(e1, pos1, b1, e2, pos2, b2);
+		}
+		
+		@Override
+		protected Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2, Boundary b2) {
+
+			Point relativePoint = polygon.getRelativePositionOf(nonPolygon);
 			
-			VoronoiRegion changedRegion = currentRegion.getEscapedRegion( polygonAngular.relativePositionOf(nonPolygon) );
+			VoronoiRegion changedRegion = currentRegion.getEscapedRegion( relativePoint );
 			
 			if ( changedRegion == null ){
 				
@@ -134,7 +155,6 @@ public abstract class SeparatingAxisCollector {
 			}
 			else{
 				currentRegion = changedRegion;
-
 				return constructNewAxes(e1, e2, b1, b2, pos1, pos2);
 			}				
 		}

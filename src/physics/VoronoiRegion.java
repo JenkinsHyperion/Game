@@ -58,7 +58,7 @@ public abstract class VoronoiRegion {
 		this.checkMath.debugDraw( absPos, camera, g2);
 	}
 	
-	public void rotateRegion( double angle ){}
+	public abstract void rotateRegion( double angle );
 	
 	//##########################################################################
 
@@ -71,6 +71,11 @@ public abstract class VoronoiRegion {
 		@Override
 		protected void notifySetAngle(double setAngle) {
 			// DO NOTHING
+		}
+
+		@Override
+		public void rotateRegion(double angle) {
+			System.err.println("Warning: attempting to rotate VoronoiRegion.Undefined");
 		}
 		
 	}

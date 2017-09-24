@@ -25,6 +25,8 @@ public class Collider implements EntityComposite{
 	protected String compositeName;
 	protected EntityStatic ownerEntity;
 	
+	protected boolean isGrouped = false;
+	
 	protected CollisionEngine engine;
 	protected int engineHashID;
 	protected CollisionEngine.ActiveCollider engineSlot;
@@ -69,15 +71,6 @@ public class Collider implements EntityComposite{
 	 * #################################################################
 	 */
 
-	public void checkForInteractionWith( Collider entity, CollisionCheck checkType ,CollisionEngine engine){ 
-		//We know owner entity has composite collidable, which is THIS instance of collidable, so pass owner's physical
-		// information to the other entity
-		
-		engine.registerDynamicStaticCollision( checkType.check(this, entity) , this , entity , checkType );
-		//Physical constants like mass, restitution (bounciness), rotational friction and other stuff to be passed 
-		// to collisionEngine here:
-		
-	}
 	
 	//################################################
 	
@@ -206,21 +199,9 @@ public class Collider implements EntityComposite{
 		
 	}
 	
-	public static void customCollisionDynamicStaticPair( Collider dynamicCollider, Collider staticCollider, Collision customCollision, CollisionEngine engine ){
-		
-		ActiveCollider[] activeColliders = engine.customDynamicStaticPair( dynamicCollider , staticCollider, customCollision );
-		
-		dynamicCollider.engineSlot = activeColliders[0] ;
-		dynamicCollider.engine = engine;
-		
-		staticCollider.engineSlot = activeColliders[1] ;
-		staticCollider.engine = engine;
-		
-	}
-	
 	public void addCompositeToPhysicsEngineStatic( CollisionEngine engine ){ 
 		if ( this.engineSlot == null){
-			this.engineSlot = engine.addStaticCollidable( this );
+			this.engineSlot = engine.addStaticCollidableToEngineList( this );
 			this.engine = engine;
 			System.out.println("|  "+this+" adding static to collision engine");
 		}
@@ -229,23 +210,23 @@ public class Collider implements EntityComposite{
 	public void addCompositeToPhysicsEngineDynamic( CollisionEngine engine ){
 		if ( this.engineSlot == null ){
 			System.out.println("|   Adding dynamic to collision engine ");
-			this.engineSlot = engine.addDynamicCollidable( this );
+			this.engineSlot = engine.addDynamicCollidableToEngineList( this );
 			this.engine = engine;
 		}
 	}
 	
-	public void addCompositeToPhysicsEngineStatic( CollisionEngine engine, int group ){ 
+	public void addCompositeToPhysicsEngineStatic( CollisionEngine engine, String group ){ 
 		if ( this.engineSlot == null ){
-			this.engineSlot = engine.addStaticCollidable( this );
+			this.engineSlot = engine.addStaticCollidable( this , group );
 			this.engine = engine;
-			System.out.println("|   "+this+" adding static to collision engine");
+			System.out.println("|   "+this+" adding static to collision engine GROUP {"+group+"}");
 		}
 	}
 	
-	public void addCompositeToPhysicsEngineDynamic( CollisionEngine engine, int group ){
+	public void addCompositeToPhysicsEngineDynamic( CollisionEngine engine, String group ){
 		if ( this.engineSlot == null ){
-			System.out.println("|   Adding dynamic to collision engine ");
-			this.engineSlot = engine.addDynamicCollidable( this );
+			System.out.println("|   Adding dynamic to collision engine GROUP {"+group+"}");
+			this.engineSlot = engine.addDynamicCollidable( this, group );
 			this.engine = engine;
 		}
 	}
@@ -280,11 +261,8 @@ public class Collider implements EntityComposite{
 	}
 	
 	protected void notifyEngineOfChangeToDynamic(){
-		this.engineSlot.notifyChangeToDynamic();
-	}
-	
-	public int getCollisionEngineGroupIndex(){
-		return this.engineSlot.getGroupIndex();
+		ActiveCollider dynamic = this.engineSlot.notifyChangeToDynamic();
+		this.engineSlot = dynamic;
 	}
 	
 	@Override

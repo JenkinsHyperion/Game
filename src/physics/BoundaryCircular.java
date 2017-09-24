@@ -75,10 +75,10 @@ public class BoundaryCircular extends Boundary{
 			Point2D bottom = getProjectionPoint( new Point2D.Float( center.x , center.y + radius ) , axis );
 			
 			if ( projection.distance( top ) > projection.distance( bottom ) ){
-				return new Point2D.Float( center.x , center.y - radius );
+				return new Point2D.Double( center.x , center.y - radius );
 			}
 			else{
-				return new Point2D.Float( center.x , center.y + radius );
+				return new Point2D.Double( center.x , center.y + radius );
 			}
 			
 		}
@@ -91,23 +91,24 @@ public class BoundaryCircular extends Boundary{
 			Point2D positivePoint;
 			Point2D negativePoint;
 			
-			if ( slope > 0 ){
-				positivePoint = new Point2D.Float( outerX+center.x , outerY+center.y );
-				negativePoint = new Point2D.Float( -outerX+center.x , -outerY+center.y );
+			if ( slope <= 0 ){
+				positivePoint = new Point2D.Double( -outerX+center.x , outerY+center.y );
+				negativePoint = new Point2D.Double( outerX+center.x , -outerY+center.y );
 			}
 			else{
-				positivePoint = new Point2D.Float( -outerX+center.x , outerY+center.y );
-				negativePoint = new Point2D.Float( outerX+center.x , -outerY+center.y );
+				positivePoint = new Point2D.Double( outerX+center.x , outerY+center.y );
+				negativePoint = new Point2D.Double( -outerX+center.x , -outerY+center.y );
 			}
 			//Point2D pointLocal = new Point2D.Double( boundaryPoint.getX() , boundaryPoint.getY() );
 			
-			if ( projection.distance( getProjectionPoint(positivePoint,axis) ) > 
+			if ( projection.distance( getProjectionPoint(positivePoint,axis) ) < 
 				projection.distance( getProjectionPoint(negativePoint,axis) ) 
 			){
-				return  new Point2D.Double( positivePoint.getX() , positivePoint.getY() );
+				return  new Point2D.Double( negativePoint.getX() , negativePoint.getY() );
+				
 			}
 			else{
-				return  new Point2D.Double( negativePoint.getX() , negativePoint.getY() );
+				return  new Point2D.Double( positivePoint.getX() , positivePoint.getY() );
 			}
 		}
 		

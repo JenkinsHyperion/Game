@@ -127,7 +127,14 @@ public class Entity {
         		);
     }
     
-    public Point getRelativeTranslationalPositionOf( Point point_on_entity ) {
+    public Point getRelativeTranslationalPositionOf( Point world_position ) {
+        return new Point(
+        			world_position.x - this.getX(),
+        			world_position.y - this.getY()
+        		);
+    }
+    
+    public Point getTranslationalAbsolutePositionOf( Point point_on_entity ) {
         return new Point(
         			point_on_entity.x + this.getX(),
         			point_on_entity.y + this.getY()

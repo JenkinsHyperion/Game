@@ -495,41 +495,41 @@ public class PlantTwigSegment extends EntityStatic{
 			private class FullyGrownEvent implements Trigger{ //Event that fires when this segments growth counter reaches 100%
 				@Override
 				public void activate() {
-		
-					float oldMaxGrowth = getMaxGrowth();
 					
-					float oldRadius = oldMaxGrowth/100*80;
-
-					Point relativeTip = StemSegment.this.getPosition();
-					int tipX = relativeTip.x;
-					int tipY = (int)(relativeTip.y - oldRadius);
+					int oldRadius = (int) (getMaxGrowth() / 100.0 * 80.0 );
+					
+						
 					
 					if ( numberFromLastBranch > ThreadLocalRandom.current().nextInt( 0 , 8) ){ //start new branch every 1-6 segments
 						
 						final int FORK_ANGLE = 40; // Set to 90 or higher for some freaky shit
 						final int UPWARD_WILLPOWER = 20; //-20 to 40 look normal. Set to 90 or higher for chaos
 						
-						int thisMaxGrowth = (int)oldMaxGrowth-1;
+						int thisMaxGrowth = (int)getMaxGrowth()-1;
 						
 						int thisSegmentAngle =  (int) ( getAngularComposite().getAngle() % 360) ; // constrain angle to 0-360 for convenience
 						
-						if ( thisSegmentAngle > 0)
+						if ( thisSegmentAngle > 0){
 							if (thisSegmentAngle > 180) // Adds push towards angle of 0 ( pointing up )
 								thisSegmentAngle += UPWARD_WILLPOWER;
 							else
 								thisSegmentAngle -= UPWARD_WILLPOWER; //find better math way of doing this
-						else
+						}
+						else{
 							if (thisSegmentAngle < -180)
 								thisSegmentAngle -= UPWARD_WILLPOWER;
 							else
 								thisSegmentAngle += UPWARD_WILLPOWER;
+						}
 						
+						
+						Point relativeTip = StemSegment.this.getAbsolutePositionOf( new Point(0,-(int)oldRadius) );
 						//Create next segments and spawn them into board
 						//PlantTwigSegment sprout = new PlantTwigSegment( endPointX , endPointY , thisMaxGrowth , board) ;
-						StemSegment sproutLeft = new StemSegment( tipX , tipY , thisMaxGrowth , board) ;
+						StemSegment sproutLeft = new StemSegment( relativeTip.x , relativeTip.y , thisMaxGrowth , board) ;
 						sproutLeft.setPreviousStem(StemSegment.this);
 	
-						LeafStem leafStemRight = new LeafStem(tipX, tipY, thisMaxGrowth, board);
+						LeafStem leafStemRight = new LeafStem(relativeTip.x, relativeTip.y, thisMaxGrowth, board);
 						leafStemRight.setPreviousStem(StemSegment.this);
 
 						if ( StemSegment.this.lastBranchedClockwise ){ //check last branch direction and alternate
@@ -559,7 +559,7 @@ public class PlantTwigSegment extends EntityStatic{
 						
 						StemSegment.this.waterListener = new TransportWaterListenerActive( 5000 , new UpgradeEvent01() ); 
 					}
-					else if (oldMaxGrowth > 30){ // Else segemnt didn't branch, so grown next segment if bigger than 30% grown
+					else if ( getMaxGrowth() > 30){ // Else segemnt didn't branch, so grown next segment if bigger than 30% grown
 						
 						final int RANDOM_BEND_RANGE = 20; // 0 is perfectly straight branch. Higher than 40 looks withered.
 						
@@ -577,18 +577,22 @@ public class PlantTwigSegment extends EntityStatic{
 						
 						int thisSegmentAngle =  (int)(( getAngularComposite().getAngle() + randomBend) % 360) ; //And add it to the next segments angle
 						
-						if ( thisSegmentAngle > 0)
+						if ( thisSegmentAngle > 0){
 							if (thisSegmentAngle > 180) // Adds a 10 degree push towards angle of 0 ( pointing up ) same as above
 								thisSegmentAngle += UPWARD_WILLPOWER;
 							else
 								thisSegmentAngle -= UPWARD_WILLPOWER;
-						else
+						}
+						else{
 							if (thisSegmentAngle > -180)
 								thisSegmentAngle += UPWARD_WILLPOWER;
 							else
 								thisSegmentAngle -= UPWARD_WILLPOWER;
-		
-						StemSegment sproutStem = new StemSegment( tipX , tipY , thisMaxGrowth , board );
+						}
+						
+						Point relativeTip = StemSegment.this.getAbsolutePositionOf( new Point(0,-(int)oldRadius) );
+						
+						StemSegment sproutStem = new StemSegment( relativeTip.x , relativeTip.y , thisMaxGrowth , board );
 						sproutStem.setPreviousStem(StemSegment.this);
 						
 						sproutStem.getAngularComposite().setAngleInDegrees(thisSegmentAngle);
@@ -625,14 +629,6 @@ public class PlantTwigSegment extends EntityStatic{
 			private class SeedFullyGrownEvent implements Trigger{ //Event that fires when this segments growth counter reaches 100%
 				@Override
 				public void activate() {
-		
-					float oldMaxGrowth = getMaxGrowth();
-					
-					float oldRadius = oldMaxGrowth/100*80;
-
-					Point relativeTip = StemSegment.this.getPosition();
-					int tipX = relativeTip.x;
-					int tipY = (int)(relativeTip.y - oldRadius);
 					
 					
 					final int RANDOM_BEND_RANGE = 20; // 0 is perfectly straight branch. Higher than 40 looks withered.
@@ -651,18 +647,25 @@ public class PlantTwigSegment extends EntityStatic{
 						
 					int thisSegmentAngle =  (int)(( getAngularComposite().getAngle() + randomBend) % 360) ; //And add it to the next segments angle
 						
-						if ( thisSegmentAngle > 0)
+						if ( thisSegmentAngle > 0){
 							if (thisSegmentAngle > 180) // Adds a 10 degree push towards angle of 0 ( pointing up ) same as above
 								thisSegmentAngle += UPWARD_WILLPOWER;
 							else
 								thisSegmentAngle -= UPWARD_WILLPOWER;
-						else
+						}
+						else{
 							if (thisSegmentAngle > -180)
 								thisSegmentAngle += UPWARD_WILLPOWER;
 							else
 								thisSegmentAngle -= UPWARD_WILLPOWER;
+						}
 		
-					StemSegment sproutStem = new StemSegment( tipX , tipY , thisMaxGrowth , board );
+						
+					int oldRadius = (int) (getMaxGrowth() / 100.0 * 80.0 );
+						
+					Point relativeTip = StemSegment.this.getAbsolutePositionOf( new Point(0,-(int)oldRadius) );
+						
+					StemSegment sproutStem = new StemSegment( relativeTip.x , relativeTip.y , thisMaxGrowth , board );
 					sproutStem.setPreviousStem(StemSegment.this);
 						
 					sproutStem.getAngularComposite().setAngleInDegrees(thisSegmentAngle);
@@ -726,15 +729,14 @@ public class PlantTwigSegment extends EntityStatic{
 			
 			@Override
 			public void activate() {
-			
-				float oldMaxGrowth = LeafStem.this.getMaxGrowth();
-				float oldRadius = oldMaxGrowth/100*80;
 	
-				if ( oldMaxGrowth > 30 ){
+				int oldRadius = (int) (getMaxGrowth() / 100.0 * 80.0 );
+				
+				Point relativeTip = LeafStem.this.getAbsolutePositionOf( new Point(0,-(int)oldRadius) );
 					
-					Point relativeTip = LeafStem.this.getPosition();
-					int tipX = relativeTip.x;
-					int tipY = (int)(relativeTip.y - oldRadius);
+	
+				if ( LeafStem.this.getMaxGrowth() > 30 ){
+					
 	
 					int randomShrinkage = ThreadLocalRandom.current().nextInt( 5 , 10); // This being greater than 0 is the only
 	
@@ -759,7 +761,7 @@ public class PlantTwigSegment extends EntityStatic{
 						else
 							thisSegmentAngle -= UPWARD_WILLPOWER;
 	
-					LeafStem sproutStem = new LeafStem( tipX , tipY , thisMaxGrowth , board );
+					LeafStem sproutStem = new LeafStem( relativeTip.x , relativeTip.y , thisMaxGrowth , board );
 					sproutStem.setPreviousStem(LeafStem.this);
 					
 					sproutStem.getAngularComposite().setAngleInDegrees(thisSegmentAngle);
@@ -772,7 +774,7 @@ public class PlantTwigSegment extends EntityStatic{
 					sproutStem.numberFromLastBranch = numberFromLastBranch + 1 ; //Increment next branches number in this stem
 					//board.spawnNewSprout( sproutStem ); //then spawn it in		
 				
-					PlantTwigSegment.Leaf newLeaf = new PlantTwigSegment.Leaf(tipX+10, tipY, thisMaxGrowth, board);
+					PlantTwigSegment.Leaf newLeaf = new PlantTwigSegment.Leaf(relativeTip.x+10, relativeTip.y, thisMaxGrowth, board);
 					newLeaf.setPreviousStem(LeafStem.this);
 					
 					board.spawnNewSprout( newLeaf );

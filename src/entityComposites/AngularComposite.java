@@ -20,14 +20,13 @@ public abstract class AngularComposite implements EntityComposite {
 	public static FixedAngleComposite getFixedAngleSingleton(){
 		return fixedAngle;
 	}
-	
-	public abstract Point relativePositionOf(EntityStatic entity);
 
 	public abstract double getAngle();
 	public abstract void setAngleInDegrees( double angle);
 	public abstract void setAngleInRadians( double angle);
 	public abstract void notifyAngleChange( double angle );
-	public abstract Point getRotationalPositionRelativeTo( Point relativePosition);
+	public abstract Point getRotationalRelativePositionOf( Point absolutePosition);
+	public abstract Point getRotationalAbsolutePositionOf( Point relativePosition);
 	public abstract Vector getOrientationVector();
 	@Override
 	public void setCompositeName(String newName) {
@@ -146,36 +145,36 @@ public abstract class AngularComposite implements EntityComposite {
 			
 		}
 		@Override
-		public Point getRotationalPositionRelativeTo( Point relativePosition ){
+		public Point getRotationalRelativePositionOf( Point absolutePosition ){
+			double returnX = absolutePosition.getX();
+			double returnY = absolutePosition.getY(); 
+			
+			double cosineTheta = Math.cos( Math.toRadians(-this.angleDegrees) );
+			double sineTheta = Math.sin( Math.toRadians(-this.angleDegrees) );
+			
+			Point returnPoint = new Point(
+					(int)( returnX*cosineTheta - returnY*sineTheta ),
+					(int)( returnX*sineTheta + returnY*cosineTheta )
+			);
+			
+			return returnPoint;
+		}
+		
+		@Override
+		public Point getRotationalAbsolutePositionOf(Point relativePosition) {
+			
 			double returnX = relativePosition.getX();
-			double returnY = relativePosition.getY();
+			double returnY = relativePosition.getY(); 
 			
 			double cosineTheta = Math.cos( Math.toRadians(this.angleDegrees) );
 			double sineTheta = Math.sin( Math.toRadians(this.angleDegrees) );
 			
 			Point returnPoint = new Point(
-					-(int)( returnX*cosineTheta - returnY*sineTheta ),
-					-(int)( returnX*sineTheta + returnY*cosineTheta )
+					(int)( returnX*cosineTheta - returnY*sineTheta ),
+					(int)( returnX*sineTheta + returnY*cosineTheta )
 			);
 			
 			return returnPoint;
-		}
-		@Override
-		public Point relativePositionOf( EntityStatic entity ){
-			
-			double x = entity.getX() - this.ownerEntity.getX();
-			double y = entity.getY() - this.ownerEntity.getY();
-
-			double cosineTheta = Math.cos( Math.toRadians(-this.angleDegrees) );
-			double sineTheta = Math.sin( Math.toRadians(-this.angleDegrees) );
-			
-			Point returnPoint = new Point( 
-				(int)( x*cosineTheta - y*sineTheta ),
-				(int)( y*cosineTheta + x*sineTheta )
-				);
-			
-			return returnPoint;
-			
 		}
 		
 		@Override
@@ -206,10 +205,6 @@ public abstract class AngularComposite implements EntityComposite {
 
 		private String compositeName = "FixedAngleComposite";
 
-		@Override
-		public Point relativePositionOf(EntityStatic entity) {
-			return getOwnerEntity().getRelativePositionOf(entity);
-		}
 		
 		public void setAngle(double angleRadians) {
 			System.err.println("WARNING: Attempted to set angle on fixed angle entity");
@@ -232,10 +227,13 @@ public abstract class AngularComposite implements EntityComposite {
 			System.err.println("WARNING: Attempted to notify angle change on fixed angle entity");
 		}
 		@Override
-		public Point getRotationalPositionRelativeTo(Point relativePosition) {
-			System.err.println("WARNING: Attempted to get Rotational Position relative to fixed angle entity");
-			return relativePosition;
+		public Point getRotationalRelativePositionOf(Point absolutePosition) {
+			return absolutePosition;
 		}		
+		@Override
+		public Point getRotationalAbsolutePositionOf(Point relativePosition) {
+			return relativePosition;
+		}
 		@Override
 		public boolean exists() {
 			return false;

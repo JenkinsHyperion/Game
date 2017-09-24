@@ -258,7 +258,7 @@ public class CompositeFactory {
 		
 		//If child has collider, remove from and add back to collision Engine as dynamic, in case it was registered as static
 		if ( child.hasCollider() ){ 
-			System.out.print("|   Switched ["+child+ "] collider to dynamic");
+			System.out.println("|   Switched ["+child+ "] collider to dynamic");
 			child.getColliderComposite().disableComposite();
 
 			child.getColliderComposite().notifyEngineOfChangeToDynamic();

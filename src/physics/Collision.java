@@ -35,6 +35,8 @@ public abstract class Collision {
 	protected Point2D[] contactPoints = new Point2D[2];
 	protected ArrayList<Point2D> debugIntersectionPoints = new ArrayList<>();
 	
+	protected boolean isComplete = false;
+	
 	public Collision(Collider e1, Collider e2 ){
 		
 		entityPrimary = e1.getOwnerEntity();
@@ -50,6 +52,10 @@ public abstract class Collision {
 		entityPairIndex[1] = entitySecondary.getColliderComposite().addCollision(this,false); 
 		//initCollision();
 	}
+	
+	public abstract void updateVisualCollision(MovingCamera camera, Graphics2D gOverlay);
+	
+	
 	
 	protected class Resolution{ //Wrapper class for clipping resolution vector and involved features of entities involved
 		
@@ -81,12 +87,11 @@ public abstract class Collision {
 	public abstract void initCollision();
 	
 	//CONTINUOUS COLLISION COMMANDS - Ongoing commands during collision like particle effects, sound, etc.
-	public void updateCollision(){ 
-		   
-	}
+	public void updateCollision(){}
+	
+	public abstract void completeCollision();
 	
 	//FINAL COLLISION COMMANDS - Last commands before this collision object self destructs
-	public abstract void completeCollision();
 	
 	public void indexShift( boolean pairIndex ){
 		if (!pairIndex)
@@ -116,7 +121,9 @@ public abstract class Collision {
 	}*/
 	
 	
-	public abstract boolean isComplete();
+	protected boolean isComplete(){
+		return isComplete;
+	}
 	
 	
 	//When Board detects collision, check to see if it's already in the list of active collisions
@@ -230,6 +237,5 @@ public abstract class Collision {
 		}
 		
 	}
-	
 
 }

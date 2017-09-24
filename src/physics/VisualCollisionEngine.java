@@ -58,7 +58,7 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 	    		
 	    	//if collision is complete, remove from active list
 	    	if (!collisionsList.get(i).isComplete() ) {
-	    		((VisualCollision)collisionsList.get(i)).updateVisualCollision( camera , gOverlay ); //Run commands from inside collision object
+	    		collisionsList.get(i).updateVisualCollision( camera , gOverlay ); //Run commands from inside collision object
 	    		
 	    	}
 	    	else {
@@ -149,24 +149,48 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 		public void paintOverlay(Graphics2D g2, MovingCamera cam) {
 			
 			g2.drawString( " VISUAL COLLISION ENGINE OVERLAY ", 20, 20 );
-			g2.drawString( staticCollidables.size() + " static collider groups", 20, 35 );
-			g2.drawString( dynamicCollidables.size() + " dynamic collider groups", 20, 50 );
-			g2.drawString( activeCheckingPairs.size() + " active collider pairs", 20, 65 );
+			g2.drawString( " dynamic collider ", 20, 35 );
+			g2.drawString( activeCheckingPairs.size() + " active collider pairs", 20, 50 );
 			
-			g2.drawString( collisionsList.size() + " collisions", 20, 80 );
+			g2.drawString( colliderGroups.size() + " groups:", 20, 65 );
 			
-			for ( ArrayList<ActiveCollider> dynamicsGroup : dynamicCollidables ){
+			int y = 80;
+
+			for ( ColliderGroup group : colliderGroups ){
 				
-				for ( ActiveCollider dynamic : dynamicsGroup ){
+				String[] entitiesInGroup = group.debugListGroupedStatics();
 				
-					EntityStatic entity = dynamic.collider.getOwnerEntity();
-					
-					for ( Vector line : entity.getTranslationComposite().debugForceArrows() ){
-						
-						cam.draw(line.multiply(400).toLine( entity.getPosition() ));
+				g2.drawString( group.toString() + " containing :", 35, y );
+				y = y + 15;
+					for( String entity : entitiesInGroup ){
+						g2.drawString( "-  "+entity+" (static)", 50, y );
+						y = y + 15;
 					}
-				}
+					
+					entitiesInGroup = group.debugListGroupedDynamics();
+					
+					for( String entity : entitiesInGroup ){
+						g2.drawString( "-  "+entity+" (dynamic)", 50, y );
+						y = y + 15;
+					}
 			}
+			
+			/*for ( GroupPair pair : groupPairs ){
+				g2.drawString( "Pair - "+pair.pairedGroupToString(0)+" - "+pair.pairedGroupToString(1)+" - "+pair.debugBuilderToString(), 50, y );
+				y = y + 15;
+			}*/
+
+			g2.drawString( collisionsList.size() + " current collisions", 20, y );
+
+			/*for ( ActiveCollider dynamic : dynamicCollidables ){
+
+				EntityStatic entity = dynamic.collider.getOwnerEntity();
+
+				for ( Vector line : entity.getTranslationComposite().debugForceArrows() ){
+
+					cam.draw(line.multiply(400).toLine( entity.getPosition() ));
+				}
+			}*/
 			
 		}
 	}

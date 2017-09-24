@@ -37,7 +37,6 @@ public abstract class ChildComposite{ //TODO split into inner static classes for
 					ownerChild.getY() - (int)parentPosition.getY()  
 			);
 			this.relativeAngleDegrees = parentAngle - ownerChild.getAngularComposite().getAngle() ;
-			System.err.println("Relative angle of "+relativeAngleDegrees);
 
 		}
 		

@@ -236,7 +236,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		
 		inputController.createKeyBinding( KeyEvent.VK_ADD, new CameraZoomInEvent() );
 		inputController.createKeyBinding( KeyEvent.VK_SUBTRACT, new CameraZoomOutEvent() );
-		inputController.createKeyBinding( KeyEvent.VK_DECIMAL, new CameraResetZoom() );
+		inputController.createKeyBinding( KeyEvent.VK_MULTIPLY, new CameraResetZoom() );
 		
 		//##### INITIALIZING BUTTONS   ############
 		saveButton = new JButton("Save");
@@ -3020,7 +3020,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 
 		@Override
 		public void onPressed() {
-			camera.addZoom(0.1);
+			//camera.addZoom(0.1);
+			camera.quarterZoom();
 		}
 	}
 	
@@ -3028,7 +3029,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 
 		@Override
 		public void onPressed() {
-			camera.addZoom(-0.1);
+			//camera.addZoom(-0.1);
+			camera.quadupleZoom();
 		}
 	}
 	

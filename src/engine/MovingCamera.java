@@ -77,7 +77,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		super.updatePosition();	
 		behaviorCurrent.updateAIPosition(); //CAMERA MATH	
 	}
-	
+
 	public Point getFocus(){
 		return new Point((int)this.x,(int)this.y);
 	}
@@ -130,9 +130,26 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		behaviorCurrent = behaviorActive;
 		lockState = false;
 	}
+
+	@Override
+	public void setDX(float setdx) {
+		this.dx = (float) (setdx/zoomFactor);
+	}
+	@Override
+	public void setDY(float setdy) {
+		this.dy = (float) (setdy/zoomFactor);
+	}
 	
 	public void addZoom(double dz){
 		this.zoomFactor += dz;
+	}
+	
+	public void quadupleZoom(){
+		this.zoomFactor = this.zoomFactor/1.25;
+	}
+	
+	public void quarterZoom(){
+		this.zoomFactor = this.zoomFactor*1.25;
 	}
 	
 	public void setZoomLevel( double factor ){

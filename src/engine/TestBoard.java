@@ -232,7 +232,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 
     	collisionEngine.checkCollisions();
 
-    	//gravity.setVector( player.getSeparationUnitVector(asteroid).multiply(0.2) );
+    	gravity.setVector( player.getSeparationUnitVector(asteroid).multiply(0.2) );
    
     }
 

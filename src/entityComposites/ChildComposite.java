@@ -32,12 +32,10 @@ public abstract class ChildComposite{ //TODO split into inner static classes for
 		protected Rotateable( EntityStatic ownerChild, EntityStatic parentEntity , TranslationComposite parentTranslation , DynamicRotationComposite parentRotation , int index , Point parentPosition, double parentAngle){
 			this.ownerEntityChild = ownerChild;
 			this.parentIndex = index;
-			this.zeroAnglePosition = new Point( 
-					ownerChild.getX() - (int)parentPosition.getX() , 
-					ownerChild.getY() - (int)parentPosition.getY()  
-			);
-			this.relativeAngleDegrees = parentAngle - ownerChild.getAngularComposite().getAngle() ;
 
+			this.zeroAnglePosition = parentEntity.getRelativePositionOf(ownerChild);
+
+			this.relativeAngleDegrees = parentAngle - ownerChild.getAngularComposite().getAngle() ;
 		}
 		
 		public EntityStatic getParentEntity(){

@@ -1,5 +1,6 @@
 package entityComposites;
 
+import java.awt.Point;
 import java.util.ArrayList;
 
 import entityComposites.AngularComposite.Angled;

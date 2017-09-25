@@ -662,9 +662,11 @@ public class PlantTwigSegment extends EntityStatic{
 		
 						
 					int oldRadius = (int) (getMaxGrowth() / 100.0 * 80.0 );
-						
+					
 					Point relativeTip = StemSegment.this.getAbsolutePositionOf( new Point(0,-(int)oldRadius) );
-						
+		
+					System.err.println( relativeTip+" ANGLE: "+StemSegment.this.getAngularComposite().getAngle() );
+
 					StemSegment sproutStem = new StemSegment( relativeTip.x , relativeTip.y , thisMaxGrowth , board );
 					sproutStem.setPreviousStem(StemSegment.this);
 						

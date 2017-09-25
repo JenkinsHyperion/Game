@@ -89,7 +89,7 @@ public class VisualCollisionDynamicStatic extends Collision implements VisualCol
 		
 		if ( 
 				
-					 closestResolution.getClippingVector().getMagnitude() > 2
+					 closestResolution.getClippingVector().getMagnitude() > 1
 	
 				
 		) { //CLIPPING UPDATING

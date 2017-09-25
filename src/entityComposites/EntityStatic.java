@@ -216,7 +216,6 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		this.x = x;
 		this.y = y;
 		this.parentComposite.setCompositedPosition( x, y);
-		//this.parentComposite.manipulateChildren();
 	}//
 	
 	// POSITIONING OVERRIDDEN FROM ENTITY

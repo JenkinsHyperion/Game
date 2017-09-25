@@ -148,13 +148,13 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         setFocusable(true);
         setBackground(Color.BLACK);
         
-        asteroid = new EntityStatic( "Asteroid" , 0 , 1100 );
+        asteroid = new EntityStatic( "Asteroid" , 0 , 600 );
         
         CompositeFactory.addGraphicTo(asteroid, new Sprite.Stillframe("box.png", Sprite.CENTERED ) );
         //CompositeFactory.addTranslationTo(asteroid);
         CompositeFactory.addDynamicRotationTo(asteroid);
 
-        Boundary bounds1 = new BoundaryCircular(1000);
+        Boundary bounds1 = new BoundaryCircular(500);
         //CompositeFactory.addColliderTo(asteroid,  new BoundaryLinear( new Line2D.Double( 0 , 100 , 0, -100 ) ) );
         //CompositeFactory.addColliderTo(asteroid,  new BoundaryPolygonal.Box(100, 200, -50, -100) );
         
@@ -184,8 +184,8 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         
         testSaving.addRotationalColliderTo( testSaving.addAngularComposite(), new BoundaryLinear( new Line2D.Double(0,100,0,-100)));
         
-        this.currentScene.addEntity(testSaving,"Ground");
-        testSaving.getAngularComposite().setAngleInDegrees(45);
+        //this.currentScene.addEntity(testSaving,"Ground");
+        //testSaving.getAngularComposite().setAngleInDegrees(45);
 
     }
     
@@ -232,7 +232,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 
     	collisionEngine.checkCollisions();
 
-    	gravity.setVector( player.getSeparationUnitVector(asteroid).multiply(0.2) );
+    	//gravity.setVector( player.getSeparationUnitVector(asteroid).multiply(0.2) );
    
     }
 

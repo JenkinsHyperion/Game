@@ -170,6 +170,12 @@ public class Vector implements Serializable{
 			return new Vector( returnX , returnY );
 		}
 		
+		public Vector reciprocal() {
+			double returnX = 1/this.x;
+			double returnY = 1/this.y;
+			return new Vector( returnX , returnY );
+		}
+		
 		public double crossProduct( Vector input){
 			
 			return  input.getX()*this.getY() - input.getY()*this.getX() ;

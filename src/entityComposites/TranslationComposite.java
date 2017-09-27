@@ -35,6 +35,10 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	public void halt(){
 		coreMath.halt();
 	}
+	
+	public int debugNumberVelocities(){
+		return coreMath.debugNumberVelocities();
+	}
 
 	public double getDX() {
 		return coreMath.getDX();
@@ -134,6 +138,18 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		coreMath.applyAccelerationY(accY);
 	}
 
+	public VelocityVector addVelocityVector( Vector vector ){
+		return this.coreMath.addVelocityVector(vector);
+	}
+
+	public void removeVelocityVector( VelocityVector velocity ){
+		this.coreMath.removeVelocityVector(velocity);
+	}
+	
+	public Vector sumOfVelocityVectors(){
+		return this.coreMath.sumOfVelocityVectors();
+	}
+	
 	/** Creates new Force on this Collidable out of input Vector, and returns the Force that was added
 	 * @param vector
 	 * @return
@@ -251,24 +267,28 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 			protected double accYT=0;
 			protected double accXT=0;
 		
+			protected ArrayList<VelocityVector> velocityVectors = new ArrayList<>();
+			
 			protected ArrayList<Force> forces = new ArrayList<>();
 			protected ArrayList<PointForce> pointForces = new ArrayList<>();
 			protected ArrayList<Force> normalForces = new ArrayList<>();
 		
-			protected boolean isColliding;
-		
 			@Override
 			public void updateComposite() {
 		
-				dx += accX; 
-				dy += accY;
+				Vector sumVelocities = this.sumOfVelocityVectors();
+				dx += accX + sumVelocities.getX(); 
+				dy += accY + sumVelocities.getY();
 		
-				Vector sum = this.sumOfForces();
-				accX = sum.getX();
-				accY = sum.getY();
+				Vector sumForces = this.sumOfForces();
+				accX = sumForces.getX();
+				accY = sumForces.getY();
 		
 		
 			}  
+			public int debugNumberVelocities() {
+				return velocityVectors.size();
+			}
 			@Override
 			public void updateEntity( EntityStatic entity ) {
 		
@@ -494,7 +514,30 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 				accY =+ accY;
 			}
 		
+			
+			
+			public VelocityVector addVelocityVector( Vector vector ){
+     	
+				VelocityVector newVelocity = new VelocityVector( vector );
+				newVelocity.addToList( velocityVectors );
+				return newVelocity;
+			}
 		
+			public void removeVelocityVector( VelocityVector velocity ){ 
+				
+				velocity.removeFromList( velocityVectors );
+			}
+			
+			public Vector sumOfVelocityVectors(){
+				
+				Vector returnVector = new Vector(0,0);
+				
+				for ( VelocityVector velocity : velocityVectors ){
+					returnVector = returnVector.add( velocity.getVector() );
+				}
+				return returnVector;
+			}
+			
 			/** Creates new Force on this Collidable out of input Vector, and returns the Force that was added
 			 * 
 			 * @param vector
@@ -617,9 +660,6 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 			super(null);
 			this.compositeName += "Null";
 		}
-	
-		protected ArrayList<Force> forces = new ArrayList<>();
-		protected ArrayList<PointForce> pointForces = new ArrayList<>();
 	    
 	    protected boolean isColliding;
 	    
@@ -711,6 +751,22 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	    
 	
 	    
+	    @Override
+	    public VelocityVector addVelocityVector(Vector vector) {
+	    	System.err.println("Attempted to add velocity vector to static");
+	    	return new VelocityVector( vector );
+	    }
+	    
+	    @Override
+	    public void removeVelocityVector(VelocityVector velocity) {
+	    	System.err.println("Attempted to remove velocity vector to static");
+	    }
+	    
+	    @Override
+	    public Vector sumOfVelocityVectors() {
+	    	return Vector.zeroVector;
+	    }
+	    
 		/** Creates new Force on this Collidable out of input Vector, and returns the Force that was added
 		 * 
 		 * @param vector
@@ -777,5 +833,39 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		}
 	}
 	
+	
+	public class VelocityVector{
+		
+		private Vector vector;
+		private int indexID;
+		
+		public VelocityVector(Vector vector) {
+			this.vector = vector;
+		}
+		
+		public Vector getVector(){
+			return this.vector;
+		}
+		
+		public void setVector(Vector vector){
+			this.vector = vector;
+		}
+
+		private void decrementIndex(){
+			this.indexID--;
+		}
+		
+		protected void addToList( ArrayList<VelocityVector> list ){
+			this.indexID = list.size();
+			list.add(this);
+		}
+		
+		protected void removeFromList( ArrayList<VelocityVector> list ){
+			list.remove(indexID);
+			for( int i = indexID ; i < list.size() ; i++ ){
+				list.get(i).decrementIndex();
+			}
+		}
+	}
 	
 }

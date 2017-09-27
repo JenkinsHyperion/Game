@@ -82,10 +82,11 @@ public class BoundaryCorner extends BoundaryVertex{
 		return new Point2D.Double( (p1.getX() + p2.getX())/2 , (p1.getY() + p2.getY())/2 );
 	}
 	
-	/*@Override
+	@Override
 	public Vector getNormal() {
-		
-	}*/
+		System.err.println("WARNING: TODO calculate normal in BoundaryCorner.getNormal()");
+		return Vector.zeroVector;
+	}
 
 	@Override
 	public boolean debugIsVertex() {

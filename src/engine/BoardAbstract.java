@@ -267,9 +267,12 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 	
 	protected class BoundaryOverlay implements Overlay{
 		
+		private final Color inactiveColor = new Color(255,255,255);
+		
 		@Override
 		public void paintOverlay(Graphics2D g2 , MovingCamera cam) {
 			
+			g2.setColor(Color.CYAN);
 			for ( Collider collider : collisionEngine.debugListActiveColliders() ){
 				collider.debugDrawBoundary(cam, g2);
 			}

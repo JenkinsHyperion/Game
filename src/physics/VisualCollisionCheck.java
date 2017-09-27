@@ -389,4 +389,8 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 		}
 
 	}
+
+	public SeparatingAxisCollector getAxisCollector() {
+		return this.axisCollector;
+	}
 }

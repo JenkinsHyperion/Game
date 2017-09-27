@@ -13,10 +13,12 @@ import Input.KeyCommand;
 import Input.MouseCommand;
 import editing.EditorPanel;
 import entities.*; //local imports
+import entityComposites.AngularComposite;
 import entityComposites.Collider;
 import entityComposites.CompositeFactory;
 import entityComposites.EntityStatic;
 import entityComposites.TranslationComposite;
+import entityComposites.TranslationComposite.VelocityVector;
 import entityComposites.Collider;
 import physics.*;
 import physics.Vector;
@@ -184,8 +186,8 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         
         testSaving.addRotationalColliderTo( testSaving.addAngularComposite(), new BoundaryLinear( new Line2D.Double(0,100,0,-100)));
         
-        //this.currentScene.addEntity(testSaving,"Ground");
-        //testSaving.getAngularComposite().setAngleInDegrees(45);
+        this.currentScene.addEntity(testSaving,"Tree");
+        testSaving.getAngularComposite().setAngleInDegrees(45);
 
     }
     
@@ -194,22 +196,47 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 		@Override
 		public Collision createVisualCollision(Collider collider1, Collider collider2, VisualCollisionCheck check,
 				RenderingEngine engine) {
-			System.err.println("PLAYAR ON TEREE");
+
 			return new Collision( collider1, collider2){
 				
+				private EntityStatic player1 = collider1.getOwnerEntity();
+				private EntityStatic stat = collider2.getOwnerEntity();
+				private Boundary playerBounds = collider1.getBoundary();
+				private Boundary statBounds = collider1.getBoundary();
+				
+				private TranslationComposite playerTrans = player1.getTranslationComposite();
+				
+				private VelocityVector cling = playerTrans.addVelocityVector( Vector.zeroVector );
+				
 				@Override
-				public void initCollision() {
+				protected void initializeCollision() {
 					
+					//CompositeFactory.makeChildOfParent(player, stat, TestBoard.this );
 				}
 
 				@Override
-				public void completeCollision() {
-					System.out.println("PLAYAR OFF TEREE");
+				protected void completeCollision() {
+					System.out.println("PLAYAR OFF TREE");
+					playerTrans.removeVelocityVector( cling );
 				}
 
 				@Override
-				public void updateVisualCollision(MovingCamera camera, Graphics2D gOverlay) {
+				protected void updateVisualCollision(MovingCamera camera, Graphics2D gOverlay) {
+					
+					/*SeparatingAxisCollector.Axis[] separatingAxes = 
+							check.getAxisCollector().getSeparatingAxes( 
+									stat, stat.getPosition(), statBounds, player , player.getPosition(), playerBounds, camera, gOverlay 
+							);
+
+					if ( separatingAxes[0].getNearFeaturePrimary().debugIsSide() ){
+						playerTrans.halt();
+						cling.setVector(  separatingAxes[0].getNearFeaturePrimary().getNormal().multiply(0.005)  );
+					}*/
+					
 					isComplete = !check.check(collider1, collider2, camera, gOverlay);
+					
+					collider2.deactivateCollider();
+					
 				}
 				
 			};
@@ -229,7 +256,6 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     		PlantTwigSegment.waveCounter[0] = -100;
     	}
     	
-
     	collisionEngine.checkCollisions();
 
     	gravity.setVector( player.getSeparationUnitVector(asteroid).multiply(0.2) );
@@ -270,31 +296,32 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 
     private class TestPlayer extends Player{
     	
+    	AngularComposite angular;
     	TranslationComposite trans;
     	Collider collider;
-    	private final MovingState movingLeft = new MovingState();
+    	private final MovingState movingState = new MovingState();
     	private final StandingState standing = new StandingState();
     	private final FallingState falling = new FallingState();
-    	State currentState = falling;
+    	private State currentState = falling;
+    	private State bufferState = standing;
     	
     	private Force movementForce;
     	
 		public TestPlayer(int x, int y) {
 			super(x, y);
 			
-			CompositeFactory.addGraphicTo(this, new Sprite.Stillframe("box.png", Sprite.CENTERED) );
+			this.addGraphicTo( new Sprite.Stillframe("box.png", Sprite.CENTERED) );
 			
 			Boundary boundary = new BoundarySingular( new Event() );
 			Boundary boundary2 = new BoundaryCircular( 80 , new Event() );
 			Boundary boundary3 = new BoundaryPolygonal.Box( 20,20,-10,-10 );
-			CompositeFactory.addColliderTo(this, boundary2 );
-    
-			CompositeFactory.addTranslationTo(this);
 			
-			trans = this.getTranslationComposite();
-			collider = this.getColliderComposite();
+			this.collider = this.addColliderTo( boundary2 );
+			this.trans = this.addTranslationTo();
 			
-			movementForce = trans.addForce( new Vector(0,0) );
+			this.angular = this.addAngularComposite();
+			
+			this.movementForce = trans.addForce( new Vector(0,0) );
 			
 			this.inputController.createKeyBinding(KeyEvent.VK_LEFT, new KeyCommand(){
 				@Override
@@ -355,12 +382,14 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 		public void updateComposite() {
 			super.updateComposite();
 			this.currentState.run();
+			
+			this.angular.setAngleInDegrees( gravity.getVector().normalLeft().angleFromVectorInDegrees() );
 		}
 
 		private class Event extends CollisionEvent{
 			@Override
 			public void run(BoundaryFeature source, BoundaryFeature collidingWith, Vector separation) {
-				changeState(standing);
+				changeState(bufferState);
 				System.out.println("HITTING GROUND");
 			}
 			@Override
@@ -389,13 +418,13 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 			public void run() {}
 			@Override
 			public void onLeft() {
-				changeState(movingLeft);
-				movingLeft.leftRight = 1;
+				changeState(movingState);
+				movingState.leftRight = 1;
 			}
 			@Override
 			public void onRight() {
-				changeState(movingLeft);
-				movingLeft.leftRight = -1;
+				changeState(movingState);
+				movingState.leftRight = -1;
 			}
 			@Override
 			public void onJump() {
@@ -422,7 +451,6 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     	private class MovingState extends State{
     		
     		protected byte leftRight;
-    		protected boolean running = false;
     		
     		private final Runnable accelerating = new Runnable(){
     			public void run(){
@@ -453,6 +481,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 			@Override
 			public void onJump() {
 				trans.addVelocity( gravity.getVector().inverse().unitVector().multiply(5) );
+				bufferState = movingState;
 			}
 			
 			@Override public void onLeft(){

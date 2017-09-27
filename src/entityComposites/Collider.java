@@ -33,9 +33,9 @@ public class Collider implements EntityComposite{
 
 	protected Boundary boundary;
 
-	private boolean active = true;
+	private boolean isActive = true;
 	
-	protected ArrayList<CollidingPair> collisionInteractions = new ArrayList<>();
+	protected ArrayList<CollidingPair> collisionInteractions = new ArrayList<CollidingPair>();
 
 	private CollisionEvent uponCollision = new NullCollisionEvent();
 	private CollisionEvent uponLeavingCollision = new NullCollisionEvent();
@@ -232,17 +232,24 @@ public class Collider implements EntityComposite{
 	}
 
 	public boolean isActive(){
-		return this.active;
+		return this.isActive;
 	}
 	
+	/**Stops this Collider from being checked by the collision engine. 
+	 * Special Cases: When deactivating Colliders from inside custom Collision classes, this will set the custom Collision's isComplete 
+	 * value to true. Make sure this method is called after any conditional checks affecting isComplete.
+	 */
 	public void deactivateCollider(){
 		this.engineSlot.notifyDeactivatedCollider();
-		this.active = false;
+		this.isActive = false;
+		for ( CollidingPair pair : this.collisionInteractions ){
+			pair.collision().dropCollision();
+		}
 	}
 	
 	public void activateCollider(){
 		this.engineSlot.notifyActivatedCollider();
-		this.active = true;
+		this.isActive = true;
 	}
 	
 	@Override

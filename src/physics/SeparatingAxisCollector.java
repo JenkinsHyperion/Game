@@ -16,7 +16,7 @@ public abstract class SeparatingAxisCollector {
 	
 	protected abstract Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2 , Boundary b2 );
 	
-	protected abstract Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2 , Boundary b2, MovingCamera cam, Graphics2D g2 );
+	public abstract Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2 , Boundary b2, MovingCamera cam, Graphics2D g2 );
 	
 	public abstract void drawSeparation( MovingCamera cam , Graphics2D g2 );
 	
@@ -42,7 +42,7 @@ public abstract class SeparatingAxisCollector {
 		}
 		
 		@Override
-		protected Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2, Boundary b2, MovingCamera cam, Graphics2D g2) {
+		public Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2, Boundary b2, MovingCamera cam, Graphics2D g2) {
 			return constructNewAxes(e1, e2, b1, b2, pos1, pos2);
 		}
 		
@@ -53,7 +53,7 @@ public abstract class SeparatingAxisCollector {
 		
 		private Axis[] constructNewAxes( EntityStatic e1, EntityStatic e2, Boundary b1, Boundary b2, Point pos1, Point pos2 ){
 			
-			final Line2D axisLine = new Line2D.Double( 0 , 0 ,pos2.getX()+pos1.getX() , pos2.getY()-pos1.getY()  );
+			final Line2D axisLine = new Line2D.Double( 0 , 0 ,pos2.getX()-pos1.getX() , pos2.getY()-pos1.getY()  );
 					
 			final Point2D[] outerPointsRel = Boundary.getFarthestPointsBetween( e1, b1, e2, b2, axisLine );
 			
@@ -65,8 +65,16 @@ public abstract class SeparatingAxisCollector {
 	    			pos2, outerPointsRel[1], axisLine
 	    			);
 			
+			
+			BoundaryFeature[] nearStatVertex = b2.farthestFeatureFromPoint( 
+					e2.getPosition(), e1.getPosition(), outerPointsRel[1] , axisLine 
+		    		); 
+	    	BoundaryFeature[] nearPlayerVertex = b1.farthestFeatureFromPoint( 
+	    			e1.getPosition(), e2.getPosition(), outerPointsRel[0] , axisLine
+		    		);
+			
 			return new Axis[]{ 		
-				new Axis( axisLine, nearPrimaryPoint, nearSecondaryPoint )
+				new Axis( axisLine, nearPrimaryPoint, nearSecondaryPoint, nearPlayerVertex[0] )
 			};
 		}
 		
@@ -79,7 +87,7 @@ public abstract class SeparatingAxisCollector {
 	public static class AxesByPolygonFeatures extends SeparatingAxisCollector{
 
 		@Override
-		protected Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2, Boundary b2, MovingCamera cam, Graphics2D g2) {
+		public Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2, Boundary b2, MovingCamera cam, Graphics2D g2) {
 			return getSeparatingAxes(e1, pos1, b1, e2, pos2, b2);
 		}
 		
@@ -100,8 +108,36 @@ public abstract class SeparatingAxisCollector {
 				final Point2D nearPlayerCorner = b1.farthestLocalPointFromPoint(
 		    			pos1, outerPointsRel[0], axisLine
 		    			);
+				
+				
+				BoundaryFeature[] nearCircleVertex = b2.farthestFeatureFromPoint( 
+						e2.getPosition(), e1.getPosition(), outerPointsRel[1] , axisLine 
+			    		); 
+		    	BoundaryFeature[] nearPolygonVertices = b1.farthestFeatureFromPoint( 
+		    			e1.getPosition(), e2.getPosition(), outerPointsRel[0] , axisLine
+			    		);
+
+		    	BoundaryFeature featurePolygon = null;
+		    	BoundaryFeature featureCircular = null;
+		    	
+		    	
+		    	featureCircular = nearCircleVertex[0];
+		    	if ( nearCircleVertex.length > 1 ){ 
+		    		featureCircular = ((BoundaryCorner)nearCircleVertex[0]).getSharedSide( ((BoundaryCorner)nearCircleVertex[1]) );
+		    	}
+				
+
+		    	featurePolygon = nearPolygonVertices[0];
+
+		    	if ( nearPolygonVertices.length > 1 ){ //two corners of side are equal distance
+		    		featurePolygon = ((BoundaryCorner)nearPolygonVertices[0]).getSharedSide( ((BoundaryCorner)nearPolygonVertices[1]) );
+		    	}
+		    	else{ //only one corner is closest
+		    		featurePolygon = nearPolygonVertices[0];
+		    	}
+				
 					
-				returnAxes[i] = new Axis( axisLine, nearPlayerCorner, nearStatCorner );
+				returnAxes[i] = new Axis( axisLine, nearPlayerCorner, nearStatCorner, featurePolygon );
 				
 			}
 			return returnAxes;
@@ -134,7 +170,7 @@ public abstract class SeparatingAxisCollector {
 		}
 		
 		@Override
-		protected Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2, Boundary b2, MovingCamera cam, Graphics2D g2) {
+		public Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2, Boundary b2, MovingCamera cam, Graphics2D g2) {
 
 			//currentRegion.debugDrawRegion(EntityStatic.origin, cam, g2);
 			//cam.drawCrossInWorld(relativePoint , g2);
@@ -176,7 +212,7 @@ public abstract class SeparatingAxisCollector {
 	    			);
 			
 			return new Axis[]{ 		
-				new Axis( axisLine, nearPrimaryPoint, nearSecondaryPoint )
+				new Axis( axisLine, nearPrimaryPoint, nearSecondaryPoint, currentRegion.getFeature() )
 			};
 		}
 		
@@ -188,28 +224,33 @@ public abstract class SeparatingAxisCollector {
 		}
 	}
 	
-	protected class Axis {
+	public class Axis {
 		
 		private Line2D axis; //Convert to slope intercept doubles
 		private double slope;
 		private double yIntercept;
 		private Point2D nearPrimary;
 		private Point2D nearSecondary;
+		private BoundaryFeature nearSecondaryFeature;
 		
-		protected Axis( Line2D axis, Point2D nearPrimary, Point2D nearSecondary ){
+		protected Axis( Line2D axis, Point2D nearPrimary, Point2D nearSecondary, BoundaryFeature nearSecondaryFeature ){
 			this.axis = axis;
 			this.nearPrimary = nearPrimary;
 			this.nearSecondary = nearSecondary;
+			this.nearSecondaryFeature = nearSecondaryFeature;
 		}
 		
-		protected Line2D getAxisLine(){
+		public Line2D getAxisLine(){
 			return this.axis;
 		}
 		
-		protected Point2D getNearPointPrimary() {
+		public Point2D getNearPointPrimary() {
 			return this.nearPrimary;
 		}
-		protected Point2D getNearPointSecondary() {
+		public BoundaryFeature getNearFeaturePrimary() {
+			return this.nearSecondaryFeature;
+		}
+		public Point2D getNearPointSecondary() {
 			return this.nearSecondary;
 		}
 	}

@@ -14,11 +14,13 @@ import misc.DefaultCollisionEvent;
 import physics.Collision;
 import sprites.RenderingEngine;
 
-public class VisualCollisionDynamicStatic extends Collision implements VisualCollision{
+public class VisualCollisionRigidDynamicStatic extends Collision implements VisualCollision{
 	
 	RenderingEngine debugRenderer;
 	
 	private SeparatingAxisCollector axisCollector;
+	
+	private double frictionCoefficient;
 	
 	private Force normalForce;
 	private Force frictionForce;
@@ -27,7 +29,7 @@ public class VisualCollisionDynamicStatic extends Collision implements VisualCol
 	
 	private ResolutionEvent resolutionEvent = new ResolutionEvent();
 	
-	public VisualCollisionDynamicStatic(Collider collidable1, Collider collidable2 , SeparatingAxisCollector axisCollector , RenderingEngine renderer){
+	public VisualCollisionRigidDynamicStatic(Collider collidable1, Collider collidable2 , SeparatingAxisCollector axisCollector , RenderingEngine renderer){
 		
 		super( collidable1 , collidable2 );
 		
@@ -41,13 +43,13 @@ public class VisualCollisionDynamicStatic extends Collision implements VisualCol
 		
 		debugRenderer = renderer;
 		
-		initCollision();
+		initializeCollision();
 		
 	}
 	
 	//INITAL COLLISION COMMANDS - Run once, the first time collision occurs
 	@Override
-	public void initCollision(){
+	public void initializeCollision(){
 		
 		this.resolutionState = resolutionEvent;
 		
@@ -70,11 +72,10 @@ public class VisualCollisionDynamicStatic extends Collision implements VisualCol
 		Resolution closestResolution = getClosestResolution( camera , g2 );
 		
 		TranslationComposite dynamicPrimary = entityPrimary.getTranslationComposite(); //OPTIMIZE See about moving to initialization
-		AngularComposite angularPrimary = entityPrimary.getAngularComposite();
 
-		final Vector unitNormal = closestResolution.getSeparationVector().unitVector();
+		final Vector unitNormal = closestResolution.getSeparationVector().unitVector(); //FIXME MOVE THIS TO OWN ANTINORMAL FORCE
 		
-		final Vector normal = unitNormal.multiply(-0.2);
+		final Vector normal = unitNormal.multiply(-0.2);								// ON CIRCULAR GRAVITY
 		
 		final double tangentalVelocity = dynamicPrimary.getVelocityVector().projectedOver( normal.normalRight() ).getMagnitude();
 		
@@ -122,7 +123,6 @@ public class VisualCollisionDynamicStatic extends Collision implements VisualCol
 			//dynamicPrimary.halt();
 			dynamicPrimary.setVelocityVector( dynamicPrimary.getVelocityVector().projectedOver(unitNormal.normalLeft()) );
 
-
 			//normalForce.setVector( 0,-0.2 );
 			//normalForce.setVector( new Vector(0,-0.2) );
 		}
@@ -131,7 +131,7 @@ public class VisualCollisionDynamicStatic extends Collision implements VisualCol
 			
 			//entityPrimary.getTranslationComposite().setColliding(true); //MOVE TO RESOLVED UPDATE CLASS JUST LIKE RESOLUTION EVENT
 			
-			if ( closestResolution.FeatureSecondary().debugIsSide() ){
+			/*if ( closestResolution.FeatureSecondary().debugIsSide() ){
 				Vector slope = ((Side)closestResolution.FeatureSecondary()).getSlopeVector().unitVector();
 
 				frictionForce.setVector( dynamicPrimary.getVelocityVector().projectedOver(slope).inverse().multiply(0.1) );
@@ -148,8 +148,7 @@ public class VisualCollisionDynamicStatic extends Collision implements VisualCol
 
 			else{
 				System.err.println("DROPPED SIDE");
-			}
-			
+			}*/
 			
 			triggerResolutionEvent( closestResolution ); 
 		}

@@ -25,7 +25,7 @@ public abstract class CollisionBuilder {
 
 		@Override
 		public Collision createVisualCollision ( Collider collider1 , Collider collider2, VisualCollisionCheck check, RenderingEngine engine ) {
-			return new VisualCollisionDynamicStatic( 
+			return new VisualCollisionRigidDynamicStatic( 
 					collider1 , collider2 , 
 					check.axisCollector ,
 					engine

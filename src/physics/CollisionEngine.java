@@ -440,7 +440,9 @@ public class CollisionEngine {
     public void registerCollision( CollisionBuilder factory, Collider collider1 , Collider collider2, VisualCollisionCheck check ){
     
     	if (!hasActiveCollision(collider1.getOwnerEntity(),collider2.getOwnerEntity())) { 
-			collisionsList.add( factory.createVisualCollision(collider1, collider2, check, this.getBoard().renderingEngine) );
+    		Collision newCollision = factory.createVisualCollision(collider1, collider2, check, this.getBoard().renderingEngine);
+			collisionsList.add( newCollision );
+			newCollision.initializeCollision();
 		} 	
     } 
     
@@ -452,7 +454,7 @@ public class CollisionEngine {
     		//FIXME GET RID OF BOOLEAN AND <AKE ACTIVE AND INACTIVE COLLISION ARRAYS INSTEAD OF THIS MESS
     		if (!hasActiveCollision(collidable1.getOwnerEntity(),collidable2.getOwnerEntity())) { 
 
-    			collisionsList.add(new VisualCollisionDynamicStatic( 
+    			collisionsList.add(new VisualCollisionRigidDynamicStatic( 
     					collidable1 , collidable2 , 
     					((VisualCollisionCheck)check).axisCollector ,
     					this.getBoard().renderingEngine
@@ -475,6 +477,8 @@ public class CollisionEngine {
     public int debugNumberOfCollisions(){
     	return this.collisionsList.size();
     }
+    
+    
     
     public Collider[] debugListActiveColliders(){
     	
@@ -766,7 +770,7 @@ public class CollisionEngine {
 		
 		private DoubleLinkedList<StaticActiveCollider> staticColliders = new DoubleLinkedList<StaticActiveCollider>();
 		private DoubleLinkedList<DynamicActiveCollider> dynamicColliders = new DoubleLinkedList<DynamicActiveCollider>();
-		
+
 		private DoubleLinkedList<GroupPairWrapper> groupPairs = new DoubleLinkedList<GroupPairWrapper>();
 		
 		private String name;
@@ -804,6 +808,10 @@ public class CollisionEngine {
 			}
 			
 			return dynamicColliders.add(dynamic);
+		}
+		
+		public void deactivateColliderGroup(){
+			
 		}
 		
 		public String[] debugListPartnerGroups(){
@@ -888,6 +896,8 @@ public class CollisionEngine {
 		
 		public void notifyPairOfStaticAddedToGroup( StaticActiveCollider addedStatic , byte groupIndex ){
 
+			ArrayList<CheckingPair> returnPairs = new ArrayList<CheckingPair>();
+
 			while ( groups[1-groupIndex].dynamicColliders.hasNext() ){				// (1 - group) is basically boolean 0/1 !int 
 				DynamicActiveCollider dynamic = groups[1-groupIndex].dynamicColliders.get();
 				
@@ -901,39 +911,61 @@ public class CollisionEngine {
 						);
 				
 				newPair.addToList(activeCheckingPairs);
-				
 			}
 		}
 		
 		public void notifyPairOfDynamicAddedToGroup( DynamicActiveCollider addedDynamic , byte groupIndex ){
 
-			while ( groups[1-groupIndex].dynamicColliders.hasNext() ){				// (1 - group) is basically boolean 0/1 !int 
-				DynamicActiveCollider dynamic = groups[1-groupIndex].dynamicColliders.get();
+			if ( groupIndex == 0 ){  //THIS CHECK IS TO SWITCH PRIMARY SECONDARY BILLING FOR DYNAMIC DYNAMIC COLLISIONS
 				
-				VisualCollisionCheck check = calculateCheck( dynamic , addedDynamic ); 
+				while ( groups[1].dynamicColliders.hasNext() ){	
+					
+					DynamicActiveCollider dynamic = groups[1-groupIndex].dynamicColliders.get();
+					
+					VisualCollisionCheck check = calculateCheck( dynamic , addedDynamic ); 
+					
+					CheckingPair newPair = new CustomDynamicStaticPair( //DYNAMIC ADDED TO GROUP 0 GOES PRIMARY
+							addedDynamic, 
+							dynamic, 
+							this.builder, 
+							check
+							);
+					
+					newPair.addToList(activeCheckingPairs);
+				}
 				
-				CheckingPair newPair = new CustomDynamicStaticPair(
-						addedDynamic, 
-						dynamic, 
-						this.builder, 
-						check
-						);
-				
-				newPair.addToList(activeCheckingPairs);
+			}else{ 
+			
+				while ( groups[0].dynamicColliders.hasNext() ){ //DYNAMIC ADDED TO GROUP 1 GOES SECONDARY
+
+					DynamicActiveCollider dynamic = groups[1-groupIndex].dynamicColliders.get();
+
+					VisualCollisionCheck check = calculateCheck( dynamic , addedDynamic ); 
+
+					CheckingPair newPair = new CustomDynamicStaticPair(
+							dynamic, 
+							addedDynamic, 
+							this.builder, 
+							check
+							);
+
+					newPair.addToList(activeCheckingPairs);
+				}
+
 			}
 			
-			while ( groups[1-groupIndex].staticColliders.hasNext() ){				// (1 - group) is basically boolean 0/1 !int 
-				StaticActiveCollider stat = groups[1-groupIndex].staticColliders.get();
-				
-				VisualCollisionCheck check = calculateCheck( stat , addedDynamic ); 
-				
+			while ( groups[1-groupIndex].staticColliders.hasNext() ){				//AND THEN STATICS ALL GO SECONDARY
+				StaticActiveCollider stat = groups[1-groupIndex].staticColliders.get(); //  (1-groupIndex) is basically boolean ! not
+
+				VisualCollisionCheck check = calculateCheck( stat , addedDynamic ); 	// operation on an int between 0 and 1
+
 				CheckingPair newPair = new CustomDynamicStaticPair(
 						addedDynamic, 
 						stat, 
 						this.builder, 
 						check
 						);
-				
+
 				newPair.addToList(activeCheckingPairs);
 			}
 			

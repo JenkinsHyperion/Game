@@ -53,7 +53,7 @@ public abstract class Collision {
 		//initCollision();
 	}
 	
-	public abstract void updateVisualCollision(MovingCamera camera, Graphics2D gOverlay);
+	protected abstract void updateVisualCollision(MovingCamera camera, Graphics2D gOverlay);
 	
 	
 	
@@ -84,12 +84,12 @@ public abstract class Collision {
 	}
 
 	//INITAL COLLISION COMMANDS - Run once, the first time collision occurs
-	public abstract void initCollision();
+	protected abstract void initializeCollision();
 	
 	//CONTINUOUS COLLISION COMMANDS - Ongoing commands during collision like particle effects, sound, etc.
 	public void updateCollision(){}
 	
-	public abstract void completeCollision();
+	protected abstract void completeCollision();
 	
 	//FINAL COLLISION COMMANDS - Last commands before this collision object self destructs
 	
@@ -119,7 +119,9 @@ public abstract class Collision {
 			return true; // return true for scanning loop in Board to delete this collision
 		}
 	}*/
-	
+	public void dropCollision(){
+		this.isComplete = true;
+	}
 	
 	protected boolean isComplete(){
 		return isComplete;
@@ -207,11 +209,11 @@ public abstract class Collision {
 		public BasicCheck(Collider e1, Collider e2, VisualCollisionCheck check) {
 			super( e1 , e2 );
 			this.check = check;
-			initCollision();
+			initializeCollision();
 		}
 		
 		@Override
-		public void initCollision() {
+		public void initializeCollision() {
 			System.out.println("COLLISION START BASIC");
 			this.collidingPrimary.onCollisionEvent();
 			this.collidingSecondary.onCollisionEvent();

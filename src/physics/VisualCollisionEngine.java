@@ -77,7 +77,7 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 			// if not, add new collision event
 			//int index = currentBoard.getStaticEntities().size() + 1 ;
     			//System.out.println( "Collision detected" );
-    			collisionsList.add(new VisualCollisionDynamicStatic( 
+    			collisionsList.add(new VisualCollisionRigidDynamicStatic( 
     					collidable1 , collidable2 , 
     					((VisualCollisionCheck)checkType).getCollector() , 
     					this.getBoard().renderingEngine

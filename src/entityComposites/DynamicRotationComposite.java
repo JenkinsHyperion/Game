@@ -63,7 +63,7 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 		this.updaterSlot.removeSelfFromList();
 	}
 
-	public boolean addCompositeToUpdater(BoardAbstract board) {
+	public boolean addCoreMathToUpdater(BoardAbstract board) {
 		if ( this.updaterSlot == null ){
     		this.updaterSlot = board.addCompositeToUpdater(this);
     		return true;
@@ -151,6 +151,8 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 
 		}
 		
+		
+		
 	}
 	
 	
@@ -175,7 +177,7 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 		public void removeThisUpdateable() {
 		}
 
-		public boolean addCompositeToUpdater(BoardAbstract board) {
+		public boolean addCoreMathToUpdater(BoardAbstract board) {
 			return false;
 		}
 		@Override
@@ -196,6 +198,11 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 	@Override
 	public void setUpdateablesIndex(int index) {
 		this.ownerEntityIndex = index;
+	}
+
+	@Override
+	public void decrementIndex() {
+		this.ownerEntityIndex--;
 	}
 	
 }

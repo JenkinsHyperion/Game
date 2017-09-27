@@ -186,7 +186,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         
         testSaving.addRotationalColliderTo( testSaving.addAngularComposite(), new BoundaryLinear( new Line2D.Double(0,100,0,-100)));
         
-        this.currentScene.addEntity(testSaving,"Tree");
+        //this.currentScene.addEntity(testSaving,"Tree");
         testSaving.getAngularComposite().setAngleInDegrees(45);
 
     }
@@ -314,7 +314,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 			
 			Boundary boundary = new BoundarySingular( new Event() );
 			Boundary boundary2 = new BoundaryCircular( 80 , new Event() );
-			Boundary boundary3 = new BoundaryPolygonal.Box( 20,20,-10,-10 );
+			Boundary boundary3 = new BoundaryPolygonal.Box( 200,200,-100,-100 );
 			
 			this.collider = this.addColliderTo( boundary2 );
 			this.trans = this.addTranslationTo();

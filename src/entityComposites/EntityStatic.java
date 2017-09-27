@@ -78,6 +78,9 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	
 	protected void removeUpdateableComposite( int index ){
 		updateablesList.remove(index);
+		for ( int i = index ; i < updateablesList.size() ; i++){
+			updateablesList.get(i).decrementIndex();
+		}
 	}
 	/**BE ADVISED: WHEN OVERRIDING IN A SUBCLASS, ALWAYS CALL super.updateComposite() which contains core composite updater functionality.
 	 * 
@@ -421,7 +424,7 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 	}
 
 	@Override
-	public boolean addCompositeToUpdater(BoardAbstract board) {
+	public boolean addCoreMathToUpdater(BoardAbstract board) {
 		if ( this.updaterSlot == null ){
     		this.updaterSlot = board.addCompositeToUpdater(this);
     		return true;
@@ -484,6 +487,11 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 
 	@Override
 	public void setUpdateablesIndex(int index) {
+		// TODO DO NOTHING
+	}
+
+	@Override
+	public void decrementIndex() {
 		// TODO DO NOTHING
 	}
 	

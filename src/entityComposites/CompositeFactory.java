@@ -65,6 +65,9 @@ public class CompositeFactory {
 		TranslationComposite trans = new TranslationComposite(entity);
 		entity.setTranslationComposite( trans );
 		entity.addUpdateableComposite(trans);
+		
+		//trans.notifyAddedEntity();
+		
 		return trans;
 	}
 	@Deprecated

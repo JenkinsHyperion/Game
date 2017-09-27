@@ -8,6 +8,7 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.LinkedList;
 
 import engine.BoardAbstract;
@@ -504,12 +505,13 @@ public class CollisionEngine {
     }
     
     
-    
 	public abstract class ActiveCollider{
 		protected Collider collider;
 		protected ArrayList<CheckingPair> pairsList = new ArrayList<CheckingPair>();
 		protected ArrayList<ColliderGroup> groupsList = new ArrayList<ColliderGroup>();
 		protected ArrayList<ListNodeTicket> groupTickets = new ArrayList<ListNodeTicket>();
+		
+		private Hashtable<Integer[],Integer> linkedListTest = new Hashtable<Integer[],Integer>();
 		
 		public ActiveCollider( Collider collider ){
 			this.collider = collider;
@@ -518,7 +520,8 @@ public class CollisionEngine {
 		protected abstract void addToGroup( ColliderGroup group );
 		
 		public void removeSelf() {
-			//TODO
+			
+			
 		}
 		
 		public abstract ActiveCollider notifyChangeToStatic(); 
@@ -549,7 +552,7 @@ public class CollisionEngine {
 
 		public void notifyBoundaryChange( Boundary newBoundary ) {
 			dissolveAllPairs();
-			
+			this.remakePairs();
 		}
 		
 		protected abstract void remakePairs();
@@ -627,6 +630,8 @@ public class CollisionEngine {
 		}
 		
 		public ActiveCollider notifyChangeToStatic(){
+			
+			System.err.println("Dynamic Active Collider changing to static");
 			
 			dissolveAllPairs(); //FIXME Allow only dynamic/statics to be removed rather than blitzing all pairs
 			

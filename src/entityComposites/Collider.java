@@ -261,8 +261,10 @@ public class Collider implements EntityComposite{
 	
 	@Override
 	public void disableComposite(){
+		
 		this.engineSlot.removeSelf();
-		//TODO MORE DEREFERENCING CODE
+		
+		this.ownerEntity.nullifyColliderComposite();
 	}
 	
 	protected void notifyEngineOfChangeToStatic(){

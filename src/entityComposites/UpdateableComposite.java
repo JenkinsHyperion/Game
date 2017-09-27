@@ -22,8 +22,11 @@ public interface UpdateableComposite {
 	public void removeThisUpdateable();
 
 	
-	boolean addCompositeToUpdater(BoardAbstract board);
+	boolean addCoreMathToUpdater(BoardAbstract board);
 	
 	void setUpdateablesIndex( int index );
+
+	void decrementIndex();
+
 	
 }

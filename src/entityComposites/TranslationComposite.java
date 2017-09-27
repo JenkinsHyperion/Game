@@ -194,10 +194,10 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	 * @return True if this composite was added to updater thread. False if this composite is already in updater thread
 	 */
 
-	public boolean addCompositeToUpdater( BoardAbstract board){ 
-		return coreMath.addCompositeToUpdater(board);
+	public boolean addCoreMathToUpdater( BoardAbstract board){ 
+		return coreMath.addCoreMathToUpdater(board);
 	}
-
+	@Override
 	public void removeThisUpdateable(){
 
 		coreMath.removeThisUpdateable();
@@ -210,7 +210,9 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	@Override
 	public void disableComposite() { //DISABLING OF CONCRETE TRANSLATION COMPOSITE Consider condensing into one utility method
 
-		this.coreMath.removeThisUpdateable(); //Remove math calculations from updater thread
+		System.err.println("DISABLING COMPOSITE");
+		
+		this.removeThisUpdateable(); //Remove math calculations from updater thread
 		
 		this.ownerEntity.removeUpdateableComposite( this.ownerEntityIndex ); //Remove this composite's calculations from owner
 		
@@ -221,6 +223,10 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		 *  has a collider, tell it to notify the Collision Engine of this change. Collision Engine will then remove any
 		 *	collision pairs with other statics, since static owner Entity will never collide with other statics.
 		 */ 
+	}
+	@Override
+	public void decrementIndex(){
+		this.ownerEntityIndex--;
 	}
 	
 	@Override
@@ -631,23 +637,31 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 			 * @return True if this composite was added to updater thread. False if this composite is already in updater thread
 			 */
 		
-			public boolean addCompositeToUpdater( BoardAbstract board){ 
+			public boolean addCoreMathToUpdater( BoardAbstract board){ 
 				if ( this.updaterSlot == null ){
 					this.updaterSlot = board.addCompositeToUpdater(this);
 					return true;
 				}
 				else{
+					System.err.println("Core math already in updater");
 					return false;
 				}
 			}
 		
 			public void removeThisUpdateable(){
-				this.updaterSlot.removeSelfFromList();
+				
 				System.out.println("Removing "+TranslationComposite.this+" on ["+ownerEntity+"] from updater");
+			
+				this.updaterSlot.removeSelfFromList();
+				this.updaterSlot = null;
 			}
 			
 			@Override
 			public void setUpdateablesIndex(int index) {
+				//TODO DO NOTHING
+			}
+			@Override
+			public void decrementIndex() {
 				//TODO DO NOTHING
 			}
 	

@@ -49,7 +49,7 @@ public class Scene {
 		if ( (entity.getRotationComposite().exists() ) ){
 			UpdateableComposite rotation = (UpdateableComposite) entity.getRotationComposite();
 			updateableEntity = true;
-			if ( rotation.addCompositeToUpdater(ownerBoard) ){
+			if ( rotation.addCoreMathToUpdater(ownerBoard) ){
 				System.out.println( I+"Adding dynamic rotation composite to updater thread");
 			}else{
 				System.out.println( I+"Dynamic rotation composite already in updater thread");
@@ -109,10 +109,10 @@ public class Scene {
 	
 	private boolean checkTranslation( EntityStatic entity ){
 		
-		if ( (entity.getTranslationComposite() instanceof UpdateableComposite) ){
+		if ( ( entity.getTranslationComposite().exists() ) ){
 			UpdateableComposite trans = (UpdateableComposite) entity.getTranslationComposite();
 
-			if ( trans.addCompositeToUpdater(ownerBoard) ){
+			if ( trans.addCoreMathToUpdater(ownerBoard) ){
 				System.out.println( I+"Adding dynamic translation composite to updater");
 			}else
 				System.err.println( I+"Dynamic translation composite was not added to updater");

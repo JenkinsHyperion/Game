@@ -36,7 +36,7 @@ public class LifespanComposite implements EntityComposite, UpdateableComposite {
 	}
 
 	@Override
-	public boolean addCompositeToUpdater(BoardAbstract board) {
+	public boolean addCoreMathToUpdater(BoardAbstract board) {
 		if ( this.updaterSlot == null ){
     		this.updaterSlot = board.addCompositeToUpdater(this);
     		return true;
@@ -77,6 +77,11 @@ public class LifespanComposite implements EntityComposite, UpdateableComposite {
 	@Override
 	public void setUpdateablesIndex(int index) {
 		this.ownerEntityIndex = index;
+	}
+
+	@Override
+	public void decrementIndex() {
+		this.ownerEntityIndex--;
 	}
 
 }

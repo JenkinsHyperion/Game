@@ -161,6 +161,7 @@ public class BrowserTreePanel extends JPanel {
 	    protected void addCompositeToEntity(JMenuItem selectedOption) {
 	    	if (theEntity != null) {
 	    		String menuOptionName = selectedOption.getText();
+	    		System.err.println("e.getSource() for JMenuItem: " + menuOptionName);
 	    		if (menuOptionName.equalsIgnoreCase("Graphics")) 
 	    		{
 	    			System.err.println("IN BROWSERTREE: REACHED 'GRAPHICS' CHECK, for entity:" + theEntity.name);
@@ -181,18 +182,28 @@ public class BrowserTreePanel extends JPanel {
 	    			}
 	    		}
 	    		else if (menuOptionName.equalsIgnoreCase("Collider")) {
+	    			System.err.println("PASSED. FUCK");
 	    			if (theEntity.getColliderComposite().exists() == false)
 	    			{
-		    			/*Collider newColliderComposite = CompositeFactory.addColliderTo(theEntity, new BoundarySingular());
-		    			//GraphicComposite newGraphicsComposite = CompositeFactory.addGraphicTo(theEntity, Sprite.missingSprite);
+		    			Collider newColliderComposite = CompositeFactory.addColliderTo(theEntity, new BoundarySingular());
 		    			
-		    			BrowserTreePanel.this.board.notifyGraphicsAddition(newGraphicsComposite);
-		    			
-		    			insertCompositeIntoRespectiveFolder(newGraphicsComposite); //inserts into respective filter
+		    			insertCompositeIntoRespectiveFolder( newColliderComposite ); //inserts into respective filter
 		    			try {  //inserts into actual root tree
 		    				DefaultMutableTreeNode entityNode = containsEntity(theEntity, sceneRoot);
-		    				addNewNodeOfAnyType( (DefaultMutableTreeNode)entityNode.getFirstChild(), newGraphicsComposite);
-		    			}catch (UnsupportedDataTypeException e) { e.printStackTrace(); }*/
+		    				addNewNodeOfAnyType( (DefaultMutableTreeNode)entityNode.getFirstChild(), newColliderComposite);
+		    			}catch (UnsupportedDataTypeException e) { e.printStackTrace(); }
+	    			}
+	    		}else if (menuOptionName.equalsIgnoreCase("Translation")) {
+	    			if (theEntity.getTranslationComposite().exists() == false)
+	    			{
+	    				
+		    			//Collider newColliderComposite = CompositeFactory.addColliderTo(theEntity, new BoundarySingular());
+		    			TranslationComposite newTranslationComposite = CompositeFactory.addTranslationTo(theEntity);
+		    			insertCompositeIntoRespectiveFolder( newTranslationComposite ); //inserts into respective filter
+		    			try {  //inserts into actual root tree
+		    				DefaultMutableTreeNode entityNode = containsEntity(theEntity, sceneRoot);
+		    				addNewNodeOfAnyType( (DefaultMutableTreeNode)entityNode.getFirstChild(), newTranslationComposite);
+		    			}catch (UnsupportedDataTypeException e) { e.printStackTrace(); }
 	    			}
 	    		}
 	    	}
@@ -286,7 +297,7 @@ public class BrowserTreePanel extends JPanel {
 							defaultModel.removeNodeFromParent(possibleNodeContainingEnt);
 						else
 							defaultModel.removeNodeFromParent(itsParent);
-						comp.disableComposite();
+						//comp.disableComposite();
 						break;
 					}
 				}

@@ -160,6 +160,11 @@ public class BoardPhysicsTesting extends BoardAbstract{
 			public void setUpdateablesIndex(int index) {
 				this.targetUpdatableIndex = index;
 			}
+
+			@Override
+			public void decrementIndex() {
+				this.targetUpdatableIndex--;
+			}
 			
         });
 

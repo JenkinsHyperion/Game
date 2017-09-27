@@ -258,7 +258,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     	
     	collisionEngine.checkCollisions();
 
-    	gravity.setVector( player.getSeparationUnitVector(asteroid).multiply(0.2) );
+    	//gravity.setVector( player.getSeparationUnitVector(asteroid).multiply(0.2) );
    
     }
 
@@ -354,16 +354,14 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 				}
 			});
 			
+			//TESTING BUTTON
 			this.inputController.createKeyBinding(KeyEvent.VK_DELETE, new KeyCommand(){
 				@Override
 				public void onPressed() {
 					//TESTING
-					Collider collider = player.getColliderComposite();
-					if ( collider.isActive() ){
-						collider.deactivateCollider();
-					}else{
-						collider.activateCollider();
-					}
+					
+					asteroid.getColliderComposite().setBoundary(boundary3);
+					
 					//TESTING
 				}
 			});

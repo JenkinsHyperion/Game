@@ -521,12 +521,11 @@ public class CollisionEngine {
 			//TODO
 		}
 		
-		public abstract ActiveCollider notifyChangeToStatic(); //OPTIMIZE abstract on a higher level than here
+		public abstract ActiveCollider notifyChangeToStatic(); 
 		public abstract ActiveCollider notifyChangeToDynamic();
 		
 		public abstract void notifySetAngle( double angleDegrees );
 
-		
 		protected void dissolveAllPairs(){
 			for ( CheckingPair obsoletePair : pairsList ){
 				obsoletePair.removeSelf();
@@ -534,6 +533,8 @@ public class CollisionEngine {
 			pairsList.clear();
 		}
 
+		//COLLIDER NOTIFIER METHODS called from Collider 
+		
 		public void notifyDeactivatedCollider() {
 			for ( CheckingPair activePairs : pairsList ){
 				activePairs.deactivate();
@@ -545,6 +546,13 @@ public class CollisionEngine {
 				inactivePairs.activate();
 			}
 		}
+
+		public void notifyBoundaryChange( Boundary newBoundary ) {
+			dissolveAllPairs();
+			
+		}
+		
+		protected abstract void remakePairs();
 		
 	}
 
@@ -591,6 +599,20 @@ public class CollisionEngine {
 			
 		}
 		
+		@Override
+		protected void remakePairs() {
+			
+			dissolveAllPairs();
+			for ( ColliderGroup group : groupsList ){ //change dynamic on all groups
+				
+				while ( group.groupPairs.hasNext() ){
+					ColliderGroup.GroupPairWrapper pair = group.groupPairs.get();
+					
+					pair.notifyPairOfAddedStatic( this );
+				}
+			}
+		}
+		
 	}
 	
 	private class DynamicActiveCollider extends ActiveCollider{
@@ -620,6 +642,20 @@ public class CollisionEngine {
 		public void notifySetAngle(double angleDegrees) {
 			// TODO Auto-generated method stub
 			
+		}
+		
+		@Override
+		protected void remakePairs() {
+			
+			dissolveAllPairs();
+			for ( ColliderGroup group : groupsList ){ //change dynamic on all groups
+				
+				while ( group.groupPairs.hasNext() ){
+					ColliderGroup.GroupPairWrapper pair = group.groupPairs.get();
+					
+					pair.notifyPairOfAddedDynamic( this );
+				}
+			}
 		}
 
 	}
@@ -907,7 +943,7 @@ public class CollisionEngine {
 						dynamic, 
 						addedStatic, 
 						this.builder, 
-						check
+						check 
 						);
 				
 				newPair.addToList(activeCheckingPairs);
@@ -963,7 +999,7 @@ public class CollisionEngine {
 						addedDynamic, 
 						stat, 
 						this.builder, 
-						check
+						check 
 						);
 
 				newPair.addToList(activeCheckingPairs);

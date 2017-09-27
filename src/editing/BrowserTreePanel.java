@@ -40,6 +40,7 @@ import entityComposites.EntityComposite;
 import entityComposites.EntityStatic;
 import entityComposites.GraphicComposite;
 import entityComposites.TranslationComposite;
+import physics.BoundarySingular;
 import sprites.Sprite;
 
 /** Task area. Consult every time opening this file. 
@@ -49,6 +50,8 @@ import sprites.Sprite;
  * handling what happens when you try to add a new composite. Currently only made progress on Graphics. But the framework
  * is mostly there for the others. 
  * TODO: Create a checker to check if the entity already has the composite, and don't let it create new node if true.
+ * 
+ * 
  * 
  * 
  * 
@@ -152,10 +155,13 @@ public class BrowserTreePanel extends JPanel {
 		}
 
 	
-
-	    private void addCompositeToEntity(JMenuItem selectedOption) {
+		/** FIXME: NEEDS WORK! FINISH FIRST! 
+		 * The event that is called from {@link MyPopup.AddGraphicsCompositeEvent} and the others.
+		 * */
+	    protected void addCompositeToEntity(JMenuItem selectedOption) {
 	    	if (theEntity != null) {
-	    		if (selectedOption.getText().equalsIgnoreCase("Graphics")) 
+	    		String menuOptionName = selectedOption.getText();
+	    		if (menuOptionName.equalsIgnoreCase("Graphics")) 
 	    		{
 	    			System.err.println("IN BROWSERTREE: REACHED 'GRAPHICS' CHECK, for entity:" + theEntity.name);
 	    			//if (checkIfCompositeIsActive(theEntity.getGraphicComposite()) == false)
@@ -165,13 +171,28 @@ public class BrowserTreePanel extends JPanel {
 		    			//theEntity now has new graphicsComposite, so retreive it.
 		    			GraphicComposite newGraphicsComposite = CompositeFactory.addGraphicTo(theEntity, Sprite.missingSprite);
 		    			
-		    			BrowserTreePanel.this.board.notifyGraphicsChange(newGraphicsComposite);
+		    			BrowserTreePanel.this.board.notifyGraphicsAddition(newGraphicsComposite);
 		    			
-		    			insertCompositeIntoRespectiveFolder(newGraphicsComposite);
-		    			try {
+		    			insertCompositeIntoRespectiveFolder(newGraphicsComposite); //inserts into respective filter
+		    			try {  //inserts into actual root tree
 		    				DefaultMutableTreeNode entityNode = containsEntity(theEntity, sceneRoot);
 		    				addNewNodeOfAnyType( (DefaultMutableTreeNode)entityNode.getFirstChild(), newGraphicsComposite);
 		    			}catch (UnsupportedDataTypeException e) { e.printStackTrace(); }
+	    			}
+	    		}
+	    		else if (menuOptionName.equalsIgnoreCase("Collider")) {
+	    			if (theEntity.getColliderComposite().exists() == false)
+	    			{
+		    			/*Collider newColliderComposite = CompositeFactory.addColliderTo(theEntity, new BoundarySingular());
+		    			//GraphicComposite newGraphicsComposite = CompositeFactory.addGraphicTo(theEntity, Sprite.missingSprite);
+		    			
+		    			BrowserTreePanel.this.board.notifyGraphicsAddition(newGraphicsComposite);
+		    			
+		    			insertCompositeIntoRespectiveFolder(newGraphicsComposite); //inserts into respective filter
+		    			try {  //inserts into actual root tree
+		    				DefaultMutableTreeNode entityNode = containsEntity(theEntity, sceneRoot);
+		    				addNewNodeOfAnyType( (DefaultMutableTreeNode)entityNode.getFirstChild(), newGraphicsComposite);
+		    			}catch (UnsupportedDataTypeException e) { e.printStackTrace(); }*/
 	    			}
 	    		}
 	    	}
@@ -179,7 +200,7 @@ public class BrowserTreePanel extends JPanel {
 	  
 		/** Remove the currently selected node. Valid only for removing composites.
 		 */
-	    public void removeCurrentNode() {
+	    public void removeAndDeactivateCurrentNode() {
 	        DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode)tree.getLastSelectedPathComponent();
 	        if (currentNode != null) {
 	        	if (currentNode.getUserObject() instanceof EntityComposite) {
@@ -315,6 +336,7 @@ public class BrowserTreePanel extends JPanel {
 			dynamicRotation.addActionListener(new AddDynamicRotationCompositeEvent());
 			translation.addActionListener(new AddTranslationCompositeEvent());
 	    }
+	    /** Just an overridden method from JPopup. Ignore */
 		@Override
 		public void show(Component invoker, int x, int y) {
 			// TODO Auto-generated method stub
@@ -325,6 +347,7 @@ public class BrowserTreePanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				System.err.println("Adding collider composite...");
+				addCompositeToEntity( (JMenuItem)e.getSource());
 			}
 		}
 		private class AddGraphicsCompositeEvent implements ActionListener{
@@ -338,24 +361,27 @@ public class BrowserTreePanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				System.err.println("Adding angular composite...");
+				addCompositeToEntity( (JMenuItem)e.getSource());
 			}
 		}
 		private class AddDynamicRotationCompositeEvent implements ActionListener{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				System.err.println("Adding dynamic rotation composite...");
+				addCompositeToEntity( (JMenuItem)e.getSource());
 			}
 		}
 		private class AddTranslationCompositeEvent implements ActionListener{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				System.err.println("Adding translation composite...");
+				addCompositeToEntity( (JMenuItem)e.getSource());
 			}
 		}
 		private class DeleteCompositeEvent implements ActionListener{
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				removeCurrentNode();
+				removeAndDeactivateCurrentNode();
 			}
 			
 		}

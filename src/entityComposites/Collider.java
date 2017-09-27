@@ -64,6 +64,8 @@ public class Collider implements EntityComposite{
 
 	public void setBoundary( Boundary boundary ){
 		this.boundary = boundary;
+		
+		this.engineSlot.notifyBoundaryChange( boundary );
 	}
 	
 	/* #################################################################

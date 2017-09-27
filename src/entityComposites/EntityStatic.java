@@ -208,6 +208,18 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		}
 	}
 	
+	protected void nullifyColliderComposite(){
+		this.collisionType = ColliderNull.nullColliderComposite();
+	}
+	
+	protected void nullifyAngularComposite(){
+		this.angularType = AngularComposite.getFixedAngleSingleton();
+	}
+	
+	protected void nullifyRigidbodyComposite(){
+		this.rigidbodyComposite = Rigidbody.nullSingleton();
+	}
+	
 	protected void nullifyRotationComposite(){
 		this.rotationType = DynamicRotationComposite.nullSingleton();
 	}

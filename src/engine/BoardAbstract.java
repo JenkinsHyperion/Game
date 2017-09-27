@@ -245,7 +245,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 		this.currentScene.addEntity( entity );
 	}
 	
-	public void notifyGraphicsChange(GraphicComposite graphicsComposite){
+	public void notifyGraphicsAddition(GraphicComposite graphicsComposite){
 		this.renderingEngine.addGraphicsCompositeToRenderer(graphicsComposite);
 	}
 	

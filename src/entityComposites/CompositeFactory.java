@@ -97,7 +97,7 @@ public class CompositeFactory {
 
 	public static Collider addColliderTo( EntityStatic entity , Boundary boundary ){
 
-		if ( entity.getColliderComposite().exists() ){
+		if ( entity.getColliderComposite().exists() ){ //FIXME 
 			entity.getColliderComposite().setBoundary(boundary);
 			return entity.getColliderComposite();
 		}

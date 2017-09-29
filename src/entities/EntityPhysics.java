@@ -24,7 +24,7 @@ public class EntityPhysics extends EntityDynamic{
     	//collidable.setBoundary( new BoundaryPolygonal.Box(24, 24, 0, 0) );   	
     	//this.setCollisionComposite( collidable );
     	
-    	CompositeFactory.addColliderTo( this, new BoundaryPolygonal.Box(24, 24, 0, 0) );
+    	CompositeFactory.addInitialColliderTo( this, new BoundaryPolygonal.Box(24, 24, 0, 0) );
     	
     	yReturn = y + 12 ;
     	//accY = 0.1f;

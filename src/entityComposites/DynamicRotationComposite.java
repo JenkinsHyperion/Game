@@ -3,17 +3,16 @@ package entityComposites;
 import java.awt.Point;
 import java.util.ArrayList;
 
-import engine.BoardAbstract;
 import physics.*;
 import testEntities.PlantTwigSegment;
 import utility.ListNodeTicket;
 
 public class DynamicRotationComposite implements EntityComposite, UpdateableComposite{
 	protected String compositeName;
-	private ListNodeTicket updaterSlot;
+	
+	private int updateableIndex;
 	
 	private EntityStatic ownerEntity;
-	private int ownerEntityIndex;
 	
 	//protected Boundary storedBounds; //So that rounding errors from rotation don't degrade the vertex locations
 	protected double angularVelocity = 0;
@@ -38,7 +37,7 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 	}
 	
 	@Override
-	public void updateEntity(EntityStatic entity) {
+	public void updateEntityWithComposite(EntityStatic entity) {
 
 		AngularComposite angular = entity.getAngularComposite();
 		angular.setAngleInDegrees( angular.getAngle() + angularVelocity);
@@ -58,19 +57,18 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 	public float getAngularVel(){ return (float)angularVelocity; }
 
 	public float getAngularAcc(){ return (float)angularAcc; }
-
-	public void removeThisUpdateable() {
-		this.updaterSlot.removeSelfFromList();
+	
+	@Override
+	public void removeThisUpdateableComposite() {
+		
+		this.ownerEntity.removeUpdateableCompositeFromEntity(updateableIndex);
+		this.updateableIndex = -1;
 	}
-
-	public boolean addCoreMathToUpdater(BoardAbstract board) {
-		if ( this.updaterSlot == null ){
-    		this.updaterSlot = board.addCompositeToUpdater(this);
-    		return true;
-    	}
-    	else{
-    		return false;
-    	}
+	
+	@Override
+	public boolean addUpdateableCompositeTo(EntityStatic owner) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 	
 	@Override
@@ -80,7 +78,7 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 	
 	@Override
 	public void disableComposite() {
-		removeThisUpdateable();
+		removeThisUpdateableComposite();
 		this.ownerEntity.nullifyRotationComposite();
 		
 		this.angularVelocity = 0;
@@ -142,7 +140,7 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 		}
 		
 		@Override
-		public void updateEntity(EntityStatic entity) {
+		public void updateEntityWithComposite(EntityStatic entity) {
 			
 			AngularComposite angular = entity.getAngularComposite();
 			
@@ -165,7 +163,7 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 		@Override
 		public void updateComposite() {}
 		@Override
-		public void updateEntity(EntityStatic entity) {}
+		public void updateEntityWithComposite(EntityStatic entity) {}
 		public void setAngularVelocity( double angularVelocity ){
 			
 		}
@@ -174,10 +172,10 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 		}
 		public float getAngularVel(){ return (float)angularVelocity; }
 		public float getAngularAcc(){ return (float)angularAcc; }
-		public void removeThisUpdateable() {
+		public void removeThisUpdateableComposite() {
 		}
 
-		public boolean addCoreMathToUpdater(BoardAbstract board) {
+		public boolean addUpdateableCompositeTo(EntityStatic owner) {
 			return false;
 		}
 		@Override
@@ -197,12 +195,13 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 
 	@Override
 	public void setUpdateablesIndex(int index) {
-		this.ownerEntityIndex = index;
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void decrementIndex() {
-		this.ownerEntityIndex--;
+		this.updateableIndex--;
 	}
-	
+
 }

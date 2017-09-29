@@ -4,7 +4,7 @@ import java.util.Random;
 
 import entityComposites.*;
 
-public class ParticleEmitter extends EntityStatic implements UpdateableComposite{
+public class ParticleEmitter extends EntityStatic{
 
 	private EntityStatic[] particles;
 	
@@ -33,7 +33,7 @@ public class ParticleEmitter extends EntityStatic implements UpdateableComposite
 		//particles[0].getTranslationComposite().setDX(2);
 		particles[0].getRotationComposite().setAngularVelocity(2);
 		
-		updateablesList.add(particles[0]);
+		//updateablesList.add(particles[0]);
 		
 		for ( int i = 1 ; i < particles.length ; i++ ){
 
@@ -45,7 +45,7 @@ public class ParticleEmitter extends EntityStatic implements UpdateableComposite
 			
 			Sprite particleSprite = new Sprite.Stillframe("particle_test.png",-3,-3);
 			
-			CompositeFactory.flyweightTranslation( particles[0] , particles[i] );
+			//CompositeFactory.flyweightTranslation( particles[0] , particles[i] );
 			
 			CompositeFactory.addDynamicRotationTo(particles[i]);
 			particles[i].getRotationComposite().setAngularVelocity(2);
@@ -53,7 +53,7 @@ public class ParticleEmitter extends EntityStatic implements UpdateableComposite
 			particles[i].getAngularComposite().setAngleInRadians(angleRadians);
 			
 			CompositeFactory.addGraphicTo(particles[i], particleSprite ); 
-			updateablesList.add(particles[i]);
+			//updateablesList.add(particles[i]);
 		}
 	}
 	
@@ -65,21 +65,7 @@ public class ParticleEmitter extends EntityStatic implements UpdateableComposite
 			particleIndex=0;
 		}
 	}
-	
-	@Override
-	public void updateComposite() {
-		super.updateComposite();
-		if ( counter < particleDelay ){
-			counter++;
-		}else{
-			trigger();
-			counter = 0;
-		}
-	}
-	
-	@Override
-	public void updateEntity(EntityStatic entity) {
-	}
+
 
 	
 }

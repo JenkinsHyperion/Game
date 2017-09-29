@@ -64,28 +64,17 @@ public class CompositeFactory {
 	public static TranslationComposite addTranslationTo( EntityStatic entity ){
 		TranslationComposite trans = new TranslationComposite(entity);
 		entity.setTranslationComposite( trans );
-		entity.addUpdateableComposite(trans);
-		
-		//trans.notifyAddedEntity();
+
+		if ( trans.addUpdateableCompositeTo(entity) ){
+			System.out.println( "Adding Translation Composite to ["+entity+"] updateables");
+		}else
+			System.err.println( "Translation Composite was already in ["+entity+"] updateables, probably already initialized");
 		
 		return trans;
 	}
-	@Deprecated
-	public static void flyweightTranslation( EntityStatic parent, EntityStatic child ){
-		if ( parent.hasTranslation() ){
-			child.setTranslationComposite( parent.getTranslationComposite() );
-			child.updateablesList.add( (TranslationComposite) parent.getTranslationComposite() );
-		}
-	}
-	@Deprecated
-	public static void flyweightRotation( EntityStatic parent, EntityStatic child ){
-		if ( parent.hasRotation() ){
-			child.setRotationComposite( parent.getRotationComposite() );
-			child.updateablesList.add( (DynamicRotationComposite) parent.getRotationComposite() );
-		}
-		else{
-			System.err.println("WARNING: "+parent+" has no rotational composite to flyweight");
-		}
+	
+	public static void notifyAddedComposite(){
+		
 	}
 	
 	public static void addColliderTo( EntityStatic entity , Line2D[] sides ){
@@ -97,30 +86,39 @@ public class CompositeFactory {
 		entity.setCollisionComposite( newCollider );
 		
 	}
-
-	public static Collider addColliderTo( EntityStatic entity , Boundary boundary ){
-
-		if ( entity.getColliderComposite().exists() ){ //FIXME 
+	
+	public static Collider addInitialColliderTo( EntityStatic entity , Boundary boundary ){
+		
+		if ( entity.getColliderComposite().exists() ){ 
 			entity.getColliderComposite().setBoundary(boundary);
 			return entity.getColliderComposite();
 		}
 		else {
-			Collider newCollider = new Collider( entity , boundary );
+			Collider newCollider = new Collider( entity , boundary ); 
 			entity.setCollisionComposite( newCollider );
 			return newCollider;
 		}
-		
 	}
-	
-	public static Collider addColliderTo( EntityStatic entity , Boundary boundary , int colliderGroup ){
 
-		if ( entity.getColliderComposite().exists() ){
+	public static Collider addColliderTo( EntityStatic entity , Boundary boundary , BoardAbstract board ){
+		
+		if ( entity.getColliderComposite().exists() ){ 
 			entity.getColliderComposite().setBoundary(boundary);
 			return entity.getColliderComposite();
 		}
 		else {
-			Collider newCollider = new Collider( entity , boundary );
+			System.out.println("Adding Collider to ["+entity+"]");
+			
+			Collider newCollider = new Collider( entity , boundary ); //FIXME pass in collision engine instead of board?
 			entity.setCollisionComposite( newCollider );
+			
+			if ( entity.getTranslationComposite().exists() ){
+				newCollider.addCompositeToPhysicsEngineDynamic(board.collisionEngine);
+				
+			}else{
+				newCollider.addCompositeToPhysicsEngineStatic(board.collisionEngine);
+			}
+			
 			return newCollider;
 		}
 		
@@ -262,9 +260,8 @@ public class CompositeFactory {
 		//If child has collider, remove from and add back to collision Engine as dynamic, in case it was registered as static
 		if ( child.hasCollider() ){ 
 			System.out.println("|   Switched ["+child+ "] collider to dynamic");
-			child.getColliderComposite().disableComposite();
 
-			child.getColliderComposite().notifyEngineOfChangeToDynamic();
+			child.getColliderComposite().changeColliderToDynamicInEngine();
 			
 			child.setTranslationComposite( new TranslationComposite(child) );
 		} //else do nothing

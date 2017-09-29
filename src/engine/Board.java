@@ -114,14 +114,14 @@ public class Board extends BoardAbstract {
 		Collider collidable;
 
 		testEntity = new EntityStatic("Test Ground1", 50, 500);
-		CompositeFactory.addColliderTo(testEntity, new BoundaryPolygonal.Box(446, 100, -223, -50));
+		CompositeFactory.addInitialColliderTo(testEntity, new BoundaryPolygonal.Box(446, 100, -223, -50));
 
 		CompositeFactory.addGraphicTo(testEntity, new Sprite.Stillframe("ground_1.png", -223, -53));
 		// renderingEngine.addSpriteComposite( testEntity.getSpriteType() );
 		currentScene.addEntity(testEntity);
 
 		testEntity = new EntityStatic("Test Ground", 700, 500);
-		CompositeFactory.addColliderTo(testEntity, new BoundaryPolygonal.Box(446, 100, -223, -50));
+		CompositeFactory.addInitialColliderTo(testEntity, new BoundaryPolygonal.Box(446, 100, -223, -50));
 		CompositeFactory.addGraphicTo(testEntity, new Sprite.Stillframe("ground_1.png", -223, -53));
 		// CompositeFactory.addTranslationTo( testEntity );
 		// renderingEngine.addSpriteComposite( testEntity.getSpriteType() );

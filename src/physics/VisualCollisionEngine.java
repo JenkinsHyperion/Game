@@ -156,23 +156,38 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 			
 			int y = 80;
 
+			String[] entitiesInGroup = ungrouped.debugListGroupedStatics();
+			
+			g2.drawString( "Ungrouped Entities :", 35, y );
+			y = y + 15;
+			for( String entity : entitiesInGroup ){
+				g2.drawString( "-  "+entity+" (static)", 50, y );
+				y = y + 15;
+			}
+			entitiesInGroup = ungrouped.debugListGroupedDynamics();
+			
+			for( String entity : entitiesInGroup ){
+				g2.drawString( "-  "+entity+" (dynamic)", 50, y );
+				y = y + 15;
+			}
+			
 			for ( ColliderGroup group : colliderGroups ){
 				
-				String[] entitiesInGroup = group.debugListGroupedStatics();
+				entitiesInGroup = group.debugListGroupedStatics();
 				
 				g2.drawString( group.toString() + " containing :", 35, y );
 				y = y + 15;
-					for( String entity : entitiesInGroup ){
-						g2.drawString( "-  "+entity+" (static)", 50, y );
-						y = y + 15;
-					}
-					
-					entitiesInGroup = group.debugListGroupedDynamics();
-					
-					for( String entity : entitiesInGroup ){
-						g2.drawString( "-  "+entity+" (dynamic)", 50, y );
-						y = y + 15;
-					}
+				for( String entity : entitiesInGroup ){
+					g2.drawString( "-  "+entity+" (static)", 50, y );
+					y = y + 15;
+				}
+
+				entitiesInGroup = group.debugListGroupedDynamics();
+
+				for( String entity : entitiesInGroup ){
+					g2.drawString( "-  "+entity+" (dynamic)", 50, y );
+					y = y + 15;
+				}
 			}
 			
 			/*for ( GroupPair pair : groupPairs ){

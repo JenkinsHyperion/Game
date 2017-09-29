@@ -26,11 +26,6 @@ public class Player extends EntityStatic {
     
     public InputController inputController = new InputController("Player controller");
 
-    @Override
-    public void updateComposite() {
-    	super.updateComposite();
-    }
-
     public String toString() {
 		return String.format(name);
 	}

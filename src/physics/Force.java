@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class Force {
 
-	protected int ID;
+	protected int ID = -1;
 	
 	protected Vector force;
 	
@@ -22,6 +22,10 @@ public class Force {
 	
 	public int getID(){
 		return this.ID;
+	}
+	
+	public void resetID(){
+		this.ID = -1;
 	}
 	
 	public void removeFrom( ArrayList<Force> forceList ){
@@ -41,8 +45,8 @@ public class Force {
 		this.force = this.force.add( input );
 	}
 	
-	public void indexShift(){
-		this.ID = this.ID - 1;
+	public void decrementIndex(){
+		this.ID--;
 	}
 	
 	public Vector getVector(){

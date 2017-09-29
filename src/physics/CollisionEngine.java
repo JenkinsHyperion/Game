@@ -98,6 +98,18 @@ public class CollisionEngine {
 		
 	}
 	
+	public <C extends Collider> void createColliderGroupOfType( String newGroupName ){
+		
+		if ( getGroupsByName( newGroupName ).length == 0 ){
+			ColliderGroupTyped<C> newGroup = new ColliderGroupTyped<C>(newGroupName);
+			newGroup.addToGroupList(colliderGroups);
+			System.out.println("Creating group '"+newGroupName+"'");
+		}else{
+			System.err.println("Group '"+newGroupName+"' already exists");
+		}
+		
+	}
+	
 	public ColliderGroup[] getGroupsByName( String...strings ){
 		
 		ColliderGroup[] returnGroups = new ColliderGroup[ strings.length ];
@@ -202,7 +214,8 @@ public class CollisionEngine {
 		
 		for ( ColliderGroup group : colliderGroups){
 			if ( group.toString().matches(groupName) ){ //group already exists
-				group.addDynamicCollider(newDynamic);
+
+				newDynamic.addToGroup(group);
 				
 				return newDynamic;
 			}
@@ -212,7 +225,7 @@ public class CollisionEngine {
 		ColliderGroup newGroup = new ColliderGroup( groupName );
 		newGroup.addToGroupList(colliderGroups);
 
-		newGroup.addDynamicCollider(newDynamic);
+		newDynamic.addToGroup(newGroup);
 		
 		return newDynamic;
 	}
@@ -519,16 +532,11 @@ public class CollisionEngine {
 
 		protected abstract void addToGroup( ColliderGroup group );
 		
-		public void removeSelf() {
-			
-			
-		}
-		
 		public abstract ActiveCollider notifyChangeToStatic(); 
 		public abstract ActiveCollider notifyChangeToDynamic();
 		
 		public abstract void notifySetAngle( double angleDegrees );
-
+		
 		protected void dissolveAllPairs(){
 			for ( CheckingPair obsoletePair : pairsList ){
 				obsoletePair.removeSelf();
@@ -555,6 +563,19 @@ public class CollisionEngine {
 			this.remakePairs();
 		}
 		
+		public void notifyRemovedCollider(){
+			dissolveAllPairs();
+			
+			this.removeFromGroups();
+		}
+
+		protected void removeFromGroups() {
+			for ( ListNodeTicket groupTicket : groupTickets ){
+				groupTicket.removeSelfFromList();
+			}
+			this.groupsList.clear();
+		}
+		
 		protected abstract void remakePairs();
 		
 	}
@@ -566,7 +587,7 @@ public class CollisionEngine {
 		}
 		
 		protected void addToGroup( ColliderGroup group ){
-			groupTickets.add( group.addStaticCollider(this) );
+			groupTickets.add( group.addStaticColliderToThisGroup(this) );
 			groupsList.add(group);
 		}
 		
@@ -590,7 +611,7 @@ public class CollisionEngine {
 				group.removeSelfFromList();
 			}
 			for ( ColliderGroup group : groupsList ){ //change dynamic on all groups
-				groupTickets.add( group.addDynamicCollider(changedDynamic) );
+				groupTickets.add( group.addDynamicColliderToThisGroup(changedDynamic) );
 			}
 
 			return changedDynamic;
@@ -625,7 +646,7 @@ public class CollisionEngine {
 		}
 		
 		protected void addToGroup( ColliderGroup group ){
-			groupTickets.add( group.addDynamicCollider(this) );
+			groupTickets.add( group.addDynamicColliderToThisGroup(this) );
 			groupsList.add(group);
 		}
 		
@@ -663,6 +684,15 @@ public class CollisionEngine {
 			}
 		}
 
+	}
+	
+	protected class DynamicTypedCollider<C extends Collider> extends DynamicActiveCollider{
+
+		public DynamicTypedCollider(Collider collider) {
+			super(collider);
+			// TODO Auto-generated constructor stub
+		}
+		
 	}
 	
 	protected abstract class CheckingPair{
@@ -831,7 +861,7 @@ public class CollisionEngine {
 			return this.groupPairs.add( new GroupPairWrapper( pair , primarySecondary ) );
 		}
 
-		public ListNodeTicket addStaticCollider( StaticActiveCollider newStatic ){
+		public ListNodeTicket addStaticColliderToThisGroup( StaticActiveCollider newStatic ){
 
 			while ( groupPairs.hasNext() ){
 				GroupPairWrapper wrappedPair = groupPairs.get();
@@ -841,7 +871,7 @@ public class CollisionEngine {
 			return staticColliders.add(newStatic);
 		}
 		
-		public ListNodeTicket addDynamicCollider( DynamicActiveCollider dynamic ){
+		public ListNodeTicket addDynamicColliderToThisGroup( DynamicActiveCollider dynamic ){
 			
 			while ( groupPairs.hasNext() ){
 				GroupPairWrapper wrappedPair = groupPairs.get();
@@ -907,6 +937,15 @@ public class CollisionEngine {
 				pair.notifyPairOfDynamicAddedToGroup(addedDynamic, primarySecondary);
 			}
 		}
+		
+	}
+	
+	protected class ColliderGroupTyped<C extends Collider> extends ColliderGroup{
+
+		public ColliderGroupTyped(String name) {
+			super(name);
+		}
+		
 		
 	}
 	

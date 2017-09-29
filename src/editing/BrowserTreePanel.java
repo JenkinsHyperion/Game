@@ -182,10 +182,9 @@ public class BrowserTreePanel extends JPanel {
 	    			}
 	    		}
 	    		else if (menuOptionName.equalsIgnoreCase("Collider")) {
-	    			System.err.println("PASSED. FUCK");
 	    			if (theEntity.getColliderComposite().exists() == false)
 	    			{
-		    			Collider newColliderComposite = CompositeFactory.addColliderTo(theEntity, new BoundarySingular());
+		    			Collider newColliderComposite = CompositeFactory.addColliderTo(theEntity, new BoundarySingular(), board);
 		    			
 		    			insertCompositeIntoRespectiveFolder( newColliderComposite ); //inserts into respective filter
 		    			try {  //inserts into actual root tree

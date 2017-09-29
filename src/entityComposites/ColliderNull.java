@@ -133,7 +133,7 @@ public final class ColliderNull extends Collider{
 	}
 	
 	@Override
-	protected void notifyEngineOfChangeToStatic() {
+	protected void changeColliderToStaticInEngine() {
 		//DO NOTHING, DYMAMIC ENTITY HAD NO COLLIDER
 	}
 	

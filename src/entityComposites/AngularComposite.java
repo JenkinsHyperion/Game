@@ -184,7 +184,11 @@ public abstract class AngularComposite implements EntityComposite {
 	
 		@Override
 		public void disableComposite() {
-			// TODO Auto-generated method stub
+			
+			this.ownerEntity.nullifyAngularComposite();
+			
+			this.ownerEntity.getGraphicComposite().setGraphicAngle(0);	//notify graphic of fixed angle 0
+
 		}
 		@Override
 		public void setCompositeName(String newName) {

@@ -15,7 +15,7 @@ public class TestRotation extends EntityRotationalDynamic{
         //this.setCollisionComposite( collidable );
         //collidable.setBoundary( new BoundaryPolygonal.Box(446,100,-223,-50) );
         
-        CompositeFactory.addColliderTo( this , new BoundaryPolygonal.Box(446,100,-223,-50) );
+        CompositeFactory.addInitialColliderTo( this , new BoundaryPolygonal.Box(446,100,-223,-50) );
 
         this.storedBounds = new BoundaryPolygonal.Box(446,100,-223,-50 );
         

@@ -188,8 +188,8 @@ public class PlantTwigSegment extends EntityStatic{
 			}
 			
 			@Override
-			public void updateComposite() {
-				super.updateComposite();
+			public void updateEntity() {
+				super.updateEntity();
 		
 				this.currentGrowthState.run(); 
 				
@@ -811,8 +811,8 @@ public class PlantTwigSegment extends EntityStatic{
 		}
 		
 		@Override
-		public void updateComposite() {
-			super.updateComposite();
+		public void updateEntity() {
+			super.updateEntity();
 			
 			this.currentGrowthState.run();
 			

@@ -21,6 +21,8 @@ import sprites.Sprite.Stillframe;
 
 public class EntityFactory {
 	
+	private BoardAbstract board;
+	
 	public static Platform01 PLATFORM01 = new Platform01();
 
 	private EntityFactory(){

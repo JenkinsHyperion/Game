@@ -1,6 +1,5 @@
 package entityComposites;
 
-import engine.BoardAbstract;
 import utility.ListNodeTicket;
 
 public class LifespanComposite implements EntityComposite, UpdateableComposite {
@@ -16,7 +15,7 @@ public class LifespanComposite implements EntityComposite, UpdateableComposite {
 	}
 	
 	@Override
-	public void updateEntity(EntityStatic entity) {
+	public void updateEntityWithComposite(EntityStatic entity) {
 		if ( lifespan == 0 ){
 			entity.disable();
 		}
@@ -31,19 +30,14 @@ public class LifespanComposite implements EntityComposite, UpdateableComposite {
 	}
 
 	@Override
-	public void removeThisUpdateable() {
+	public void removeThisUpdateableComposite() {
 		this.updaterSlot.removeSelfFromList();
 	}
 
 	@Override
-	public boolean addCoreMathToUpdater(BoardAbstract board) {
-		if ( this.updaterSlot == null ){
-    		this.updaterSlot = board.addCompositeToUpdater(this);
-    		return true;
-    	}
-    	else{
-    		return false;
-    	}
+	public boolean addUpdateableCompositeTo(EntityStatic owner) {
+		owner.addUpdateableCompositeToEntity(this);
+		return true;
 	}
 
 	@Override

@@ -132,7 +132,7 @@ public class PlayerCharacter extends Player {
 			corner.setCollisionEvent( cornerCollision );
 		}*/
         
-		CompositeFactory.addColliderTo( this , boundarytemp );
+		CompositeFactory.addInitialColliderTo( this , boundarytemp );
 		
         this.getColliderComposite().setLeavingCollisionEvent( new OnLeavingCollision() );
 		
@@ -160,8 +160,8 @@ public class PlayerCharacter extends Player {
   
     
     @Override
-    public void updateComposite() {// SPLIT INTO GENERAL UPDATE BETWEEN INPUT AND POSITION
-    	super.updateComposite();
+    public void updateEntity() {// SPLIT INTO GENERAL UPDATE BETWEEN INPUT AND POSITION
+    	super.updateEntity();
     	playerState.updateState();
  
     	//this.applyAllForces();

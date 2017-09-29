@@ -3,7 +3,6 @@ package entityComposites;
 import java.awt.Point;
 import java.util.ArrayList;
 
-import engine.BoardAbstract;
 import physics.Force;
 import physics.PointForce;
 import physics.Vector;
@@ -14,7 +13,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	protected String compositeName;
 	private TranslationMath coreMath = new TranslationMath();
 	private EntityStatic ownerEntity;
-	private int ownerEntityIndex;
+	private int ownerEntityIndex = -1;
 	
 	private static final Null nullSingleton = new Null();
 
@@ -166,8 +165,8 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		return coreMath.addNormalForce(vector);
 	}
 
-	public void removeNormalForce(int index){ 
-		coreMath.removeNormalForce(index);
+	public void removeNormalForce(Force index){ 
+		this.coreMath.removeNormalForce(index);
 	}
 
 	//MOVE TO ROTATIONAL BODY
@@ -184,23 +183,26 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		return coreMath.debugForceArrows();
 	}
 
-	public Vector sumOfForces(){
-		return coreMath.sumOfForces();
-	}
-
 	/** Attempts to add this Composite to Board updater thread.
 	 * 
-	 * @param board 
 	 * @return True if this composite was added to updater thread. False if this composite is already in updater thread
 	 */
 
-	public boolean addCoreMathToUpdater( BoardAbstract board){ 
-		return coreMath.addCoreMathToUpdater(board);
+	public boolean addUpdateableCompositeTo( EntityStatic owner){ 
+		if ( ownerEntityIndex == -1 ){
+			ownerEntityIndex = owner.addUpdateableCompositeToEntity(this);
+			return true;
+		}else{
+			return false;
+		}
 	}
 	@Override
-	public void removeThisUpdateable(){
+	public void removeThisUpdateableComposite(){
 
-		coreMath.removeThisUpdateable();
+		System.out.println("Removing "+TranslationComposite.this+" from ["+ownerEntity+"] updateables");
+		
+		ownerEntity.removeUpdateableCompositeFromEntity(ownerEntityIndex);
+		ownerEntityIndex = -1;
 	}
 	@Override
 	public boolean exists(){
@@ -210,19 +212,20 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	@Override
 	public void disableComposite() { //DISABLING OF CONCRETE TRANSLATION COMPOSITE Consider condensing into one utility method
 
-		System.err.println("DISABLING COMPOSITE");
+		this.removeThisUpdateableComposite(); //Remove math calculations from updater thread
 		
-		this.removeThisUpdateable(); //Remove math calculations from updater thread
+		if ( this.ownerEntityIndex != -1 )
+			this.ownerEntity.removeUpdateableCompositeFromEntity( this.ownerEntityIndex ); //Remove this composite's calculations from owner
 		
-		this.ownerEntity.removeUpdateableComposite( this.ownerEntityIndex ); //Remove this composite's calculations from owner
-		
-		this.ownerEntity.nullifyTranslationComposite(); //Call owner entity to rereference its null translation singleton
-		
-		this.ownerEntity.getColliderComposite().notifyEngineOfChangeToStatic(); 
+		this.ownerEntity.getColliderComposite().changeColliderToStaticInEngine(); 
 		/*		This translation being removed from ownerEntity means that ownerEntity will now be static. If ownerEntity
 		 *  has a collider, tell it to notify the Collision Engine of this change. Collision Engine will then remove any
 		 *	collision pairs with other statics, since static owner Entity will never collide with other statics.
 		 */ 
+		
+		this.ownerEntity.nullifyTranslationComposite(); //Call owner entity to rereference its null translation singleton
+		
+		
 	}
 	@Override
 	public void decrementIndex(){
@@ -247,13 +250,13 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		return this.ownerEntity;
 	}
 	@Override
-	public void updateEntity(EntityStatic entity) {
-		coreMath.updateEntity(entity);
+	public void updateEntityWithComposite(EntityStatic entity) {
+		coreMath.updateEntityWithMath(entity);
 	}
 
 	@Override
 	public void updateComposite() {
-		coreMath.updateComposite();
+		coreMath.update();
 	}
 	@Override
 	public String toString() {
@@ -261,9 +264,8 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	}
 	
 	
-	private class TranslationMath implements UpdateableComposite{
-	
-			private ListNodeTicket updaterSlot;	
+	private class TranslationMath{
+
 			protected double dx=0;
 			protected double dy=0;
 			protected double accY=0;
@@ -274,13 +276,11 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 			protected double accXT=0;
 		
 			protected ArrayList<VelocityVector> velocityVectors = new ArrayList<>();
-			
 			protected ArrayList<Force> forces = new ArrayList<>();
 			protected ArrayList<PointForce> pointForces = new ArrayList<>();
 			protected ArrayList<Force> normalForces = new ArrayList<>();
 		
-			@Override
-			public void updateComposite() {
+			public void update() {
 		
 				Vector sumVelocities = this.sumOfVelocityVectors();
 				dx += accX + sumVelocities.getX(); 
@@ -295,12 +295,12 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 			public int debugNumberVelocities() {
 				return velocityVectors.size();
 			}
-			@Override
-			public void updateEntity( EntityStatic entity ) {
+
+			public void updateEntityWithMath( EntityStatic entity ) {
 		
 				entity.setX( entity.x + this.dx) ; 
 				entity.setY( entity.y + this.dy) ;
-		
+				
 			}  
 			
 			public void halt(){
@@ -562,7 +562,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 				//System.out.print("Removing Force "+ index+" ... ");
 		
 				for ( int i = index+1 ; i < forces.size() ; i++) {
-					forces.get(i).indexShift();
+					forces.get(i).decrementIndex();
 				} 
 				forces.remove(index); 
 		
@@ -573,17 +573,23 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 				int indexID = normalForces.size();     	
 				Force newForce = new Force( vector , indexID );
 				normalForces.add( newForce ) ;
-				//System.out.print("Adding Force "+ indexID+" ... ");
+				System.out.print("Adding Force "+ indexID+" ... "+normalForces.size());
 				return newForce;
 			}
 			
-			public void removeNormalForce(int index){ 
-				//System.out.print("Removing Force "+ index+" ... ");
-		
-				for ( int i = index+1 ; i < normalForces.size() ; i++) {
-					normalForces.get(i).indexShift();
-				} 
-				normalForces.remove(index); 
+			public void removeNormalForce( Force force){ 
+				System.out.print("Removing Force "+ force.getID()+" ... "+normalForces.size());
+				if ( force.getID() != -1 ){
+				
+					for ( int i = force.getID()+1 ; i < normalForces.size() ; i++) {
+						normalForces.get(i).decrementIndex();
+					} 
+					normalForces.remove( force.getID() ); 
+					force.resetID();
+				}
+				else{
+					
+				}
 		
 			}
 		
@@ -597,10 +603,10 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 			}
 		
 			public void removePointForce(int index){ 
-		
+
 				pointForces.remove(index); 
 				for ( int i = index ; i < pointForces.size() ; i++) {
-					pointForces.get(i).indexShift();
+					pointForces.get(i).decrementIndex();
 				} 
 			}
 		
@@ -629,40 +635,6 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 				}
 		
 				return returnVector;
-			}
-		
-			/** Attempts to add this Composite to Board updater thread.
-			 * 
-			 * @param board 
-			 * @return True if this composite was added to updater thread. False if this composite is already in updater thread
-			 */
-		
-			public boolean addCoreMathToUpdater( BoardAbstract board){ 
-				if ( this.updaterSlot == null ){
-					this.updaterSlot = board.addCompositeToUpdater(this);
-					return true;
-				}
-				else{
-					System.err.println("Core math already in updater");
-					return false;
-				}
-			}
-		
-			public void removeThisUpdateable(){
-				
-				System.out.println("Removing "+TranslationComposite.this+" on ["+ownerEntity+"] from updater");
-			
-				this.updaterSlot.removeSelfFromList();
-				this.updaterSlot = null;
-			}
-			
-			@Override
-			public void setUpdateablesIndex(int index) {
-				//TODO DO NOTHING
-			}
-			@Override
-			public void decrementIndex() {
-				//TODO DO NOTHING
 			}
 	
 	} // END INNER MATH CLASS
@@ -816,7 +788,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 			return new Vector(0,0);
 		}
 		
-		public void removeThisUpdateable(){
+		public void removeThisUpdateableComposite(){
 			System.err.println("Attempted to remove null Translation from updater");
 		}
 		
@@ -848,6 +820,8 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	}
 	
 	
+	
+	
 	public class VelocityVector{
 		
 		private Vector vector;
@@ -865,7 +839,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 			this.vector = vector;
 		}
 
-		private void decrementIndex(){
+		private void decIndex(){
 			this.indexID--;
 		}
 		
@@ -877,7 +851,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		protected void removeFromList( ArrayList<VelocityVector> list ){
 			list.remove(indexID);
 			for( int i = indexID ; i < list.size() ; i++ ){
-				list.get(i).decrementIndex();
+				list.get(i).decIndex();
 			}
 		}
 	}

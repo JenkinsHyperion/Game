@@ -1,6 +1,5 @@
 package entityComposites;
 
-import engine.BoardAbstract;
 import utility.ListNodeTicket;
 
 public abstract class EntityScript implements UpdateableComposite{
@@ -17,23 +16,18 @@ public abstract class EntityScript implements UpdateableComposite{
 	}
 	
 	@Override
-	public void updateEntity(EntityStatic entity) {
+	public void updateEntityWithComposite(EntityStatic entity) {
 		this.updateOwner(entity);
 	}
 	
 	@Override
-	public boolean addCoreMathToUpdater(BoardAbstract board) {
-		if ( this.updaterSlot == null ){
-    		this.updaterSlot = board.addCompositeToUpdater(this);
-    		return true;
-    	}
-    	else{
-    		return false;
-    	}
+	public boolean addUpdateableCompositeTo(EntityStatic owner) {
+		owner.addUpdateableCompositeToEntity(this);
+		return true;
 	}
 	
 	@Override
-	public void removeThisUpdateable() {
+	public void removeThisUpdateableComposite() {
 		this.updaterSlot.removeSelfFromList();
 	}
 	

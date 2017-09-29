@@ -56,7 +56,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
     	
     	inputController.createKeyBinding( KeyEvent.VK_PAUSE, new PauseEvent() );
 
-    	CompositeFactory.addColliderTo( followerEntity , new BoundaryPolygonal.Box(200, 20, -10, -10) );
+    	CompositeFactory.addInitialColliderTo( followerEntity , new BoundaryPolygonal.Box(200, 20, -10, -10) );
     	//CompositeFactory.addColliderTo(followerEntity, new BoundaryCircular(40,followerEntity) );
     	//CompositeFactory.addColliderTo(followerEntity, new BoundarySingular() );
     	//CompositeFactory.addColliderTo(followerEntity, new BoundaryPolygonal.Box(60, 60, -30, -30) );
@@ -84,7 +84,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 		
 		rotateTest = new EntityStatic("Test Ground 01",0,0);     
 		
-        CompositeFactory.addColliderTo( rotateTest , new BoundaryPolygonal.Box(446,100,-223,-50 ) );
+        CompositeFactory.addInitialColliderTo( rotateTest , new BoundaryPolygonal.Box(446,100,-223,-50 ) );
     	//CompositeFactory.addColliderTo(rotateTest, new BoundaryCircular(40,rotateTest) );
         
         CompositeFactory.addGraphicTo(rotateTest, new Sprite.Stillframe("ground_1.png" , -223 , -53 ) );
@@ -125,7 +125,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
         CompositeFactory.addDynamicRotationTo(spaceship);
         
         //CompositeFactory.addColliderTo(spaceship, new BoundaryPolygonal.Box(10, 10, -5, -5));
-        CompositeFactory.addColliderTo(spaceship, new BoundaryCircular( 10 ) ); 	//Add collider
+        CompositeFactory.addInitialColliderTo(spaceship, new BoundaryCircular( 10 ) ); 	//Add collider
         //CompositeFactory.addColliderTo(spaceship, new BoundarySingular() ); 	//Add collider
 
         CompositeFactory.addScriptTo(spaceship, new EntityScript(){
@@ -245,11 +245,11 @@ public class BoardPhysicsTesting extends BoardAbstract{
 		g.drawString( collisionEngine.debugNumberOfCollisions() + " collisions" , margin.x, 95);
 		g.drawString( this.followerEntity.getTranslationComposite().getAccY() + " accY" , margin.x, 110);
 		g.drawString( this.updateableEntities() + " updateable entities" , margin.x, 180);
-		g.drawString( this.updateableComposites() + " dynamic composites" , margin.x, 195);
+		g.drawString(  " dynamic composites" , margin.x, 195);
 		
-		for ( Vector force : followerEntity.getTranslationComposite().debugForceArrows() ){
+		/*for ( Vector force : followerEntity.getTranslationComposite().debugForceArrows() ){
 			camera.draw( force.toLine(followerEntity.getPosition() ) );
-		}
+		}*/
 		
 		inputController.debugPrintInputList(100, 300, g);
 		/*g.setColor(Color.ORANGE);

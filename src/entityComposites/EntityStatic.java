@@ -1,11 +1,14 @@
 package entityComposites;
 
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.io.File;
 import java.util.ArrayList;
 
 import animation.Animation;
 import engine.BoardAbstract;
+import engine.MovingCamera;
+import engine.ReferenceFrame;
 import engine.Scene;
 import entityComposites.*;
 import physics.Boundary;
@@ -20,12 +23,12 @@ import sprites.Sprite;
 /*
  * Static Entity class, for unmoving sprites. Has graphic that can be either still image or animation.
  */
-public class EntityStatic extends Entity implements UpdateableComposite{
+public class EntityStatic extends Entity{
 
 	private Scene ownerScene;
 	private Integer sceneIndex;
 	
-	private final NullTicket nullTicket = new NullTicket();
+	private static final NullTicket nullTicket = new NullTicket();
 	private ListNodeTicket updaterSlot = nullTicket;
 	//COMPOSITE VARIABLES, LATER TO BE LIST OF COMPOSITES
 	protected TranslationComposite translationType = TranslationComposite.nullSingleton();
@@ -69,32 +72,50 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		 
 	}
 	
-	protected void addUpdateableComposite( UpdateableComposite updateable){
+	protected int addUpdateableCompositeToEntity( UpdateableComposite updateable){
 		
-		updateable.setUpdateablesIndex( updateablesList.size() );
+		int index = updateablesList.size();
 		
 		updateablesList.add(updateable);
+		
+		return index;
 	}
 	
-	protected void removeUpdateableComposite( int index ){
+	protected void removeUpdateableCompositeFromEntity( int index ){
+		try {
+			while( ownerScene.isWorking() ){
+	
+					wait();
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		System.out.println("WAITED AND NOW REMOVING "+index+" size "+updateablesList.size());
 		updateablesList.remove(index);
 		for ( int i = index ; i < updateablesList.size() ; i++){
 			updateablesList.get(i).decrementIndex();
 		}
+		
 	}
+	
+	public void addUpdateableEntityToUpdater( BoardAbstract board ){
+		this.updaterSlot = board.addEntityToUpdater(this);
+	}
+	
+	public void removeUpdateableEntityToUpdater(){
+		this.updaterSlot.removeSelfFromList();
+		this.updaterSlot = nullTicket;
+	}
+	
 	/**BE ADVISED: WHEN OVERRIDING IN A SUBCLASS, ALWAYS CALL super.updateComposite() which contains core composite updater functionality.
 	 * 
 	 */
-	@Override
-	public void updateComposite(){ //MAKE OWN COMPOSITE
+	public void updateEntity() {
 		
 		for ( UpdateableComposite composite : updateablesList ){
-			composite.updateEntity(this);
+			composite.updateEntityWithComposite(this);
+			composite.updateComposite();
 		}
-	}
-	@Override
-	public void updateEntity(EntityStatic entity) { 
-		System.err.println("ENTITY STATIC WARNING");
 	}
 	
 	/*######################################################################################################################
@@ -168,8 +189,12 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		return CompositeFactory.addTranslationTo(this);
 	}
 	
-	public Collider addColliderTo( Boundary bounds ){
-		return CompositeFactory.addColliderTo(this, bounds);
+	public Collider addInitialColliderTo( Boundary bounds ){ //FIXME AUTOMATICALLY CHECK IF ENTITIY IS ADDED
+		return CompositeFactory.addInitialColliderTo(this, bounds);
+	}
+	
+	public Collider addColliderTo( Boundary bounds, BoardAbstract board ){
+		return CompositeFactory.addColliderTo(this, bounds, board);
 	}
 	
 	public Collider addRotationalColliderTo( AngularComposite angularComposite , Boundary bounds ){
@@ -362,20 +387,6 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 
 		System.out.println("done");
 	}
-	
-	public void addToUpdater( BoardAbstract board){
-		if ( !updaterSlot.isActive() ){
-			this.updaterSlot = board.addEntityToUpdater(this);
-			System.out.println("Added entity ["+this.name+"] to updater");
-		}else{
-			System.err.println("Warning: ["+this.name+"] is already in updater");
-		}
-
-	}
-	
-	public void removeFromUpdater(){
-		this.updaterSlot.removeSelfFromList();
-	}
 
 	// PARENT CHILD METHODS
 	public boolean isParent(){
@@ -410,28 +421,14 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		else
 			return false;
 	}
+	public int numberOfUpdateableComposites(){
+		return updateablesList.size();
+	}
 	
 	public UpdateableComposite[] getUpdateables(){
 		UpdateableComposite[] returnArray = new UpdateableComposite[ this.updateablesList.size() ];
 		this.updateablesList.toArray(returnArray);
 		return returnArray;
-	}
-	
-	@Override
-	public void removeThisUpdateable() {
-		this.updaterSlot.removeSelfFromList();
-		this.updaterSlot = nullTicket;
-	}
-
-	@Override
-	public boolean addCoreMathToUpdater(BoardAbstract board) {
-		if ( this.updaterSlot == null ){
-    		this.updaterSlot = board.addCompositeToUpdater(this);
-    		return true;
-    	}
-    	else{
-    		return false;
-    	}
 	}
 	
 	public void addEntityToScene(Scene scene , int index){
@@ -483,16 +480,6 @@ public class EntityStatic extends Entity implements UpdateableComposite{
 		public boolean isActive() {
 			return false;
 		}
-	}
-
-	@Override
-	public void setUpdateablesIndex(int index) {
-		// TODO DO NOTHING
-	}
-
-	@Override
-	public void decrementIndex() {
-		// TODO DO NOTHING
 	}
 	
 }

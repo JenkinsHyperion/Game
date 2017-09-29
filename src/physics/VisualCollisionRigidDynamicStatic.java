@@ -29,6 +29,9 @@ public class VisualCollisionRigidDynamicStatic extends Collision implements Visu
 	
 	private ResolutionEvent resolutionEvent = new ResolutionEvent();
 	
+	private TranslationComposite transPrimary;
+	private TranslationComposite transSecondary;
+	
 	public VisualCollisionRigidDynamicStatic(Collider collidable1, Collider collidable2 , SeparatingAxisCollector axisCollector , RenderingEngine renderer){
 		
 		super( collidable1 , collidable2 );
@@ -38,12 +41,13 @@ public class VisualCollisionRigidDynamicStatic extends Collision implements Visu
 		entityPrimary = collidable1.getOwnerEntity();
 		entitySecondary = collidable2.getOwnerEntity();
 		
+		transPrimary = collidable1.getOwnerEntity().getTranslationComposite();
+		transSecondary = collidable2.getOwnerEntity().getTranslationComposite();
+		
 		collidingPrimary = collidable1; // TAKE COLLIDABLE IN COSNTRUCTOR INSTEAD OF ENTITY
 		collidingSecondary = collidable2;
 		
 		debugRenderer = renderer;
-		
-		initializeCollision();
 		
 	}
 	
@@ -53,8 +57,8 @@ public class VisualCollisionRigidDynamicStatic extends Collision implements Visu
 		
 		this.resolutionState = resolutionEvent;
 		
-		this.normalForce = entityPrimary.getTranslationComposite().addNormalForce( new Vector( 0 , 0 ) );
-		this.frictionForce = entityPrimary.getTranslationComposite().addForce( new Vector( 0 , 0 ) );
+		this.normalForce = transPrimary.addNormalForce( new Vector( 0 , 0 ) );
+		this.frictionForce = transPrimary.addForce( new Vector( 0 , 0 ) );
 		//updateCollision(); //Run math for first time OPTIMIZE, Add new code block for first time math
 
 		System.out.println(
@@ -70,14 +74,12 @@ public class VisualCollisionRigidDynamicStatic extends Collision implements Visu
 	public void updateVisualCollision( MovingCamera camera , Graphics2D g2){ 
 
 		Resolution closestResolution = getClosestResolution( camera , g2 );
-		
-		TranslationComposite dynamicPrimary = entityPrimary.getTranslationComposite(); //OPTIMIZE See about moving to initialization
 
 		final Vector unitNormal = closestResolution.getSeparationVector().unitVector(); //FIXME MOVE THIS TO OWN ANTINORMAL FORCE
 		
 		final Vector normal = unitNormal.multiply(-0.2);								// ON CIRCULAR GRAVITY
 		
-		final double tangentalVelocity = dynamicPrimary.getVelocityVector().projectedOver( normal.normalRight() ).getMagnitude();
+		final double tangentalVelocity = transPrimary.getVelocityVector().projectedOver( normal.normalRight() ).getMagnitude();
 		
 		final double distanceA = entityPrimary.getPosition().distance(entitySecondary.getPosition()) ;
 		
@@ -116,12 +118,12 @@ public class VisualCollisionRigidDynamicStatic extends Collision implements Visu
 			System.out.println("Will clip by "+ depthX +" , "+ depthY + " ... ");
 			
 			entityPrimary.setPos(
-					dynamicPrimary.getDeltaX(entityPrimary) + depthX,
-					dynamicPrimary.getDeltaY(entityPrimary) + depthY
+					transPrimary.getDeltaX(entityPrimary) + depthX,
+					transPrimary.getDeltaY(entityPrimary) + depthY
 					);
 			
 			//dynamicPrimary.halt();
-			dynamicPrimary.setVelocityVector( dynamicPrimary.getVelocityVector().projectedOver(unitNormal.normalLeft()) );
+			transPrimary.setVelocityVector( transPrimary.getVelocityVector().projectedOver(unitNormal.normalLeft()) );
 
 			//normalForce.setVector( 0,-0.2 );
 			//normalForce.setVector( new Vector(0,-0.2) );
@@ -215,8 +217,8 @@ public class VisualCollisionRigidDynamicStatic extends Collision implements Visu
 		collidingSecondary.onLeavingCollisionEvent();
 		
 		
-		entityPrimary.getTranslationComposite().removeNormalForce(normalForce.getID());              //turn gravity back on
-		entityPrimary.getTranslationComposite().removeForce(frictionForce.getID());     //remove friction
+		transPrimary.removeNormalForce(normalForce);              //turn gravity back on
+		transPrimary.removeForce(frictionForce.getID());     //remove friction
 		
 		//Remove collision from involved entities lists
 		collidingPrimary.removeCollision( entityPairIndex[0] );

@@ -61,7 +61,10 @@ public class Collider implements EntityComposite{
 		this.ownerEntity = owner; 
 		compositeName = this.getClass().getSimpleName();
 	}
-
+	/**Sets boundary for this collider and notifies corresponding ActiveCOllider wrapper in collision engine.
+	 * 
+	 * @param boundary
+	 */
 	public void setBoundary( Boundary boundary ){
 		this.boundary = boundary;
 		
@@ -201,6 +204,11 @@ public class Collider implements EntityComposite{
 		
 	}
 	
+	public void addColliderToGroup(String group){
+		
+		
+	}
+	
 	public void addCompositeToPhysicsEngineStatic( CollisionEngine engine ){ 
 		if ( this.engineSlot == null){
 			this.engineSlot = engine.addStaticCollidableToEngineList( this );
@@ -244,9 +252,7 @@ public class Collider implements EntityComposite{
 	public void deactivateCollider(){
 		this.engineSlot.notifyDeactivatedCollider();
 		this.isActive = false;
-		for ( CollidingPair pair : this.collisionInteractions ){
-			pair.collision().dropCollision();
-		}
+		this.dropAllCollisions();
 	}
 	
 	public void activateCollider(){
@@ -262,16 +268,33 @@ public class Collider implements EntityComposite{
 	@Override
 	public void disableComposite(){
 		
-		this.engineSlot.removeSelf();
+		System.out.println("Disabling Collider of ["+this.ownerEntity+"]");
 		
+		this.engineSlot.notifyRemovedCollider();
+
+		this.engineSlot = null;
 		this.ownerEntity.nullifyColliderComposite();
+		
+		dropAllCollisions();
+		
 	}
 	
-	protected void notifyEngineOfChangeToStatic(){
+	protected void dropAllCollisions(){
+		for ( CollidingPair pair : this.collisionInteractions ){
+			pair.collision().dropCollision();
+		}
+	}
+	
+	protected void changeColliderToStaticInEngine(){
+		
 		this.engineSlot.notifyChangeToStatic();
+		
+		for( CollidingPair pair : collisionInteractions ){	//Drop any running collisions
+			pair.collision().dropCollision();
+		}
 	}
 	
-	protected void notifyEngineOfChangeToDynamic(){
+	protected void changeColliderToDynamicInEngine(){
 		ActiveCollider dynamic = this.engineSlot.notifyChangeToDynamic();
 		this.engineSlot = dynamic;
 	}

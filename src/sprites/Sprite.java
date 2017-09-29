@@ -20,6 +20,7 @@ import physics.Vector;
 public abstract class Sprite implements Graphic{
 	
 	public static final Missing missingSprite = new Missing();
+	public static final Stillframe entityMarker = new Stillframe("EntityMarker.png");
 	protected double alpha = 1.0;
     protected boolean visibility;
     protected int spriteOffsetX = 0;

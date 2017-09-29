@@ -211,11 +211,11 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 				@Override
 				protected void initializeCollision() {
 					
-					//CompositeFactory.makeChildOfParent(player, stat, TestBoard.this );
+					collider2.deactivateCollider();
 				}
 
 				@Override
-				protected void completeCollision() {
+				public void completeCollision() {
 					System.out.println("PLAYAR OFF TREE");
 					playerTrans.removeVelocityVector( cling );
 				}
@@ -234,8 +234,6 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 					}*/
 					
 					isComplete = !check.check(collider1, collider2, camera, gOverlay);
-					
-					collider2.deactivateCollider();
 					
 				}
 				
@@ -258,7 +256,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     	
     	collisionEngine.checkCollisions();
 
-    	//gravity.setVector( player.getSeparationUnitVector(asteroid).multiply(0.2) );
+    	gravity.setVector( player.getSeparationUnitVector(asteroid).multiply(0.2) );
    
     }
 
@@ -283,6 +281,10 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     		camera.drawCrossInWorld( entity.getPosition() , (Graphics2D)g);
     	}*/
     	
+    	for ( Vector vector : player.getTranslationComposite().debugForceArrows() ){
+    		camera.draw( vector.multiply(300).toLine( player.getPosition() ) );
+    	}
+    	
     }
 
     /* ########################################################################################################################
@@ -296,9 +298,6 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 
     private class TestPlayer extends Player{
     	
-    	AngularComposite angular;
-    	TranslationComposite trans;
-    	Collider collider;
     	private final MovingState movingState = new MovingState();
     	private final StandingState standing = new StandingState();
     	private final FallingState falling = new FallingState();
@@ -316,12 +315,12 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 			Boundary boundary2 = new BoundaryCircular( 80 , new Event() );
 			Boundary boundary3 = new BoundaryPolygonal.Box( 200,200,-100,-100 );
 			
-			this.collider = this.addColliderTo( boundary2 );
-			this.trans = this.addTranslationTo();
+			this.addInitialColliderTo( boundary2 );
+			this.addTranslationTo();
 			
-			this.angular = this.addAngularComposite();
+			this.addAngularComposite();
 			
-			this.movementForce = trans.addForce( new Vector(0,0) );
+			this.movementForce = this.getTranslationComposite().addForce( new Vector(0,0) );
 			
 			this.inputController.createKeyBinding(KeyEvent.VK_LEFT, new KeyCommand(){
 				@Override
@@ -360,13 +359,13 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 				public void onPressed() {
 					//TESTING
 					
-					asteroid.getColliderComposite().setBoundary(boundary3);
+					player.addAngularComposite();
 					
 					//TESTING
 				}
 			});
 			
-			this.collider.setLeavingCollisionEvent( new CollisionEvent(){
+			this.getColliderComposite().setLeavingCollisionEvent( new CollisionEvent(){
 				@Override
 				public void run(BoundaryFeature source, BoundaryFeature collidingWith, Vector normal) {
 					movementForce.setVector(Vector.zeroVector);
@@ -377,11 +376,11 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 		}
 		
 		@Override
-		public void updateComposite() {
-			super.updateComposite();
+		public void updateEntity() {
+			super.updateEntity();
 			this.currentState.run();
 			
-			this.angular.setAngleInDegrees( gravity.getVector().normalLeft().angleFromVectorInDegrees() );
+			this.getAngularComposite().setAngleInDegrees( gravity.getVector().normalLeft().angleFromVectorInDegrees() );
 		}
 
 		private class Event extends CollisionEvent{
@@ -478,7 +477,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 			}
 			@Override
 			public void onJump() {
-				trans.addVelocity( gravity.getVector().inverse().unitVector().multiply(5) );
+				getTranslationComposite().addVelocity( gravity.getVector().inverse().unitVector().multiply(5) );
 				bufferState = movingState;
 			}
 			

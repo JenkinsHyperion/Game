@@ -48,8 +48,8 @@ public abstract class Collision {
 		collisionDebugTag = entityPrimary.name + " + " + entitySecondary.name;
 		
 		//THIS TEST COLLISION IS A NORMAL SURFACE SUCH AS A FLAT PLATFORM
-		entityPairIndex[0] = entityPrimary.getColliderComposite().addCollision(this,true); 
-		entityPairIndex[1] = entitySecondary.getColliderComposite().addCollision(this,false); 
+		entityPairIndex[0] = collidingPrimary.addCollision(this,true); 
+		entityPairIndex[1] = collidingSecondary.addCollision(this,false); 
 		//initCollision();
 	}
 	
@@ -89,7 +89,7 @@ public abstract class Collision {
 	//CONTINUOUS COLLISION COMMANDS - Ongoing commands during collision like particle effects, sound, etc.
 	public void updateCollision(){}
 	
-	protected abstract void completeCollision();
+	public abstract void completeCollision();
 	
 	//FINAL COLLISION COMMANDS - Last commands before this collision object self destructs
 	

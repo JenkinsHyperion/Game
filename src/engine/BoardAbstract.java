@@ -25,8 +25,10 @@ import entityComposites.GraphicComposite;
 import entityComposites.UpdateableComposite;
 import misc.PaintOverlay;
 import physics.CollisionEngine;
+import physics.CollisionEngine.ActiveCollider;
 import saving_loading.EntityData;
 import sprites.RenderingEngine;
+import sprites.Sprite;
 import utility.DoubleLinkedList;
 import utility.ListNodeTicket;
 
@@ -41,9 +43,9 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 
 	Timer updateEntitiesTimer;
 	
-	private final DoubleLinkedList<UpdateableComposite> updateablesList = new DoubleLinkedList<UpdateableComposite>();
-	
-	private final DoubleLinkedList<UpdateableComposite> updateableEntitiesList = new DoubleLinkedList<UpdateableComposite>();
+	private boolean isItterating;
+
+	private final DoubleLinkedList<EntityStatic> updateableEntitiesList = new DoubleLinkedList<EntityStatic>();
 	
 	int counter;
 	Canvas mainCanvas;
@@ -142,6 +144,10 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 
 	protected abstract void initEditorPanel();
 
+	public boolean isWorking(){
+		return isItterating;
+	}
+	
 	public void setMainFrame( JFrame frame ){
 		this.mainFrame = frame;
 	}
@@ -235,6 +241,10 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 		this.editorPanel = instance; 
 	}
 	
+	public Scene getCurrentScene(){
+		return this.currentScene;
+	}
+	
 	public void createNewScene(Scene scene){
 		this.currentScene = scene;
 	}
@@ -249,20 +259,12 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 		this.renderingEngine.addGraphicsCompositeToRenderer(graphicsComposite);
 	}
 	
-	
-	public ListNodeTicket addCompositeToUpdater( UpdateableComposite updateable ){
-		return updateablesList.add(updateable);
-	}
-	
-	public ListNodeTicket addEntityToUpdater( UpdateableComposite entity ){
+	public ListNodeTicket addEntityToUpdater( EntityStatic entity ){
 		return updateableEntitiesList.add(entity);
 	}
 
 	protected int updateableEntities(){
 		return updateableEntitiesList.size();
-	}
-	protected int updateableComposites(){
-		return updateablesList.size();
 	}
 	
 	protected class BoundaryOverlay implements Overlay{
@@ -277,6 +279,11 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 				collider.debugDrawBoundary(cam, g2);
 			}
 			
+			g2.drawString( "Updateable entities: "+BoardAbstract.this.updateableEntities() , 400, 20);
+			
+			//for ( EntityStatic entity : currentScene.listEntities() ){
+			//	cam.draw( Sprite.entityMarker.getImage() , entity.getPosition() );
+			//}
 		}
 	}
 	
@@ -344,16 +351,16 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 		}
 		
 		public void update(){
-			
-     		while ( updateablesList.hasNext() ){
-     			updateablesList.get().updateComposite();
-     		}
      		
+			isItterating = true;
+			
      		while ( updateableEntitiesList.hasNext() ){
-     			updateableEntitiesList.get().updateComposite();
+     			updateableEntitiesList.get().updateEntity();
      		}
      		
      		entityThreadRun(); 
+     		
+     		isItterating = false;
 		}
 		
 	}
@@ -395,7 +402,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 		
 	}
 	
-	protected int updateableEnttiiesNumber(){
+	protected int updateableEntitiesNumber(){
 		return this.updateableEntitiesList.size();
 	}
 	

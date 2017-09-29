@@ -14,11 +14,15 @@ public class Scene {
 	
 	//private DoubleLinkedList<LayeredEntity> entityList2 = new DoubleLinkedList<LayeredEntity>();
 	
-	private String I = ""; //Indentations tring for console printing debugging
+	private String I = ""; //Indentation string for console printing debugging
 
 	public Scene( BoardAbstract ownerBoard ){
 		this.ownerBoard = ownerBoard;
 		this.sceneName = "Unnamed Scene";
+	}
+	
+	public boolean isWorking(){
+		return this.ownerBoard.isWorking();
 	}
 	
 	public void addEntityToList( EntityStatic entity , byte layer ){
@@ -49,7 +53,7 @@ public class Scene {
 		if ( (entity.getRotationComposite().exists() ) ){
 			UpdateableComposite rotation = (UpdateableComposite) entity.getRotationComposite();
 			updateableEntity = true;
-			if ( rotation.addCoreMathToUpdater(ownerBoard) ){
+			if ( rotation.addUpdateableCompositeTo(entity) ){
 				System.out.println( I+"Adding dynamic rotation composite to updater thread");
 			}else{
 				System.out.println( I+"Dynamic rotation composite already in updater thread");
@@ -89,8 +93,8 @@ public class Scene {
 		}*/
 		
 		if ( updateableEntity ){
-			entity.addToUpdater(ownerBoard);
-			System.out.println(I+"Adding entity to updater");
+
+			entity.addUpdateableEntityToUpdater(ownerBoard);
 		}
 
 		if( !I.isEmpty() )
@@ -103,6 +107,21 @@ public class Scene {
 		
 	}
 	
+	public void refreshEntityComposites( EntityStatic entity ){
+		
+		if ( entity.getColliderComposite().exists() ){
+			
+			if ( entity.getTranslationComposite().exists() ){  
+				//System.out.println("     Adding "+entity+" as dynamic");
+				entity.getColliderComposite().addCompositeToPhysicsEngineDynamic( ownerBoard.collisionEngine );
+			}
+			else{ 
+				//System.out.println("     Adding "+entity+" as static");
+				entity.getColliderComposite().addCompositeToPhysicsEngineStatic( ownerBoard.collisionEngine );
+			}
+		}
+	}
+	
 	 /* #################################################################################################################
 	 *	INTERNAL ADDER FUCNTIONALITY
 	 */
@@ -112,10 +131,10 @@ public class Scene {
 		if ( ( entity.getTranslationComposite().exists() ) ){
 			UpdateableComposite trans = (UpdateableComposite) entity.getTranslationComposite();
 
-			if ( trans.addCoreMathToUpdater(ownerBoard) ){
-				System.out.println( I+"Adding dynamic translation composite to updater");
+			if ( trans.addUpdateableCompositeTo(entity) ){
+				System.out.println( I+"Adding Translation Composite to ["+entity+"] updateables");
 			}else
-				System.err.println( I+"Dynamic translation composite was not added to updater");
+				System.err.println( I+"Translation Composite was already in ["+entity+"] updateables, probably already initialized");
 			
 			return true;
 		}else{
@@ -142,7 +161,7 @@ public class Scene {
 		}
 	}
 	
-	private void checkForAndRegisterGroupedCollider( EntityStatic entity, String groupName ){
+	protected void checkForAndRegisterGroupedCollider( EntityStatic entity, String groupName ){
 		
 		if ( entity.getColliderComposite().exists() ){
 			

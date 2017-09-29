@@ -238,7 +238,7 @@ public class EntityDynamic extends EntityStatic{
     	//.out.print("Removing Force "+ index+" ... ");
 
 	    for ( int i = index+1 ; i < forces.size() ; i++) {
-	    	forces.get(i).indexShift();
+	    	forces.get(i).decrementIndex();
 	    } 
     	forces.remove(index); 
 	    
@@ -257,7 +257,7 @@ public class EntityDynamic extends EntityStatic{
     	
     	pointForces.remove(index); 
 	    for ( int i = index ; i < pointForces.size() ; i++) {
-	    	pointForces.get(i).indexShift();
+	    	pointForces.get(i).decrementIndex();
 	    } 
     }
     

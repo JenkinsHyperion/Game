@@ -127,6 +127,8 @@ public class Collider implements EntityComposite{
 		uponCollision = collidingEvent;
 	}
 	
+	
+	
 	/**
 	 * @param collision
 	 * @return Adds collision to this entity's current collisions and return the index where it was put

@@ -13,9 +13,7 @@ import entityComposites.*;
 public abstract class Collision {
 	
 	protected ResolutionState resolutionState;
-	
-	protected EntityStatic entityPrimary;
-	protected EntityStatic entitySecondary;
+
 	
 	protected Collider collidingPrimary ;
 	protected Collider collidingSecondary; 
@@ -37,20 +35,56 @@ public abstract class Collision {
 	
 	protected boolean isComplete = false;
 	
-	public Collision(Collider e1, Collider e2 ){
+	public static abstract class DefaultType extends Collision{
 		
-		entityPrimary = e1.getOwnerEntity();
-		entitySecondary = e2.getOwnerEntity();
+		protected EntityStatic entityPrimary;
+		protected EntityStatic entitySecondary;
 		
-		collidingPrimary = e1; 
-		collidingSecondary = e2;
+		public DefaultType(Collider e1, Collider e2 ){
+			
+			entityPrimary = e1.getOwnerEntity();
+			entitySecondary = e2.getOwnerEntity();
+			
+			collidingPrimary = e1; 
+			collidingSecondary = e2;
+			
+			collisionDebugTag = entityPrimary.name + " + " + entitySecondary.name;
+			
+			//THIS TEST COLLISION IS A NORMAL SURFACE SUCH AS A FLAT PLATFORM
+			entityPairIndex[0] = collidingPrimary.addCollision(this,true); 
+			entityPairIndex[1] = collidingSecondary.addCollision(this,false); 
+			//initCollision();
+		}
 		
-		collisionDebugTag = entityPrimary.name + " + " + entitySecondary.name;
+		public EntityStatic getEntityInvolved(boolean pairID){
+			if (pairID)
+				return entityPrimary;
+			else
+				return entitySecondary;
+		}
 		
-		//THIS TEST COLLISION IS A NORMAL SURFACE SUCH AS A FLAT PLATFORM
-		entityPairIndex[0] = collidingPrimary.addCollision(this,true); 
-		entityPairIndex[1] = collidingSecondary.addCollision(this,false); 
-		//initCollision();
+		public boolean isActive(EntityStatic entity1, EntityStatic entity2){
+			if (entity1 == entityPrimary){
+				if (entity2 == entitySecondary){
+					return true;
+				}
+				else {
+					return false;
+				}
+			}
+			else if (entity1 == entitySecondary){
+				if (entity2 == entityPrimary){
+					return true;
+				}
+				else {
+					return false;
+				}
+			}
+			else{
+				return false;
+			}
+		}
+		
 	}
 	
 	protected abstract void updateVisualCollision(MovingCamera camera, Graphics2D gOverlay);
@@ -100,12 +134,7 @@ public abstract class Collision {
 			entityPairIndex[ 0 ] = entityPairIndex[ 0 ] - 1;
 	}
 	
-	public EntityStatic getEntityInvolved(boolean pairID){
-		if (pairID)
-			return entityPrimary;
-		else
-			return entitySecondary;
-	}
+	public abstract EntityStatic getEntityInvolved(boolean pairID);
 	
 	//INTERNAL METHODS - DON'T ALTER BELOW THIS
 	
@@ -129,30 +158,7 @@ public abstract class Collision {
 	
 	
 	//When Board detects collision, check to see if it's already in the list of active collisions
-	public boolean isActive(EntityStatic entity1, EntityStatic entity2){
-		if (entity1 == entityPrimary){
-			if (entity2 == entitySecondary){
-				return true;
-			}
-			else {
-				return false;
-			}
-			
-		}
-		else if (entity1 == entitySecondary){
-			if (entity2 == entityPrimary){
-				return true;
-			}
-			else {
-				return false;
-			}
-		}
-		
-
-		else{
-			return false;
-		}
-	}
+	public abstract boolean isActive(EntityStatic entity1, EntityStatic entity2);
 	
 	protected boolean pointIsOnSegment(Point2D p, Line2D seg) {
 		if ( seg.ptSegDist(p) > 0.5 ) {
@@ -201,7 +207,7 @@ public abstract class Collision {
 	
 	
 	
-	public static class BasicCheck extends Collision implements VisualCollision{
+	public static class BasicCheck extends DefaultType implements VisualCollision{
 
 		private VisualCollisionCheck check;
 		private boolean isComplete = false;
@@ -237,6 +243,61 @@ public abstract class Collision {
 		public boolean isComplete() {
 			return isComplete;
 		}
+		
+	}
+	
+	
+	public static abstract class CustomType < E1 extends EntityStatic, E2 extends EntityStatic > extends Collision implements VisualCollision{
+
+		protected E1 entityPrimary;
+		protected E2 entitySecondary;
+		
+		public CustomType( E1 e1 ,Collider c1,  E2 e2, Collider c2 ){
+			
+			entityPrimary = e1;
+			entitySecondary = e2;
+			
+			collidingPrimary = c1; 
+			collidingSecondary = c2;
+			
+			//collisionDebugTag = entityPrimary.name + " + " + entitySecondary.name;
+			
+			//THIS TEST COLLISION IS A NORMAL SURFACE SUCH AS A FLAT PLATFORM
+			entityPairIndex[0] = collidingPrimary.addCollision(this,true); 
+			entityPairIndex[1] = collidingSecondary.addCollision(this,false); 
+			//initCollision();
+		}
+		
+		public EntityStatic getEntityInvolved(boolean pairID){
+			if (pairID)
+				return entityPrimary;
+			else
+				return entitySecondary;
+		}
+		
+		public boolean isActive(EntityStatic entity1, EntityStatic entity2){
+			if (entity1 == entityPrimary){
+				if (entity2 == entitySecondary){
+					return true;
+				}
+				else {
+					return false;
+				}
+			}
+			else if (entity1 == entitySecondary){
+				if (entity2 == entityPrimary){
+					return true;
+				}
+				else {
+					return false;
+				}
+			}
+			else{
+				return false;
+			}
+		}
+
+		
 		
 	}
 

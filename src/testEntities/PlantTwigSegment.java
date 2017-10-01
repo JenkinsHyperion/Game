@@ -23,6 +23,7 @@ public class PlantTwigSegment extends EntityStatic{
 	
 	//protected static Sprite twigSmallSprite = new Sprite.Stillframe("Prototypes/twig.png" , -4 , -40);
 	//protected static Sprite twigMediumSprite = new Sprite.Stillframe("Prototypes/twig2.png" , -8 , -40);
+	static PlantTwigSegment[] emptyNext = new PlantTwigSegment[0];
 	
 	protected static Sprite twigSmallSprite = new Sprite.Stillframe("Prototypes/twig1.png" , -4 , -80);
 	protected static Sprite twigMediumSprite = new Sprite.Stillframe("Prototypes/twig3.png" , -8 , -80);
@@ -37,8 +38,7 @@ public class PlantTwigSegment extends EntityStatic{
 	protected int waterLevel = 0; 
 	
 	protected StemSegment previousSegment;
-	protected StemSegment nextSegment;
-	protected static int colliderGroup;
+	protected PlantTwigSegment[] nextSegment = emptyNext; //move to stems
 	
 	protected Runnable currentGrowthState;
 	
@@ -52,10 +52,6 @@ public class PlantTwigSegment extends EntityStatic{
 	
 	protected void setPreviousStem(StemSegment previous){ this.previousSegment = previous; }
 	
-	public void setColliderGroup(int i){
-		colliderGroup = i;
-	}
-	
 	protected class FullyGrownState implements Runnable{
 		@Override
 		public void run() {
@@ -67,7 +63,18 @@ public class PlantTwigSegment extends EntityStatic{
 	 * 		TRUNK STEM SEGMENT
 	 */
 	
+	public void deactivateAbove(){
+		for ( PlantTwigSegment next : this.nextSegment ){
+			next.deactivateCollidersUp();
+		}
+	}
 	
+	public void deactivateCollidersUp(){
+		this.getColliderComposite().deactivateCollider();
+		for ( PlantTwigSegment next : this.nextSegment ){
+			next.deactivateCollidersUp();
+		}
+	}
 	
 	/*###################################################################################################################################
 	 * 		TRUNK STEM SEGMENT
@@ -123,7 +130,7 @@ public class PlantTwigSegment extends EntityStatic{
 							);
 				}
 			}
-			
+
 			public void debugSetSugarLevel( int level ){
 				this.sugarLevel = level;
 			}
@@ -548,8 +555,7 @@ public class PlantTwigSegment extends EntityStatic{
 						CompositeFactory.makeChildOfParent(sproutLeft, StemSegment.this , board);
 						CompositeFactory.makeChildOfParent(leafStemRight, StemSegment.this , board);
 						
-//						board.spawnNewSprout( sproutLeft );
-//						board.spawnNewSprout( leafStemRight );
+						StemSegment.this.nextSegment = new PlantTwigSegment[]{sproutLeft , leafStemRight };
 						
 						StemSegment.this.currentWaterTransportState = new ForkPushTransportState( leafStemRight, sproutLeft ) ;
 						StemSegment.this.currentSugarTransportState = new ForkSugarOverflowTransport( leafStemRight, sproutLeft ) ;
@@ -599,7 +605,7 @@ public class PlantTwigSegment extends EntityStatic{
 						board.spawnNewSprout( sproutStem ); //then spawn it in
 						CompositeFactory.makeChildOfParent(sproutStem, StemSegment.this , board);
 						
-						//sproutStem.getRotationComposite().setAngularVelocity(1f);
+						StemSegment.this.nextSegment = new PlantTwigSegment[]{sproutStem};
 		
 						sproutStem.numberFromLastBranch = numberFromLastBranch + 1 ; //Increment next branches number in this stem
 						sproutStem.lastBranchedClockwise = StemSegment.this.lastBranchedClockwise; //didn't branch so pass same direction to next
@@ -674,7 +680,7 @@ public class PlantTwigSegment extends EntityStatic{
 					board.spawnNewSprout( sproutStem ); //then spawn it in	
 					CompositeFactory.makeChildOfParent(sproutStem, StemSegment.this , board);
 						
-						//sproutStem.getRotationComposite().setAngularVelocity(1f);
+					StemSegment.this.nextSegment = new PlantTwigSegment[]{sproutStem};
 		
 					sproutStem.numberFromLastBranch = numberFromLastBranch + 1 ; //Increment next branches number in this stem
 //					board.spawnNewSprout( sproutStem ); //then spawn it in
@@ -771,8 +777,8 @@ public class PlantTwigSegment extends EntityStatic{
 					board.spawnNewSprout( sproutStem ); //then spawn it in
 					CompositeFactory.makeChildOfParent(sproutStem, LeafStem.this , board);
 					
-					//sproutStem.getRotationComposite().setAngularVelocity(1f);
-	
+					LeafStem.this.nextSegment = new PlantTwigSegment[]{sproutStem };
+					
 					sproutStem.numberFromLastBranch = numberFromLastBranch + 1 ; //Increment next branches number in this stem
 					//board.spawnNewSprout( sproutStem ); //then spawn it in		
 				
@@ -781,7 +787,8 @@ public class PlantTwigSegment extends EntityStatic{
 					
 					board.spawnNewSprout( newLeaf );
 					CompositeFactory.makeChildOfParent(newLeaf, LeafStem.this , board);
-//					board.spawnNewSprout( newLeaf );
+					
+					LeafStem.this.nextSegment = new PlantTwigSegment[]{sproutStem};
 					
 					LeafStem.this.currentWaterTransportState = new ForkPushTransportState( newLeaf , sproutStem ) ;
 					LeafStem.this.currentSugarTransportState = new StemSugarOverflowTransport( sproutStem ) ;

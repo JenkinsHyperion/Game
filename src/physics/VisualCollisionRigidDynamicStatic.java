@@ -14,7 +14,7 @@ import misc.DefaultCollisionEvent;
 import physics.Collision;
 import sprites.RenderingEngine;
 
-public class VisualCollisionRigidDynamicStatic extends Collision implements VisualCollision{
+public class VisualCollisionRigidDynamicStatic extends Collision.DefaultType implements VisualCollision{
 	
 	RenderingEngine debugRenderer;
 	

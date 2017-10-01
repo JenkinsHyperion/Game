@@ -54,16 +54,16 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 	@Override
 	protected void updateCollisions(){
     	
-	    for ( int i = 0 ; i < collisionsList.size() ; i++ ){
+	    for ( int i = 0 ; i < runningCollisionsList.size() ; i++ ){
 	    		
 	    	//if collision is complete, remove from active list
-	    	if (!collisionsList.get(i).isComplete() ) {
-	    		collisionsList.get(i).updateVisualCollision( camera , gOverlay ); //Run commands from inside collision object
+	    	if (!runningCollisionsList.get(i).isComplete() ) {
+	    		runningCollisionsList.get(i).updateVisualCollision( camera , gOverlay ); //Run commands from inside collision object
 	    		
 	    	}
 	    	else {
-	    		collisionsList.get(i).completeCollision();
-	    		collisionsList.remove(i);	
+	    		runningCollisionsList.get(i).completeCollision();
+	    		runningCollisionsList.remove(i);	
     		}	
     	}	
     }
@@ -77,7 +77,7 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 			// if not, add new collision event
 			//int index = currentBoard.getStaticEntities().size() + 1 ;
     			//System.out.println( "Collision detected" );
-    			collisionsList.add(new VisualCollisionRigidDynamicStatic( 
+    			runningCollisionsList.add(new VisualCollisionRigidDynamicStatic( 
     					collidable1 , collidable2 , 
     					((VisualCollisionCheck)checkType).getCollector() , 
     					this.getBoard().renderingEngine
@@ -195,7 +195,7 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 				y = y + 15;
 			}*/
 
-			g2.drawString( collisionsList.size() + " current collisions", 20, y );
+			g2.drawString( runningCollisionsList.size() + " current collisions", 20, y );
 
 			/*for ( ActiveCollider dynamic : dynamicCollidables ){
 

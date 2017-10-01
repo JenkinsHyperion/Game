@@ -14,7 +14,7 @@ public abstract class SeparatingAxisCollector {
 
 	public static final AxesByPolygonFeatures poly = new AxesByPolygonFeatures();
 	
-	protected abstract Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2 , Boundary b2 );
+	public abstract Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2 , Boundary b2 );
 	
 	public abstract Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2 , Boundary b2, MovingCamera cam, Graphics2D g2 );
 	
@@ -47,7 +47,7 @@ public abstract class SeparatingAxisCollector {
 		}
 		
 		@Override	
-		protected Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2, Boundary b2) {
+		public Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2, Boundary b2) {
 			return constructNewAxes(e1, e2, b1, b2, pos1, pos2);
 		}
 		
@@ -92,7 +92,7 @@ public abstract class SeparatingAxisCollector {
 		}
 		
 		@Override
-		protected Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2, Boundary b2) {
+		public Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2, Boundary b2) {
 			Line2D[] sides = Boundary.getSeparatingSidesBetween( b1 , b2 );
 			Axis[] returnAxes = new Axis[ sides.length ];
 			for ( int i = 0 ; i < sides.length ; i++ ){
@@ -179,7 +179,7 @@ public abstract class SeparatingAxisCollector {
 		}
 		
 		@Override
-		protected Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2, Boundary b2) {
+		public Axis[] getSeparatingAxes( EntityStatic e1, Point pos1 , Boundary b1, EntityStatic e2, Point pos2, Boundary b2) {
 
 			Point relativePoint = polygon.getRelativePositionOf(nonPolygon);
 			
@@ -253,6 +253,9 @@ public abstract class SeparatingAxisCollector {
 		public Point2D getNearPointSecondary() {
 			return this.nearSecondary;
 		}
+		//public BoundaryFeature getNearFeatureSecondary() {
+		//	return this.nearSecondaryFeature;
+		//}
 	}
 	
 }

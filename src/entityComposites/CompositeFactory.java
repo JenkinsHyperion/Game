@@ -16,10 +16,15 @@ public class CompositeFactory {
 
 	public static AngularComposite addAngularComposite( EntityStatic entity ){
 		
-		final AngularComposite returnAngular = new AngularComposite.Angled(entity);
-		entity.setAngularComposite(returnAngular);
-		
-		return returnAngular;
+		if ( !entity.getAngularComposite().exists() ){
+			final AngularComposite returnAngular = new AngularComposite.Angled(entity);
+			entity.setAngularComposite(returnAngular);
+			return returnAngular;
+		}
+		else{
+			System.out.println("CompositeFactory: Angular composite already exists on ["+entity+"]");
+			return entity.getAngularComposite();
+		}
 	}
 	
 	public static DynamicRotationComposite addDynamicRotationTo( EntityStatic entity ){

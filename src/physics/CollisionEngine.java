@@ -16,6 +16,7 @@ import engine.MovingCamera;
 import engine.Overlay;
 import engine.OverlayComposite;
 import entityComposites.*;
+import misc.CollisionEvent;
 import utility.DoubleLinkedList;
 import utility.ListNodeTicket;
 
@@ -25,14 +26,14 @@ public class CollisionEngine {
 	
 	protected ColliderGroup ungrouped = new ColliderGroup("Ungrouped");
 	
-	protected DoubleLinkedList<CheckingPair> activeCheckingPairs = new DoubleLinkedList<CheckingPair>();
-	protected DoubleLinkedList<CheckingPair> inactiveCheckingPairs = new DoubleLinkedList<CheckingPair>();
+	protected DoubleLinkedList<CheckingPair<EntityStatic,EntityStatic>> activeCheckingPairs = new DoubleLinkedList<CheckingPair<EntityStatic,EntityStatic>>();
+	protected DoubleLinkedList<CheckingPair<EntityStatic,EntityStatic>> inactiveCheckingPairs = new DoubleLinkedList<CheckingPair<EntityStatic,EntityStatic>>();
 	
 	protected ArrayList<ColliderGroup> colliderGroups = new ArrayList<ColliderGroup>();
 	
 	protected ArrayList<GroupPair> groupPairs = new ArrayList<GroupPair>();
 	
-	protected LinkedList<Collision> collisionsList = new LinkedList<Collision>();  
+	protected LinkedList<Collision> runningCollisionsList = new LinkedList<Collision>();  
 
 	
 	
@@ -45,17 +46,17 @@ public class CollisionEngine {
 		
 		//FIXME USED TO CLEAR OLD COLLIABLES LIST, NEEDS TO DEAL WITH NEW ONE
 		
-		for (Collision collision : collisionsList){
+		for (Collision collision : runningCollisionsList){
 			collision.completeCollision();
 		}
-		collisionsList.clear();
+		runningCollisionsList.clear();
 		//dynamicCollidablesList.clear(); //keep player temporarily while scenes are under construction
 	}
 	
 	//check collision list and return true if two entities are already colliding
 	protected boolean hasActiveCollision(EntityStatic entity1, EntityStatic entity2){
 		    	
-		for ( Collision activeCollision : collisionsList){
+		for ( Collision activeCollision : runningCollisionsList){
 					
 			if ( activeCollision.isActive(entity1, entity2) ) {
 				return true;
@@ -69,16 +70,16 @@ public class CollisionEngine {
 	//USE ARRAY LIST ITTERATOR INSTEAD OF FOR LOOP SINCE REMOVING INDEX CHANGES SIZE
 	protected void updateCollisions(){
 	    	
-	    for ( int i = 0 ; i < collisionsList.size() ; i++ ){
+	    for ( int i = 0 ; i < runningCollisionsList.size() ; i++ ){
 	    		
 	    	//if collision is complete, remove from active list
-	    	if (!collisionsList.get(i).isComplete() ) {
-	    		collisionsList.get(i).updateCollision(); //Run commands from inside collision object
+	    	if (!runningCollisionsList.get(i).isComplete() ) {
+	    		runningCollisionsList.get(i).updateCollision(); //Run commands from inside collision object
 	    		
 	    	}
 	    	else {
-	    		collisionsList.get(i).completeCollision();
-	    		collisionsList.remove(i);	
+	    		runningCollisionsList.get(i).completeCollision();
+	    		runningCollisionsList.remove(i);	
     		}
 	  		
     	}
@@ -98,10 +99,10 @@ public class CollisionEngine {
 		
 	}
 	
-	public <C extends Collider> void createColliderGroupOfType( String newGroupName ){
+	public <E extends EntityStatic> void createColliderGroupOfType( String newGroupName ){
 		
 		if ( getGroupsByName( newGroupName ).length == 0 ){
-			ColliderGroupTyped<C> newGroup = new ColliderGroupTyped<C>(newGroupName);
+			ColliderGroupTyped<E> newGroup = new ColliderGroupTyped<E>( newGroupName );
 			newGroup.addToGroupList(colliderGroups);
 			System.out.println("Creating group '"+newGroupName+"'");
 		}else{
@@ -109,19 +110,23 @@ public class CollisionEngine {
 		}
 		
 	}
-	
+	/**
+	 * 
+	 * @param strings
+	 * @return
+	 */
 	public ColliderGroup[] getGroupsByName( String...strings ){
 		
 		ColliderGroup[] returnGroups = new ColliderGroup[ strings.length ];
 		
 		ArrayList<String> testingFor = new ArrayList<String>(); //Create temporary list of strings to be checking
-		for ( String test : strings ){
-			testingFor.add(test);
+		for ( int i = 0 ; i < strings.length ; ++i ){
+			testingFor.add( strings[i] );
 		}
 		
 		int returnIndex = 0;
 		
-		for ( ColliderGroup group : colliderGroups ){ //Main iteration through colliders only once
+		for ( ColliderGroup group : colliderGroups ){ //Main iteration through colliders 
 			
 			for ( int i = 0 ; i < testingFor.size() ; i++ ){
 				if ( group.toString().matches( testingFor.get(i) ) ){ //if one of the tests is matched
@@ -146,7 +151,7 @@ public class CollisionEngine {
 		
 	}
 	
-	public boolean addCustomCollisionsBetween( String group1, String group2, CollisionBuilder customCollisionFactory ){
+	public boolean addCustomCollisionsBetween( String group1, String group2, CollisionBuilder<?,?> customCollisionFactory ){
 		
 		ColliderGroup[] groups = this.getGroupsByName( group1, group2);
 		
@@ -184,19 +189,22 @@ public class CollisionEngine {
 		else{ return false; } //search failed
 	}
 
+	public void addCollisionEventToGroup( String group1,  String group2 , CollisionEvent event  ){
+		
+		
+	}
 	
 	public ActiveCollider addStaticCollidable( Collider collidable, String groupName ){
 		
 		StaticActiveCollider newStatic = new StaticActiveCollider( collidable );
 		
-		for ( ColliderGroup foundGroup : colliderGroups){
-			if ( foundGroup.toString().matches(groupName) ){ //group already exists
-				
-				newStatic.addToGroup(foundGroup);
-				
-				return newStatic;
-			}
-			
+		ColliderGroup[] foundGroup = getGroupsByName(groupName);
+
+		if ( foundGroup.length == 1 ){ //group already exists
+
+			newStatic.addToGroup(foundGroup[0]);
+			return newStatic;
+
 		}
 		
 		ColliderGroup newGroup = new ColliderGroup( groupName );
@@ -451,11 +459,11 @@ public class CollisionEngine {
         
     }
     
-    public void registerCollision( CollisionBuilder factory, Collider collider1 , Collider collider2, VisualCollisionCheck check ){
+    public void registerCollision( CollisionBuilder<EntityStatic,EntityStatic> factory, Collider collider1 , Collider collider2, VisualCollisionCheck check ){
     
     	if (!hasActiveCollision(collider1.getOwnerEntity(),collider2.getOwnerEntity())) { 
-    		Collision newCollision = factory.createVisualCollision(collider1, collider2, check, this.getBoard().renderingEngine);
-			collisionsList.add( newCollision );
+    		Collision newCollision = factory.createVisualCollision(collider1.getOwnerEntity(), collider1, collider2.getOwnerEntity(), collider2, check, this.getBoard().renderingEngine);
+			runningCollisionsList.add( newCollision );
 			newCollision.initializeCollision();
 		} 	
     } 
@@ -468,7 +476,7 @@ public class CollisionEngine {
     		//FIXME GET RID OF BOOLEAN AND <AKE ACTIVE AND INACTIVE COLLISION ARRAYS INSTEAD OF THIS MESS
     		if (!hasActiveCollision(collidable1.getOwnerEntity(),collidable2.getOwnerEntity())) { 
 
-    			collisionsList.add(new VisualCollisionRigidDynamicStatic( 
+    			runningCollisionsList.add(new VisualCollisionRigidDynamicStatic( 
     					collidable1 , collidable2 , 
     					((VisualCollisionCheck)check).axisCollector ,
     					this.getBoard().renderingEngine
@@ -479,9 +487,9 @@ public class CollisionEngine {
 
     public void debugPrintCollisionList( int x, int y ,Graphics g){
     	
-    	for ( int i = 0 ; i < this.collisionsList.size() ; i++ ) {
+    	for ( int i = 0 ; i < this.runningCollisionsList.size() ; i++ ) {
 	    	
-	    	g.drawString( collisionsList.get(i).toString() , x , y+(10*i) );
+	    	g.drawString( runningCollisionsList.get(i).toString() , x , y+(10*i) );
 	    }
     	
     }
@@ -489,7 +497,7 @@ public class CollisionEngine {
     protected BoardAbstract getBoard(){ return currentBoard; }
     
     public int debugNumberOfCollisions(){
-    	return this.collisionsList.size();
+    	return this.runningCollisionsList.size();
     }
     
     
@@ -520,7 +528,7 @@ public class CollisionEngine {
     
 	public abstract class ActiveCollider{
 		protected Collider collider;
-		protected ArrayList<CheckingPair> pairsList = new ArrayList<CheckingPair>();
+		protected ArrayList<CheckingPair<?,?>> pairsList = new ArrayList<CheckingPair<?,?>>();
 		protected ArrayList<ColliderGroup> groupsList = new ArrayList<ColliderGroup>();
 		protected ArrayList<ListNodeTicket> groupTickets = new ArrayList<ListNodeTicket>();
 		
@@ -538,7 +546,7 @@ public class CollisionEngine {
 		public abstract void notifySetAngle( double angleDegrees );
 		
 		protected void dissolveAllPairs(){
-			for ( CheckingPair obsoletePair : pairsList ){
+			for ( CheckingPair<?,?> obsoletePair : pairsList ){
 				obsoletePair.removeSelf();
 			}
 			pairsList.clear();
@@ -547,13 +555,13 @@ public class CollisionEngine {
 		//COLLIDER NOTIFIER METHODS called from Collider 
 		
 		public void notifyDeactivatedCollider() {
-			for ( CheckingPair activePairs : pairsList ){
+			for ( CheckingPair<?,?> activePairs : pairsList ){
 				activePairs.deactivate();
 			}
 		}
 		
 		public void notifyActivatedCollider() {
-			for ( CheckingPair inactivePairs : pairsList ){
+			for ( CheckingPair<?,?> inactivePairs : pairsList ){
 				inactivePairs.activate();
 			}
 		}
@@ -695,14 +703,14 @@ public class CollisionEngine {
 		
 	}
 	
-	protected abstract class CheckingPair{
+	protected abstract class CheckingPair<E1 extends EntityStatic , E2 extends EntityStatic>{
 		
 		protected ListNodeTicket listSlot;
 		protected boolean active = true;
 		
-		protected CollisionBuilder collisionType;
+		protected CollisionBuilder<EntityStatic,EntityStatic> collisionType;
 		
-		public void addToList( DoubleLinkedList<CheckingPair> list ){
+		public void addToList( DoubleLinkedList<CheckingPair<E1,E2>> list ){
 			this.listSlot = list.add( this );
 		}
 		
@@ -736,12 +744,15 @@ public class CollisionEngine {
 		
 	}
 	
-	protected class DynamicStaticPair extends CheckingPair{
+	protected class DynamicStaticPair<E1 extends EntityStatic , E2 extends EntityStatic> extends CheckingPair<E1,E2>{
 		
 		protected ActiveCollider dynamic;
 		protected ActiveCollider stat;
 		
 		protected VisualCollisionCheck check;
+		
+		protected CollisionEvent eventOnDynamic;
+		protected CollisionEvent eventOnStat;
 
 		public DynamicStaticPair( ActiveCollider collider1 , ActiveCollider collider2 , VisualCollisionCheck check ){
 			this.dynamic = collider1;
@@ -778,7 +789,7 @@ public class CollisionEngine {
 		
 	}
     
-	protected class DynamicDynamicPair extends CheckingPair{
+	protected class DynamicDynamicPair<E1 extends EntityStatic , E2 extends EntityStatic> extends CheckingPair<E1,E2>{
 		private ListNodeTicket listSlot;
 		
 		private ActiveCollider dynamic1;
@@ -817,9 +828,9 @@ public class CollisionEngine {
 	}
 	
 	
-	protected class CustomDynamicStaticPair extends DynamicStaticPair{
+	protected class CustomDynamicStaticPair<E1 extends EntityStatic, E2 extends EntityStatic> extends DynamicStaticPair<E1,E2>{
 
-		public CustomDynamicStaticPair( ActiveCollider dynamic , ActiveCollider stat , CollisionBuilder builder ,VisualCollisionCheck check ){
+		public CustomDynamicStaticPair( ActiveCollider dynamic , ActiveCollider stat , CollisionBuilder<EntityStatic, EntityStatic> builder ,VisualCollisionCheck check ){
 			super(dynamic, stat, check);
 				
 			this.collisionType = builder;
@@ -839,18 +850,22 @@ public class CollisionEngine {
 	
 	protected class ColliderGroup{
 		
-		private DoubleLinkedList<StaticActiveCollider> staticColliders = new DoubleLinkedList<StaticActiveCollider>();
-		private DoubleLinkedList<DynamicActiveCollider> dynamicColliders = new DoubleLinkedList<DynamicActiveCollider>();
+		protected DoubleLinkedList<StaticActiveCollider> staticColliders = new DoubleLinkedList<StaticActiveCollider>();
+		protected DoubleLinkedList<DynamicActiveCollider> dynamicColliders = new DoubleLinkedList<DynamicActiveCollider>();
 
-		private DoubleLinkedList<GroupPairWrapper> groupPairs = new DoubleLinkedList<GroupPairWrapper>();
+		protected DoubleLinkedList<GroupPairWrapper> groupPairs = new DoubleLinkedList<GroupPairWrapper>();
 		
-		private String name;
-		private int index;
+		protected String name;
+		protected int index;
 		
 		public ColliderGroup( String name ){
 			this.name = name;
 		}
-		
+
+		public boolean willAcceptEntity(EntityStatic entity) {
+			return true;
+		}
+
 		public void addToGroupList( ArrayList<ColliderGroup> list ){
 			index = list.size();
 			list.add(this);
@@ -917,13 +932,17 @@ public class CollisionEngine {
 			}
 			return returnStrings;
 		}
+
+		public boolean isTypeRestricted() {
+			return false;
+		}
 		
 		@Override
 		public String toString(){
 			return this.name;
 		}
 		
-		private class GroupPairWrapper{
+		protected class GroupPairWrapper{
 			private GroupPair pair;
 			private byte primarySecondary;
 			public GroupPairWrapper( GroupPair pair, byte primarySecondary){
@@ -940,12 +959,16 @@ public class CollisionEngine {
 		
 	}
 	
-	protected class ColliderGroupTyped<C extends Collider> extends ColliderGroup{
-
-		public ColliderGroupTyped(String name) {
+	protected class ColliderGroupTyped<E extends EntityStatic> extends ColliderGroup{
+		
+		public ColliderGroupTyped(String name ) {
 			super(name);
 		}
-		
+
+		@Override
+		public boolean isTypeRestricted() {
+			return true;
+		}
 		
 	}
 	
@@ -955,9 +978,9 @@ public class CollisionEngine {
 		
 		private ListNodeTicket[] groupPosition;
 		
-		private CollisionBuilder builder;
+		private CollisionBuilder<?,?> builder;
 		
-		public GroupPair( ColliderGroup group1 , ColliderGroup group2, CollisionBuilder collisionBuilder ){
+		public GroupPair( ColliderGroup group1 , ColliderGroup group2, CollisionBuilder<?,?> collisionBuilder ){
 			this.groups = new ColliderGroup[] { group1 , group2 };
 			this.builder = collisionBuilder;
 			

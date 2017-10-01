@@ -120,6 +120,7 @@ public class BrowserTreePanel extends JPanel {
 		this.add(tree);
 		this.setFocusable(false);
 	}
+	@SuppressWarnings("serial")
 	private class MyPopup extends JPopupMenu {
 		private DefaultMutableTreeNode clickedNode;
 		private EntityStatic theEntity = null;

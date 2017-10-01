@@ -70,7 +70,7 @@ public class MainWindow implements KeyListener, MouseListener{
 		return board;
 	}
 	
-	@Deprecated
+	/*@Deprecated
 	//Not being used anymore
 	public static void showGUI(JFrame frame){
 		
@@ -103,7 +103,7 @@ public class MainWindow implements KeyListener, MouseListener{
 		frame.setVisible(true);
 		frame.pack();
 		
-	}
+	}*/
 
 	public static void createAndShowGUI() {
 		

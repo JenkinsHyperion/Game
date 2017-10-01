@@ -225,11 +225,13 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 									  selectViaSpriteRB.setSelected(true);}
 			public void onReleased() {} public void onHeld() {}
 		});*/
-		
+
 		inputController.createKeyBinding(KeyEvent.VK_B, new KeyCommand() {
 			@Override
-			public void onPressed() { getEntitySelectMode().setSelectViaSprite(false);	
-									  selectViaBoundaryRB.setSelected(true);}
+			public void onPressed() { 
+				getEntitySelectMode().setSelectViaSprite(false);	
+				selectViaBoundaryRB.setSelected(true);
+			}
 		});
 		inputController.createKeyBinding( KeyEvent.SHIFT_MASK , KeyEvent.VK_DELETE, new KeyCommand(){ //DELETE SELECTED
 		});
@@ -431,6 +433,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
             System.err.println("Couldn't use system look and feel.");
         }*/
 		//separator.setPreferredSize(new Dimension(150,3));
+		entitySelectMode.setSelectViaSprite(false);
 		
 		compositeEditorPanel = new CompositeEditorPanel();
 		JScrollPane compositeEditorScrollPane = new JScrollPane( compositeEditorPanel  );

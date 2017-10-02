@@ -38,9 +38,9 @@ public class MainWindow implements KeyListener, MouseListener{
 		JFrame frame = new JFrame(System.getProperty("user.dir"));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-//		board = new BoardPhysicsTesting(width,height,frame);
-		//board = new Board(width,height,frame);
-		board = new TestBoard(width,height,frame);
+		//board = new BoardPhysicsTesting(width,height,frame);
+		board = new Board(width,height,frame);
+		//board = new TestBoard(width,height,frame);
 		
 		board.setPreferredSize(new Dimension(BoardAbstract.B_WIDTH, BoardAbstract.B_HEIGHT));
 		board.setMinimumSize(new Dimension(BoardAbstract.B_WIDTH, BoardAbstract.B_HEIGHT));

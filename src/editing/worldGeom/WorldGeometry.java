@@ -244,7 +244,7 @@ public class WorldGeometry extends ModeAbstract{
 			surfaceLines.toArray( lines );
 			EntityStatic newEntity = EntityFactory.createEntityFromBoundary(lines);
 
-			((BoardAbstract)board).addStaticEntity( newEntity );
+			((BoardAbstract)board).getCurrentScene().addEntity( newEntity , "Ground" );
 			editorPanel.addSelectedEntity( newEntity );
 
 			//editorPanel.setMode(editorPanel.getEditorSelectMode());

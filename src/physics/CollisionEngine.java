@@ -151,6 +151,10 @@ public class CollisionEngine {
 		
 	}
 	
+	public <T extends EntityStatic,V extends EntityStatic>void addTypeCustomCollisionsBetween( ColliderGroupTyped<T> group1, ColliderGroupTyped<V> group2, CollisionBuilder<T,V> customCollisionFactory ){
+		
+	}
+	
 	public boolean addCustomCollisionsBetween( String group1, String group2, CollisionBuilder<?,?> customCollisionFactory ){
 		
 		ColliderGroup[] groups = this.getGroupsByName( group1, group2);
@@ -959,7 +963,7 @@ public class CollisionEngine {
 		
 	}
 	
-	protected class ColliderGroupTyped<E extends EntityStatic> extends ColliderGroup{
+	public class ColliderGroupTyped<E extends EntityStatic> extends ColliderGroup{
 		
 		public ColliderGroupTyped(String name ) {
 			super(name);

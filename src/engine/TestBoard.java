@@ -144,6 +144,8 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         
         collisionEngine.addCustomCollisionsBetween("Player", "Ground", CollisionBuilder.DYNAMIC_STATIC );
         collisionEngine.addCustomCollisionsBetween("Player", "Tree", new PlantPlayer.ClingCollision() );
+        
+        collisionEngine.<PlantPlayer,PlantTwigSegment>addTypeCustomCollisionsBetween( collisionEngine.new ColliderGroupTyped<PlantPlayer>("players") , collisionEngine.new ColliderGroupTyped<PlantTwigSegment>("twigs"), new PlantPlayer.ClingCollision());
     	
     	myMouseHandler = new MouseHandlerClass();
   		addMouseListener(myMouseHandler);

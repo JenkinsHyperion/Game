@@ -108,40 +108,41 @@ public class PlantPlayer extends Player {
 	public static class ClingCollision extends CollisionBuilder<PlantPlayer,PlantTwigSegment>{
 
 		@Override
-		public Collision createVisualCollision(PlantPlayer player, Collider playerCollider, PlantTwigSegment plantSegment,
-				Collider collider2, VisualCollisionCheck check, RenderingEngine engine) {
+		public Collision createVisualCollision(PlantPlayer player, Collider playerCollider, PlantTwigSegment plantSegment, Collider collider2, VisualCollisionCheck check, RenderingEngine engine) {
 			
-			return new Collision.CustomType<PlantPlayer, PlantTwigSegment>( player , playerCollider , plantSegment, collider2 ){
-
-				private TranslationComposite trans = player.getTranslationComposite();
-				private VelocityVector clingVelocity = trans.addVelocityVector(Vector.zeroVector);
-
-				@Override
-				public void updateVisualCollision(MovingCamera camera, Graphics2D gOverlay) {
-					
-					isComplete = !check.check(collidingPrimary, collidingSecondary);
-
-					//Axis[] axes = check.getAxisCollector().getSeparatingAxes(entityPrimary, entityPrimary.getPosition(), playerCollider.getBoundary(), 
-					//		entitySecondary, entitySecondary.getPosition(), collider2.getBoundary() );
-					
-					//clingVelocity.setVector( axes[0].getNearFeaturePrimary().getNormal().unitVector().multiply(0.1) );
-
-				}
-
-				@Override
-				protected void initializeCollision() {
-					player.climbing.setSegment(plantSegment);
-					player.changeState(player.climbing);
-					plantSegment.deactivateAbove();
-				}
-
-				@Override
-				public void completeCollision() {
-					
-					trans.removeVelocityVector(clingVelocity);
-					//trans = null;
-				}
-			};
+			
+					return new Collision.CustomType<PlantPlayer, PlantTwigSegment>( player , playerCollider , plantSegment, collider2 ){
+		
+						private TranslationComposite trans = player.getTranslationComposite();
+						private VelocityVector clingVelocity = trans.addVelocityVector(Vector.zeroVector);
+		
+						@Override
+						public void updateVisualCollision(MovingCamera camera, Graphics2D gOverlay) {
+							
+							isComplete = !check.check(collidingPrimary, collidingSecondary);
+		
+							//Axis[] axes = check.getAxisCollector().getSeparatingAxes(entityPrimary, entityPrimary.getPosition(), playerCollider.getBoundary(), 
+							//		entitySecondary, entitySecondary.getPosition(), collider2.getBoundary() );
+							
+							//clingVelocity.setVector( axes[0].getNearFeaturePrimary().getNormal().unitVector().multiply(0.1) );
+		
+						}
+		
+						@Override
+						protected void initializeCollision() {
+							player.climbing.setSegment(plantSegment);
+							player.changeState(player.climbing);
+							plantSegment.deactivateAbove();
+						}
+		
+						@Override
+						public void completeCollision() {
+							
+							trans.removeVelocityVector(clingVelocity);
+							//trans = null;
+						}
+					};
+				
 		}			
 	}
 	

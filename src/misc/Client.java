@@ -14,7 +14,7 @@ public class Client extends JFrame implements KeyListener {
 	private String message = "";
 	private String serverIP;
 	private Socket connection;
-	
+	private int keyStroke;
 	//constructor
 	public Client(String host) {
 		// TODO Auto-generated constructor stub
@@ -69,7 +69,9 @@ public class Client extends JFrame implements KeyListener {
 		inputStream = new ObjectInputStream(connection.getInputStream());
 		showMessage("\nStreams have been established.");
 	}
-	
+	private int getKeyStroke() {
+		return this.keyStroke;
+	}
 	/**While chatting with server*/
 	private void whileChatting() throws IOException {
 		userText.setEditable(true);
@@ -129,14 +131,9 @@ public class Client extends JFrame implements KeyListener {
 	@Override
 	public void keyPressed(KeyEvent e) {
 		// TODO Auto-generated method stub
-		try {
-			if (e.getKeyCode() == KeyEvent.VK_F12) {
-				outputStream.writeObject("CLIENT - sent key event: " + e.getKeyCode());
-				outputStream.flush();
-				showMessage("\nCLIENT - " + message);
-			}
-		}catch(IOException ioe) {
-			chatWindow.append("\nError sending message");
+		if (e.getKeyCode() == KeyEvent.VK_F12) {
+			sendMessage("Sent key event: " + e.getKeyCode());
+			userText.setText("");
 		}
 	}
 

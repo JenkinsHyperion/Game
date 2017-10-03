@@ -18,6 +18,7 @@ public class Server extends JFrame {
 	private Socket connectionSocket;
 	private Method method;
 	private boolean canRun;
+	private int keyStroke;
 	public Server() {
 		// TODO Auto-generated constructor stub
 		super("Shitty Instant Messenger");
@@ -67,6 +68,9 @@ public class Server extends JFrame {
 		}
 	}
 	
+	public int getKeyStroke() {
+		return this.keyStroke;
+	}
 	/**Wait for connection, then display connection information */
 	private void waitForConnection() throws IOException {
 		showMessage("Waiting for someone to connect... \n");
@@ -93,6 +97,11 @@ public class Server extends JFrame {
 			try{
 				message = (String)inputStream.readObject();
 				showMessage("\n" + message);
+				if (message.contains(String.format("%d", KeyEvent.VK_F12))) {
+					sendMessageToClient("Received F12 key event.");
+					this.keyStroke = KeyEvent.VK_F12;
+					sendMessageToClient("Server's current keyStroke value: " + keyStroke);
+				}
 			}catch(ClassNotFoundException e) {
 				showMessage("\nDunno what the user sent.");
 			}catch (SocketException s) {

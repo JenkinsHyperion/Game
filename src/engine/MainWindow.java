@@ -8,6 +8,10 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Random;
 
 public class MainWindow implements KeyListener, MouseListener{
@@ -25,7 +29,21 @@ public class MainWindow implements KeyListener, MouseListener{
     private static JFrame mainFrame;
     
 	public MainWindow() {
-		
+		//FIXME delete this
+		/*try {
+			System.err.println("Your current IP address: " + InetAddress.getLocalHost());
+		}catch (UnknownHostException e) {
+			e.printStackTrace();
+		}*/
+		try(final DatagramSocket socket = new DatagramSocket()){
+			  socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+			  String ip = socket.getLocalAddress().getHostAddress();
+			  System.err.println("current IP address: " + ip);
+		}catch (SocketException e) {
+			e.printStackTrace();
+		}catch (UnknownHostException u) {
+			u.printStackTrace();
+		}
 		//TESTING window size
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		width = (int) screenSize.getWidth();

@@ -67,6 +67,11 @@ public class PlantPlayer extends Player {
 			public void onReleased() {
 				currentState.offLeft();
 			}
+			
+			@Override
+			public void onHeld() {
+				currentState.holdingLeft();
+			}
 		});
 		this.inputController.createKeyBinding(KeyEvent.VK_RIGHT, new KeyCommand(){
 			@Override
@@ -77,6 +82,10 @@ public class PlantPlayer extends Player {
 			public void onReleased() {
 				currentState.offRight();
 			}
+			@Override
+			public void onHeld() {
+				currentState.holdingRight();
+			}
 		});
 		this.inputController.createKeyBinding(KeyEvent.VK_SPACE, new KeyCommand(){
 			@Override
@@ -86,6 +95,10 @@ public class PlantPlayer extends Player {
 			@Override
 			public void onReleased() {
 				currentState.offJump();
+			}
+			@Override
+			public void onHeld() {
+				currentState.holdingJump();
 			}
 		});
 		
@@ -177,16 +190,21 @@ public class PlantPlayer extends Player {
 		this.currentState.onLeavingState();
 		this.currentState = state;
 		state.onChange();
+		this.inputController.runHeld();
 	}
 	
 	private abstract class State implements Runnable{
 		public void onChange(){}
 		public void onLeavingState(){}
 		public void onLeft(){}
+		public void holdingLeft() {}
 		public void offLeft(){}
 		public void onRight(){}
+		public void holdingRight() {}
 		public void offRight(){}
+		
 		public void onJump(){}
+		public void holdingJump() {}
 		public void offJump(){}
 	}
 	
@@ -195,6 +213,8 @@ public class PlantPlayer extends Player {
 		private Force clingNormal;
 		PlantTwigSegment segment;
 		Point2D attatchPoint;
+		private byte leftRight;
+		private Vector momentum;
 		
 		public void setSegment( PlantTwigSegment stem, Point2D attatchPoint ){
 			this.segment = stem;
@@ -203,6 +223,9 @@ public class PlantPlayer extends Player {
 		
 		public void onChange(){
 			isClimbing = true;
+			
+			momentum = PlantPlayer.this.getTranslationComposite().getVelocityVector();
+			
 			clingNormal = PlantPlayer.this.getTranslationComposite().addNormalForce(gravity.getVector().inverse());
 			
 			PlantPlayer.this.setPos( attatchPoint );
@@ -220,6 +243,42 @@ public class PlantPlayer extends Player {
 		public void onLeavingState() {
 			isClimbing = false;
 			PlantPlayer.this.getTranslationComposite().removeNormalForce(clingNormal);
+			System.err.println("ACTIVATING ORGANISM");
+
+			segment.activateOrganism();
+		}
+		
+		@Override
+		public void onRight() { leftRight = -1; }
+		
+		@Override
+		public void onLeft() { leftRight = 1; }
+		
+		@Override
+		public void holdingRight() { leftRight = -1; }
+		
+		@Override
+		public void holdingLeft() { leftRight = 1; }
+		
+		
+		@Override
+		public void offRight() { leftRight = 0; }
+		
+		@Override
+		public void offLeft() { leftRight = 0; }
+		
+		@Override
+		public void onJump() {
+			getTranslationComposite().addVelocity( 
+					gravity.getVector().inverse().unitVector().multiply(5)  );
+			changeState(falling);
+			bufferState = movingState;
+		}
+		
+		@Override
+		public void holdingJump() {
+			getTranslationComposite().addVelocity( momentum.projectedOver(gravity.getVector().normalRight()) );
+			this.onJump();
 		}
 
 	}
@@ -251,9 +310,9 @@ public class PlantPlayer extends Player {
 		@Override
 		public void run() {}
 		@Override public void onLeft(){};
-		@Override public void offLeft(){ }
+		@Override public void offLeft(){ movingState.setCoasting(); }
 		@Override public void onRight(){};
-		@Override public void offRight(){ }
+		@Override public void offRight(){ movingState.setCoasting(); }
 		@Override public void onJump(){};
 		@Override public void offJump(){};
 		
@@ -275,6 +334,13 @@ public class PlantPlayer extends Player {
 		};
 		
 		private Runnable currentMovementState = accelerating;
+		
+		protected void setCoasting(){  currentMovementState = coasting;  }
+		
+		@Override
+		public void onChange() {
+			
+		}
 		
 		@Override
 		public void run() {

@@ -264,6 +264,7 @@ public class Collider implements EntityComposite{
 	 * value to true. Make sure this method is called after any conditional checks affecting isComplete.
 	 */
 	public void deactivateCollider(){
+		this.isActive = false;
 		if ( this.engineSlot != null ){
 			this.engineSlot.notifyDeactivatedCollider();
 			this.dropAllCollisions();
@@ -274,15 +275,19 @@ public class Collider implements EntityComposite{
 			System.out.println("Deactivate event on collider that was not added");
 		}
 		
-		this.isActive = false;
+
 
 	}
 	
 	public void activateCollider(){
-		if ( this.engineSlot != null )
-			this.engineSlot.notifyActivatedCollider();
-		
 		this.isActive = true;
+		if ( this.engineSlot != null ){
+			this.engineSlot.notifyActivatedCollider();
+		System.out.println("Activating Collider");
+		}
+		else{
+			System.out.println("Activate event on collider that was not added");
+		}
 	}
 	
 	@Override

@@ -63,6 +63,40 @@ public class PlantTwigSegment extends EntityStatic{
 		}
 	}
 	
+	
+	/*###################################################################################################################################
+	 * 		ACTIVATE
+	 */
+	
+	public void activateOrganism(){
+		System.err.println("ACTIVATING ORGANISM");
+		this.organism.collidersAreActive = true;
+		this.activateCollidersUp();
+		this.activateBelow();
+	}
+	
+	public void activateAbove(){
+		for ( PlantTwigSegment next : this.nextSegment ){
+			next.activateCollidersUp();
+		}
+	}
+	
+	public void activateBelow(){
+		if ( this.previousSegment != null )
+		this.previousSegment.activateCollidersDown(); //FIXME integrate itteration of tree into the actual connection node classes
+	}
+	
+	public void activateCollidersUp(){
+		this.getColliderComposite().activateCollider();
+		this.activateAbove();
+	}
+	
+	public void activateCollidersDown(){
+		this.getColliderComposite().activateCollider();
+		this.activateBelow();
+	}
+	
+	
 	/*###################################################################################################################################
 	 * 		TRUNK STEM SEGMENT
 	 */
@@ -80,9 +114,8 @@ public class PlantTwigSegment extends EntityStatic{
 	}
 	
 	public void deactivateBelow(){
-		for ( PlantTwigSegment next : this.nextSegment ){
-			next.deactivateCollidersDown();
-		}
+		if ( this.previousSegment != null )
+		this.previousSegment.deactivateCollidersDown(); //FIXME integrate itteration of tree into the actual connection node classes
 	}
 	
 	public void deactivateCollidersUp(){

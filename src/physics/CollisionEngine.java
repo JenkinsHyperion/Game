@@ -191,6 +191,7 @@ public class CollisionEngine {
 			}
 		}
 		return true;
+
 	}
 	
 	public boolean addCustomCollisionsBetween( String group1, String group2, CollisionBuilder<?,?> customCollisionFactory ){

@@ -108,8 +108,7 @@ public class PlantPlayer extends Player {
 	public static class ClingCollision extends CollisionBuilder<PlantPlayer,PlantTwigSegment>{
 
 		@Override
-		public Collision createVisualCollision(PlantPlayer player, Collider playerCollider, PlantTwigSegment plantSegment,
-				Collider collider2, VisualCollisionCheck check, RenderingEngine engine) {
+		public Collision createVisualCollision(PlantPlayer player, Collider playerCollider, PlantTwigSegment plantSegment, Collider collider2, VisualCollisionCheck check, RenderingEngine engine) {
 			
 			return new Collision.CustomType<PlantPlayer, PlantTwigSegment>( player , playerCollider , plantSegment, collider2 ){
 
@@ -148,6 +147,7 @@ public class PlantPlayer extends Player {
 					//trans = null;
 				}
 			};
+
 		}			
 	}
 	

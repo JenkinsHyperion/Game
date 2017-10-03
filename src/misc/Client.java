@@ -20,7 +20,6 @@ public class Client extends JFrame implements KeyListener {
 		// TODO Auto-generated constructor stub
 		super("Client");
 		this.serverIP = host;
-		this.addKeyListener(this);
 		userText = new JTextField();
 		userText.setEditable(false);
 		userText.addActionListener(new ActionListener() {
@@ -31,6 +30,7 @@ public class Client extends JFrame implements KeyListener {
 				userText.setText("");
 			}
 		});
+		userText.addKeyListener(this);
 		add(userText, BorderLayout.NORTH);
 		chatWindow = new JTextArea();
 		chatWindow.setEditable(false);
@@ -131,6 +131,7 @@ public class Client extends JFrame implements KeyListener {
 	@Override
 	public void keyPressed(KeyEvent e) {
 		// TODO Auto-generated method stub
+		System.out.println("Keyevent: " + e.getKeyCode());
 		if (e.getKeyCode() == KeyEvent.VK_F12) {
 			sendMessage("Sent key event: " + e.getKeyCode());
 			userText.setText("");

@@ -231,13 +231,15 @@ public abstract class SeparatingAxisCollector {
 		private double yIntercept;
 		private Point2D nearPrimary;
 		private Point2D nearSecondary;
+		private BoundaryFeature nearPrimaryFeature;
 		private BoundaryFeature nearSecondaryFeature;
 		
-		protected Axis( Line2D axis, Point2D nearPrimary, Point2D nearSecondary, BoundaryFeature nearSecondaryFeature ){
+		protected Axis( Line2D axis, Point2D nearPrimary , Point2D nearSecondary, BoundaryFeature nearSecondaryFeature ){
 			this.axis = axis;
 			this.nearPrimary = nearPrimary;
 			this.nearSecondary = nearSecondary;
 			this.nearSecondaryFeature = nearSecondaryFeature;
+			//this.nearPrimaryFeature = nearPrimaryFeature
 		}
 		
 		public Line2D getAxisLine(){
@@ -247,15 +249,15 @@ public abstract class SeparatingAxisCollector {
 		public Point2D getNearPointPrimary() {
 			return this.nearPrimary;
 		}
-		public BoundaryFeature getNearFeaturePrimary() {
+		public BoundaryFeature getNearFeatureSecondary() {
 			return this.nearSecondaryFeature;
 		}
 		public Point2D getNearPointSecondary() {
 			return this.nearSecondary;
 		}
-		//public BoundaryFeature getNearFeatureSecondary() {
-		//	return this.nearSecondaryFeature;
-		//}
+		public BoundaryFeature getNearFeaturePrimary() {
+			return this.nearPrimaryFeature;
+		}
 	}
 	
 }

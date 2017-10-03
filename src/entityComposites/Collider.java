@@ -217,6 +217,9 @@ public class Collider implements EntityComposite{
 			this.engine = engine;
 			System.out.println("|  "+this+" adding static to collision engine");
 		}
+		if ( !this.isActive ){
+			this.deactivateCollider();
+		}
 	}
 	
 	public void addCompositeToPhysicsEngineDynamic( CollisionEngine engine ){
@@ -224,6 +227,9 @@ public class Collider implements EntityComposite{
 			System.out.println("|   Adding dynamic to collision engine ");
 			this.engineSlot = engine.addDynamicCollidableToEngineList( this );
 			this.engine = engine;
+		}
+		if( !this.isActive ){
+			this.deactivateCollider();
 		}
 	}
 	
@@ -233,6 +239,9 @@ public class Collider implements EntityComposite{
 			this.engine = engine;
 			System.out.println("|   "+this+" adding static to collision engine GROUP {"+group+"}");
 		}
+		if( !this.isActive ){
+			this.deactivateCollider();
+		}
 	}
 	
 	public void addCompositeToPhysicsEngineDynamic( CollisionEngine engine, String group ){
@@ -240,6 +249,9 @@ public class Collider implements EntityComposite{
 			System.out.println("|   Adding dynamic to collision engine GROUP {"+group+"}");
 			this.engineSlot = engine.addDynamicCollidable( this, group );
 			this.engine = engine;
+		}
+		if( !this.isActive ){
+			this.deactivateCollider();
 		}
 	}
 
@@ -252,13 +264,24 @@ public class Collider implements EntityComposite{
 	 * value to true. Make sure this method is called after any conditional checks affecting isComplete.
 	 */
 	public void deactivateCollider(){
-		this.engineSlot.notifyDeactivatedCollider();
+		if ( this.engineSlot != null ){
+			this.engineSlot.notifyDeactivatedCollider();
+			this.dropAllCollisions();
+
+			System.out.println("Deactivating Collider");
+		}
+		else{
+			System.out.println("Deactivate event on collider that was not added");
+		}
+		
 		this.isActive = false;
-		this.dropAllCollisions();
+
 	}
 	
 	public void activateCollider(){
-		this.engineSlot.notifyActivatedCollider();
+		if ( this.engineSlot != null )
+			this.engineSlot.notifyActivatedCollider();
+		
 		this.isActive = true;
 	}
 	

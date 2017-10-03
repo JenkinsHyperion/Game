@@ -87,7 +87,21 @@ public class CollisionEngine {
     }
 	//CUSTOM COLLIDER PAIR BY GROUPS
 	
-	public void createColliderGroup( String newGroupName ){
+	public <E extends EntityStatic> ColliderGroup<E> createColliderGroup( String newGroupName ){
+		
+		if ( getGroupsByName( newGroupName ).length == 0 ){
+			ColliderGroup<E> newGroup = new ColliderGroup<E>(newGroupName);
+			newGroup.addToGroupList(colliderGroups);
+			System.out.println("Creating group '"+newGroupName+"'");
+			return newGroup;
+		}else{
+			System.err.println("Group '"+newGroupName+"' already exists");
+			return null;
+		}
+		
+	}
+	
+	/*public void createColliderGroup( String newGroupName ){
 		
 		if ( getGroupsByName( newGroupName ).length == 0 ){
 			ColliderGroup newGroup = new ColliderGroup(newGroupName);
@@ -97,12 +111,12 @@ public class CollisionEngine {
 			System.err.println("Group '"+newGroupName+"' already exists");
 		}
 		
-	}
+	}*/
 	
 	public <E extends EntityStatic> void createColliderGroupOfType( String newGroupName ){
 		
 		if ( getGroupsByName( newGroupName ).length == 0 ){
-			ColliderGroupTyped<E> newGroup = new ColliderGroupTyped<E>( newGroupName );
+			ColliderGroup<E> newGroup = new ColliderGroup<E>( newGroupName );
 			newGroup.addToGroupList(colliderGroups);
 			System.out.println("Creating group '"+newGroupName+"'");
 		}else{
@@ -115,9 +129,9 @@ public class CollisionEngine {
 	 * @param strings
 	 * @return
 	 */
-	public ColliderGroup[] getGroupsByName( String...strings ){
+	public ColliderGroup<?>[] getGroupsByName( String...strings ){
 		
-		ColliderGroup[] returnGroups = new ColliderGroup[ strings.length ];
+		ColliderGroup<?>[] returnGroups = new ColliderGroup[ strings.length ];
 		
 		ArrayList<String> testingFor = new ArrayList<String>(); //Create temporary list of strings to be checking
 		for ( int i = 0 ; i < strings.length ; ++i ){
@@ -151,14 +165,42 @@ public class CollisionEngine {
 		
 	}
 	
+	public <T extends EntityStatic , V extends EntityStatic> boolean addCustomCollisionsBetween( ColliderGroup<T> group1, ColliderGroup<V> group2, CollisionBuilder<T,V> customCollisionFactory ){
+		
+		System.out.println(" COLLISION ENGINE: CUSTOMIZING COLLISIONS BETWEEN '"+group1+"' AND '"+group2+"' COLLIDER GROUPS");
+		
+		this.groupPairs.add( new GroupPair(group1,group2,customCollisionFactory) );
+		
+		
+		while( group1.dynamicColliders.hasNext() ){			//Pair all colliders between the two groups
+			while( group2.staticColliders.hasNext() ){
+				
+				DynamicActiveCollider dynamic = group1.dynamicColliders.get();
+				StaticActiveCollider stat = group2.staticColliders.get();
+				
+				VisualCollisionCheck check = calculateCheck( dynamic , stat ); 
+				
+				CheckingPair newPair = new CustomDynamicStaticPair(
+						dynamic, 
+						stat, 
+						customCollisionFactory, 
+						check
+						);
+				
+				newPair.addToList(activeCheckingPairs);
+			}
+		}
+		return true;
+	}
+	
 	public boolean addCustomCollisionsBetween( String group1, String group2, CollisionBuilder<?,?> customCollisionFactory ){
 		
 		ColliderGroup[] groups = this.getGroupsByName( group1, group2);
 		
 		if ( groups.length == 2 ){
 			
-			ColliderGroup groupPrimary = groups[0];
-			ColliderGroup groupSecondary = groups[1];
+			ColliderGroup<?> groupPrimary = groups[0];
+			ColliderGroup<?> groupSecondary = groups[1];
 			
 			System.out.println(" COLLISION ENGINE: CUSTOMIZING COLLISIONS BETWEEN '"+groupPrimary+"' AND '"+groupSecondary+"' COLLIDER GROUPS");
 			
@@ -507,7 +549,7 @@ public class CollisionEngine {
     	ArrayList<Collider> compiledListOfColliders = new ArrayList<Collider>();
 
     
-    	for ( ColliderGroup group : colliderGroups ){
+    	for ( ColliderGroup<?> group : colliderGroups ){
 
 	    	while ( group.staticColliders.hasNext() ){
 	    		ActiveCollider stat = group.staticColliders.get();
@@ -635,10 +677,10 @@ public class CollisionEngine {
 		protected void remakePairs() {
 			
 			dissolveAllPairs();
-			for ( ColliderGroup group : groupsList ){ //change dynamic on all groups
+			for ( ColliderGroup<?> group : groupsList ){ //change dynamic on all groups
 				
 				while ( group.groupPairs.hasNext() ){
-					ColliderGroup.GroupPairWrapper pair = group.groupPairs.get();
+					ColliderGroup<?>.GroupPairWrapper pair = group.groupPairs.get();
 					
 					pair.notifyPairOfAddedStatic( this );
 				}
@@ -682,7 +724,7 @@ public class CollisionEngine {
 		protected void remakePairs() {
 			
 			dissolveAllPairs();
-			for ( ColliderGroup group : groupsList ){ //change dynamic on all groups
+			for ( ColliderGroup<?> group : groupsList ){ //change dynamic on all groups
 				
 				while ( group.groupPairs.hasNext() ){
 					ColliderGroup.GroupPairWrapper pair = group.groupPairs.get();
@@ -848,7 +890,7 @@ public class CollisionEngine {
 	}
 	
 	
-	protected class ColliderGroup{
+	public class ColliderGroup<E extends EntityStatic>{
 		
 		protected DoubleLinkedList<StaticActiveCollider> staticColliders = new DoubleLinkedList<StaticActiveCollider>();
 		protected DoubleLinkedList<DynamicActiveCollider> dynamicColliders = new DoubleLinkedList<DynamicActiveCollider>();
@@ -959,19 +1001,6 @@ public class CollisionEngine {
 		
 	}
 	
-	protected class ColliderGroupTyped<E extends EntityStatic> extends ColliderGroup{
-		
-		public ColliderGroupTyped(String name ) {
-			super(name);
-		}
-
-		@Override
-		public boolean isTypeRestricted() {
-			return true;
-		}
-		
-	}
-	
 	protected class GroupPair{
 		
 		private ColliderGroup[] groups;
@@ -1001,8 +1030,10 @@ public class CollisionEngine {
 
 			ArrayList<CheckingPair> returnPairs = new ArrayList<CheckingPair>();
 
-			while ( groups[1-groupIndex].dynamicColliders.hasNext() ){				// (1 - group) is basically boolean 0/1 !int 
-				DynamicActiveCollider dynamic = groups[1-groupIndex].dynamicColliders.get();
+			ColliderGroup<?> groupOther = groups[1-groupIndex];
+			
+			while ( groupOther.dynamicColliders.hasNext() ){				// (1 - group) is basically boolean 0/1 !int 
+				DynamicActiveCollider dynamic = groupOther.dynamicColliders.get();
 				
 				VisualCollisionCheck check = calculateCheck( dynamic , addedStatic ); 
 				
@@ -1021,9 +1052,12 @@ public class CollisionEngine {
 
 			if ( groupIndex == 0 ){  //THIS CHECK IS TO SWITCH PRIMARY SECONDARY BILLING FOR DYNAMIC DYNAMIC COLLISIONS
 				
-				while ( groups[1].dynamicColliders.hasNext() ){	
+				ColliderGroup<?> groupThis = groups[1];
+				ColliderGroup<?> groupOther = groups[1-groupIndex];
+				
+				while ( groupThis.dynamicColliders.hasNext() ){	
 					
-					DynamicActiveCollider dynamic = groups[1-groupIndex].dynamicColliders.get();
+					DynamicActiveCollider dynamic = groupOther.dynamicColliders.get();
 					
 					VisualCollisionCheck check = calculateCheck( dynamic , addedDynamic ); 
 					
@@ -1039,9 +1073,12 @@ public class CollisionEngine {
 				
 			}else{ 
 			
-				while ( groups[0].dynamicColliders.hasNext() ){ //DYNAMIC ADDED TO GROUP 1 GOES SECONDARY
+				ColliderGroup<?> groupThis = groups[0];
+				ColliderGroup<?> groupOther = groups[1-groupIndex];
+				
+				while ( groupThis.dynamicColliders.hasNext() ){ //DYNAMIC ADDED TO GROUP 1 GOES SECONDARY
 
-					DynamicActiveCollider dynamic = groups[1-groupIndex].dynamicColliders.get();
+					DynamicActiveCollider dynamic = groupOther.dynamicColliders.get();
 
 					VisualCollisionCheck check = calculateCheck( dynamic , addedDynamic ); 
 
@@ -1057,8 +1094,11 @@ public class CollisionEngine {
 
 			}
 			
-			while ( groups[1-groupIndex].staticColliders.hasNext() ){				//AND THEN STATICS ALL GO SECONDARY
-				StaticActiveCollider stat = groups[1-groupIndex].staticColliders.get(); //  (1-groupIndex) is basically boolean ! not
+			ColliderGroup<?> groupOther = groups[1-groupIndex];
+			
+			while ( groupOther.staticColliders.hasNext() ){				//AND THEN STATICS ALL GO SECONDARY
+				
+				StaticActiveCollider stat = groupOther.staticColliders.get(); //  (1-groupIndex) is basically boolean ! not
 
 				VisualCollisionCheck check = calculateCheck( stat , addedDynamic ); 	// operation on an int between 0 and 1
 

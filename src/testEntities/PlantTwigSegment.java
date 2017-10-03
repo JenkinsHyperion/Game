@@ -3,6 +3,7 @@ package testEntities;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.geom.Line2D;
+import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 import engine.ReferenceFrame;
 import engine.TestBoard;
@@ -40,6 +41,8 @@ public class PlantTwigSegment extends EntityStatic{
 	protected StemSegment previousSegment;
 	protected PlantTwigSegment[] nextSegment = emptyNext; //move to stems
 	
+	protected TreeUnit organism;
+	
 	protected Runnable currentGrowthState;
 	
 	protected boolean dead;
@@ -48,8 +51,9 @@ public class PlantTwigSegment extends EntityStatic{
 		super(x,y);
 		this.board = board;
 		this.maxGrowth = maxGrowth;
+		//this.organism = organism;
 	}
-	
+
 	protected void setPreviousStem(StemSegment previous){ this.previousSegment = previous; }
 	
 	protected class FullyGrownState implements Runnable{
@@ -93,18 +97,26 @@ public class PlantTwigSegment extends EntityStatic{
 			
 			protected TransportWaterListener waterListener = new TransportWaterListener();
 			
-			public StemSegment(int x, int y, int maxGrowth , TestBoard board) {
+			public StemSegment(int x, int y, int maxGrowth, TreeUnit organism, TestBoard board) {
+				super(x, y, maxGrowth, board);
+				counter++;
+				this.currentGrowthState = new GrowingState( new FullyGrownEvent() , new FullyGrownState() );
+				this.organism = organism;
+				init( maxGrowth );
+			}
+			
+			public StemSegment(int x, int y, int maxGrowth, TestBoard board) {
 				super(x, y, maxGrowth, board);
 				counter++;
 				//CompositeFactory.addDynamicRotationTo(this);
 				//CompositeFactory.addCustomDynamicRotationTo(this, new DynamicRotationComposite.SineWave(this , waveCounter ) );
-				
+				this.organism = new TreeUnit("Tree");
 				this.currentGrowthState = new GrowingState( new FullyGrownEvent() , new FullyGrownState() );
 				
 				init( maxGrowth );
 				
 			}
-			
+
 			protected void init( int percentMax){
 		
 				AngularComposite angularComposite = CompositeFactory.addAngularComposite(this);
@@ -128,6 +140,10 @@ public class PlantTwigSegment extends EntityStatic{
 							new BoundaryLinear( new Line2D.Double( 0,0 , 0, (int)(-80*(maxGrowth/100.0)) ) ), 
 							angularComposite 
 							);
+					if ( !this.organism.collidersAreActive ){
+						System.err.println("###############ORGANISM IS DEACTIVATED ");
+						this.getColliderComposite().deactivateCollider();
+					}
 				}
 			}
 
@@ -533,10 +549,10 @@ public class PlantTwigSegment extends EntityStatic{
 						Point relativeTip = StemSegment.this.getAbsolutePositionOf( new Point(0,-(int)oldRadius) );
 						//Create next segments and spawn them into board
 						//PlantTwigSegment sprout = new PlantTwigSegment( endPointX , endPointY , thisMaxGrowth , board) ;
-						StemSegment sproutLeft = new StemSegment( relativeTip.x , relativeTip.y , thisMaxGrowth , board) ;
+						StemSegment sproutLeft = new StemSegment( relativeTip.x , relativeTip.y , thisMaxGrowth , StemSegment.this.organism, board) ;
 						sproutLeft.setPreviousStem(StemSegment.this);
 	
-						LeafStem leafStemRight = new LeafStem(relativeTip.x, relativeTip.y, thisMaxGrowth, board);
+						LeafStem leafStemRight = new LeafStem(relativeTip.x, relativeTip.y, thisMaxGrowth , StemSegment.this.organism, board);
 						leafStemRight.setPreviousStem(StemSegment.this);
 
 						if ( StemSegment.this.lastBranchedClockwise ){ //check last branch direction and alternate
@@ -556,6 +572,7 @@ public class PlantTwigSegment extends EntityStatic{
 						CompositeFactory.makeChildOfParent(leafStemRight, StemSegment.this , board);
 						
 						StemSegment.this.nextSegment = new PlantTwigSegment[]{sproutLeft , leafStemRight };
+						
 						
 						StemSegment.this.currentWaterTransportState = new ForkPushTransportState( leafStemRight, sproutLeft ) ;
 						StemSegment.this.currentSugarTransportState = new ForkSugarOverflowTransport( leafStemRight, sproutLeft ) ;
@@ -598,7 +615,7 @@ public class PlantTwigSegment extends EntityStatic{
 						
 						Point relativeTip = StemSegment.this.getAbsolutePositionOf( new Point(0,-(int)oldRadius) );
 						
-						StemSegment sproutStem = new StemSegment( relativeTip.x , relativeTip.y , thisMaxGrowth , board );
+						StemSegment sproutStem = new StemSegment( relativeTip.x , relativeTip.y , thisMaxGrowth, StemSegment.this.organism, board );
 						sproutStem.setPreviousStem(StemSegment.this);
 						
 						sproutStem.getAngularComposite().setAngleInDegrees(thisSegmentAngle);
@@ -673,7 +690,7 @@ public class PlantTwigSegment extends EntityStatic{
 		
 					System.err.println( relativeTip+" ANGLE: "+StemSegment.this.getAngularComposite().getAngle() );
 
-					StemSegment sproutStem = new StemSegment( relativeTip.x , relativeTip.y , thisMaxGrowth , board );
+					StemSegment sproutStem = new StemSegment( relativeTip.x , relativeTip.y , thisMaxGrowth, StemSegment.this.organism , board );
 					sproutStem.setPreviousStem(StemSegment.this);
 						
 					sproutStem.getAngularComposite().setAngleInDegrees(thisSegmentAngle);
@@ -703,6 +720,12 @@ public class PlantTwigSegment extends EntityStatic{
 
 		public LeafStem(int x, int y, int maxGrowth, TestBoard board) {
 			super(x, y, maxGrowth, board);
+
+			this.currentGrowthState = new LeafStemGrowingState() ;
+		}
+		
+		public LeafStem(int x, int y, int maxGrowth, TreeUnit organism, TestBoard board) {
+			super(x, y, maxGrowth, organism, board);
 
 			this.currentGrowthState = new LeafStemGrowingState() ;
 		}
@@ -769,7 +792,7 @@ public class PlantTwigSegment extends EntityStatic{
 						else
 							thisSegmentAngle -= UPWARD_WILLPOWER;
 	
-					LeafStem sproutStem = new LeafStem( relativeTip.x , relativeTip.y , thisMaxGrowth , board );
+					LeafStem sproutStem = new LeafStem( relativeTip.x , relativeTip.y , thisMaxGrowth, board );
 					sproutStem.setPreviousStem(LeafStem.this);
 					
 					sproutStem.getAngularComposite().setAngleInDegrees(thisSegmentAngle);
@@ -861,6 +884,15 @@ public class PlantTwigSegment extends EntityStatic{
 		}
 		
 	}
+	
+	public final class TreeUnit{
 
+		private final String treeName;
+		public boolean collidersAreActive = false;
+		
+		public TreeUnit( String treeName){
+			this.treeName = treeName;
+		}
+	}
 
 }

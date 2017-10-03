@@ -21,12 +21,15 @@ import entityComposites.TranslationComposite;
 import entityComposites.TranslationComposite.VelocityVector;
 import entityComposites.Collider;
 import physics.*;
+import physics.CollisionEngine.ColliderGroup;
 import physics.Vector;
 import sprites.Background;
 import sprites.RenderingEngine;
 import sprites.Sprite;
 import sprites.Sprite.Stillframe;
 import testEntities.*;
+import testEntities.PlantTwigSegment.StemSegment;
+import testEntities.PlantTwigSegment.TreeUnit;
 import misc.*;
 
 
@@ -53,6 +56,10 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     
     private OverlayComposite boundaryOverlay;
     private OverlayComposite forcesOverlay;
+    
+    public static ColliderGroup<PlantPlayer> playerGroup;
+    public static ColliderGroup<EntityStatic> worldGeometryGroup;
+    public static ColliderGroup<PlantTwigSegment> treeStemGroup;
 
     public TestBoard(int width , int height, JFrame frame ) {
     	super(width,height,frame);
@@ -137,13 +144,14 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 
     private void initBoard() {
     	
-    	collisionEngine.createColliderGroup("Player");
-    	collisionEngine.createColliderGroup("Ground");
-        collisionEngine.createColliderGroup("Tree");
-        collisionEngine.<PlantPlayer>createColliderGroupOfType("PlayerOnly");
+    	playerGroup = collisionEngine.<PlantPlayer>createColliderGroup("Player");
+    	worldGeometryGroup = collisionEngine.<EntityStatic>createColliderGroup("Ground");
+        treeStemGroup = collisionEngine.<PlantTwigSegment>createColliderGroup("Tree");
         
         collisionEngine.addCustomCollisionsBetween("Player", "Ground", CollisionBuilder.DYNAMIC_STATIC );
-        collisionEngine.addCustomCollisionsBetween("Player", "Tree", new PlantPlayer.ClingCollision() );
+        //collisionEngine.addCustomCollisionsBetween("Player", "Tree", new PlantPlayer.ClingCollision() );
+        
+        collisionEngine.addCustomCollisionsBetween(playerGroup, treeStemGroup, new PlantPlayer.ClingCollision() );
     	
     	myMouseHandler = new MouseHandlerClass();
   		addMouseListener(myMouseHandler);

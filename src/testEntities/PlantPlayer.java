@@ -130,9 +130,15 @@ public class PlantPlayer extends Player {
 
 				@Override
 				protected void initializeCollision() {
-					player.climbing.setSegment(plantSegment);
-					player.changeState(player.climbing);
-					plantSegment.deactivateAbove();
+					
+					Axis[] axes = check.getAxisCollector().getSeparatingAxes(entityPrimary, entityPrimary.getPosition(), playerCollider.getBoundary(), 
+							entitySecondary, entitySecondary.getPosition(), collider2.getBoundary() );
+					
+					if ( axes[0].getNearFeatureSecondary().debugIsSide() ){
+						player.climbing.setSegment(plantSegment);
+						player.changeState(player.climbing);
+						plantSegment.deactivateAbove();
+					}
 				}
 
 				@Override
@@ -160,9 +166,11 @@ public class PlantPlayer extends Player {
 	private void changeState( State state ){
 		System.err.println("CHANGE STATE "+currentState+" TO "+state);
 		this.currentState = state;
+		state.onChange();
 	}
 	
 	private abstract class State implements Runnable{
+		public void onChange(){}
 		public void onLeft(){}
 		public void offLeft(){}
 		public void onRight(){}
@@ -179,10 +187,15 @@ public class PlantPlayer extends Player {
 			this.segment = stem;
 		}
 		
+		public void onChange(){
+			//gravity.setVector(Vector.zeroVector);
+			//PlantPlayer.this.setPos( segment.getPosition() );
+		}
+		
 		@Override
 		public void run() {
-			
-			
+			//gravity.setVector(Vector.zeroVector);
+			//PlantPlayer.this.setPos( segment.getPosition() );
 		}
 
 	}

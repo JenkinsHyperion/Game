@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-public class Client extends JFrame {
+public class Client extends JFrame implements KeyListener {
 	
 	private JTextField userText;
 	private JTextArea chatWindow;
@@ -20,6 +20,7 @@ public class Client extends JFrame {
 		// TODO Auto-generated constructor stub
 		super("Client");
 		this.serverIP = host;
+		this.addKeyListener(this);
 		userText = new JTextField();
 		userText.setEditable(false);
 		userText.addActionListener(new ActionListener() {
@@ -115,6 +116,35 @@ public class Client extends JFrame {
 				chatWindow.append(m);
 			}
 		});
+	}
+
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		// TODO Auto-generated method stub
+		try {
+			if (e.getKeyCode() == KeyEvent.VK_F12) {
+				outputStream.writeObject("CLIENT - sent key event: " + e.getKeyCode());
+				outputStream.flush();
+				showMessage("\nCLIENT - " + message);
+			}
+		}catch(IOException ioe) {
+			chatWindow.append("\nError sending message");
+		}
+	}
+
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	

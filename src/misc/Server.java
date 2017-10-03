@@ -17,9 +17,11 @@ public class Server extends JFrame {
 	private ServerSocket server;
 	private Socket connectionSocket;
 	private Method method;
+	private boolean canRun;
 	public Server() {
 		// TODO Auto-generated constructor stub
 		super("Shitty Instant Messenger");
+		canRun = true;
 		userText = new JTextField();
 		userText.setEditable(false);
 		// ADD ACTIONLISTENER FOR USERTEXT
@@ -44,9 +46,10 @@ public class Server extends JFrame {
 	
 	/**Set up and run the server*/
 	public void startRunning() {
+		canRun = true;
 		try{
 			server = new ServerSocket(6789, 100);
-			while(true) {
+			while(canRun) {
 				try {
 					//will wait for awhile till connection is found
 					waitForConnection();
@@ -92,6 +95,10 @@ public class Server extends JFrame {
 				showMessage("\n" + message);
 			}catch(ClassNotFoundException e) {
 				showMessage("\nDunno what the user sent.");
+			}catch (SocketException s) {
+				s.getStackTrace();
+				closeCrap();
+				startRunning();
 			}
 		}while(!message.equals("CLIENT - END"));
 	}
@@ -104,6 +111,8 @@ public class Server extends JFrame {
 			outputStream.close();
 			inputStream.close();
 			connectionSocket.close();
+			server.close();
+			canRun = false;
 		}catch (IOException e){
 			e.printStackTrace();
 		}

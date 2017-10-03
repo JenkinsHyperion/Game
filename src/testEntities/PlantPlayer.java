@@ -214,7 +214,7 @@ public class PlantPlayer extends Player {
 		PlantTwigSegment segment;
 		Point2D attatchPoint;
 		private byte leftRight;
-		private Vector momentum;
+		private Vector jumpVelocity;
 		
 		public void setSegment( PlantTwigSegment stem, Point2D attatchPoint ){
 			this.segment = stem;
@@ -224,7 +224,7 @@ public class PlantPlayer extends Player {
 		public void onChange(){
 			isClimbing = true;
 			
-			momentum = PlantPlayer.this.getTranslationComposite().getVelocityVector();
+			jumpVelocity = PlantPlayer.this.getTranslationComposite().getVelocityVector();
 			
 			clingNormal = PlantPlayer.this.getTranslationComposite().addNormalForce(gravity.getVector().inverse());
 			
@@ -245,7 +245,7 @@ public class PlantPlayer extends Player {
 			PlantPlayer.this.getTranslationComposite().removeNormalForce(clingNormal);
 			System.err.println("ACTIVATING ORGANISM");
 
-			segment.activateOrganism();
+			//segment.activateOrganism();
 		}
 		
 		@Override
@@ -270,15 +270,21 @@ public class PlantPlayer extends Player {
 		@Override
 		public void onJump() {
 			getTranslationComposite().addVelocity( 
-					gravity.getVector().inverse().unitVector().multiply(5)  );
+					gravity.getVector().inverse().unitVector().multiply(5) .add(
+							gravity.getVector().normalLeft().multiply(leftRight*10)
+							));
 			changeState(falling);
 			bufferState = movingState;
 		}
 		
 		@Override
 		public void holdingJump() {
-			getTranslationComposite().addVelocity( momentum.projectedOver(gravity.getVector().normalRight()) );
-			this.onJump();
+			getTranslationComposite().addVelocity( 
+					gravity.getVector().inverse().unitVector().multiply(5) .add(
+							jumpVelocity.projectedOver(gravity.getVector().normalRight())
+							));
+			changeState(falling);
+			bufferState = movingState;
 		}
 
 	}

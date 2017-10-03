@@ -1436,18 +1436,10 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				for(EntityStatic entity: board.listCurrentSceneEntities()) {
 					//polygonTest.
 					if (entity.getColliderComposite().exists()){
-						Boundary bound = entity.getColliderComposite().getBoundaryLocal();
-						int[] xpoints;
-						int[] ypoints;
-						xpoints = new int[bound.getCornersPoint().length];
-						ypoints = new int[bound.getCornersPoint().length];
+						Boundary bound = entity.getColliderComposite().getBoundary();
 						
-						for (int i = 0; i < bound.getCornersPoint().length; i++ ) {
-							xpoints[i] = (int)bound.getCornersPoint()[i].getX();
-							ypoints[i] = (int)bound.getCornersPoint()[i].getY();
-						}
-						Polygon polygonTest = new Polygon(xpoints, ypoints, bound.getCornersPoint().length);
-						Rectangle rect = polygonTest.getBounds();
+						Polygon polygonTest = bound.getPolygonBounds(entity);
+						
 						if (polygonTest.intersects(selectionRect)) {
 							if (selectedEntities.contains(entity) == false) {
 								addSelectedEntity(entity);

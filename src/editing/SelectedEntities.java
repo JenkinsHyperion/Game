@@ -11,17 +11,27 @@ import java.util.logging.Logger;
 
 import entityComposites.*;
 import physics.Boundary;
+import sprites.Sprite;
 import engine.MovingCamera;
-
+/**
+ *A wrapper class that handles the concept of entities being selected. Stores references to the selected entities
+ *and the camera to which they are relative.
+ *
+ */
 public class SelectedEntities {
 	private ArrayList<EntityStatic> selectedEntities = new ArrayList<>();
 	private ArrayList<Point> oldEntityPositions = new ArrayList<>();
 	private MovingCamera camera;
-	
+	/**@param camera the relative camera. Needed to determine the relative point of the selected entities.
+	 * {@ SelectedEntities#camera camera} and other text
+	 *  */
 	public SelectedEntities(MovingCamera camera) {
 		this.camera = camera;
 		//this.worldGeomMousePos = worldGeomMousePosRef;
 	}
+	/** @see SelectedEntities#clearSelectedEntities()
+	 * 
+	 */
 	public void clearSelectedEntities() {
 		selectedEntities.clear();
 	}
@@ -51,8 +61,19 @@ public class SelectedEntities {
 				camera.drawRect(rect, g, Color.BLUE, Color.CYAN, .2f);
 				//camera.debugDrawPolygon(rect, Color.CYAN, entity.getPosition(), new AffineTransform());
 			} */
+			if (entity.getGraphicComposite().exists()) {
+				int areaExtender = 30;
+			// vvvvv Code I copied over that should be sufficient to replace the above ^^^^^ 
+				Rectangle clickableRect = new Rectangle();
+				Sprite graphic = entity.getGraphicComposite().getSprite();
+				clickableRect.setSize(graphic.getImage().getWidth(null) + areaExtender, graphic.getImage().getHeight(null) + areaExtender);
+				Point entityPoint = new Point(entity.getPosition().x - areaExtender,
+											  entity.getPosition().y - areaExtender);
+//				camera.debugDrawPolygon(clickableRect, Color.CYAN, entity.getPosition(), new AffineTransform(), .2f);
+				camera.debugDrawPolygon(clickableRect, Color.CYAN, entityPoint, new AffineTransform(), .2f);
+			}
 			// if entity has no graphics 
-			if (entity.getColliderComposite().exists()) {
+			else if (entity.getColliderComposite().exists()) {
 				//float tempAngle = entity.getRotationComposite().getAngle();
 				//AffineTransform xform = new AffineTransform();
 				//xform.rotate((double)Math.toRadians(tempAngle));

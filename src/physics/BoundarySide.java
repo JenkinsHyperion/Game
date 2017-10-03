@@ -7,7 +7,7 @@ import java.awt.geom.Point2D;
 import entityComposites.EntityStatic;
 import misc.CollisionEvent;
 
-public class Side extends BoundaryFeature{
+public class BoundarySide extends BoundaryFeature{
 
 	//private int ID;
 	Line2D line;
@@ -18,7 +18,7 @@ public class Side extends BoundaryFeature{
 
 	//individual side properties here
 	
-	public Side( Line2D line , Boundary owner, int ID, CollisionEvent collisionEvent){
+	public BoundarySide( Line2D line , Boundary owner, int ID, CollisionEvent collisionEvent){
 		this.line = line;
 		this.owner = owner;
 		this.ID = ID;
@@ -26,7 +26,7 @@ public class Side extends BoundaryFeature{
 		this.setCollisionEvent(collisionEvent);
 	}
 	//For cloning only
-	protected Side( Line2D line , Point2D startpoint , Point2D endpoint , Boundary owner , int ID, CollisionEvent collisionEvent){
+	protected BoundarySide( Line2D line , Point2D startpoint , Point2D endpoint , Boundary owner , int ID, CollisionEvent collisionEvent){
 		this.line = line;
 		this.owner = owner;
 		this.ID = ID;

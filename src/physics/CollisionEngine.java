@@ -245,7 +245,7 @@ public class CollisionEngine {
 
 		if ( foundGroup.length == 1 ){ //group already exists
 
-			newStatic.addToGroup(foundGroup[0]);
+			newStatic.addToGroup( foundGroup[0],collidable.isActive() );
 			return newStatic;
 
 		}
@@ -253,7 +253,7 @@ public class CollisionEngine {
 		ColliderGroup newGroup = new ColliderGroup( groupName );
 		newGroup.addToGroupList(colliderGroups);
 
-		newStatic.addToGroup(newGroup);
+		newStatic.addToGroup( newGroup,collidable.isActive() );
 		
 		return newStatic;
 	}
@@ -266,7 +266,7 @@ public class CollisionEngine {
 		for ( ColliderGroup group : colliderGroups){
 			if ( group.toString().matches(groupName) ){ //group already exists
 
-				newDynamic.addToGroup(group);
+				newDynamic.addToGroup(group,collidable.isActive() );
 				
 				return newDynamic;
 			}
@@ -276,7 +276,7 @@ public class CollisionEngine {
 		ColliderGroup newGroup = new ColliderGroup( groupName );
 		newGroup.addToGroupList(colliderGroups);
 
-		newDynamic.addToGroup(newGroup);
+		newDynamic.addToGroup( newGroup,collidable.isActive() );
 		
 		return newDynamic;
 	}
@@ -284,11 +284,11 @@ public class CollisionEngine {
 	
 	//COLLIDER ADDITION METHODS
 	
-	public ActiveCollider addStaticCollidableToEngineList( Collider collidable ){ //returns engine wrapper to collider composite
+	public ActiveCollider addStaticCollidableToEngineList( Collider collidable){ //returns engine wrapper to collider composite
 		
 		ActiveCollider newStatic = new StaticActiveCollider( collidable );
 		
-		newStatic.addToGroup(ungrouped);
+		newStatic.addToGroup(ungrouped, collidable.isActive() );
 		//Create pairs with dynamics
 
 		createDynamicStaticPairsWithDynamicCollidersInGroup( newStatic , ungrouped.dynamicColliders );
@@ -307,7 +307,7 @@ public class CollisionEngine {
 	
 		createDynamicDynamicPairsWithCollidersInGroup( newDynamic, ungrouped.dynamicColliders);
 
-		newDynamic.addToGroup(ungrouped);
+		newDynamic.addToGroup( ungrouped,collidable.isActive() );
 		
 		return newDynamic;
 	}
@@ -581,7 +581,7 @@ public class CollisionEngine {
 			this.collider = collider;
 		}
 
-		protected abstract void addToGroup( ColliderGroup group );
+		protected abstract void addToGroup( ColliderGroup group, boolean isActive );
 		
 		public abstract ActiveCollider notifyChangeToStatic(); 
 		public abstract ActiveCollider notifyChangeToDynamic();
@@ -609,9 +609,9 @@ public class CollisionEngine {
 			}
 		}
 
-		public void notifyBoundaryChange( Boundary newBoundary ) {
+		public void notifyBoundaryChange( Boundary newBoundary, boolean isActive ) {
 			dissolveAllPairs();
-			this.remakePairs();
+			this.remakePairs( isActive );
 		}
 		
 		public void notifyRemovedCollider(){
@@ -627,7 +627,7 @@ public class CollisionEngine {
 			this.groupsList.clear();
 		}
 		
-		protected abstract void remakePairs();
+		protected abstract void remakePairs(boolean isActive);
 		
 	}
 
@@ -637,15 +637,15 @@ public class CollisionEngine {
 			super(collider);
 		}
 		
-		protected void addToGroup( ColliderGroup group ){
-			groupTickets.add( group.addStaticColliderToThisGroup(this) );
+		protected void addToGroup( ColliderGroup group, boolean isActive ){
+			groupTickets.add( group.addStaticColliderToThisGroup(this,isActive) );
 			groupsList.add(group);
 		}
-		
+		@Override
 		public ActiveCollider notifyChangeToStatic(){
 			return this;
 		}
-		
+		@Override
 		public ActiveCollider notifyChangeToDynamic(){
 			
 			dissolveAllPairs(); //FIXME Allow only dynamic/statics to be removed rather than blitzing all pairs
@@ -662,7 +662,7 @@ public class CollisionEngine {
 				group.removeSelfFromList();
 			}
 			for ( ColliderGroup group : groupsList ){ //change dynamic on all groups
-				groupTickets.add( group.addDynamicColliderToThisGroup(changedDynamic) );
+				groupTickets.add( group.addDynamicColliderToThisGroup(changedDynamic, this.collider.isActive() ) );
 			}
 
 			return changedDynamic;
@@ -675,7 +675,7 @@ public class CollisionEngine {
 		}
 		
 		@Override
-		protected void remakePairs() {
+		protected void remakePairs( boolean isActive ) {
 			
 			dissolveAllPairs();
 			for ( ColliderGroup<?> group : groupsList ){ //change dynamic on all groups
@@ -683,7 +683,7 @@ public class CollisionEngine {
 				while ( group.groupPairs.hasNext() ){
 					ColliderGroup<?>.GroupPairWrapper pair = group.groupPairs.get();
 					
-					pair.notifyPairOfAddedStatic( this );
+					pair.notifyPairOfAddedStatic( this , isActive );
 				}
 			}
 		}
@@ -696,8 +696,8 @@ public class CollisionEngine {
 			super(collider);
 		}
 		
-		protected void addToGroup( ColliderGroup group ){
-			groupTickets.add( group.addDynamicColliderToThisGroup(this) );
+		protected void addToGroup( ColliderGroup group, boolean isActive ){
+			groupTickets.add( group.addDynamicColliderToThisGroup(this,isActive) );
 			groupsList.add(group);
 		}
 		
@@ -722,7 +722,7 @@ public class CollisionEngine {
 		}
 		
 		@Override
-		protected void remakePairs() {
+		protected void remakePairs( boolean isActive ) {
 			
 			dissolveAllPairs();
 			for ( ColliderGroup<?> group : groupsList ){ //change dynamic on all groups
@@ -730,7 +730,7 @@ public class CollisionEngine {
 				while ( group.groupPairs.hasNext() ){
 					ColliderGroup.GroupPairWrapper pair = group.groupPairs.get();
 					
-					pair.notifyPairOfAddedDynamic( this );
+					pair.notifyPairOfAddedDynamic( this , isActive );
 				}
 			}
 		}
@@ -919,21 +919,21 @@ public class CollisionEngine {
 			return this.groupPairs.add( new GroupPairWrapper( pair , primarySecondary ) );
 		}
 
-		public ListNodeTicket addStaticColliderToThisGroup( StaticActiveCollider newStatic ){
+		public ListNodeTicket addStaticColliderToThisGroup( StaticActiveCollider newStatic , boolean isActive ){
 
 			while ( groupPairs.hasNext() ){
 				GroupPairWrapper wrappedPair = groupPairs.get();
-				wrappedPair.notifyPairOfAddedStatic(newStatic);
+				wrappedPair.notifyPairOfAddedStatic( newStatic , isActive );
 			}
 			
 			return staticColliders.add(newStatic);
 		}
 		
-		public ListNodeTicket addDynamicColliderToThisGroup( DynamicActiveCollider dynamic ){
+		public ListNodeTicket addDynamicColliderToThisGroup( DynamicActiveCollider dynamic, boolean isActive ){
 			
 			while ( groupPairs.hasNext() ){
 				GroupPairWrapper wrappedPair = groupPairs.get();
-				wrappedPair.notifyPairOfAddedDynamic(dynamic);
+				wrappedPair.notifyPairOfAddedDynamic( dynamic , isActive );
 			}
 			
 			return dynamicColliders.add(dynamic);
@@ -992,11 +992,11 @@ public class CollisionEngine {
 				this.pair = pair;
 				this.primarySecondary = primarySecondary;
 			}
-			public void notifyPairOfAddedStatic( StaticActiveCollider addedStatic ){
-				pair.notifyPairOfStaticAddedToGroup(addedStatic, primarySecondary);
+			public void notifyPairOfAddedStatic( StaticActiveCollider addedStatic, boolean isActive ){
+				pair.notifyPairOfStaticAddedToGroup(addedStatic, primarySecondary, isActive);
 			}
-			public void notifyPairOfAddedDynamic( DynamicActiveCollider addedDynamic ){
-				pair.notifyPairOfDynamicAddedToGroup(addedDynamic, primarySecondary);
+			public void notifyPairOfAddedDynamic( DynamicActiveCollider addedDynamic , boolean isActive){
+				pair.notifyPairOfDynamicAddedToGroup(addedDynamic, primarySecondary, isActive);
 			}
 		}
 		
@@ -1027,7 +1027,7 @@ public class CollisionEngine {
 			
 		}
 		
-		public void notifyPairOfStaticAddedToGroup( StaticActiveCollider addedStatic , byte groupIndex ){
+		public void notifyPairOfStaticAddedToGroup( StaticActiveCollider addedStatic , byte groupIndex, boolean isActive ){
 
 			ArrayList<CheckingPair> returnPairs = new ArrayList<CheckingPair>();
 
@@ -1045,11 +1045,15 @@ public class CollisionEngine {
 						check 
 						);
 				
-				newPair.addToList(activeCheckingPairs);
+				if ( isActive ){
+					newPair.addToList(activeCheckingPairs);
+				}else{
+					newPair.addToList(inactiveCheckingPairs);
+				}
 			}
 		}
 		
-		public void notifyPairOfDynamicAddedToGroup( DynamicActiveCollider addedDynamic , byte groupIndex ){
+		public void notifyPairOfDynamicAddedToGroup( DynamicActiveCollider addedDynamic , byte groupIndex, boolean isActive ){
 
 			if ( groupIndex == 0 ){  //THIS CHECK IS TO SWITCH PRIMARY SECONDARY BILLING FOR DYNAMIC DYNAMIC COLLISIONS
 				
@@ -1068,8 +1072,11 @@ public class CollisionEngine {
 							this.builder, 
 							check
 							);
-					
-					newPair.addToList(activeCheckingPairs);
+					if ( isActive ){
+						newPair.addToList(activeCheckingPairs);
+					}else{
+						newPair.addToList(inactiveCheckingPairs);
+					}
 				}
 				
 			}else{ 
@@ -1090,7 +1097,11 @@ public class CollisionEngine {
 							check
 							);
 
-					newPair.addToList(activeCheckingPairs);
+					if ( isActive ){
+						newPair.addToList(activeCheckingPairs);
+					}else{
+						newPair.addToList(inactiveCheckingPairs);
+					}
 				}
 
 			}
@@ -1110,7 +1121,11 @@ public class CollisionEngine {
 						check 
 						);
 
-				newPair.addToList(activeCheckingPairs);
+				if ( isActive ){
+					newPair.addToList(activeCheckingPairs);
+				}else{
+					newPair.addToList(inactiveCheckingPairs);
+				}
 			}
 			
 		}

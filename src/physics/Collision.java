@@ -22,8 +22,8 @@ public abstract class Collision {
 	
 	protected int[] entityPairIndex = new int[2];
 	
-	protected Side contactingSide1;
-	protected Side contactingSide2;
+	protected BoundarySide contactingSide1;
+	protected BoundarySide contactingSide2;
 	
 	protected Point2D contactPoint;
 	
@@ -196,8 +196,8 @@ public abstract class Collision {
 		return collisionDebugTag;
 	}
 	
-	public Side getSidePrimary(){ return contactingSide1; }
-	public Side getSideSecondary(){ return contactingSide2; }
+	public BoundarySide getSidePrimary(){ return contactingSide1; }
+	public BoundarySide getSideSecondary(){ return contactingSide2; }
 	public Point2D[] getContactPoints(){ return contactPoints; }
 	public ArrayList<Point2D> getIntersections() { return debugIntersectionPoints; }
 

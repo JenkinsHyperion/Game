@@ -10,13 +10,10 @@ import java.awt.geom.Point2D;
 import engine.MovingCamera;
 import entityComposites.EntityStatic;
 
-public class VoronoiRegionDefined extends VoronoiRegion{
+public abstract class VoronoiRegionDefined extends VoronoiRegion{
 	
 	private RegionBoundary[] boundsList = new RegionBoundary[0];
-	
-	public VoronoiRegionDefined( BoundaryFeature feature ){
-		super(feature);
-	}
+
 	protected void addRegionBoundary( RegionBoundary addBound ){
 		RegionBoundary[] newBounds = new RegionBoundary[ boundsList.length +1 ];
 		for ( int i = 0 ; i < boundsList.length ; i++ ){
@@ -29,15 +26,9 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 	
 	@Override
 	protected int debugNumberOfBounds(){ return this.boundsList.length; }
+
 	
-	@Override
-	protected void notifySetAngle(double setAngle) {
-		for ( RegionBoundary bound : this.boundsList ){
-			
-		}
-	}
-	
-	public static void addSideOuterBounds( VoronoiRegionDefined cornerCCW , VoronoiRegionDefined region, VoronoiRegionDefined cornerCW , Side side ){ //CONSTRCT ADJACENT CORNERS
+	public static void addSideOuterBounds( VoronoiRegionDefined cornerCCW , VoronoiRegionDefined region, VoronoiRegionDefined cornerCW , BoundarySide side ){ //CONSTRCT ADJACENT CORNERS
 		
 		//System.err.println(cornerCCW.getFeature()+" "+region.getFeature()+" "+cornerCW.getFeature());
 		
@@ -97,8 +88,8 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 	
 	public static void splitAdjacentSideRegions( VoronoiRegionDefined regionCCW , VoronoiRegionDefined regionCW ){
 
-		Side sideCCW = (Side) (regionCCW.getFeature()) ;
-		Side sideCW = (Side) (regionCW.getFeature()) ;
+		BoundarySide sideCCW = (BoundarySide) (regionCCW.getFeature()) ;
+		BoundarySide sideCW = (BoundarySide) (regionCW.getFeature()) ;
 		
 		Vector split = sideCCW.toVector().bisectingVector( sideCW.toVector().inverse() );
 		
@@ -149,8 +140,8 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 	
 	public static void splitOpposingSides( VoronoiRegionDefined sideRegion1 , VoronoiRegionDefined sideRegion2 ){
 		
-		Side side1 = (Side) (sideRegion1.getFeature()) ;
-		Side side2 = (Side) (sideRegion2.getFeature()) ;
+		BoundarySide side1 = (BoundarySide) (sideRegion1.getFeature()) ;
+		BoundarySide side2 = (BoundarySide) (sideRegion2.getFeature()) ;
 		
 		Vector split = side1.toVector().bisectingVector( side2.toVector().inverse() );
 		
@@ -201,19 +192,64 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 		sideRegion2.addRegionBoundary( boundSide2 );
 		
 	}
+
+	public static class Side extends VoronoiRegionDefined{
+
+		private BoundarySide ownerSide;
+		
+		public Side(BoundarySide ownerSide) {
+			this.ownerSide = ownerSide;
+		}
+		/**VoronoiRegionDefined.Side.getFeaturePoint(Point p) returns the Point on the line of the Side.
+		 * 
+		 */
+		@Override
+		protected Point getFeaturePoint(Point referencePoint) {
+			
+			Point2D p = Boundary.getProjectionPoint( referencePoint, this.ownerSide.toLine() ); //OPTIMIZE this is overkill floating point accuracy
+			
+			final int returnX = (int)p.getX();
+			final int returnY = (int)p.getY();
+			
+			return new Point(returnX,returnY);
+		}
+		@Override
+		public BoundaryFeature getFeature() {
+			return this.ownerSide;
+		}
+	}
 	
-	@Override
-	public void rotateRegion(double angle) {
+	public static class Corner extends VoronoiRegionDefined{
+
+		private BoundaryCorner ownerCorner;
 		
-		
+		public Corner(BoundaryCorner ownerCorner) {
+			this.ownerCorner = ownerCorner;
+		}
+		/**VoronoiRegionDefined.Corner.getFeaturePoint(Point p) returns the position of the corner.
+		 * 
+		 */
+		@Override
+		protected Point getFeaturePoint(Point referencePoint) { 
+
+			return new Point(
+				(int)this.ownerCorner.getP1().getX(),
+				(int)this.ownerCorner.getP1().getY()
+				);
+		}
+		@Override
+		public BoundaryFeature getFeature() {
+			return this.ownerCorner;
+		}
 	}
 	
 	//##############################################################################################################
 	// BOUNDARY CHECKS
+	//OPTIMIZE : MOVE THESE INTO THEIR RESPECTIVE REGION SUBCLASSES and delete redundant variables of side and corners
 	
 	private class GeneralSideCheck implements RegionCheck{ //Special case horizontal side where CW and CCW sides will be vertical
-		private Side side;
-		public GeneralSideCheck(Side side){
+		private BoundarySide side;
+		protected GeneralSideCheck(BoundarySide side){
 			this.side = side;
 		}
 		@Override
@@ -243,7 +279,7 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 		@Override
 		public void debugDraw(Point absPos, MovingCamera cam, Graphics2D g2) {
 			for( RegionBoundary bound : boundsList ){
-				bound.draw( absPos, cam , g2 , ownerFeature.getP2() );
+				bound.draw( absPos, cam , g2 , side.getP2() );
 			}
 		}
 		
@@ -287,7 +323,7 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 		
 		public void debugDraw(Point absPos, MovingCamera cam , Graphics2D g2){
 			for( RegionBoundary bound : boundsList ){
-				bound.draw( absPos, cam , g2 , ownerFeature.getP2() );
+				bound.draw( absPos, cam , g2 , getFeature().getP2() );
 			}
 		}
 	}
@@ -323,8 +359,8 @@ public class VoronoiRegionDefined extends VoronoiRegion{
 		}
 		@Override
 		public void draw(Point absPos ,MovingCamera cam, Graphics2D g2, Point2D point) {
-			cam.drawVerticalLine( x + absPos.x , ""+ownerFeature , g2);
-			g2.drawString(""+ownerFeature, cam.getRelativeX(point.getX()), cam.getRelativeY(point.getY()) );
+			cam.drawVerticalLine( x + absPos.x , ""+getFeature() , g2);
+			g2.drawString(""+getFeature(), cam.getRelativeX(point.getX()), cam.getRelativeY(point.getY()) );
 		}
 		
 	}

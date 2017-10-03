@@ -93,7 +93,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     		public void mousePressed() { asteroid.getRotationComposite().setAngularVelocity(0.1f); }
     	});
     	//MOUSE COMMAND FOR GROWING NEW PLANT  
-        this.getUnpausedInputController().createMouseBinding( MouseEvent.CTRL_MASK , MouseEvent.BUTTON1 , new MouseCommand(){
+        this.getUnpausedInputController().createMouseBinding( MouseEvent.CTRL_MASK , MouseEvent.BUTTON2 , new MouseCommand(){
     		public void mousePressed() {
       			//editorPanel.getWorldGeom().mousePressed(e);
     		}

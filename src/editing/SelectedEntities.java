@@ -77,10 +77,10 @@ public class SelectedEntities {
 				//float tempAngle = entity.getRotationComposite().getAngle();
 				//AffineTransform xform = new AffineTransform();
 				//xform.rotate((double)Math.toRadians(tempAngle));
-				Polygon poly = entity.getColliderComposite().getBoundary().getPolygonBounds();
+				Polygon poly = entity.getColliderComposite().getBoundary().getLocalPolygonBounds();
 				Rectangle rect = poly.getBounds();
 				//camera.drawRect(rect, g, Color.BLUE, Color.CYAN, .2f);
-				camera.debugDrawPolygon(poly, Color.CYAN, entity.getPosition(), new AffineTransform(), .2f);
+				camera.debugDrawPolygon(poly, Color.CYAN, entity.getPosition(), new AffineTransform(), 0.2f);
 			}
 		}
 		/*for (int i = 0; i < selectedVertices.size(); i++){

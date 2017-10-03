@@ -1,7 +1,9 @@
 package testEntities;
 
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.event.KeyEvent;
+import java.awt.geom.Point2D;
 
 import Input.KeyCommand;
 import engine.MovingCamera;
@@ -34,6 +36,8 @@ public class PlantPlayer extends Player {
 	private State currentState = falling;
 	private State bufferState = standing;
 	
+	private boolean isClimbing = false;
+	
 	private Force movementForce;
 	
 	private Force gravity;
@@ -44,7 +48,7 @@ public class PlantPlayer extends Player {
 		this.addGraphicTo( new Sprite.Stillframe("box.png", Sprite.CENTERED) );
 		
 		Boundary boundary = new BoundarySingular( new Event() );
-		Boundary boundary2 = new BoundaryCircular( 80 , new Event() );
+		Boundary boundary2 = new BoundaryCircular( 40 , new Event() );
 		Boundary boundary3 = new BoundaryPolygonal.Box( 200,200,-100,-100 );
 		
 		this.addInitialColliderTo( boundary2 );
@@ -134,9 +138,14 @@ public class PlantPlayer extends Player {
 							entitySecondary, entitySecondary.getPosition(), collider2.getBoundary() );
 					
 					if ( axes[0].getNearFeatureSecondary().debugIsSide() ){
-						player.climbing.setSegment(plantSegment);
-						player.changeState(player.climbing);
-						plantSegment.deactivateAbove();
+
+						if ( !player.isClimbing ){
+							
+							player.climbing.setSegment( plantSegment , axes[0].getNearPointSecondary() );
+							
+							player.changeState(player.climbing);
+							plantSegment.deactivateOrganism();
+						}
 					}
 				}
 
@@ -165,12 +174,14 @@ public class PlantPlayer extends Player {
 	
 	private void changeState( State state ){
 		System.err.println("CHANGE STATE "+currentState+" TO "+state);
+		this.currentState.onLeavingState();
 		this.currentState = state;
 		state.onChange();
 	}
 	
 	private abstract class State implements Runnable{
 		public void onChange(){}
+		public void onLeavingState(){}
 		public void onLeft(){}
 		public void offLeft(){}
 		public void onRight(){}
@@ -181,21 +192,34 @@ public class PlantPlayer extends Player {
 	
 	private class ClimbingState extends State{
 
+		private Force clingNormal;
 		PlantTwigSegment segment;
+		Point2D attatchPoint;
 		
-		public void setSegment( PlantTwigSegment stem ){
+		public void setSegment( PlantTwigSegment stem, Point2D attatchPoint ){
 			this.segment = stem;
+			this.attatchPoint = attatchPoint;
 		}
 		
 		public void onChange(){
-			//gravity.setVector(Vector.zeroVector);
-			//PlantPlayer.this.setPos( segment.getPosition() );
+			isClimbing = true;
+			clingNormal = PlantPlayer.this.getTranslationComposite().addNormalForce(gravity.getVector().inverse());
+			
+			PlantPlayer.this.setPos( attatchPoint );
+			
+			
+			PlantPlayer.this.getTranslationComposite().halt();
 		}
 		
 		@Override
 		public void run() {
-			//gravity.setVector(Vector.zeroVector);
-			//PlantPlayer.this.setPos( segment.getPosition() );
+			clingNormal.setVector(gravity.getVector().inverse());
+		}
+		
+		@Override
+		public void onLeavingState() {
+			isClimbing = false;
+			PlantPlayer.this.getTranslationComposite().removeNormalForce(clingNormal);
 		}
 
 	}

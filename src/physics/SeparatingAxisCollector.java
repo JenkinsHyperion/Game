@@ -205,11 +205,13 @@ public abstract class SeparatingAxisCollector {
 	    	//		pos1, outerPointsRel[0], axisLine
 	    	//		);
 			
-			Point2D nearPrimaryPoint = currentRegion.getFeaturePoint(); //closest polygon feature is the owner of the region
+			Point2D relative = currentRegion.getFeaturePoint(  polygon.getRelativeTranslationalPositionOf(nonPolygon)  ); //closest polygon feature is the owner of the region
 			
-			final Point2D nearSecondaryPoint = b2.farthestLocalPointFromPoint(
+			final Point2D nearPrimaryPoint = b2.farthestLocalPointFromPoint(
 	    			pos2, outerPointsRel[1], axisLine
 	    			);
+			
+			final Point2D nearSecondaryPoint = Boundary.shiftPoint(relative, pos2);
 			
 			return new Axis[]{ 		
 				new Axis( axisLine, nearPrimaryPoint, nearSecondaryPoint, currentRegion.getFeature() )
@@ -219,7 +221,7 @@ public abstract class SeparatingAxisCollector {
 		@Override
 		public void drawSeparation(MovingCamera cam, Graphics2D g2) {
 			currentRegion.debugDrawRegion( polygon.getPosition(), cam, g2);
-			g2.drawString(" Region "+currentRegion.ownerFeature+" with "+ currentRegion.debugNumberOfBounds() +" bounds", 100, 100);
+			g2.drawString(" Region "+currentRegion.getFeature()+" with "+ currentRegion.debugNumberOfBounds() +" bounds", 100, 100);
 			
 		}
 	}

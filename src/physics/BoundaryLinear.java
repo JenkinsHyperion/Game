@@ -126,8 +126,8 @@ public class BoundaryLinear extends BoundaryPolygonal {
 		
 		// Lay out boundary features in clockwise loop, alternating corners and sides
 		for ( int i = 0 ; i < this.sides.length ; i++ ){ 
-			newRegions[(2*i)+1] = new VoronoiRegionDefined(sides[i]);
-			newRegions[2*i] = new VoronoiRegionDefined(corners[i]); // Orders regions like so: V0 , Side0 , V1, SIde1, V2
+			newRegions[(2*i)+1] = new VoronoiRegionDefined.Side(sides[i]);
+			newRegions[2*i] = new VoronoiRegionDefined.Corner(corners[i]); // Orders regions like so: V0 , Side0 , V1, SIde1, V2
 	    }
 		
 		// Itterate over each side and separate it from its adjacent corners

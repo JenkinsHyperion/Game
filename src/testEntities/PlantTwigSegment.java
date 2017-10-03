@@ -67,17 +67,32 @@ public class PlantTwigSegment extends EntityStatic{
 	 * 		TRUNK STEM SEGMENT
 	 */
 	
+	public void deactivateOrganism(){
+		this.organism.collidersAreActive = false;
+		this.deactivateCollidersUp();
+		this.deactivateBelow();
+	}
+	
 	public void deactivateAbove(){
 		for ( PlantTwigSegment next : this.nextSegment ){
 			next.deactivateCollidersUp();
 		}
 	}
 	
+	public void deactivateBelow(){
+		for ( PlantTwigSegment next : this.nextSegment ){
+			next.deactivateCollidersDown();
+		}
+	}
+	
 	public void deactivateCollidersUp(){
 		this.getColliderComposite().deactivateCollider();
-		for ( PlantTwigSegment next : this.nextSegment ){
-			next.deactivateCollidersUp();
-		}
+		this.deactivateAbove();
+	}
+	
+	public void deactivateCollidersDown(){
+		this.getColliderComposite().deactivateCollider();
+		this.deactivateBelow();
 	}
 	
 	/*###################################################################################################################################
@@ -717,12 +732,6 @@ public class PlantTwigSegment extends EntityStatic{
 	 * 		LEAF STEM SEGMENT Grows leaves and never branches
 	 */
 	public static class LeafStem extends StemSegment{ //
-
-		public LeafStem(int x, int y, int maxGrowth, TestBoard board) {
-			super(x, y, maxGrowth, board);
-
-			this.currentGrowthState = new LeafStemGrowingState() ;
-		}
 		
 		public LeafStem(int x, int y, int maxGrowth, TreeUnit organism, TestBoard board) {
 			super(x, y, maxGrowth, organism, board);
@@ -792,7 +801,7 @@ public class PlantTwigSegment extends EntityStatic{
 						else
 							thisSegmentAngle -= UPWARD_WILLPOWER;
 	
-					LeafStem sproutStem = new LeafStem( relativeTip.x , relativeTip.y , thisMaxGrowth, board );
+					LeafStem sproutStem = new LeafStem( relativeTip.x , relativeTip.y , thisMaxGrowth, LeafStem.this.organism, board );
 					sproutStem.setPreviousStem(LeafStem.this);
 					
 					sproutStem.getAngularComposite().setAngleInDegrees(thisSegmentAngle);
@@ -888,7 +897,7 @@ public class PlantTwigSegment extends EntityStatic{
 	public final class TreeUnit{
 
 		private final String treeName;
-		public boolean collidersAreActive = false;
+		public boolean collidersAreActive = true;
 		
 		public TreeUnit( String treeName){
 			this.treeName = treeName;

@@ -21,7 +21,7 @@ import entityComposites.EntityStatic;
 import entityComposites.GraphicComposite;
 import misc.*;
 import physics.BoundaryPolygonal;
-import physics.Side;
+import physics.BoundarySide;
 import sprites.Sprite;
 
 public class MovingCamera extends EntityDynamic implements ReferenceFrame{
@@ -476,7 +476,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		return (int)this.y;
 	}
 	@Deprecated
-	public void drawDebugVeronoiRegion( Side side , Graphics2D g2 ){
+	public void drawDebugVeronoiRegion( BoundarySide side , Graphics2D g2 ){
 		
 		Line2D line = side.toLine();
 		

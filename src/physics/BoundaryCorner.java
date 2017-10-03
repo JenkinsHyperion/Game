@@ -7,8 +7,8 @@ import misc.CollisionEvent;
 
 public class BoundaryCorner extends BoundaryVertex{
 
-	private Side endingSide; //Side ending on this vertex (Side whose P2 is this vertex)
-	private Side startingSide; // Side starting from this vertex (Side whose P1 is this vertex)
+	private BoundarySide endingSide; //Side ending on this vertex (Side whose P2 is this vertex)
+	private BoundarySide startingSide; // Side starting from this vertex (Side whose P1 is this vertex)
 	
 	protected BoundaryCorner( Point2D position , Boundary owner ,int ID , CollisionEvent collisionEvent ){
 		super(position);
@@ -17,7 +17,7 @@ public class BoundaryCorner extends BoundaryVertex{
 		this.setCollisionEvent( collisionEvent );
 	}
 	
-	protected BoundaryCorner( Point2D position , Side CW_side , Side CCW_side , Boundary owner , int ID , CollisionEvent collisionEvent ){
+	protected BoundaryCorner( Point2D position , BoundarySide CW_side , BoundarySide CCW_side , Boundary owner , int ID , CollisionEvent collisionEvent ){
 		super(position);
 		this.startingSide = CW_side;
 		this.endingSide = CCW_side;
@@ -26,7 +26,7 @@ public class BoundaryCorner extends BoundaryVertex{
 		this.setCollisionEvent( collisionEvent );
 	}
 	@Deprecated
-	private BoundaryCorner( Point position , Side CW_side , Side CCW_side , Boundary owner , int ID , CollisionEvent collisionEvent ){
+	private BoundaryCorner( Point position , BoundarySide CW_side , BoundarySide CCW_side , Boundary owner , int ID , CollisionEvent collisionEvent ){
 		super(position);
 		this.startingSide = CW_side;
 		this.endingSide = CCW_side;
@@ -35,7 +35,7 @@ public class BoundaryCorner extends BoundaryVertex{
 		this.setCollisionEvent( collisionEvent );
 	}
 	
-	public Side getSharedSide( BoundaryCorner vertex2 ){ //LOOK FOR OPTIMIZATION
+	public BoundarySide getSharedSide( BoundaryCorner vertex2 ){ //LOOK FOR OPTIMIZATION
 
 		if ( this.startingSide.getID() == vertex2.startingSide.getID() ) {
 			return this.startingSide;
@@ -60,11 +60,11 @@ public class BoundaryCorner extends BoundaryVertex{
 		//TO DO
 	}
 	
-	public Side getCWSide(){ return endingSide; }
-	public Side getCCWSide(){ return startingSide; }
+	public BoundarySide getCWSide(){ return endingSide; }
+	public BoundarySide getCCWSide(){ return startingSide; }
 	
-	protected void setStartingSide( Side side ){ this.startingSide = side; }
-	protected void setEndingSide( Side side ){ this.endingSide = side; }
+	protected void setStartingSide( BoundarySide side ){ this.startingSide = side; }
+	protected void setEndingSide( BoundarySide side ){ this.endingSide = side; }
 	
 	@Override
 	public String toString(){ return "Vertex"+this.ID ; }

@@ -17,7 +17,7 @@ import physics.CollisionCheck;
 import physics.CollisionEngine;
 import physics.CollisionEngine.ActiveCollider;
 import physics.Collision;
-import physics.Side;
+import physics.BoundarySide;
 import physics.Vector;
 import physics.VisualCollisionCheck;
 
@@ -68,7 +68,7 @@ public class Collider implements EntityComposite{
 	public void setBoundary( Boundary boundary ){
 		this.boundary = boundary;
 		
-		this.engineSlot.notifyBoundaryChange( boundary );
+		this.engineSlot.notifyBoundaryChange( boundary , this.isActive );
 	}
 	
 	/* #################################################################

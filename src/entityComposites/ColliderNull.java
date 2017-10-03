@@ -13,7 +13,7 @@ import physics.CollidingPair;
 import physics.CollisionCheck;
 import physics.CollisionEngine;
 import physics.Collision;
-import physics.Side;
+import physics.BoundarySide;
 import physics.Vector;
 
 public final class ColliderNull extends Collider{ 

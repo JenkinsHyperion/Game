@@ -17,23 +17,23 @@ import misc.*;
 public class BoundaryPolygonal extends Boundary {
 	
 
-	protected Side[] sides; 
+	protected BoundarySide[] sides; 
 	protected BoundaryCorner[] corners;
 	protected CollisionEvent defaultCollisionEvent = new DefaultCollisionEvent();
 
 	private BoundaryPolygonal(){
-		sides = new Side[0];
+		sides = new BoundarySide[0];
 		corners = new BoundaryCorner[0];
 		//this.ownerCollidable = ownerCollidable;
 	} //use cloning instead
 	//FOR CLONING ONLY
-	private BoundaryPolygonal( Side[] sides , BoundaryCorner[] corners){
+	private BoundaryPolygonal( BoundarySide[] sides , BoundaryCorner[] corners){
 		this.sides = sides;
 		this.corners = corners;
 	}
 	
 	public BoundaryPolygonal(Line2D line){
-		sides[0] = new Side(line , this , 0, defaultCollisionEvent); 
+		sides[0] = new BoundarySide(line , this , 0, defaultCollisionEvent); 
 		corners = new BoundaryCorner[]{ new BoundaryCorner(line.getP1() , this , 0 , defaultCollisionEvent) 
 				, new BoundaryCorner(line.getP2() , this , 1 , defaultCollisionEvent) };
 
@@ -41,7 +41,7 @@ public class BoundaryPolygonal extends Boundary {
 		//constructVoronoiRegions();
 	}
 	
-	public BoundaryPolygonal(Side[] bounds ) {
+	public BoundaryPolygonal(BoundarySide[] bounds ) {
 		sides = bounds;
 		connectBoundaryMap( defaultCollisionEvent );
 		//constructVoronoiRegions();
@@ -49,10 +49,10 @@ public class BoundaryPolygonal extends Boundary {
 	
 	public BoundaryPolygonal(Line2D[] bounds) {
 		
-		sides = new Side[ bounds.length ];
+		sides = new BoundarySide[ bounds.length ];
 		
 		for ( int i = 0 ; i < bounds.length ; i++ ){
-			sides[i] = new Side( bounds[i] , this , i , defaultCollisionEvent);
+			sides[i] = new BoundarySide( bounds[i] , this , i , defaultCollisionEvent);
 		}
 		connectBoundaryMap( defaultCollisionEvent );
 		//constructVoronoiRegions();
@@ -61,12 +61,12 @@ public class BoundaryPolygonal extends Boundary {
 	public static class Box extends BoundaryPolygonal{
 
 		public Box(int width, int height, int xOffset, int yOffset){
-			sides = new Side[4];
+			sides = new BoundarySide[4];
 			
-			sides[0] = new Side( new Line2D.Float(xOffset , yOffset , xOffset+width , yOffset ) , this, 0 , defaultCollisionEvent);
-			sides[1] = new Side( new Line2D.Float(xOffset+width , yOffset , xOffset+width , yOffset+height ) , this, 1 , defaultCollisionEvent);
-			sides[2] = new Side( new Line2D.Float(xOffset+width , yOffset+height , xOffset , yOffset+height ) , this, 2 , defaultCollisionEvent);
-			sides[3] = new Side( new Line2D.Float(xOffset , yOffset+height , xOffset , yOffset ) , this, 3 , defaultCollisionEvent);
+			sides[0] = new BoundarySide( new Line2D.Float(xOffset , yOffset , xOffset+width , yOffset ) , this, 0 , defaultCollisionEvent);
+			sides[1] = new BoundarySide( new Line2D.Float(xOffset+width , yOffset , xOffset+width , yOffset+height ) , this, 1 , defaultCollisionEvent);
+			sides[2] = new BoundarySide( new Line2D.Float(xOffset+width , yOffset+height , xOffset , yOffset+height ) , this, 2 , defaultCollisionEvent);
+			sides[3] = new BoundarySide( new Line2D.Float(xOffset , yOffset+height , xOffset , yOffset ) , this, 3 , defaultCollisionEvent);
 			connectBoundaryMap( defaultCollisionEvent );
 			//constructVoronoiRegions();
 		}
@@ -77,12 +77,12 @@ public class BoundaryPolygonal extends Boundary {
 
 		public EnhancedBox(int width, int height, int xOffset, int yOffset, CollisionEvent[] eventList ){
 			
-			sides = new Side[4];
+			sides = new BoundarySide[4];
 			
-			sides[0] = new Side( new Line2D.Float(xOffset , yOffset , xOffset+width , yOffset ) , this, 0 , eventList[0]);
-			sides[1] = new Side( new Line2D.Float(xOffset+width , yOffset , xOffset+width , yOffset+height ) , this, 1 , eventList[1]);
-			sides[2] = new Side( new Line2D.Float(xOffset+width , yOffset+height , xOffset , yOffset+height ) , this, 2 , eventList[2]);
-			sides[3] = new Side( new Line2D.Float(xOffset , yOffset+height , xOffset , yOffset ) , this, 3 , eventList[3]);
+			sides[0] = new BoundarySide( new Line2D.Float(xOffset , yOffset , xOffset+width , yOffset ) , this, 0 , eventList[0]);
+			sides[1] = new BoundarySide( new Line2D.Float(xOffset+width , yOffset , xOffset+width , yOffset+height ) , this, 1 , eventList[1]);
+			sides[2] = new BoundarySide( new Line2D.Float(xOffset+width , yOffset+height , xOffset , yOffset+height ) , this, 2 , eventList[2]);
+			sides[3] = new BoundarySide( new Line2D.Float(xOffset , yOffset+height , xOffset , yOffset ) , this, 3 , eventList[3]);
 			connectBoundaryMap( defaultCollisionEvent );
 			//constructVoronoiRegions();
 		}
@@ -112,10 +112,10 @@ public class BoundaryPolygonal extends Boundary {
 	@Override
 	public BoundaryPolygonal temporaryClone(){  
 
-		Side[] newSides = new Side[this.sides.length];
+		BoundarySide[] newSides = new BoundarySide[this.sides.length];
 		for ( int i = 0 ; i < newSides.length ; i++ ){
-			Side oldSide = sides[i];
-			newSides[i] = new Side( oldSide.toLine() , this , oldSide.getID() , oldSide.getEvent() );
+			BoundarySide oldSide = sides[i];
+			newSides[i] = new BoundarySide( oldSide.toLine() , this , oldSide.getID() , oldSide.getEvent() );
 		}
 		
 		BoundaryCorner[] newCorners = new BoundaryCorner[this.corners.length];
@@ -149,7 +149,7 @@ public class BoundaryPolygonal extends Boundary {
 		
 		for ( int i = 0 ; i < templatePolygonal.corners.length ; i++ ) {
 			
-			Side side = templatePolygonal.sides[i];
+			BoundarySide side = templatePolygonal.sides[i];
 			BoundaryVertex tempCorner = templatePolygonal.corners[i];
 			
 			double r = tempCorner.toPoint().distance(center); 
@@ -169,11 +169,6 @@ public class BoundaryPolygonal extends Boundary {
 			
 			this.sides[i].setLine( this.corners[i].toPoint() , this.corners[indexNext].toPoint() );
 			
-		}
-		
-		//this.getVoronoiRegions(); //ADJUST VORONOI REGIONS HERE gdf
-		for( VoronoiRegion region : this.getVoronoiRegions() ){
-			region.notifySetAngle(radians);
 		}
 		
 	}
@@ -227,7 +222,7 @@ public class BoundaryPolygonal extends Boundary {
 		
 		for (int i = 0 ; i < sides.length ; i++) {
 			
-			for ( Side side : bounds.getSides()) {
+			for ( BoundarySide side : bounds.getSides()) {
 				
 				if ( sides[i].toLine().intersectsLine( side.toLine() ) ) {
 					return true;
@@ -240,9 +235,9 @@ public class BoundaryPolygonal extends Boundary {
 	}
 	
 	//Cycle through all sides of two shapes and get the sides that intersect
-	public Side[][] getIntersectingSides(BoundaryPolygonal bounds){ //returns pairs of sides of this boundary that are intesecting
+	public BoundarySide[][] getIntersectingSides(BoundaryPolygonal bounds){ //returns pairs of sides of this boundary that are intesecting
 		
-		ArrayList<Side[]> intersectingSidesA = new ArrayList<Side[]>(); //array of *pairs* of intersecting lines
+		ArrayList<BoundarySide[]> intersectingSidesA = new ArrayList<BoundarySide[]>(); //array of *pairs* of intersecting lines
 		
 		for (int i = 0 ; i < sides.length ; i++) { // cycle through all sides. OPTIMIZATION NEEDED
 			
@@ -251,14 +246,14 @@ public class BoundaryPolygonal extends Boundary {
 				if ( sides[i].toLine().intersectsLine( bounds.getSides()[j].toLine() ) ) { 
 					
 					//place intersecting line pair into array
-					intersectingSidesA.add( new Side[]{ sides[i] , bounds.getSides()[j] } );	
+					intersectingSidesA.add( new BoundarySide[]{ sides[i] , bounds.getSides()[j] } );	
 				}
 			}
 		}
 		
 		//System.out.println( intersectingSidesA.size() + " intersecting sides found" );
 		
-		Side[][] intersectingSides = new Side[intersectingSidesA.size()][2]; // create final regular array
+		BoundarySide[][] intersectingSides = new BoundarySide[intersectingSidesA.size()][2]; // create final regular array
 		
 			for (int j = 0 ; j < intersectingSidesA.size() ; j++) { // compile arrayList pairs into regular array
 				intersectingSides[j] = intersectingSidesA.get(j);
@@ -267,11 +262,11 @@ public class BoundaryPolygonal extends Boundary {
 			return intersectingSides;
 	}
 	
-	public Side[] getSides(){
+	public BoundarySide[] getSides(){
 		return sides;
 	}
 	
-	public Side getSide( int ID){
+	public BoundarySide getSide( int ID){
 		return sides[ID];
 	}
 	
@@ -283,7 +278,7 @@ public class BoundaryPolygonal extends Boundary {
 		return this.corners[ID];
 	}
 	
-	public Side getRawSide( int ID) {
+	public BoundarySide getRawSide( int ID) {
 		return this.sides[ID];
 	}
 	
@@ -296,7 +291,7 @@ public class BoundaryPolygonal extends Boundary {
 		
 		for ( int i = 0 ; i < this.sides.length ; i++ ){
 			
-			Side oldSide = this.sides[i];
+			BoundarySide oldSide = this.sides[i];
 			Line2D shiftedLine = new Line2D.Float( oldSide.getX1()+x, oldSide.getY1()+y , oldSide.getX2()+x, oldSide.getY2()+y );
 	
 			returnBoundary.sides[i].setLine( shiftedLine );
@@ -318,7 +313,7 @@ public class BoundaryPolygonal extends Boundary {
 	
 	//SEPARATING AXIS THEORM METHODS
 	
-	private boolean duplicateSideExists( Side side , ArrayList<Line2D> array ){
+	private boolean duplicateSideExists( BoundarySide side , ArrayList<Line2D> array ){
 		//checks if axis already exists in previous array indexes before adding a new one
 		
 		if ( (side.getP1().getX() - side.getP2().getX() > -0.01) &&
@@ -634,7 +629,7 @@ public class BoundaryPolygonal extends Boundary {
 	}
 	@Override
 	public void debugDrawBoundary(MovingCamera camera, Graphics2D g, EntityStatic ownerEntity) {
-		for ( Side side : this.getSides() ){
+		for ( BoundarySide side : this.getSides() ){
 
 			camera.draw( side.toLine() );
 			camera.drawString(side.toString(), side.getX1()+(side.getX2()-side.getX1())/2 , side.getY1()+(side.getY2()-side.getY1())/2 );
@@ -650,8 +645,8 @@ public class BoundaryPolygonal extends Boundary {
 		
 		// Lay out boundary features in clockwise loop, alternating corners and sides
 		for ( int i = 0 ; i < this.sides.length ; i++ ){ 
-			newRegions[(2*i)+1] = new VoronoiRegionDefined(sides[i]);
-			newRegions[2*i] = new VoronoiRegionDefined(corners[i]); // Orders regions like so: V0 , Side0 , V1, SIde1, V2
+			newRegions[(2*i)+1] = new VoronoiRegionDefined.Side(sides[i]);
+			newRegions[2*i] = new VoronoiRegionDefined.Corner(corners[i]); // Orders regions like so: V0 , Side0 , V1, SIde1, V2
 	    }
 		
 		// Itterate over each side and separate it from its adjacent corners
@@ -704,7 +699,7 @@ public class BoundaryPolygonal extends Boundary {
 	}
 	
 	@Override
-	public Polygon getPolygonBounds() {
+	public Polygon getLocalPolygonBounds() {
 
 		int[] xpoints;
 		int[] ypoints;

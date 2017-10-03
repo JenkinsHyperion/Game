@@ -2,6 +2,7 @@ package entityComposites;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -278,6 +279,11 @@ public class EntityStatic extends Entity{
     	this.y =  y;
     	
     	//this.childComposite.
+    }
+	@Override
+    public void setPos(Point2D p){
+    	x = p.getX();
+    	y = p.getY();
     }
 	
 	// ----------------

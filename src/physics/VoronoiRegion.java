@@ -8,11 +8,10 @@ import engine.MovingCamera;
 
 public abstract class VoronoiRegion {
 
-	protected BoundaryFeature ownerFeature;
 	protected RegionCheck checkMath;
 	
-	protected VoronoiRegion( BoundaryFeature feature){ //super constructor
-		this.ownerFeature = feature;
+	protected VoronoiRegion(){ //super constructor
+
 	}
 	
 	public static VoronoiRegion getUndefinedVoronoiRegion( BoundaryFeature feature ){ 
@@ -21,8 +20,6 @@ public abstract class VoronoiRegion {
 		returnRegion.checkMath = returnRegion.new UndefinedCheck();
 		return returnRegion;
 	}
-	
-	protected abstract void notifySetAngle( double setAngle );
 
 	protected int debugNumberOfBounds(){ return 0; }
 	
@@ -43,41 +40,37 @@ public abstract class VoronoiRegion {
 		return this.checkMath.getSeparation( relativePosition );
 	}
 	
-	public Point getFeaturePoint(){
-		return new Point(
-				(int)this.ownerFeature.getP1().getX(),
-				(int)this.ownerFeature.getP1().getY()
-				);
-	}
-	
-	public BoundaryFeature getFeature(){
-		return ownerFeature;
-	}
+	protected abstract Point getFeaturePoint(Point referencePoint);
+
+	public abstract BoundaryFeature getFeature();
 	
 	public void debugDrawRegion( Point absPos, MovingCamera camera , Graphics2D g2 ){	
 		this.checkMath.debugDraw( absPos, camera, g2);
 	}
-	
-	public abstract void rotateRegion( double angle );
-	
+
 	//##########################################################################
 
 	protected static class Undefined extends VoronoiRegion{
 
-		protected Undefined(BoundaryFeature feature) {
-			super(feature);
-		}
-
-		@Override
-		protected void notifySetAngle(double setAngle) {
-			// DO NOTHING
-		}
-
-		@Override
-		public void rotateRegion(double angle) {
-			System.err.println("Warning: attempting to rotate VoronoiRegion.Undefined");
-		}
+		private BoundaryFeature ownerFeature;
 		
+		protected Undefined(BoundaryFeature feature) {
+			this.ownerFeature = feature;
+		}
+
+		@Override
+		protected Point getFeaturePoint(Point referencePoint) {
+			return new Point (
+					(int) this.ownerFeature.getP1().getX(),
+					(int) this.ownerFeature.getP1().getY()
+					);
+		}
+
+		@Override
+		public BoundaryFeature getFeature() {
+			return ownerFeature;
+		}
+
 	}
 	
 	//##########################################################################
@@ -111,8 +104,8 @@ public abstract class VoronoiRegion {
 			return new Line2D.Double(
 					-relativeCirclePosition.y,
 					relativeCirclePosition.x,
-					-ownerFeature.getP1().getY(),
-					ownerFeature.getP1().getX()
+					-getFeature().getP1().getY(),
+					getFeature().getP1().getX()
 			);
 		}
 		@Override

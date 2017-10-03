@@ -16,7 +16,7 @@ import animation.*;
 import engine.BoardAbstract;
 import entityComposites.*;
 import physics.Force;
-import physics.Side;
+import physics.BoundarySide;
 import physics.Vector;
 import physics.BoundaryCorner;
 import physics.Boundary;
@@ -44,7 +44,7 @@ public class PlayerCharacter extends Player {
 	private TranslationComposite translation = CompositeFactory.addTranslationTo(this);
 	private AngularComposite angular = this.getAngularComposite();
 	
-	private Side ground;
+	private BoundarySide ground;
 	
     private final SpriteAnimated RUN_RIGHT = new SpriteAnimated( "RunRight.png", spriteOffsetX , spriteOffsetY,
     		16, 0, 75, 75, 6 );
@@ -210,7 +210,7 @@ public class PlayerCharacter extends Player {
 			playerState.onCollision();
 			changePlayerState( playerStateBuffer );
 			if ( collidingWith.debugIsSide() ){
-				ground = (Side)collidingWith;
+				ground = (BoundarySide)collidingWith;
 			}
 			else{
 				

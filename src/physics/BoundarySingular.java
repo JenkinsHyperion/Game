@@ -133,7 +133,7 @@ public class BoundarySingular extends Boundary{
 	}
 	
 	@Override
-	public Polygon getPolygonBounds( ) {
+	public Polygon getLocalPolygonBounds( ) {
 		return new Polygon();
 	}
 	

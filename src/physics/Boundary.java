@@ -53,7 +53,7 @@ public abstract class Boundary {
 	 * @param ent Entity to get boundary from
 	 * @return Polygon that hopefully is the same shape as the boundary
 	 */
-	public abstract Polygon getPolygonBounds( );
+	public abstract Polygon getLocalPolygonBounds( );
 
 	public abstract Polygon getPolygonBounds( EntityStatic owner );
 	

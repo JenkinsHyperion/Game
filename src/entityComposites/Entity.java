@@ -1,6 +1,7 @@
 package entityComposites;
 
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.io.Serializable;
 
 import engine.MovingCamera;
@@ -81,6 +82,10 @@ public class Entity {
     	this.x =  x;
     	this.y =  y;
     }
+	public void setPos(Point2D p) {
+		this.x =  p.getX();
+    	this.y =  p.getY();
+	}
     @Deprecated
     public boolean isCollidable() {
 		return collidable;
@@ -147,5 +152,6 @@ public class Entity {
     public Vector getSeparationUnitVector( Entity partner ){
     	return new Vector( partner.x - this.x  , partner.y - this.y ).unitVector();
     }
+
 
 }

@@ -244,7 +244,7 @@ public class BoundaryCircular extends Boundary{
 	}
 	
 	@Override
-	public Polygon getPolygonBounds() {
+	public Polygon getLocalPolygonBounds() {
 		return new Polygon(new int[]{-this.radius, this.radius, this.radius, -this.radius}, 
 							new int[]{-this.radius,-this.radius, this.radius, this.radius}, 4 );
 	}

@@ -167,7 +167,7 @@ public class VisualCollisionRigidDynamicStatic extends Collision.DefaultType imp
 					resolution.FeatureSecondary()+" of "+entitySecondary.name+")";
 			
 			if ( resolution.FeatureSecondary().debugIsSide() ){ 
-				Vector slope = ((Side)resolution.FeatureSecondary()).getSlopeVector();
+				Vector slope = ((BoundarySide)resolution.FeatureSecondary()).getSlopeVector();
 				Vector normal = slope.normalRight().unitVector().scaledBy( -0.2 );
 				
 				Vector test = new Vector(0,-0.2).projectedOver( slope.normalRight() );

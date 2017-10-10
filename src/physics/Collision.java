@@ -85,10 +85,7 @@ public abstract class Collision {
 			}
 		}
 		
-	}
-	
-	protected abstract void updateVisualCollision(MovingCamera camera, Graphics2D gOverlay);
-	
+	}	
 	
 	
 	protected class Resolution{ //Wrapper class for clipping resolution vector and involved features of entities involved
@@ -121,7 +118,10 @@ public abstract class Collision {
 	protected abstract void initializeCollision();
 	
 	//CONTINUOUS COLLISION COMMANDS - Ongoing commands during collision like particle effects, sound, etc.
-	public void updateCollision(){}
+	public abstract void updateCollision();
+	
+	protected abstract void updateVisualCollision(MovingCamera camera, Graphics2D gOverlay);
+
 	
 	public abstract void completeCollision();
 	
@@ -229,6 +229,14 @@ public abstract class Collision {
 			System.out.println("COLLISION START BASIC");
 			this.collidingPrimary.onCollisionEvent();
 			this.collidingSecondary.onCollisionEvent();
+		}
+		
+		@Override
+		public void updateCollision() {
+			
+			if ( !check.check(collidingPrimary, collidingSecondary) ){
+				isComplete = true;
+			}
 		}
 		
 		@Override

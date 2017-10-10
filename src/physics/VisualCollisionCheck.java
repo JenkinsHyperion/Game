@@ -68,10 +68,7 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 		    
 		    final EntityStatic player = collidablePrimary.getOwnerEntity();
 		    final EntityStatic stat = collidableSecondary.getOwnerEntity();
-	
-		    Point2D playerCenter = new Point2D.Double(collidablePrimary.getOwnerEntity().getX(), collidablePrimary.getOwnerEntity().getY());
-		    Point2D statCenter = new Point2D.Double(collidableSecondary.getOwnerEntity().getX(), collidableSecondary.getOwnerEntity().getY());
-		    
+
 		    final double deltaX = player.getTranslationComposite().getDeltaX(player) ;
 		    final double deltaY = player.getTranslationComposite().getDeltaY(player) ;
 		    final Point deltaPosition = new Point( (int)deltaX , (int)deltaY );
@@ -83,17 +80,13 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 		    for ( SeparatingAxisCollector.Axis separatingAxis : separatingAxes ){
 		    	
 		    	Line2D axis = separatingAxis.getAxisLine(); 
-
+		    	
 		    	Point2D[] outerPointsRel = 
-		    			Boundary.getNearAndFarPointsBetween(collidablePrimary, collidableSecondary, axis);
+		    			//Boundary.getFarthestPointsBetween( player, playerBoundsRel, stat, statBoundsRel, axis );
+		    			Boundary.getNearAndFarPointsBetween( collidablePrimary, collidableSecondary, axis);
 		    	
-		    	Point2D nearStatCorner = statBoundsRel.farthestLocalPointFromPoint(
-		    			stat.getPosition(), outerPointsRel[1], axis
-		    			);
-		    	
-		    	Point2D nearPlayerCorner = playerBoundsRel.farthestLocalPointFromPoint(
-		    			deltaPosition, outerPointsRel[0], axis
-		    			);
+		    	Point2D nearPlayerCorner	= outerPointsRel[2];
+		    	Point2D nearStatCorner 		= outerPointsRel[3];
 	
 		    	Point2D centerStat = BoundaryCorner.getCenter(  nearStatCorner , outerPointsRel[1] );
 		    	Point2D centerPlayer = BoundaryCorner.getCenter( nearPlayerCorner , outerPointsRel[0] );
@@ -103,16 +96,14 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 		    	
 		    	// -----------------
 	
-		    	Line2D playerHalf = new Line2D.Float( 
+		    	Line2D playerHalf = new Line2D.Double( 
 		    			Boundary.getProjectionPoint(centerPlayer,axis) ,
 		    			Boundary.getProjectionPoint(nearPlayerCorner,axis)
 		    			);
-		    	Line2D statHalf = new Line2D.Float( 
+		    	Line2D statHalf = new Line2D.Double( 
 		    			Boundary.getProjectionPoint(centerStat,axis) ,
 		    			Boundary.getProjectionPoint(nearStatCorner,axis) 
 		    			);
-
-		    	
 		    	
 		    	double centerDistanceX = (centerProjection.getX1() -  centerProjection.getX2()  );
 		    	double centerDistanceY = (centerProjection.getY1() -  centerProjection.getY2()  );
@@ -130,10 +121,12 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 		    	if (centerDistanceX>0){
 		    		//centerDistanceX -= 1;
 		    		penetrationX = playerProjectionX + statProjectionX - centerDistanceX +0;
+
 		    	}
 		    	else if (centerDistanceX<0){
 		    		//centerDistanceX += 1;  //NEEDS HIGHER LEVEL SOLUTION
 		    		penetrationX = playerProjectionX + statProjectionX - centerDistanceX -0;
+
 		    	}
 		    	else
 		    		penetrationX = Math.abs(playerProjectionX) + Math.abs(statProjectionX);
@@ -154,51 +147,21 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 		    		penetrationY = Math.abs(playerProjectionY) + Math.abs(statProjectionY);
 		    	}
 	
-		    	//#################
+
+		    	if ( penetrationX * centerDistanceX < 0 ) //If penetration is opposite sign as playerHalf
+					penetrationX = 0;												//clamp to 0. Rather than haivng negative penetration
 		    	
-		    	if ( penetrationX * centerDistanceX < 0 ) //SIGNS ARE NOT THE SAME
-					penetrationX = 0;
 		    	if ( penetrationY * centerDistanceY < 0 )
 					penetrationY = 0; 	
 		    	
-		    	if ( penetrationX == 0 && penetrationY == 0 ){ 
+		    	if ( penetrationX == 0 && penetrationY == 0){ 
 		    		//return false;
 		    		isColliding = false;
-		    	}else{
-		    		
 		    	}
-
-		    	
-		    	Line2D projCenter = new Line2D.Double( 
-		    			playerHalf.getX1() , 
-		    			playerHalf.getY1() , 
-		    			playerCenter.getX() , 
-		    			playerCenter.getY()
-		    	);
-		    	Line2D projOuter = new Line2D.Double( 
-		    			playerHalf.getX2() , 
-		    			playerHalf.getY2() , 
-		    			nearPlayerCorner.getX() , 
-		    			nearPlayerCorner.getY()
-		    	);
-		    	Line2D projCenterStat = new Line2D.Double( 
-		    			statHalf.getX1() , 
-		    			statHalf.getY1() , 
-		    			centerStat.getX() , 
-		    			centerStat.getY()
-		    	);
-		    	Line2D projOuterStat = new Line2D.Double( 
-		    			statHalf.getX2() , 
-		    			statHalf.getY2() , 
-		    			nearStatCorner.getX() , 
-		    			nearStatCorner.getY()
-		    	);
-
 		    }
 		    
 		    return isColliding;
 		    //return false;
-		    
 		}
 
 		

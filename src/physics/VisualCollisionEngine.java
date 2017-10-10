@@ -22,6 +22,10 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 	private Graphics2D gOverlay;
 	private MovingCamera camera;
 	
+	private final Runnable drawingState = new DrawState();
+	private final Runnable hiddenState = new HiddenState();
+	private Runnable currentDrawingState = hiddenState;
+	
 	private OverlayComposite overlayComposite;
 	
 	private ArrayList<Line2D> linesList = new ArrayList<Line2D>();
@@ -39,20 +43,35 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 	@Override
 	public void checkCollisions() { 
     	
-		this.gOverlay.dispose();
-		this.gOverlay = renderer.debugGetOverlayGraphics();
-		this.camera = renderer.getCamera();
-		
-		while ( activeCheckingPairs.hasNext() ){
-			activeCheckingPairs.get().visualCheck( camera , gOverlay);
-		}
-
-    	updateCollisions();    
+		this.currentDrawingState.run();   
         
     }
 	
-	@Override
-	protected void updateCollisions(){
+	private class HiddenState implements Runnable{
+		@Override
+		public void run() {
+			while ( activeCheckingPairs.hasNext() ){
+				activeCheckingPairs.get().check();
+			}
+	    	updateCollisions();    
+		}
+	}
+	
+	private class DrawState implements Runnable{
+		@Override
+		public void run() {
+			gOverlay.dispose();
+			gOverlay = renderer.debugGetOverlayGraphics();
+			camera = renderer.getCamera();
+			
+			while ( activeCheckingPairs.hasNext() ){
+				activeCheckingPairs.get().visualCheck( camera , gOverlay);
+			}
+			updateVisualCollisions();    
+		}
+	}
+	
+	private void updateVisualCollisions(){
     	
 	    for ( int i = 0 ; i < runningCollisionsList.size() ; i++ ){
 	    		
@@ -78,20 +97,15 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 			// if not, add new collision event
 			//int index = currentBoard.getStaticEntities().size() + 1 ;
     			//System.out.println( "Collision detected" );
-    			runningCollisionsList.add(new VisualCollisionRigidDynamicStatic( 
+    			runningCollisionsList.add(new CollisionRigidDynamicStatic( 
     					collidable1 , collidable2 , 
-    					((VisualCollisionCheck)checkType).getCollector() , 
-    					this.getBoard().renderingEngine
+    					((VisualCollisionCheck)checkType).getCollector()
     					)); 
 			} 	
     	}
     	//else System.out.println("TEST");
     	
     }
-	
-	public void draw( Line2D line ){
-		linesList.add(line);
-	}
 
 	@Override
 	public void paintOverlay(Graphics2D g2, MovingCamera cam) {

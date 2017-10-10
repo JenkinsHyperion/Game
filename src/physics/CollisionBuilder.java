@@ -31,10 +31,9 @@ public abstract class CollisionBuilder< E1 extends EntityStatic, E2 extends Enti
 
 		@Override
 		public Collision createVisualCollision ( EntityStatic entity1 , Collider collider1, EntityStatic entity2, Collider collider2, VisualCollisionCheck check, RenderingEngine engine ) {
-			return new VisualCollisionRigidDynamicStatic( 
+			return new CollisionRigidDynamicStatic( 
 					collider1 , collider2 , 
-					check.axisCollector ,
-					engine
+					check.axisCollector 
 					); 
 		}
 		

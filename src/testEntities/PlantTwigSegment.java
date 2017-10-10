@@ -846,7 +846,7 @@ public class PlantTwigSegment extends EntityStatic{
 					sproutStem.numberFromLastBranch = numberFromLastBranch + 1 ; //Increment next branches number in this stem
 					//board.spawnNewSprout( sproutStem ); //then spawn it in		
 				
-					double randAngle =  Math.toRadians( ThreadLocalRandom.current().nextInt( -70 ,70) ); // get random bend
+					double randAngle =  Math.toRadians( ThreadLocalRandom.current().nextInt( -45 ,45) ); // get random bend
 					//
 					PlantTwigSegment.Leaf newLeaf = new PlantTwigSegment.Leaf(
 							relativeTip.x, relativeTip.y, 

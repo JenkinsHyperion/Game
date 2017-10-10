@@ -174,6 +174,11 @@ public class PlantPlayer extends Player {
 				private Vector clingVector;
 				
 				@Override
+				public void updateCollision() {
+					isComplete = !check.check(collidingPrimary, collidingSecondary);
+				}
+				
+				@Override
 				public void updateVisualCollision(MovingCamera camera, Graphics2D gOverlay) {
 					
 					isComplete = !check.check(collidingPrimary, collidingSecondary,camera,gOverlay);

@@ -500,7 +500,20 @@ public class CollisionEngine {
     //COLLISION ENGINE MAIN LOOP METHODS
     public void checkCollisions() { //OPTIMIZE OBSOLETE, SEE VISUAL COLLISION ENGINE
 
-    	updateCollisions();    
+    	for ( int i = 0 ; i < runningCollisionsList.size() ; i++ ){
+				
+			//if collision is complete, remove from active list
+			if (!runningCollisionsList.get(i).isComplete() ) {
+				runningCollisionsList.get(i).updateCollision(); //Run commands from inside collision object
+				
+			}
+			else {
+				runningCollisionsList.get(i).completeCollision();
+				runningCollisionsList.get(i).notifyEntitiesOfCollisionCompleteion();
+				runningCollisionsList.remove(i);
+			}
+			
+		}    
         
     }
     
@@ -528,10 +541,9 @@ public class CollisionEngine {
     		//FIXME GET RID OF BOOLEAN AND <AKE ACTIVE AND INACTIVE COLLISION ARRAYS INSTEAD OF THIS MESS
     		if (!hasActiveCollision(collidable1.getOwnerEntity(),collidable2.getOwnerEntity())) { 
 
-    			runningCollisionsList.add(new VisualCollisionRigidDynamicStatic( 
+    			runningCollisionsList.add(new CollisionRigidDynamicStatic( 
     					collidable1 , collidable2 , 
-    					((VisualCollisionCheck)check).axisCollector ,
-    					this.getBoard().renderingEngine
+    					((VisualCollisionCheck)check).axisCollector
     					)); 
 			} 	
     	}
@@ -770,6 +782,7 @@ public class CollisionEngine {
 			this.listSlot.removeSelfFromList();
 		}
 
+		abstract void check();
 		abstract void visualCheck( MovingCamera cam, Graphics2D g2 );
 		
 		public void deactivate(){
@@ -829,14 +842,18 @@ public class CollisionEngine {
 			}				
 		}
 		
+		public void check(){
+			
+			if ( check.check( dynamic.collider, stat.collider) ){
+				registerCollision(collisionType, dynamic.collider, stat.collider, check);
+			}
+		}
+		
 		public void visualCheck( MovingCamera cam, Graphics2D g2 ){
 			
 			if ( check.check( dynamic.collider, stat.collider, cam , g2) ){
 				registerCollision(collisionType, dynamic.collider, stat.collider, check);
 			}
-			
-			//registerDynamicStaticCollision(((VisualCollisionCheck)check).check(dynamic.collider, stat.collider, cam , g2), 
-			//		dynamic.collider , stat.collider , this.check);
 		}
 		
 	}
@@ -870,7 +887,13 @@ public class CollisionEngine {
 				System.out.println(" [FIELD dynamic dynamic pair]");
 			}	
 		}
-
+		@Override
+		public void check(){
+			if ( check.check( dynamic1.collider, dynamic2.collider) ){
+				registerCollision(collisionType, dynamic1.collider, dynamic2.collider, check);
+			}
+		}
+		@Override
 		public void visualCheck( MovingCamera cam, Graphics2D g2 ){
 			if ( check.check( dynamic1.collider, dynamic2.collider, cam , g2) ){
 				registerCollision(collisionType, dynamic1.collider, dynamic2.collider, check);

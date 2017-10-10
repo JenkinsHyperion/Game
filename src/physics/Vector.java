@@ -186,6 +186,11 @@ public class Vector implements Serializable{
 			return (this.getX() ) * (vector2.getX()) + 
 					(this.getY() ) * (vector2.getY() );
 		}
+		public double aDot( Vector vector2){ //Returns the magnitude of the projection vector
+			
+			return (-this.getY() ) * (vector2.getX()) + 
+					(this.getX() ) * (vector2.getY() );
+		}
 		
 		public Vector projectedOver( Vector base ){
 			return base.unitVector().multiply( this.dotProduct(base.unitVector()) );
@@ -200,6 +205,16 @@ public class Vector implements Serializable{
 			return new Vector( line.getX2() - line.getX1() , line.getY2() - line.getY1() ).unitVector() ;
 		}
 		
+		public static double angleBetweenVectors( Vector v1, Vector v2 ){
+			
+			double dotProduct = v1.dotProduct(v2);
+			double aDotProduct = v1.aDot(v2);
+			return Math.toDegrees( -Math.atan2( 
+					aDotProduct,
+					dotProduct
+				));
+		}
+		
 		public double angleFromVectorInRadians(){
 				return -Math.PI/2 - Math.atan2( this.getX(), this.getY() );  
 
@@ -207,6 +222,11 @@ public class Vector implements Serializable{
 		
 		public double angleFromVectorInDegrees(){
 				return Math.toDegrees( -Math.PI/2 - Math.atan2( this.getX(), this.getY() ) );
+
+		}
+		
+		public double angleFromVector(){
+			return Math.toDegrees( Math.PI/2 - Math.atan2( this.getX(), this.getY() ) );
 
 		}
 		
@@ -269,9 +289,61 @@ public class Vector implements Serializable{
 			return new Point2D.Double(0,0).distance( new Point2D.Double( this.x, this.y ) ) ;
 		}
 
+		public static Line2D lineRotatedBy( Line2D line, double radians ){
+			
+			double returnX = line.getX2() - line.getX1();
+			double returnY = line.getY2() - line.getY1(); 
+			
+			double cosineTheta = Math.cos( radians );
+			double sineTheta = Math.sin( radians );
+			
+			Point2D returnPoint = new Point2D.Double(
+					( returnX*cosineTheta - returnY*sineTheta ),
+					( returnX*sineTheta + returnY*cosineTheta )
+			);
+			
+			return new Line2D.Double(
+					0,
+					0,
+					returnPoint.getX(),
+					returnPoint.getY()
+					);
+			
+		}
 
-
-
+		public static Point2D relativePointRotatedBy( Point p, double radians ){
+			
+			double returnX = p.x;
+			double returnY = p.y; 
+			
+			double cosineTheta = Math.cos( radians );
+			double sineTheta = Math.sin( radians );
+			
+			Point2D returnPoint = new Point2D.Double(
+					( returnX*cosineTheta - returnY*sineTheta ),
+					( returnX*sineTheta + returnY*cosineTheta )
+			);
+			
+			return returnPoint;
+			
+		}
+		
+		public static Point2D relativePointRotatedBy( Point2D p, double radians ){
+			
+			double returnX = p.getX();
+			double returnY = p.getY(); 
+			
+			double cosineTheta = Math.cos( radians );
+			double sineTheta = Math.sin( radians );
+			
+			Point2D returnPoint = new Point2D.Double(
+					( returnX*cosineTheta - returnY*sineTheta ),
+					( returnX*sineTheta + returnY*cosineTheta )
+			);
+			
+			return returnPoint;
+			
+		}
 
 	
 }

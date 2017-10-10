@@ -571,14 +571,15 @@ public class PlantTwigSegment extends EntityStatic{
 					
 						
 					
-					if ( numberFromLastBranch > ThreadLocalRandom.current().nextInt( 0 , 8) ){ //start new branch every 1-6 segments
+					if ( numberFromLastBranch > ThreadLocalRandom.current().nextInt( 2 , 3) ){ //start new branch every 1-6 segments
 						
 						final int FORK_ANGLE = 40; // Set to 90 or higher for some freaky shit
 						final int UPWARD_WILLPOWER = 20; //-20 to 40 look normal. Set to 90 or higher for chaos
+
 						
 						int thisMaxGrowth = (int)getMaxGrowth()-1;
 						
-						int thisSegmentAngle =  (int) ( getAngularComposite().getAngle() % 360) ; // constrain angle to 0-360 for convenience
+						int thisSegmentAngle =  (int) ( getAngularComposite().getAngleInDegrees() % 360) ; // constrain angle to 0-360 for convenience
 						
 						if ( thisSegmentAngle > 0){
 							if (thisSegmentAngle > 180) // Adds push towards angle of 0 ( pointing up )
@@ -633,7 +634,6 @@ public class PlantTwigSegment extends EntityStatic{
 					else if ( getMaxGrowth() > 30){ // Else segemnt didn't branch, so grown next segment if bigger than 30% grown
 						
 						final int RANDOM_BEND_RANGE = 20; // 0 is perfectly straight branch. Higher than 40 looks withered.
-						
 						final int UPWARD_WILLPOWER = 10; // 
 						
 						int randomShrinkage = ThreadLocalRandom.current().nextInt( 1 , 10); // This being greater than 0 is the only
@@ -646,7 +646,7 @@ public class PlantTwigSegment extends EntityStatic{
 						
 						int randomBend = ThreadLocalRandom.current().nextInt( -RANDOM_BEND_RANGE ,RANDOM_BEND_RANGE); // get random bend
 						
-						int thisSegmentAngle =  (int)(( getAngularComposite().getAngle() + randomBend) % 360) ; //And add it to the next segments angle
+						int thisSegmentAngle =  (int)(( getAngularComposite().getAngleInDegrees() + randomBend) % 360) ; //And add it to the next segments angle
 						
 						if ( thisSegmentAngle > 0){
 							if (thisSegmentAngle > 180) // Adds a 10 degree push towards angle of 0 ( pointing up ) same as above
@@ -703,7 +703,6 @@ public class PlantTwigSegment extends EntityStatic{
 					
 					
 					final int RANDOM_BEND_RANGE = 20; // 0 is perfectly straight branch. Higher than 40 looks withered.
-						
 					final int UPWARD_WILLPOWER = 10; // 
 						
 					int randomShrinkage = ThreadLocalRandom.current().nextInt( 1 , 10); // This being greater than 0 is the only
@@ -716,7 +715,7 @@ public class PlantTwigSegment extends EntityStatic{
 						
 					int randomBend = ThreadLocalRandom.current().nextInt( -RANDOM_BEND_RANGE ,RANDOM_BEND_RANGE); // get random bend
 						
-					int thisSegmentAngle =  (int)(( getAngularComposite().getAngle() + randomBend) % 360) ; //And add it to the next segments angle
+					int thisSegmentAngle =  (int)(( getAngularComposite().getAngleInDegrees() + randomBend) % 360) ; //And add it to the next segments angle
 						
 						if ( thisSegmentAngle > 0){
 							if (thisSegmentAngle > 180) // Adds a 10 degree push towards angle of 0 ( pointing up ) same as above
@@ -736,7 +735,7 @@ public class PlantTwigSegment extends EntityStatic{
 					
 					Point relativeTip = StemSegment.this.getAbsolutePositionOf( new Point(0,-(int)oldRadius) );
 		
-					System.err.println( relativeTip+" ANGLE: "+StemSegment.this.getAngularComposite().getAngle() );
+					System.err.println( relativeTip+" ANGLE: "+StemSegment.this.getAngularComposite().getAngleInDegrees() );
 
 					StemSegment sproutStem = new StemSegment( relativeTip.x , relativeTip.y , thisMaxGrowth, StemSegment.this.organism , board );
 					sproutStem.setPreviousStem(StemSegment.this);
@@ -817,11 +816,11 @@ public class PlantTwigSegment extends EntityStatic{
 					
 					final int RANDOM_BEND_RANGE = 20; // 0 is perfectly straight branch. Higher than 40 looks withered.
 					
-					final int UPWARD_WILLPOWER = 10; // 
+					final int UPWARD_WILLPOWER = 0; // 
 	
 					int randomBend = ThreadLocalRandom.current().nextInt( -RANDOM_BEND_RANGE ,RANDOM_BEND_RANGE); // get random bend
 					
-					int thisSegmentAngle =  (int)(( getAngularComposite().getAngle() + randomBend) % 360) ; //And add it to the next segments angle
+					int thisSegmentAngle =  (int)(( getAngularComposite().getAngleInDegrees() + randomBend) % 360) ; //And add it to the next segments angle
 					
 					if ( thisSegmentAngle > 0)
 						if (thisSegmentAngle > 180) // Adds a 10 degree push towards angle of 0 ( pointing up ) same as above
@@ -847,14 +846,21 @@ public class PlantTwigSegment extends EntityStatic{
 					sproutStem.numberFromLastBranch = numberFromLastBranch + 1 ; //Increment next branches number in this stem
 					//board.spawnNewSprout( sproutStem ); //then spawn it in		
 				
-					PlantTwigSegment.Leaf newLeaf = new PlantTwigSegment.Leaf(relativeTip.x+10, relativeTip.y, thisMaxGrowth, board);
+					double randAngle =  Math.toRadians( ThreadLocalRandom.current().nextInt( -70 ,70) ); // get random bend
+					//
+					PlantTwigSegment.Leaf newLeaf = new PlantTwigSegment.Leaf(
+							relativeTip.x, relativeTip.y, 
+							thisMaxGrowth,
+							randAngle,
+							board);
 					newLeaf.setPreviousStem(LeafStem.this);
-					
+
 					board.spawnNewSprout( newLeaf );
+					
 					CompositeFactory.makeChildOfParent(newLeaf, LeafStem.this , board);
+					//
 					
 					LeafStem.this.nextSegment = new PlantTwigSegment[]{sproutStem};
-					
 					LeafStem.this.currentWaterTransportState = new ForkPushTransportState( newLeaf , sproutStem ) ;
 					LeafStem.this.currentSugarTransportState = new StemSugarOverflowTransport( sproutStem ) ;
 
@@ -871,12 +877,16 @@ public class PlantTwigSegment extends EntityStatic{
 	public static class Leaf extends PlantTwigSegment{
 
 		private Runnable currentGeneratorState;
+		private static Sprite leafSprite = new Sprite.Stillframe("Prototypes/leaftest01.png",Sprite.CENTERED_BOTTOM);
 		
-		public Leaf(int x, int y, int maxGrowth, TestBoard board) {
+		public Leaf(int x, int y, int maxGrowth, double angleOffStem, TestBoard board) {
 			super(x, y, maxGrowth, board);
+			this.name = "Leaf";
 			
-			CompositeFactory.addGraphicTo(this, new Sprite.Stillframe("box.png",Sprite.CENTERED) );
-			this.getGraphicComposite().setGraphicSizeFactor( Leaf.this.growthLevel / 100.0 );
+			CompositeFactory.addGraphicTo(this, leafSprite );
+			this.getGraphicComposite().setGraphicSizeFactor(0);
+			
+			this.getGraphicComposite().setGraphicAngle(angleOffStem);
 			
 			this.currentGrowthState = new LeafGrowingState();
 			this.currentGeneratorState = new Photosynthesis();

@@ -92,11 +92,14 @@ public class Collider implements EntityComposite{
 	public Boundary getBoundary(){
 		return boundary;
 	}
-
-    @Deprecated
-	public Boundary getBoundaryLocal(){
-		return boundary.atPosition( ownerEntity.getPosition() );
-	}
+    
+    public Line2D getRelativeAxis( Line2D axis ){
+    	return axis;
+    }
+    
+    public Line2D getAbsoluteAxisFromRelativeAxis( Line2D axis ){
+    	return axis;
+    }
 	
 	/* #################################################################################
 	 * 
@@ -342,7 +345,19 @@ public class Collider implements EntityComposite{
 	public String getCompositeName() {
 		return this.compositeName;		
 	}
-
+	
+	/**Takes an input point relative to this collider and returns the absolute position of that point in the world.
+	 * For example: an input of (0,1) relative to a collider located at (1,1) will return (0+1,1+1) or (1,2). Is has been translated.
+	 * An input of (0,1) relative to a collider rotated at 45 degrees will return ( sqrt(2),-sqrt(2) ). It has been rotated. Etc.
+	 * @param The relative point p
+	 * @return The point's absolute position in the world.
+	 */
+	public Point2D absolutePositionOfRelativePoint( Point2D p ){ 
+		return this.ownerEntity.getTranslationalAbsolutePositionOf(p);
+	}
+	public Point2D absolutePositionOfRelativePoint( Point p ){
+		return this.ownerEntity.getTranslationalAbsolutePositionOf(p);
+	}
 
 }
 

@@ -395,7 +395,7 @@ public class Board extends BoardAbstract {
 					+ player.getTranslationComposite().getDY(), 5, 30);
 			g2.drawString("AccX: " + player.getTranslationComposite().getAccX() + "  AccY: "
 					+ player.getTranslationComposite().getAccY(), 5, 45);
-			g2.drawString("Rotation: " + (int) player.getAngularComposite().getAngle() + " degrees "
+			g2.drawString("Rotation: " + (int) player.getAngularComposite().getAngleInDegrees() + " degrees "
 					+ player.getRotationComposite().getAngularVel() + " "
 					+ player.getRotationComposite().getAngularAcc(), 5, 60);
 			g2.drawString("State: " + ((PlayerCharacter) player).printState() + "Colliding: TODO", 5, 75);

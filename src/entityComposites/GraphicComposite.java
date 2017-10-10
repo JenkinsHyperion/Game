@@ -90,7 +90,7 @@ public abstract class GraphicComposite implements EntityComposite{
 		}
 		
 		public double getGraphicAngle(){
-			return this.graphicAngle;
+			return this.graphicAngle + this.ownerEntity.getAngularComposite().getAngleInRadians();
 		}
 		
 		public void draw( ReferenceFrame camera ){
@@ -214,7 +214,7 @@ public abstract class GraphicComposite implements EntityComposite{
 
 		@Override
 		public double getGraphicAngle() {
-			// TODO Auto-generated method stub
+			System.err.println("Warning: Attempign to set ANgle of null graphics singleton");
 			return 0;
 		}
 

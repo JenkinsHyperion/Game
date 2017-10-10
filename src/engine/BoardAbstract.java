@@ -277,6 +277,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 			g2.setColor(Color.CYAN);
 			for ( Collider collider : collisionEngine.debugListActiveColliders() ){
 				collider.debugDrawBoundary(cam, g2);
+				cam.drawCrossInWorld(collider.getOwnerEntity().getPosition());
 			}
 			
 			g2.drawString( "Updateable entities: "+BoardAbstract.this.updateableEntities() , 400, 20);

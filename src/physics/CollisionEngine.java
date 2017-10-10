@@ -48,6 +48,7 @@ public class CollisionEngine {
 		
 		for (Collision collision : runningCollisionsList){
 			collision.completeCollision();
+			collision.notifyEntitiesOfCollisionCompleteion();
 		}
 		runningCollisionsList.clear();
 		//dynamicCollidablesList.clear(); //keep player temporarily while scenes are under construction
@@ -79,7 +80,8 @@ public class CollisionEngine {
 	    	}
 	    	else {
 	    		runningCollisionsList.get(i).completeCollision();
-	    		runningCollisionsList.remove(i);	
+	    		runningCollisionsList.get(i).notifyEntitiesOfCollisionCompleteion();
+	    		runningCollisionsList.remove(i);
     		}
 	  		
     	}
@@ -508,6 +510,13 @@ public class CollisionEngine {
     		Collision newCollision = factory.createVisualCollision(collider1.getOwnerEntity(), collider1, collider2.getOwnerEntity(), collider2, check, this.getBoard().renderingEngine);
 			runningCollisionsList.add( newCollision );
 			newCollision.initializeCollision();
+			
+
+			System.out.println(
+					"\n\n=============== COLLISION ["+factory+"] started between entities ["+collider1.getOwnerEntity() + 
+					"] and static [" + collider2.getOwnerEntity() + "] ==============="
+					);
+			
 		} 	
     } 
     

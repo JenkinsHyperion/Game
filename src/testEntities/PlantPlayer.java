@@ -26,6 +26,8 @@ import physics.Vector;
 import physics.VisualCollisionCheck;
 import sprites.RenderingEngine;
 import sprites.Sprite;
+import utility.DoubleLinkedList;
+import utility.ListNodeTicket;
 
 public class PlantPlayer extends Player {
 
@@ -36,7 +38,7 @@ public class PlantPlayer extends Player {
 	private State currentState = falling;
 	private State bufferState = standing;
 	
-	private boolean isClimbing = false;
+	private boolean canStartClimb = true;
 	
 	private Force movementForce;
 	
@@ -101,6 +103,34 @@ public class PlantPlayer extends Player {
 				currentState.holdingJump();
 			}
 		});
+		this.inputController.createKeyBinding(KeyEvent.VK_UP, new KeyCommand(){
+			@Override
+			public void onPressed() {
+				currentState.onUp();
+			}
+			@Override
+			public void onReleased() {
+				currentState.offUp();
+			}
+			@Override
+			public void onHeld() {
+				currentState.holdingUp();
+			}
+		});
+		this.inputController.createKeyBinding(KeyEvent.VK_DOWN, new KeyCommand(){
+			@Override
+			public void onPressed() {
+				currentState.onDown();
+			}
+			@Override
+			public void onReleased() {
+				currentState.offDown();
+			}
+			@Override
+			public void onHeld() {
+				currentState.holdingDown();
+			}
+		});
 		
 		this.getColliderComposite().setLeavingCollisionEvent( new CollisionEvent(){
 			@Override
@@ -121,6 +151,17 @@ public class PlantPlayer extends Player {
 	public void setGravity( Force gravity){
 		this.gravity = gravity;
 	}
+	
+	public void debugDraw(  MovingCamera cam , Graphics2D g2 ){
+		this.currentState.debugDraw(cam, g2);
+	}
+	
+	public void debugCollisions( MovingCamera cam , Graphics2D g2 ){
+		for( int i = 0 ; i < this.getColliderComposite().getCollisions().length ; ++i ){
+			Collision collision = this.getColliderComposite().getCollisions()[i];
+			g2.drawString( collision.toString(), 10, 400+(i*15));
+		}
+	}
 
 	public static class ClingCollision extends CollisionBuilder<PlantPlayer,PlantTwigSegment>{
 
@@ -129,55 +170,51 @@ public class PlantPlayer extends Player {
 			
 			return new Collision.CustomType<PlantPlayer, PlantTwigSegment>( player , playerCollider , plantSegment, collider2 ){
 
-				private TranslationComposite trans = player.getTranslationComposite();
-				private VelocityVector clingVelocity = trans.addVelocityVector(Vector.zeroVector);
-
+				private ListNodeTicket segmentOnPlayer;
+				private Vector clingVector;
+				
 				@Override
 				public void updateVisualCollision(MovingCamera camera, Graphics2D gOverlay) {
 					
-					isComplete = !check.check(collidingPrimary, collidingSecondary);
-
-					//Axis[] axes = check.getAxisCollector().getSeparatingAxes(entityPrimary, entityPrimary.getPosition(), playerCollider.getBoundary(), 
-					//		entitySecondary, entitySecondary.getPosition(), collider2.getBoundary() );
-					
-					//clingVelocity.setVector( axes[0].getNearFeaturePrimary().getNormal().unitVector().multiply(0.1) );
+					isComplete = !check.check(collidingPrimary, collidingSecondary,camera,gOverlay);
 
 				}
 
 				@Override
 				protected void initializeCollision() {
 					
-					Axis[] axes = check.getAxisCollector().getSeparatingAxes(entityPrimary, entityPrimary.getPosition(), playerCollider.getBoundary(), 
-							entitySecondary, entitySecondary.getPosition(), collider2.getBoundary() );
-					
-					if ( axes[0].getNearFeatureSecondary().debugIsSide() ){
+					Axis[] axes = check.getAxisCollector().getSeparatingAxes(playerCollider, entityPrimary.getPosition(), playerCollider.getBoundary(), 
+							collider2, entitySecondary.getPosition(), collider2.getBoundary() );
 
-						if ( !player.isClimbing ){
-							
-							player.climbing.setSegment( plantSegment , axes[0].getNearPointSecondary() );
-							
-							player.changeState(player.climbing);
-							plantSegment.deactivateOrganism();
-						}
+					clingVector = axes[0].getNearFeatureSecondary().getNormal().unitVector();
+					
+					segmentOnPlayer = player.climbing.addSegment( plantSegment , clingVector );
+					
+					if ( player.canStartClimb ){		
+						
+						player.changeState(player.climbing);
 					}
+					
 				}
 
 				@Override
 				public void completeCollision() {
-					
-					trans.removeVelocityVector(clingVelocity);
-					//trans = null;
+					segmentOnPlayer.removeSelfFromList();
 				}
-			};
 
-		}			
+			};
+		}	
+		
+		@Override
+		public String toString() {
+			return "PlantPlayer: PLAYER ON PLANT STEM";
+		}
 	}
 	
 	private class Event extends CollisionEvent{
 		@Override
 		public void run(BoundaryFeature source, BoundaryFeature collidingWith, Vector separation) {
 			changeState(bufferState);
-			System.out.println("HITTING GROUND");
 		}
 		@Override
 		public String toString() {
@@ -202,86 +239,155 @@ public class PlantPlayer extends Player {
 		public void onRight(){}
 		public void holdingRight() {}
 		public void offRight(){}
+		public void onUp(){}
+		public void holdingUp() {}
+		public void offUp(){}
+		public void onDown(){}
+		public void holdingDown() {}
+		public void offDown(){}
 		
 		public void onJump(){}
 		public void holdingJump() {}
 		public void offJump(){}
+		
+		public void debugDraw( MovingCamera cam , Graphics2D g2){
+			
+			g2.drawString("Player "+getAngularComposite().getOrientationVector().normalLeft().angleFromVector() , 800, 400);
+			g2.drawString("Gravity "+ gravity.toVector().angleFromVector() , 800, 415);
+			g2.drawString("Difference "+(float) Vector.angleBetweenVectors( getAngularComposite().getOrientationVector(), gravity.toVector()) , 800, 430);
+		}
 	}
 	
 	private class ClimbingState extends State{
 
 		private Force clingNormal;
-		PlantTwigSegment segment;
-		Point2D attatchPoint;
+		private VelocityVector currentCling;
+		private VelocityVector climbVelocity;
+		Vector attachDirection;
 		private byte leftRight;
 		private Vector jumpVelocity;
 		
-		public void setSegment( PlantTwigSegment stem, Point2D attatchPoint ){
-			this.segment = stem;
-			this.attatchPoint = attatchPoint;
+		private byte slidingGripPercent = 100;
+		
+		private Vector distance = Vector.zeroVector;
+		
+		private DoubleLinkedList<PlantTwigSegment> stemsInRange = new DoubleLinkedList<PlantTwigSegment>();
+		private PlantTwigSegment currentStem;
+		private int stemHeight = 0;
+		
+		@Override
+		public void debugDraw(MovingCamera cam, Graphics2D g2) {
+			int i = 400;
+			while(stemsInRange.hasNext()){
+				PlantTwigSegment stem = stemsInRange.get();
+				Vector absAngle = stem.getAngularComposite().getOrientationVector().normalLeft();
+				//g2.drawString("Stem "+ Vector.angleBetweenVectors( absAngle , gravity.toVector().inverse() ) , 800, i);
+				g2.drawString("Stem "+ Vector.angleBetweenVectors(absAngle, gravity.toVector()) , 700, i);
+				i = i + 15;
+			}
+			
+			g2.drawString(" Velocities "+getTranslationComposite().debugNumberVelocities()+" "+ currentCling.getVector().angleFromVector() , 700, 385);
+		}
+		
+		public ListNodeTicket addSegment( PlantTwigSegment stem, Vector clingVector ){
+
+			if ( stemsInRange.size() == 0 ){
+				currentStem = stem;
+			}
+			return stemsInRange.add( stem );
 		}
 		
 		public void onChange(){
-			isClimbing = true;
+			canStartClimb = false; //already climbing
 			
 			jumpVelocity = PlantPlayer.this.getTranslationComposite().getVelocityVector();
-			
-			clingNormal = PlantPlayer.this.getTranslationComposite().addNormalForce(gravity.getVector().inverse());
-			
-			PlantPlayer.this.setPos( attatchPoint );
-			
-			
+			clingNormal = PlantPlayer.this.getTranslationComposite().addNormalForce(gravity.toVector().inverse());
+			currentCling = PlantPlayer.this.getTranslationComposite().addVelocityVector( Vector.zeroVector );			
+			climbVelocity = PlantPlayer.this.getTranslationComposite().addVelocityVector( Vector.zeroVector );
+
 			PlantPlayer.this.getTranslationComposite().halt();
 		}
 		
 		@Override
 		public void run() {
-			clingNormal.setVector(gravity.getVector().inverse());
+
+			clingNormal.setVector(gravity.toVector().inverse().multiply( slidingGripPercent/100.0 ));
+			
+			distance = PlantPlayer.this.getRelativeTranslationalVectorOf(currentStem);
+			
+			attachDirection = distance.projectedOver( currentStem.getOrientationVector() );
+
+			currentCling.setVector( attachDirection.multiply(0.1) );
+			
+			//check to see if player has left current stem
+			
+			Point relativePlayerPosition = currentStem.getFullRelativePositionOf(PlantPlayer.this);
+			stemHeight = -relativePlayerPosition.y;
+			
+			if ( stemHeight < 0 ){
+				if ( currentStem.previousSegment != null ){ //FIXME make a method get next and get prev IN PLANT STEM that returns self
+					currentStem = currentStem.previousSegment;
+				}
+			}
+			else if ( stemHeight > 80 ){
+				if ( currentStem.nextSegment.length != 0 ){	// instead of null
+					currentStem = currentStem.nextSegment[0];
+				}
+			}
+			
 		}
 		
 		@Override
-		public void onLeavingState() {
-			isClimbing = false;
+		public void onLeavingState() { //remove all velocities when done with this state
+			canStartClimb = true;
 			PlantPlayer.this.getTranslationComposite().removeNormalForce(clingNormal);
-			System.err.println("ACTIVATING ORGANISM");
-
-			//segment.activateOrganism();
+			PlantPlayer.this.getTranslationComposite().removeVelocityVector(currentCling);
+			PlantPlayer.this.getTranslationComposite().removeVelocityVector(climbVelocity);
+		}
+		
+		@Override
+		public void onUp() {
+			climbVelocity.setVector( currentStem.getOrientationVector().normalRight().multiply(3) );
+			slidingGripPercent=100;
+		}
+		@Override
+		public void holdingUp() {
+			onUp();
+		}
+		@Override
+		public void offUp() {
+			climbVelocity.setVector( Vector.zeroVector );
+		}
+		@Override
+		public void onDown() {
+			//climbVelocity.setVector( currentStem.getOrientationVector().normalLeft().multiply(3) );
+			slidingGripPercent = 60;
+		}
+		@Override
+		public void offDown() {
+			//climbVelocity.setVector( Vector.zeroVector );
+			slidingGripPercent = 100;
+			getTranslationComposite().halt();
 		}
 		
 		@Override
 		public void onRight() { leftRight = -1; }
-		
 		@Override
 		public void onLeft() { leftRight = 1; }
-		
 		@Override
 		public void holdingRight() { leftRight = -1; }
-		
 		@Override
 		public void holdingLeft() { leftRight = 1; }
-		
-		
 		@Override
 		public void offRight() { leftRight = 0; }
-		
 		@Override
 		public void offLeft() { leftRight = 0; }
 		
 		@Override
 		public void onJump() {
 			getTranslationComposite().addVelocity( 
-					gravity.getVector().inverse().unitVector().multiply(5) .add(
-							gravity.getVector().normalLeft().multiply(leftRight*10)
-							));
-			changeState(falling);
-			bufferState = movingState;
-		}
-		
-		@Override
-		public void holdingJump() {
-			getTranslationComposite().addVelocity( 
-					gravity.getVector().inverse().unitVector().multiply(5) .add(
-							jumpVelocity.projectedOver(gravity.getVector().normalRight())
+					gravity.toVector().inverse().unitVector().multiply(5) .add(
+							gravity.toVector().normalLeft().multiply(leftRight*10)
 							));
 			changeState(falling);
 			bufferState = movingState;
@@ -315,12 +421,19 @@ public class PlantPlayer extends Player {
 	private class FallingState extends State{
 		@Override
 		public void run() {}
-		@Override public void onLeft(){};
+		@Override public void onLeft(){}
 		@Override public void offLeft(){ movingState.setCoasting(); }
-		@Override public void onRight(){};
+		@Override public void onRight(){}
 		@Override public void offRight(){ movingState.setCoasting(); }
-		@Override public void onJump(){};
-		@Override public void offJump(){};
+		@Override public void onJump(){
+			canStartClimb = false;
+		}
+		@Override public void holdingJump(){
+			canStartClimb = false;
+		}
+		@Override public void offJump(){
+			canStartClimb = true;
+		}
 		
 	}
 	
@@ -331,7 +444,7 @@ public class PlantPlayer extends Player {
 		private final Runnable accelerating = new Runnable(){
 			public void run(){
 				
-				movementForce.setVector( gravity.getVector().normalLeft().unitVector().multiply(0.1*leftRight) );
+				movementForce.setVector( gravity.toVector().normalLeft().unitVector().multiply(0.1*leftRight) );
 			}
 		};
 		
@@ -364,7 +477,7 @@ public class PlantPlayer extends Player {
 		}
 		@Override
 		public void onJump() {
-			getTranslationComposite().addVelocity( gravity.getVector().inverse().unitVector().multiply(5) );
+			getTranslationComposite().addVelocity( gravity.toVector().inverse().unitVector().multiply(5) );
 			bufferState = movingState;
 		}
 		

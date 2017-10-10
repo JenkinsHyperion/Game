@@ -1316,17 +1316,9 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					//polygonTest.
 					//if (entity.getColliderComposite() instanceof ColliderNull ){
 					if (entity.getColliderComposite().exists() ){
-						Boundary bound = entity.getColliderComposite().getBoundaryLocal();
-						int[] xpoints;
-						int[] ypoints;
-						xpoints = new int[bound.getCornersPoint().length];
-						ypoints = new int[bound.getCornersPoint().length];
 						
-						for (int i = 0; i < bound.getCornersPoint().length; i++ ) {
-							xpoints[i] = (int)bound.getCornersPoint()[i].getX();
-							ypoints[i] = (int)bound.getCornersPoint()[i].getY();
-						}
-						Polygon polygonTest = new Polygon(xpoints, ypoints, bound.getCornersPoint().length);
+						Polygon polygonTest = entity.getColliderComposite().getBoundary().getPolygonBounds(entity);
+						//Polygon polygonTest = new Polygon(xpoints, ypoints, bound.getCornersPoint().length);
 						Rectangle rect = polygonTest.getBounds();
 						if (polygonTest.contains(click)) {
 							if (selectedEntities.contains(entity))
@@ -2205,7 +2197,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			// old drawsurfacelines vvvvvv
 			g2.setColor(Color.DARK_GRAY);
 			for (Line2D.Double lineToDraw: oldBoundaryLines) {
-				camera.draw(lineToDraw);
+				camera.draw(lineToDraw,g2);
 			}
 			g2.setColor(Color.MAGENTA);
 			/*for (int i = 0; i < vertexList.size()-1; i++) {
@@ -2213,7 +2205,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				camera.draw(tempLine);
 			}*/
 			for (Line2D.Double lineToDraw: surfaceLines) {
-				camera.draw(lineToDraw);
+				camera.draw(lineToDraw,g2);
 			}
 		}
 		@Override
@@ -2349,7 +2341,10 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			//might not need either of these two lines vvvvv
 			//ArrayList<Point2D> temporaryPointsList = new ArrayList<>();
 			//Point2D[] temporarayPointsArray = sourceCollider.getBoundary().getCornersPoint();
-			for (Point2D vertexToAdd: sourceCollider.getBoundaryLocal().getCornersPoint()){
+			for (Point2D vertexToAdd: sourceCollider.getBoundary().getCornersPoint()){
+				
+				Point2D absoluteCorner = sourceCollider.absolutePositionOfRelativePoint(vertexToAdd);
+				
 				vertexList.add(new EditorVertex( (int)vertexToAdd.getX(),(int)vertexToAdd.getY()) );
 			}
 			refreshAllSurfaceLines(surfaceLines);

@@ -60,6 +60,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     public static ColliderGroup<PlantPlayer> playerGroup;
     public static ColliderGroup<EntityStatic> worldGeometryGroup;
     public static ColliderGroup<PlantTwigSegment> treeStemGroup;
+    public static ColliderGroup<EntityStatic> testingGroup;
 
     public TestBoard(int width , int height, JFrame frame ) {
     	super(width,height,frame);
@@ -147,12 +148,15 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     	playerGroup = collisionEngine.<PlantPlayer>createColliderGroup("Player");
     	worldGeometryGroup = collisionEngine.<EntityStatic>createColliderGroup("Ground");
         treeStemGroup = collisionEngine.<PlantTwigSegment>createColliderGroup("Tree");
+        testingGroup = collisionEngine.<EntityStatic>createColliderGroup("Testing");
         
         collisionEngine.addCustomCollisionsBetween("Player", "Ground", CollisionBuilder.DYNAMIC_STATIC );
 
         //collisionEngine.addCustomCollisionsBetween("Player", "Tree", new PlantPlayer.ClingCollision() );
         
         collisionEngine.addCustomCollisionsBetween(playerGroup, treeStemGroup, new PlantPlayer.ClingCollision() );
+        
+        collisionEngine.addCustomCollisionsBetween(playerGroup, testingGroup, CollisionBuilder.RIGIDLESS_DYNAMIC_STATIC );
 
     	
     	myMouseHandler = new MouseHandlerClass();
@@ -195,14 +199,18 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         
         this.addInputController(player.inputController);
 
-        final EntityStatic testSaving = new EntityStatic( "TestSaving", -100,-100 );
+        /*final EntityStatic testSaving = new EntityStatic( "TestSaving", -100,-100 );
         testSaving.addGraphicTo( new Sprite.Stillframe("box.png",Sprite.CENTERED) );
         
         testSaving.addRotationalColliderTo( testSaving.addAngularComposite(), new BoundaryLinear( new Line2D.Double(0,100,0,-100)));
-        
-        //this.currentScene.addEntity(testSaving,"Tree");
-        testSaving.getAngularComposite().setAngleInDegrees(45);
 
+        
+        //this.currentScene.addEntity(testSaving,"Testing");
+        testSaving.getAngularComposite().setAngleInDegrees(45);*/
+        
+       // final PlantTwigSegment testStem = new PlantTwigSegment.StemSegment(-100, 30, 100, this);
+       // testStem.getAngularComposite().setAngleInDegrees(-45);
+        //this.currentScene.addEntity(testStem, "Tree" );
     }
 
     
@@ -220,7 +228,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 
     	gravity.setVector( player.getSeparationUnitVector(asteroid).multiply(0.2) );
     	
-		player.getAngularComposite().setAngleInDegrees( gravity.getVector().normalLeft().angleFromVectorInDegrees() );
+		player.getAngularComposite().setAngleInDegrees( gravity.toVector().normalLeft().angleFromVectorInDegrees() );
    
     }
 
@@ -237,7 +245,9 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     @Override
     protected void graphicsThreadPaint(Graphics g) {
     	
-		this.renderingEngine.render( (Graphics2D)g );
+    	Graphics2D g2 = (Graphics2D)g;
+    	
+		this.renderingEngine.render( g2 );
 		editorPanel.render( g ); 
     	g.setColor( Color.RED );
     	
@@ -245,8 +255,11 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     		camera.drawCrossInWorld( entity.getPosition() , (Graphics2D)g);
     	}*/
     	
+    	//this.player.debugCollisions(camera, g2);
+    	this.player.debugDraw(camera, g2);
+    	
     	for ( Vector vector : player.getTranslationComposite().debugForceArrows() ){
-    		camera.draw( vector.multiply(300).toLine( player.getPosition() ) );
+    		camera.draw( vector.multiply(300).toLine( player.getPosition() ), (Graphics2D)g );
     	}
     	
     }

@@ -65,7 +65,7 @@ public abstract class ParentComposite implements EntityComposite {
 				
 				Angled angularParent = (Angled) ownerParentEntity.getAngularComposite();
 			
-				ChildComposite.Rotateable childComposite = new ChildComposite.Rotateable(child , ownerParentEntity, ownerParentEntity.getTranslationComposite(), ownerParentEntity.getRotationComposite(), childrenCompositesList.size() , ownerParentEntity.getPosition() , angularParent.getAngle() );
+				ChildComposite.Rotateable childComposite = new ChildComposite.Rotateable(child , ownerParentEntity, ownerParentEntity.getTranslationComposite(), ownerParentEntity.getRotationComposite(), childrenCompositesList.size() , ownerParentEntity.getPosition() , angularParent.getAngleInDegrees() );
 
 				child.childComposite = childComposite;
 				this.childrenCompositesList.add( childComposite );
@@ -82,7 +82,7 @@ public abstract class ParentComposite implements EntityComposite {
 		@Override
 		public void setAngle(double angleRadians) { //FIXME Clamping issue between angleRadiansOld and angleRadians from angularCOmposite
 			
-			double angleRadiansOld = Math.toRadians( ownerParentEntity.getAngularComposite().getAngle() );
+			double angleRadiansOld = Math.toRadians( ownerParentEntity.getAngularComposite().getAngleInDegrees() );
 
 			for ( ChildComposite.Rotateable child : childrenCompositesList ){ 
 				

@@ -255,9 +255,9 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	 * @param line
 	 * @param g
 	 */
-	public void draw(Line2D line){
-		
-		this.graphics.drawLine( 
+	public void draw( Line2D line, Graphics2D g2 ){
+
+		g2.drawLine( 
 				getRelativeX(line.getX1()) ,  
 				getRelativeY(line.getY1()) ,  
 				getRelativeX(line.getX2()) ,  
@@ -369,6 +369,10 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	
 	public void drawCrossInFrame( Point point){
 		drawCross( (int)point.getX() , (int)point.getY() , this.graphics);
+	}
+	
+	public void drawCrossInFrame( Point point , Graphics2D g2){
+		drawCross( (int)point.getX() , (int)point.getY() , g2);
 	}
 	
 	public void drawCrossInFrame( Point2D point , Graphics2D g2){

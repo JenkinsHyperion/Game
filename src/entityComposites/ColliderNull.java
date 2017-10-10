@@ -56,13 +56,6 @@ public final class ColliderNull extends Collider{
 		System.err.println("Warning: Attempted to get Boundary on NonCollidable ");
 		return boundary;
 	}
-
-	@Override
-	public Boundary getBoundaryLocal(){
-		System.err.println("Warning: Attempted to get Boundary on NonCollidable ");
-		return boundary;
-	}
-
 	
 	/* #################################################################################
 	 * 

@@ -146,6 +146,13 @@ public class Entity {
         		);
     }
     
+    public Point getTranslationalAbsolutePositionOf( Point2D point_on_entity ) {
+        return new Point(
+        			(int)point_on_entity.getX() + this.getX(),
+        			(int)point_on_entity.getY() + this.getY()
+        		);
+    }
+    
     public Vector getSeparationVector( Entity partner ){
     	return new Vector( partner.x - this.x  , partner.y - this.y  );
     }

@@ -18,8 +18,6 @@ public abstract class Boundary {
 	public static final byte CIRCULAR = 0;
 	public static final byte POLYGONAL = 1;
 	
-	public abstract Boundary atPosition( Point position );
-	
 	public abstract <B extends Boundary> void rotateBoundaryFromTemplate( Point center, double angle , B template );
 	//public abstract Point rotateBoundaryFromTemplatePoint(Point center, double angle , Boundary template);
 	
@@ -87,7 +85,7 @@ public abstract class Boundary {
 		Point2D returnPoint = new Point.Double( p.getX() + shift.getX() , p.getY() + shift.getY() );
 		return returnPoint;
 	}
-	
+	@Deprecated
 	/**Return is world positions
 	 * 
 	 * @param primary
@@ -125,6 +123,53 @@ public abstract class Boundary {
 					// points i and j are farther apart on axis than whats stored 
 					farthestPoints[0] = shiftPoint(points1[i] , primaryPosition );
 					farthestPoints[1] = shiftPoint(points2[j] , secondaryPosition );
+				}
+				
+			}
+		}	
+		return farthestPoints;
+	}
+	
+	public static Point2D[] getNearAndFarPointsBetween( Collider c1 , Collider c2 , Line2D absAxis ){
+		
+		//final Line2D axisByPrimary
+		final Line2D axisBySecondary = c2.getRelativeAxis(absAxis);
+		
+		final Point2D[] points1= c1.getBoundary().getOuterPointsPair(absAxis); 			//Get outer points on axis relative to each entity
+		final Point2D[] points2= c2.getBoundary().getOuterPointsPair(axisBySecondary); 
+		
+		Point2D localNearPointPlayer = c1.absolutePositionOfRelativePoint( points1[0] );
+		Point2D localNearPointStat   = c2.absolutePositionOfRelativePoint( points2[0] );
+		Point2D localFarPointPlayer = c1.absolutePositionOfRelativePoint( points1[1] );
+		Point2D localFarPointStat   = c2.absolutePositionOfRelativePoint( points2[1] );
+		
+		Point2D[] farthestPoints = new Point2D[]{ 
+				 localFarPointPlayer , 
+				 localFarPointStat ,
+				 localNearPointPlayer ,
+				 localNearPointStat 
+				};
+		
+		for ( int i = 0 ; i < points1.length ; i++ ){
+			
+			localNearPointPlayer = c1.absolutePositionOfRelativePoint( points1[i] );
+			Point2D playerPointProjection = getProjectionPoint( localNearPointPlayer , absAxis );
+			
+			for ( int j = 0 ; j < points2.length ; j++ ){ 
+				
+				localNearPointStat =c2.absolutePositionOfRelativePoint( points2[j] );
+				Point2D StatPointProjection = getProjectionPoint( localNearPointStat , absAxis );
+				
+				if ( playerPointProjection.distance( StatPointProjection ) 
+						> 
+					getProjectionPoint( farthestPoints[0] , absAxis ).distance( getProjectionPoint( farthestPoints[1] , absAxis ) ) 
+				){
+					// points i and j are farther apart on axis than whats stored 
+					farthestPoints[0] = localNearPointPlayer;
+					farthestPoints[1] = localNearPointStat; //far
+					
+					farthestPoints[2] = c1.absolutePositionOfRelativePoint(points1[1-i] );
+					farthestPoints[3] = c2.absolutePositionOfRelativePoint(points2[1-j] ); //near
 				}
 				
 			}

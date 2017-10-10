@@ -36,7 +36,7 @@ public abstract class VoronoiRegion {
 	 * @param center
 	 * @return
 	 */
-	public Line2D constructDistanceLine( Point relativePosition){
+	public Line2D constructDistanceNormal( Point relativePosition){
 		return this.checkMath.getSeparation( relativePosition );
 	}
 	

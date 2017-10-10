@@ -77,7 +77,7 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 		    final Point deltaPosition = new Point( (int)deltaX , (int)deltaY );
 		    
 			  // OPTIMIZATION pull axis collection into initialized field and notify changes rather than rapid calling
-		    SeparatingAxisCollector.Axis[] separatingAxes = this.axisCollector.getSeparatingAxes( stat, stat.getPosition(), statBoundsRel, player , deltaPosition, playerBoundsRel );
+		    SeparatingAxisCollector.Axis[] separatingAxes = this.axisCollector.getSeparatingAxes( collidableSecondary, stat.getPosition(), statBoundsRel, collidablePrimary , deltaPosition, playerBoundsRel );
 
 		    
 		    for ( SeparatingAxisCollector.Axis separatingAxis : separatingAxes ){
@@ -85,7 +85,7 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 		    	Line2D axis = separatingAxis.getAxisLine(); 
 
 		    	Point2D[] outerPointsRel = 
-		    			Boundary.getFarthestPointsBetween( player, playerBoundsRel, stat, statBoundsRel, axis );
+		    			Boundary.getNearAndFarPointsBetween(collidablePrimary, collidableSecondary, axis);
 		    	
 		    	Point2D nearStatCorner = statBoundsRel.farthestLocalPointFromPoint(
 		    			stat.getPosition(), outerPointsRel[1], axis
@@ -221,8 +221,9 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 		    final Point deltaPosition = new Point( (int)deltaX , (int)deltaY );
 		    
 			  // OPTIMIZATION pull axis collection into initialized field and notify changes rather than rapid calling
-		    SeparatingAxisCollector.Axis[] separatingAxes = this.axisCollector.getSeparatingAxes( stat, stat.getPosition(), statBoundsRel, player , deltaPosition, playerBoundsRel, camera, g2 );
+		    SeparatingAxisCollector.Axis[] separatingAxes = this.axisCollector.getSeparatingAxes( collidableSecondary, stat.getPosition(), statBoundsRel, collidablePrimary , deltaPosition, playerBoundsRel, camera, g2 );
 
+		    //axisCollector.drawSeparation(camera, g2);
 		    /*
 		    g2.setColor(Color.WHITE);
 		    this.axisCollector.drawSeparation(camera, g2);
@@ -234,17 +235,20 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 		    for ( SeparatingAxisCollector.Axis separatingAxis : separatingAxes ){
 		    	
 		    	Line2D axis = separatingAxis.getAxisLine(); 
-
-		    	Point2D[] outerPointsRel = 
-		    			Boundary.getFarthestPointsBetween( player, playerBoundsRel, stat, statBoundsRel, axis );
 		    	
-		    	Point2D nearStatCorner = statBoundsRel.farthestLocalPointFromPoint(
+		    	Point2D[] outerPointsRel = 
+		    			//Boundary.getFarthestPointsBetween( player, playerBoundsRel, stat, statBoundsRel, axis );
+		    			Boundary.getNearAndFarPointsBetween( collidablePrimary, collidableSecondary, axis);
+		    	
+		    	Point2D nearPlayerCorner	= outerPointsRel[2];
+		    	Point2D nearStatCorner 		= outerPointsRel[3];
+		    	/*Point2D nearStatCorner = statBoundsRel.farthestLocalPointFromPoint(
 		    			stat.getPosition(), outerPointsRel[1], axis
 		    			);
 		    	
 		    	Point2D nearPlayerCorner = playerBoundsRel.farthestLocalPointFromPoint(
 		    			deltaPosition, outerPointsRel[0], axis
-		    			);
+		    			);*/
 	
 		    	Point2D centerStat = BoundaryCorner.getCenter(  nearStatCorner , outerPointsRel[1] );
 		    	Point2D centerPlayer = BoundaryCorner.getCenter( nearPlayerCorner , outerPointsRel[0] );
@@ -263,10 +267,13 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 		    			Boundary.getProjectionPoint(nearStatCorner,axis) 
 		    			);
 		    	
-		    	g2.setColor(Color.GREEN);
-		    	camera.drawCrossInWorld( nearStatCorner , g2 );
+		    	/*g2.setColor(Color.GREEN);
+		    	//Point2D drawPoint = collidableSecondary.absolutePositionOfRelativePoint( outerPointsRel[0] );
+		    	camera.drawCrossInWorld( outerPointsRel[2] , g2 );
+		    	g2.setColor(Color.RED);
+		    	camera.drawCrossInWorld( outerPointsRel[3] , g2 );
 		    	//camera.drawCrossInWorld( nearStatCorner, g2 );
-	
+	*/
 		    	double centerDistanceX = (centerProjection.getX1() -  centerProjection.getX2()  );
 		    	double centerDistanceY = (centerProjection.getY1() -  centerProjection.getY2()  );
 	

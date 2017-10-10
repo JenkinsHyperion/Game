@@ -29,6 +29,7 @@ public abstract class Sprite implements Graphic{
     protected double spriteAngle = 0;
     
     public static final byte CENTERED = 0;
+    public static final byte CENTERED_BOTTOM = 1;
     
 	AffineTransform spriteTransform = new AffineTransform();
 
@@ -138,9 +139,13 @@ public abstract class Sprite implements Graphic{
         	super(0,0);
         	initialize(path);
         	
-        	if ( flag == 0 ){
+        	if ( flag == Sprite.CENTERED ){
         		this.spriteOffsetX = -this.image.getWidth() / 2 ;
         		this.spriteOffsetY = -this.image.getHeight() / 2 ;
+        	}
+        	else if ( flag == Sprite.CENTERED_BOTTOM ){
+        		this.spriteOffsetX = -this.image.getWidth() / 2 ;
+        		this.spriteOffsetY = -this.image.getHeight();
         	}
         	else{
         		System.err.println(path+" sprite has invalid parameter");

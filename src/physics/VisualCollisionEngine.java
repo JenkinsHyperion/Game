@@ -63,6 +63,7 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 	    	}
 	    	else {
 	    		runningCollisionsList.get(i).completeCollision();
+	    		runningCollisionsList.get(i).notifyEntitiesOfCollisionCompleteion();
 	    		runningCollisionsList.remove(i);	
     		}	
     	}	

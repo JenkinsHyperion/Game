@@ -282,34 +282,6 @@ public class BoundaryPolygonal extends Boundary {
 		return this.sides[ID];
 	}
 	
-	@Override
-	public Boundary atPosition( Point position) {
-
-		BoundaryPolygonal returnBoundary = this.temporaryClone();
-		int x = (int)position.x;
-		int y = (int)position.y;
-		
-		for ( int i = 0 ; i < this.sides.length ; i++ ){
-			
-			BoundarySide oldSide = this.sides[i];
-			Line2D shiftedLine = new Line2D.Float( oldSide.getX1()+x, oldSide.getY1()+y , oldSide.getX2()+x, oldSide.getY2()+y );
-	
-			returnBoundary.sides[i].setLine( shiftedLine );
-		}
-		
-		for ( int i = 0 ; i < this.corners.length ; i++ ){
-			
-			BoundaryVertex oldCorner = this.corners[i];
-			Point shiftedPosition = new Point( oldCorner.getX()+x , oldCorner.getY()+y );
-			
-			returnBoundary.corners[i].setPos( shiftedPosition );
-		}
-
-		returnBoundary.constructVoronoiRegions(); //OPTIMIZE make move method instead of reconstructing each time
-		
-		return returnBoundary;
-	};
-	
 	
 	//SEPARATING AXIS THEORM METHODS
 	
@@ -628,10 +600,10 @@ public class BoundaryPolygonal extends Boundary {
 		return sides[i].toLine();
 	}
 	@Override
-	public void debugDrawBoundary(MovingCamera camera, Graphics2D g, EntityStatic ownerEntity) {
+	public void debugDrawBoundary(MovingCamera camera, Graphics2D g2, EntityStatic ownerEntity) {
 		for ( BoundarySide side : this.getSides() ){
 
-			camera.draw( side.toLine() );
+			camera.draw( side.toLine(), g2 );
 			camera.drawString(side.toString(), side.getX1()+(side.getX2()-side.getX1())/2 , side.getY1()+(side.getY2()-side.getY1())/2 );
 		}
 		//for ( BoundaryCorner corner : corners ){

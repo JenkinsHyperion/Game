@@ -19,18 +19,13 @@ public class BoundaryLinear extends BoundaryPolygonal {
 	public BoundaryLinear( Line2D relativeLine ){
 		super( new Line2D[]{ relativeLine , new Line2D.Double( relativeLine.getP2(), relativeLine.getP1() ) } );
 	}
-	
-	@Override
-	public Boundary atPosition(Point position) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+
 
 	@Override
 	public Line2D[] getSeparatingSides() {
 		return new Line2D[]{ sides[0].toLine() };
 	}
-
+	
 	@Override
 	public void debugDrawBoundary(MovingCamera cam, Graphics2D g2, EntityStatic ownerEntity) {
 		
@@ -39,7 +34,7 @@ public class BoundaryLinear extends BoundaryPolygonal {
 				corners[0].toPoint().getY() + ownerEntity.getPosition().getY(),
 				corners[1].toPoint().getX() + ownerEntity.getPosition().getX(),
 				corners[1].toPoint().getY() + ownerEntity.getPosition().getY()
-				) );
+				),g2 );
 	}
 
 	@Override

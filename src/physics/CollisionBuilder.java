@@ -11,13 +11,18 @@ public abstract class CollisionBuilder< E1 extends EntityStatic, E2 extends Enti
 
 	public abstract Collision createVisualCollision( E1 entity1 , Collider collider1, E2 entity2, Collider collider2, VisualCollisionCheck check, RenderingEngine engine);
 	
-	protected static class DynamicStaticRigidless extends CollisionBuilder<EntityStatic, EntityStatic>{
+	protected static class DynamicStaticRigidless<E1 extends EntityStatic, E2 extends EntityStatic>  extends CollisionBuilder<EntityStatic, EntityStatic>{
 
 		@Override
 		public Collision createVisualCollision(EntityStatic entity1, Collider collider1, EntityStatic entity2,
 				Collider collider2, VisualCollisionCheck check, RenderingEngine engine) {
 			
 			return new Collision.BasicCheck( collider1, collider2, check );
+		}
+		
+		@Override
+		public String toString() {
+			return "BASIC FIELD COLLISION";
 		}
 		
 	}
@@ -35,7 +40,7 @@ public abstract class CollisionBuilder< E1 extends EntityStatic, E2 extends Enti
 		
 		@Override
 		public String toString() {
-			return "DYNAMIC_STATIC";
+			return "RIGID DYNAMIC STATIC";
 		}
 	}
 	

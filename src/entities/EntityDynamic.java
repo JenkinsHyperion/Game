@@ -265,7 +265,7 @@ public class EntityDynamic extends EntityStatic{
     public Vector[] debugForceArrows(){
     	Vector[] returnVectors = new Vector[ forces.size() ];
     	for ( int i = 0 ; i < forces.size() ; i++ ){
-    		returnVectors[i] = forces.get(i).getVector() ;
+    		returnVectors[i] = forces.get(i).toVector() ;
     	}
     	return returnVectors;
     }
@@ -275,7 +275,7 @@ public class EntityDynamic extends EntityStatic{
     	
     	Vector returnVector = new Vector(0,0);
     	for ( Force force : forces ){
-    		returnVector = returnVector.add( force.getVector() );
+    		returnVector = returnVector.add( force.toVector() );
     	}
     	
     	return returnVector;

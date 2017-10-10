@@ -49,7 +49,7 @@ public class Force {
 		this.ID--;
 	}
 	
-	public Vector getVector(){
+	public Vector toVector(){
 		return force;
 	}
 

@@ -40,7 +40,7 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 	public void updateEntityWithComposite(EntityStatic entity) {
 
 		AngularComposite angular = entity.getAngularComposite();
-		angular.setAngleInDegrees( angular.getAngle() + angularVelocity);
+		angular.setAngleInDegrees( angular.getAngleInDegrees() + angularVelocity);
 		
 		angular.notifyAngleChange(angularVelocity); //FIXME Change to addAngle which automatically notifies rotateables in angular
 
@@ -144,7 +144,7 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 			
 			AngularComposite angular = entity.getAngularComposite();
 			
-			angular.setAngleInDegrees( angular.getAngle() + bend);
+			angular.setAngleInDegrees( angular.getAngleInDegrees() + bend);
 			angular.notifyAngleChange(bend); //FIXME Change to addAngle which automatically notifies rotateables in angular
 
 		}

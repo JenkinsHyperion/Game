@@ -1,6 +1,7 @@
 package entityComposites;
 
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 import physics.Vector;
@@ -21,12 +22,14 @@ public abstract class AngularComposite implements EntityComposite {
 		return fixedAngle;
 	}
 
-	public abstract double getAngle();
+	public abstract double getAngleInDegrees();
+	public abstract double getAngleInRadians();
 	public abstract void setAngleInDegrees( double angle);
 	public abstract void setAngleInRadians( double angle);
 	public abstract void notifyAngleChange( double angle );
 	public abstract Point getRotationalRelativePositionOf( Point absolutePosition);
 	public abstract Point getRotationalAbsolutePositionOf( Point relativePosition);
+	public abstract Point getRotationalAbsolutePositionOf( Point2D relativePosition);
 	public abstract Vector getOrientationVector();
 	@Override
 	public void setCompositeName(String newName) {
@@ -54,7 +57,9 @@ public abstract class AngularComposite implements EntityComposite {
 		 * 
 		 */
 		@Override
-		public double getAngle(){ return angleDegrees ; }
+		public double getAngleInDegrees(){ return angleDegrees ; }
+		@Override
+		public double getAngleInRadians(){ return Math.toRadians(angleDegrees) ; }
 		@Override
 		public Vector getOrientationVector(){ return orientation; }
 		
@@ -113,7 +118,7 @@ public abstract class AngularComposite implements EntityComposite {
 			
 			this.updateOrientationVector(angleRadians);
 			//this.owner.getEntitySprite().setAngle(angle);
-			this.ownerEntity.getGraphicComposite().setGraphicAngle(angleRadians);
+			//this.ownerEntity.getGraphicComposite().setGraphicAngle(angleRadians);
 			setAngleOfRotateables(angleDegrees);
 		}
 		@Override
@@ -125,7 +130,7 @@ public abstract class AngularComposite implements EntityComposite {
 			
 			this.updateOrientationVector(angleRadians);
 			//this.owner.getEntitySprite().setAngle(angleDegrees);
-			this.ownerEntity.getGraphicComposite().setGraphicAngle(angleRadians);
+			//this.ownerEntity.getGraphicComposite().setGraphicAngle(angleRadians);
 			setAngleOfRotateables(angleDegrees);
 		}
 	
@@ -178,6 +183,23 @@ public abstract class AngularComposite implements EntityComposite {
 		}
 		
 		@Override
+		public Point getRotationalAbsolutePositionOf(Point2D relativePosition) {
+			
+			double returnX = relativePosition.getX();
+			double returnY = relativePosition.getY(); 
+			
+			double cosineTheta = Math.cos( Math.toRadians(this.angleDegrees) );
+			double sineTheta = Math.sin( Math.toRadians(this.angleDegrees) );
+			
+			Point returnPoint = new Point(
+					(int)( returnX*cosineTheta - returnY*sineTheta ),
+					(int)( returnX*sineTheta + returnY*cosineTheta )
+			);
+			
+			return returnPoint;
+		}
+		
+		@Override
 		public boolean exists() {
 			return true;
 		}
@@ -214,7 +236,12 @@ public abstract class AngularComposite implements EntityComposite {
 			System.err.println("WARNING: Attempted to set angle on fixed angle entity");
 		}
 		@Override
-		public double getAngle() {
+		public double getAngleInDegrees() {
+			System.err.println("WARNING: Attempted to get angle of fixed angle entity");
+			return 0;
+		}
+		@Override
+		public double getAngleInRadians() {
 			System.err.println("WARNING: Attempted to get angle of fixed angle entity");
 			return 0;
 		}
@@ -237,6 +264,10 @@ public abstract class AngularComposite implements EntityComposite {
 		@Override
 		public Point getRotationalAbsolutePositionOf(Point relativePosition) {
 			return relativePosition;
+		}
+		@Override
+		public Point getRotationalAbsolutePositionOf(Point2D relativePosition) {
+			return new Point((int)relativePosition.getX(), (int)relativePosition.getY());
 		}
 		@Override
 		public boolean exists() {

@@ -30,13 +30,13 @@ public class CompositeFactory {
 	public static DynamicRotationComposite addDynamicRotationTo( EntityStatic entity ){
 		
 		if ( entity.getRotationComposite().exists() ){
-			System.out.println("TODO Overriding dynamic rotation composite of "+entity);
+			System.out.println("CompositeFactory: TODO Overriding dynamic rotation composite of "+entity);
 		}else{
-			System.out.println("TODO Adding dynamic rotation composite to "+entity);
+			System.out.println("CompositeFactory: TODO Adding dynamic rotation composite to "+entity);
 		}
 		
 		if ( !entity.getAngularComposite().exists() ){
-			System.out.println("Post adding angular composite of "+entity);
+			System.out.println("CompositeFactory: Post adding angular composite of "+entity);
 			addAngularComposite(entity);
 		}
 		
@@ -57,9 +57,9 @@ public class CompositeFactory {
 	
 	public static void addCustomDynamicRotationTo( EntityStatic entity , DynamicRotationComposite rotation ){
 		if ( entity.getRotationComposite().exists() ){
-			System.out.println("Overriding dynamic rotation composite of "+entity);
+			System.out.println("CompositeFactory: Overriding dynamic rotation composite of "+entity);
 		}else{
-			System.out.println("Adding dynamic rotation composite to "+entity);
+			System.out.println("CompositeFactory: Adding dynamic rotation composite to "+entity);
 		}
 
 		entity.setRotationComposite( rotation );
@@ -71,9 +71,9 @@ public class CompositeFactory {
 		entity.setTranslationComposite( trans );
 
 		if ( trans.addUpdateableCompositeTo(entity) ){
-			System.out.println( "Adding Translation Composite to ["+entity+"] updateables");
+			System.out.println( "CompositeFactory: Adding Translation Composite to ["+entity+"] updateables");
 		}else
-			System.err.println( "Translation Composite was already in ["+entity+"] updateables, probably already initialized");
+			System.err.println( "CompositeFactory: Translation Composite was already in ["+entity+"] updateables, probably already initialized");
 		
 		return trans;
 	}
@@ -112,7 +112,7 @@ public class CompositeFactory {
 			return entity.getColliderComposite();
 		}
 		else {
-			System.out.println("Adding Collider to ["+entity+"]");
+			System.out.println("CompositeFactory: Adding Collider to ["+entity+"]");
 			
 			Collider newCollider = new Collider( entity , boundary ); //FIXME pass in collision engine instead of board?
 			entity.setCollisionComposite( newCollider );
@@ -136,18 +136,20 @@ public class CompositeFactory {
 			return entity.getColliderComposite();
 		}
 		else {
-			ColliderRotational newCollider = new ColliderRotational( entity , boundary );
-			entity.setCollisionComposite( newCollider );
-			
+
 			if ( entity.getAngularComposite().exists() ){
-				( (Angled) entity.getAngularComposite() ).addRotateable(newCollider);
-				System.err.println("Linking Angular");
+				
+				ColliderRotational newRotationalCollider = new ColliderRotational( entity , entity.getAngularComposite(), boundary );
+				entity.setCollisionComposite( newRotationalCollider );
+				( (Angled) entity.getAngularComposite() ).addRotateable(newRotationalCollider);
+				System.err.println("CompositeFactory: Linking Angular");
+				return newRotationalCollider;
 			}else{
-				System.err.println("Couldn't find Angular");
+				System.err.println("CompositeFactory: Couldn't find Angular");
+				Collider newCollider = new Collider( entity, boundary );
+				entity.setCollisionComposite( newCollider );
+				return newCollider;
 			}
-			
-			
-			return newCollider;
 		}
 		
 	}
@@ -208,7 +210,7 @@ public class CompositeFactory {
 	private static void parentingFunctionality( EntityStatic child , EntityStatic parent , BoardAbstract board ){
 
 		//CREATE COMPOSITE DECOSNTRUCTOR TO ENSURE REMOVAL
-		System.out.println("PARENTING ["+child+"] as child of ["+parent+"]");
+		System.out.println("CompositeFactory: PARENTING ["+child+"] as child of ["+parent+"]");
 		
 		if ( parent.hasTranslation() ){ 
 			

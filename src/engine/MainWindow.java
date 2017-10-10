@@ -18,6 +18,7 @@ public class MainWindow implements KeyListener, MouseListener{
 	private static BoardAbstract board;
 	private static EditorPanel editorPanel;
 	private JSplitPane splitPane;
+	private JScrollPane editorPanelScrollPane;
     private boolean F1pressed = false;
     private Dimension editorPanelMinSize;
     
@@ -67,8 +68,7 @@ public class MainWindow implements KeyListener, MouseListener{
 		editorPanel.setSize(new Dimension(240, 300));
 		editorPanel.setPreferredSize(new Dimension(240, 300));*/
 		//JScrollPane editorPanelScrollPane = new JScrollPane(editorPanel);
-		JScrollPane editorPanelScrollPane = new JScrollPane(board.getEditorPanel());
-		editorPanelScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		editorPanelScrollPane = new JScrollPane(board.getEditorPanel(),JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		//board.transferEditorPanel(editorPanel);
 		
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, editorPanelScrollPane, board); // 
@@ -80,6 +80,9 @@ public class MainWindow implements KeyListener, MouseListener{
 		splitPane.setMinimumSize(new Dimension(board.getWidth() + board.getEditorPanel().getWidth(), 300));
 		
 		
+	}
+	public JScrollPane getScrollPane() {
+		return editorPanelScrollPane;
 	}
 	public JSplitPane getSplitPane() {
 		return splitPane;
@@ -148,6 +151,7 @@ public class MainWindow implements KeyListener, MouseListener{
 	        }
 	    });
 		frame.add(splitPaneInstance.getSplitPane());
+		//frame.add(splitPaneInstance.getScrollPane());
 		frame.setPreferredSize(new Dimension(width,height)); //TESTING SCREEN RESOLUTION was 300,600
 		//frame.setLocationRelativeTo();
 		frame.addKeyListener(splitPaneInstance);

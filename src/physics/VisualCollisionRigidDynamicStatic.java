@@ -60,11 +60,6 @@ public class VisualCollisionRigidDynamicStatic extends Collision.DefaultType imp
 		this.normalForce = transPrimary.addNormalForce( new Vector( 0 , 0 ) );
 		this.frictionForce = transPrimary.addForce( new Vector( 0 , 0 ) );
 		//updateCollision(); //Run math for first time OPTIMIZE, Add new code block for first time math
-
-		System.out.println(
-				"\n\n=============== Visual Dynamic Collision Start between dynamic ["+entityPrimary + 
-				"] and static [" + entitySecondary + "] ==============="
-				);
 		
 		// Things like bullets won't need to go any futher than the initial method
 		
@@ -219,10 +214,6 @@ public class VisualCollisionRigidDynamicStatic extends Collision.DefaultType imp
 		
 		transPrimary.removeNormalForce(normalForce);              //turn gravity back on
 		transPrimary.removeForce(frictionForce.getID());     //remove friction
-		
-		//Remove collision from involved entities lists
-		collidingPrimary.removeCollision( entityPairIndex[0] );
-		collidingSecondary.removeCollision(entityPairIndex[1] );
 
 	}
 	
@@ -238,10 +229,10 @@ public class VisualCollisionRigidDynamicStatic extends Collision.DefaultType imp
     	
 		SeparatingAxisCollector.Axis[] separatingAxes = this.axisCollector.getSeparatingAxes(
 
-				entitySecondary, entitySecondary.getPosition(),
+				collidingSecondary, entitySecondary.getPosition(),
 				collidingSecondary.getBoundary(),
 				
-				entityPrimary, entityPrimary.getPosition(), 
+				collidingPrimary, entityPrimary.getPosition(), 
 				collidingPrimary.getBoundary()
 				//,camera, g2
 				);

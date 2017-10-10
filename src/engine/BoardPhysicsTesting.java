@@ -266,7 +266,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 			collider.getBoundary().debugDrawVoronoiRegions( collider.getOwnerEntity().getPosition(), renderingEngine.getCamera(), (Graphics2D) g);
 		}
 		
-		Point relativePosition = rotateTest.getRelativePositionOf(followerEntity);
+		Point relativePosition = rotateTest.getFullRelativePositionOf(followerEntity);
 		
 		Point localPosition = new Point( relativePosition.x + rotateTest.getX() , relativePosition.y + rotateTest.getY() );
 		g.setColor(Color.RED);
@@ -274,7 +274,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 		
 		for ( Vector force : followerEntity.getTranslationComposite().debugForceArrows() ){
 			
-			camera.draw( force.multiply(300).toLine( followerEntity.getPosition() ) );
+			camera.draw( force.multiply(300).toLine( followerEntity.getPosition() ) ,(Graphics2D) g);
 		}
 		
 		g.setColor(Color.CYAN);

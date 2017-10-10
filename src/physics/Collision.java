@@ -125,6 +125,12 @@ public abstract class Collision {
 	
 	public abstract void completeCollision();
 	
+	public void notifyEntitiesOfCollisionCompleteion(){
+		//Remove collision from involved entities lists
+		collidingPrimary.removeCollision( entityPairIndex[0] );
+		collidingSecondary.removeCollision(entityPairIndex[1] );
+	}
+	
 	//FINAL COLLISION COMMANDS - Last commands before this collision object self destructs
 	
 	public void indexShift( boolean pairIndex ){
@@ -297,7 +303,10 @@ public abstract class Collision {
 			}
 		}
 
-		
+		@Override
+		public String toString() {
+			return "Unnamed Custom Collision";
+		}
 		
 	}
 

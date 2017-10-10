@@ -37,7 +37,7 @@ public class BoundaryCircular extends Boundary{
 		this.centerVertex = new BoundaryVertex(center,event);
 		this.constructVoronoiRegions();
 	}
-	
+	@Deprecated
 	private BoundaryCircular( int radius , Point center ){ // FOR CLONING ONLY
 
 		this.radius = radius;
@@ -60,7 +60,7 @@ public class BoundaryCircular extends Boundary{
 	@Override
 	public void debugDrawBoundary(MovingCamera cam, Graphics2D g2, EntityStatic ownerEntity) {
 		Shape boundary = new Ellipse2D.Float( -radius , -radius , 2*radius, 2*radius );
-		cam.drawCrossInWorld( center );
+		cam.drawCrossInWorld( ownerEntity.getPosition() );
 		cam.drawShapeInWorld( boundary , ownerEntity.getPosition() );
 	}
 
@@ -71,14 +71,14 @@ public class BoundaryCircular extends Boundary{
 		
 		if ( axis.getX1()-axis.getX2()==0 ){ //vertical line
 			
-			Point2D top = getProjectionPoint( new Point2D.Float( center.x , center.y - radius ) , axis );
-			Point2D bottom = getProjectionPoint( new Point2D.Float( center.x , center.y + radius ) , axis );
+			Point2D top = getProjectionPoint( new Point2D.Float( 0 , -radius ) , axis );
+			Point2D bottom = getProjectionPoint( new Point2D.Float( 0 , +radius ) , axis );
 			
 			if ( projection.distance( top ) > projection.distance( bottom ) ){
-				return new Point2D.Double( center.x , center.y - radius );
+				return new Point2D.Double( 0 , -radius );
 			}
 			else{
-				return new Point2D.Double( center.x , center.y + radius );
+				return new Point2D.Double( 0 , +radius );
 			}
 			
 		}
@@ -92,12 +92,12 @@ public class BoundaryCircular extends Boundary{
 			Point2D negativePoint;
 			
 			if ( slope <= 0 ){
-				positivePoint = new Point2D.Double( -outerX+center.x , outerY+center.y );
-				negativePoint = new Point2D.Double( outerX+center.x , -outerY+center.y );
+				positivePoint = new Point2D.Double( -outerX , outerY );
+				negativePoint = new Point2D.Double( outerX , -outerY );
 			}
 			else{
-				positivePoint = new Point2D.Double( outerX+center.x , outerY+center.y );
-				negativePoint = new Point2D.Double( -outerX+center.x , -outerY+center.y );
+				positivePoint = new Point2D.Double( outerX , outerY );
+				negativePoint = new Point2D.Double( -outerX , -outerY );
 			}
 			//Point2D pointLocal = new Point2D.Double( boundaryPoint.getX() , boundaryPoint.getY() );
 			
@@ -143,8 +143,8 @@ public class BoundaryCircular extends Boundary{
 		// x = squareRoot[ (r^2) / (m^2 + 1) ]
 		if ( axis.getX2()-axis.getX1() ==0 ){
 			return new Point2D[]{
-					new Point2D.Float(center.x,-radius+center.y),
-					new Point2D.Float(center.x,radius+center.y)
+					new Point2D.Float(0,-radius),
+					new Point2D.Float(0,radius)
 			};
 		}
 		
@@ -153,8 +153,8 @@ public class BoundaryCircular extends Boundary{
 		
 		if (slope == 0 ){  //OPTIMIZE organize conditional order
 			return new Point2D[]{
-					new Point2D.Float( center.x + radius ,center.y ),
-					new Point2D.Float( center.x - radius ,center.y )
+					new Point2D.Float( radius ,0),
+					new Point2D.Float( -radius ,0 )
 			};
 		}
 		
@@ -163,14 +163,14 @@ public class BoundaryCircular extends Boundary{
 		
 		if ( slope > 0 ){
 			return new Point2D[]{
-					new Point2D.Float(outerX+center.x,outerY+center.y),
-					new Point2D.Float(-outerX+center.x,-outerY+center.y)
+					new Point2D.Float(outerX,outerY),
+					new Point2D.Float(-outerX,-outerY)
 			};
 		}
 		else{
 			return new Point2D[]{
-					new Point2D.Float(outerX+center.x,-outerY+center.y),
-					new Point2D.Float(-outerX+center.x,outerY+center.y)
+					new Point2D.Float(outerX,-outerY),
+					new Point2D.Float(-outerX,outerY)
 			};
 		}
 		
@@ -196,12 +196,6 @@ public class BoundaryCircular extends Boundary{
 	public Point2D[] getLocalCornersPoint( Point localEntityPosition ) {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public Boundary atPosition(Point position) {
-		//System.err.println("Circular Boundary was not cloned");
-		return new BoundaryCircular( this.radius , position);
 	}
 
 	@Override

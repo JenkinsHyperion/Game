@@ -30,6 +30,8 @@ public class Scene {
 		entityList.add( new LayeredEntity(entity,layer));
 	}
 	
+	
+	
 	public void addEntity( EntityStatic entity, String...groups ){
 		//NOTIFY BROWSER TREE THAT ENTITY WAS ADDED TO SCENE
 		if (ownerBoard.editorPanel != null)
@@ -54,7 +56,7 @@ public class Scene {
 			UpdateableComposite rotation = (UpdateableComposite) entity.getRotationComposite();
 			updateableEntity = true;
 			if ( rotation.addUpdateableCompositeTo(entity) ){
-				System.out.println( I+"Adding dynamic rotation composite to updater thread");
+				System.out.println( I+"Dynamic rotation composite added to updater thread");
 			}else{
 				System.out.println( I+"Dynamic rotation composite already in updater thread");
 			}
@@ -66,16 +68,16 @@ public class Scene {
 			
 			((GraphicComposite.Active) entity.getGraphicComposite()).addCompositeToRenderer( ownerBoard.renderingEngine );
 			
-			System.out.println(I+"Adding graphics composite to renderer");
+			System.out.println(I+"Graphics composite added to rendering engine");
 			
-		}else{System.err.println(I+"Couldn't add ["+entity+"] to renderer because it's missing a Graphic Composite ");}
+		}else{System.err.println(I+"No Graphic Composite on ["+entity+"]");}
 		
 		//COLLIDER COMPOSITE
 		if ( groups.length == 0){
 			checkForAndRegisterCollider(entity);
 		}else{
 			for ( String group : groups ){
-				System.err.println(I+"Adding ["+entity+"] to Collider Group "+group);
+				System.out.println(I+"Adding ["+entity+"] to Collider Group "+group);
 				checkForAndRegisterGroupedCollider(entity,group);
 			}
 

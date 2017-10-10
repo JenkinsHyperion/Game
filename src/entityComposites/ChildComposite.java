@@ -33,9 +33,9 @@ public abstract class ChildComposite{ //TODO split into inner static classes for
 			this.ownerEntityChild = ownerChild;
 			this.parentIndex = index;
 
-			this.zeroAnglePosition = parentEntity.getRelativePositionOf(ownerChild);
+			this.zeroAnglePosition = parentEntity.getFullRelativePositionOf(ownerChild);
 
-			this.relativeAngleDegrees = parentAngle - ownerChild.getAngularComposite().getAngle() ;
+			this.relativeAngleDegrees = parentAngle - ownerChild.getAngularComposite().getAngleInDegrees() ;
 		}
 		
 		public EntityStatic getParentEntity(){

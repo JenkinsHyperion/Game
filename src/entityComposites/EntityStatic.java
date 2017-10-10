@@ -15,6 +15,7 @@ import entityComposites.*;
 import physics.Boundary;
 import physics.BoundaryPolygonal;
 import physics.CollisionEngine;
+import physics.Vector;
 import sprites.SpriteAnimated;
 import utility.DoubleLinkedList;
 import utility.ListNodeTicket;
@@ -288,6 +289,11 @@ public class EntityStatic extends Entity{
 	
 	// ----------------
 	
+	
+	public Vector getOrientationVector(){
+		return this.angularType.getOrientationVector();
+	}
+	
 	@Deprecated
     public void loadSprite(String path){ // needs handling if failed. Also needs to be moved out of object class into sprites
 
@@ -450,7 +456,24 @@ public class EntityStatic extends Entity{
 		this.sceneIndex--;
 	}
 	
-	public Point getRelativePositionOf(Entity entity){
+	public Vector getRelativeTranslationalVectorOf(EntityStatic entity){
+		
+		Point returnPoint = this.getRelativeTranslationalPositionOf(entity);
+		
+		Vector returnVector = new Vector( returnPoint.getX(), returnPoint.getY());
+		
+		return returnVector;
+	}
+	/**Calculates the position of the input relative to (or as "seen" by) this entity. This includes both relative translation and rotation.
+	 * Ensure that this is necessary for the application.
+	 * <p>For example, Take the input position (0,100):
+	 * <p>An entity at position (0,0) facing 0 degrees returns the unchanged (0,100)
+	 * <p>An entity at the input point (0,100) facing any angle returns (0,0)
+	 * <p>An entity at position (0,0) facing 45 degrees returns ( 100cos(45) , 100sin(45) )
+	 * @param entity
+	 * @return
+	 */
+	public Point getFullRelativePositionOf(Entity entity){
 		
 		Point returnPoint = this.getRelativeTranslationalPositionOf(entity);
 
@@ -459,7 +482,18 @@ public class EntityStatic extends Entity{
 		return returnPoint;
 	}
 	
-	public Point getRelativePositionOf(Point point_on_entity ){
+	public Vector getFullRelativeVectorDistanceOf(EntityStatic entity){
+		
+		Point returnPoint = this.getRelativeTranslationalPositionOf(entity);
+
+		returnPoint = this.angularType.getRotationalRelativePositionOf(returnPoint);
+		
+		Vector returnVector = new Vector( returnPoint.getX(), returnPoint.getY());
+		
+		return returnVector;
+	}
+	
+	public Point getFullRelativePositionOf(Point point_on_entity ){
 		
 		Point returnPoint = this.getRelativeTranslationalPositionOf( point_on_entity );
 		
@@ -469,6 +503,20 @@ public class EntityStatic extends Entity{
 	}
 	
 	public Point getAbsolutePositionOf(Point relativePoint ){
+		
+		Point returnPoint = this.angularType.getRotationalAbsolutePositionOf(relativePoint);
+		
+		returnPoint = this.getTranslationalAbsolutePositionOf( returnPoint );
+		
+		return returnPoint;
+	}
+	
+	public Point getAbsolutePositionOf(Entity entity ){
+		
+		return this.getAbsolutePositionOf( entity.getPosition() ); //see directly above
+	}
+	
+	public Point getAbsolutePositionOf(Point2D relativePoint ){
 		
 		Point returnPoint = this.angularType.getRotationalAbsolutePositionOf(relativePoint);
 		

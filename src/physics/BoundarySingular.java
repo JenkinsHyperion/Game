@@ -92,11 +92,6 @@ public class BoundarySingular extends Boundary{
 		return new Point2D[]{ new Point2D.Double( vertex.toPoint().getX() + localEntityPosition.getX(), vertex.toPoint().getY() + localEntityPosition.getY() ) };
 	}
 
-	@Override
-	public Boundary atPosition(Point position) {
-		BoundarySingular clone = new BoundarySingular(position); //ACTUALLY DO CLONE FOR EVENTS
-		return clone;
-	}
 
 	@Override
 	public void rotateBoundaryFromTemplate(Point center, double angle, Boundary template) {

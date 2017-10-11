@@ -53,7 +53,7 @@ public class CollisionRigidDynamicStatic extends Collision.DefaultType implement
 		
 		this.resolutionState = resolutionEvent;
 		
-		this.normalForce = transPrimary.addNormalForce( new Vector( 0 , 0 ) );
+		this.normalForce = transPrimary.registerNormalForce( new Vector( 0 , 0 ) );
 		this.frictionForce = transPrimary.addForce( new Vector( 0 , 0 ) );
 		//updateCollision(); //Run math for first time OPTIMIZE, Add new code block for first time math
 		

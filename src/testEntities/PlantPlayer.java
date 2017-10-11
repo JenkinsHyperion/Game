@@ -1,5 +1,6 @@
 package testEntities;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
@@ -180,9 +181,9 @@ public class PlantPlayer extends Player {
 				
 				@Override
 				public void updateVisualCollision(MovingCamera camera, Graphics2D gOverlay) {
-					
 					isComplete = !check.check(collidingPrimary, collidingSecondary,camera,gOverlay);
-
+					gOverlay.setColor(Color.RED);
+					gOverlay.drawString("Test drawing" , 300,300);
 				}
 
 				@Override
@@ -268,13 +269,10 @@ public class PlantPlayer extends Player {
 		private Force clingNormal;
 		private VelocityVector currentCling;
 		private VelocityVector climbVelocity;
-		Vector attachDirection;
 		private byte leftRight;
 		private Vector jumpVelocity;
 		
 		private byte slidingGripPercent = 100;
-		
-		private Vector distance = Vector.zeroVector;
 		
 		private DoubleLinkedList<PlantTwigSegment> stemsInRange = new DoubleLinkedList<PlantTwigSegment>();
 		private PlantTwigSegment currentStem;
@@ -306,9 +304,9 @@ public class PlantPlayer extends Player {
 			canStartClimb = false; //already climbing
 			
 			jumpVelocity = PlantPlayer.this.getTranslationComposite().getVelocityVector();
-			clingNormal = PlantPlayer.this.getTranslationComposite().addNormalForce(gravity.toVector().inverse());
-			currentCling = PlantPlayer.this.getTranslationComposite().addVelocityVector( Vector.zeroVector );			
-			climbVelocity = PlantPlayer.this.getTranslationComposite().addVelocityVector( Vector.zeroVector );
+			clingNormal = PlantPlayer.this.getTranslationComposite().registerNormalForce(gravity.toVector().inverse());
+			currentCling = PlantPlayer.this.getTranslationComposite().registerVelocityVector( Vector.zeroVector );			
+			climbVelocity = PlantPlayer.this.getTranslationComposite().registerVelocityVector( Vector.zeroVector );
 
 			PlantPlayer.this.getTranslationComposite().halt();
 		}
@@ -318,9 +316,8 @@ public class PlantPlayer extends Player {
 
 			clingNormal.setVector(gravity.toVector().inverse().multiply( slidingGripPercent/100.0 ));
 			
-			distance = PlantPlayer.this.getRelativeTranslationalVectorOf(currentStem);
-			
-			attachDirection = distance.projectedOver( currentStem.getOrientationVector() );
+			final Vector distance = PlantPlayer.this.getRelativeTranslationalVectorOf(currentStem);
+			final Vector attachDirection = distance.projectedOver( currentStem.getOrientationVector() );
 
 			currentCling.setVector( attachDirection.multiply(0.1) );
 			

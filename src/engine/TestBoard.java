@@ -46,6 +46,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     public PlantPlayer player;
     private Force gravity;
     private EntityStatic asteroid;
+    private EntityStatic testAsteroid;
     
     private Line2D dragLine = new Line2D.Double();
 
@@ -73,7 +74,12 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     	
     	this.boundaryOverlay = this.renderingEngine.addOverlay( this.new BoundaryOverlay() );
     	//this.boundaryOverlay.toggle();
-    	
+    	//TEST BUTTON
+    	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_5, new KeyCommand(){
+    		public void onPressed() { CompositeFactory.makeChildOfParent(testAsteroid, player, TestBoard.this); }
+    		public void onReleased() {  }
+    	});
+    	//TEST BUTTON
     	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_W, new KeyCommand(){
     		public void onPressed() { camera.setDY(-10f); }
     		public void onReleased() { camera.setDY(0); }
@@ -189,16 +195,16 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         this.currentScene.addEntity(asteroid,"Ground");
         
         //
-        final EntityStatic asteroid2 = new EntityStatic( "Asteroid" , -900 , -1000 );
+        testAsteroid = new EntityStatic( "Asteroid" , -900 , -1000 );
         
         CompositeFactory.addRotationalColliderTo(
-        		asteroid2, 
-        		new BoundaryCircular(300), 
-        		asteroid2.getAngularComposite()
+        		testAsteroid, 
+        		new BoundaryCircular(10), 
+        		testAsteroid.getAngularComposite()
         		);
         
-        CompositeFactory.addRigidbodyTo(asteroid2);
-        this.currentScene.addEntity(asteroid2,"Ground");
+        CompositeFactory.addRigidbodyTo(testAsteroid);
+        this.currentScene.addEntity(testAsteroid,"Testing");
         //
         
         

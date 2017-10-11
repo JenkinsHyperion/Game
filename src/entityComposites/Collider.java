@@ -211,7 +211,7 @@ public class Collider implements EntityComposite{
 	
 	public void addColliderToGroup(String group){
 		
-		
+		//TODO FIXME 
 	}
 	
 	public void addCompositeToPhysicsEngineStatic( CollisionEngine engine ){ 

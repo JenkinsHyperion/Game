@@ -137,7 +137,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		coreMath.applyAccelerationY(accY);
 	}
 
-	public VelocityVector addVelocityVector( Vector vector ){
+	public VelocityVector registerVelocityVector( Vector vector ){
 		return this.coreMath.addVelocityVector(vector);
 	}
 
@@ -161,7 +161,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		coreMath.removeForce(index);
 	}
 	
-	public Force addNormalForce( Vector vector ){
+	public Force registerNormalForce( Vector vector ){
 		return coreMath.addNormalForce(vector);
 	}
 
@@ -739,7 +739,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	
 	    
 	    @Override
-	    public VelocityVector addVelocityVector(Vector vector) {
+	    public VelocityVector registerVelocityVector(Vector vector) {
 	    	System.err.println("Attempted to add velocity vector to static");
 	    	return new VelocityVector( vector );
 	    }

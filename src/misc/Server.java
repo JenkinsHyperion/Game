@@ -16,7 +16,6 @@ public class Server extends JFrame {
 	private ObjectInputStream inputStream;
 	private ServerSocket server;
 	private Socket connectionSocket;
-	private Method method;
 	private boolean canRun;
 	private int keyStroke;
 	public Server() {

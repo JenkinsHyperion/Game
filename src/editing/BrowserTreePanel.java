@@ -12,6 +12,8 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.nio.channels.NetworkChannel;
 import java.util.Enumeration;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,6 +29,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeCellRenderer;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -40,6 +43,8 @@ import entityComposites.EntityComposite;
 import entityComposites.EntityStatic;
 import entityComposites.GraphicComposite;
 import entityComposites.TranslationComposite;
+import misc.Client;
+import misc.Server;
 import physics.BoundarySingular;
 import sprites.Sprite;
 
@@ -61,6 +66,7 @@ import sprites.Sprite;
  */
 public class BrowserTreePanel extends JPanel {
 	private static final Logger myLogger = Logger.getLogger( BrowserTreePanel.class.getName() );
+	public static int count;
 	private CompositeEditorPanel compositeEditorPanelRef;
 	private JTree tree;
 	private JToolBar filterToolBar;
@@ -83,6 +89,7 @@ public class BrowserTreePanel extends JPanel {
 		this.editorPanelRef = editorPanelRef;
 		this.board = boardRef;
 		this.filterToolBar = filterToolBar;
+		count++;
 		sceneRoot = new DefaultMutableTreeNode("Current Scene");
 		entitiesRoot = new DefaultMutableTreeNode("Entities");
 		sceneRoot.add(entitiesRoot);
@@ -116,8 +123,33 @@ public class BrowserTreePanel extends JPanel {
 		BasicTreeUI basicTreeUI = (BasicTreeUI) tree.getUI();
 		basicTreeUI.setRightChildIndent(5); 
 		basicTreeUI.setLeftChildIndent(5);
-		
+
+		//FIXME Test area for server
+		/*System.err.println("instance count: " + count);
+		Thread thread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				Server server = new Server();
+				server.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+				server.startRunning();
+			}
+
+		});
+		thread.start();
+		final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(5);
+		executor.schedule(new Runnable() {
+			@Override
+			public void run() {
+				Client client = new Client("127.0.0.1");
+				client.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+				client.startRunning();
+			}
+		}, 5, TimeUnit.SECONDS);*/
 		this.add(tree);
+		TreeNode[] entitiesPath = defaultModel.getPathToRoot(entitiesRoot);
+		tree.expandPath(new TreePath(entitiesPath));
 		this.setFocusable(false);
 	}
 	@SuppressWarnings("serial")
@@ -583,8 +615,18 @@ public class BrowserTreePanel extends JPanel {
 	} //end of TreeSelectionEventHandler class
 	public void setNewRoot(DefaultMutableTreeNode newRoot) {
 		defaultModel.setRoot(newRoot);
-		this.tree.expandPath(new TreePath(this.entitiesRoot));
-		this.tree.expandRow(1);
+
+		TreeNode[] nodes;
+		if (defaultModel.getRoot() == sceneRoot) {
+			DefaultMutableTreeNode tempChild = (DefaultMutableTreeNode)newRoot.getFirstChild();
+			nodes = defaultModel.getPathToRoot(tempChild);
+		}
+		else {
+			nodes = defaultModel.getPathToRoot(newRoot);
+		}
+		this.tree.expandPath(new TreePath(nodes));
+		//this.tree.expandRow(1);
+//		this.tree.collapsePath(new TreePath(this.entitiesRoot));
 		//this.tree.collapsePath(new TreePath(this.entitiesRoot));
 	}
 	/** Will search entire tree for a node that contains this entity */
@@ -646,5 +688,21 @@ public class BrowserTreePanel extends JPanel {
 			}
 			
 		}
+	}
+
+	public void doNotifyEntitySelected(EntityStatic entity) {
+		DefaultMutableTreeNode selectedEntityAsNode;
+		selectedEntityAsNode = containsEntity(entity, sceneRoot);
+		
+		if (selectedEntityAsNode != null) {
+			//TreePath pathToEntity = new TreePath(selectedEntityAsNode.getParent().getParent());
+			TreeNode[] nodes = defaultModel.getPathToRoot(selectedEntityAsNode);
+			tree.setSelectionPath(new TreePath(nodes));
+		}
+		
+	}
+	public void doNotifyDeselectEntity() {
+		tree.setSelectionPath(null);
+		
 	}
 }

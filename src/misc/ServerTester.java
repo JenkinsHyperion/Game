@@ -1,4 +1,4 @@
-package misc;
+/*package misc;
 import javax.swing.JFrame;
 
 public class ServerTester {
@@ -9,3 +9,4 @@ public class ServerTester {
 		server.startRunning();
 	}
 }
+*/

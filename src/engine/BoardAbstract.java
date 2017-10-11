@@ -15,6 +15,7 @@ import java.util.*;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import Input.InputController;
 import Input.KeyCommand;
@@ -41,7 +42,8 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
     private final InactiveEntityUpdater pausedState = new InactiveEntityUpdater();
     private EntityUpdater currentState = updatingState;
 
-	Timer updateEntitiesTimer;
+	protected Timer updateEntitiesTimer;
+	//protected TimerTask updateEntitiesTask;
 	
 	private boolean isItterating;
 
@@ -83,15 +85,49 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 	    
 	    
 	    this.setIgnoreRepaint(true);
-	    editorPanel = new EditorPanel(this);
+	  /*  editorPanel = new EditorPanel(this);
 		editorPanel.setSize(new Dimension(240, 300));
-		editorPanel.setPreferredSize(new Dimension(240, 300));
+		editorPanel.setPreferredSize(new Dimension(240, 300));*/
 	}
-	
-	protected void postInitializeBoard(){
-		
+	protected TimerTask getTheMainTask() {
+		TimerTask updateEntitiesTask = new TimerTask() {
+	     	
+	    	 private long time = 0;
+	    	 private long deltaTime = 0;
+	    	 private long speed = 0;
+	    	 
+	     	 @Override
+	     	 public void run(){
+	     		
+	     		time = System.nanoTime();
+
+	     		currentState.update();
+	     		
+	     		deltaTime = System.nanoTime() ;
+	     		speed = deltaTime - time;
+
+				speedLog[counter] = (int)(speed/1000);
+	     		
+	     		if (counter < 299)
+	     			counter++;
+	     		else 
+	     			counter = 0;
+	     	 }
+	     };
+	     return updateEntitiesTask;
+	}
+	protected void initializeTimerTasks() {
 		updateEntitiesTimer = new java.util.Timer();
-	     TimerTask updateEntitiesTask = new TimerTask() {
+		TimerTask mainTask = getTheMainTask();
+		updateEntitiesTimer.scheduleAtFixedRate( mainTask , 0 , 16);
+	}
+	protected void cancelTimerTasks() {
+		updateEntitiesTimer.cancel();
+	}
+	protected void postInitializeBoard(){
+		initializeTimerTasks();
+		/*Timer updateEntitiesTimer = new java.util.Timer();
+	    TimerTask updateEntitiesTask = new TimerTask() {
 	     	
 	    	 private long time = 0;
 	    	 private long deltaTime = 0;
@@ -115,7 +151,8 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 	     			counter = 0;
 	     	 }
 	     };      
-	     updateEntitiesTimer.scheduleAtFixedRate( updateEntitiesTask , 0 , 16);
+	     updateEntitiesTimer.scheduleAtFixedRate( updateEntitiesTask , 0 , 16);*/
+	     //updateEntitiesTimer.scheduleAtFixedRate(task, delay, period);
 	     
 	     // PAINT RENDERING THREAD #############################################
 	     
@@ -181,7 +218,9 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 		this.currentState = this.updatingState;
 	}
 	protected void advanceUpdater(){
+		//FIXME: Remove this:
 		this.updatingState.update();
+		
 	}
 	protected void advanceUpdater( byte frames ){
 		for ( int i = 0 ; i < frames ; i++)
@@ -317,7 +356,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 	
 	
 	private class EntityUpdater{
-
+		protected boolean isPaused;
 		protected InputController inputController;
 		
 		protected EntityUpdater( InputController inputController ){
@@ -325,7 +364,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 		}
 		
 		protected EntityUpdater(){
-			
+			isPaused = false;
 			inputController = new InputController( "Abstract Board Updating Input Controller" ); 
 			
 			inputController.createKeyBinding( 192 , new KeyCommand(){ // 192 is grave accent / tilde key 
@@ -341,16 +380,23 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 		    			consoleIsVisible=true;
 		    		}
 		    	}
-		    });
-		    inputController.createKeyBinding(KeyEvent.VK_PAUSE, new KeyCommand(){
+			});
+			inputController.createKeyBinding(KeyEvent.VK_PAUSE, new KeyCommand(){
 
-		    	public void onPressed(){
-		    			pauseUpdater();
-		    	}
-		    });
-			
+				public void onPressed(){
+					pauseUpdater();
+					//setIsPausedAndNotifyThreads(true);
+					//test: 
+					cancelTimerTasks();
+				}
+			});
+
 		}
-		
+		@Deprecated
+		public synchronized void setIsPausedAndNotifyThreads(boolean choice) {
+			this.isPaused = choice;
+			notifyAll();
+		}
 		public void update(){
      		
 			isItterating = true;
@@ -374,17 +420,28 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 			inputController.createKeyBinding(KeyEvent.VK_PAUSE, new KeyCommand(){
 		    	public void onPressed(){
 		    			activateUpdater();
+		    			initializeTimerTasks();
 		    	}
 		    });
 			inputController.createKeyBinding(KeyEvent.VK_DIVIDE, new KeyCommand(){
 		    	public void onPressed(){
 		    			advanceUpdater();
+		    			//getTheMainTask().run();
 		    	}
 		    });
 		}
 		
 		public void update(){
 			//FIXME STOP TIMER RATHER THAN DOING NOTHING at 60FPS
+			System.err.println("BoardAbstract#update(): current thread: " + Thread.currentThread()); 
+			/*while (isPaused) {
+				try {
+					wait();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}*/
 		}	
 		
 	}

@@ -1,4 +1,4 @@
-package misc;
+/*package misc;
 import javax.swing.JFrame;
 
 public class ClientTest {
@@ -11,3 +11,4 @@ public class ClientTest {
 	}
 
 }
+*/

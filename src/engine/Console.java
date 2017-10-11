@@ -87,7 +87,9 @@ public class Console {
 			}
 		}
 		else if (key == KeyEvent.VK_ENTER ){
+			
 			enteredLines.add( "'"+ new String(inputField) + "' is not a recognized command" ); //command checking here
+			String string = "shit";
 			clearInputField();
 		}
 	}

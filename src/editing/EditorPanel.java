@@ -175,11 +175,12 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	JScrollPane iconBarScrollPaneSpriteSwap;
     //private JList entitiesJList;
 	private SavingLoading saveLoad;
+	public static int count;
 	
 // ##################### CONSTRUCTOR #################################################################
 // ##################### CONSTRUCTOR #################################################################
 	public EditorPanel( BoardAbstract board2) { 
-		
+		count++;
 		//initializing some of the fields
 		this.board = board2;
 		/*try {
@@ -434,6 +435,10 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
         }*/
 		//separator.setPreferredSize(new Dimension(150,3));
 		entitySelectMode.setSelectViaSprite(false);
+		
+		//FIXME delete this
+		System.err.println("EDITORPANEL COUNT: " + count);
+		
 		
 		compositeEditorPanel = new CompositeEditorPanel();
 		JScrollPane compositeEditorScrollPane = new JScrollPane( compositeEditorPanel  );
@@ -1305,8 +1310,9 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 						if (clickableRect.contains(click)) {
 							if (selectedEntities.contains(entity))
 								removeSelectedEntity(entity);
-							else
+							else {
 								addSelectedEntity(entity);
+							}
 						}
 					}
 				}
@@ -1362,8 +1368,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 						{
 							if (selectedEntities.contains(entity) == false) {
 								addSelectedEntity(entity);
-								//FIXME this is just a test
-								//selectedEntities.get(0).getRotationComposite().setAngleInDegrees(selectedEntities.get(0).getRotationComposite().getAngle()+45);
+								browserTreePanel.doNotifyEntitySelected(entity);
 								spriteEditorButton.setEnabled(true);
 								boundaryVertexSelectButton.setEnabled(true);
 								boundaryVertexPlaceButton.setEnabled(true);
@@ -1395,6 +1400,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 						if (polygonTest.contains(click)) {
 							if (selectedEntities.contains(entity) == false) {
 								addSelectedEntity(entity);
+								browserTreePanel.doNotifyEntitySelected(entity);
 								spriteEditorButton.setEnabled(true);
 								boundaryVertexSelectButton.setEnabled(true);
 								boundaryVertexPlaceButton.setEnabled(true);
@@ -1482,6 +1488,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		public void clearSelectedEntities() {
 			this.selectedEntities.clearSelectedEntities();
 			setSelectedEntityNameLabel("Selected: " + entitySelectMode.selectedEntities.printSelectedEntitiesAsString());
+			browserTreePanel.doNotifyDeselectEntity();
 		}
 		public ArrayList<EntityStatic> getSelectedEntities () {
 			return selectedEntities.getSelectedEntities();

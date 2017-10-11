@@ -188,6 +188,19 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         
         this.currentScene.addEntity(asteroid,"Ground");
         
+        //
+        final EntityStatic asteroid2 = new EntityStatic( "Asteroid" , -900 , -1000 );
+        
+        CompositeFactory.addRotationalColliderTo(
+        		asteroid2, 
+        		new BoundaryCircular(300), 
+        		asteroid2.getAngularComposite()
+        		);
+        
+        CompositeFactory.addRigidbodyTo(asteroid2);
+        this.currentScene.addEntity(asteroid2,"Ground");
+        //
+        
         
         player = new PlantPlayer(30,0);
         CompositeFactory.addRigidbodyTo(player);

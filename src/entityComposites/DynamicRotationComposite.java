@@ -115,7 +115,7 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 			this.phaseCounter = phaseCounter;
 		}
 		*/
-		public SineWave(EntityStatic owner , int[] phaseCounterIntRef) { 
+		public SineWave( EntityStatic owner, int[] phaseCounterIntRef ) { 
 			super(owner);
 			this.phaseCounter = phaseCounterIntRef;
 			this.compositeName = "DynamicRotation"+this.getClass().getSimpleName();
@@ -130,7 +130,6 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 			//double output = internalCounter / 10.0;
 			
 			this.bend = ( (2*output)*(2*output)*(2*output)/100 - (8*output) ) / 3000 ; //Polynomial approximation of Sine function
-
 			/*if ( internalCounter <= 100){
 				internalCounter++;
 			}else{
@@ -146,11 +145,7 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 			
 			angular.setAngleInDegrees( angular.getAngleInDegrees() + bend);
 			angular.notifyAngleChange(bend); //FIXME Change to addAngle which automatically notifies rotateables in angular
-
 		}
-		
-		
-		
 	}
 	
 	

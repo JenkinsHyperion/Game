@@ -44,7 +44,7 @@ public abstract class ChildComposite{ //TODO split into inner static classes for
 		
 		@Override
 		public void setAngle(double angleRadians) {
-
+			
 		}
 		
 		@Override

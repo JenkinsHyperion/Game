@@ -56,10 +56,11 @@ public class CompositeFactory {
 	}
 	
 	public static void addCustomDynamicRotationTo( EntityStatic entity , DynamicRotationComposite rotation ){
+		
 		if ( entity.getRotationComposite().exists() ){
-			System.out.println("CompositeFactory: Overriding dynamic rotation composite of "+entity);
+			System.out.println("CompositeFactory: CUSTOM Overriding dynamic rotation composite of "+entity);
 		}else{
-			System.out.println("CompositeFactory: Adding dynamic rotation composite to "+entity);
+			System.out.println("CompositeFactory: Adding CUSTOM dynamic rotation composite to "+entity);
 		}
 
 		entity.setRotationComposite( rotation );
@@ -253,12 +254,12 @@ public class CompositeFactory {
 			parentAngular.addRotateable( parentComposite );	//Add children list to rotateables
 			
 			final ChildComposite.Rotateable childComposite = parentComposite.registerChild(child);	
-			//( ( Angled ) child.getAngularComposite() ).addRotateable( childComposite );
 			
 			if ( !child.getAngularComposite().exists() ){
 				addAngularComposite(child);
 			}
 			
+			( ( Angled ) child.getAngularComposite() ).addRotateable( childComposite );
 
 		}else{ 
 			System.out.println("|   Parent isn't rotateable"); 

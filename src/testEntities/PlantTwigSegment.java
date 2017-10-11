@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import engine.ReferenceFrame;
 import engine.TestBoard;
@@ -156,8 +157,6 @@ public class PlantTwigSegment extends EntityStatic{
 			public StemSegment(int x, int y, int maxGrowth, TestBoard board) {
 				super(x, y, maxGrowth, board);
 				counter++;
-				//CompositeFactory.addDynamicRotationTo(this);
-				//CompositeFactory.addCustomDynamicRotationTo(this, new DynamicRotationComposite.SineWave(this , waveCounter ) );
 				this.organism = new TreeUnit("Tree");
 				this.currentGrowthState = new GrowingState( new FullyGrownEvent() , new FullyGrownState() );
 				
@@ -181,6 +180,8 @@ public class PlantTwigSegment extends EntityStatic{
 				});
 				this.getGraphicComposite().setSprite(twigSmallSprite);
 				this.getGraphicComposite().setGraphicSizeFactor(0);
+				
+				CompositeFactory.addCustomDynamicRotationTo(this, new DynamicRotationComposite.SineWave(this , waveCounter ) );
 				
 				if ( this.maxGrowth > 50 ){
 					CompositeFactory.addRotationalColliderTo( 
@@ -568,10 +569,8 @@ public class PlantTwigSegment extends EntityStatic{
 				public void activate() {
 					
 					int oldRadius = (int) (getMaxGrowth() / 100.0 * 80.0 );
-					
-						
-					
-					if ( numberFromLastBranch > ThreadLocalRandom.current().nextInt( 2 , 3) ){ //start new branch every 1-6 segments
+
+					if ( numberFromLastBranch > new Random().nextInt(3) ){ //start new branch every 1-6 segments
 						
 						final int FORK_ANGLE = 40; // Set to 90 or higher for some freaky shit
 						final int UPWARD_WILLPOWER = 20; //-20 to 40 look normal. Set to 90 or higher for chaos
@@ -605,13 +604,13 @@ public class PlantTwigSegment extends EntityStatic{
 						leafStemRight.setPreviousStem(StemSegment.this);
 
 						if ( StemSegment.this.lastBranchedClockwise ){ //check last branch direction and alternate
-							sproutLeft.getAngularComposite().setAngleInDegrees( thisSegmentAngle + FORK_ANGLE/2.0 );
+							sproutLeft.getAngularComposite().setAngleInDegrees( thisSegmentAngle + FORK_ANGLE );
 							leafStemRight.getAngularComposite().setAngleInDegrees( thisSegmentAngle - FORK_ANGLE );
 							sproutLeft.lastBranchedClockwise = false;
 						}
 						else{
 							leafStemRight.getAngularComposite().setAngleInDegrees( thisSegmentAngle + FORK_ANGLE );
-							sproutLeft.getAngularComposite().setAngleInDegrees( thisSegmentAngle - FORK_ANGLE/2.0 );
+							sproutLeft.getAngularComposite().setAngleInDegrees( thisSegmentAngle - FORK_ANGLE );
 							sproutLeft.lastBranchedClockwise = true;
 							
 						}

@@ -120,6 +120,9 @@ public class BrowserTreePanel extends JPanel {
 			}
 		});
 		
+		//FIXME DELETE THIS
+		new ShitClass().run();
+		
 		BasicTreeUI basicTreeUI = (BasicTreeUI) tree.getUI();
 		basicTreeUI.setRightChildIndent(5); 
 		basicTreeUI.setLeftChildIndent(5);
@@ -151,6 +154,24 @@ public class BrowserTreePanel extends JPanel {
 		TreeNode[] entitiesPath = defaultModel.getPathToRoot(entitiesRoot);
 		tree.expandPath(new TreePath(entitiesPath));
 		this.setFocusable(false);
+	}
+	
+	class ShitClass implements Runnable {
+		@Override
+		public void run() {
+			System.err.println("Calling swing from an outside thread: what happens?" +
+						"\nIn thread: " + Thread.currentThread());
+			SwingUtilities.invokeLater(new Runnable() {
+//			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					System.err.println("\nIn thread: " + Thread.currentThread());
+					DefaultMutableTreeNode newNode = new DefaultMutableTreeNode("String");
+					defaultModel.insertNodeInto(newNode, sceneRoot, sceneRoot.getChildCount());
+				}
+			});
+		}
 	}
 	@SuppressWarnings("serial")
 	private class MyPopup extends JPopupMenu {

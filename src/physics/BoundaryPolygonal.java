@@ -350,6 +350,11 @@ public class BoundaryPolygonal extends Boundary {
 		
 	}
 	
+	@Override
+	public Point getRelativeOffset() {
+		return new Point();
+	}
+	
 	public static Line2D getSeparatingAxis( Line2D separatingSide ){ //OPTIMIZATION CHANGE TO SLOPE ONLY##DONE
 		
 		if ( separatingSide.getP1().getX() == separatingSide.getP2().getX() ) { //line is vertical

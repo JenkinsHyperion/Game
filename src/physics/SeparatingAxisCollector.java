@@ -34,6 +34,9 @@ public abstract class SeparatingAxisCollector {
 		}
 	}
 	
+	
+	
+	
 	public static class AxisByRawDistance extends SeparatingAxisCollector{
 		EntityStatic e1;
 		EntityStatic e2;
@@ -54,7 +57,15 @@ public abstract class SeparatingAxisCollector {
 		
 		private Axis[] constructNewAxes( Collider c1, Collider c2, Boundary b1, Boundary b2, Point pos1, Point pos2 ){
 			
-			final Line2D axisLine = new Line2D.Double( 0 , 0 ,pos2.getX()-pos1.getX() , pos2.getY()-pos1.getY()  );
+			final Point absCenter1 = c1.getBoundaryCenter();
+			final Point absCenter2 = c2.getBoundaryCenter();
+			
+			final Line2D axisLine = new Line2D.Double( 
+					0 , 
+					0 ,
+					absCenter2.x + pos2.x - absCenter1.x - pos1.x , 
+					absCenter2.y + pos2.y - absCenter1.y - pos1.y 
+					);
 					
 			final Point2D[] outerPointsRel = Boundary.getNearAndFarPointsBetween(c1, c2, axisLine);
 			

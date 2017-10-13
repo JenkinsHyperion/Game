@@ -53,6 +53,11 @@ public class BoundaryCircular extends Boundary{
 	}
 	
 	@Override
+	public Point getRelativeOffset() {
+		return center;
+	}
+	
+	@Override
 	public void constructVoronoiRegions() {
 		this.regions = new VoronoiRegion[]{ VoronoiRegion.getUndefinedVoronoiRegion( centerVertex ) };
 	}
@@ -83,7 +88,7 @@ public class BoundaryCircular extends Boundary{
 			
 		}
 		else {
-			double slope = (axis.getY2() - axis.getY1())/(axis.getX2()-axis.getX1());
+			double slope = (axis.getY2() - axis.getY1())/(axis.getX2()-axis.getX1()); //FIXME ensure divide by zero exceptions
 			
 			int outerX = (int)Math.sqrt( (radius*radius) / (slope*slope + 1) ); 
 			int outerY = (int)Math.sqrt( radius*radius - outerX*outerX );

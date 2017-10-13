@@ -18,13 +18,12 @@ public class BoundarySingular extends Boundary{
 	
 	public BoundarySingular(){
 		center = new Point(0,0);
+		vertex = new BoundaryVertex(center);
 	}
 	
-	private BoundarySingular( Point center ){ //CLONING CONSTRUCTOR
-		this.center = center;
-		this.vertex = new BoundaryVertex( new Point(0,0) );
-		this.vertex.setPos(center);
-		this.constructVoronoiRegions();
+	public BoundarySingular( int x , int y ){
+		center = new Point(x,y);
+		vertex = new BoundaryVertex(center);
 	}
 	
 	public BoundarySingular( CollisionEvent event ){
@@ -34,16 +33,13 @@ public class BoundarySingular extends Boundary{
 	
 	@Override
 	protected Line2D[] getSeparatingSides() { // RETURN NO AXES
-
-		/*for ( VoronoiRegion region : partner.getVoronoiRegions() ){
-
-			if ( region.containsPoint( center ) ){ //TODO OPTIMIZE TO REGION CHECK SYSTEM getRegion()
-				return new Line2D[]{ region.constructDistanceLine( center ) };
-			}
-		}
-		System.err.println(this + " is outside of Voronoi Region");*/
-		return new Line2D[0];
 		
+		return new Line2D[0];
+	}
+	
+	@Override
+	public Point getRelativeOffset() {
+		return center;
 	}
 	
 	@Override
@@ -53,23 +49,23 @@ public class BoundarySingular extends Boundary{
 
 	@Override
 	public void debugDrawBoundary(MovingCamera cam, Graphics2D g2, EntityStatic ownerEntity) {
-		cam.drawCrossInWorld( vertex.toPoint() ); 
-		cam.drawString( "Point Boundary", vertex.toPoint() );
+		Point absCenter = ownerEntity.getTranslationalAbsolutePositionOf(center);
+		cam.drawCrossInWorld(absCenter, g2);
 	}
 	
 	@Override
 	protected Point2D[] getOuterPointsPair(Line2D axis) {
-		return new Point2D[]{ vertex.toPoint(), vertex.toPoint() };
+		return new Point2D[]{ center, center };
 	}
 
 	@Override
 	protected Point2D farthestPointFromPoint(Point2D boundaryPoint, Line2D axis) {
-		return vertex.toPoint();
+		return center;
 	}
 	
 	@Override
 	protected Point2D farthestLocalPointFromPoint(Point primaryOrigin, Point2D localPoint, Line2D axis) {
-		return vertex.toPoint();
+		return Boundary.shiftPoint(center,primaryOrigin);
 	}
 	
 	@Override
@@ -84,12 +80,12 @@ public class BoundarySingular extends Boundary{
 
 	@Override
 	public Point2D[] getCornersPoint() {
-		return new Point2D[]{ vertex.toPoint() };
+		return new Point2D[]{ center };
 	}
 	
 	@Override
 	public Point2D[] getLocalCornersPoint( Point localEntityPosition ) {
-		return new Point2D[]{ new Point2D.Double( vertex.toPoint().getX() + localEntityPosition.getX(), vertex.toPoint().getY() + localEntityPosition.getY() ) };
+		return new Point2D[]{ new Point2D.Double( center.x + localEntityPosition.getX(), center.y + localEntityPosition.getY() ) };
 	}
 
 
@@ -124,7 +120,7 @@ public class BoundarySingular extends Boundary{
 	
 	@Override
 	public byte getTypeCode() {
-		return 0;
+		return Boundary.CIRCULAR;
 	}
 	
 	@Override

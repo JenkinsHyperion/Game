@@ -178,6 +178,18 @@ public class EntityStatic extends Entity{
 		this.parentComposite = parentComposite;
 	}
 	
+	protected ParentComposite getParentComposite(){
+		return this.parentComposite;
+	}
+	
+	protected void setChildComposite( ChildComposite childComposite ){
+		this.childComposite = childComposite;
+	}
+	
+	protected ChildComposite getChildComposite(){
+		return this.childComposite;
+	}
+	
 	/* #########################################################################################################################
 	 *		CompositeFactory utility methods
 	 * #########################################################################################################################
@@ -252,6 +264,14 @@ public class EntityStatic extends Entity{
 	
 	protected void nullifyRotationComposite(){
 		this.rotationType = DynamicRotationComposite.nullSingleton();
+	}
+	
+	protected void nullifyParentComposite(){
+		this.parentComposite = ParentComposite.nullParentComposite();
+	}
+	
+	protected void nullifyChildComposite(){
+		this.childComposite = ChildComposite.nullChildComposite();
 	}
 	
 	public void setCompositedPos( double x , double y ){

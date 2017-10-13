@@ -33,15 +33,6 @@ public class Rigidbody implements EntityComposite{
 		return ownerEntity;
 	}
 
-	@Override
-	public void setCompositeName(String newName) {
-		//
-	}
-
-	@Override
-	public String getCompositeName() {
-		return "Rigidbody";
-	}
 	
 	public static class Null extends Rigidbody{
 		

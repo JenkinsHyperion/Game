@@ -49,14 +49,7 @@ public class LifespanComposite implements EntityComposite, UpdateableComposite {
 	public void disableComposite() {
 		this.updaterSlot.removeSelfFromList();
 	}
-	@Override
-	public void setCompositeName(String newName) {
-		this.compositeName = newName;
-	}
-	@Override
-	public String getCompositeName() {
-		return this.compositeName;		
-	}
+
 	@Override
 	public String toString() {
 		return this.getClass().getSimpleName();

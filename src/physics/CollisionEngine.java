@@ -181,7 +181,6 @@ public class CollisionEngine {
 				StaticActiveCollider stat = group2.staticColliders.get();
 				
 				VisualCollisionCheck check = calculateCheck( dynamic , stat ); 
-				
 				CheckingPair newPair = new CustomDynamicStaticPair(
 						dynamic, 
 						stat, 
@@ -243,7 +242,7 @@ public class CollisionEngine {
 		
 		StaticActiveCollider newStatic = new StaticActiveCollider( collidable );
 		
-		ColliderGroup[] foundGroup = getGroupsByName(groupName);
+		ColliderGroup<?>[] foundGroup = getGroupsByName(groupName);
 
 		if ( foundGroup.length == 1 ){ //group already exists
 
@@ -251,8 +250,9 @@ public class CollisionEngine {
 			return newStatic;
 
 		}
+		System.out.println("GROUP ["+groupName+"] not found, creating new group");
 		
-		ColliderGroup newGroup = new ColliderGroup( groupName );
+		ColliderGroup<?> newGroup = new ColliderGroup( groupName );
 		newGroup.addToGroupList(colliderGroups);
 
 		newStatic.addToGroup( newGroup,collidable.isActive() );
@@ -265,17 +265,18 @@ public class CollisionEngine {
 		
 		DynamicActiveCollider newDynamic = new DynamicActiveCollider( collidable );
 		
-		for ( ColliderGroup group : colliderGroups){
+		for ( ColliderGroup<?> group : colliderGroups){
 			if ( group.toString().matches(groupName) ){ //group already exists
 
 				newDynamic.addToGroup(group,collidable.isActive() );
-				
 				return newDynamic;
 			}
 			
 		}
 		
-		ColliderGroup newGroup = new ColliderGroup( groupName );
+		System.out.println("GROUP ["+groupName+"] not found, creating new group");
+		
+		ColliderGroup<?> newGroup = new ColliderGroup( groupName );
 		newGroup.addToGroupList(colliderGroups);
 
 		newDynamic.addToGroup( newGroup,collidable.isActive() );
@@ -1069,6 +1070,8 @@ public class CollisionEngine {
 				DynamicActiveCollider dynamic = groupOther.dynamicColliders.get();
 				
 				VisualCollisionCheck check = calculateCheck( dynamic , addedStatic ); 
+				
+				System.err.println(" CREATING CHECK "+check.getAxisCollector()+"BETWEEN "+addedStatic+" and "+dynamic);
 				
 				CheckingPair newPair = new CustomDynamicStaticPair(
 						dynamic, 

@@ -237,14 +237,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		this.ownerEntityIndex = index;
 	}
 
-	@Override
-	public void setCompositeName(String newName) {
-		this.compositeName = newName;
-	}
-	@Override
-	public String getCompositeName() {
-		return this.compositeName;		
-	}
+
 	@Override
 	public EntityStatic getOwnerEntity(){
 		return this.ownerEntity;
@@ -802,14 +795,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		public void disableComposite() {
 			System.err.println("Attempted to disable null Translation");
 		}
-		@Override
-		public void setCompositeName(String newName) {
-			this.compositeName = newName;
-		}
-		@Override
-		public String getCompositeName() {
-			return this.compositeName;		
-		}
+
 		@Override
 		public String toString() {
 			return this.compositeName;

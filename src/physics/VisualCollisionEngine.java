@@ -40,6 +40,18 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 
 	}
 	
+	public void toggleCalculationDisplay(){
+		if ( currentDrawingState == hiddenState){
+			currentDrawingState = drawingState;
+		}
+		else{
+			currentDrawingState = hiddenState;
+			gOverlay.dispose();
+			gOverlay = renderer.debugGetOverlayGraphics();
+			camera = renderer.getCamera();
+		}
+	}
+	
 	@Override
 	public void checkCollisions() { 
     	

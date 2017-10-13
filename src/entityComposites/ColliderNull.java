@@ -144,14 +144,7 @@ public final class ColliderNull extends Collider{
 	public void disableComposite() {
 		System.err.println("No collider to disable");
 	}
-	@Override
-	public void setCompositeName(String newName) {
-		this.compositeName = newName;
-	}
-	@Override
-	public String getCompositeName() {
-		return this.compositeName;		
-	}
+
 
 	@Override
 	public String toString() {

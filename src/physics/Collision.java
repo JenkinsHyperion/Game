@@ -120,7 +120,7 @@ public abstract class Collision {
 	//CONTINUOUS COLLISION COMMANDS - Ongoing commands during collision like particle effects, sound, etc.
 	public abstract void updateCollision();
 	
-	protected abstract void updateVisualCollision(MovingCamera camera, Graphics2D gOverlay);
+	public abstract void updateVisualCollision(MovingCamera camera, Graphics2D gOverlay);
 
 	
 	public abstract void completeCollision();
@@ -266,13 +266,13 @@ public abstract class Collision {
 		protected E1 entityPrimary;
 		protected E2 entitySecondary;
 		
-		public CustomType( E1 e1 ,Collider c1,  E2 e2, Collider c2 ){
+		public CustomType( E1 e1 ,Collider collider1,  E2 e2, Collider collider2 ){
 			
 			entityPrimary = e1;
 			entitySecondary = e2;
 			
-			collidingPrimary = c1; 
-			collidingSecondary = c2;
+			collidingPrimary = collider1; 
+			collidingSecondary = collider2;
 			
 			//collisionDebugTag = entityPrimary.name + " + " + entitySecondary.name;
 			

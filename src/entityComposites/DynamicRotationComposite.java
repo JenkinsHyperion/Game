@@ -4,7 +4,7 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 import physics.*;
-import testEntities.PlantTwigSegment;
+import testEntities.PlantSegment;
 import utility.ListNodeTicket;
 
 public class DynamicRotationComposite implements EntityComposite, UpdateableComposite{
@@ -86,14 +86,6 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 		
 	}
 
-	@Override
-	public void setCompositeName(String newName) {
-		this.compositeName = newName;
-	}
-	@Override
-	public String getCompositeName() {
-		return this.compositeName;		
-	}
 	public EntityStatic getOwnerEntity() {
 		return this.ownerEntity;
 	}
@@ -110,15 +102,18 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 		//Integer phaseCounterInt; //Array of [1] is java workaround to ensure this.phaseCounter receives a REFERENCE not a value
 		double bend = 0;
 		
+		int counterOffset = 0;
+		
 		/*public SineWave(EntityStatic owner , int[] phaseCounter) { 
 			super(owner);
 			this.phaseCounter = phaseCounter;
 		}
 		*/
-		public SineWave( EntityStatic owner, int[] phaseCounterIntRef ) { 
+		public SineWave( EntityStatic owner, int[] phaseCounterIntRef, int counterOffset ) { 
 			super(owner);
 			this.phaseCounter = phaseCounterIntRef;
 			this.compositeName = "DynamicRotation"+this.getClass().getSimpleName();
+			this.counterOffset = counterOffset;
 		}
 		
 		@Override

@@ -6,7 +6,5 @@ public interface EntityComposite {
 	
 	public void disableComposite();
 	public EntityStatic getOwnerEntity();
-	public void setCompositeName(String newName);
-	public String getCompositeName();
 
 }

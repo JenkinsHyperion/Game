@@ -414,9 +414,9 @@ public class Board extends BoardAbstract {
 
 				collider.getBoundary().debugDrawBoundary(camera, g2, collider.getOwnerEntity());
 				camera.drawCrossInWorld(collider.getOwnerEntity().getPosition());
-
 			}
 
+			
 		}
 
 	}

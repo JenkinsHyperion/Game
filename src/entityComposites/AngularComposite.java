@@ -12,7 +12,7 @@ import physics.Vector;
  */
 
 public abstract class AngularComposite implements EntityComposite {
-	protected String compositeName = "AngularCompositeAbstract";
+	
 	protected EntityStatic ownerEntity;
 	private static final FixedAngleComposite fixedAngle = new AngularComposite.FixedAngleComposite();
 	
@@ -31,14 +31,7 @@ public abstract class AngularComposite implements EntityComposite {
 	public abstract Point getRotationalAbsolutePositionOf( Point relativePosition);
 	public abstract Point getRotationalAbsolutePositionOf( Point2D relativePosition);
 	public abstract Vector getOrientationVector();
-	@Override
-	public void setCompositeName(String newName) {
-		this.compositeName = newName;
-	}
-	@Override
-	public String getCompositeName() {
-		return this.compositeName;		
-	}
+
 	@Override
 	public String toString() {
 		return this.getClass().getSimpleName();
@@ -198,6 +191,7 @@ public abstract class AngularComposite implements EntityComposite {
 			
 			return returnPoint;
 		}
+
 		
 		@Override
 		public boolean exists() {
@@ -212,14 +206,7 @@ public abstract class AngularComposite implements EntityComposite {
 			this.ownerEntity.getGraphicComposite().setGraphicAngle(0);	//notify graphic of fixed angle 0
 
 		}
-		@Override
-		public void setCompositeName(String newName) {
-			this.compositeName = newName;
-		}
-		@Override
-		public String getCompositeName() {
-			return this.compositeName;		
-		}
+
 		@Override
 		public String toString() {
 			return this.getClass().getSimpleName();
@@ -285,14 +272,7 @@ public abstract class AngularComposite implements EntityComposite {
 		public EntityStatic getOwnerEntity(){
 			return this.ownerEntity;
 		}
-		@Override
-		public void setCompositeName(String newName) {
-			this.compositeName = newName;
-		}
-		@Override
-		public String getCompositeName() {
-			return this.compositeName;		
-		}
+
 		@Override
 		public String toString() {
 			return this.getClass().getSimpleName();

@@ -128,45 +128,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
         CompositeFactory.addInitialColliderTo(spaceship, new BoundaryCircular( 10 ) ); 	//Add collider
         //CompositeFactory.addColliderTo(spaceship, new BoundarySingular() ); 	//Add collider
 
-        CompositeFactory.addScriptTo(spaceship, new EntityScript(){
-        	
-        	private EntityStatic target = followerEntity;
-        	private int targetUpdatableIndex;
-        	private float VELOCITY = 4;
-        	
-			@Override
-			protected void updateOwner(EntityStatic ownerEntity) {
-				
-				Vector targetVector =  new Vector( ownerEntity.getPosition() ,  target.getPosition()  );
-				
-				//ownerEntity.getRotationComposite().setAngleFromVector( targetVector );
-				Vector currentVector = ownerEntity.getAngularComposite().getOrientationVector();
-				
-				final int sign = currentVector.sign(targetVector); //1 is clockwise, -1 is counterclockwise
-
-				//ownerEntity.getAngularComposite().addAngleInRadians( Math.PI*sign/120f );
-
-				ownerEntity.getTranslationComposite().setVelocityVector( 
-						ownerEntity.getAngularComposite().getOrientationVector().multiply(VELOCITY)
-				);
-				
-			}
-			
-			@Override
-			protected void updateScript() {
-			}
-			
-			@Override
-			public void setUpdateablesIndex(int index) {
-				this.targetUpdatableIndex = index;
-			}
-
-			@Override
-			public void decrementIndex() {
-				this.targetUpdatableIndex--;
-			}
-			
-        });
+        
 
         //currentScene.addEntity(spaceship);
 

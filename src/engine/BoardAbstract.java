@@ -320,10 +320,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 			}
 			
 			g2.drawString( "Updateable entities: "+BoardAbstract.this.updateableEntities() , 400, 20);
-			
-			//for ( EntityStatic entity : currentScene.listEntities() ){
-			//	cam.draw( Sprite.entityMarker.getImage() , entity.getPosition() );
-			//}
+
 		}
 	}
 	

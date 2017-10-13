@@ -77,7 +77,6 @@ public class Scene {
 			checkForAndRegisterCollider(entity);
 		}else{
 			for ( String group : groups ){
-				System.out.println(I+"Adding ["+entity+"] to Collider Group "+group);
 				checkForAndRegisterGroupedCollider(entity,group);
 			}
 
@@ -169,14 +168,16 @@ public class Scene {
 			
 			if ( entity.getTranslationComposite().exists() ){  
 				
+				System.out.println(I+"Adding ["+entity+"] to Collider Group '"+groupName+"' as dynamic");
 				entity.getColliderComposite().addCompositeToPhysicsEngineDynamic( ownerBoard.collisionEngine, groupName );
 			}
 			else{ 
+				System.out.println(I+"Adding ["+entity+"] to Collider Group '"+groupName+"' as static");
 				entity.getColliderComposite().addCompositeToPhysicsEngineStatic( ownerBoard.collisionEngine, groupName );
 			}
 			
 		}else{
-			System.out.println(I+"No collider detected"); 
+			System.out.println(I+"No collider on ["+entity+"] detected"); 
 		}
 	}
 	

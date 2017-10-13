@@ -29,6 +29,11 @@ public class ColliderRotational extends Collider implements RotateableComposite{
 	}
 	
 	@Override
+	public Point getBoundaryCenter(){
+    	return this.ownerEntityAngular.getRotationalAbsolutePositionOf( boundary.getRelativeOffset() );
+    }
+	
+	@Override
 	public void setAngle(double angleDegrees) {
 		//this.boundary.rotateBoundaryFromTemplate( Entity.origin , Math.toRadians(angleDegrees) , storedBounds ); 
 		//this.boundary.constructVoronoiRegions();

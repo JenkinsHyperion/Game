@@ -1,6 +1,7 @@
 package testEntities;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
@@ -27,6 +28,7 @@ import physics.Vector;
 import physics.VisualCollisionCheck;
 import sprites.RenderingEngine;
 import sprites.Sprite;
+import testEntities.PlantSegment.SeedFruit;
 import utility.DoubleLinkedList;
 import utility.ListNodeTicket;
 
@@ -44,6 +46,15 @@ public class PlantPlayer extends Player {
 	private Force movementForce;
 	
 	private Force gravity;
+
+	Font defaultFont = new Font( Font.SANS_SERIF , Font.PLAIN, 12) ;
+	Font contextFont = new Font( Font.SANS_SERIF , Font.PLAIN, 30) ;
+	private static Point contextPosition = new Point(300,300);
+	private static final String context_none = "";
+	private static final String context_pickup = "Pick Up";
+	private static String contextCurrent = context_none;
+	
+	
 	
 	public PlantPlayer(int x, int y ) {
 		super(x, y);
@@ -155,6 +166,13 @@ public class PlantPlayer extends Player {
 	
 	public void debugDraw(  MovingCamera cam , Graphics2D g2 ){
 		this.currentState.debugDraw(cam, g2);
+		
+		final Point screenPosition = cam.getRelativePoint(contextPosition);
+		
+		g2.setFont( contextFont );
+		g2.setColor( Color.WHITE );
+		g2.drawString( contextCurrent , screenPosition.x, screenPosition.y );
+		g2.setFont( defaultFont );
 	}
 	
 	public void debugCollisions( MovingCamera cam , Graphics2D g2 ){
@@ -164,12 +182,12 @@ public class PlantPlayer extends Player {
 		}
 	}
 
-	public static class ClingCollision extends CollisionBuilder<PlantPlayer,PlantTwigSegment>{
+	public static class ClingCollision extends CollisionBuilder<PlantPlayer,PlantSegment>{
 
 		@Override
-		public Collision createVisualCollision(PlantPlayer player, Collider playerCollider, PlantTwigSegment plantSegment, Collider collider2, VisualCollisionCheck check, RenderingEngine engine) {
+		public Collision createVisualCollision(PlantPlayer player, Collider playerCollider, PlantSegment plantSegment, Collider collider2, VisualCollisionCheck check, RenderingEngine engine) {
 			
-			return new Collision.CustomType<PlantPlayer, PlantTwigSegment>( player , playerCollider , plantSegment, collider2 ){
+			return new Collision.CustomType<PlantPlayer, PlantSegment>( player , playerCollider , plantSegment, collider2 ){
 
 				private ListNodeTicket segmentOnPlayer;
 				private Vector clingVector;
@@ -216,6 +234,44 @@ public class PlantPlayer extends Player {
 			return "PlantPlayer: PLAYER ON PLANT STEM";
 		}
 	}
+	
+	
+	public static class FruitInRange extends CollisionBuilder<PlantPlayer, SeedFruit>{
+
+		@Override
+		public Collision createVisualCollision(PlantPlayer entity1, Collider collider1, SeedFruit entity2,
+				Collider collider2, VisualCollisionCheck check, RenderingEngine engine) {
+			
+			return new Collision.CustomType<PlantPlayer, SeedFruit>(entity1, collider1, entity2, collider2) {
+
+				@Override
+				protected void initializeCollision() {
+					contextCurrent = context_pickup;
+					contextPosition = new Point(300,300);
+				}
+
+				@Override
+				public void updateCollision() {
+					isComplete = !check.check(collidingPrimary, collidingSecondary);
+					contextPosition = entity2.getPosition();
+				}
+
+				@Override
+				public void updateVisualCollision(MovingCamera camera, Graphics2D gOverlay) {
+					isComplete = !check.check(collidingPrimary, collidingSecondary, camera, gOverlay);
+					
+				}
+
+				@Override
+				public void completeCollision() {
+					contextCurrent = context_none;
+					contextPosition = new Point(0,0);
+					//throw new RuntimeException("COLLIDER IS ROATAEABLE "+collider2) ;
+				}
+			};
+		}
+	}
+	
 	
 	private class Event extends CollisionEvent{
 		@Override
@@ -274,15 +330,15 @@ public class PlantPlayer extends Player {
 		
 		private byte slidingGripPercent = 100;
 		
-		private DoubleLinkedList<PlantTwigSegment> stemsInRange = new DoubleLinkedList<PlantTwigSegment>();
-		private PlantTwigSegment currentStem;
+		private DoubleLinkedList<PlantSegment> stemsInRange = new DoubleLinkedList<PlantSegment>();
+		private PlantSegment currentStem;
 		private int stemHeight = 0;
 		
 		@Override
 		public void debugDraw(MovingCamera cam, Graphics2D g2) {
 			int i = 400;
 			while(stemsInRange.hasNext()){
-				PlantTwigSegment stem = stemsInRange.get();
+				PlantSegment stem = stemsInRange.get();
 				Vector absAngle = stem.getAngularComposite().getOrientationVector().normalLeft();
 				//g2.drawString("Stem "+ Vector.angleBetweenVectors( absAngle , gravity.toVector().inverse() ) , 800, i);
 				g2.drawString("Stem "+ Vector.angleBetweenVectors(absAngle, gravity.toVector()) , 700, i);
@@ -292,7 +348,7 @@ public class PlantPlayer extends Player {
 			g2.drawString(" Velocities "+getTranslationComposite().debugNumberVelocities()+" "+ currentCling.getVector().angleFromVector() , 700, 385);
 		}
 		
-		public ListNodeTicket addSegment( PlantTwigSegment stem, Vector clingVector ){
+		public ListNodeTicket addSegment( PlantSegment stem, Vector clingVector ){
 
 			if ( stemsInRange.size() == 0 ){
 				currentStem = stem;
@@ -332,8 +388,8 @@ public class PlantPlayer extends Player {
 				}
 			}
 			else if ( stemHeight > 80 ){
-				if ( currentStem.nextSegment.length != 0 ){	// instead of null
-					currentStem = currentStem.nextSegment[0];
+				if ( currentStem.nextSegments.length != 0 ){	// instead of null
+					currentStem = currentStem.nextSegments[0];
 				}
 			}
 			

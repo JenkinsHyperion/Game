@@ -114,14 +114,7 @@ public abstract class GraphicComposite implements EntityComposite{
 			
 			this.ownerEntity.nullifyGraphicsComposite();
 		}
-		@Override
-		public void setCompositeName(String newName) {
-			this.compositeName = newName;
-		}
-		@Override
-		public String getCompositeName() {
-			return this.compositeName;		
-		}
+
 		@Override
 		public String toString() {
 			return this.compositeName;
@@ -173,15 +166,7 @@ public abstract class GraphicComposite implements EntityComposite{
 			System.err.println("No graphics to disable");
 		}
 		
-		@Override
-		public void setCompositeName(String newName) {
-			// TODO Auto-generated method stub
-		}
 
-		@Override
-		public String getCompositeName() {
-			return "Null Graphics Singleton";
-		}
 
 		@Override
 		public void setGraphicSizeFactor(double factor) {

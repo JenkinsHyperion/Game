@@ -28,8 +28,9 @@ import sprites.RenderingEngine;
 import sprites.Sprite;
 import sprites.Sprite.Stillframe;
 import testEntities.*;
-import testEntities.PlantTwigSegment.StemSegment;
-import testEntities.PlantTwigSegment.TreeUnit;
+import testEntities.PlantSegment.SeedFruit;
+import testEntities.PlantSegment.StemSegment;
+import testEntities.PlantSegment.TreeUnit;
 import misc.*;
 
 
@@ -60,8 +61,8 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     
     public static ColliderGroup<PlantPlayer> playerGroup;
     public static ColliderGroup<EntityStatic> worldGeometryGroup;
-    public static ColliderGroup<PlantTwigSegment> treeStemGroup;
-    public static ColliderGroup<EntityStatic> testingGroup;
+    public static ColliderGroup<PlantSegment> treeStemGroup;
+    public static ColliderGroup<SeedFruit> pickableGroup;
 
     public TestBoard(int width , int height, JFrame frame ) {
     	super(width,height,frame);
@@ -75,8 +76,20 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     	this.boundaryOverlay = this.renderingEngine.addOverlay( this.new BoundaryOverlay() );
     	//this.boundaryOverlay.toggle();
     	//TEST BUTTON
+    	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_F1, new KeyCommand(){
+    		public void onPressed() { boundaryOverlay.toggle(); }
+    		public void onReleased() {  }
+    	});
+    	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_F2, new KeyCommand(){
+    		public void onPressed() { ((VisualCollisionEngine) collisionEngine).toggleCalculationDisplay(); }
+    		public void onReleased() {  }
+    	});
     	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_5, new KeyCommand(){
     		public void onPressed() { CompositeFactory.makeChildOfParent(testAsteroid, player, TestBoard.this); }
+    		public void onReleased() {  }
+    	});
+    	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_6, new KeyCommand(){
+    		public void onPressed() { CompositeFactory.abandonAllChildren(player); }
     		public void onReleased() {  }
     	});
     	//TEST BUTTON
@@ -106,13 +119,14 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     		}
     		public void mouseReleased() {
     			
-    			PlantTwigSegment.StemSegment sprout = new PlantTwigSegment.StemSegment( 
+    			PlantSegment.StemSegment sprout = new PlantSegment.StemSegment( 
       				camera.getLocalX( (int)dragLine.getX1() ), 
       				camera.getLocalY( (int)dragLine.getY1() ),
       				100,
       				TestBoard.this
       			);
-    			sprout.name = "Seed" + PlantTwigSegment.StemSegment.counter;
+    			sprout.name = "Seed" + PlantSegment.StemSegment.counter;
+    			
     			sprout.debugMakeWaterSource();
     			sprout.debugSetSugarLevel(700);
     			
@@ -151,19 +165,19 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 
     private void initBoard() {
     	
+        pickableGroup = collisionEngine.<SeedFruit>createColliderGroup("Pickable");
     	playerGroup = collisionEngine.<PlantPlayer>createColliderGroup("Player");
     	worldGeometryGroup = collisionEngine.<EntityStatic>createColliderGroup("Ground");
-        treeStemGroup = collisionEngine.<PlantTwigSegment>createColliderGroup("Tree");
-        testingGroup = collisionEngine.<EntityStatic>createColliderGroup("Testing");
+        treeStemGroup = collisionEngine.<PlantSegment>createColliderGroup("Tree");
+
         
         collisionEngine.addCustomCollisionsBetween("Player", "Ground", CollisionBuilder.DYNAMIC_STATIC );
 
         //collisionEngine.addCustomCollisionsBetween("Player", "Tree", new PlantPlayer.ClingCollision() );
         
-        collisionEngine.addCustomCollisionsBetween(playerGroup, treeStemGroup, new PlantPlayer.ClingCollision() );
+        collisionEngine.addCustomCollisionsBetween( playerGroup, treeStemGroup, new PlantPlayer.ClingCollision() );
         
-        collisionEngine.addCustomCollisionsBetween(playerGroup, testingGroup, CollisionBuilder.RIGIDLESS_DYNAMIC_STATIC );
-
+        collisionEngine.addCustomCollisionsBetween( playerGroup, pickableGroup, new PlantPlayer.FruitInRange() );
     	
     	myMouseHandler = new MouseHandlerClass();
   		addMouseListener(myMouseHandler);
@@ -173,7 +187,8 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         
         asteroid = new EntityStatic( "Asteroid" , 0 , 600 );
         
-        CompositeFactory.addGraphicTo(asteroid, new Sprite.Stillframe("box.png", Sprite.CENTERED ) );
+        CompositeFactory.addGraphicTo(asteroid, new Sprite.Stillframe("asteroid.png", Sprite.CENTERED ) );
+        asteroid.getGraphicComposite().setGraphicSizeFactor(0.334);
         //CompositeFactory.addTranslationTo(asteroid);
         CompositeFactory.addDynamicRotationTo(asteroid);
 
@@ -195,16 +210,16 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         this.currentScene.addEntity(asteroid,"Ground");
         
         //
-        testAsteroid = new EntityStatic( "Asteroid" , -900 , -1000 );
+        /*testAsteroid = new EntityStatic( "Asteroid" , -900 , -2000 );
         
         CompositeFactory.addRotationalColliderTo(
         		testAsteroid, 
-        		new BoundaryCircular(10), 
+        		new BoundaryCircular(1000), 
         		testAsteroid.getAngularComposite()
         		);
         
         CompositeFactory.addRigidbodyTo(testAsteroid);
-        this.currentScene.addEntity(testAsteroid,"Testing");
+        this.currentScene.addEntity(testAsteroid,"Pickable");*/
         //
         
         
@@ -230,17 +245,23 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
        // final PlantTwigSegment testStem = new PlantTwigSegment.StemSegment(-100, 30, 100, this);
        // testStem.getAngularComposite().setAngleInDegrees(-45);
         //this.currentScene.addEntity(testStem, "Tree" );
+        
+        //PlantSegment.SeedFruit testFruit = new PlantSegment.SeedFruit(100, 0, this);
+        //currentScene.addEntity(testFruit, "Pickable");
+    }
+    
+    public EntityStatic getAsteroid(){
+    	return this.asteroid;
     }
 
-    
     @Override
     protected void entityThreadRun() {
     	
     	camera.updatePosition();
-    	if ( PlantTwigSegment.waveCounter[0] <= 100 ){
-    		PlantTwigSegment.waveCounter[0]++;
+    	if ( PlantSegment.waveCounter[0] <= 100 ){
+    		PlantSegment.waveCounter[0]++;
     	}else{
-    		PlantTwigSegment.waveCounter[0] = -100;
+    		PlantSegment.waveCounter[0] = -100;
     	}
     	
     	collisionEngine.checkCollisions();
@@ -251,8 +272,8 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
    
     }
 
-    public void spawnNewSprout( EntityStatic newTwig ){
-    	this.currentScene.addEntity(newTwig,"Tree");
+    public void spawnNewSprout( EntityStatic newTwig, String group ){
+    	this.currentScene.addEntity(newTwig,group);
     }
 
 /* ########################################################################################################################

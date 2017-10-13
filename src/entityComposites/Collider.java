@@ -29,7 +29,7 @@ public class Collider implements EntityComposite{
 	
 	protected CollisionEngine engine;
 	protected int engineHashID;
-	protected CollisionEngine.ActiveCollider engineSlot;
+	private CollisionEngine.ActiveCollider engineSlot = null;
 
 	protected Boundary boundary;
 
@@ -99,6 +99,10 @@ public class Collider implements EntityComposite{
     
     public Line2D getAbsoluteAxisFromRelativeAxis( Line2D axis ){
     	return axis;
+    }
+    
+    public Point getBoundaryCenter(){
+    	return this.boundary.getRelativeOffset();
     }
 	
 	/* #################################################################################
@@ -238,9 +242,13 @@ public class Collider implements EntityComposite{
 	
 	public void addCompositeToPhysicsEngineStatic( CollisionEngine engine, String group ){ 
 		if ( this.engineSlot == null ){
+			
+			System.out.println("|   "+this+" adding static to collision engine GROUP {"+group+"}");
 			this.engineSlot = engine.addStaticCollidable( this , group );
 			this.engine = engine;
-			System.out.println("|   "+this+" adding static to collision engine GROUP {"+group+"}");
+		}
+		else{
+			System.err.println("|   Entity is already registered");
 		}
 		if( !this.isActive ){
 			this.deactivateCollider();
@@ -248,10 +256,15 @@ public class Collider implements EntityComposite{
 	}
 	
 	public void addCompositeToPhysicsEngineDynamic( CollisionEngine engine, String group ){
+		
 		if ( this.engineSlot == null ){
+			
 			System.out.println("|   Adding dynamic to collision engine GROUP {"+group+"}");
 			this.engineSlot = engine.addDynamicCollidable( this, group );
 			this.engine = engine;
+		}
+		else{
+			System.out.println("|   TODO: Entity was added after");
 		}
 		if( !this.isActive ){
 			this.deactivateCollider();
@@ -337,14 +350,6 @@ public class Collider implements EntityComposite{
 		return this.compositeName;
 	}
 
-	@Override
-	public void setCompositeName(String newName) {
-		this.compositeName = newName;
-	}
-	@Override
-	public String getCompositeName() {
-		return this.compositeName;		
-	}
 	
 	/**Takes an input point relative to this collider and returns the absolute position of that point in the world.
 	 * For example: an input of (0,1) relative to a collider located at (1,1) will return (0+1,1+1) or (1,2). Is has been translated.

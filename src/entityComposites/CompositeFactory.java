@@ -2,6 +2,7 @@ package entityComposites;
 
 import java.awt.Color;
 import java.awt.geom.Line2D;
+import java.security.InvalidParameterException;
 
 import editing.BrowserTreePanel;
 import editing.EditorPanel;
@@ -13,6 +14,9 @@ import sprites.Sprite;
 import sprites.SpriteFilledShape;
 
 public class CompositeFactory {
+	
+	public static final byte TRANSLATIONAL_CHILD = 1;
+	public static final byte ROTATIONAL_CHILD = 2;
 
 	public static AngularComposite addAngularComposite( EntityStatic entity ){
 		
@@ -119,10 +123,10 @@ public class CompositeFactory {
 			entity.setCollisionComposite( newCollider );
 			
 			if ( entity.getTranslationComposite().exists() ){
-				newCollider.addCompositeToPhysicsEngineDynamic(board.collisionEngine);
+				//newCollider.addCompositeToPhysicsEngineDynamic(board.collisionEngine);
 				
 			}else{
-				newCollider.addCompositeToPhysicsEngineStatic(board.collisionEngine);
+				//newCollider.addCompositeToPhysicsEngineStatic(board.collisionEngine);
 			}
 			
 			return newCollider;
@@ -199,8 +203,30 @@ public class CompositeFactory {
 	
 	// PARENT CHILDREN METHODS
 	
-	public static void makeChildOfParent( EntityStatic child , EntityStatic parent , BoardAbstract board ){
-		parentingFunctionality(child, parent, board);
+	public static void abandonAllChildren( EntityStatic entity ){
+		
+		System.out.print("CompositeFactory: PARENT ["+entity+"] abandoning all children: ");
+		
+		if ( entity.parentComposite.exists() ){
+			for ( EntityStatic child : entity.parentComposite.getChildrenEntities() ){
+				child.childComposite.disableComposite();
+			}
+			
+			if (entity.parentComposite.getChildrenEntities().length == 0 ){		//Once parent composite has zero children, self destruct
+				System.err.println("["+entity+"] has abandonded all children");
+				entity.parentComposite.disableComposite();
+			}
+			
+		}else{
+			System.out.println();
+			throw new RuntimeException("["+entity+"] has no children"){
+				
+			};
+		}
+	}
+	
+	public static void makeChildOfParent( EntityStatic child , EntityStatic parent , BoardAbstract board, byte...flags ){
+		parentingFunctionality(child, parent, board, flags);
 	}
 	
 	public static void makeChildOfParentUsingPosition(EntityStatic child , EntityStatic parent , BoardAbstract board ){
@@ -208,61 +234,78 @@ public class CompositeFactory {
 		child.setPos( child.getX() + parent.getX() , child.getY() + parent.getY() );
 	}
 	
-	private static void parentingFunctionality( EntityStatic child , EntityStatic parent , BoardAbstract board ){
+	private static void parentingFunctionality( EntityStatic child , EntityStatic parentEntity , BoardAbstract board, byte...flags ){
 
 		//CREATE COMPOSITE DECOSNTRUCTOR TO ENSURE REMOVAL
-		System.out.println("CompositeFactory: PARENTING ["+child+"] as child of ["+parent+"]");
+		System.out.println("CompositeFactory: PARENTING ["+child+"] as child of ["+parentEntity+"]");
 		
-		if ( parent.hasTranslation() ){ 
-			
-			//child.addToUpdater(board); // add child to be updated
-			
-			//TranslationComposite trans = (TranslationComposite) parent.getTranslationComposite();
-			
-			/*if ( child.hasTranslation() ){  	
-				
-				System.out.println("|   Swapped flyweighted translation "+trans.getDX());
-				child.translationType.disableComposite();
-				child.setTranslationComposite(trans );
-				child.addUpdateable( trans );
-
-			}else{ 								
-				
-				System.out.println("|   Flyweighted translation "+trans.getDX());
-				child.setTranslationComposite( trans );
-				child.getTranslationComposite().flyweightTranslation( trans );
-				child.updateablesList.add( trans );
-
-			}*/
+		if ( parentEntity.hasTranslation() ){ 
 			
 		}
 		else{ //parent has no translation, so 
-			System.err.println("|   Parent entity ["+parent+"] has no Translational composite");
+			System.err.println("|   Parent entity ["+parentEntity+"] has no Translational composite");
 		}
 		
-		if ( parent.getRotationComposite().exists() ){
+		if ( parentEntity.getRotationComposite().exists() ){
 			
-			System.out.println("|   Setting '"+parent+"' as rotateable parent");	
+			System.out.println("|   Setting '"+parentEntity+"' as rotateable parent");	
 			
-			DynamicRotationComposite parentRotation;
+			ParentComposite.Rotateable parentComposite = new ParentComposite.Rotateable(parentEntity);
 			
-			parentRotation = (DynamicRotationComposite) parent.getRotationComposite();
-			Angled parentAngular = (Angled) parent.getAngularComposite();
-			
-			ParentComposite.ParentRotateableComposite parentComposite = new ParentComposite.ParentRotateableComposite(parent);
-			parent.addParentComposite( parentComposite );		//Give parent list of children			FIXME CHECK FOR EXISTING PARENT
-			parentAngular.addRotateable( parentComposite );	//Add children list to rotateables
-			
-			final ChildComposite.Rotateable childComposite = parentComposite.registerChild(child);	
-			
-			if ( !child.getAngularComposite().exists() ){
-				addAngularComposite(child);
+			if ( flags.length == 0 || flags[0] == ROTATIONAL_CHILD){
+				
+				System.out.println("|   Setting '"+child+"' as rotateable child");	
+				
+				ChildComposite.Rotateable childComposite = parentComposite.createRotateableChild(child);	
+
+				if ( childComposite == null ){ //child was not created, probably because it was already a child of something else
+					System.err.println("|   WARNING: ["+parentEntity+"] was unable to accept ["+child+"] as a child");
+					System.err.println("----");
+					return;
+				}
+
+				Angled parentAngular = (Angled) parentEntity.getAngularComposite();
+				
+				parentEntity.addParentComposite( parentComposite );		//Give parent list of children
+				parentAngular.addRotateable( parentComposite );	//Add children list to rotateables
+				
+				if ( !child.getAngularComposite().exists() ){
+					addAngularComposite(child);
+				}
+				
+				( ( Angled ) child.getAngularComposite() ).addRotateable( childComposite );
+				
 			}
-			
-			( ( Angled ) child.getAngularComposite() ).addRotateable( childComposite );
+			else if ( flags[0] == TRANSLATIONAL_CHILD ){
+				
+				System.out.println("|   Setting '"+child+"' as TRANSLATION ONLY child");	
+				
+				ChildComposite.TranslationOnly childComposite = parentComposite.createTranslationalChild(child);
+				
+				if ( childComposite == null ){ //child was not created, probably because it was already a child of something else
+					System.err.println("|   WARNING: ["+parentEntity+"] was unable to accept ["+child+"] as a child");
+					System.err.println("----");
+					return;
+				}
+				
+				Angled parentAngular = (Angled) parentEntity.getAngularComposite();
+				
+				parentEntity.addParentComposite( parentComposite );		//Give parent list of children
+				parentAngular.addRotateable( parentComposite );	//Add children list to rotateables
+
+				if ( !child.getTranslationComposite().exists() ){
+					addTranslationTo(child);
+				}
+
+				child.setChildComposite(childComposite);
+				
+			}
+			else{
+				throw new InvalidParameterException();
+			}
 
 		}else{ 
-			System.out.println("|   Parent isn't rotateable"); 
+			System.out.println("|   Parent isn't rotateable TODO MAKE TRANSLATION-OLNLY PARENT"); 
 		}
 		
 		//If child has collider, remove from and add back to collision Engine as dynamic, in case it was registered as static
@@ -274,20 +317,20 @@ public class CompositeFactory {
 			child.setTranslationComposite( new TranslationComposite(child) );
 		} //else do nothing
 		
-		System.out.println("");
+		System.out.println("----");
 		//parent.updateables.add(child);
 		//child.updateables.add( (UpdateableComposite) parent.getTranslationComposite() );
 		
 		//#### AREA TO NOTIFY BrowserTree
 		//something like,
 		BrowserTreePanel browserTreePanel = board.getEditorPanel().getBrowserTreePanel();
-		browserTreePanel.notifyParentChildRelationshipChanged(child, parent);
+		browserTreePanel.notifyParentChildRelationshipChanged(child, parentEntity);
 		
 	}
 	
-	public static void addScriptTo( EntityStatic entity , EntityScript script){
-		
-		entity.updateablesList.add(script);
+	public static void addScriptTo( EntityStatic entity , EntityBehaviorScript behavior ){
+
+		entity.updateablesList.add(behavior);
 		
 	}
 	

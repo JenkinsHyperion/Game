@@ -6,8 +6,8 @@ import sprites.RenderingEngine;
 
 public abstract class CollisionBuilder< E1 extends EntityStatic, E2 extends EntityStatic> {
 	
-	public static final CollisionBuilder.DynamicStatic DYNAMIC_STATIC = new DynamicStatic();
-	public static final CollisionBuilder.DynamicStaticRigidless RIGIDLESS_DYNAMIC_STATIC = new DynamicStaticRigidless();
+	public static final CollisionBuilder.DynamicStatic<?,?> DYNAMIC_STATIC = new DynamicStatic<>();
+	public static final CollisionBuilder.DynamicStaticRigidless<?,?> RIGIDLESS_DYNAMIC_STATIC = new DynamicStaticRigidless<>();
 
 	public abstract Collision createVisualCollision( E1 entity1 , Collider collider1, E2 entity2, Collider collider2, VisualCollisionCheck check, RenderingEngine engine);
 	
@@ -27,7 +27,7 @@ public abstract class CollisionBuilder< E1 extends EntityStatic, E2 extends Enti
 		
 	}
 	
-	public static class DynamicStatic extends CollisionBuilder<EntityStatic, EntityStatic>{
+	public static class DynamicStatic<E1 extends EntityStatic, E2 extends EntityStatic> extends CollisionBuilder<EntityStatic, EntityStatic>{
 
 		@Override
 		public Collision createVisualCollision ( EntityStatic entity1 , Collider collider1, EntityStatic entity2, Collider collider2, VisualCollisionCheck check, RenderingEngine engine ) {

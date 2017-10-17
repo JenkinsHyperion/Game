@@ -22,6 +22,7 @@ import physics.BoundaryPolygonal;
 import physics.BoundarySingular;
 import physics.Collision;
 import physics.CollisionBuilder;
+import physics.CollisionRigidDynamicStatic;
 import physics.Force;
 import physics.SeparatingAxisCollector.Axis;
 import physics.Vector;
@@ -44,6 +45,7 @@ public class PlantPlayer extends Player {
 	private boolean canStartClimb = true;
 	
 	private Force movementForce;
+	private byte hasFriction = 0;
 	
 	private Force gravity;
 
@@ -146,7 +148,7 @@ public class PlantPlayer extends Player {
 		
 		this.getColliderComposite().setLeavingCollisionEvent( new CollisionEvent(){
 			@Override
-			public void run(BoundaryFeature source, BoundaryFeature collidingWith, Vector normal) {
+			public void run(Collider partner, BoundaryFeature source, BoundaryFeature collidingWith, Vector normal) {
 				movementForce.setVector(Vector.zeroVector);
 				changeState(falling);
 			}
@@ -165,7 +167,8 @@ public class PlantPlayer extends Player {
 	}
 	
 	public void debugDraw(  MovingCamera cam , Graphics2D g2 ){
-		this.currentState.debugDraw(cam, g2);
+		
+		//this.currentState.debugDraw(cam, g2);
 		
 		final Point screenPosition = cam.getRelativePoint(contextPosition);
 		
@@ -179,6 +182,50 @@ public class PlantPlayer extends Player {
 		for( int i = 0 ; i < this.getColliderComposite().getCollisions().length ; ++i ){
 			Collision collision = this.getColliderComposite().getCollisions()[i];
 			g2.drawString( collision.toString(), 10, 400+(i*15));
+		}
+	}
+	
+	private class PickupAction{
+		
+		private EntityStatic target;
+		
+		public PickupAction() {
+			// TODO Auto-generated constructor stub
+		}
+	}
+
+	/*##########################################################################################################################################################
+	 * 		PLAYER COLLISION EVENTS
+	 *##########################################################################################################################################################
+	 */
+	
+	public static class GroundCollision extends CollisionBuilder<PlantPlayer,EntityStatic>{
+		
+		@Override
+		public Collision createVisualCollision(PlantPlayer entity1, Collider collider1, EntityStatic entity2,
+				Collider collider2, VisualCollisionCheck check, RenderingEngine engine) {
+			
+			return new CollisionRigidDynamicStatic(collider1, collider2, check.getAxisCollector() ){
+
+				private Force frictionForce;
+				
+				@Override
+				public void initializeCollision() {
+					super.initializeCollision();
+					this.frictionForce = entity1.getTranslationComposite().addForce( new Vector( 0 , 0 ) );
+				}
+				
+				@Override
+				public void updateBehavior(Vector unitNormal, Vector tangentalVelocity) {
+					frictionForce.setVector(tangentalVelocity.inverse().multiply(0.02));
+				}
+				
+				@Override
+				public void completeCollision() {
+					super.completeCollision();
+					entity1.getTranslationComposite().removeForce(frictionForce.getID());
+				}
+			};
 		}
 	}
 
@@ -275,8 +322,10 @@ public class PlantPlayer extends Player {
 	
 	private class Event extends CollisionEvent{
 		@Override
-		public void run(BoundaryFeature source, BoundaryFeature collidingWith, Vector separation) {
+		public void run(Collider partner, BoundaryFeature source, BoundaryFeature collidingWith, Vector separation) {
 			changeState(bufferState);
+
+			
 		}
 		@Override
 		public String toString() {
@@ -516,7 +565,14 @@ public class PlantPlayer extends Player {
 		
 		@Override
 		public void onChange() {
-			
+			canStartClimb = false;
+			hasFriction = 1;
+		}
+		
+		@Override
+		public void onLeavingState() {
+			canStartClimb = true;
+			hasFriction = 0;
 		}
 		
 		@Override
@@ -527,11 +583,13 @@ public class PlantPlayer extends Player {
 		public void offRight() {
 			movementForce.setVector(0,0);
 			currentMovementState = coasting;
+			hasFriction = 1;
 		}
 		@Override
 		public void offLeft() {
 			movementForce.setVector(0,0);
 			currentMovementState = coasting;
+			hasFriction = 1;
 		}
 		@Override
 		public void onJump() {
@@ -544,12 +602,14 @@ public class PlantPlayer extends Player {
 				leftRight = 1;
 			
 			currentMovementState = accelerating;
+			hasFriction = 0;
 		};
 		@Override public void onRight(){
 			if( leftRight > 0 )
 				leftRight = -1;
 
 			currentMovementState = accelerating;
+			hasFriction = 0;
 		};
 		@Override public void offJump(){};
 	}

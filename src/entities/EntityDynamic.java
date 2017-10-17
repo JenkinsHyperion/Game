@@ -53,14 +53,6 @@ public class EntityDynamic extends EntityStatic{
         	y = 0;
         }
     }
-
-    public float getDX() {
-    	return dx;
-    }
-    
-    public float getDY() {
-    	return dy;
-    }
     
     public void setDX(float setdx) {
     	dx = setdx;

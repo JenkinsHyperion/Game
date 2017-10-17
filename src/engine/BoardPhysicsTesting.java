@@ -146,7 +146,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
         
         spaceship.getColliderComposite().setCollisionEvent( new CollisionEvent(){ 			//Make anonymous collision event to maek explosion
 			@Override
-			public void run(BoundaryFeature source, BoundaryFeature collidingWith, Vector separation) { //TAKE OUT OF EVENT
+			public void run(Collider partner, BoundaryFeature source, BoundaryFeature collidingWith, Vector separation) { //TAKE OUT OF EVENT
 				
 				EntityStatic explosion = new EntityStatic("boom", spaceship.getPosition() );
 				CompositeFactory.addGraphicTo(explosion, explosionSprite );
@@ -236,7 +236,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 		
 		for ( Vector force : followerEntity.getTranslationComposite().debugForceArrows() ){
 			
-			camera.draw( force.multiply(300).toLine( followerEntity.getPosition() ) ,(Graphics2D) g);
+			camera.drawInBoard( force.multiply(300).toLine( followerEntity.getPosition() ) ,(Graphics2D) g);
 		}
 		
 		g.setColor(Color.CYAN);
@@ -451,5 +451,11 @@ public class BoardPhysicsTesting extends BoardAbstract{
 			
 		}
  	}
+
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
  	
 }

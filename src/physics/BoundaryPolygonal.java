@@ -608,7 +608,7 @@ public class BoundaryPolygonal extends Boundary {
 	public void debugDrawBoundary(MovingCamera camera, Graphics2D g2, EntityStatic ownerEntity) {
 		for ( BoundarySide side : this.getSides() ){
 
-			camera.draw( side.toLine(), g2 );
+			camera.drawInBoard( side.toLine(), g2 );
 			camera.drawString(side.toString(), side.getX1()+(side.getX2()-side.getX1())/2 , side.getY1()+(side.getY2()-side.getY1())/2 );
 		}
 		//for ( BoundaryCorner corner : corners ){

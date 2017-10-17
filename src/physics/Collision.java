@@ -118,7 +118,7 @@ public abstract class Collision {
 	protected abstract void initializeCollision();
 	
 	//CONTINUOUS COLLISION COMMANDS - Ongoing commands during collision like particle effects, sound, etc.
-	public abstract void updateCollision();
+	protected abstract void updateCollision();
 	
 	public abstract void updateVisualCollision(MovingCamera camera, Graphics2D gOverlay);
 

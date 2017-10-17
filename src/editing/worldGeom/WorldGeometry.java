@@ -127,7 +127,7 @@ public class WorldGeometry extends ModeAbstract{
 		// old drawsurfacelines vvvvvv
 		g2.setColor(Color.MAGENTA);
 		for (Line2D.Double lineToDraw: surfaceLines) {
-			camera.draw(lineToDraw,g2);
+			camera.drawInBoard(lineToDraw,g2);
 		}
 	}
 	@Deprecated
@@ -345,7 +345,7 @@ public class WorldGeometry extends ModeAbstract{
 				//g2.draw(new Line2D.Double(board.camera.getLocalPosition((Point) ghostLine.getP1()), ghostLine.getP2()));
 				//g2.drawLine(board.camera.getRelativeX((int)ghostLine.getX1()), board.camera.getRelativeY((int)ghostLine.getY1()),
 				//board.camera.getRelativeX((int)ghostLine.getX2()), board.camera.getRelativeY((int)ghostLine.getY2()));
-				camera.draw(ghostLine,g2);
+				camera.drawInBoard(ghostLine,g2);
 			}
 			defaultRender(g2);
 			tempRectBoundaryState.draw(g2, camera);
@@ -402,13 +402,13 @@ public class WorldGeometry extends ModeAbstract{
 			@Override
 			public void mousePressed() {
 				tempRectBoundaryState = tempRectBoundary;
-				initClickPoint.setLocation(camera.getWorldPosition(worldGeomMousePos));
+				initClickPoint.setLocation(camera.getWorldTranslationalPosition(worldGeomMousePos));
 				tempRectBoundaryState.setInitialRectPoint();
 			}
 
 			@Override
 			public void mouseDragged() {
-				tempRectBoundaryState.translateEndPoint(camera.getWorldPosition(worldGeomMousePos));
+				tempRectBoundaryState.translateEndPoint(camera.getWorldTranslationalPosition(worldGeomMousePos));
 			}
 
 			@Override
@@ -614,7 +614,7 @@ public class WorldGeometry extends ModeAbstract{
 		// ***** inner-inner classes for mouse behavior classes specific to vertex selecting
 		public class VertexSelectLClickEvent extends MouseCommand{
 			public void mousePressed() {
-				checkForVertex(camera.getWorldPosition(worldGeomMousePos));
+				checkForVertex(camera.getWorldTranslationalPosition(worldGeomMousePos));
 			}
 			public void mouseDragged() {
 				//currentSelectedVertex.translate(camera.getLocalPosition(worldGeomMousePos));
@@ -635,7 +635,7 @@ public class WorldGeometry extends ModeAbstract{
 		public class CtrlVertexSelectLClickEvent extends MouseCommand{
 
 			public void mousePressed() {
-				checkForVertexShiftClick(camera.getWorldPosition(worldGeomMousePos));
+				checkForVertexShiftClick(camera.getWorldTranslationalPosition(worldGeomMousePos));
 			}
 			public void mouseDragged() {
 				//currentSelectedVertex.translate(camera.getLocalPosition(worldGeomMousePos));
@@ -647,7 +647,7 @@ public class WorldGeometry extends ModeAbstract{
 		public class TranslateEvent extends MouseCommand{
 
 			public void mousePressed() {
-				initClickPoint.setLocation(camera.getWorldPosition(worldGeomMousePos));
+				initClickPoint.setLocation(camera.getWorldTranslationalPosition(worldGeomMousePos));
 				selectedVertices.updateOldVertexPositions();
 			}
 			public void mouseDragged() {
@@ -662,12 +662,12 @@ public class WorldGeometry extends ModeAbstract{
 			@Override
 			public void mousePressed() {
 				selectionRectangleState = selectionRectangle;
-				initClickPoint.setLocation(camera.getWorldPosition(worldGeomMousePos));
+				initClickPoint.setLocation(camera.getWorldTranslationalPosition(worldGeomMousePos));
 				selectionRectangleState.setInitialRectPoint();
 			}
 			@Override
 			public void mouseDragged() {
-				selectionRectangleState.translateEndPoint(camera.getWorldPosition(worldGeomMousePos));
+				selectionRectangleState.translateEndPoint(camera.getWorldTranslationalPosition(worldGeomMousePos));
 			}
 			@Override
 			public void mouseReleased() {

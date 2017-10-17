@@ -530,7 +530,7 @@ public class PlantSegment extends EntityStatic{
 			protected int numberFromLastBranch = 0;
 			protected boolean lastBranchedClockwise = false;
 			
-			public StemSegment(int x, int y, int maxGrowth, TreeUnit organism, TestBoard board) {
+			protected StemSegment(int x, int y, int maxGrowth, TreeUnit organism, TestBoard board) {
 				super(x, y, maxGrowth, board);
 				counter++;
 				this.currentGrowthState = new GrowingState( new FullyGrownEvent() , new FullyGrownState() );
@@ -967,7 +967,7 @@ public class PlantSegment extends EntityStatic{
 					spawnConnectAndParentOffshoots(newLeaf);
 					//
 					
-					if ( percentChance(10) && LeafStem.this.getMaxGrowth() >30  ){
+					if ( percentChance(10) && LeafStem.this.getMaxGrowth() >50  ){
 						
 						PlantSegment.SeedFruit newFruit = new PlantSegment.SeedFruit(
 							relativeTip.x, relativeTip.y,

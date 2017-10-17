@@ -90,7 +90,7 @@ public abstract class GraphicComposite implements EntityComposite{
 		}
 		
 		public double getGraphicAngle(){
-			return this.graphicAngle + this.ownerEntity.getAngularComposite().getAngleInRadians();
+			return this.graphicAngle + this.ownerEntity.getAngularComposite().getAngleInRadians(); //FIXME Make rotateable and fixed graphics composite
 		}
 		
 		public void draw( ReferenceFrame camera ){

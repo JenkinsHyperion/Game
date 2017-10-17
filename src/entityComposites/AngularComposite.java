@@ -229,7 +229,8 @@ public abstract class AngularComposite implements EntityComposite {
 		}
 		@Override
 		public double getAngleInRadians() {
-			System.err.println("WARNING: Attempted to get angle of fixed angle entity");
+			//System.err.println("WARNING: Attempted to get angle of fixed angle entity");
+			//throw new RuntimeException();
 			return 0;
 		}
 		@Override

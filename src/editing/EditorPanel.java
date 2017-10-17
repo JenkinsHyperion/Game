@@ -1140,7 +1140,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				public void mousePressed() {
 					mouseDown = true;
 					// gonna need to create vectore from initClickPoint and current mouse pos (editorMousePos?)
-					initClickPoint.setLocation(camera.getWorldPosition(editorMousePos));
+					initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
 					double deltaX = editorMousePos.getX() - 
 							camera.getRelativePoint(getCurrentEntity().getPosition()).getX();
 					double deltaY = editorMousePos.getY() - 
@@ -1185,7 +1185,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				public void mousePressed() {
 					mouseDown = true;
 					// gonna need to create vectore from initClickPoint and current mouse pos (editorMousePos?)
-					initClickPoint.setLocation(camera.getWorldPosition(editorMousePos));
+					initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
 				}
 				
 				@Override
@@ -1260,7 +1260,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				@Override
 				public void mousePressed() {
 					// gonna need to create vectore from initClickPoint and current mouse pos (editorMousePos?)
-					initClickPoint.setLocation(camera.getWorldPosition(editorMousePos));
+					initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
 					//if 
 					sizeFactorRef = getSingleSelectedEntity().getGraphicComposite().getSprite().getSizeFactor();
 				}
@@ -1497,7 +1497,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 
 			@Override
 			public void mousePressed() {
-				checkForEntity(camera.getWorldPosition(editorMousePos));
+				checkForEntity(camera.getWorldTranslationalPosition(editorMousePos));
 				//selectedEntities.printSelectedEntities();
 			}
 
@@ -1511,7 +1511,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 
 			@Override
 			public void mousePressed() {
-				checkForEntityCtrlClick(camera.getWorldPosition(editorMousePos));
+				checkForEntityCtrlClick(camera.getWorldTranslationalPosition(editorMousePos));
 			}
 			@Override
 			public void mouseDragged() {}
@@ -1521,7 +1521,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		public class TranslateEvent extends MouseCommand{
 
 			public void mousePressed() {
-				initClickPoint.setLocation(camera.getWorldPosition(editorMousePos));
+				initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
 				selectedEntities.updateOldEntityPositions();
 			}
 			public void mouseDragged() {
@@ -1534,12 +1534,12 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			@Override
 			public void mousePressed() {
 				selectionRectangleState = selectionRectangle;
-				initClickPoint.setLocation(camera.getWorldPosition(editorMousePos));
+				initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
 				selectionRectangleState.setInitialRectPoint();
 			}
 			@Override
 			public void mouseDragged() {
-				selectionRectangleState.translateEndPoint(camera.getWorldPosition(editorMousePos));
+				selectionRectangleState.translateEndPoint(camera.getWorldTranslationalPosition(editorMousePos));
 			}
 			@Override
 			public void mouseReleased() {
@@ -1950,7 +1950,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				public void mousePressed() {
 					mouseDown = true;
 					// gonna need to create vectore from initClickPoint and current mouse pos (editorMousePos?)
-					initClickPoint.setLocation(camera.getWorldPosition(editorMousePos));
+					initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
 					sizeFactorRef = getCurrentEntity().getGraphicComposite().getSprite().getSizeFactor();
 					double deltaX = editorMousePos.getX() - 
 							camera.getRelativePoint(getCurrentEntity().getPosition()).getX();
@@ -1998,7 +1998,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				public void mousePressed() {
 					mouseDown = true;
 					// gonna need to create vectore from initClickPoint and current mouse pos (editorMousePos?)
-					initClickPoint.setLocation(camera.getWorldPosition(editorMousePos));
+					initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
 				}
 				
 				@Override
@@ -2104,7 +2104,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				public void mousePressed() {
 					mouseDown = true;
 					// gonna need to create vectore from initClickPoint and current mouse pos (editorMousePos?)
-					initClickPoint.setLocation(camera.getWorldPosition(editorMousePos));
+					initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
 					sizeFactorRef = getCurrentEntity().getGraphicComposite().getSprite().getSizeFactor();
 				}
 				
@@ -2204,7 +2204,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			// old drawsurfacelines vvvvvv
 			g2.setColor(Color.DARK_GRAY);
 			for (Line2D.Double lineToDraw: oldBoundaryLines) {
-				camera.draw(lineToDraw,g2);
+				camera.drawInBoard(lineToDraw,g2);
 			}
 			g2.setColor(Color.MAGENTA);
 			/*for (int i = 0; i < vertexList.size()-1; i++) {
@@ -2212,7 +2212,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				camera.draw(tempLine);
 			}*/
 			for (Line2D.Double lineToDraw: surfaceLines) {
-				camera.draw(lineToDraw,g2);
+				camera.drawInBoard(lineToDraw,g2);
 			}
 		}
 		@Override
@@ -2615,7 +2615,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					
 					public void mousePressed() {
 						
-						initClickPoint.setLocation(camera.getWorldPosition(editorMousePos));
+						initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
 						selectedVertices.updateOldVertexPositions();
 					}
 					public void mouseDragged() {
@@ -2641,7 +2641,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				}
 				public class CtrlVertexSelectLClickEvent extends MouseCommand{
 					public void mousePressed() {
-						checkForVertexShiftClick(camera.getWorldPosition(editorMousePos));
+						checkForVertexShiftClick(camera.getWorldTranslationalPosition(editorMousePos));
 					}
 					public void mouseDragged() {
 						//currentSelectedVertex.translate(camera.getLocalPosition(editorMousePos));
@@ -2670,12 +2670,12 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					@Override
 					public void mousePressed() {
 						selectionRectangleState = selectionRectangle;
-						initClickPoint.setLocation(camera.getWorldPosition(editorMousePos));
+						initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
 						selectionRectangleState.setInitialRectPoint();
 					}
 					@Override
 					public void mouseDragged() {
-						selectionRectangleState.translateEndPoint(camera.getWorldPosition(editorMousePos));
+						selectionRectangleState.translateEndPoint(camera.getWorldTranslationalPosition(editorMousePos));
 					}
 					@Override
 					public void mouseReleased() {
@@ -2695,7 +2695,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				public class VertexSelectLClickEvent extends MouseCommand{
 					public void mousePressed() {
 
-						checkForVertex(camera.getWorldPosition(editorMousePos));
+						checkForVertex(camera.getWorldTranslationalPosition(editorMousePos));
 					}
 					public void mouseDragged() {
 						//currentSelectedVertex.translate(camera.getLocalPosition(editorMousePos));
@@ -2771,7 +2771,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			public class VertexSelectLClickEvent extends MouseCommand{
 				public void mousePressed() {
 					
-					checkForVertex(camera.getWorldPosition(editorMousePos));
+					checkForVertex(camera.getWorldTranslationalPosition(editorMousePos));
 				}
 				public void mouseDragged() {
 					//currentSelectedVertex.translate(camera.getLocalPosition(editorMousePos));
@@ -2792,7 +2792,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 
 				public void mousePressed() {
 					
-					checkForVertexShiftClick(camera.getWorldPosition(editorMousePos));
+					checkForVertexShiftClick(camera.getWorldTranslationalPosition(editorMousePos));
 				}
 				public void mouseDragged() {
 					
@@ -2804,7 +2804,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 
 				public void mousePressed() {
 					
-					initClickPoint.setLocation(camera.getWorldPosition(editorMousePos));
+					initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
 					selectedVertices.updateOldVertexPositions();
 				}
 				public void mouseDragged() {
@@ -2841,14 +2841,14 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				public void mousePressed() {
 					
 					selectionRectangleState = selectionRectangle;
-					initClickPoint.setLocation(camera.getWorldPosition(editorMousePos));
+					initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
 					selectionRectangleState.setInitialRectPoint();
 				}
 
 				@Override
 				public void mouseDragged() {
 					
-					selectionRectangleState.translateEndPoint(camera.getWorldPosition(editorMousePos));
+					selectionRectangleState.translateEndPoint(camera.getWorldTranslationalPosition(editorMousePos));
 				}
 
 				@Override
@@ -2976,14 +2976,14 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				public void mousePressed() {
 					
 					tempRectBoundaryState = tempRectBoundary;
-					initClickPoint.setLocation(camera.getWorldPosition(editorMousePos));
+					initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
 					tempRectBoundaryState.setInitialRectPoint();
 				}
 
 				@Override
 				public void mouseDragged() {
 					
-					tempRectBoundaryState.translateEndPoint(camera.getWorldPosition(editorMousePos));
+					tempRectBoundaryState.translateEndPoint(camera.getWorldTranslationalPosition(editorMousePos));
 				}
 
 				@Override

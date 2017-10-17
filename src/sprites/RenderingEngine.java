@@ -90,9 +90,9 @@ public class RenderingEngine {
 		
 		g2.drawImage(image,0,0,ownerBoard );
 		
-		for ( OverlayComposite overlay : visibleOverlayList ){
-			overlay.paintOverlay(g2, camera);
-		}
+		/*for ( OverlayComposite overlay : visibleOverlayList ){
+			overlay.paintOverlay(camera.getOverlayGraphics(), camera);
+		}*/
 		
 	}
 	

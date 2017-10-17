@@ -36,19 +36,21 @@ import misc.*;
 
 
 @SuppressWarnings("serial")
-public class TestBoard extends BoardAbstract implements MouseWheelListener{
+public class TestBoard extends BoardAbstract{
 	
 	private java.util.Timer updateEntitiesTimer;
 	
 	MouseHandlerClass myMouseHandler;
 
 	private InputController boardInput = new InputController("Test Board Input");
+
+	private MovingCamera.FollowTargetAroundPoint cameraRotationBehavior;
 	
     public PlantPlayer player;
     private Force gravity;
-    private EntityStatic asteroid;
-    private EntityStatic testAsteroid;
-    
+    private Asteroid asteroid;
+    private Asteroid testAsteroid;
+
     private Line2D dragLine = new Line2D.Double();
 
     public static int B_WIDTH;// = 400;
@@ -76,6 +78,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     	this.boundaryOverlay = this.renderingEngine.addOverlay( this.new BoundaryOverlay() );
     	//this.boundaryOverlay.toggle();
     	//TEST BUTTON
+    	
     	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_F1, new KeyCommand(){
     		public void onPressed() { boundaryOverlay.toggle(); }
     		public void onReleased() {  }
@@ -93,6 +96,10 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     		public void onReleased() {  }
     	});
     	//TEST BUTTON
+    	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_DIVIDE, new KeyCommand(){
+    		public void onPressed() { camera.setAngle( camera.getAngle() + Math.PI/360.0 ); }
+    		public void onReleased() {  }
+    	});
     	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_W, new KeyCommand(){
     		public void onPressed() { camera.setDY(-10f); }
     		public void onReleased() { camera.setDY(0); }
@@ -119,9 +126,11 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     		}
     		public void mouseReleased() {
     			
+    			Point p1 = camera.getWorldPos( dragLine.getP1() );
+    			
     			PlantSegment.StemSegment sprout = new PlantSegment.StemSegment( 
-      				camera.getLocalX( (int)dragLine.getX1() ), 
-      				camera.getLocalY( (int)dragLine.getY1() ),
+      				p1.x, 
+      				p1.y,
       				100,
       				TestBoard.this
       			);
@@ -171,7 +180,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         treeStemGroup = collisionEngine.<PlantSegment>createColliderGroup("Tree");
 
         
-        collisionEngine.addCustomCollisionsBetween("Player", "Ground", CollisionBuilder.DYNAMIC_STATIC );
+        collisionEngine.addCustomCollisionsBetween(playerGroup, worldGeometryGroup, new PlantPlayer.GroundCollision() );
 
         //collisionEngine.addCustomCollisionsBetween("Player", "Tree", new PlantPlayer.ClingCollision() );
         
@@ -180,14 +189,14 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         collisionEngine.addCustomCollisionsBetween( playerGroup, pickableGroup, new PlantPlayer.FruitInRange() );
     	
     	myMouseHandler = new MouseHandlerClass();
-  		addMouseListener(myMouseHandler);
-  		addMouseMotionListener(myMouseHandler);
+  		this.addMouseListener(myMouseHandler);
+  		this.addMouseMotionListener(myMouseHandler);
         setFocusable(true);
         setBackground(Color.BLACK);
         
-        asteroid = new EntityStatic( "Asteroid" , 0 , 600 );
+        asteroid = new Asteroid( 0 , 600 ,this);
         
-        CompositeFactory.addGraphicTo(asteroid, new Sprite.Stillframe("asteroid.png", Sprite.CENTERED ) );
+        CompositeFactory.addGraphicTo(asteroid, new Sprite.Stillframe("asteroid02.png", Sprite.CENTERED ) );
         asteroid.getGraphicComposite().setGraphicSizeFactor(0.334);
         //CompositeFactory.addTranslationTo(asteroid);
         CompositeFactory.addDynamicRotationTo(asteroid);
@@ -209,6 +218,9 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         
         this.currentScene.addEntity(asteroid,"Ground");
         
+        asteroid.spawnGrass();
+        
+        //asteroid.populateGrass(this);
         //
         /*testAsteroid = new EntityStatic( "Asteroid" , -900 , -2000 );
         
@@ -223,7 +235,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         //
         
         
-        player = new PlantPlayer(30,0);
+        player = new PlantPlayer(30,-100);
         CompositeFactory.addRigidbodyTo(player);
 
         this.currentScene.addEntity(player,"Player");
@@ -248,6 +260,8 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
         
         //PlantSegment.SeedFruit testFruit = new PlantSegment.SeedFruit(100, 0, this);
         //currentScene.addEntity(testFruit, "Pickable");
+ 
+    	this.cameraRotationBehavior = camera.createRotationalCameraBehavior(player,asteroid.getPosition() );
     }
     
     public EntityStatic getAsteroid(){
@@ -257,7 +271,6 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
     @Override
     protected void entityThreadRun() {
     	
-    	camera.updatePosition();
     	if ( PlantSegment.waveCounter[0] <= 100 ){
     		PlantSegment.waveCounter[0]++;
     	}else{
@@ -268,8 +281,13 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 
     	gravity.setVector( player.getSeparationUnitVector(asteroid).multiply(0.2) );
     	
-		player.getAngularComposite().setAngleInDegrees( gravity.toVector().normalLeft().angleFromVectorInDegrees() );
-   
+    	double playerAbsoluteAngle = gravity.toVector().normalLeft().angleFromVectorInRadians();
+    	
+		player.getAngularComposite().setAngleInRadians( playerAbsoluteAngle );
+		
+		//TESTING CAMERA ROTATION <ETHODS to be moved into camera when working
+
+		cameraRotationBehavior.manualUpdatePosition( -playerAbsoluteAngle, player.getPosition() );
     }
 
     public void spawnNewSprout( EntityStatic newTwig, String group ){
@@ -282,6 +300,13 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
  * 
  * ########################################################################################################################
  */
+    
+    @Override
+    public void paint(Graphics g) {
+    	super.paint(g); 
+    	graphicsThreadPaint(g);
+    }
+    
     @Override
     protected void graphicsThreadPaint(Graphics g) {
     	
@@ -290,18 +315,32 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 		this.renderingEngine.render( g2 );
 		editorPanel.render( g ); 
     	g.setColor( Color.RED );
+
+    	//this.player.debugCollisions(camera, g2);
+    	this.player.debugDraw(camera, g2);
+
     	
-    	/*for( EntityStatic entity : this.listCurrentSceneEntities() ){
-    		camera.drawCrossInWorld( entity.getPosition() , (Graphics2D)g);
-    	}*/
+    	for ( Vector vector : player.getTranslationComposite().debugForceArrows() ){
+    		camera.drawInBoard( vector.multiply(300).toLine( player.getPosition() ), (Graphics2D)g );
+    	}
     	
+    }
+    
+    @Override
+    public void activeRender(Graphics g) {
+    	
+    	Graphics2D g2 = (Graphics2D)g;
+    	
+		this.renderingEngine.render( g2 );
+		editorPanel.render( g ); 
+    	g.setColor( Color.RED );
+
     	//this.player.debugCollisions(camera, g2);
     	this.player.debugDraw(camera, g2);
     	
-    	for ( Vector vector : player.getTranslationComposite().debugForceArrows() ){
-    		camera.draw( vector.multiply(300).toLine( player.getPosition() ), (Graphics2D)g );
-    	}
-    	
+    	//for ( Vector vector : player.getTranslationComposite().debugForceArrows() ){
+    	//	camera.drawInBoard( vector.multiply(300).toLine( player.getPosition() ), (Graphics2D)g );
+    	//}
     }
 
     /* ########################################################################################################################
@@ -316,7 +355,7 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
   	protected class MouseHandlerClass extends MouseInputAdapter  { 	   
 
   		@Override
-  		public void mousePressed(MouseEvent e){  	
+  		public void mousePressed(MouseEvent e){  	 
   			dragLine.setLine( e.getPoint() , e.getPoint() );
   			editorPanel.mousePressed(e);
   			getCurrentBoardInputController().mousePressed(e);
@@ -343,7 +382,15 @@ public class TestBoard extends BoardAbstract implements MouseWheelListener{
 
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent arg0) {
-		// TODO Auto-generated method stub
+		
+		if ( arg0.getWheelRotation() > 0 ){
+			camera.quadupleZoom();
+		}
+		else{
+			camera.quarterZoom();
+		}
+
+		
 	}
 	@Override
 	protected void initEditorPanel() {

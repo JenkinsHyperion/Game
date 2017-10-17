@@ -307,6 +307,26 @@ public class EntityStatic extends Entity{
     	y = p.getY();
     }
 	
+	public double getDX(){
+		return this.translationType.getDX();
+	}
+	public double getDY(){
+		return this.translationType.getDY();
+	}
+	
+	public double getDeltaX(){
+		return this.translationType.getDX()+this.getX();
+	}
+	public double getDeltaY(){
+		return this.translationType.getDY()+this.getY();
+	}
+	public Point getDeltaPosition(){
+		return new Point(
+			(int) (this.translationType.getDX()+this.getX()),
+			(int) (this.translationType.getDY()+this.getY())
+		);
+	}
+	
 	// ----------------
 	
 	

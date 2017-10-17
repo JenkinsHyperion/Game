@@ -136,10 +136,28 @@ public abstract class Sprite implements Graphic{
         	this.spriteOffsetY = offset_y;
         }
         
+        public Stillframe( String path, int offset_x, int offset_y , byte flag ){ //CONSTRUCTOR ALLOWING FOR CERTAIN AUTOMATIC INITIALIZERS LIKE CENTERING
+        	super(0,0);
+        	initialize(path);
+        	
+        	if ( !initFlags(flag) ){
+        		System.err.println(path+" sprite has invalid parameter");
+        	}
+        	
+        	this.spriteOffsetX += offset_x;
+    		this.spriteOffsetY += offset_y;
+        }
+        
         public Stillframe( String path , byte flag ){ //CONSTRUCTOR ALLOWING FOR CERTAIN AUTOMATIC INITIALIZERS LIKE CENTERING
         	super(0,0);
         	initialize(path);
         	
+        	if ( !initFlags(flag) ){
+        		System.err.println(path+" sprite has invalid parameter");
+        	}
+        }
+        
+        private boolean initFlags( byte flag ){
         	if ( flag == Sprite.CENTERED ){
         		this.spriteOffsetX = -this.image.getWidth() / 2 ;
         		this.spriteOffsetY = -this.image.getHeight() / 2 ;
@@ -153,8 +171,9 @@ public abstract class Sprite implements Graphic{
         		this.spriteOffsetY = 0;
         	}
         	else{
-        		System.err.println(path+" sprite has invalid parameter");
+        		return false;
         	}
+        	return true;
         }
         
         private void initialize( String path ){

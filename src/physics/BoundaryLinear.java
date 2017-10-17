@@ -29,7 +29,7 @@ public class BoundaryLinear extends BoundaryPolygonal {
 	@Override
 	public void debugDrawBoundary(MovingCamera cam, Graphics2D g2, EntityStatic ownerEntity) {
 		
-		cam.draw( new Line2D.Double(
+		cam.drawInBoard( new Line2D.Double(
 				corners[0].toPoint().getX() + ownerEntity.getPosition().getX(),
 				corners[0].toPoint().getY() + ownerEntity.getPosition().getY(),
 				corners[1].toPoint().getX() + ownerEntity.getPosition().getX(),

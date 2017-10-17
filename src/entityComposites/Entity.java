@@ -86,6 +86,7 @@ public class Entity {
 		this.x =  p.getX();
     	this.y =  p.getY();
 	}
+	
     @Deprecated
     public boolean isCollidable() {
 		return collidable;

@@ -197,7 +197,7 @@ public class PlayerCharacter extends Player {
 
     private class OnLeavingCollision extends CollisionEvent{
 		@Override
-		public void run( BoundaryFeature source , BoundaryFeature collidingWith, Vector separation ) {
+		public void run( Collider partner , BoundaryFeature source, BoundaryFeature collidingWith, Vector separation ) {
 			changePlayerState( fallingLeft );
 			
 		}	
@@ -206,7 +206,7 @@ public class PlayerCharacter extends Player {
     private class FloorCollisionEvent extends CollisionEvent {
 
 		@Override
-		public void run( BoundaryFeature source , BoundaryFeature collidingWith, Vector separation ) {
+		public void run( Collider partner , BoundaryFeature source, BoundaryFeature collidingWith, Vector separation ) {
 			playerState.onCollision();
 			changePlayerState( playerStateBuffer );
 			if ( collidingWith.debugIsSide() ){
@@ -226,7 +226,7 @@ public class PlayerCharacter extends Player {
     private class SideCollisionEvent extends CollisionEvent{
 	
 		@Override
-		public void run( BoundaryFeature source , BoundaryFeature collidingWith, Vector separation ) {
+		public void run( Collider partner , BoundaryFeature source, BoundaryFeature collidingWith, Vector separation ) {
 			
 			
 			//CLIMBING MECHANIC

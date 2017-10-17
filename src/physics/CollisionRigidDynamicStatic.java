@@ -47,14 +47,17 @@ public class CollisionRigidDynamicStatic extends Collision.DefaultType implement
 		
 	}
 	
-	//INITAL COLLISION COMMANDS - Run once, the first time collision occurs
+	/**Runs initial commands when this Collision is started. Override this method to run any special commands or register 
+	 * any forces to be used, but ensure any new forces are removed by overriding {@link #completeCollision()} 
+	 * <p> BE ADVISED: Always call super.initializeCollision(), which creates and maintains rigid normal forces.
+	 */
 	@Override
 	public void initializeCollision(){
 		
 		this.resolutionState = resolutionEvent;
 		
 		this.normalForce = transPrimary.registerNormalForce( new Vector( 0 , 0 ) );
-		this.frictionForce = transPrimary.addForce( new Vector( 0 , 0 ) );
+		//this.frictionForce = transPrimary.addForce( new Vector( 0 , 0 ) );
 		//updateCollision(); //Run math for first time OPTIMIZE, Add new code block for first time math
 		
 		// Things like bullets won't need to go any futher than the initial method
@@ -63,7 +66,7 @@ public class CollisionRigidDynamicStatic extends Collision.DefaultType implement
 	}
 	
 	@Override
-	public void updateCollision(){ 
+	protected void updateCollision(){ 
 		
 		Resolution closestResolution = getClosestResolution();
 
@@ -71,16 +74,20 @@ public class CollisionRigidDynamicStatic extends Collision.DefaultType implement
 		
 		final Vector normal = unitNormal.multiply(-0.2);								// ON CIRCULAR GRAVITY
 		
-		final double tangentalVelocity = transPrimary.getVelocityVector().projectedOver( normal.normalRight() ).getMagnitude();
+		final Vector tangentalVelocity = transPrimary.getVelocityVector().projectedOver( normal.normalRight() );
 		
 		final double distanceA = entityPrimary.getPosition().distance(entitySecondary.getPosition()) ;
 		
-		final double centripetalForce = tangentalVelocity*tangentalVelocity/ ( distanceA -80 );
+		final double centripetalForce = tangentalVelocity.getMagnitude()*tangentalVelocity.getMagnitude()/ ( distanceA -80 );
 		
 		//testing for centripetal acceleration
 		final Vector rotatingNormal = normal.add( unitNormal.multiply( centripetalForce ) );
 		
 		normalForce.setVector( rotatingNormal.inverse() );
+		
+		//frictionForce.setVector( tangentalVelocity.inverse().multiply(0.05) );
+		
+		updateBehavior( unitNormal, tangentalVelocity );
 		
 		if ( closestResolution.getClippingVector().getMagnitude() > 1 ) { 
 			
@@ -181,6 +188,10 @@ public class CollisionRigidDynamicStatic extends Collision.DefaultType implement
 		 
 	}
 	
+	public void updateBehavior(Vector unitNormal, Vector tangentalVelocity){
+		
+	}
+	
 	protected class ResolutionEvent extends ResolutionState{ //ONE TIME EVENT THAT TRIGGERS UPON RESOLUTION
 		
 		@Override
@@ -207,9 +218,9 @@ public class CollisionRigidDynamicStatic extends Collision.DefaultType implement
 								"] of ["+ resolution.FeaturePrimary() + "] on [" + entityPrimary+"]" );
 			//Trigger Boundary Collision Event on relevant side/vertex
 			resolution.FeaturePrimary().getEvent().run( 
-					resolution.FeaturePrimary() , 
-					resolution.FeatureSecondary(),
-					resolution.getSeparationVector().unitVector()
+					collidingSecondary , 
+					resolution.FeaturePrimary(),
+					resolution.FeatureSecondary(), resolution.getSeparationVector().unitVector()
 					);
 			
 			collidingPrimary.onCollisionEvent();
@@ -232,7 +243,9 @@ public class CollisionRigidDynamicStatic extends Collision.DefaultType implement
 		
 	}*/
 
-	//FINAL COLLISION COMMANDS - Last commands before this collision object self destructs
+	/**Runs final commands before this Collision ceases to exist. In any overriding classes, always call super.completeCollision(), 
+	 * which removes and maintains Collider references and normal Forces.
+	 */
 	@Override
 	public void completeCollision(){
 		
@@ -241,7 +254,7 @@ public class CollisionRigidDynamicStatic extends Collision.DefaultType implement
 		
 		
 		transPrimary.removeNormalForce(normalForce);              //turn gravity back on
-		transPrimary.removeForce(frictionForce.getID());     //remove friction
+		//transPrimary.removeForce(frictionForce.getID());     //remove friction
 
 	}
 	

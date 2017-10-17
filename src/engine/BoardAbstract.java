@@ -33,7 +33,7 @@ import sprites.Sprite;
 import utility.DoubleLinkedList;
 import utility.ListNodeTicket;
 
-public abstract class BoardAbstract extends JPanel implements KeyListener{
+public abstract class BoardAbstract extends JPanel implements KeyListener, MouseWheelListener{
 
     public static int B_WIDTH;// = 400;	
     public static int B_HEIGHT;// = 300;
@@ -83,8 +83,8 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 	    
 	    console = new Console( 20 , B_HEIGHT-200 , this);
 	    
-	    
-	    this.setIgnoreRepaint(true);
+	    frame.addMouseWheelListener(this);
+	    frame.addKeyListener(this);
 	  /*  editorPanel = new EditorPanel(this);
 		editorPanel.setSize(new Dimension(240, 300));
 		editorPanel.setPreferredSize(new Dimension(240, 300));*/
@@ -179,6 +179,12 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 	     repaintTimer.start();
 	}
 
+	@Override
+	public void paint(Graphics g) {
+		super.paint(g);
+		
+	}
+	
 	protected abstract void initEditorPanel();
 
 	public boolean isWorking(){
@@ -193,7 +199,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 		mainFrame.addKeyListener(inputController);
 	}
 
-	protected void activeRenderingDraw(){
+	protected void activeRenderingDraw(){ 
 		
 	}
 	
@@ -227,16 +233,17 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 			this.updatingState.update();
 	}
 	
-	@Override
-	public void paintComponent(Graphics g) {  
-        super.paintComponent(g);
-
-        this.currentConsoleState.render(g);
-    }
-	
 	public void activeRender( Graphics g ){
 
         this.currentConsoleState.render(g);
+	}
+	
+	public static int randomInt( int min, int max ){
+
+		Random temporaryRandom = new Random();
+		int returnInt = temporaryRandom.nextInt( max - min );
+		temporaryRandom = null;
+		return min + returnInt;
 	}
 	
 	private interface ConsoleState{
@@ -456,6 +463,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener{
 	public void keyTyped(KeyEvent e) {
 		
 	}
+
 	
 	protected int updateableEntitiesNumber(){
 		return this.updateableEntitiesList.size();

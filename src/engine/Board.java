@@ -492,4 +492,10 @@ public class Board extends BoardAbstract {
 
 	}
 
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

@@ -26,7 +26,9 @@ public class CollisionEngine {
 	
 	protected ColliderGroup ungrouped = new ColliderGroup("Ungrouped");
 	
-	protected DoubleLinkedList<CheckingPair<EntityStatic,EntityStatic>> activeCheckingPairs = new DoubleLinkedList<CheckingPair<EntityStatic,EntityStatic>>();
+	protected DoubleLinkedList<CheckingPair<? extends EntityStatic,? extends EntityStatic>> activeCheckingPairs //...
+		= new DoubleLinkedList<CheckingPair<? extends EntityStatic,? extends EntityStatic>>();
+	
 	protected DoubleLinkedList<CheckingPair<EntityStatic,EntityStatic>> inactiveCheckingPairs = new DoubleLinkedList<CheckingPair<EntityStatic,EntityStatic>>();
 	
 	protected ArrayList<ColliderGroup> colliderGroups = new ArrayList<ColliderGroup>();
@@ -167,7 +169,8 @@ public class CollisionEngine {
 		
 	}
 	
-	public <T extends EntityStatic , V extends EntityStatic> boolean addCustomCollisionsBetween( ColliderGroup<T> group1, ColliderGroup<V> group2, CollisionBuilder<T,V> customCollisionFactory ){
+	public < S1 extends E1  ,  S2 extends E2  ,  E1 extends EntityStatic  ,  E2 extends EntityStatic > 
+	boolean addCustomCollisionsBetween( ColliderGroup<S1> group1, ColliderGroup<S2> group2, CollisionBuilder<E1,E2> customCollisionFactory ){
 		
 		System.out.println(" COLLISION ENGINE: CUSTOMIZING COLLISIONS BETWEEN '"+group1+"' AND '"+group2+"' COLLIDER GROUPS");
 		
@@ -181,7 +184,7 @@ public class CollisionEngine {
 				StaticActiveCollider stat = group2.staticColliders.get();
 				
 				VisualCollisionCheck check = calculateCheck( dynamic , stat ); 
-				CheckingPair newPair = new CustomDynamicStaticPair(
+				CheckingPair<E1,E2> newPair = new CustomDynamicStaticPair(
 						dynamic, 
 						stat, 
 						customCollisionFactory, 
@@ -775,7 +778,7 @@ public class CollisionEngine {
 		
 		protected CollisionBuilder<EntityStatic,EntityStatic> collisionType;
 		
-		public void addToList( DoubleLinkedList<CheckingPair<E1,E2>> list ){
+		public void addToList( DoubleLinkedList<CheckingPair<?,?>> list ){
 			this.listSlot = list.add( this );
 		}
 		
@@ -990,6 +993,7 @@ public class CollisionEngine {
 		}
 		
 		public String[] debugListGroupedStatics(){
+			
 			String[] returnStrings = new String[ this.staticColliders.size() ];
 			int i = 0;
 			while( staticColliders.hasNext() ){

@@ -26,11 +26,18 @@ import sprites.Sprite;
 
 public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	
+	private final byte ZOOM_SPEED = 10;
+	private final int ZOOM_INCREMENT_PERCENT = 110;
+	
 	BoardAbstract currentBoard;
-	Graphics2D graphics;
+	Graphics2D gBoard;
+	Graphics2D gOverlay;
 	ImageObserver observer;
 	
 	double zoomFactor = 1;
+	double zoomDelta = 1;
+	
+	double cameraAngle = 0;
 	
 	final static int boardHalfWidth = BoardAbstract.B_WIDTH/2;
 	final static int boardHalfHeight = BoardAbstract.B_HEIGHT/2;
@@ -49,7 +56,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	public MovingCamera(BoardAbstract testBoard , Graphics2D g2 , ImageObserver observer ){
 		super(boardHalfWidth,boardHalfHeight);
 		
-		this.graphics = g2;
+		this.gBoard = g2;
 		this.observer = observer;
 		this.currentBoard = testBoard;
 		this.setPos(0, 0);
@@ -59,7 +66,8 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	public MovingCamera(BoardAbstract testBoard , EntityStatic targetEntity , Graphics2D g2 ,ImageObserver observer ){
 		super(boardHalfWidth,boardHalfHeight);
 		
-		this.graphics = g2;
+		this.gOverlay = g2;
+		this.gBoard = (Graphics2D) g2.create();
 		this.observer = observer;
 		this.currentBoard = testBoard;
 		target = targetEntity;
@@ -70,12 +78,21 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	}
 	
 	public void repaint(Graphics g){
-		this.graphics = (Graphics2D) g;
+		this.gOverlay = (Graphics2D) g;
+		this.gBoard = (Graphics2D) g.create();
+		this.gBoard.translate(boardHalfWidth,boardHalfHeight );
+		this.gBoard.rotate(cameraAngle);
+		this.gBoard.translate(-boardHalfWidth,-boardHalfHeight );
+	}
+	
+	public Graphics2D getOverlayGraphics(){
+		return this.gOverlay;
 	}
 	
 	public void updatePosition(){
 		super.updatePosition();	
 		behaviorCurrent.updateAIPosition(); //CAMERA MATH	
+		zoomFactor += (zoomDelta-zoomFactor)/ZOOM_SPEED;
 	}
 
 	public Point getFocus(){
@@ -145,19 +162,32 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	}
 	
 	public void quadupleZoom(){
-		this.zoomFactor = this.zoomFactor/1.25;
+		this.zoomDelta = this.zoomDelta/(ZOOM_INCREMENT_PERCENT/100.0);
 	}
 	
 	public void quarterZoom(){
-		this.zoomFactor = this.zoomFactor*1.25;
+		this.zoomDelta = this.zoomDelta*(ZOOM_INCREMENT_PERCENT/100.0);
 	}
 	
 	public void setZoomLevel( double factor ){
-		this.zoomFactor = factor;
+		this.zoomDelta = factor;
 	}
 	
 	public void resetZoom(){
 		this.zoomFactor = 1;
+		this.zoomDelta = 1;
+	}
+	
+	public void setAngle( double angleRadians ){
+		this.cameraAngle = angleRadians;
+	}
+	
+	public double getAngle(){
+		return this.cameraAngle;
+	}
+	
+	public void resetAngle(){
+		this.cameraAngle = 0;
 	}
 	
 	public void drawVertex(EditorVertexAbstract vertex, Graphics g)
@@ -198,8 +228,8 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	public void drawOnCamera(GraphicComposite.Active sprite , AffineTransform entityTransform){
 		
 		AffineTransform cameraTransform = new AffineTransform();
-		this.graphics.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-	
+		this.gBoard.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		
 		cameraTransform.translate( 
 				this.getRelativeX( sprite.ownerEntity().getX()) , 
 				this.getRelativeY( sprite.ownerEntity().getY()) );
@@ -207,17 +237,17 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		cameraTransform.scale( zoomFactor , zoomFactor);
 		
 		cameraTransform.concatenate(entityTransform);
-		Composite compositeBuffer = this.graphics.getComposite();
-		this.graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float)sprite.getSprite().getAlpha()));
-		this.graphics.drawImage(sprite.getSprite().getBufferedImage(), 
+		Composite compositeBuffer = this.gBoard.getComposite();
+		this.gBoard.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float)sprite.getSprite().getAlpha()));
+		this.gBoard.drawImage(sprite.getSprite().getBufferedImage(), 
 				cameraTransform,
 				this.observer);
-		this.graphics.setComposite(compositeBuffer);
+		this.gBoard.setComposite(compositeBuffer);
 	}
 
 	public void draw(Image image , int worldX, int worldY ){
 		
-		this.graphics.drawImage(image, 
+		this.gBoard.drawImage(image, 
 				getRelativeX(worldX) , 
 				getRelativeY(worldY) , 
 				this.observer);
@@ -226,9 +256,9 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	public void debugDrawPolygon( Shape polygon, Color color, Point position , AffineTransform entityTransform, float alpha){ //OPTIMIZE 
 		
 		AffineTransform cameraTransform = new AffineTransform();
-		Graphics2D g2Temp = (Graphics2D) this.graphics.create();
+		Graphics2D g2Temp = (Graphics2D) this.gBoard.create();
 		
-		this.graphics.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		this.gBoard.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 		
 		cameraTransform.translate( this.getRelativeX( position.x) , this.getRelativeY( position.y) );
 		//cameraTransform.concatenate(entityTransform);
@@ -244,7 +274,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	
 	public void draw(Image image , Point world_position ){
 		
-		this.graphics.drawImage(image, 
+		this.gBoard.drawImage(image, 
 				getRelativeX(world_position.x) , 
 				getRelativeY(world_position.y) , 
 				this.observer);
@@ -255,18 +285,17 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	 * @param line
 	 * @param g
 	 */
-	public void draw( Line2D line, Graphics2D g2 ){
-
-		g2.drawLine( 
+	public void drawInBoard( Line2D line, Graphics2D g2 ){
+		
+		gBoard.drawLine( 
 				getRelativeX(line.getX1()) ,  
 				getRelativeY(line.getY1()) ,  
 				getRelativeX(line.getX2()) ,  
 				getRelativeY(line.getY2()) 
 		);
-		
 	}
 	
-	public void debugDraw(Line2D line , Graphics2D g2){
+	public void drawOnOverlay(Line2D line , Graphics2D g2){
 		
 		g2.drawLine( 
 				getRelativeX(line.getX1()) ,  
@@ -300,7 +329,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	public void drawShapeInWorld( Shape shape , Point worldPosition){
 		
 		AffineTransform cameraTransform = new AffineTransform();
-		Graphics2D g2Temp = (Graphics2D) this.graphics.create();
+		Graphics2D g2Temp = (Graphics2D) this.gBoard.create();
 		
 		cameraTransform.translate( this.getRelativeX( worldPosition.x ) , this.getRelativeY( worldPosition.y ) );
 		cameraTransform.scale( zoomFactor , zoomFactor);
@@ -313,7 +342,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	}
 	
 	public void drawString( String string , Point pos ) {
-		graphics.drawString( string,
+		gBoard.drawString( string,
 				getRelativeX(pos.x), 
 				getRelativeY(pos.y)
 			);
@@ -327,18 +356,18 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	}
 	
 	public void drawString( String string , int x, int y ) {
-		graphics.drawString( string, 
+		gBoard.drawString( string, 
 				getRelativeX(x), 
 				getRelativeY(y)
 		);
 	}
 	
 	public void drawCrossInWorld( int worldX, int worldY){
-		drawCross( this.getRelativeX(worldX) , this.getRelativeY(worldY) , graphics);
+		drawCross( this.getRelativeX(worldX) , this.getRelativeY(worldY) , gBoard);
 	}
 	
 	public void drawCrossInWorld( Point point ){
-		drawCross( (int)this.getRelativeX( point.getX() ) , (int)this.getRelativeY( point.getY() ) , graphics);
+		drawCross( (int)this.getRelativeX( point.getX() ) , (int)this.getRelativeY( point.getY() ) , gBoard);
 	}
 	
 	public void drawCrossInWorld( Point point , Graphics2D g2){
@@ -368,7 +397,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	}
 	
 	public void drawCrossInFrame( Point point){
-		drawCross( (int)point.getX() , (int)point.getY() , this.graphics);
+		drawCross( (int)point.getX() , (int)point.getY() , this.gBoard);
 	}
 	
 	public void drawCrossInFrame( Point point , Graphics2D g2){
@@ -384,6 +413,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	 * @return the ordinate relative to the board/world 
 	 */
 	public int getLocalX( int x_relative_to_camera){
+		
 		return (int) ((x_relative_to_camera - boardHalfWidth )/zoomFactor + this.x  ) ;
 	}
 	public int getLocalX( double x_relative_to_camera){
@@ -407,11 +437,27 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	 * @param position_relative_to_camera
 	 * @return the coordinates relative to the board/world 
 	 */
-	public Point getWorldPosition( Point position_relative_to_camera){
+	public Point getWorldTranslationalPosition( Point position_relative_to_camera){
 		return new Point(
 				getLocalX( position_relative_to_camera.getX() ) ,
 				getLocalY( position_relative_to_camera.getY() )
 				);
+	}
+	
+	public Point getWorldPos( Point2D relativeCameraPoint ){
+
+		double returnX = relativeCameraPoint.getX() - boardHalfWidth;
+		double returnY = relativeCameraPoint.getY() - boardHalfHeight; 
+		
+		double cosineTheta = Math.cos( -this.cameraAngle );
+		double sineTheta = Math.sin( -this.cameraAngle );
+		
+		Point returnPoint = new Point(
+				(int)( returnX*cosineTheta - returnY*sineTheta )+ this.getX(),
+				(int)( returnX*sineTheta + returnY*cosineTheta )+ this.getY()
+		);
+		
+		return returnPoint ;
 	}
 	
 	public int getRelativeX( int x_relative_to_world){
@@ -458,7 +504,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	}
 	@Override
 	public Graphics2D getGraphics(){
-		return this.graphics;
+		return this.gBoard;
 	}
 	
 	@Deprecated
@@ -563,17 +609,17 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		
 		//X AXIS
 		for ( int i = (pos.x - boardHalfWidth+40 ) / s ; i < ( (pos.x + boardHalfWidth/2 ) / s ) ; i++ ){ //OPTIMIZE remove testing offset when done
-			this.graphics.setColor(grid);
-			this.graphics.drawLine( getRelativeX(i*s) , 0, getRelativeX(i*s), MAX_Y);
-			this.graphics.setColor(axisColor);
-			this.graphics.drawString( ""+i*s, getRelativeX(i*s), 20);
+			this.gBoard.setColor(grid);
+			this.gBoard.drawLine( getRelativeX(i*s) , 0, getRelativeX(i*s), MAX_Y);
+			this.gBoard.setColor(axisColor);
+			this.gBoard.drawString( ""+i*s, getRelativeX(i*s), 20);
 		}
 		//Y AXIS
 		for ( int i = (pos.y - boardHalfHeight ) / s ; i < ( (pos.y + boardHalfHeight ) / s ) ; i++ ){ //OPTIMIZE remove testing offset when done
-			this.graphics.setColor(grid);
-			this.graphics.drawLine( 0, getRelativeY(i*s) , MAX_X, getRelativeY(i*s));
-			this.graphics.setColor(axisColor);
-			this.graphics.drawString( ""+i*s, 5,getRelativeY(i*s));
+			this.gBoard.setColor(grid);
+			this.gBoard.drawLine( 0, getRelativeY(i*s) , MAX_X, getRelativeY(i*s));
+			this.gBoard.setColor(axisColor);
+			this.gBoard.drawString( ""+i*s, 5,getRelativeY(i*s));
 		}
 
 		
@@ -581,6 +627,47 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 
 	public double localDistance( double d ) {
 		return d / this.zoomFactor;
+	}
+	
+	
+	public MovementBehavior setBehavior( MovementBehavior behavior ){
+		this.behaviorCurrent = behavior;
+		return behaviorCurrent;
+	}
+
+	public FollowTargetAroundPoint createRotationalCameraBehavior(EntityStatic targetEntity, Point rotationalOrigin){
+		
+		FollowTargetAroundPoint newBehaviorRotational = new FollowTargetAroundPoint(targetEntity,rotationalOrigin);
+		this.behaviorCurrent = newBehaviorRotational;
+		return newBehaviorRotational;
+	}
+	
+	public class FollowTargetAroundPoint extends MovementBehavior{
+		
+		EntityStatic targetEntity;
+		Point rotationalOrigin;
+		
+		public FollowTargetAroundPoint(EntityStatic targetEntity, Point rotationalOrigin ){
+			this.rotationalOrigin = rotationalOrigin;
+			this.targetEntity = targetEntity;
+		}
+		
+		public void manualUpdatePosition( double radians, Point targetPosition ){
+			updateAIPosition();
+			MovingCamera.this.updatePosition();
+			cameraAngle = radians;
+		}
+		
+		@Override
+		public void updateAIPosition() {	//get delta x and y for rotating coordinates
+			
+			MovingCamera.this.setDX( (float)( this.targetEntity.getX() - MovingCamera.this.getX() )/30  );
+			MovingCamera.this.setDY( (float)( this.targetEntity.getY() - MovingCamera.this.getY() )/30  );
+		}
+	}
+
+	public void drawFocalPoint() {
+		this.drawCrossInWorld((int)this.x, (int)this.y);
 	}
 
 	

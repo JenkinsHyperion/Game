@@ -54,12 +54,12 @@ public class MainWindow implements KeyListener, MouseListener{
 
 		editorPanelMinSize = new Dimension(220,300);
 		
-		JFrame frame = new JFrame(System.getProperty("user.dir"));
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		mainFrame = new JFrame(System.getProperty("user.dir"));
+		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		//board = new BoardPhysicsTesting(width,height,frame);
 		//board = new Board(width,height,frame);
-		board = new TestBoard(width,height,frame);
+		board = new TestBoard(width,height,mainFrame);
 		
 		board.setPreferredSize(new Dimension(BoardAbstract.B_WIDTH, BoardAbstract.B_HEIGHT));
 		board.setMinimumSize(new Dimension(BoardAbstract.B_WIDTH, BoardAbstract.B_HEIGHT));
@@ -70,10 +70,12 @@ public class MainWindow implements KeyListener, MouseListener{
 		//JScrollPane editorPanelScrollPane = new JScrollPane(editorPanel);
 		editorPanelScrollPane = new JScrollPane(board.getEditorPanel(),JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		//board.transferEditorPanel(editorPanel);
+
 		
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, editorPanelScrollPane, board); // 
 		splitPane.setOneTouchExpandable(true);
 		splitPane.setDividerLocation(board.getEditorPanel().getWidth());
+
 		//board.setFocusable(true);
 		
 		splitPane.setSize(new Dimension(board.getWidth() + board.getEditorPanel().getWidth(), 300));
@@ -130,9 +132,7 @@ public class MainWindow implements KeyListener, MouseListener{
 		
 		MainWindow splitPaneInstance = new MainWindow();
 
-		JFrame frame = board.mainFrame;
-		
-		frame.addFocusListener(new FocusListener() {
+		mainFrame.addFocusListener(new FocusListener() {
 	        private final KeyEventDispatcher altDisabler = new KeyEventDispatcher() {
 	            @Override
 	            public boolean dispatchKeyEvent(KeyEvent e) {
@@ -150,120 +150,99 @@ public class MainWindow implements KeyListener, MouseListener{
 	            KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(altDisabler);
 	        }
 	    });
-		frame.add(splitPaneInstance.getSplitPane());
+		mainFrame.add(splitPaneInstance.getSplitPane());
 		//frame.add(splitPaneInstance.getScrollPane());
-		frame.setPreferredSize(new Dimension(width,height)); //TESTING SCREEN RESOLUTION was 300,600
+		mainFrame.setPreferredSize(new Dimension(width,height)); //TESTING SCREEN RESOLUTION was 300,600
 		//frame.setLocationRelativeTo();
-		frame.addKeyListener(splitPaneInstance);
-		frame.setFocusable(true);
+		mainFrame.addKeyListener(splitPaneInstance);
+		mainFrame.setFocusable(true);
 		
-		frame.setVisible(true);
-		frame.pack();
-		
-		mainFrame = frame;
-		board.setMainFrame(frame);
+		mainFrame.setVisible(true);
+		mainFrame.pack();
+
+		// Get graphics configuration...
+	    //GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	    //GraphicsDevice graphicsDevice = graphicsEnvironment.getDefaultScreenDevice();
+
+	    //runActiveRenderingLoop( mainFrame, graphicsDevice );
+	    
+	    
 	}
 	
 	public static void main(String[] args) {
 		
 		createAndShowGUI(); 
-		//runActiveRenderLoop();
+		//createFullscrenWindow();
+	}
+	
+	private static void runActiveRenderingLoop( JFrame frame, GraphicsDevice graphicsDevice ){
 		
+	    GraphicsConfiguration graphicsConfig = graphicsDevice.getDefaultConfiguration();
+	    
+		frame.createBufferStrategy( 3 );
+	    BufferStrategy bufferStrategy = frame.getBufferStrategy();
+	    
+	    BufferedImage bufferedImage = graphicsConfig.createCompatibleImage( board.B_WIDTH, board.B_HEIGHT );
+	    Graphics2D g2 = bufferedImage.createGraphics();
+		
+		 while( true ) { //OPTIMIZE INTO DO WHILE LOOPS FOR RESTORED CONTENTS
+			 
+
+
+				 g2 = (Graphics2D) bufferStrategy.getDrawGraphics();
+				 
+				 g2.setColor( Color.BLACK );
+
+				 g2.fillRect( 0, 0, board.B_WIDTH, board.B_HEIGHT );
+
+				 board.activeRender(g2);
+
+				 g2.dispose();
+
+				 if( !bufferStrategy.contentsLost() ) //Blit and page-flip
+			        	bufferStrategy.show();
+	
+		 }
 	}
 	
 	
-	
-	private static void runActiveRenderLoop(){
+	private static void createFullscrenWindow(){
 		
-		// Create game window...
-	    JFrame frame = new JFrame();
-	    System.err.println(Thread.currentThread().getName());
-
-	    frame.setIgnoreRepaint( true );
+		// Create game window..
 	    
 	    MainWindow mainWindow = new MainWindow(); //FIXME BOARD IS FUCKING THIS ALL UP
 	    //frame.add(board);
+	    mainFrame.setIgnoreRepaint( true );
 	    
 	    Point resolution = new Point( board.B_WIDTH , board.B_HEIGHT );
 	    
-	    frame.addKeyListener(mainWindow);
-	    frame.addKeyListener(board);
-	    frame.addMouseListener(mainWindow);
+	    //mainFrame.addKeyListener(mainWindow);
+	    //frame.addKeyListener(board);
+	    //mainFrame.addMouseListener(mainWindow);
 	    
-	    frame.setUndecorated( true );
+	    mainFrame.setUndecorated( true );
 	    
-	    frame.setResizable(false);
-	    frame.setVisible(true);
-	    frame.pack();
-	    frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+	    board.setFocusable(true);
+	    mainFrame.setResizable(false);
+	    mainFrame.setVisible(true);
+	    mainFrame.pack();
+	    mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
 
-	    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); 
+	    mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); 
 
 	    
-	    frame.addKeyListener( new KeyAdapter() { //Anon listener for exiting on escape
+	    mainFrame.addKeyListener( new KeyAdapter() { //Anon listener for exiting on escape
 	      public void keyPressed( KeyEvent e ) {
 	        if( e.getKeyCode() == KeyEvent.VK_ESCAPE )
 	            running = false;
 	          }
 	    });
-	                
+	    
 	    // Get graphics configuration...
 	    GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	    GraphicsDevice graphicsDevice = graphicsEnvironment.getDefaultScreenDevice();
-	    GraphicsConfiguration graphicsConfig = graphicsDevice.getDefaultConfiguration();
 	    
-	    graphicsDevice.setFullScreenWindow( frame ); // Set to fullscreen
-	    
-	    if( graphicsDevice.isDisplayChangeSupported() ) {
-	    	
-	    	DisplayMode mode = new DisplayMode( resolution.x, resolution.y, 32, DisplayMode.REFRESH_RATE_UNKNOWN );
-	    	graphicsDevice.setDisplayMode( mode );
-
-	    }
-	    
-	    Graphics paintImage = null;
-	   
-	    Color background = Color.BLACK;
-	    Graphics2D g2 = null;    
-	    // Variables for counting frames per seconds
-	    System.err.println("Frame displayable?" + frame.isDisplayable());
-	    frame.createBufferStrategy( 2 );
-	    BufferStrategy bufferStrategy = frame.getBufferStrategy();
-	    
-	    BufferedImage bufferedImage = graphicsConfig.createCompatibleImage( resolution.x, resolution.y );
-	    Graphics2D g = bufferedImage.createGraphics();
-	    
-	    running = true;
-	    while( running ) { //OPTIMIZE INTO DO WHILE LOOPS FOR RESTORED CONTENTS
-	    	
-	    	try{
-
-		        g2 = bufferedImage.createGraphics(); //Clear back buffer image
-		        g2.setColor( background );
-
-		        g2.fillRect( 0, 0, resolution.x, resolution.y );
-
-		        
-		        board.activeRender(g2); //Render game onto back buffer
-		        
-		        paintImage = bufferStrategy.getDrawGraphics(); 
-		        paintImage.drawImage( bufferedImage, 0, 0, null );
-		                                
-		        if( !bufferStrategy.contentsLost() ) //Blit and page-flip
-		        	bufferStrategy.show();
-		        
-	    	} finally {
-	            // release resources
-	            if( g2 != null ) 
-	            	g2.dispose();
-	            if( paintImage != null ) 
-	            	paintImage.dispose();
-	          }
-		    	
-	    	//try { Thread.sleep(1000); } catch (Exception e) {}
-	    	
-	    }
-	    
+	    runActiveRenderingLoop( mainFrame, graphicsDevice );
 	    
 	                
 	    graphicsDevice.setFullScreenWindow( null );

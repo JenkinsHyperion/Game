@@ -2,7 +2,10 @@ package entityComposites;
 
 import java.awt.Color;
 import java.awt.geom.Line2D;
+import java.lang.reflect.InvocationTargetException;
 import java.security.InvalidParameterException;
+
+import javax.swing.SwingUtilities;
 
 import editing.BrowserTreePanel;
 import editing.EditorPanel;
@@ -323,9 +326,15 @@ public class CompositeFactory {
 		
 		//#### AREA TO NOTIFY BrowserTree
 		//something like,
-		BrowserTreePanel browserTreePanel = board.getEditorPanel().getBrowserTreePanel();
-		browserTreePanel.notifyParentChildRelationshipChanged(child, parentEntity);
-		
+
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				BrowserTreePanel browserTreePanel = board.getEditorPanel().getBrowserTreePanel();
+				browserTreePanel.notifyParentChildRelationshipChanged(child, parentEntity);
+			}
+		});
+
 	}
 	
 	public static void addScriptTo( EntityStatic entity , EntityBehaviorScript behavior ){

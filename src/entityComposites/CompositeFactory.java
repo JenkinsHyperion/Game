@@ -323,18 +323,11 @@ public class CompositeFactory {
 		System.out.println("----");
 		//parent.updateables.add(child);
 		//child.updateables.add( (UpdateableComposite) parent.getTranslationComposite() );
-		
+
 		//#### AREA TO NOTIFY BrowserTree
 		//something like,
-
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				BrowserTreePanel browserTreePanel = board.getEditorPanel().getBrowserTreePanel();
-				browserTreePanel.notifyParentChildRelationshipChanged(child, parentEntity);
-			}
-		});
-
+		BrowserTreePanel browserTreePanel = board.getEditorPanel().getBrowserTreePanel();
+		browserTreePanel.notifyParentChildRelationshipChanged(child, parentEntity);
 	}
 	
 	public static void addScriptTo( EntityStatic entity , EntityBehaviorScript behavior ){

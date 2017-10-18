@@ -10,6 +10,7 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.channels.NetworkChannel;
 import java.util.Enumeration;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -467,10 +468,36 @@ public class BrowserTreePanel extends JPanel {
 		
 	}
 	//TREE SECTION
-	public void notifyTreeAddedEntity(EntityStatic newEnt) {
-		DefaultMutableTreeNode newEntityNode = createSingleEntityNodeFolder(newEnt);
-		defaultModel.insertNodeInto(newEntityNode, entitiesRoot, entitiesRoot.getChildCount());
-		//System.err.println("From notifyTreeAddedEntity()--- added "+newEnt.name+" to tree.");
+	public synchronized void notifyTreeAddedEntity(EntityStatic newEnt) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				System.err.println("in entity added, current thread: \n" + Thread.currentThread());
+				DefaultMutableTreeNode newEntityNode = createSingleEntityNodeFolder(newEnt);
+				defaultModel.insertNodeInto(newEntityNode, entitiesRoot, entitiesRoot.getChildCount());
+				//System.err.println("From notifyTreeAddedEntity()--- added "+newEnt.name+" to tree.");
+			}
+		});
+	/*	new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					SwingUtilities.invokeAndWait(new Runnable() {
+						@Override
+						public void run() {
+							System.err.println("in entity added, current thread: \n" + Thread.currentThread());
+							DefaultMutableTreeNode newEntityNode = createSingleEntityNodeFolder(newEnt);
+							defaultModel.insertNodeInto(newEntityNode, entitiesRoot, entitiesRoot.getChildCount());
+							//System.err.println("From notifyTreeAddedEntity()--- added "+newEnt.name+" to tree.");
+						}
+					});
+				} catch (InvocationTargetException | InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}	
+			}
+		}).start();*/
+		
 	}
 
 	/**Tells the browser tree that relationship has changed, and updates the node display accordingly.
@@ -482,18 +509,52 @@ public class BrowserTreePanel extends JPanel {
 		else
 			return false;
 	}
-	public void notifyParentChildRelationshipChanged(EntityStatic child, EntityStatic parent) {
-		DefaultMutableTreeNode parentNode, childNode;
-		parentNode = containsEntity(parent, entitiesRoot);
-		childNode = containsEntity(child, entitiesRoot);
-		if (parentNode == null || childNode == null) {
-			System.err.println("BrowserTree was unable to modify parents for child "+child.name+" and parent "+parent.name);
-			return;  //if either of these nodes can't be found, there's no way to update the tree so break out.
-		}
-		defaultModel.removeNodeFromParent(childNode);
-		//System.err.println("removed "+childNode.getUserObject().toString()+"from parent.");
-		defaultModel.insertNodeInto(childNode, parentNode, parentNode.getChildCount());
-		//System.err.println("inserted "+childNode.getUserObject().toString()+"to parent "+parentNode.getUserObject().toString());
+	public synchronized void notifyParentChildRelationshipChanged(EntityStatic child, EntityStatic parent) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				System.err.println("in notify parent changed, current thread: \n" + Thread.currentThread());
+				DefaultMutableTreeNode parentNode, childNode;
+				parentNode = containsEntity(parent, entitiesRoot);
+				childNode = containsEntity(child, entitiesRoot);
+				if (parentNode == null || childNode == null) {
+					System.err.println("BrowserTree was unable to modify parents for child "+child.name+" and parent "+parent.name);
+					return;  //if either of these nodes can't be found, there's no way to update the tree so break out.
+				}
+				defaultModel.removeNodeFromParent(childNode);
+				//System.err.println("removed "+childNode.getUserObject().toString()+"from parent.");
+				defaultModel.insertNodeInto(childNode, parentNode, parentNode.getChildCount());
+				//System.err.println("inserted "+childNode.getUserObject().toString()+"to parent "+parentNode.getUserObject().toString());
+			}
+		});
+		/*new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					SwingUtilities.invokeAndWait(new Runnable() {
+						@Override
+						public void run() {
+							System.err.println("in notify parent changed, current thread: \n" + Thread.currentThread());
+							DefaultMutableTreeNode parentNode, childNode;
+							parentNode = containsEntity(parent, entitiesRoot);
+							childNode = containsEntity(child, entitiesRoot);
+							if (parentNode == null || childNode == null) {
+								System.err.println("BrowserTree was unable to modify parents for child "+child.name+" and parent "+parent.name);
+								return;  //if either of these nodes can't be found, there's no way to update the tree so break out.
+							}
+							defaultModel.removeNodeFromParent(childNode);
+							//System.err.println("removed "+childNode.getUserObject().toString()+"from parent.");
+							defaultModel.insertNodeInto(childNode, parentNode, parentNode.getChildCount());
+							//System.err.println("inserted "+childNode.getUserObject().toString()+"to parent "+parentNode.getUserObject().toString());
+						}
+					});
+				} catch (InvocationTargetException | InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}	
+			}
+		}).start();*/
+		
 	}
 	/**
 	 * Note** Only creates the current entity node. Doesn't create the main "Entities" folder in the same way that {@link #createCompositesNodeFolder(EntityStatic)} does.

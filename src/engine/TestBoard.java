@@ -95,6 +95,10 @@ public class TestBoard extends BoardAbstract{
     		public void onPressed() { CompositeFactory.abandonAllChildren(player); }
     		public void onReleased() {  }
     	});
+    	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_7, new KeyCommand(){
+    		public void onPressed() { camera.lockAtCurrentPosition(); }
+    		public void onReleased() {  }
+    	});
     	//TEST BUTTON
     	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_DIVIDE, new KeyCommand(){
     		public void onPressed() { camera.setAngle( camera.getAngle() + Math.PI/360.0 ); }

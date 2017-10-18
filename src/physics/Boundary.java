@@ -87,6 +87,11 @@ public abstract class Boundary {
 		Point2D returnPoint = new Point.Double( p.getX() + shift.getX() , p.getY() + shift.getY() );
 		return returnPoint;
 	}
+	public static Point2D dividePoint( Point2D p , double factor ){
+		
+		Point2D returnPoint = new Point.Double( p.getX() /factor , p.getY() /factor );
+		return returnPoint;
+	}
 	@Deprecated
 	/**Return is world positions
 	 * 

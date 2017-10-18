@@ -96,7 +96,13 @@ public class TestBoard extends BoardAbstract{
     		public void onReleased() {  }
     	});
     	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_7, new KeyCommand(){
-    		public void onPressed() { camera.lockAtCurrentPosition(); }
+    		public void onPressed() { 
+    			
+    			if( camera.isLocked() )
+    				camera.unlock (); 
+    			else
+    				camera.lockAtCurrentPosition(); 
+    		}
     		public void onReleased() {  }
     	});
     	//TEST BUTTON
@@ -198,31 +204,13 @@ public class TestBoard extends BoardAbstract{
         setFocusable(true);
         setBackground(Color.BLACK);
         
-        asteroid = new Asteroid( 0 , 600 ,this);
-        
-        CompositeFactory.addGraphicTo(asteroid, new Sprite.Stillframe("asteroid02.png", Sprite.CENTERED ) );
-        asteroid.getGraphicComposite().setGraphicSizeFactor(0.334);
-        //CompositeFactory.addTranslationTo(asteroid);
-        CompositeFactory.addDynamicRotationTo(asteroid);
-
-        Boundary bounds1 = new BoundaryCircular(500);
-        //CompositeFactory.addColliderTo(asteroid,  new BoundaryLinear( new Line2D.Double( 0 , 100 , 0, -100 ) ) );
-        //CompositeFactory.addColliderTo(asteroid,  new BoundaryPolygonal.Box(100, 200, -50, -100) );
-        
-        CompositeFactory.addRotationalColliderTo(
-        		asteroid, 
-        		bounds1, 
-        		asteroid.getAngularComposite()
-        		);
-        
-        CompositeFactory.addRigidbodyTo(asteroid);
-        
-        //CompositeFactory.addColliderTo(asteroid,  new BoundaryPolygonal.Box(500, 200, -250,-100) );
-        //asteroid.getTranslationComposite().setDX(-0.25f);
-        
+        asteroid = new Asteroid( 0 , 600 , 500, this);
         this.currentScene.addEntity(asteroid,"Ground");
-        
         asteroid.spawnGrass();
+        
+        testAsteroid = new Asteroid( -200 , -1000 , 200, this);
+        this.currentScene.addEntity(testAsteroid,"Ground");
+        testAsteroid.spawnGrass();
         
         //asteroid.populateGrass(this);
         //
@@ -239,7 +227,7 @@ public class TestBoard extends BoardAbstract{
         //
         
         
-        player = new PlantPlayer(30,-100);
+        player = new PlantPlayer(30,-100,this);
         CompositeFactory.addRigidbodyTo(player);
 
         this.currentScene.addEntity(player,"Player");
@@ -265,7 +253,9 @@ public class TestBoard extends BoardAbstract{
         //PlantSegment.SeedFruit testFruit = new PlantSegment.SeedFruit(100, 0, this);
         //currentScene.addEntity(testFruit, "Pickable");
  
-    	this.cameraRotationBehavior = camera.createRotationalCameraBehavior(player,asteroid.getPosition() );
+    	//this.cameraRotationBehavior = camera.createRotationalCameraBehavior(player,asteroid.getPosition() );
+
+    	camera.createRotationalCameraBehavior( player, player.getPlayerCameraFocus() ,asteroid.getPosition(), player.getPlayerLookZoom() );
     }
     
     public EntityStatic getAsteroid(){
@@ -290,8 +280,8 @@ public class TestBoard extends BoardAbstract{
 		player.getAngularComposite().setAngleInRadians( playerAbsoluteAngle );
 		
 		//TESTING CAMERA ROTATION <ETHODS to be moved into camera when working
-
-		cameraRotationBehavior.manualUpdatePosition( -playerAbsoluteAngle, player.getPlayerCameraFocus() );
+		camera.updatePosition();
+		//cameraRotationBehavior.manualUpdatePosition( -playerAbsoluteAngle, player.getPlayerCameraFocus() );
     }
 
     public void spawnNewSprout( EntityStatic newTwig, String group ){

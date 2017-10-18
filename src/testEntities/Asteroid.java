@@ -4,7 +4,10 @@ import java.awt.Point;
 
 import engine.BoardAbstract;
 import engine.TestBoard;
+import entityComposites.CompositeFactory;
 import entityComposites.EntityStatic;
+import physics.Boundary;
+import physics.BoundaryCircular;
 import sprites.Sprite;
 import utility.PerlinNoiseGenerator;
 
@@ -20,16 +23,35 @@ public class Asteroid extends EntityStatic{
 	
 	private final int radius;
 	
-	public Asteroid(int x, int y, TestBoard board) {
+	public Asteroid(int x, int y, int radius, TestBoard board) {
 		super("Asteroid "+entityCount,x, y);
 		++entityCount;
 		this.board = board;
-		radius = 500;
+		this.radius = radius;
+
+		
+		CompositeFactory.addGraphicTo(this, new Sprite.Stillframe("asteroid02.png", Sprite.CENTERED ) );
+		this.getGraphicComposite().setGraphicSizeFactor(0.334 * (radius/500.0));
+        //CompositeFactory.addTranslationTo(asteroid);
+        CompositeFactory.addDynamicRotationTo(this);
+
+        Boundary bounds1 = new BoundaryCircular(radius);
+        //CompositeFactory.addColliderTo(asteroid,  new BoundaryLinear( new Line2D.Double( 0 , 100 , 0, -100 ) ) );
+        //CompositeFactory.addColliderTo(asteroid,  new BoundaryPolygonal.Box(100, 200, -50, -100) );
+        
+        CompositeFactory.addRotationalColliderTo(
+        		this, 
+        		bounds1, 
+        		this.getAngularComposite()
+        		);
+        
+        CompositeFactory.addRigidbodyTo(this);
+		
 	}
 	
 	public void spawnGrass(){
 
-		final int resolution = 6;
+		final int resolution = (int)( 6/(radius/500.0)); //angle in degrees
 		
 		int[] perlinGen01 = PerlinNoiseGenerator.perlinNoise(360, 10, 80);
 		

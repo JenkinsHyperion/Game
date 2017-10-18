@@ -8,6 +8,7 @@ import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
 
 import Input.KeyCommand;
+import engine.BoardAbstract;
 import engine.MovingCamera;
 import entities.Player;
 import entityComposites.Collider;
@@ -15,6 +16,7 @@ import entityComposites.EntityStatic;
 import entityComposites.TranslationComposite;
 import entityComposites.TranslationComposite.VelocityVector;
 import misc.CollisionEvent;
+import misc.MovementBehavior;
 import physics.Boundary;
 import physics.BoundaryCircular;
 import physics.BoundaryFeature;
@@ -34,6 +36,8 @@ import utility.DoubleLinkedList;
 import utility.ListNodeTicket;
 
 public class PlantPlayer extends Player {
+	
+	private MovingCamera camera;
 
 	private final ClimbingState climbing = new ClimbingState();
 	private final MovingState movingState = new MovingState();
@@ -55,6 +59,7 @@ public class PlantPlayer extends Player {
 	private Force gravity;
 	
 	private Point playerCameraFocus = new Point(0,0);
+	private Double playerCameraZoomOut = 1.0;
 
 	Font defaultFont = new Font( Font.SANS_SERIF , Font.PLAIN, 12) ;
 	Font contextFont = new Font( Font.SANS_SERIF , Font.PLAIN, 30) ;
@@ -65,8 +70,10 @@ public class PlantPlayer extends Player {
 	
 	
 	
-	public PlantPlayer(int x, int y ) {
+	public PlantPlayer(int x, int y, BoardAbstract board ) {
 		super(x, y);
+		
+		this.camera = board.getCamera();
 		
 		this.addGraphicTo( new Sprite.Stillframe("box.png", Sprite.CENTERED) );
 		
@@ -178,7 +185,11 @@ public class PlantPlayer extends Player {
 	}
 	
 	public Point getPlayerCameraFocus(){
-		return this.getAbsolutePositionOf( playerCameraFocus );
+		return playerCameraFocus;
+	}
+	
+	public Double getPlayerLookZoom(){
+		return playerCameraZoomOut;
 	}
 	
 	public void setGravity( Force gravity){
@@ -573,13 +584,13 @@ public class PlantPlayer extends Player {
 			bufferState = movingState;
 		}
 		@Override
-		public void onUp() { playerCameraFocus.setLocation(0,-300); }
+		public void onUp() { playerCameraFocus.setLocation(0,-250); camera.zoomOutFull();}
 		@Override
-		public void offUp() { playerCameraFocus.setLocation(0,0); }
+		public void offUp() { playerCameraFocus.setLocation(0,0); camera.zoomInFull();}
 		@Override
-		public void onDown() { playerCameraFocus.setLocation(0,300); }
+		public void onDown() { playerCameraFocus.setLocation(0,250); camera.zoomOutFull();}
 		@Override
-		public void offDown() { playerCameraFocus.setLocation(0,0); }
+		public void offDown() { playerCameraFocus.setLocation(0,0); camera.zoomInFull();}
 		
 		@Override public void offLeft(){};
 		@Override public void offRight(){};
@@ -685,14 +696,21 @@ public class PlantPlayer extends Player {
 		
 		//############# CAMERA LOOK UP AND DOWN METHODS ####################
 		@Override
-		public void onUp() { playerCameraFocus.setLocation(0,-300); }
+		public void onUp() { 
+			playerCameraFocus.setLocation(0,-250); 
+			camera.zoomOutFull();
+			}
 		@Override
-		public void offUp() { playerCameraFocus.setLocation(0,0); }
+		public void offUp() { playerCameraFocus.setLocation(0,0); camera.zoomInFull();}
 		@Override
-		public void onDown() { playerCameraFocus.setLocation(0,300); }
+		public void onDown() { 
+			playerCameraFocus.setLocation(0,250); 
+			camera.zoomOutFull();
+			}
 		@Override
-		public void offDown() { playerCameraFocus.setLocation(0,0); }
+		public void offDown() { playerCameraFocus.setLocation(0,0); camera.zoomInFull();}
 		//##################################################################
 	}
+
 	
 }

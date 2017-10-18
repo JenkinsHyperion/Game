@@ -36,6 +36,16 @@ public class Vector implements Serializable{
 			this.y = newY;
 		}
 		
+		public void set(double newX, double newY){
+			this.y = newY;
+			this.x = newX;
+		}
+		
+		public void setAdd( Vector add ){
+			this.y = this.y + add.y;
+			this.x = this.x + add.x;
+		}
+		
 		//############################################################################
 		//						VECTOR MATH OPERATIONS
 		//############################################################################

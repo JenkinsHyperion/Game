@@ -150,15 +150,15 @@ public class TestBoard extends BoardAbstract{
 
       			CompositeFactory.addTranslationTo(sprout);
       			
-      			currentScene.addEntity(sprout,"Tree");
-      			
-      			sprout.getAngularComposite().setAngleInDegrees( angle);
-      			
-      			CompositeFactory.makeChildOfParent(sprout, asteroid, TestBoard.this);
+      			sprout.getAngularComposite().setAngleInDegrees( angle - Math.toDegrees(camera.getAngle()) );
       			
       			System.out.println("angle "+angle);
       			
       			dragLine = new Line2D.Double( new Point() , new Point() );
+      			
+      			currentScene.addEntity(sprout,"Tree");
+      			
+      			CompositeFactory.makeChildOfParent(sprout, asteroid, TestBoard.this);
     		}
     	});
         
@@ -287,7 +287,7 @@ public class TestBoard extends BoardAbstract{
 		
 		//TESTING CAMERA ROTATION <ETHODS to be moved into camera when working
 
-		cameraRotationBehavior.manualUpdatePosition( -playerAbsoluteAngle, player.getPosition() );
+		cameraRotationBehavior.manualUpdatePosition( -playerAbsoluteAngle, player.getPlayerCameraFocus() );
     }
 
     public void spawnNewSprout( EntityStatic newTwig, String group ){
@@ -320,9 +320,12 @@ public class TestBoard extends BoardAbstract{
     	this.player.debugDraw(camera, g2);
 
     	
+    	
     	for ( Vector vector : player.getTranslationComposite().debugForceArrows() ){
     		camera.drawInBoard( vector.multiply(300).toLine( player.getPosition() ), (Graphics2D)g );
     	}
+    	
+    	camera.drawLineInWorld(dragLine, g2);
     	
     }
     

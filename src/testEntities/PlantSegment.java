@@ -583,7 +583,7 @@ public class PlantSegment extends EntityStatic{
 			public void debugMakeWaterSource(){
 				this.currentGrowthState = new DebugSeedGrowing();
 				this.currentWaterTransportState = new DebugWaterSource();
-				this.addGraphicTo(twigMediumSprite);
+				this.addGraphicTo(twigSmallSprite);
 			}
 
 			public void debugSetSugarLevel( int level ){
@@ -630,15 +630,26 @@ public class PlantSegment extends EntityStatic{
 			}
 			
 			protected class DebugSeedGrowing implements Runnable{
+				
+				private final int GROWTH_TIME = 100;
+				private int counter = 0;
+				
 				@Override
 				public void run() {
 		
-						getGraphicComposite().setGraphicSizeFactor( waterLevel / 100.0 );
+						/*getGraphicComposite().setGraphicSizeFactor( waterLevel / 100.0 );
 						
 						if ( waterLevel > maxGrowth ){
 							StemSegment.this.new SeedFullyGrownEvent().activate();
 							StemSegment.this.currentGrowthState = StemSegment.this.new DebugWaterSource();
-						}
+						}*/
+					if (counter < GROWTH_TIME){
+						getGraphicComposite().setGraphicSizeFactor( counter / (double)GROWTH_TIME );
+						counter++;
+					}else{
+						StemSegment.this.new SeedFullyGrownEvent().activate();
+						StemSegment.this.currentGrowthState = StemSegment.this.new DebugWaterSource();
+					}
 					
 				}
 			}
@@ -861,6 +872,9 @@ public class PlantSegment extends EntityStatic{
 						
 					StemSegment.this.currentWaterTransportState = new StemPushTransportState( sproutStem ) ;
 					StemSegment.this.currentSugarTransportState = new StemSugarTerminal( sproutStem ) ;
+					
+					new UpgradeEvent00().activate();
+					StemSegment.this.waterListener = new TransportWaterListenerActive( 5000 , new UpgradeEvent01() ); 
 					
 				}
 				

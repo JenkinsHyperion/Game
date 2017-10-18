@@ -637,32 +637,33 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 
 	public FollowTargetAroundPoint createRotationalCameraBehavior(EntityStatic targetEntity, Point rotationalOrigin){
 		
-		FollowTargetAroundPoint newBehaviorRotational = new FollowTargetAroundPoint(targetEntity,rotationalOrigin);
+		FollowTargetAroundPoint newBehaviorRotational = new FollowTargetAroundPoint( targetEntity.getPosition() ,rotationalOrigin);
 		this.behaviorCurrent = newBehaviorRotational;
 		return newBehaviorRotational;
 	}
 	
 	public class FollowTargetAroundPoint extends MovementBehavior{
 		
-		EntityStatic targetEntity;
+		Point targetPosition;
 		Point rotationalOrigin;
 		
-		public FollowTargetAroundPoint(EntityStatic targetEntity, Point rotationalOrigin ){
+		public FollowTargetAroundPoint( Point rotationalOrigin, Point startingPosition ){
 			this.rotationalOrigin = rotationalOrigin;
-			this.targetEntity = targetEntity;
+			this.targetPosition =startingPosition;
 		}
 		
 		public void manualUpdatePosition( double radians, Point targetPosition ){
 			updateAIPosition();
 			MovingCamera.this.updatePosition();
 			cameraAngle = radians;
+			this.targetPosition = targetPosition;
 		}
 		
 		@Override
 		public void updateAIPosition() {	//get delta x and y for rotating coordinates
 			
-			MovingCamera.this.setDX( (float)( this.targetEntity.getX() - MovingCamera.this.getX() )/30  );
-			MovingCamera.this.setDY( (float)( this.targetEntity.getY() - MovingCamera.this.getY() )/30  );
+			MovingCamera.this.setDX( (float)( this.targetPosition.getX() - MovingCamera.this.getX() )/30  );
+			MovingCamera.this.setDY( (float)( this.targetPosition.getY() - MovingCamera.this.getY() )/30  );
 		}
 	}
 

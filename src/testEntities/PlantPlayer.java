@@ -44,10 +44,17 @@ public class PlantPlayer extends Player {
 	
 	private boolean canStartClimb = true;
 	
+	private Vector inputVectorRight = new Vector(0,0);
+	private Vector inputVectorLeft = new Vector(0,0);
+	private Vector inputVectorUp = new Vector(0,0);
+	private Vector inputVectorDown = new Vector(0,0);
+	
 	private Force movementForce;
 	private byte hasFriction = 0;
 	
 	private Force gravity;
+	
+	private Point playerCameraFocus = new Point(0,0);
 
 	Font defaultFont = new Font( Font.SANS_SERIF , Font.PLAIN, 12) ;
 	Font contextFont = new Font( Font.SANS_SERIF , Font.PLAIN, 30) ;
@@ -78,10 +85,12 @@ public class PlantPlayer extends Player {
 			@Override
 			public void onPressed() {
 				currentState.onLeft();
+				inputVectorLeft = PlantPlayer.this.getOrientationVector().inverse();
 			}
 			@Override
 			public void onReleased() {
 				currentState.offLeft();
+				inputVectorLeft = Vector.zeroVector;
 			}
 			
 			@Override
@@ -93,10 +102,12 @@ public class PlantPlayer extends Player {
 			@Override
 			public void onPressed() {
 				currentState.onRight();
+				inputVectorRight = PlantPlayer.this.getOrientationVector();
 			}
 			@Override
 			public void onReleased() {
 				currentState.offRight();
+				inputVectorRight = Vector.zeroVector;
 			}
 			@Override
 			public void onHeld() {
@@ -121,10 +132,12 @@ public class PlantPlayer extends Player {
 			@Override
 			public void onPressed() {
 				currentState.onUp();
+				inputVectorUp = PlantPlayer.this.getOrientationVector().normalRight();
 			}
 			@Override
 			public void onReleased() {
 				currentState.offUp();
+				inputVectorUp = Vector.zeroVector;
 			}
 			@Override
 			public void onHeld() {
@@ -135,10 +148,12 @@ public class PlantPlayer extends Player {
 			@Override
 			public void onPressed() {
 				currentState.onDown();
+				inputVectorDown = PlantPlayer.this.getOrientationVector().normalLeft();
 			}
 			@Override
 			public void onReleased() {
 				currentState.offDown();
+				inputVectorDown = Vector.zeroVector;
 			}
 			@Override
 			public void onHeld() {
@@ -162,13 +177,17 @@ public class PlantPlayer extends Player {
 		this.currentState.run();
 	}
 	
+	public Point getPlayerCameraFocus(){
+		return this.getAbsolutePositionOf( playerCameraFocus );
+	}
+	
 	public void setGravity( Force gravity){
 		this.gravity = gravity;
 	}
 	
 	public void debugDraw(  MovingCamera cam , Graphics2D g2 ){
 		
-		//this.currentState.debugDraw(cam, g2);
+		this.currentState.debugDraw(cam, g2);
 		
 		final Point screenPosition = cam.getRelativePoint(contextPosition);
 		
@@ -342,12 +361,13 @@ public class PlantPlayer extends Player {
 	}
 	
 	private abstract class State implements Runnable{
+
 		public void onChange(){}
 		public void onLeavingState(){}
 		public void onLeft(){}
 		public void holdingLeft() {}
 		public void offLeft(){}
-		public void onRight(){}
+		public void onRight(){ }
 		public void holdingRight() {}
 		public void offRight(){}
 		public void onUp(){}
@@ -363,9 +383,7 @@ public class PlantPlayer extends Player {
 		
 		public void debugDraw( MovingCamera cam , Graphics2D g2){
 			
-			g2.drawString("Player "+getAngularComposite().getOrientationVector().normalLeft().angleFromVector() , 800, 400);
-			g2.drawString("Gravity "+ gravity.toVector().angleFromVector() , 800, 415);
-			g2.drawString("Difference "+(float) Vector.angleBetweenVectors( getAngularComposite().getOrientationVector(), gravity.toVector()) , 800, 430);
+
 		}
 	}
 	
@@ -374,6 +392,9 @@ public class PlantPlayer extends Player {
 		private Force clingNormal;
 		private VelocityVector currentCling;
 		private VelocityVector climbVelocity;
+		
+		private Vector inputVector = new Vector(0,0); //FOR keyboard input this is just 90 degree lines but for analog stick it's angled
+		
 		private byte leftRight;
 		private Vector jumpVelocity;
 		
@@ -386,15 +407,18 @@ public class PlantPlayer extends Player {
 		@Override
 		public void debugDraw(MovingCamera cam, Graphics2D g2) {
 			int i = 400;
-			while(stemsInRange.hasNext()){
+			/*while(stemsInRange.hasNext()){
 				PlantSegment stem = stemsInRange.get();
 				Vector absAngle = stem.getAngularComposite().getOrientationVector().normalLeft();
 				//g2.drawString("Stem "+ Vector.angleBetweenVectors( absAngle , gravity.toVector().inverse() ) , 800, i);
 				g2.drawString("Stem "+ Vector.angleBetweenVectors(absAngle, gravity.toVector()) , 700, i);
 				i = i + 15;
-			}
+			}*/
 			
-			g2.drawString(" Velocities "+getTranslationComposite().debugNumberVelocities()+" "+ currentCling.getVector().angleFromVector() , 700, 385);
+			g2.drawString("InputVector "+inputVectorDown.add(inputVectorLeft).add(inputVectorRight).add(inputVectorUp) , 800, 400);
+			
+			
+			//g2.drawString(" Velocities "+getTranslationComposite().debugNumberVelocities()+" "+ currentCling.getVector().angleFromVector() , 700, 385);
 		}
 		
 		public ListNodeTicket addSegment( PlantSegment stem, Vector clingVector ){
@@ -438,7 +462,25 @@ public class PlantPlayer extends Player {
 			}
 			else if ( stemHeight > 80 ){
 				if ( currentStem.nextSegments.length != 0 ){	// instead of null
-					currentStem = currentStem.nextSegments[0];
+					
+					if ( currentStem.nextSegments.length > 1 ){ //check for branches OPTIMIZE polymorph intoa  plantsegment method that takes playerVelocity as refernece
+						
+						Vector absInputVector = inputVectorDown.add(inputVectorLeft).add(inputVectorRight).add(inputVectorUp);
+						
+						Vector forkCWDirection = currentStem.nextSegments[0].getOrientationVector().normalRight();
+						Vector forkCCWDirection = currentStem.nextSegments[1].getOrientationVector().normalRight();
+						
+						if ( absInputVector.dotProduct(forkCWDirection) > absInputVector.dotProduct(forkCCWDirection)){
+							
+							currentStem = currentStem.nextSegments[0];
+						}
+						else{
+							currentStem = currentStem.nextSegments[1];
+						}
+					}
+					else{
+						currentStem = currentStem.nextSegments[0];
+					}
 				}
 			}
 			
@@ -478,17 +520,25 @@ public class PlantPlayer extends Player {
 		}
 		
 		@Override
-		public void onRight() { leftRight = -1; }
+		public void onRight() { 
+			leftRight = -1; 
+			}
 		@Override
-		public void onLeft() { leftRight = 1; }
+		public void onLeft() { 
+			leftRight = 1; 
+			}
 		@Override
 		public void holdingRight() { leftRight = -1; }
 		@Override
 		public void holdingLeft() { leftRight = 1; }
 		@Override
-		public void offRight() { leftRight = 0; }
+		public void offRight() { 
+			leftRight = 0; 
+			}
 		@Override
-		public void offLeft() { leftRight = 0; }
+		public void offLeft() { 
+			leftRight = 0; 
+			}
 		
 		@Override
 		public void onJump() {
@@ -508,18 +558,29 @@ public class PlantPlayer extends Player {
 		@Override
 		public void onLeft() {
 			changeState(movingState);
+			movingState.currentMovementState = movingState.accelerating;
 			movingState.leftRight = 1;
 		}
 		@Override
 		public void onRight() {
 			changeState(movingState);
+			movingState.currentMovementState = movingState.accelerating;
 			movingState.leftRight = -1;
 		}
 		@Override
 		public void onJump() {
-			//movementForce.setVector( gravity.getVector().unitVector().multiply(-1) );
-			//trans.addVelocity( gravity.getVector().unitVector().multiply(-5) );
+			getTranslationComposite().addVelocity( gravity.toVector().inverse().unitVector().multiply(5) );
+			bufferState = movingState;
 		}
+		@Override
+		public void onUp() { playerCameraFocus.setLocation(0,-300); }
+		@Override
+		public void offUp() { playerCameraFocus.setLocation(0,0); }
+		@Override
+		public void onDown() { playerCameraFocus.setLocation(0,300); }
+		@Override
+		public void offDown() { playerCameraFocus.setLocation(0,0); }
+		
 		@Override public void offLeft(){};
 		@Override public void offRight(){};
 		@Override public void offJump(){};
@@ -528,9 +589,15 @@ public class PlantPlayer extends Player {
 	private class FallingState extends State{
 		@Override
 		public void run() {}
-		@Override public void onLeft(){}
+		@Override public void onLeft(){ 
+			movingState.currentMovementState = movingState.accelerating; 
+			movingState.leftRight = 1;
+		}
 		@Override public void offLeft(){ movingState.setCoasting(); }
-		@Override public void onRight(){}
+		@Override public void onRight(){ 
+			movingState.currentMovementState = movingState.accelerating; 
+			movingState.leftRight = -1;
+			}
 		@Override public void offRight(){ movingState.setCoasting(); }
 		@Override public void onJump(){
 			canStartClimb = false;
@@ -556,7 +623,11 @@ public class PlantPlayer extends Player {
 		};
 		
 		private final Runnable coasting = new Runnable(){
-			public void run(){}
+			public void run(){
+				if ( getDX()*getDX() + getDY()*getDY() < 1 ){	//Enter standing state when velocity drops below a certain speed
+					changeState(standing);
+				}
+			}
 		};
 		
 		private Runnable currentMovementState = accelerating;
@@ -611,7 +682,17 @@ public class PlantPlayer extends Player {
 			currentMovementState = accelerating;
 			hasFriction = 0;
 		};
-		@Override public void offJump(){};
+		
+		//############# CAMERA LOOK UP AND DOWN METHODS ####################
+		@Override
+		public void onUp() { playerCameraFocus.setLocation(0,-300); }
+		@Override
+		public void offUp() { playerCameraFocus.setLocation(0,0); }
+		@Override
+		public void onDown() { playerCameraFocus.setLocation(0,300); }
+		@Override
+		public void offDown() { playerCameraFocus.setLocation(0,0); }
+		//##################################################################
 	}
 	
 }

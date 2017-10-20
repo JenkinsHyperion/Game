@@ -9,10 +9,10 @@ import physics.*;
 
 public class EntityDynamic extends EntityStatic{
 
-	protected float dx;
-    protected float dy;
-    protected float accY;
-    protected float accX;
+	protected double dx;
+    protected double dy;
+    protected double accY;
+    protected double accX;
     
     
 	protected ArrayList<Force> forces = new ArrayList<>();
@@ -54,22 +54,22 @@ public class EntityDynamic extends EntityStatic{
         }
     }
     
-    public void setDX(float setdx) {
+    public void setDX(double setdx) {
     	dx = setdx;
     }
     
-    public void setDY(float setdy) {
+    public void setDY(double setdy) {
     	dy = setdy;
     }
     
     public void setVelocity( Vector vector){
-    	dx = (float)vector.getX();
-    	dy = (float)vector.getY();
+    	dx = vector.getX();
+    	dy = vector.getY();
     }
     
     public void addVelocity( Vector vector){
-    	dx += (float)vector.getX();
-    	dy += (float)vector.getY();
+    	dx += vector.getX();
+    	dy += vector.getY();
     }
     
     public double getDeltaX(){
@@ -174,11 +174,11 @@ public class EntityDynamic extends EntityStatic{
     	accY = setAY;
     }
     
-    public float getAccY() {
+    public double getAccY() {
     	return accY;
     }
     
-    public float getAccX() {
+    public double getAccX() {
     	return accX;
     }
     

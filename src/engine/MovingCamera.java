@@ -20,6 +20,7 @@ import entities.EntityDynamic;
 import entityComposites.EntityStatic;
 import entityComposites.GraphicComposite;
 import misc.*;
+import physics.Boundary;
 import physics.BoundaryPolygonal;
 import physics.BoundarySide;
 import sprites.Sprite;
@@ -36,6 +37,8 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	
 	double zoomFactor = 1;
 	double zoomDelta = 1;
+	private double minZoom = 0.5;
+	private double maxZoom = 1;
 	
 	double cameraAngle = 0;
 	
@@ -50,6 +53,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	EntityStatic target;
 	MovementBehavior behaviorCurrent;
 	MovementBehavior behaviorActive;
+	MovementBehavior behaviorPaused;
 	
 	private boolean lockState = false;
 	
@@ -126,6 +130,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		this.dx=0;	//halt velocity		
 		this.dy=0;
 		
+		behaviorPaused = behaviorCurrent;
 		behaviorCurrent = new InactiveBehavior(); //make inactive behavior static singleton later
 		lockState = true;
 	}
@@ -135,6 +140,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		this.dx=0; //halt velocity
 		this.dy=0;
 		
+		behaviorPaused = behaviorCurrent;
 		behaviorCurrent = new InactiveBehavior();
 		lockState = true;
 	}
@@ -144,29 +150,33 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	}
 	
 	public void unlock(){
-		behaviorCurrent = behaviorActive;
+		behaviorCurrent = behaviorPaused;
 		lockState = false;
 	}
 
 	@Override
-	public void setDX(float setdx) {
-		this.dx = (float) (setdx/zoomFactor);
+	public void setDX(double setdx) {
+		this.dx = (setdx/zoomFactor);
 	}
 	@Override
-	public void setDY(float setdy) {
-		this.dy = (float) (setdy/zoomFactor);
+	public void setDY(double setdy) {
+		this.dy = (setdy/zoomFactor);
 	}
-	
-	public void addZoom(double dz){
-		this.zoomFactor += dz;
-	}
-	
+
 	public void quadupleZoom(){
-		this.zoomDelta = this.zoomDelta/(ZOOM_INCREMENT_PERCENT/100.0);
+		if ( this.zoomDelta > this.minZoom ){
+			this.zoomDelta = this.zoomDelta/(ZOOM_INCREMENT_PERCENT/100.0);
+		}else{
+			this.zoomDelta = this.minZoom;
+		}
 	}
 	
 	public void quarterZoom(){
-		this.zoomDelta = this.zoomDelta*(ZOOM_INCREMENT_PERCENT/100.0);
+		if ( this.zoomDelta < this.maxZoom ){
+			this.zoomDelta = this.zoomDelta*(ZOOM_INCREMENT_PERCENT/100.0);
+		}else{
+			this.zoomDelta = this.maxZoom;
+		}
 	}
 	
 	public void setZoomLevel( double factor ){
@@ -176,6 +186,13 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	public void resetZoom(){
 		this.zoomFactor = 1;
 		this.zoomDelta = 1;
+	}
+	
+	public void zoomOutFull(){
+		this.zoomDelta = minZoom;
+	}
+	public void zoomInFull(){
+		this.zoomDelta = maxZoom;
 	}
 	
 	public void setAngle( double angleRadians ){
@@ -446,8 +463,8 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	
 	public Point getWorldPos( Point2D relativeCameraPoint ){
 
-		double returnX = relativeCameraPoint.getX() - boardHalfWidth;
-		double returnY = relativeCameraPoint.getY() - boardHalfHeight; 
+		double returnX = (relativeCameraPoint.getX() - boardHalfWidth );
+		double returnY = (relativeCameraPoint.getY() - boardHalfHeight ); 
 		
 		double cosineTheta = Math.cos( -this.cameraAngle );
 		double sineTheta = Math.sin( -this.cameraAngle );
@@ -635,35 +652,39 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		return behaviorCurrent;
 	}
 
-	public FollowTargetAroundPoint createRotationalCameraBehavior(EntityStatic targetEntity, Point rotationalOrigin){
+	public FollowTargetAroundPoint createRotationalCameraBehavior(EntityStatic targetEntity, Point targetPosition, Point rotationalOrigin, Double zoom){
 		
-		FollowTargetAroundPoint newBehaviorRotational = new FollowTargetAroundPoint( targetEntity.getPosition() ,rotationalOrigin);
+		FollowTargetAroundPoint newBehaviorRotational = new FollowTargetAroundPoint( targetEntity, targetPosition ,rotationalOrigin, zoom);
 		this.behaviorCurrent = newBehaviorRotational;
 		return newBehaviorRotational;
 	}
 	
 	public class FollowTargetAroundPoint extends MovementBehavior{
 		
+		EntityStatic target;
 		Point targetPosition;
 		Point rotationalOrigin;
+		Double zoom;
 		
-		public FollowTargetAroundPoint( Point rotationalOrigin, Point startingPosition ){
+		public FollowTargetAroundPoint( EntityStatic target , Point targetPosition, Point rotationalOrigin, Double zoom ){
 			this.rotationalOrigin = rotationalOrigin;
-			this.targetPosition =startingPosition;
-		}
-		
-		public void manualUpdatePosition( double radians, Point targetPosition ){
-			updateAIPosition();
-			MovingCamera.this.updatePosition();
-			cameraAngle = radians;
 			this.targetPosition = targetPosition;
+			this.target = target;
+			this.zoom = zoom;
 		}
+
 		
 		@Override
 		public void updateAIPosition() {	//get delta x and y for rotating coordinates
+
+			Point position = target.getAbsolutePositionOf( Boundary.dividePoint(this.targetPosition , zoomFactor) );
 			
-			MovingCamera.this.setDX( (float)( this.targetPosition.getX() - MovingCamera.this.getX() )/30  );
-			MovingCamera.this.setDY( (float)( this.targetPosition.getY() - MovingCamera.this.getY() )/30  );
+			MovingCamera.this.setDX( ( position.x - MovingCamera.this.getX() ) / 30.0  );
+			MovingCamera.this.setDY( ( position.y - MovingCamera.this.getY() ) / 30.0  );
+			
+			cameraAngle = -target.getAngularComposite().getAngleInRadians();
+			
+			//zoomFactor = zoom;
 		}
 	}
 

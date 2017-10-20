@@ -12,6 +12,7 @@ import java.awt.event.*;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -25,6 +26,7 @@ import entityComposites.EntityStatic;
 import entityComposites.GraphicComposite;
 import entityComposites.UpdateableComposite;
 import misc.PaintOverlay;
+import misc.SlidingMessagePopup;
 import physics.CollisionEngine;
 import physics.CollisionEngine.ActiveCollider;
 import saving_loading.EntityData;
@@ -58,6 +60,8 @@ public abstract class BoardAbstract extends JPanel implements KeyListener, Mouse
 	
 	public RenderingEngine renderingEngine;
 	protected MovingCamera camera;
+	protected ArrayList<SlidingMessagePopup> slidingMessageQueue;
+	//protected ConcurrentHashMap<Integer, SlidingMessagePopup> slidingMessageQueue;
 	
 	private final Console console;
 	private final ConsoleActive consoleActive = new ConsoleActive();
@@ -82,7 +86,8 @@ public abstract class BoardAbstract extends JPanel implements KeyListener, Mouse
 	    mainFrame = frame;
 	    
 	    console = new Console( 20 , B_HEIGHT-200 , this);
-	    
+	    //slidingMessageQueue = new ConcurrentHashMap<>();
+	    slidingMessageQueue = new ArrayList<>();
 	    frame.addMouseWheelListener(this);
 	    frame.addKeyListener(this);
 	  /*  editorPanel = new EditorPanel(this);
@@ -282,7 +287,12 @@ public abstract class BoardAbstract extends JPanel implements KeyListener, Mouse
 	public EditorPanel getEditorPanel() {
 		return this.editorPanel;
 	}
-	
+	/*public ConcurrentHashMap<Integer, SlidingMessagePopup> getSlidingMessageQueue() {
+		return this.slidingMessageQueue;
+	}*/
+	public ArrayList<SlidingMessagePopup> getSlidingMessageQueue() {
+		return this.slidingMessageQueue;
+	}
 	public void transferEditorPanel(EditorPanel instance){
 		this.editorPanel = instance; 
 	}

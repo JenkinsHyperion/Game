@@ -472,7 +472,6 @@ public class BrowserTreePanel extends JPanel {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				System.err.println("in entity added, current thread: \n" + Thread.currentThread());
 				DefaultMutableTreeNode newEntityNode = createSingleEntityNodeFolder(newEnt);
 				defaultModel.insertNodeInto(newEntityNode, entitiesRoot, entitiesRoot.getChildCount());
 				//System.err.println("From notifyTreeAddedEntity()--- added "+newEnt.name+" to tree.");
@@ -513,7 +512,6 @@ public class BrowserTreePanel extends JPanel {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				System.err.println("in notify parent changed, current thread: \n" + Thread.currentThread());
 				DefaultMutableTreeNode parentNode, childNode;
 				parentNode = containsEntity(parent, entitiesRoot);
 				childNode = containsEntity(child, entitiesRoot);

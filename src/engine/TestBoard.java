@@ -96,7 +96,14 @@ public class TestBoard extends BoardAbstract{
     		public void onReleased() {  }
     	});
     	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_7, new KeyCommand(){
-    		public void onPressed() { camera.lockAtCurrentPosition(); }
+    		public void onPressed() { 
+    			System.err.println("Creating message popup");
+    			SlidingMessagePopup testPopup = new SlidingMessagePopup(BoardAbstract.B_WIDTH, 
+    														BoardAbstract.B_HEIGHT-250, TestBoard.this,
+    														"\"Wheelw psh\"");
+    		//	slidingMessageQueue.put(0, testPopup);
+    			slidingMessageQueue.add(testPopup);
+    		}
     		public void onReleased() {  }
     	});
     	//TEST BUTTON
@@ -292,6 +299,18 @@ public class TestBoard extends BoardAbstract{
 		//TESTING CAMERA ROTATION <ETHODS to be moved into camera when working
 
 		cameraRotationBehavior.manualUpdatePosition( -playerAbsoluteAngle, player.getPlayerCameraFocus() );
+		
+		try {
+			//David's test for sliding message popup
+			/*		for (int i: slidingMessageQueue.keySet()) {
+						slidingMessageQueue.get(i).updatePosition();
+					}*/
+			for (SlidingMessagePopup smp : slidingMessageQueue) {
+				smp.updatePosition();
+			} 
+		} catch (ConcurrentModificationException e) {
+			System.err.println("Ignorable concurrentModification exception.");
+		}
     }
 
     public void spawnNewSprout( EntityStatic newTwig, String group ){
@@ -330,7 +349,17 @@ public class TestBoard extends BoardAbstract{
     	}
     	
     	camera.drawLineInWorld(dragLine, g2);
-    	
+    	try {
+	    	//david's test area for drawing sliding message popup
+	    	for (SlidingMessagePopup smp: slidingMessageQueue) {
+	    		smp.draw(g2);
+	    	}
+    	} catch (ConcurrentModificationException e) {
+    		System.err.println("Ignorable concurrentModification exception.");
+    	}
+/*    	for (int i: slidingMessageQueue.keySet()) {
+			slidingMessageQueue.get(i).draw(g);
+		}*/
     }
     
     @Override

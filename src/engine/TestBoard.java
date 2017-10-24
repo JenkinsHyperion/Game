@@ -6,7 +6,11 @@ import java.awt.geom.*;
 import java.util.*;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.event.*;
+
+import com.studiohartman.jamepad.ControllerManager;
+import com.studiohartman.jamepad.ControllerState;
 
 import Input.InputController;
 import Input.KeyCommand;
@@ -65,10 +69,13 @@ public class TestBoard extends BoardAbstract{
     public static ColliderGroup<EntityStatic> worldGeometryGroup;
     public static ColliderGroup<PlantSegment> treeStemGroup;
     public static ColliderGroup<SeedFruit> pickableGroup;
+    
+  
 
     public TestBoard(int width , int height, JFrame frame ) {
     	super(width,height,frame);
     	
+
     	this.renderingEngine = new RenderingEngine( this );
     	this.camera = this.renderingEngine.getCamera();
     	
@@ -100,7 +107,7 @@ public class TestBoard extends BoardAbstract{
     			System.err.println("Creating message popup");
     			SlidingMessagePopup testPopup = new SlidingMessagePopup(BoardAbstract.B_WIDTH, 
     														BoardAbstract.B_HEIGHT-250, TestBoard.this,
-    														"\"Wheelw psh\"");
+    														"Wheelw psh");
     		//	slidingMessageQueue.put(0, testPopup);
     			slidingMessageQueue.add(testPopup);
     		}
@@ -176,10 +183,12 @@ public class TestBoard extends BoardAbstract{
     	this.collisionEngine = new VisualCollisionEngine(this,renderingEngine); //Refactor to a better name
     	
     	this.forcesOverlay = renderingEngine.addOverlay( ((VisualCollisionEngine)collisionEngine).createForcesOverlay() );
-    	
+		
     	initBoard();
     	postInitializeBoard();
     	initEditorPanel();
+
+    	
     }
 
 

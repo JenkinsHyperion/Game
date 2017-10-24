@@ -7,6 +7,9 @@ import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
 
+import com.studiohartman.jamepad.ControllerManager;
+import com.studiohartman.jamepad.ControllerState;
+
 import Input.KeyCommand;
 import engine.BoardAbstract;
 import engine.MovingCamera;
@@ -53,6 +56,8 @@ public class PlantPlayer extends Player {
 	private Vector inputVectorUp = new Vector(0,0);
 	private Vector inputVectorDown = new Vector(0,0);
 	
+	private Vector leftStickInputVector = new Vector(0,0);
+	
 	private Force movementForce;
 	private byte hasFriction = 0;
 	
@@ -67,14 +72,15 @@ public class PlantPlayer extends Player {
 	private static final String context_none = "";
 	private static final String context_pickup = "Pick Up";
 	private static String contextCurrent = context_none;
-	
+	public ControllerManager controllers;
 	
 	
 	public PlantPlayer(int x, int y, BoardAbstract board ) {
 		super(x, y);
 		
 		this.camera = board.getCamera();
-		
+    	controllers = new ControllerManager();
+    	controllers.initSDLGamepad();
 		this.addGraphicTo( new Sprite.Stillframe("box.png", Sprite.CENTERED) );
 		
 		Boundary boundary = new BoundarySingular( new Event() );
@@ -175,7 +181,45 @@ public class PlantPlayer extends Player {
 				changeState(falling);
 			}
 		});
-		
+		Thread testControllerThread = new Thread(new Runnable() {
+
+			ControllerState currState;
+			ControllerState oldState =  controllers.getState(0);
+
+			//a = new Object();
+
+    		@Override
+    		public void run() {
+    			//Print a message when the "A" button is pressed. Exit if the "B" button is pressed 
+    			//or the controller disconnects.
+    			while(true) {
+    				
+    				
+    				currState = controllers.getState(0);
+    				double playerAngle =Math.toRadians( -currState.leftStickAngle - getAngularComposite().getAngleInDegrees() );
+    				leftStickInputVector.set(Math.cos(playerAngle), Math.sin(playerAngle));
+    				leftStickInputVector = leftStickInputVector.multiply(currState.leftStickMagnitude );
+    				if(!currState.isConnected) {
+    					break;
+    				}
+    				if(currState.dpadLeft && !oldState.dpadLeft ) {
+    					currentState.onLeft();
+    				}
+    				if(!currState.dpadLeft && oldState.dpadLeft) {
+    					currentState.offLeft();
+    					System.err.println("calling offLeft()");
+    				} 
+    			
+    				if(currState.dpadRight) {
+    					currentState.onRight();
+    				}
+    				
+    				oldState = currState;
+    			}
+    		}
+
+    	});
+    	testControllerThread.start();
 	}
 	
 	@Override
@@ -404,8 +448,6 @@ public class PlantPlayer extends Player {
 		private VelocityVector currentCling;
 		private VelocityVector climbVelocity;
 		
-		private Vector inputVector = new Vector(0,0); //FOR keyboard input this is just 90 degree lines but for analog stick it's angled
-		
 		private byte leftRight;
 		private Vector jumpVelocity;
 		
@@ -428,6 +470,7 @@ public class PlantPlayer extends Player {
 			
 			g2.drawString("InputVector "+inputVectorDown.add(inputVectorLeft).add(inputVectorRight).add(inputVectorUp) , 800, 400);
 			
+			cam.drawLineInWorld( leftStickInputVector.multiply(200).toLine( new Point(300,300) ) , g2);
 			
 			//g2.drawString(" Velocities "+getTranslationComposite().debugNumberVelocities()+" "+ currentCling.getVector().angleFromVector() , 700, 385);
 		}
@@ -476,7 +519,8 @@ public class PlantPlayer extends Player {
 					
 					if ( currentStem.nextSegments.length > 1 ){ //check for branches OPTIMIZE polymorph intoa  plantsegment method that takes playerVelocity as refernece
 						
-						Vector absInputVector = inputVectorDown.add(inputVectorLeft).add(inputVectorRight).add(inputVectorUp);
+						//Vector absInputVector = inputVectorDown.add(inputVectorLeft).add(inputVectorRight).add(inputVectorUp);
+						Vector absInputVector = leftStickInputVector;
 						
 						Vector forkCWDirection = currentStem.nextSegments[0].getOrientationVector().normalRight();
 						Vector forkCCWDirection = currentStem.nextSegments[1].getOrientationVector().normalRight();

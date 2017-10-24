@@ -148,6 +148,20 @@ public abstract class Sprite implements Graphic{
     		this.spriteOffsetY += offset_y;
         }
         
+        public Stillframe( String path, int offset_x, int offset_y , byte flag, int sizePercent ){ //CONSTRUCTOR ALLOWING FOR CERTAIN AUTOMATIC INITIALIZERS LIKE CENTERING
+        	super(0,0);
+        	initialize(path);
+        	
+        	if ( !initFlags(flag) ){
+        		System.err.println(path+" sprite has invalid parameter");
+        	}
+        	
+        	this.setSizeFactor(sizePercent/100.0);
+        	
+        	this.spriteOffsetX += offset_x;
+    		this.spriteOffsetY += offset_y;
+        }
+        
         public Stillframe( String path , byte flag ){ //CONSTRUCTOR ALLOWING FOR CERTAIN AUTOMATIC INITIALIZERS LIKE CENTERING
         	super(0,0);
         	initialize(path);

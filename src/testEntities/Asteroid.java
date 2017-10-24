@@ -2,6 +2,8 @@ package testEntities;
 
 import java.awt.Point;
 
+import com.studiohartman.jamepad.ControllerState;
+
 import engine.BoardAbstract;
 import engine.TestBoard;
 import entityComposites.CompositeFactory;
@@ -18,6 +20,7 @@ public class Asteroid extends EntityStatic{
 	private static final Sprite.Stillframe grass01 = new Sprite.Stillframe("Prototypes/grasstest01.png",0,2,Sprite.CENTERED_BOTTOM);
 	private static final Sprite.Stillframe grass02 = new Sprite.Stillframe("Prototypes/grasstest02.png",0,2,Sprite.CENTERED_BOTTOM);
 	private static final Sprite.Stillframe grass03 = new Sprite.Stillframe("Prototypes/grasstest03.png",0,2,Sprite.CENTERED_BOTTOM);
+	private static final Sprite.Stillframe clover1 = new Sprite.Stillframe("Prototypes/clover.png",0,2,Sprite.CENTERED_BOTTOM ,75);
 
 	private static int entityCount = 0;
 	
@@ -29,7 +32,6 @@ public class Asteroid extends EntityStatic{
 		this.board = board;
 		this.radius = radius;
 
-		
 		CompositeFactory.addGraphicTo(this, new Sprite.Stillframe("asteroid02.png", Sprite.CENTERED ) );
 		this.getGraphicComposite().setGraphicSizeFactor(0.334 * (radius/500.0));
         //CompositeFactory.addTranslationTo(asteroid);

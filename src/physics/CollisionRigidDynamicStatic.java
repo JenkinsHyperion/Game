@@ -20,7 +20,7 @@ public class CollisionRigidDynamicStatic extends Collision.DefaultType implement
 	
 	private double frictionCoefficient;
 	
-	private Force normalForce;
+	protected Force normalForce;
 	private Force frictionForce;
 	
 	private Resolver resolver = new ResolverSAT_1();
@@ -72,13 +72,13 @@ public class CollisionRigidDynamicStatic extends Collision.DefaultType implement
 
 		final Vector unitNormal = closestResolution.getSeparationVector().unitVector(); //FIXME MOVE THIS TO OWN ANTINORMAL FORCE
 		
-		final Vector normal = unitNormal.multiply(-0.2);								// ON CIRCULAR GRAVITY
+		final Vector normal = transPrimary.getNetForces().projectedOver(unitNormal);								// ON CIRCULAR GRAVITY
 		
 		final Vector tangentalVelocity = transPrimary.getVelocityVector().projectedOver( normal.normalRight() );
 		
 		final double distanceA = entityPrimary.getPosition().distance(entitySecondary.getPosition()) ;
 		
-		final double centripetalForce = tangentalVelocity.getMagnitude()*tangentalVelocity.getMagnitude()/ ( distanceA -80 );
+		final double centripetalForce = tangentalVelocity.getMagnitude()*tangentalVelocity.getMagnitude()/ ( distanceA -40 );
 		
 		//testing for centripetal acceleration
 		final Vector rotatingNormal = normal.add( unitNormal.multiply( centripetalForce ) );
@@ -134,7 +134,7 @@ public class CollisionRigidDynamicStatic extends Collision.DefaultType implement
 		
 		final double distanceA = entityPrimary.getPosition().distance(entitySecondary.getPosition()) ;
 		
-		final double centripetalForce = tangentalVelocity*tangentalVelocity/ ( distanceA -80 );
+		final double centripetalForce = tangentalVelocity*tangentalVelocity/ ( distanceA -40 );
 		
 		//testing for centripetal acceleration
 		final Vector rotatingNormal = normal.add( unitNormal.multiply( centripetalForce ) );
@@ -166,7 +166,7 @@ public class CollisionRigidDynamicStatic extends Collision.DefaultType implement
 			
 			//TODO GET NORMAL FROM BOUDNARY FEATURE INSTEAD
 
-			System.out.println("Will clip by "+ depthX +" , "+ depthY + " ... ");
+			System.out.println("Will clip by "+ depthX +" , "+ depthY + " ... "+closestResolution.getClippingVector());
 			
 			entityPrimary.setPos(
 					transPrimary.getDeltaX(entityPrimary) + depthX,

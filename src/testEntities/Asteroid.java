@@ -19,18 +19,46 @@ public class Asteroid extends EntityStatic{
 	private static final Sprite.Stillframe grass02 = new Sprite.Stillframe("Prototypes/grasstest02.png",0,2,Sprite.CENTERED_BOTTOM);
 	private static final Sprite.Stillframe grass03 = new Sprite.Stillframe("Prototypes/grasstest03.png",0,2,Sprite.CENTERED_BOTTOM);
 
+	private static final Sprite.Stillframe asteroid01 = new Sprite.Stillframe("asteroid02.png", Sprite.CENTERED );
+	private static final Sprite.Stillframe asteroid02 = new Sprite.Stillframe("asteroid_test_02.png", Sprite.CENTERED );
+	
+	public static final int PRESET01 = 1;
+	public static final int PRESET02 = 2;
+	public static final int PRESET03 = 3;
+
 	private static int entityCount = 0;
+	
+	private Sprite.Stillframe grassSprite;
+	private Sprite.Stillframe asteroidSprite;
 	
 	private final int radius;
 	
-	public Asteroid(int x, int y, int radius, TestBoard board) {
+	public Asteroid(int x, int y, int radius, TestBoard board, int...preset) {
 		super("Asteroid "+entityCount,x, y);
 		++entityCount;
 		this.board = board;
 		this.radius = radius;
 
-		
-		CompositeFactory.addGraphicTo(this, new Sprite.Stillframe("asteroid02.png", Sprite.CENTERED ) );
+		if ( preset.length > 0 ){
+			if ( preset[0] == 1 ){
+				asteroidSprite = asteroid01;
+				grassSprite = grass01;
+			}
+			else if( preset[0] == 2 ){
+				asteroidSprite = asteroid02;
+				grassSprite = grass02;
+			}
+			else if( preset[0] == 3 ){
+				asteroidSprite = asteroid01;
+				grassSprite = grass03;
+			}
+		}
+		else{
+			asteroidSprite = asteroid01;
+			grassSprite = grass01;
+		}
+
+		CompositeFactory.addGraphicTo(this, asteroidSprite );
 		this.getGraphicComposite().setGraphicSizeFactor(0.334 * (radius/500.0));
         //CompositeFactory.addTranslationTo(asteroid);
         CompositeFactory.addDynamicRotationTo(this);
@@ -61,14 +89,14 @@ public class Asteroid extends EntityStatic{
 			
 			if ( i % resolution == 0 ){
 	
-				spawnSingleGrass( i, keySize ,grass03);
+				spawnSingleGrass( i, keySize ,grassSprite);
 			}
 			else{
 				
 				if ( i % resolution == resolution/2 ){
 				
 					if ( 0.5 > (20+perlinGen01[i])/100.0 ){
-						spawnSingleGrass( i, keySize ,grass03);
+						spawnSingleGrass( i, keySize ,grassSprite);
 					}
 				}
 			}

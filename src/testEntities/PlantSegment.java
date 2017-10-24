@@ -682,8 +682,9 @@ public class PlantSegment extends EntityStatic{
 
 					if ( numberFromLastBranch > randomInt(0, 3) ){ //start new branch every 1-6 segments
 						
-						final int FORK_ANGLE = 40; // Set to 90 or higher for some freaky shit
-						final int UPWARD_WILLPOWER = 20; //-20 to 40 look normal. Set to 90 or higher for chaos
+						final int LEAFSTEM_FORK_ANGLE = 80; // Set to 90 or higher for some freaky shit
+						final int STEM_FORK_ANGLE = 0;
+						final int UPWARD_WILLPOWER = 0; //-20 to 40 look normal. Set to 90 or higher for chaos
 
 						
 						int thisMaxGrowth = (int)getMaxGrowth()-1;
@@ -712,13 +713,13 @@ public class PlantSegment extends EntityStatic{
 						LeafStem leafStemRight = new LeafStem(relativeTip.x, relativeTip.y, thisMaxGrowth , StemSegment.this.organism, board);
 
 						if ( StemSegment.this.lastBranchedClockwise ){ //check last branch direction and alternate
-							sproutLeft.getAngularComposite().setAngleInDegrees( thisSegmentAngle + FORK_ANGLE );
-							leafStemRight.getAngularComposite().setAngleInDegrees( thisSegmentAngle - FORK_ANGLE );
+							sproutLeft.getAngularComposite().setAngleInDegrees( thisSegmentAngle + STEM_FORK_ANGLE );
+							leafStemRight.getAngularComposite().setAngleInDegrees( thisSegmentAngle - LEAFSTEM_FORK_ANGLE );
 							sproutLeft.lastBranchedClockwise = false;
 						}
 						else{
-							leafStemRight.getAngularComposite().setAngleInDegrees( thisSegmentAngle + FORK_ANGLE );
-							sproutLeft.getAngularComposite().setAngleInDegrees( thisSegmentAngle - FORK_ANGLE );
+							leafStemRight.getAngularComposite().setAngleInDegrees( thisSegmentAngle + LEAFSTEM_FORK_ANGLE );
+							sproutLeft.getAngularComposite().setAngleInDegrees( thisSegmentAngle - STEM_FORK_ANGLE );
 							sproutLeft.lastBranchedClockwise = true;
 							
 						}
@@ -744,8 +745,8 @@ public class PlantSegment extends EntityStatic{
 					}
 					else if ( getMaxGrowth() > 30){ // Else segemnt didn't branch, so grown next segment if bigger than 30% grown
 						
-						final int RANDOM_BEND_RANGE = 20; // 0 is perfectly straight branch. Higher than 40 looks withered.
-						final int UPWARD_WILLPOWER = 20; // 
+						final int RANDOM_BEND_RANGE = 5; // 0 is perfectly straight branch. Higher than 40 looks withered.
+						final int UPWARD_WILLPOWER = 0; // 
 						
 						int randomShrinkage = randomInt(1 , 10); // This being greater than 0 is the only
 						//thing stopping the stem from growing infinitely. Adjust chances accordingly
@@ -826,8 +827,8 @@ public class PlantSegment extends EntityStatic{
 				public void activate() {
 					
 					
-					final int RANDOM_BEND_RANGE = 20; // 0 is perfectly straight branch. Higher than 40 looks withered.
-					final int UPWARD_WILLPOWER = 10; // 
+					final int RANDOM_BEND_RANGE = 1; // 0 is perfectly straight branch. Higher than 40 looks withered.
+					final int UPWARD_WILLPOWER = 0; // 
 						
 					int randomShrinkage = randomInt( 1 , 10); // This being greater than 0 is the only
 						//thing stopping the stem from growing infinitely. Adjust chances accordingly
@@ -940,7 +941,7 @@ public class PlantSegment extends EntityStatic{
 					
 					final int RANDOM_BEND_RANGE = 10; // 0 is perfectly straight branch. Higher than 40 looks withered.
 					
-					final int UPWARD_WILLPOWER = -5; // 
+					final int UPWARD_WILLPOWER = 20; // 
 	
 					int randomBend = randomInt( -RANDOM_BEND_RANGE ,RANDOM_BEND_RANGE); // get random bend
 					

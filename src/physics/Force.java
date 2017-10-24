@@ -1,5 +1,6 @@
 package physics;
 
+import java.awt.Point;
 import java.util.ArrayList;
 
 //import com.sun.xml.internal.bind.v2.runtime.RuntimeUtil.ToStringAdapter;
@@ -34,6 +35,11 @@ public class Force {
 	
 	public void setVector( Vector input ){
 		this.force = input;
+	}
+	
+	public void setVector( Point input ){
+		this.force.setX(input.x);
+		this.force.setY(input.y);
 	}
 	
 	public void setVector( double x , double y ){

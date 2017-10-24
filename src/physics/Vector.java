@@ -41,6 +41,11 @@ public class Vector implements Serializable{
 			this.x = newX;
 		}
 		
+		public void set( Vector setVector ){
+			this.y = setVector.x;
+			this.x = setVector.y;
+		}
+		
 		public void setAdd( Vector add ){
 			this.y = this.y + add.y;
 			this.x = this.x + add.x;
@@ -295,6 +300,10 @@ public class Vector implements Serializable{
 			return "Vector("+ x + "," + y +")";
 		}
 
+		public int getIntegerMagnitude() {
+			return (int)( Math.sqrt( x*x + y*y ) );
+		}
+		
 		public double getMagnitude() {
 			return new Point2D.Double(0,0).distance( new Point2D.Double( this.x, this.y ) ) ;
 		}

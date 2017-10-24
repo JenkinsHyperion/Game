@@ -33,11 +33,11 @@ public class EntityStatic extends Entity{
 	private static final NullTicket nullTicket = new NullTicket();
 	private ListNodeTicket updaterSlot = nullTicket;
 	//COMPOSITE VARIABLES, LATER TO BE LIST OF COMPOSITES
-	protected TranslationComposite translationType = TranslationComposite.nullSingleton();
-	protected DynamicRotationComposite rotationType = new DynamicRotationComposite(this);
-	protected GraphicComposite graphicsComposite = GraphicComposite.nullSingleton(); 
-	protected Collider collisionType = ColliderNull.nullColliderComposite();
-	protected AngularComposite angularType = AngularComposite.getFixedAngleSingleton();
+	protected TranslationComposite translationComposite = TranslationComposite.nullTranslationComposite();
+	protected DynamicRotationComposite rotationalComposite = new DynamicRotationComposite(this);
+	protected GraphicComposite graphicsComposite = GraphicComposite.nullGraphicsComposite(); 
+	protected Collider colliderComposite = ColliderNull.nullColliderComposite();
+	protected AngularComposite angularComposite = AngularComposite.getFixedAngleSingleton();
 	protected Rigidbody rigidbodyComposite = Rigidbody.nullSingleton();
 	
 	protected ParentComposite parentComposite = ParentComposite.nullParentComposite();
@@ -135,34 +135,34 @@ public class EntityStatic extends Entity{
 	
 	
 	protected void setTranslationComposite( TranslationComposite translationType ){ 
-		this.translationType = translationType; 
+		this.translationComposite = translationType; 
 	}
 	public TranslationComposite getTranslationComposite(){
-		return this.translationType;
+		return this.translationComposite;
 	}
 	
 	
 	protected void setRotationComposite( DynamicRotationComposite rotationType ){ 
-		this.rotationType = rotationType; 
+		this.rotationalComposite = rotationType; 
 	}
 	public DynamicRotationComposite getRotationComposite(){
-		return this.rotationType;
+		return this.rotationalComposite;
 	}
 	
 	
 	protected void setAngularComposite( AngularComposite angularType ){ 
-		this.angularType = angularType; 
+		this.angularComposite = angularType; 
 	}
 	public AngularComposite getAngularComposite(){
-		return this.angularType;
+		return this.angularComposite;
 	}
 	
 	
 	protected void setCollisionComposite(Collider collisionType){ 
-		this.collisionType = collisionType; 
+		this.colliderComposite = collisionType; 
 	}
 	public Collider getColliderComposite(){
-		return this.collisionType;			
+		return this.colliderComposite;			
 	}
 	
 	
@@ -234,11 +234,11 @@ public class EntityStatic extends Entity{
 	 */
 	
 	protected void nullifyGraphicsComposite(){
-		this.graphicsComposite = GraphicComposite.nullSingleton();
+		this.graphicsComposite = GraphicComposite.nullGraphicsComposite();
 	}
 	
 	protected void nullifyTranslationComposite(){
-		this.translationType = TranslationComposite.nullSingleton();
+		this.translationComposite = TranslationComposite.nullTranslationComposite();
 	}
 	@Deprecated
 	public void removeTranslationComposite(){
@@ -251,11 +251,11 @@ public class EntityStatic extends Entity{
 	}
 	
 	protected void nullifyColliderComposite(){
-		this.collisionType = ColliderNull.nullColliderComposite();
+		this.colliderComposite = ColliderNull.nullColliderComposite();
 	}
 	
 	protected void nullifyAngularComposite(){
-		this.angularType = AngularComposite.getFixedAngleSingleton();
+		this.angularComposite = AngularComposite.getFixedAngleSingleton();
 	}
 	
 	protected void nullifyRigidbodyComposite(){
@@ -263,7 +263,7 @@ public class EntityStatic extends Entity{
 	}
 	
 	protected void nullifyRotationComposite(){
-		this.rotationType = DynamicRotationComposite.nullSingleton();
+		this.rotationalComposite = DynamicRotationComposite.nullSingleton();
 	}
 	
 	protected void nullifyParentComposite(){
@@ -308,22 +308,22 @@ public class EntityStatic extends Entity{
     }
 	
 	public double getDX(){
-		return this.translationType.getDX();
+		return this.translationComposite.getDX();
 	}
 	public double getDY(){
-		return this.translationType.getDY();
+		return this.translationComposite.getDY();
 	}
 	
 	public double getDeltaX(){
-		return this.translationType.getDX()+this.getX();
+		return this.translationComposite.getDX()+this.getX();
 	}
 	public double getDeltaY(){
-		return this.translationType.getDY()+this.getY();
+		return this.translationComposite.getDY()+this.getY();
 	}
 	public Point getDeltaPosition(){
 		return new Point(
-			(int) (this.translationType.getDX()+this.getX()),
-			(int) (this.translationType.getDY()+this.getY())
+			(int) (this.translationComposite.getDX()+this.getX()),
+			(int) (this.translationComposite.getDY()+this.getY())
 		);
 	}
 	
@@ -331,7 +331,7 @@ public class EntityStatic extends Entity{
 	
 	
 	public Vector getOrientationVector(){
-		return this.angularType.getOrientationVector();
+		return this.angularComposite.getOrientationVector();
 	}
 	
 	@Deprecated
@@ -380,7 +380,7 @@ public class EntityStatic extends Entity{
 	
 	public Boundary getBoundary(){
 		
-	    return ((Collider)collisionType).getBoundary();
+	    return ((Collider)colliderComposite).getBoundary();
 	}
 
 	@Override
@@ -430,8 +430,8 @@ public class EntityStatic extends Entity{
 		this.graphicsComposite.disableComposite();
 		this.graphicsComposite = null;
 		
-		this.collisionType.disableComposite();
-		this.collisionType = null;		
+		this.colliderComposite.disableComposite();
+		this.colliderComposite = null;		
 		
 		this.updaterSlot.removeSelfFromList();
 		
@@ -456,15 +456,15 @@ public class EntityStatic extends Entity{
 	
 	//GET COMPOSITE METHODS
 	public boolean hasTranslation() {
-		return this.translationType.exists();
+		return this.translationComposite.exists();
 	}
 	
 	public boolean hasRotation() {
-		return this.rotationType.exists();
+		return this.rotationalComposite.exists();
 	}
 	
 	public boolean hasCollider() {
-		return this.collisionType.exists();
+		return this.colliderComposite.exists();
 	}
 	
 	public boolean hasUpdateables(){
@@ -517,7 +517,7 @@ public class EntityStatic extends Entity{
 		
 		Point returnPoint = this.getRelativeTranslationalPositionOf(entity);
 
-		returnPoint = this.angularType.getRotationalRelativePositionOf(returnPoint);
+		returnPoint = this.angularComposite.getRotationalRelativePositionOf(returnPoint);
 		
 		return returnPoint;
 	}
@@ -526,7 +526,7 @@ public class EntityStatic extends Entity{
 		
 		Point returnPoint = this.getRelativeTranslationalPositionOf(entity);
 
-		returnPoint = this.angularType.getRotationalRelativePositionOf(returnPoint);
+		returnPoint = this.angularComposite.getRotationalRelativePositionOf(returnPoint);
 		
 		Vector returnVector = new Vector( returnPoint.getX(), returnPoint.getY());
 		
@@ -537,14 +537,14 @@ public class EntityStatic extends Entity{
 		
 		Point returnPoint = this.getRelativeTranslationalPositionOf( point_on_entity );
 		
-		returnPoint = this.angularType.getRotationalRelativePositionOf(returnPoint);
+		returnPoint = this.angularComposite.getRotationalRelativePositionOf(returnPoint);
 		
 		return returnPoint;
 	}
 	
 	public Point getAbsolutePositionOf(Point relativePoint ){
 		
-		Point returnPoint = this.angularType.getRotationalAbsolutePositionOf(relativePoint);
+		Point returnPoint = this.angularComposite.getRotationalAbsolutePositionOf(relativePoint);
 		
 		returnPoint = this.getTranslationalAbsolutePositionOf( returnPoint );
 		
@@ -558,7 +558,7 @@ public class EntityStatic extends Entity{
 	
 	public Point getAbsolutePositionOf(Point2D relativePoint ){
 		
-		Point returnPoint = this.angularType.getRotationalAbsolutePositionOf(relativePoint);
+		Point returnPoint = this.angularComposite.getRotationalAbsolutePositionOf(relativePoint);
 		
 		returnPoint = this.getTranslationalAbsolutePositionOf( returnPoint );
 		

@@ -17,6 +17,7 @@ import engine.Overlay;
 import engine.OverlayComposite;
 import entityComposites.*;
 import misc.CollisionEvent;
+import testEntities.GravityMarker;
 import utility.DoubleLinkedList;
 import utility.ListNodeTicket;
 
@@ -36,8 +37,6 @@ public class CollisionEngine {
 	protected ArrayList<GroupPair> groupPairs = new ArrayList<GroupPair>();
 	
 	protected LinkedList<Collision> runningCollisionsList = new LinkedList<Collision>();  
-
-	
 	
 	public CollisionEngine(BoardAbstract testBoard){
 		
@@ -170,7 +169,7 @@ public class CollisionEngine {
 	}
 	
 	public < S1 extends E1  ,  S2 extends E2  ,  E1 extends EntityStatic  ,  E2 extends EntityStatic > 
-	boolean addCustomCollisionsBetween( ColliderGroup<S1> group1, ColliderGroup<S2> group2, CollisionBuilder<E1,E2> customCollisionFactory ){
+	boolean addCustomCollisionsBetween( ColliderGroup<S1> group1, ColliderGroup<S2> group2, CollisionDispatcher<E1,E2> customCollisionFactory ){
 		
 		System.out.println(" COLLISION ENGINE: CUSTOMIZING COLLISIONS BETWEEN '"+group1+"' AND '"+group2+"' COLLIDER GROUPS");
 		
@@ -198,7 +197,7 @@ public class CollisionEngine {
 
 	}
 	
-	public boolean addCustomCollisionsBetween( String group1, String group2, CollisionBuilder<?,?> customCollisionFactory ){
+	public boolean addCustomCollisionsBetween( String group1, String group2, CollisionDispatcher<?,?> customCollisionFactory ){
 		
 		ColliderGroup[] groups = this.getGroupsByName( group1, group2);
 		
@@ -505,7 +504,6 @@ public class CollisionEngine {
     public void checkCollisions() { //OPTIMIZE OBSOLETE, SEE VISUAL COLLISION ENGINE
 
     	for ( int i = 0 ; i < runningCollisionsList.size() ; i++ ){
-				
 			//if collision is complete, remove from active list
 			if (!runningCollisionsList.get(i).isComplete() ) {
 				runningCollisionsList.get(i).updateCollision(); //Run commands from inside collision object
@@ -515,13 +513,13 @@ public class CollisionEngine {
 				runningCollisionsList.get(i).completeCollision();
 				runningCollisionsList.get(i).notifyEntitiesOfCollisionCompleteion();
 				runningCollisionsList.remove(i);
-			}
-			
+			}	
 		}    
-        
+    	
+    	
     }
     
-    public void registerCollision( CollisionBuilder<EntityStatic,EntityStatic> factory, Collider collider1 , Collider collider2, VisualCollisionCheck check ){
+    public void registerCollision( CollisionDispatcher<EntityStatic,EntityStatic> factory, Collider collider1 , Collider collider2, VisualCollisionCheck check ){
     
     	if (!hasActiveCollision(collider1.getOwnerEntity(),collider2.getOwnerEntity())) { 
     		Collision newCollision = factory.createVisualCollision(collider1.getOwnerEntity(), collider1, collider2.getOwnerEntity(), collider2, check, this.getBoard().renderingEngine);
@@ -776,7 +774,7 @@ public class CollisionEngine {
 		protected ListNodeTicket listSlot;
 		protected boolean active = true;
 		
-		protected CollisionBuilder<EntityStatic,EntityStatic> collisionType;
+		protected CollisionDispatcher<EntityStatic,EntityStatic> collisionType;
 		
 		public void addToList( DoubleLinkedList<CheckingPair<?,?>> list ){
 			this.listSlot = list.add( this );
@@ -837,11 +835,11 @@ public class CollisionEngine {
 				stat.collider.getOwnerEntity().getRigidbody().exists() 
 			){
 				
-				this.collisionType = CollisionBuilder.DYNAMIC_STATIC;
+				this.collisionType = CollisionDispatcher.DYNAMIC_STATIC;
 				System.out.println( " [RIGID dynamic static pair]");
 				
 			}else{
-				this.collisionType = CollisionBuilder.RIGIDLESS_DYNAMIC_STATIC;
+				this.collisionType = CollisionDispatcher.RIGIDLESS_DYNAMIC_STATIC;
 				System.out.println(" [FIELD dynamic static pair]");
 			}				
 		}
@@ -884,10 +882,10 @@ public class CollisionEngine {
 				dynamicCollider2.collider.getOwnerEntity().getRigidbody().exists() 
 			){
 				
-				this.collisionType = CollisionBuilder.DYNAMIC_STATIC;
+				this.collisionType = CollisionDispatcher.DYNAMIC_STATIC;
 				System.out.println(" [RIGID dynamic dynamic pair]");
 			}else{
-				this.collisionType = CollisionBuilder.RIGIDLESS_DYNAMIC_STATIC;
+				this.collisionType = CollisionDispatcher.RIGIDLESS_DYNAMIC_STATIC;
 				System.out.println(" [FIELD dynamic dynamic pair]");
 			}	
 		}
@@ -909,7 +907,7 @@ public class CollisionEngine {
 	
 	protected class CustomDynamicStaticPair<E1 extends EntityStatic, E2 extends EntityStatic> extends DynamicStaticPair<E1,E2>{
 
-		public CustomDynamicStaticPair( ActiveCollider dynamic , ActiveCollider stat , CollisionBuilder<EntityStatic, EntityStatic> builder ,VisualCollisionCheck check ){
+		public CustomDynamicStaticPair( ActiveCollider dynamic , ActiveCollider stat , CollisionDispatcher<EntityStatic, EntityStatic> builder ,VisualCollisionCheck check ){
 			super(dynamic, stat, check);
 				
 			this.collisionType = builder;
@@ -1045,9 +1043,9 @@ public class CollisionEngine {
 		
 		private ListNodeTicket[] groupPosition;
 		
-		private CollisionBuilder<?,?> builder;
+		private CollisionDispatcher<?,?> builder;
 		
-		public GroupPair( ColliderGroup group1 , ColliderGroup group2, CollisionBuilder<?,?> collisionBuilder ){
+		public GroupPair( ColliderGroup group1 , ColliderGroup group2, CollisionDispatcher<?,?> collisionBuilder ){
 			this.groups = new ColliderGroup[] { group1 , group2 };
 			this.builder = collisionBuilder;
 			

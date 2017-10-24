@@ -15,9 +15,11 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	private EntityStatic ownerEntity;
 	private int ownerEntityIndex = -1;
 	
+	private Vector netForces = new Vector(0,0);
+	
 	private static final Null nullSingleton = new Null();
 
-	public static TranslationComposite nullSingleton(){
+	public static TranslationComposite nullTranslationComposite(){
 		return nullSingleton;
 	}
 	
@@ -157,9 +159,21 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		return coreMath.addForce(vector);
 	}
 
-	public void removeForce(int index){ 
-		coreMath.removeForce(index);
+	public void unregisterForce(Force force){ 
+		coreMath.unregisterForce(force);
 	}
+	
+	
+	public Force registerGravityForce( Vector vector ){
+		return coreMath.registerGravityForce(vector);
+	}
+	public void unregisterGravityForce(Force force){ 
+		coreMath.unregisterGravityForce(force);
+	}
+	public Vector getNetGravityVector(){
+		return coreMath.sumOfGravityVectors();
+	}
+	
 	
 	public Force registerNormalForce( Vector vector ){
 		return coreMath.addNormalForce(vector);
@@ -177,7 +191,10 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	public void removePointForce(int index){ 
 		coreMath.removePointForce(index);
 	}
-
+	
+	public Vector getNetForces(){
+		return this.netForces;
+	}
 
 	public Vector[] debugForceArrows(){
 		return coreMath.debugForceArrows();
@@ -272,15 +289,16 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 			protected ArrayList<Force> forces = new ArrayList<>();
 			protected ArrayList<PointForce> pointForces = new ArrayList<>();
 			protected ArrayList<Force> normalForces = new ArrayList<>();
+			protected ArrayList<Force> gravityForces = new ArrayList<>();
 		
 			public void update() {
 
 				dx += accX; 
 				dy += accY;
 		
-				Vector sumForces = this.sumOfForces();
-				accX = sumForces.getX();
-				accY = sumForces.getY();
+				Vector netForces = this.sumOfForces();
+				accX = netForces.getX();
+				accY = netForces.getY();
 		
 		
 			}  
@@ -538,6 +556,36 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 				return returnVector;
 			}
 			
+			
+			public Force registerGravityForce( Vector vector ){
+				
+				int indexID = gravityForces.size();     	
+				Force newForce = new Force( vector , indexID );
+				gravityForces.add( newForce ) ;
+				//System.out.print("Adding Force "+ indexID+" ... ");
+				return newForce;
+			}
+		
+			public void unregisterGravityForce(Force force){ 
+				
+				int index = force.getID();
+				
+				for ( int i = index+1 ; i < gravityForces.size() ; i++) {
+					gravityForces.get(i).decrementIndex();
+				} 
+				gravityForces.remove(index); 
+		
+			}
+			
+			public Vector sumOfGravityVectors(){
+				
+				Vector returnSum = new Vector(0,0);
+				for( Force gravity : gravityForces ){
+					returnSum.setAdd(gravity.toVector());
+				}
+				return returnSum;
+			}
+			
 			/** Creates new Force on this Collidable out of input Vector, and returns the Force that was added
 			 * 
 			 * @param vector
@@ -552,9 +600,10 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 				return newForce;
 			}
 		
-			public void removeForce(int index){ 
-				//System.out.print("Removing Force "+ index+" ... ");
-		
+			public void unregisterForce(Force force){ 
+				
+				int index = force.getID();
+				
 				for ( int i = index+1 ; i < forces.size() ; i++) {
 					forces.get(i).decrementIndex();
 				} 
@@ -615,14 +664,18 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 				}
 				return returnVectors;
 			}
-		
+			
 			public Vector sumOfForces(){
 		
 				Vector returnVector = new Vector(0,0);
 				for ( Force force : forces ){
 					returnVector = returnVector.add( force.toVector() );
 				}
+				for ( Force gravity : gravityForces ){
+					returnVector = returnVector.add( gravity.toVector() );
+				}
 				
+				netForces = returnVector;
 				for ( Force normal : normalForces ){
 
 					returnVector = returnVector.add( normal.toVector() );
@@ -757,7 +810,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	    	return null;
 	    }
 	    
-	    public void removeForce(int index){ 
+	    public void unregisterForce(int index){ 
 	    	System.err.println("Attempted to remove force from static");
 	    }
 	    

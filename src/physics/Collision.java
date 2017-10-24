@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import engine.MovingCamera;
 import entities.*;
 import entityComposites.*;
+import testEntities.PlantPlayer;
 
 public abstract class Collision {
 	
@@ -114,10 +115,23 @@ public abstract class Collision {
 		
 	}
 
-	//INITAL COLLISION COMMANDS - Run once, the first time collision occurs
+	/**Runs any initialization of variables and registration of forces in the involved entities.
+	 * <p>
+	 * NOTE ON VARIABLES: When defining an anonymous Collision within an anonymous CollisionDispatcher inside a special entity,
+	 * the CollisionDispatcher must be static, and both CollisionDispatcher and Collision must be type bounded.
+	 * Then, instances of special entity, are received through the argument of CollisionDispatcher.createVisualCollision(). 
+	 * And since the CollisionDispatcher is a static inner class of special entity, 
+	 * all special entity's fields, including private ones, are accessible. See {@link PlantPlayer.FruitInRange}
+	 * <p>
+	 * REMEMEBR to unregister all forces in this Collision's {@link #completeCollision()} method. 
+	 * 
+	 */
 	protected abstract void initializeCollision();
 	
-	//CONTINUOUS COLLISION COMMANDS - Ongoing commands during collision like particle effects, sound, etc.
+	/**Runs any collision calculations every frame. REMEMEBER to include at least one boolean check on the Collision.isComplete field
+	 * to check for completion conditions. The most basic form of this is isComplete = CollsiionCheck.check(), where Collision check
+	 * was passed in through the CollisionDispatcher's constructor.
+	 */
 	protected abstract void updateCollision();
 	
 	public abstract void updateVisualCollision(MovingCamera camera, Graphics2D gOverlay);

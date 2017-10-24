@@ -47,7 +47,6 @@ public class TestBoard extends BoardAbstract{
 	private MovingCamera.FollowTargetAroundPoint cameraRotationBehavior;
 	
     public PlantPlayer player;
-    private Force gravity;
     private Asteroid asteroid;
     private Asteroid testAsteroid;
 
@@ -65,6 +64,7 @@ public class TestBoard extends BoardAbstract{
     public static ColliderGroup<EntityStatic> worldGeometryGroup;
     public static ColliderGroup<PlantSegment> treeStemGroup;
     public static ColliderGroup<SeedFruit> pickableGroup;
+    public static ColliderGroup<GravityMarker> gravityWellGroup;
 
     public TestBoard(int width , int height, JFrame frame ) {
     	super(width,height,frame);
@@ -187,6 +187,7 @@ public class TestBoard extends BoardAbstract{
         pickableGroup = collisionEngine.<SeedFruit>createColliderGroup("Pickable");
     	playerGroup = collisionEngine.<PlantPlayer>createColliderGroup("Player");
     	worldGeometryGroup = collisionEngine.<EntityStatic>createColliderGroup("Ground");
+    	gravityWellGroup = collisionEngine.<GravityMarker>createColliderGroup("Gravity");
         treeStemGroup = collisionEngine.<PlantSegment>createColliderGroup("Tree");
 
         
@@ -194,9 +195,11 @@ public class TestBoard extends BoardAbstract{
 
         //collisionEngine.addCustomCollisionsBetween("Player", "Tree", new PlantPlayer.ClingCollision() );
         
-        collisionEngine.addCustomCollisionsBetween( playerGroup, treeStemGroup, new PlantPlayer.ClingCollision() );
+        collisionEngine.addCustomCollisionsBetween( playerGroup, treeStemGroup, new PlantPlayer.PlayerOnStem() );
         
         collisionEngine.addCustomCollisionsBetween( playerGroup, pickableGroup, new PlantPlayer.FruitInRange() );
+        
+        collisionEngine.addCustomCollisionsBetween( playerGroup, gravityWellGroup, new GravityMarker.CircularGravityField() );
     	
     	myMouseHandler = new MouseHandlerClass();
   		this.addMouseListener(myMouseHandler);
@@ -204,11 +207,23 @@ public class TestBoard extends BoardAbstract{
         setFocusable(true);
         setBackground(Color.BLACK);
         
-        asteroid = new Asteroid( 0 , 600 , 500, this);
+        asteroid = new Asteroid( 0 , 600 , 500, this, Asteroid.PRESET03);
         this.currentScene.addEntity(asteroid,"Ground");
         asteroid.spawnGrass();
         
-        testAsteroid = new Asteroid( -200 , -1000 , 200, this);
+        GravityMarker asteroidGravityWell = new GravityMarker("GravityWell01",asteroid.getPosition(),1200);
+        asteroidGravityWell.setFalloff(0.2, 500);
+        this.currentScene.addEntity(asteroidGravityWell,"Gravity");
+        
+        testAsteroid = new Asteroid( -200 , -1000 , 200, this, Asteroid.PRESET01);
+        this.currentScene.addEntity(testAsteroid,"Ground");
+        testAsteroid.spawnGrass();
+        
+        asteroidGravityWell = new GravityMarker("GravityWellSmall",testAsteroid.getPosition(),700);
+        asteroidGravityWell.setFalloff(0.2, 200);
+        this.currentScene.addEntity(asteroidGravityWell,"Gravity");
+        
+        testAsteroid = new Asteroid( -1700 , -2000 , 400, this, Asteroid.PRESET02);
         this.currentScene.addEntity(testAsteroid,"Ground");
         testAsteroid.spawnGrass();
         
@@ -227,15 +242,15 @@ public class TestBoard extends BoardAbstract{
         //
         
         
-        player = new PlantPlayer(30,-100,this);
+        player = new PlantPlayer(30,-1000,this);
         CompositeFactory.addRigidbodyTo(player);
 
         this.currentScene.addEntity(player,"Player");
-        gravity = player.getTranslationComposite().addForce( new Vector(0,0) );
+        //gravity = player.getTranslationComposite().addForce( new Vector(0,0) );
         
-        player.setGravity(gravity);
-        
+        //player.setGravity(gravity);
         this.addInputController(player.inputController);
+        
 
         /*final EntityStatic testSaving = new EntityStatic( "TestSaving", -100,-100 );
         testSaving.addGraphicTo( new Sprite.Stillframe("box.png",Sprite.CENTERED) );
@@ -273,11 +288,9 @@ public class TestBoard extends BoardAbstract{
     	
     	collisionEngine.checkCollisions();
 
-    	gravity.setVector( player.getSeparationUnitVector(asteroid).multiply(0.2) );
-    	
-    	double playerAbsoluteAngle = gravity.toVector().normalLeft().angleFromVectorInRadians();
-    	
-		player.getAngularComposite().setAngleInRadians( playerAbsoluteAngle );
+    	//gravity.setVector( player.getSeparationUnitVector(asteroid).multiply(0.2) );
+    	//double playerAbsoluteAngle = gravity.toVector().normalLeft().angleFromVectorInRadians();
+		//player.getAngularComposite().setAngleInRadians( playerAbsoluteAngle );
 		
 		//TESTING CAMERA ROTATION <ETHODS to be moved into camera when working
 		camera.updatePosition();

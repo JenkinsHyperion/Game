@@ -7,6 +7,8 @@ import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
 
+import javax.swing.text.ChangedCharSetException;
+
 import Input.KeyCommand;
 import engine.BoardAbstract;
 import engine.MovingCamera;
@@ -23,7 +25,7 @@ import physics.BoundaryFeature;
 import physics.BoundaryPolygonal;
 import physics.BoundarySingular;
 import physics.Collision;
-import physics.CollisionBuilder;
+import physics.CollisionDispatcher;
 import physics.CollisionRigidDynamicStatic;
 import physics.Force;
 import physics.SeparatingAxisCollector.Axis;
@@ -44,7 +46,7 @@ public class PlantPlayer extends Player {
 	private final StandingState standing = new StandingState();
 	private final FallingState falling = new FallingState();
 	private State currentState = falling;
-	private State bufferState = standing;
+	private GroundState bufferState = standing;
 	
 	private boolean canStartClimb = true;
 	
@@ -55,8 +57,6 @@ public class PlantPlayer extends Player {
 	
 	private Force movementForce;
 	private byte hasFriction = 0;
-	
-	private Force gravity;
 	
 	private Point playerCameraFocus = new Point(0,0);
 	private Double playerCameraZoomOut = 1.0;
@@ -182,6 +182,9 @@ public class PlantPlayer extends Player {
 	public void updateEntity() {
 		super.updateEntity();
 		this.currentState.run();
+		
+		double playerAbsoluteAngle = translationComposite.getNetGravityVector().normalLeft().angleFromVectorInRadians();
+		this.getAngularComposite().setAngleInRadians( playerAbsoluteAngle );
 	}
 	
 	public Point getPlayerCameraFocus(){
@@ -190,10 +193,6 @@ public class PlantPlayer extends Player {
 	
 	public Double getPlayerLookZoom(){
 		return playerCameraZoomOut;
-	}
-	
-	public void setGravity( Force gravity){
-		this.gravity = gravity;
 	}
 	
 	public void debugDraw(  MovingCamera cam , Graphics2D g2 ){
@@ -229,37 +228,42 @@ public class PlantPlayer extends Player {
 	 *##########################################################################################################################################################
 	 */
 	
-	public static class GroundCollision extends CollisionBuilder<PlantPlayer,EntityStatic>{
+	public static class GroundCollision extends CollisionDispatcher<PlantPlayer,EntityStatic>{
 		
 		@Override
-		public Collision createVisualCollision(PlantPlayer entity1, Collider collider1, EntityStatic entity2,
+		public Collision createVisualCollision(PlantPlayer player, Collider collider1, EntityStatic entity2,
 				Collider collider2, VisualCollisionCheck check, RenderingEngine engine) {
 			
 			return new CollisionRigidDynamicStatic(collider1, collider2, check.getAxisCollector() ){
 
 				private Force frictionForce;
-				
 				@Override
 				public void initializeCollision() {
 					super.initializeCollision();
-					this.frictionForce = entity1.getTranslationComposite().addForce( new Vector( 0 , 0 ) );
+					this.frictionForce = player.getTranslationComposite().addForce( new Vector( 0 , 0 ) );
+					
+					player.movingState.setNormalForce(this.normalForce);
+					player.standing.setNormalForce(this.normalForce);
+					player.changeState(player.bufferState); 
+					
 				}
 				
 				@Override
 				public void updateBehavior(Vector unitNormal, Vector tangentalVelocity) {
 					frictionForce.setVector(tangentalVelocity.inverse().multiply(0.02));
+
 				}
 				
 				@Override
 				public void completeCollision() {
 					super.completeCollision();
-					entity1.getTranslationComposite().removeForce(frictionForce.getID());
+					player.getTranslationComposite().unregisterForce(frictionForce);
 				}
 			};
 		}
 	}
 
-	public static class ClingCollision extends CollisionBuilder<PlantPlayer,PlantSegment>{
+	public static class PlayerOnStem extends CollisionDispatcher<PlantPlayer,PlantSegment>{
 
 		@Override
 		public Collision createVisualCollision(PlantPlayer player, Collider playerCollider, PlantSegment plantSegment, Collider collider2, VisualCollisionCheck check, RenderingEngine engine) {
@@ -295,6 +299,9 @@ public class PlantPlayer extends Player {
 						
 						player.changeState(player.climbing);
 					}
+					else{
+						System.err.println("Stem rejecting player, can climb = "+player.canStartClimb);
+					}
 					
 				}
 
@@ -313,13 +320,13 @@ public class PlantPlayer extends Player {
 	}
 	
 	
-	public static class FruitInRange extends CollisionBuilder<PlantPlayer, SeedFruit>{
+	public static class FruitInRange extends CollisionDispatcher<PlantPlayer, SeedFruit>{
 
 		@Override
-		public Collision createVisualCollision(PlantPlayer entity1, Collider collider1, SeedFruit entity2,
+		public Collision createVisualCollision(PlantPlayer entity1, Collider collider1, SeedFruit fruit,
 				Collider collider2, VisualCollisionCheck check, RenderingEngine engine) {
 			
-			return new Collision.CustomType<PlantPlayer, SeedFruit>(entity1, collider1, entity2, collider2) {
+			return new Collision.CustomType<PlantPlayer, SeedFruit>(entity1, collider1, fruit, collider2) {
 
 				@Override
 				protected void initializeCollision() {
@@ -330,7 +337,7 @@ public class PlantPlayer extends Player {
 				@Override
 				public void updateCollision() {
 					isComplete = !check.check(collidingPrimary, collidingSecondary);
-					contextPosition = entity2.getPosition();
+					contextPosition = fruit.getPosition();
 				}
 
 				@Override
@@ -353,15 +360,15 @@ public class PlantPlayer extends Player {
 	private class Event extends CollisionEvent{
 		@Override
 		public void run(Collider partner, BoundaryFeature source, BoundaryFeature collidingWith, Vector separation) {
-			changeState(bufferState);
-
-			
+			//changeState(bufferState);
 		}
 		@Override
 		public String toString() {
 			return "Hit Something Event";
 		}
 	}
+	
+	
 	
 	private void changeState( State state ){
 		System.err.println("CHANGE STATE "+currentState+" TO "+state);
@@ -395,6 +402,15 @@ public class PlantPlayer extends Player {
 		public void debugDraw( MovingCamera cam , Graphics2D g2){
 			
 
+		}
+	}
+	
+	private abstract class GroundState extends State{
+
+		protected Force normal;
+		
+		protected void setNormalForce(Force normal){
+			this.normal = normal;
 		}
 	}
 	
@@ -444,7 +460,7 @@ public class PlantPlayer extends Player {
 			canStartClimb = false; //already climbing
 			
 			jumpVelocity = PlantPlayer.this.getTranslationComposite().getVelocityVector();
-			clingNormal = PlantPlayer.this.getTranslationComposite().registerNormalForce(gravity.toVector().inverse());
+			clingNormal = PlantPlayer.this.getTranslationComposite().registerNormalForce(translationComposite.getNetGravityVector().inverse());
 			currentCling = PlantPlayer.this.getTranslationComposite().registerVelocityVector( Vector.zeroVector );			
 			climbVelocity = PlantPlayer.this.getTranslationComposite().registerVelocityVector( Vector.zeroVector );
 
@@ -454,7 +470,7 @@ public class PlantPlayer extends Player {
 		@Override
 		public void run() {
 
-			clingNormal.setVector(gravity.toVector().inverse().multiply( slidingGripPercent/100.0 ));
+			clingNormal.setVector(translationComposite.getNetGravityVector().inverse().multiply( slidingGripPercent/100.0 ));
 			
 			final Vector distance = PlantPlayer.this.getRelativeTranslationalVectorOf(currentStem);
 			final Vector attachDirection = distance.projectedOver( currentStem.getOrientationVector() );
@@ -554,8 +570,8 @@ public class PlantPlayer extends Player {
 		@Override
 		public void onJump() {
 			getTranslationComposite().addVelocity( 
-					gravity.toVector().inverse().unitVector().multiply(5) .add(
-							gravity.toVector().normalLeft().multiply(leftRight*10)
+					translationComposite.getNetGravityVector().inverse().unitVector().multiply(5) .add(
+							translationComposite.getNetGravityVector().normalLeft().multiply(leftRight*10)
 							));
 			changeState(falling);
 			bufferState = movingState;
@@ -563,7 +579,8 @@ public class PlantPlayer extends Player {
 
 	}
 	
-	private class StandingState extends State{
+	private class StandingState extends GroundState{
+		
 		@Override
 		public void run() {}
 		@Override
@@ -580,7 +597,7 @@ public class PlantPlayer extends Player {
 		}
 		@Override
 		public void onJump() {
-			getTranslationComposite().addVelocity( gravity.toVector().inverse().unitVector().multiply(5) );
+			getTranslationComposite().addVelocity( normal.toVector().unitVector().multiply(5) );
 			bufferState = movingState;
 		}
 		@Override
@@ -598,6 +615,7 @@ public class PlantPlayer extends Player {
 	}
 	
 	private class FallingState extends State{
+		
 		@Override
 		public void run() {}
 		@Override public void onLeft(){ 
@@ -622,14 +640,14 @@ public class PlantPlayer extends Player {
 		
 	}
 	
-	private class MovingState extends State{
+	private class MovingState extends GroundState{
 		
 		protected byte leftRight;
 		
 		private final Runnable accelerating = new Runnable(){
 			public void run(){
 				
-				movementForce.setVector( gravity.toVector().normalLeft().unitVector().multiply(0.1*leftRight) );
+				movementForce.setVector( normal.toVector().inverse().normalLeft().unitVector().multiply(0.1*leftRight) );
 			}
 		};
 		
@@ -675,7 +693,7 @@ public class PlantPlayer extends Player {
 		}
 		@Override
 		public void onJump() {
-			getTranslationComposite().addVelocity( gravity.toVector().inverse().unitVector().multiply(5) );
+			getTranslationComposite().addVelocity( normal.toVector().unitVector().multiply(5) );
 			bufferState = movingState;
 		}
 		

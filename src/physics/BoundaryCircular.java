@@ -65,8 +65,8 @@ public class BoundaryCircular extends Boundary{
 	@Override
 	public void debugDrawBoundary(MovingCamera cam, Graphics2D g2, EntityStatic ownerEntity) {
 		Shape boundary = new Ellipse2D.Float( -radius , -radius , 2*radius, 2*radius );
-		cam.drawCrossInWorld( ownerEntity.getPosition() );
-		cam.drawShapeInWorld( boundary , ownerEntity.getPosition() );
+		cam.drawCrossInWorld( ownerEntity.getPosition(), g2 );
+		cam.drawShapeInWorld( boundary , ownerEntity.getPosition(), g2 );
 	}
 
 	@Override

@@ -23,7 +23,7 @@ public abstract class GraphicComposite implements EntityComposite{
 	public abstract double getGraphicsSizeY();
 	public abstract double getGraphicAngle();
 	
-	public static GraphicComposite.Null nullSingleton(){
+	public static GraphicComposite.Null nullGraphicsComposite(){
 		return nullSingleton;
 	}
 	

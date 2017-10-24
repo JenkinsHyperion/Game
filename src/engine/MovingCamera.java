@@ -358,6 +358,22 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		g2Temp.dispose();
 	}
 	
+	public void drawShapeInWorld( Shape shape , Point worldPosition, Graphics2D g2){
+		
+		AffineTransform cameraTransform = new AffineTransform();
+		Graphics2D g2Temp = (Graphics2D) gBoard.create();
+
+		
+		cameraTransform.translate( getRelativeX(worldPosition.x), getRelativeY(worldPosition.y) );
+		cameraTransform.scale( zoomFactor , zoomFactor);
+		
+		g2Temp.transform(cameraTransform);
+		
+		
+		g2Temp.draw( shape );
+		g2Temp.dispose();
+	}
+	
 	public void drawString( String string , Point pos ) {
 		gBoard.drawString( string,
 				getRelativeX(pos.x), 
@@ -388,7 +404,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	}
 	
 	public void drawCrossInWorld( Point point , Graphics2D g2){
-		drawCross( (int)this.getRelativeX( point.getX() ) , (int)this.getRelativeY( point.getY() ) , g2);
+		drawCross( (int)this.getRelativeX( point.getX() ) , (int)this.getRelativeY( point.getY() ) , gBoard);
 	}
 
 	public void drawCrossInWorld( Point2D point , Graphics2D g2){

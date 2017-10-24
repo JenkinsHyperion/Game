@@ -6,7 +6,11 @@ import java.awt.geom.*;
 import java.util.*;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.event.*;
+
+import com.studiohartman.jamepad.ControllerManager;
+import com.studiohartman.jamepad.ControllerState;
 
 import Input.InputController;
 import Input.KeyCommand;
@@ -66,9 +70,11 @@ public class TestBoard extends BoardAbstract{
     public static ColliderGroup<SeedFruit> pickableGroup;
     public static ColliderGroup<GravityMarker> gravityWellGroup;
 
+
     public TestBoard(int width , int height, JFrame frame ) {
     	super(width,height,frame);
     	
+
     	this.renderingEngine = new RenderingEngine( this );
     	this.camera = this.renderingEngine.getCamera();
     	
@@ -97,11 +103,12 @@ public class TestBoard extends BoardAbstract{
     	});
     	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_7, new KeyCommand(){
     		public void onPressed() { 
-    			
-    			if( camera.isLocked() )
-    				camera.unlock (); 
-    			else
-    				camera.lockAtCurrentPosition(); 
+    			System.err.println("Creating message popup");
+    			SlidingMessagePopup testPopup = new SlidingMessagePopup(BoardAbstract.B_WIDTH, 
+    														BoardAbstract.B_HEIGHT-250, TestBoard.this,
+    														"Wheelw psh");
+    		//	slidingMessageQueue.put(0, testPopup);
+    			slidingMessageQueue.add(testPopup);
     		}
     		public void onReleased() {  }
     	});
@@ -175,10 +182,12 @@ public class TestBoard extends BoardAbstract{
     	this.collisionEngine = new VisualCollisionEngine(this,renderingEngine); //Refactor to a better name
     	
     	this.forcesOverlay = renderingEngine.addOverlay( ((VisualCollisionEngine)collisionEngine).createForcesOverlay() );
-    	
+		
     	initBoard();
     	postInitializeBoard();
     	initEditorPanel();
+
+    	
     }
 
 
@@ -293,8 +302,20 @@ public class TestBoard extends BoardAbstract{
 		//player.getAngularComposite().setAngleInRadians( playerAbsoluteAngle );
 		
 		//TESTING CAMERA ROTATION <ETHODS to be moved into camera when working
-		camera.updatePosition();
 		//cameraRotationBehavior.manualUpdatePosition( -playerAbsoluteAngle, player.getPlayerCameraFocus() );
+		
+		try {
+			//David's test for sliding message popup
+			/*		for (int i: slidingMessageQueue.keySet()) {
+						slidingMessageQueue.get(i).updatePosition();
+					}*/
+			for (SlidingMessagePopup smp : slidingMessageQueue) {
+				smp.updatePosition();
+			} 
+		} catch (ConcurrentModificationException e) {
+			System.err.println("Ignorable concurrentModification exception.");
+		}
+		camera.updatePosition();
     }
 
     public void spawnNewSprout( EntityStatic newTwig, String group ){
@@ -333,7 +354,17 @@ public class TestBoard extends BoardAbstract{
     	}
     	
     	camera.drawLineInWorld(dragLine, g2);
-    	
+    	try {
+	    	//david's test area for drawing sliding message popup
+	    	for (SlidingMessagePopup smp: slidingMessageQueue) {
+	    		smp.draw(g2);
+	    	}
+    	} catch (ConcurrentModificationException e) {
+    		System.err.println("Ignorable concurrentModification exception.");
+    	}
+/*    	for (int i: slidingMessageQueue.keySet()) {
+			slidingMessageQueue.get(i).draw(g);
+		}*/
     }
     
     @Override

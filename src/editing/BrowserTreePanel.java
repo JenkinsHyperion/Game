@@ -121,9 +121,6 @@ public class BrowserTreePanel extends JPanel {
 			}
 		});
 		
-		//FIXME DELETE THIS
-		new ShitClass().run();
-		
 		BasicTreeUI basicTreeUI = (BasicTreeUI) tree.getUI();
 		basicTreeUI.setRightChildIndent(5); 
 		basicTreeUI.setLeftChildIndent(5);
@@ -157,23 +154,6 @@ public class BrowserTreePanel extends JPanel {
 		this.setFocusable(false);
 	}
 	
-	class ShitClass implements Runnable {
-		@Override
-		public void run() {
-			System.err.println("Calling swing from an outside thread: what happens?" +
-						"\nIn thread: " + Thread.currentThread());
-			SwingUtilities.invokeLater(new Runnable() {
-//			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					// TODO Auto-generated method stub
-					System.err.println("\nIn thread: " + Thread.currentThread());
-					DefaultMutableTreeNode newNode = new DefaultMutableTreeNode("String");
-					defaultModel.insertNodeInto(newNode, sceneRoot, sceneRoot.getChildCount());
-				}
-			});
-		}
-	}
 	@SuppressWarnings("serial")
 	private class MyPopup extends JPopupMenu {
 		private DefaultMutableTreeNode clickedNode;
@@ -472,7 +452,6 @@ public class BrowserTreePanel extends JPanel {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				System.err.println("in entity added, current thread: \n" + Thread.currentThread());
 				DefaultMutableTreeNode newEntityNode = createSingleEntityNodeFolder(newEnt);
 				defaultModel.insertNodeInto(newEntityNode, entitiesRoot, entitiesRoot.getChildCount());
 				//System.err.println("From notifyTreeAddedEntity()--- added "+newEnt.name+" to tree.");
@@ -513,7 +492,6 @@ public class BrowserTreePanel extends JPanel {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				System.err.println("in notify parent changed, current thread: \n" + Thread.currentThread());
 				DefaultMutableTreeNode parentNode, childNode;
 				parentNode = containsEntity(parent, entitiesRoot);
 				childNode = containsEntity(child, entitiesRoot);

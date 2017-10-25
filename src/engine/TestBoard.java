@@ -20,6 +20,7 @@ import entities.*; //local imports
 import entityComposites.AngularComposite;
 import entityComposites.Collider;
 import entityComposites.CompositeFactory;
+import entityComposites.EntityFactory;
 import entityComposites.EntityStatic;
 import entityComposites.TranslationComposite;
 import entityComposites.TranslationComposite.VelocityVector;
@@ -236,6 +237,10 @@ public class TestBoard extends BoardAbstract{
         this.currentScene.addEntity(testAsteroid,"Ground");
         testAsteroid.spawnGrass();
         
+        asteroidGravityWell = new GravityMarker("GravityWellBlue",testAsteroid.getPosition(),1000);
+        asteroidGravityWell.setFalloff(0.1, 400);
+        this.currentScene.addEntity(asteroidGravityWell,"Gravity");
+        
         //asteroid.populateGrass(this);
         //
         /*testAsteroid = new EntityStatic( "Asteroid" , -900 , -2000 );
@@ -251,7 +256,7 @@ public class TestBoard extends BoardAbstract{
         //
         
         
-        player = new PlantPlayer(30,-1000,this);
+        player = new PlantPlayer(30,-100,this);
         CompositeFactory.addRigidbodyTo(player);
 
         this.currentScene.addEntity(player,"Player");
@@ -261,24 +266,14 @@ public class TestBoard extends BoardAbstract{
         this.addInputController(player.inputController);
         
 
-        /*final EntityStatic testSaving = new EntityStatic( "TestSaving", -100,-100 );
-        testSaving.addGraphicTo( new Sprite.Stillframe("box.png",Sprite.CENTERED) );
+		currentScene.addBackgroundSprite(7,
+				EntityFactory.createBackgroundSprite("Prototypes/starscape.png", 0 , 0 ));
+		currentScene.addBackgroundSprite(4,
+				EntityFactory.createBackgroundSprite("Prototypes/starcloud02.png", 0 , 0 ));
+		currentScene.addBackgroundSprite(3,
+				EntityFactory.createBackgroundSprite("Prototypes/starcloud01.png", 0 , 0 ));
         
-        testSaving.addRotationalColliderTo( testSaving.addAngularComposite(), new BoundaryLinear( new Line2D.Double(0,100,0,-100)));
-
         
-        //this.currentScene.addEntity(testSaving,"Testing");
-        testSaving.getAngularComposite().setAngleInDegrees(45);*/
-        
-       // final PlantTwigSegment testStem = new PlantTwigSegment.StemSegment(-100, 30, 100, this);
-       // testStem.getAngularComposite().setAngleInDegrees(-45);
-        //this.currentScene.addEntity(testStem, "Tree" );
-        
-        //PlantSegment.SeedFruit testFruit = new PlantSegment.SeedFruit(100, 0, this);
-        //currentScene.addEntity(testFruit, "Pickable");
- 
-    	//this.cameraRotationBehavior = camera.createRotationalCameraBehavior(player,asteroid.getPosition() );
-
     	camera.createRotationalCameraBehavior( player, player.getPlayerCameraFocus() ,asteroid.getPosition(), player.getPlayerLookZoom() );
     }
     

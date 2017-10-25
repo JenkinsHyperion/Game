@@ -177,6 +177,7 @@ public class MainWindow implements KeyListener, MouseListener{
 			public void run() {
 				// TODO Auto-generated method stub
 				createAndShowGUI(); 
+				//createFullscrenWindow();
 			}
 		});
 		//runActiveRenderLoop();

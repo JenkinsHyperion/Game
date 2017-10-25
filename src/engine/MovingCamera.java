@@ -99,6 +99,10 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		zoomFactor += (zoomDelta-zoomFactor)/ZOOM_SPEED;
 	}
 
+	public double getZoom(){
+		return this.zoomFactor;
+	}
+	
 	public Point getFocus(){
 		return new Point((int)this.x,(int)this.y);
 	}

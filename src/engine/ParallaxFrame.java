@@ -38,11 +38,10 @@ public class ParallaxFrame implements ReferenceFrame{
 		AffineTransform cameraTransform = new AffineTransform();
 		this.graphics.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 		
-		cameraTransform.translate( -this.x + sprite.ownerEntity().getX() , 
-				-this.y + sprite.ownerEntity().getY() 
-				);
 		
 		cameraTransform.concatenate(entityTransform);
+		
+		//cameraTransform.translate(-this.x , -this.y );
 		
 		this.graphics.drawImage(sprite.getSprite().getBufferedImage(), 
 				cameraTransform,

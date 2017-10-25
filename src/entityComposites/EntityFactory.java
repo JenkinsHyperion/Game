@@ -41,7 +41,7 @@ public class EntityFactory {
 	
 	public static EntityStatic createBackgroundSprite( String path, int x, int y ){
 		EntityStatic testEntity = new EntityStatic(x,y);
-        Sprite.Stillframe sprite = new Sprite.Stillframe(path);
+        Sprite.Stillframe sprite = new Sprite.Stillframe(path,Sprite.CENTERED);
         CompositeFactory.addGraphicTo(testEntity, sprite);
         return testEntity;
 	}

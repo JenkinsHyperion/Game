@@ -21,7 +21,7 @@ public class RenderingLayer {
 	private final double ZOOM_SCALE;
 	
 	private MovingCamera camera1;
-	private final ParallaxFrame parralaxFrame = new ParallaxFrame();
+	private final ParallaxFrame parallaxFrame = new ParallaxFrame();
 	
 	protected ArrayList<GraphicComposite.Active> entitiesList = new ArrayList<>(); 
 	
@@ -38,7 +38,7 @@ public class RenderingLayer {
 
 	public void renderLayer( MovingCamera camera ){ 
 		
-		parralaxFrame.setPosition( (int) ( camera1.getX()/PARALLAX_X ), 
+		parallaxFrame.setPosition( (int) ( camera1.getX()/PARALLAX_X ), 
 				(int) ( camera1.getY()/PARALLAX_Y ), 
 				camera1.getGraphics(), 
 				camera1.getObserver()
@@ -48,22 +48,26 @@ public class RenderingLayer {
 
 			//comp.draw(cam);		
 			AffineTransform frameTransform = new AffineTransform();
-			
-			frameTransform.translate( BoardAbstract.B_WIDTH/2 ,  BoardAbstract.B_HEIGHT/2 );
-			
-			/*frameTransform.translate( 
-					camera.getRelativeX( comp.ownerEntity().getX())   , 
-					camera.getRelativeY( comp.ownerEntity().getY()) );*/
 
-			frameTransform.scale(1+(ZOOM_SCALE*camera.getZoom()), 1+(ZOOM_SCALE*camera.getZoom()));
+			//frameTransform.scale(camera.getZoom(), camera.getZoom() );
 			
-			frameTransform.translate(-parralaxFrame.getOriginX()*ZOOM_SCALE , -parralaxFrame.getOriginY()*ZOOM_SCALE );
+			final double ratio = 1-ZOOM_SCALE;
+
+			final double zoom = (ZOOM_SCALE/camera.getZoom())+1;
+
+			frameTransform.translate(
+					(-camera.getX() + comp.getOwnerEntity().getX())*camera.getZoom()*ZOOM_SCALE ,
+					(-camera.getY() + comp.getOwnerEntity().getY())*camera.getZoom()*ZOOM_SCALE  );
 			
-			frameTransform.translate( comp.getSprite().getOffsetX() , comp.getSprite().getOffsetY());
+			frameTransform.translate( BoardAbstract.B_WIDTH/2 , BoardAbstract.B_HEIGHT/2  );	//centering translation
 			
-			parralaxFrame.drawOnCamera(comp, frameTransform);
+			frameTransform.scale( 1/zoom , 1/zoom );
+
 			
-			//comp.draw(parralaxFrame);
+			frameTransform.translate((comp.getSprite().spriteOffsetX), (comp.getSprite().spriteOffsetY));
+
+			parallaxFrame.drawOnCamera(comp, frameTransform);
+
 		}
 			
 	}

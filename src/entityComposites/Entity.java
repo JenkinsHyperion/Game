@@ -155,11 +155,13 @@ public class Entity {
     }
     
     public Vector getSeparationVector( Entity partner ){
-    	return new Vector( partner.x - this.x  , partner.y - this.y  );
+    	return new Vector( partner.x - x  , partner.y - y  );
+    }
+    public Vector getSeparationVector( Point position ){
+    	return new Vector( position.x - x  , position.y - y  );
     }
     public Vector getSeparationUnitVector( Entity partner ){
     	return new Vector( partner.x - this.x  , partner.y - this.y ).unitVector();
     }
-
 
 }

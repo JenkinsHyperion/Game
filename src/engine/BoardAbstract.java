@@ -307,7 +307,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener, Mouse
 	
 	//ENTITY ADDING AND NOTIFYING
 	
-	public void addStaticEntity(EntityStatic entity) {
+	public void addEntityToCurrentScene(EntityStatic entity) {
 		this.currentScene.addEntity( entity );
 	}
 	

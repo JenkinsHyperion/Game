@@ -74,7 +74,7 @@ public class CollisionRigidDynamicStatic extends Collision.DefaultType implement
 		
 		final Vector normal = transPrimary.getNetForces().projectedOver(unitNormal);								// ON CIRCULAR GRAVITY
 		
-		final Vector tangentalVelocity = transPrimary.getVelocityVector().projectedOver( normal.normalRight() );
+		final Vector tangentalVelocity = transPrimary.getVelocityVector().projectedOver( unitNormal.normalRight() );
 		
 		final double distanceA = entityPrimary.getPosition().distance(entitySecondary.getPosition()) ;
 		

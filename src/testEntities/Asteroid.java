@@ -1,6 +1,7 @@
 package testEntities;
 
 import java.awt.Point;
+import java.util.ArrayList;
 
 import com.studiohartman.jamepad.ControllerState;
 
@@ -35,6 +36,10 @@ public class Asteroid extends EntityStatic{
 	private Sprite.Stillframe asteroidSprite;
 	
 	private final int radius;
+	
+	
+	private final ArrayList<Point> flowerNodes = new ArrayList<Point>();
+	
 	
 	public Asteroid(int x, int y, int radius, TestBoard board, int...preset) {
 		super("Asteroid "+entityCount,x, y);
@@ -79,6 +84,13 @@ public class Asteroid extends EntityStatic{
         
         CompositeFactory.addRigidbodyTo(this);
 		
+        
+        flowerNodes.add(new Point(100,0));
+        
+	}
+
+	public Point getFlowerNode( int i ){
+		return flowerNodes.get(i);
 	}
 	
 	public void spawnGrass(){
@@ -108,6 +120,24 @@ public class Asteroid extends EntityStatic{
 		
 	}
 	
+	public void spawnPresetBush( double relativeAngle, double sizeFactor, int flag ){
+		
+		Sprite.Stillframe presetSprite;
+		
+		if( flag == 1 )
+			presetSprite = grass01;
+		else if( flag == 2 )
+			presetSprite = grass02;
+		else if( flag == 3 )
+			presetSprite = grass03;
+		else if( flag == 4 )
+			presetSprite = clover1;
+		else
+			presetSprite = grass01;
+		
+		spawnSingleGrass(relativeAngle,sizeFactor,presetSprite);
+	}
+	
 	public void spawnSingleGrass(double relativeAngle, double sizeFactor, Sprite sprite ){
 		
 		double radians = Math.toRadians(relativeAngle);
@@ -123,33 +153,9 @@ public class Asteroid extends EntityStatic{
 		grassEntity.getGraphicComposite().setGraphicSizeFactor( sizeFactor );
 		board.getCurrentScene().addEntity(grassEntity);
 		
+		CompositeFactory.makeChildOfParent(grassEntity, this, board);
 	}
 	
-	public void populateGrass(){
-		
-		System.out.println("POPULATING GRASS @#######################");
 
-		final int radius = 500;
-		
-		int circumference = (int) (2.0 * Math.PI * radius);
-
-		
-		
-		for ( int a = 0 ; a < 360 ; a=a+10 ){
-		
-			double radians = Math.toRadians(a);
-			
-			Point relativeSurface = new Point( (int)(radius*Math.cos(radians)), (int)(radius*Math.sin(radians)) );
-			
-			EntityStatic grassEntity = new EntityStatic( this.getAbsolutePositionOf(relativeSurface) );
-			grassEntity.addGraphicTo(grass03);
-			
-			//grassEntity.getGraphicComposite().setGraphicAngle(radians);
-			grassEntity.addAngularComposite();
-			grassEntity.getAngularComposite().setAngleInDegrees(a+90);
-			grassEntity.getGraphicComposite().setGraphicSizeFactor( BoardAbstract.randomInt(20,100)/100.0 );
-			board.getCurrentScene().addEntity(grassEntity);
-		}
-	}
 	
 }

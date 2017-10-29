@@ -50,7 +50,7 @@ public abstract class CollisionDispatcher< EntityTypePrimary extends EntityStati
 				
 				@Override
 				protected void initializeCollision() {
-					gravity = entity1.getTranslationComposite().registerGravityForce(new Vector(0,0));
+					gravity = entity1.getTranslationComposite().registerGravityForce();
 				}
 
 				@Override

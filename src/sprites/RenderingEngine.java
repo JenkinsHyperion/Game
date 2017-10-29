@@ -44,13 +44,13 @@ public class RenderingEngine {
 	private void init(){
 
 		layersList = new RenderingLayer[]{
-			new RenderingLayer(1,1,1.0,camera),
-			new RenderingLayer(1.1,1.1 ,0.85 ,camera), //nearest
-			new RenderingLayer(1.6,1.4 , 0.7 ,camera),
-			new RenderingLayer(2.0, 1.6, 0.55 ,camera),
-			new RenderingLayer(3.0, 3.0, 0.4 ,camera ),
-			new RenderingLayer(5, 5 ,0.25,camera),
-			new RenderingLayer(10, 10 ,0.1,camera),
+			new RenderingLayer(1,1,1,camera),
+			new RenderingLayer(1.1,1.1 ,0.98 ,camera), //nearest
+			new RenderingLayer(1.6,1.4 , 0.9 ,camera),
+			new RenderingLayer(2.0, 1.6, 0.4 ,camera),
+			new RenderingLayer(3.0, 3.0, 0.05 ,camera ),
+			new RenderingLayer(5, 5 ,0.1,camera),
+			new RenderingLayer(10, 10 ,0.01,camera),
 			new RenderingLayer(100, 100 ,0,camera) //farthest
 		};
 		

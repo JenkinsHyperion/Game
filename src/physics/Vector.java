@@ -63,8 +63,9 @@ public class Vector implements Serializable{
 				double unitY = y / origin.distance( endpoint );
 				return new Vector( unitX, unitY );
 			}
-			else	
+			else{	
 				return new Vector(0,0);
+			}
 		}
 		
 		/**
@@ -305,7 +306,8 @@ public class Vector implements Serializable{
 		}
 		
 		public double getMagnitude() {
-			return new Point2D.Double(0,0).distance( new Point2D.Double( this.x, this.y ) ) ;
+			//return new Point2D.Double(0,0).distance( new Point2D.Double( this.x, this.y ) ) ;
+			return  Math.sqrt( x*x + y*y ) ;
 		}
 
 		public static Line2D lineRotatedBy( Line2D line, double radians ){

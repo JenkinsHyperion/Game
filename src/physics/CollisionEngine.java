@@ -640,7 +640,7 @@ public class CollisionEngine {
 		public void notifyRemovedCollider(){
 			dissolveAllPairs();
 			
-			this.removeFromGroups();
+			removeFromGroups();
 		}
 
 		protected void removeFromGroups() {

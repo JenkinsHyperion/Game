@@ -164,8 +164,8 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	}
 	
 	
-	public Force registerGravityForce( Vector vector ){
-		return coreMath.registerGravityForce(vector);
+	public Force registerGravityForce(){
+		return coreMath.registerGravityForce();
 	}
 	public void unregisterGravityForce(Force force){ 
 		coreMath.unregisterGravityForce(force);
@@ -262,17 +262,13 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	@Override
 	public void updateEntityWithComposite(EntityStatic entity) {
 		coreMath.updateEntityWithMath(entity);
-	}
-
-	@Override
-	public void updateComposite() {
 		coreMath.update();
 	}
+
 	@Override
 	public String toString() {
 		return this.compositeName;
 	}
-	
 	
 	private class TranslationMath{
 
@@ -557,10 +553,10 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 			}
 			
 			
-			public Force registerGravityForce( Vector vector ){
+			public Force registerGravityForce(){
 				
 				int indexID = gravityForces.size();     	
-				Force newForce = new Force( vector , indexID );
+				Force newForce = new Force( new Vector(0,0) , indexID );
 				gravityForces.add( newForce ) ;
 				//System.out.print("Adding Force "+ indexID+" ... ");
 				return newForce;
@@ -655,13 +651,20 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		
 		
 			public Vector[] debugForceArrows(){
-				final Vector[] returnVectors = new Vector[ forces.size() + normalForces.size() ];
-				for ( int i = 0 ; i < forces.size() ; i++ ){
+				final Vector[] returnVectors = new Vector[ forces.size() + gravityForces.size() + normalForces.size() ];
+				
+				for ( int i = 0 ; i < forces.size() ; ++i ){
 					returnVectors[i] = forces.get(i).toVector() ;
 				}
-				for ( int j = forces.size() ; j < returnVectors.length ; j++ ){
+				
+				for ( int j = forces.size() ; j < forces.size()+normalForces.size() ; ++j ){
 					returnVectors[j] = normalForces.get(j - forces.size() ).toVector() ;
 				}
+				
+				for ( int k = forces.size()+normalForces.size() ; k < returnVectors.length ; ++k ){
+					returnVectors[k] = gravityForces.get(k -forces.size() -normalForces.size() ).toVector() ;
+				}
+				
 				return returnVectors;
 			}
 			
@@ -669,10 +672,10 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		
 				Vector returnVector = new Vector(0,0);
 				for ( Force force : forces ){
-					returnVector = returnVector.add( force.toVector() );
+					returnVector.setAdd( force.toVector() );
 				}
 				for ( Force gravity : gravityForces ){
-					returnVector = returnVector.add( gravity.toVector() );
+					returnVector.setAdd( gravity.toVector() );
 				}
 				
 				netForces = returnVector;

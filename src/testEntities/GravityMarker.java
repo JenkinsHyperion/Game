@@ -64,7 +64,7 @@ public class GravityMarker extends EntityStatic{
 				
 				@Override
 				protected void initializeCollision() {
-					gravity = entity1.getTranslationComposite().registerGravityForce(new Vector(0,0));	//add new force to entity
+					gravity = entity1.getTranslationComposite().registerGravityForce();	//add new force to entity
 					this.upperRadius = gravityMarker.radius;		//store gravity markers radius for gravity fall-off purposes
 				}
 
@@ -80,7 +80,7 @@ public class GravityMarker extends EntityStatic{
 					if ( distance < upperRadius ){
 						gravity.setVector( separation.unitVector().multiply(magnitude) );
 					}else{
-						gravity.setVector( Vector.zeroVector );
+						gravity.setVector( 0,0 );
 					}
 					
 					this.isComplete = !check.check(collider1, collider2);

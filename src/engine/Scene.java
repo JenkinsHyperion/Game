@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import entities.*;
 import entityComposites.*;
+import physics.CollisionEngine.ColliderGroup;
+import sprites.Sprite;
 import utility.DoubleLinkedList;
 
 public class Scene {
@@ -46,31 +48,15 @@ public class Scene {
 		//RUN THROUGH AND ADD UPDATEABLE COMPOSITES TO UPDATER LIST
 		///////////////////////////////////////////////////////////////////////////////////////////////////
 		
-		if ( checkTranslation(entity) ){
+		if ( addTranslationAndReturnIfUpdateable(entity) ){ //TRANSLATION
 			updateableEntity = true;
 		}
 		
-		//ROTATION 
-		
-		if ( (entity.getRotationComposite().exists() ) ){
-			UpdateableComposite rotation = (UpdateableComposite) entity.getRotationComposite();
+		if (addRotationAndReturnIfUpdateable(entity) ){		//ROTATION 
 			updateableEntity = true;
-			if ( rotation.addUpdateableCompositeTo(entity) ){
-				System.out.println( I+"Dynamic rotation composite added to updater thread");
-			}else{
-				System.out.println( I+"Dynamic rotation composite already in updater thread");
-			}
 		}
 		
-		//GRAPHICS COMPOSITE
-		
-		if ( entity.getGraphicComposite().exists() ){
-			
-			((GraphicComposite.Active) entity.getGraphicComposite()).addCompositeToRenderer( ownerBoard.renderingEngine );
-			
-			System.out.println(I+"Graphics composite added to rendering engine");
-			
-		}else{System.err.println(I+"No Graphic Composite on ["+entity+"]");}
+		checkForAndRegisterGraphic(entity); 	//GRAPHICS COMPOSITE
 		
 		//COLLIDER COMPOSITE
 		if ( groups.length == 0){
@@ -82,52 +68,24 @@ public class Scene {
 
 		}
 		
-		/*if ( entity.hasUpdateables() ){
-			System.out.println(I+"Collecting updateables");
-			updateableEntity = true;
-			UpdateableComposite[] updateables = entity.getUpdateables();
-			for ( UpdateableComposite updateable : updateables){ //COLLECT UPDATEABLES THAT ARE CHILDREN ENTITIES
-				if ( updateable instanceof EntityStatic ){
-					this.addEntity( (EntityStatic)updateable  );
-				}
-			}
-		}*/
-		
-		if ( updateableEntity ){
-
+		if ( updateableEntity ){	//If any composite was updateable, add entitiy to updater thread
 			entity.addUpdateableEntityToUpdater(ownerBoard);
 		}
 
 		if( !I.isEmpty() )
 			I = I.substring(4);
 
-		
-		System.out.println( I+"----\n");
-		
-		
-		
+		System.out.println( I+"----\n");	
 	}
-	
-	public void refreshEntityComposites( EntityStatic entity ){
-		
-		if ( entity.getColliderComposite().exists() ){
-			
-			if ( entity.getTranslationComposite().exists() ){  
-				//System.out.println("     Adding "+entity+" as dynamic");
-				entity.getColliderComposite().addCompositeToPhysicsEngineDynamic( ownerBoard.collisionEngine );
-			}
-			else{ 
-				//System.out.println("     Adding "+entity+" as static");
-				entity.getColliderComposite().addCompositeToPhysicsEngineStatic( ownerBoard.collisionEngine );
-			}
-		}
-	}
+
+
+
 	
 	 /* #################################################################################################################
 	 *	INTERNAL ADDER FUCNTIONALITY
 	 */
 	
-	private boolean checkTranslation( EntityStatic entity ){
+	private boolean addTranslationAndReturnIfUpdateable( EntityStatic entity ){
 		
 		if ( ( entity.getTranslationComposite().exists() ) ){
 			UpdateableComposite trans = (UpdateableComposite) entity.getTranslationComposite();
@@ -142,6 +100,32 @@ public class Scene {
 			return false;
 		}
 		
+	}
+	
+	private boolean addRotationAndReturnIfUpdateable( EntityStatic entity ){
+		
+		if ( (entity.getRotationComposite().exists() ) ){
+			UpdateableComposite rotation = (UpdateableComposite) entity.getRotationComposite();
+			if ( rotation.addUpdateableCompositeTo(entity) ){
+				System.out.println( I+"Dynamic rotation composite added to updater thread");
+			}else{
+				System.out.println( I+"Dynamic rotation composite already in updater thread");
+			}
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	private void checkForAndRegisterGraphic( EntityStatic entity ){
+		
+		if ( entity.getGraphicComposite().exists() ){
+			
+			((GraphicComposite.Active) entity.getGraphicComposite()).addCompositeToRenderer( ownerBoard.renderingEngine );
+			
+			System.out.println(I+"Graphics composite added to rendering engine");
+			
+		}else{System.err.println(I+"No Graphic Composite on ["+entity+"]");}
 	}
 	
 	private void checkForAndRegisterCollider( EntityStatic entity ){
@@ -182,6 +166,21 @@ public class Scene {
 	}
 	
 	
+	public void refreshEntityComposites( EntityStatic entity ){
+		
+		if ( entity.getColliderComposite().exists() ){
+			
+			if ( entity.getTranslationComposite().exists() ){  
+				//System.out.println("     Adding "+entity+" as dynamic");
+				entity.getColliderComposite().addCompositeToPhysicsEngineDynamic( ownerBoard.collisionEngine );
+			}
+			else{ 
+				//System.out.println("     Adding "+entity+" as static");
+				entity.getColliderComposite().addCompositeToPhysicsEngineStatic( ownerBoard.collisionEngine );
+			}
+		}
+	}
+	
 	public void removeEntity( int index ){
 		this.entityList.remove(index);
 		for( int i = index ; i < entityList.size() ; i++ ){
@@ -193,6 +192,15 @@ public class Scene {
 	public void addBackgroundSprite( int layer , EntityStatic entity ){
 		entityList.add( new LayeredEntity(entity , (byte) layer) );
 		ownerBoard.renderingEngine.layersList[layer].addGraphicToLayer(entity);
+	}
+	
+	public void addBackgroundSprite( int layer , Sprite sprite , int x, int y){ 
+		
+		EntityStatic testEntity = new EntityStatic(x,y);
+		CompositeFactory.addGraphicTo(testEntity, sprite);
+		EntityStatic newSpriteEntity = testEntity;
+		
+		addBackgroundSprite(layer,newSpriteEntity);
 	}
 	
 	public EntityStatic[] listEntities(){

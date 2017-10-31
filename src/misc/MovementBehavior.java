@@ -1,10 +1,10 @@
 package misc;
 
-import entities.EntityDynamic;
+import entityComposites.EntityStatic;
 
 public abstract class MovementBehavior {
 	
-	protected EntityDynamic owner;
+	protected EntityStatic owner;
 	
 	public abstract void updateAIPosition();
 	

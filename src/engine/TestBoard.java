@@ -20,8 +20,10 @@ import entities.*; //local imports
 import entityComposites.AngularComposite;
 import entityComposites.Collider;
 import entityComposites.CompositeFactory;
+import entityComposites.EntityBehaviorScript;
 import entityComposites.EntityFactory;
 import entityComposites.EntityStatic;
+import entityComposites.GraphicComposite;
 import entityComposites.TranslationComposite;
 import entityComposites.TranslationComposite.VelocityVector;
 import entityComposites.Collider;
@@ -198,12 +200,14 @@ public class TestBoard extends BoardAbstract{
     	this.collisionEngine = new VisualCollisionEngine(this,renderingEngine); //Refactor to a better name
     	
     	this.forcesOverlay = renderingEngine.addOverlay( ((VisualCollisionEngine)collisionEngine).createForcesOverlay() );
-		currentFollowerAI = sleep;
-    	initBoard();
-    	postInitializeBoard();
-    	initEditorPanel();
 
     	
+		currentFollowerAI = sleep;
+
+    	initEditorPanel();
+    	
+    	initBoard();
+    	postInitializeBoard();
     }
 
 
@@ -217,8 +221,6 @@ public class TestBoard extends BoardAbstract{
 
         
         collisionEngine.addCustomCollisionsBetween(playerGroup, worldGeometryGroup, new PlantPlayer.GroundCollision() );
-
-        //collisionEngine.addCustomCollisionsBetween("Player", "Tree", new PlantPlayer.ClingCollision() );
         
         collisionEngine.addCustomCollisionsBetween( playerGroup, treeStemGroup, new PlantPlayer.PlayerOnStem() );
         
@@ -232,15 +234,18 @@ public class TestBoard extends BoardAbstract{
         setFocusable(true);
         setBackground(Color.BLACK);
         
-        asteroid = new Asteroid( 0 , 600 , 500, this, Asteroid.PRESET03);
+        asteroid = new Asteroid( 0 , 600 , 500, this, Asteroid.PRESET01);
         this.currentScene.addEntity(asteroid,"Ground");
         asteroid.spawnGrass();
+        asteroid.spawnPresetBush(282, 0.6, 4);
+        asteroid.spawnPresetBush(290, 1, 4);
+        asteroid.spawnPresetBush(298, 0.6, 4);
         
         GravityMarker asteroidGravityWell = new GravityMarker("GravityWell01",asteroid.getPosition(),1200);
         asteroidGravityWell.setFalloff(0.2, 500);
         this.currentScene.addEntity(asteroidGravityWell,"Gravity");
         
-        testAsteroid = new Asteroid( -200 , -1000 , 200, this, Asteroid.PRESET01);
+        testAsteroid = new Asteroid( -200 , -1000 , 200, this, Asteroid.PRESET03);
         this.currentScene.addEntity(testAsteroid,"Ground");
         testAsteroid.spawnGrass();
         
@@ -256,42 +261,63 @@ public class TestBoard extends BoardAbstract{
         asteroidGravityWell.setFalloff(0.1, 400);
         this.currentScene.addEntity(asteroidGravityWell,"Gravity");
         
-        //asteroid.populateGrass(this);
-        //
-        /*testAsteroid = new EntityStatic( "Asteroid" , -900 , -2000 );
-        
-        CompositeFactory.addRotationalColliderTo(
-        		testAsteroid, 
-        		new BoundaryCircular(1000), 
-        		testAsteroid.getAngularComposite()
-        		);
-        
-        CompositeFactory.addRigidbodyTo(testAsteroid);
-        this.currentScene.addEntity(testAsteroid,"Pickable");*/
-        //
-        
         
         player = new PlantPlayer(30,-100,this);
         CompositeFactory.addRigidbodyTo(player);
-
+        this.addInputController(player.inputController); //add player input controller to board
         this.currentScene.addEntity(player,"Player");
-        //gravity = player.getTranslationComposite().addForce( new Vector(0,0) );
         
+
         follow = new Follow(player);
         currentFollowerAI = follow;
         //player.setGravity(gravity);
-        this.addInputController(player.inputController);
-        
 
-		currentScene.addBackgroundSprite(7,
-				EntityFactory.createBackgroundSprite("Prototypes/starscape.png", 0 , 0 ));
-		currentScene.addBackgroundSprite(4,
-				EntityFactory.createBackgroundSprite("Prototypes/starcloud02.png", 0 , 0 ));
-		currentScene.addBackgroundSprite(3,
-				EntityFactory.createBackgroundSprite("Prototypes/starcloud01.png", 0 , 0 ));
+
         
+        
+        //Matt's follower test
+        EntityStatic insect = new EntityStatic(0,0);
+        insect.addGraphicTo(new Sprite.Stillframe("box.png"));
+        insect.addTranslationTo();
+        CompositeFactory.addScriptTo(insect, new EntityBehaviorScript.PatrolBetween(insect, player, asteroid.getFlowerNode(0)));
+        addEntityToCurrentScene(insect); 
+        
+         
+
+		currentScene.addBackgroundSprite(7, new Sprite.Stillframe("Prototypes/starscape.png",Sprite.CENTERED) , 0 , 0);
+		currentScene.addBackgroundSprite(4, new Sprite.Stillframe("Prototypes/starcloud03.png",Sprite.CENTERED) , 0 , 0);
+		currentScene.addBackgroundSprite(6, new Sprite.Stillframe("Prototypes/starcloud01.png",Sprite.CENTERED) , 0 , 0);
+		currentScene.addBackgroundSprite(3, new Sprite.Stillframe("Prototypes/starcloud01.png",Sprite.CENTERED) , 0 , 0);
+		currentScene.addBackgroundSprite(3, new Sprite.Stillframe("Prototypes/starcloud01.png",Sprite.CENTERED) , 0 , -2000);
         
     	camera.createRotationalCameraBehavior( player, player.getPlayerCameraFocus() ,asteroid.getPosition(), player.getPlayerLookZoom() );
+
+    }
+    
+    public void spawnNewTree( Vector direction ){
+		
+		double angle = direction.angleFromVectorInDegrees();
+		
+		PlantSegment.StemSegment sprout = new PlantSegment.StemSegment( 
+				player.getX(), 
+				player.getY(),
+				100,
+				TestBoard.this
+			);
+		sprout.name = "Seed" + PlantSegment.StemSegment.counter;
+		
+		sprout.debugMakeWaterSource();
+		sprout.debugSetSugarLevel(700);
+
+			CompositeFactory.addTranslationTo(sprout);
+			
+			sprout.getAngularComposite().setAngleInDegrees( angle );
+			
+			System.out.println("angle "+angle);
+			
+			currentScene.addEntity(sprout,"Tree");
+			
+			CompositeFactory.makeChildOfParent(sprout, asteroid, TestBoard.this);
     }
     
     public EntityStatic getAsteroid(){
@@ -405,10 +431,14 @@ public class TestBoard extends BoardAbstract{
     	this.player.debugDraw(camera, g2);
 
     	
-    	
-    	for ( Vector vector : player.getTranslationComposite().debugForceArrows() ){
+    	Vector[] forces = player.getTranslationComposite().debugForceArrows();
+    	/*
+    	int i = 0;
+    	for ( Vector vector : forces ){
     		camera.drawInBoard( vector.multiply(300).toLine( player.getPosition() ), (Graphics2D)g );
-    	}
+    		g2.drawString("Force "+i+" "+forces[i],300,300+(i*15));
+    		++i;
+    	}*/
     	
     	camera.drawLineInWorld(dragLine, g2);
     	try {

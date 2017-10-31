@@ -17,6 +17,7 @@ import com.studiohartman.jamepad.ControllerState;
 import Input.KeyCommand;
 import engine.BoardAbstract;
 import engine.MovingCamera;
+import engine.TestBoard;
 import entities.Player;
 import entityComposites.Collider;
 import entityComposites.EntityStatic;
@@ -44,6 +45,9 @@ import utility.ListNodeTicket;
 
 public class PlantPlayer extends Player {
 	
+	private final static Sprite.Stillframe playerSprite = new Sprite.Stillframe("box.png", Sprite.CENTERED);
+	
+	private TestBoard board;
 	private MovingCamera camera;
 
 	private final ClimbingState climbing = new ClimbingState();
@@ -67,23 +71,22 @@ public class PlantPlayer extends Player {
 	
 	private Point playerCameraFocus = new Point(0,0);
 	private Double playerCameraZoomOut = 1.0;
+	
+	private NullContext nullContext = new NullContext();
+	private InteractionEvent currentInteractionContext = nullContext;
 
-	Font defaultFont = new Font( Font.SANS_SERIF , Font.PLAIN, 12) ;
-	Font contextFont = new Font( Font.SANS_SERIF , Font.PLAIN, 30) ;
-	private static Point contextPosition = new Point(300,300);
-	private static final String context_none = "";
-	private static final String context_pickup = "Pick Up";
-	private static String contextCurrent = context_none;
+	private InventoryItem currentHeldItem = new NothingHeld();
+	
 	public ControllerManager controllers;
-	
-	
-	public PlantPlayer(int x, int y, BoardAbstract board ) {
+
+	public PlantPlayer(int x, int y, TestBoard board ) {
 		super(x, y);
 		
 		this.camera = board.getCamera();
+		this.board = board;
     	controllers = new ControllerManager();
     	controllers.initSDLGamepad();
-		this.addGraphicTo( new Sprite.Stillframe("box.png", Sprite.CENTERED) );
+		this.addGraphicTo( playerSprite );
 		
 		Boundary boundary = new BoundarySingular( new Event() );
 		Boundary boundary2 = new BoundaryCircular( 40 , new Event() );
@@ -96,11 +99,20 @@ public class PlantPlayer extends Player {
 		
 		this.movementForce = this.getTranslationComposite().addForce( new Vector(0,0) );
 		
+		
+		this.inputController.createKeyBinding(KeyEvent.VK_E, new KeyCommand(){	//ACTION EVENT KEY
+			
+			@Override
+			public void onPressed() {
+				currentInteractionContext.activate();
+			}
+		});
+		
 		this.inputController.createKeyBinding(KeyEvent.VK_LEFT, new KeyCommand(){
 			@Override
 			public void onPressed() {
 				currentState.onLeft();
-				inputVectorLeft = PlantPlayer.this.getOrientationVector().inverse();
+				inputVectorLeft = PlantPlayer.this.getOrientationVector().normalRight();
 			}
 			@Override
 			public void onReleased() {
@@ -113,11 +125,12 @@ public class PlantPlayer extends Player {
 				currentState.holdingLeft();
 			}
 		});
+		
 		this.inputController.createKeyBinding(KeyEvent.VK_RIGHT, new KeyCommand(){
 			@Override
 			public void onPressed() {
 				currentState.onRight();
-				inputVectorRight = PlantPlayer.this.getOrientationVector();
+				inputVectorRight = PlantPlayer.this.getOrientationVector().normalLeft();
 			}
 			@Override
 			public void onReleased() {
@@ -129,6 +142,7 @@ public class PlantPlayer extends Player {
 				currentState.holdingRight();
 			}
 		});
+		
 		this.inputController.createKeyBinding(KeyEvent.VK_SPACE, new KeyCommand(){
 			@Override
 			public void onPressed() {
@@ -143,11 +157,12 @@ public class PlantPlayer extends Player {
 				currentState.holdingJump();
 			}
 		});
+		
 		this.inputController.createKeyBinding(KeyEvent.VK_UP, new KeyCommand(){
 			@Override
 			public void onPressed() {
 				currentState.onUp();
-				inputVectorUp = PlantPlayer.this.getOrientationVector().normalRight();
+				inputVectorUp = PlantPlayer.this.getOrientationVector().inverse();
 			}
 			@Override
 			public void onReleased() {
@@ -159,11 +174,12 @@ public class PlantPlayer extends Player {
 				currentState.holdingUp();
 			}
 		});
+		
 		this.inputController.createKeyBinding(KeyEvent.VK_DOWN, new KeyCommand(){
 			@Override
 			public void onPressed() {
 				currentState.onDown();
-				inputVectorDown = PlantPlayer.this.getOrientationVector().normalLeft();
+				inputVectorDown = PlantPlayer.this.getOrientationVector();
 			}
 			@Override
 			public void onReleased() {
@@ -222,6 +238,9 @@ public class PlantPlayer extends Player {
 
     	});
     	testControllerThread.start();
+    	
+    	
+    	givePlayerItem( new Fruit01() );
 	}
 	
 	@Override
@@ -245,27 +264,13 @@ public class PlantPlayer extends Player {
 		
 		this.currentState.debugDraw(cam, g2);
 		
-		final Point screenPosition = cam.getRelativePoint(contextPosition);
-		
-		g2.setFont( contextFont );
-		g2.setColor( Color.WHITE );
-		g2.drawString( contextCurrent , screenPosition.x, screenPosition.y );
-		g2.setFont( defaultFont );
+		this.currentInteractionContext.drawReadout(cam, g2);
 	}
 	
 	public void debugCollisions( MovingCamera cam , Graphics2D g2 ){
 		for( int i = 0 ; i < this.getColliderComposite().getCollisions().length ; ++i ){
 			Collision collision = this.getColliderComposite().getCollisions()[i];
 			g2.drawString( collision.toString(), 10, 400+(i*15));
-		}
-	}
-	
-	private class PickupAction{
-		
-		private EntityStatic target;
-		
-		public PickupAction() {
-			// TODO Auto-generated constructor stub
 		}
 	}
 
@@ -369,21 +374,46 @@ public class PlantPlayer extends Player {
 	public static class FruitInRange extends CollisionDispatcher<PlantPlayer, SeedFruit>{
 
 		@Override
-		public Collision createVisualCollision(PlantPlayer entity1, Collider collider1, SeedFruit fruit,
+		public Collision createVisualCollision(PlantPlayer player, Collider collider1, SeedFruit fruit,
 				Collider collider2, VisualCollisionCheck check, RenderingEngine engine) {
 			
-			return new Collision.CustomType<PlantPlayer, SeedFruit>(entity1, collider1, fruit, collider2) {
+			return new Collision.CustomType<PlantPlayer, SeedFruit>(player, collider1, fruit, collider2) {
 
+				Point readoutPosition;
+				
 				@Override
 				protected void initializeCollision() {
-					contextCurrent = context_pickup;
-					contextPosition = new Point(300,300);
+					
+					readoutPosition = new Point(300,300);
+					InteractionEvent pickup = player.new InteractionEvent(readoutPosition){
+
+						@Override
+						protected void activate() {
+
+							player.givePlayerItem( player.new Fruit01() );
+							
+							isComplete = true;
+							fruit.disable();
+						}
+
+						@Override
+						protected void drawReadout(MovingCamera cam, Graphics2D g2) {
+							g2.setFont( contextFont );
+							g2.setColor( Color.WHITE );
+							g2.drawString( "Pick" , cam.getRelativeX(readoutPosition.x), cam.getRelativeY(readoutPosition.y) );
+							g2.setFont( defaultFont );
+						}
+
+					};
+
+					player.currentInteractionContext = pickup;
 				}
 
 				@Override
 				public void updateCollision() {
 					isComplete = !check.check(collidingPrimary, collidingSecondary);
-					contextPosition = fruit.getPosition();
+					
+					readoutPosition.setLocation(fruit.getPosition());
 				}
 
 				@Override
@@ -394,9 +424,8 @@ public class PlantPlayer extends Player {
 
 				@Override
 				public void completeCollision() {
-					contextCurrent = context_none;
-					contextPosition = new Point(0,0);
-					//throw new RuntimeException("COLLIDER IS ROATAEABLE "+collider2) ;
+
+					player.resetContext();
 				}
 			};
 		}
@@ -485,8 +514,9 @@ public class PlantPlayer extends Player {
 				g2.drawString("Stem "+ Vector.angleBetweenVectors(absAngle, gravity.toVector()) , 700, i);
 				i = i + 15;
 			}*/
+			leftStickInputVector.set( inputVectorDown.add(inputVectorLeft).add(inputVectorRight).add(inputVectorUp) );
 			
-			g2.drawString("InputVector "+inputVectorDown.add(inputVectorLeft).add(inputVectorRight).add(inputVectorUp) , 800, 400);
+			g2.drawString("InputVector "+leftStickInputVector, 800, 400);
 			
 			cam.drawLineInWorld( leftStickInputVector.multiply(200).toLine( new Point(300,300) ) , g2);
 			
@@ -628,6 +658,11 @@ public class PlantPlayer extends Player {
 	private class StandingState extends GroundState{
 		
 		@Override
+		public void onLeavingState() {
+			//playerCameraFocus.setLocation(0,0); camera.zoomInFull();
+		}
+		
+		@Override
 		public void run() {}
 		@Override
 		public void onLeft() {
@@ -651,9 +686,9 @@ public class PlantPlayer extends Player {
 		@Override
 		public void offUp() { playerCameraFocus.setLocation(0,0); camera.zoomInFull();}
 		@Override
-		public void onDown() { playerCameraFocus.setLocation(0,250); camera.zoomOutFull();}
+		public void onDown() { currentInteractionContext = new DropContext(); }
 		@Override
-		public void offDown() { playerCameraFocus.setLocation(0,0); camera.zoomInFull();}
+		public void offDown() { resetContext(); }
 		
 		@Override public void offLeft(){};
 		@Override public void offRight(){};
@@ -661,6 +696,16 @@ public class PlantPlayer extends Player {
 	}
 	
 	private class FallingState extends State{
+		
+		@Override
+		public void onChange() {
+			currentInteractionContext = nullContext;
+		}
+		
+		@Override
+		public void onLeavingState() {
+			currentInteractionContext = nullContext;
+		}
 		
 		@Override
 		public void run() {}
@@ -776,5 +821,137 @@ public class PlantPlayer extends Player {
 		//##################################################################
 	}
 
+	
+	private void givePlayerItem( InventoryItem item ){
+		item.debugSetGraphic();
+		currentHeldItem = item;
+	}
+	
+	
+	private abstract class InventoryItem{
+		
+		protected abstract void drawHeldItem(Graphics2D g2);
+		
+		protected abstract void debugSetGraphic();
+		
+		protected abstract void dropItemEvent();
+		
+		protected abstract String getName();
+		
+		protected abstract String getDropContext();
+	}
+	
+	private class NothingHeld extends InventoryItem{
+
+		protected void drawHeldItem( Graphics2D g2 ){
+			
+		}
+		
+		protected void debugSetGraphic(){
+			getGraphicComposite().setSprite( playerSprite );
+		}
+		
+		protected String getName(){
+			return "Nothing";
+		}
+		
+		protected void dropItemEvent(){}
+		
+		@Override
+		protected String getDropContext() {
+			return "Nothing";
+		}
+	}
+	
+	private class Fruit01 extends InventoryItem{
+		
+		private final Sprite.Stillframe fruit01Sprite = new Sprite.Stillframe("Prototypes/fruittest_01.png",Sprite.CENTERED);
+		
+		protected void drawHeldItem( Graphics2D g2 ){
+			
+		}
+		
+		protected void debugSetGraphic(){
+			getGraphicComposite().setSprite(fruit01Sprite);
+			getGraphicComposite().setGraphicAngle(Math.PI/2);
+		}
+		
+		protected void dropItemEvent(){
+			board.spawnNewTree( translationComposite.getNetGravityVector().normalLeft() );
+		}
+		
+		protected String getName(){
+			return "Fruit01";
+		}
+		
+		@Override
+		protected String getDropContext() {
+			return "Plant seed";
+		}
+	}
+	
+	
+	protected void resetContext(){
+		this.currentInteractionContext = nullContext;
+	}
+	
+	private abstract class InteractionEvent{
+		
+		protected Font defaultFont = new Font( Font.SANS_SERIF , Font.PLAIN, 12) ;
+		protected Font contextFont = new Font( Font.SANS_SERIF , Font.PLAIN, 30) ;
+
+		protected Point readoutPosition;
+		
+		protected InteractionEvent( Point readoutPosition ){
+			this.readoutPosition = readoutPosition;
+		}
+		
+		protected abstract void activate();
+		
+		protected abstract void drawReadout(MovingCamera cam, Graphics2D g2);
+		
+	}
+	
+	private class DropContext extends InteractionEvent{
+
+		protected DropContext() {
+			super( new Point(200,200));
+		}
+
+		@Override
+		protected void activate() {
+			
+			currentHeldItem.dropItemEvent();
+			
+			currentHeldItem = new NothingHeld();
+			getGraphicComposite().setSprite(playerSprite);
+		}
+		
+		@Override
+
+		public void drawReadout( MovingCamera cam, Graphics2D g2 ){	
+			g2.setFont( contextFont );
+			g2.setColor( Color.WHITE );
+			g2.drawString( currentHeldItem.getDropContext() , readoutPosition.x, readoutPosition.y );
+			g2.setFont( defaultFont );
+		}
+		
+	}
+	
+	private class NullContext extends InteractionEvent{
+		
+		protected NullContext() {
+			super( new Point( 100,100 ));
+		}
+		
+		@Override
+		protected void activate(){ /*DO NOTHING*/}
+
+		@Override
+		protected void drawReadout(MovingCamera cam, Graphics2D g2) {
+			
+		}
+
+	}
 	
 }

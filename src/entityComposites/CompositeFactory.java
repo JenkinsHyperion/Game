@@ -326,6 +326,7 @@ public class CompositeFactory {
 
 		//#### AREA TO NOTIFY BrowserTree
 		//something like,
+
 		BrowserTreePanel browserTreePanel = board.getEditorPanel().getBrowserTreePanel();
 		browserTreePanel.notifyParentChildRelationshipChanged(child, parentEntity);
 	}

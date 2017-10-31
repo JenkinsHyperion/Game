@@ -54,12 +54,12 @@ public class SlidingMessageBehavior extends SlidingMessageBehaviorAbstract {
 				}
 			}
 			if ( Math.abs(owner.getX() - target.getX()) > 5 ) {
-				this.owner.setDX( (float)( this.target.getX() - this.owner.getX() ) /7 );
-				this.owner.setDY( (float)( this.target.getY() - this.owner.getY() ) /7 );
+				this.owner.getTranslationComposite().setDX( (float)( this.target.getX() - this.owner.getX() ) /7 );
+				this.owner.getTranslationComposite().setDY( (float)( this.target.getY() - this.owner.getY() ) /7 );
 			}
 			else {
-				this.owner.setDX(0f);
-				this.owner.setDY(0f);
+				this.owner.getTranslationComposite().setDX(0f);
+				this.owner.getTranslationComposite().setDY(0f);
 			}
 		}
 		@Override

@@ -144,6 +144,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		this.dx=0; //halt velocity
 		this.dy=0;
 		
+		resetAngle(); 
 		behaviorPaused = behaviorCurrent;
 		behaviorCurrent = new InactiveBehavior();
 		lockState = true;

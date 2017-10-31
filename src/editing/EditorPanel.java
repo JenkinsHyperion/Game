@@ -3,6 +3,7 @@ package editing;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -37,8 +38,11 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -64,21 +68,21 @@ import editing.worldGeom.SelectionRectangle;
 import editing.worldGeom.SelectionRectangleAbstract;
 import editing.worldGeom.SelectionRectangleNull;
 import editing.worldGeom.WorldGeometry;
-import engine.BoardAbstract;
-import engine.MovingCamera;
+import engine.*;
+import entities.EntityDynamic;
 import entities.EntityNull;
 import entityComposites.Collider;
+import entityComposites.CompositeFactory;
 import entityComposites.Entity;
 import entityComposites.EntityComposite;
 import entityComposites.EntityFactory;
 import entityComposites.EntityStatic;
 import entityComposites.TranslationComposite;
-import physics.Boundary;
-import physics.BoundaryPolygonal;
-import physics.Vector;
+import physics.*;
 import saving_loading.SavingLoading;
 import sprites.Sprite;
 import sprites.Sprite.Stillframe;
+import testEntities.Asteroid;
 
 //TASK LIST:
 @SuppressWarnings("serial")
@@ -88,6 +92,7 @@ import sprites.Sprite.Stillframe;
 public class EditorPanel extends JPanel implements MouseWheelListener{
 	
 //	##### MODES #####
+	private static int SelectInstanceCount;
 	private EntitySelectMode entitySelectMode;
 	private EntityPlaceMode entityPlaceMode;
 	private WorldGeometry worldGeomMode;
@@ -102,8 +107,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	public static final int WORLDGEOM_MODE = 2;
 	public static final int CAMERAPAN_MODE = 3;*/
 //	Mouse and positioning fields
-	protected boolean mouseClick = false;
-	//private Point clickPosition;
 	private Point editorMousePos;
 	private Point oldMousePanPos; // the reference point of last click position for mouse camera panning
 	private Point oldCameraPos;
@@ -175,12 +178,10 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	JScrollPane iconBarScrollPaneSpriteSwap;
     //private JList entitiesJList;
 	private SavingLoading saveLoad;
-	public static int count;
 	
 // ##################### CONSTRUCTOR #################################################################
 // ##################### CONSTRUCTOR #################################################################
 	public EditorPanel( BoardAbstract board2) { 
-		count++;
 		//initializing some of the fields
 		this.board = board2;
 		/*try {
@@ -192,6 +193,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		oldMousePanPos = new Point();
 		oldCameraPos = new Point();
 		inputController = new InputController("Main panel controller");
+		inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new OpenNewEntityPopup());
 		inputController.createKeyBinding(KeyEvent.VK_F5, new KeyCommand() {
 			@Override
 			public void onPressed() { setMode(getEntitySelectMode());	}
@@ -436,10 +438,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		//separator.setPreferredSize(new Dimension(150,3));
 		entitySelectMode.setSelectViaSprite(false);
 		
-		//FIXME delete this
-		System.err.println("EDITORPANEL COUNT: " + count);
-		
-		
 		compositeEditorPanel = new CompositeEditorPanel();
 		JScrollPane compositeEditorScrollPane = new JScrollPane( compositeEditorPanel  );
 		compositeEditorScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -582,11 +580,13 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	public void mousePressed(MouseEvent e) {
 		setEditorMousePos(e.getX(), e.getY());
 		//clickPosition.setLocation(e.getX(),e.getY());
+		this.inputController.mousePressed(e);
 		this.editorMode.mousePressed(e);
 		
 	}
 	public void mouseDragged(MouseEvent e) {
 		setEditorMousePos(e.getX(), e.getY());
+		this.inputController.mouseDragged(e);
 		this.editorMode.mouseDragged(e);
 	}
 	public void mouseMoved(MouseEvent e){
@@ -595,6 +595,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	}
 	public void mouseReleased(MouseEvent e) {	
 		setEditorMousePos(e.getX(), e.getY());
+		this.inputController.mouseReleased(e);
 		this.editorMode.mouseReleased(e);
 
 	}
@@ -1020,9 +1021,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				this.inputController = new InputController("Default mode (Entity select) controller");
 				
 				this.inputController.createMouseBinding(MouseEvent.BUTTON1, new EntitySelectLClickEvent());
-				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new CtrlEntitySelectLClickEvent());
 				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new TranslateEvent());
-				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON1, new SelectionRectEvent());
+				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON1, new SelectionOrCTRLClickEvent()); 
 				this.inputController.createKeyBinding( KeyEvent.VK_ESCAPE, new DeselectEntitiesEvent());
 				this.inputController.createKeyBinding(KeyEvent.VK_R, new SetRotateMode());
 				this.inputController.createKeyBinding(KeyEvent.VK_S, new SetScaleMode());
@@ -1507,17 +1507,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			@Override
 			public void mouseReleased() {} 	
 		}
-		public class CtrlEntitySelectLClickEvent extends MouseCommand {
-
-			@Override
-			public void mousePressed() {
-				checkForEntityCtrlClick(camera.getWorldTranslationalPosition(editorMousePos));
-			}
-			@Override
-			public void mouseDragged() {}
-			@Override
-			public void mouseReleased() {}
-		}
+		
 		public class TranslateEvent extends MouseCommand{
 
 			public void mousePressed() {
@@ -1529,6 +1519,17 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			}
 			public void mouseReleased() {}
 
+		}
+		public class CtrlEntitySelectLClickEvent extends MouseCommand {
+
+			@Override
+			public void mousePressed() {}
+			@Override
+			public void mouseDragged() {}
+			@Override
+			public void mouseReleased() {
+				checkForEntityCtrlClick(camera.getWorldTranslationalPosition(editorMousePos));
+			}
 		}
 		public class SelectionRectEvent extends MouseCommand {
 			@Override
@@ -1547,6 +1548,38 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				checkForEntityInSelectionRect(selectionRectangleState.getWrekt());
 				selectionRectangleState.resetRect();
 				selectionRectangleState = nullSelectionRectangle;
+			}
+		}
+		public class SelectionOrCTRLClickEvent extends MouseCommand {
+			private MouseCommand tempState;
+			private SelectionRectEvent selectRectState;
+			private CtrlEntitySelectLClickEvent ctrlState;
+			public SelectionOrCTRLClickEvent() {
+				SelectInstanceCount++;
+				System.err.println("(editorpanel)selectRectInstanceCount: " + SelectInstanceCount);
+				selectRectState = new SelectionRectEvent();
+				ctrlState = new CtrlEntitySelectLClickEvent();
+				tempState = ctrlState; //will assume we're in ctrlclick state until a drag occurs.
+			}
+			
+			@Override
+			public void mousePressed() {
+				//set initial click point just in case drag happens; it'll need that data
+				//actually I guess I could just run selectRectEvent's mousePressed(), it's lightweight anyway
+				selectRectState.mousePressed();
+			}
+			@Override
+			public void mouseDragged() {
+				// in this body, change tempState to select Rect State.
+				//	because if any drag at all happens, then has to be a selectionRect event
+				tempState = selectRectState;
+				tempState.mouseDragged();
+			}
+			@Override
+			public void mouseReleased() {
+				tempState.mouseReleased(); //will fire ctrlClick event if no drag occured. Otherwise will fire selectionRect event.
+				//then set back to default state (ctrlEntitySelectLClickEvent)
+				tempState = ctrlState;
 			}
 		}
 		public class DeselectEntitiesEvent extends KeyCommand {
@@ -3001,10 +3034,70 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	} // end of BoundaryMode inner class 
 
 
-		
+	private class NewEntityPopup extends JPopupMenu {
+		private EntityStatic theEntity = null;
+		private JMenu addEntityMenu = new JMenu("New Entity");
+		private JMenuItem defaultItem = new JMenuItem("Default");
+		private JMenuItem deleteComposite = new JMenuItem("Delete");
+		private JPopupMenu popUp = new JPopupMenu();
+		private NewEntityPopup() {
+			super();
+			// *** Also check if "Delete" menuItem should be enabled
+			defaultItem.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// add circular follower
+					createTestEntity();
+				}
+			});
+			addEntityMenu.setEnabled(true);
+		/*	deleteComposite.setEnabled(false);
+			deleteComposite.addActionListener(new DeleteCompositeEvent());
+			*/
+			addEntityMenu.add(defaultItem);
+			popUp.add(addEntityMenu);
+			popUp.add(deleteComposite);
+			
+		}
+		public void createTestEntity() {
+			EntityDynamic asteroid2 = new EntityDynamic(camera.getLocalX(editorMousePos.x) , camera.getLocalY(editorMousePos.y));
+			CompositeFactory.addGraphicTo(asteroid2, Sprite.Stillframe.missingSprite);
+			Boundary bounds1 = new BoundaryCircular(40);
+			CompositeFactory.addAngularComposite(asteroid2);
+		//	asteroid2.addInitialColliderTo(bounds1);
+			 
+	        CompositeFactory.addRotationalColliderTo(
+	        		asteroid2, 
+	        		bounds1, 
+	        		asteroid2.getAngularComposite()
+	        		);
+	        
+			CompositeFactory.addRigidbodyTo(asteroid2);
+			CompositeFactory.addTranslationTo(asteroid2);
+			/*Asteroid asteroid = new Asteroid( camera.getLocalX(editorMousePos.x) , camera.getLocalY(editorMousePos.y), 
+					40, (TestBoard)board, 
+					Asteroid.PRESET03);   */
+			board.getCurrentScene().addEntity(asteroid2, "Ground");
+			((TestBoard)board).addFollowerToList(asteroid2);
+		}
+		 /** Just an overridden method from JPopup. Ignore */
+		@Override
+		public void show(Component invoker, int x, int y) {
+			// TODO Auto-generated method stub
+			popUp.show(invoker, x, y);
+		}
+	}
 		
 //////////////////////////////////////////////////////////////////////	
-	
+	public class OpenNewEntityPopup extends MouseCommand {
+		public OpenNewEntityPopup() {
+		}
+		@Override 
+		public void mousePressed() {
+			NewEntityPopup newPopup = new NewEntityPopup();
+			newPopup.show(board, editorMousePos.x, editorMousePos.y);
+		}
+	}
 	public class CameraResetZoom extends KeyCommand {
 
 		@Override

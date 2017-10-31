@@ -46,7 +46,8 @@ public class TestBoard extends BoardAbstract{
 	private java.util.Timer updateEntitiesTimer;
 	
 	MouseHandlerClass myMouseHandler;
-
+	ArrayList<EntityDynamic> followerEntityList = new ArrayList<>();
+	
 	private InputController boardInput = new InputController("Test Board Input");
 
 	private MovingCamera.FollowTargetAroundPoint cameraRotationBehavior;
@@ -54,7 +55,9 @@ public class TestBoard extends BoardAbstract{
     public PlantPlayer player;
     private Asteroid asteroid;
     private Asteroid testAsteroid;
-
+    private final Sleep sleep = new Sleep();
+    private Follow follow;
+    private FollowerAI currentFollowerAI;
     private Line2D dragLine = new Line2D.Double();
 
     public static int B_WIDTH;// = 400;
@@ -75,7 +78,7 @@ public class TestBoard extends BoardAbstract{
     public TestBoard(int width , int height, JFrame frame ) {
     	super(width,height,frame);
     	
-
+    	
     	this.renderingEngine = new RenderingEngine( this );
     	this.camera = this.renderingEngine.getCamera();
     	
@@ -92,6 +95,17 @@ public class TestBoard extends BoardAbstract{
     	});
     	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_F2, new KeyCommand(){
     		public void onPressed() { ((VisualCollisionEngine) collisionEngine).toggleCalculationDisplay(); }
+    		public void onReleased() {  }
+    	});
+    	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_F3, new KeyCommand(){
+    		public void onPressed() {
+    			if (!camera.isLocked()) {
+    				camera.lockAtCurrentPosition();
+    			}
+    			else {
+    				camera.unlock();
+    			}
+    		}
     		public void onReleased() {  }
     	});
     	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_5, new KeyCommand(){
@@ -135,7 +149,8 @@ public class TestBoard extends BoardAbstract{
     		public void onReleased() { camera.setDX(0); }
     	});
     	this.getUnpausedInputController().createMouseBinding(MouseEvent.CTRL_MASK , MouseEvent.BUTTON3, new MouseCommand(){
-    		public void mousePressed() { asteroid.getRotationComposite().setAngularVelocity(0.1f); }
+    		public void mousePressed() { //asteroid.getRotationComposite().setAngularVelocity(0.1f); 
+    		}
     	});
     	//MOUSE COMMAND FOR GROWING NEW PLANT  
         this.getUnpausedInputController().createMouseBinding( MouseEvent.CTRL_MASK , MouseEvent.BUTTON2 , new MouseCommand(){
@@ -183,7 +198,7 @@ public class TestBoard extends BoardAbstract{
     	this.collisionEngine = new VisualCollisionEngine(this,renderingEngine); //Refactor to a better name
     	
     	this.forcesOverlay = renderingEngine.addOverlay( ((VisualCollisionEngine)collisionEngine).createForcesOverlay() );
-		
+		currentFollowerAI = sleep;
     	initBoard();
     	postInitializeBoard();
     	initEditorPanel();
@@ -262,6 +277,8 @@ public class TestBoard extends BoardAbstract{
         this.currentScene.addEntity(player,"Player");
         //gravity = player.getTranslationComposite().addForce( new Vector(0,0) );
         
+        follow = new Follow(player);
+        currentFollowerAI = follow;
         //player.setGravity(gravity);
         this.addInputController(player.inputController);
         
@@ -291,7 +308,7 @@ public class TestBoard extends BoardAbstract{
     	}
     	
     	collisionEngine.checkCollisions();
-
+    	currentFollowerAI.update();
     	//gravity.setVector( player.getSeparationUnitVector(asteroid).multiply(0.2) );
     	//double playerAbsoluteAngle = gravity.toVector().normalLeft().angleFromVectorInRadians();
 		//player.getAngularComposite().setAngleInRadians( playerAbsoluteAngle );
@@ -317,6 +334,51 @@ public class TestBoard extends BoardAbstract{
     	this.currentScene.addEntity(newTwig,group);
     }
 
+    private interface FollowerAI{
+		public void update();
+	}
+
+	private class Sleep implements FollowerAI{
+		public void update(){ /*Sleeping*/ }
+	}
+
+	private class Follow implements FollowerAI{
+
+		private Point target;
+		private EntityStatic entityTarget;
+
+		public Follow(Point target){
+			this.target = target;
+			target.setLocation(player.getPosition().x, player.getPosition().y);
+		}
+		public Follow(EntityStatic entityTarget){
+			this.entityTarget = entityTarget;
+		}
+
+		public void update(){
+
+			for (EntityDynamic followerEntity : followerEntityList) {	
+				float distX =  	(float)(followerEntity.getX() ) - entityTarget.getX() ;
+				float distY =	(float)(followerEntity.getY() ) - entityTarget.getY() ;
+	
+				Vector followVelocity = new Vector(
+					/*	Math.signum(distX)*(distX*distX)/50000.0 + distX/20,    //like Linear Follow, this is a Quadratic Follow
+						Math.signum(distY)*(distY*distY)/50000.0 + distY/20*/
+						-distX * .008 , -distY *.008
+						);
+						
+						
+				followerEntity.getTranslationComposite().setVelocityVector( followVelocity );
+				//followerEntity.getTranslationComposite().addForce( followVelocity );
+				
+				/*followerEntity.setDX( (float)( entityTarget.getX() - followerEntity.getX() ) /30 );
+				followerEntity.setDY( (float)( entityTarget.getY() - followerEntity.getY() ) /30 );*/
+			}
+		}
+	}
+	public void addFollowerToList(EntityDynamic newFollower) {
+		followerEntityList.add(newFollower);
+	}
 /* ########################################################################################################################
  * 
  * 		RENDERING

@@ -20,7 +20,7 @@ public class Crosshair extends EntityDynamic{
 		this.parent = parent;
 		
 		idleBehavior = new InactiveBehavior(); //TO DO make static singleton
-		activeBehavior = new LinearFollow( this , target ); //AI can also be a static singleton since its a behavior
+		activeBehavior = new FollowMovement.Linear( this , target ); //AI can also be a static singleton since its a behavior
 		behaviorCurrent = activeBehavior;
 		
         initBulletTest();

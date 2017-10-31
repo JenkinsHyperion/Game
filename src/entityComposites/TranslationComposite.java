@@ -262,17 +262,13 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	@Override
 	public void updateEntityWithComposite(EntityStatic entity) {
 		coreMath.updateEntityWithMath(entity);
-	}
-
-	@Override
-	public void updateComposite() {
 		coreMath.update();
 	}
+
 	@Override
 	public String toString() {
 		return this.compositeName;
 	}
-	
 	
 	private class TranslationMath{
 

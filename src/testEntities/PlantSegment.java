@@ -1114,14 +1114,10 @@ public class PlantSegment extends EntityStatic{
 				
 				@Override
 				protected void updateOwnerEntity(EntityStatic ownerEntity) {
-					
-				}
-				
-				@Override
-				protected void updateBehavior() {
 					Vector asteroidDistance = SeedFruit.this.getRelativeTranslationalVectorOf(asteroid).normalLeft();
 					SeedFruit.this.getAngularComposite().setAngleInDegrees( asteroidDistance.angleFromVectorInDegrees() );
 				}
+
 			});
 		}
 		

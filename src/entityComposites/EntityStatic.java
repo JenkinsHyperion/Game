@@ -116,7 +116,6 @@ public class EntityStatic extends Entity{
 		
 		for ( UpdateableComposite composite : updateablesList ){
 			composite.updateEntityWithComposite(this);
-			composite.updateComposite();
 		}
 	}
 	
@@ -278,34 +277,8 @@ public class EntityStatic extends Entity{
 		this.x = x;
 		this.y = y;
 		this.parentComposite.setCompositedPosition( x, y);
-	}//
+	}
 	
-	// POSITIONING OVERRIDDEN FROM ENTITY
-	@Override
-    public void setX(int setx) { x = setx; }
-	@Override  
-    public void setX(double setx) { x = setx; }
-	@Override
-    public void setY(int sety) { y = sety; }
-	@Override   
-    public void setY(double sety) { y = sety; }
-	@Override
-    public void setPos(Point p){
-    	x = (int) p.getX();
-    	y = (int) p.getY();
-    }
-	@Override 
-    public void setPos( double x, double y){
-    	this.x =  x;
-    	this.y =  y;
-    	
-    	//this.childComposite.
-    }
-	@Override
-    public void setPos(Point2D p){
-    	x = p.getX();
-    	y = p.getY();
-    }
 	
 	public double getDX(){
 		return this.translationComposite.getDX();

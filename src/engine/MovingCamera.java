@@ -77,7 +77,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		target = targetEntity;
 		this.x = target.getX();
 		this.y = target.getY();
-		behaviorActive = new LinearFollow(this,target);
+		behaviorActive = new FollowMovement.Linear(this,target);
 		behaviorCurrent = behaviorActive;
 	}
 	
@@ -536,7 +536,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		this.target = targetEntity;
 		this.x = target.getX();
 		this.y = target.getY();
-		behaviorActive = new LinearFollow(this,target);
+		behaviorActive = new FollowMovement.Linear(this,target);
 		behaviorCurrent = behaviorActive;
 	}
 	@Override

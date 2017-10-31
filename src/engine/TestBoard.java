@@ -257,7 +257,7 @@ public class TestBoard extends BoardAbstract{
         EntityStatic insect = new EntityStatic(0,0);
         insect.addGraphicTo(new Sprite.Stillframe("box.png"));
         insect.addTranslationTo();
-        CompositeFactory.addScriptTo(insect, new EntityBehaviorScript.QuadraticFollow(insect, player));
+        CompositeFactory.addScriptTo(insect, new EntityBehaviorScript.PatrolBetween(insect, player, asteroid.getFlowerNode(0)));
         addEntityToCurrentScene(insect); 
         
          

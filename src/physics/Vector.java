@@ -207,10 +207,27 @@ public class Vector implements Serializable{
 			return (-this.getY() ) * (vector2.getX()) + 
 					(this.getX() ) * (vector2.getY() );
 		}
-		
+
 		public Vector projectedOver( Vector base ){
 			return base.unitVector().multiply( this.dotProduct(base.unitVector()) );
 		}
+		/**Returns the projection vector if it is in the same direction as the base vector, otherwise returns a vector of (0,0).
+		 * 
+		 * @param base
+		 * @return
+		 */
+		public Vector projectedOverClamped( Vector base ){
+			
+			Vector projection = this.projectedOver(base);
+			
+			Vector signum2 = new Vector(
+				Math.signum(base.x) +   Math.signum( projection.x ),
+				Math.signum(base.y) +	Math.signum( projection.y )
+			);
+			
+			return projection.abs().multiply(signum2).unitVector().multiply(projection.getMagnitude());
+		}
+
 		
 		/**Returns new directional Unit Vector (magnitude of 1) from given Line2D
 		 * Please note that all returned Vectors hold no position information

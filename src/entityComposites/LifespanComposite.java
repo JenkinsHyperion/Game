@@ -25,11 +25,6 @@ public class LifespanComposite implements EntityComposite, UpdateableComposite {
 	}
 
 	@Override
-	public void updateComposite() {
-		
-	}
-
-	@Override
 	public void removeThisUpdateableComposite() {
 		this.updaterSlot.removeSelfFromList();
 	}

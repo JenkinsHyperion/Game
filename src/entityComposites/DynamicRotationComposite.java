@@ -28,13 +28,7 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 		this.ownerEntity = owner;
 		compositeName = this.getClass().getSimpleName();
 	}
-	
-	@Override
-	public void updateComposite() {
-    	
-    	angularVelocity = angularVelocity + angularAcc;
-		
-	}
+
 	
 	@Override
 	public void updateEntityWithComposite(EntityStatic entity) {
@@ -44,6 +38,7 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 		
 		angular.notifyAngleChange(angularVelocity); //FIXME Change to addAngle which automatically notifies rotateables in angular
 
+		angularVelocity = angularVelocity + angularAcc;
 	}
 	
 	public void setAngularVelocity( double angularVelocity ){
@@ -115,23 +110,7 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 			this.compositeName = "DynamicRotation"+this.getClass().getSimpleName();
 			this.counterOffset = counterOffset;
 		}
-		
-		@Override
-		public void updateComposite() {
-	    	
-			//double output = phaseCounter[0] / 10.0;
-			double output = phaseCounter[0] / 10.0;
-			
-			//double output = internalCounter / 10.0;
-			
-			this.bend = ( (2*output)*(2*output)*(2*output)/100 - (8*output) ) / 3000 ; //Polynomial approximation of Sine function
-			/*if ( internalCounter <= 100){
-				internalCounter++;
-			}else{
-				internalCounter=-100;
-			}*/
-			
-		}
+
 		
 		@Override
 		public void updateEntityWithComposite(EntityStatic entity) {
@@ -140,6 +119,10 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 			
 			angular.setAngleInDegrees( angular.getAngleInDegrees() + bend);
 			angular.notifyAngleChange(bend); //FIXME Change to addAngle which automatically notifies rotateables in angular
+		
+			
+			double output = phaseCounter[0] / 10.0;
+			this.bend = ( (2*output)*(2*output)*(2*output)/100 - (8*output) ) / 3000 ; //Polynomial approximation of Sine function
 		}
 	}
 	
@@ -150,8 +133,7 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 			super(null);
 			this.compositeName += this.getClass().getSimpleName();
 		}
-		@Override
-		public void updateComposite() {}
+
 		@Override
 		public void updateEntityWithComposite(EntityStatic entity) {}
 		public void setAngularVelocity( double angularVelocity ){

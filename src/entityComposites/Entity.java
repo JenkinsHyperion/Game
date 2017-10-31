@@ -27,11 +27,14 @@ public class Entity {
 	protected boolean collidable = true; //default to true
 	protected double x;
     protected double y;
+    public Point2D.Double position = new Point2D.Double(0,0);
     protected int entityType;
     
 	public Entity(int x, int y){
     	setX(x);
     	setY(y);	
+    	position.setLocation(x,y);
+    	
     	name = "blank entity" + count;
     	count++;
 	}
@@ -55,18 +58,22 @@ public class Entity {
     
     public void setX(int setx) {
         x = setx;
+        position.setLocation(setx,position.getY());
     }
     
     public void setX(double setx) {
         x = setx;
+        position.setLocation(setx,position.getY());
     }
 
     public void setY(int sety) {
         y = sety;
+        position.setLocation(position.getX(),sety);
     }
     
     public void setY(double sety) {
         y = sety;
+        position.setLocation(position.getX(),sety);
     }
     
     public Point getPosition(){
@@ -76,15 +83,21 @@ public class Entity {
     public void setPos(Point p){
     	x = (int) p.getX();
     	y = (int) p.getY();
+        position.setLocation(x,position.getY());
+        position.setLocation(position.getX(),y);
     }
     
     public void setPos( double x, double y){
     	this.x =  x;
     	this.y =  y;
+        position.setLocation(x,position.getY());
+        position.setLocation(position.getX(),y);
     }
 	public void setPos(Point2D p) {
 		this.x =  p.getX();
     	this.y =  p.getY();
+        position.setLocation(x,position.getY());
+        position.setLocation(position.getX(),y);
 	}
 	
     @Deprecated
@@ -160,8 +173,20 @@ public class Entity {
     public Vector getSeparationVector( Point position ){
     	return new Vector( position.x - x  , position.y - y  );
     }
+    public Vector getSeparationVector( Point2D position ){
+    	return new Vector( position.getX() - x  , position.getY() - y  );
+    }
     public Vector getSeparationUnitVector( Entity partner ){
-    	return new Vector( partner.x - this.x  , partner.y - this.y ).unitVector();
+    	return getSeparationVector(partner).unitVector();
+    }
+    public Vector getSeparationUnitVector( Point position ){
+    	return getSeparationVector(position).unitVector();
+    }
+    public Vector getSeparationUnitVector( Point2D position ){
+    	return getSeparationVector(position).unitVector();
     }
 
+    public Point2D.Double getPositionReference(){
+    	return this.position;
+    }
 }

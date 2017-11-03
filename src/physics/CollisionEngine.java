@@ -115,18 +115,7 @@ public class CollisionEngine {
 		}
 		
 	}*/
-	
-	public <E extends EntityStatic> void createColliderGroupOfType( String newGroupName ){
-		
-		if ( getGroupsByName( newGroupName ).length == 0 ){
-			ColliderGroup<E> newGroup = new ColliderGroup<E>( newGroupName );
-			newGroup.addToGroupList(colliderGroups);
-			System.out.println("Creating group '"+newGroupName+"'");
-		}else{
-			System.err.println("Group '"+newGroupName+"' already exists");
-		}
-		
-	}
+
 	/**
 	 * 
 	 * @param strings
@@ -955,20 +944,23 @@ public class CollisionEngine {
 
 		public ListNodeTicket addStaticColliderToThisGroup( StaticActiveCollider newStatic , boolean isActive ){
 
-			while ( groupPairs.hasNext() ){
-				GroupPairWrapper wrappedPair = groupPairs.get();
-				wrappedPair.notifyPairOfAddedStatic( newStatic , isActive );
-			}
+				while ( groupPairs.hasNext() ){
+					GroupPairWrapper wrappedPair = groupPairs.get();
+					wrappedPair.notifyPairOfAddedStatic( newStatic , isActive );
+				}
+
 			
 			return staticColliders.add(newStatic);
 		}
 		
 		public ListNodeTicket addDynamicColliderToThisGroup( DynamicActiveCollider dynamic, boolean isActive ){
 			
-			while ( groupPairs.hasNext() ){
-				GroupPairWrapper wrappedPair = groupPairs.get();
-				wrappedPair.notifyPairOfAddedDynamic( dynamic , isActive );
-			}
+
+				while ( groupPairs.hasNext() ){
+					GroupPairWrapper wrappedPair = groupPairs.get();
+					wrappedPair.notifyPairOfAddedDynamic( dynamic , isActive );
+				}
+
 			
 			return dynamicColliders.add(dynamic);
 		}
@@ -1036,6 +1028,8 @@ public class CollisionEngine {
 		}
 		
 	}
+
+	
 	
 	protected class GroupPair{
 		

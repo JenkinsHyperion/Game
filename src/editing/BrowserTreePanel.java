@@ -701,9 +701,6 @@ public class BrowserTreePanel extends JPanel {
 		while (e.hasMoreElements()) {
 			possibleNodeContainingEnt = (DefaultMutableTreeNode)e.nextElement();
 			if (possibleNodeContainingEnt.getUserObject() == ent) {
-				timeCurrent = System.currentTimeMillis();
-				int difference = (int)(timeCurrent - timeOld);
-				System.err.println("Took: " + difference + "ms to run search.");
 				return possibleNodeContainingEnt;
 			}
 		}

@@ -12,7 +12,7 @@ public class SlidingMessageBehavior extends SlidingMessageBehaviorAbstract {
 	protected LinearSlidingMessageBehavior linearBehavior;
 	protected NullSlidingMessageBehavior nullBehavior;
 
-	public SlidingMessageBehavior(EntityDynamic ownerRef, Point targetRef){
+	public SlidingMessageBehavior(EntityStatic ownerRef, Point targetRef){
 
 		this.linearBehavior = new LinearSlidingMessageBehavior(ownerRef, targetRef);
 		this.nullBehavior = new NullSlidingMessageBehavior();
@@ -38,7 +38,7 @@ public class SlidingMessageBehavior extends SlidingMessageBehaviorAbstract {
 		private long startTime;
 		private long currentTime;
 		
-		public LinearSlidingMessageBehavior(EntityDynamic ownerRef, Point targetRef){
+		public LinearSlidingMessageBehavior(EntityStatic ownerRef, Point targetRef){
 			this.owner = ownerRef;
 			this.target = targetRef;
 			startTime = System.currentTimeMillis();

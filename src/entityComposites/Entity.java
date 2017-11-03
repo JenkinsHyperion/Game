@@ -27,7 +27,7 @@ public class Entity {
 	protected boolean collidable = true; //default to true
 	protected double x;
     protected double y;
-    public Point2D.Double position = new Point2D.Double(0,0);
+    public Point position = new Point(0,0);
     protected int entityType;
     
 	public Entity(int x, int y){
@@ -186,7 +186,7 @@ public class Entity {
     	return getSeparationVector(position).unitVector();
     }
 
-    public Point2D.Double getPositionReference(){
+    public Point getPositionReference(){
     	return this.position;
     }
 }

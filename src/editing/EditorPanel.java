@@ -4,6 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -74,6 +75,7 @@ import entities.EntityNull;
 import entityComposites.Collider;
 import entityComposites.CompositeFactory;
 import entityComposites.Entity;
+import entityComposites.EntityBehaviorScript;
 import entityComposites.EntityComposite;
 import entityComposites.EntityFactory;
 import entityComposites.EntityStatic;
@@ -3060,10 +3062,13 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			
 		}
 		public void createTestEntity() {
-			EntityDynamic asteroid2 = new EntityDynamic(camera.getLocalX(editorMousePos.x) , camera.getLocalY(editorMousePos.y));
+			//section to create custom collision group
+			board.collisionEngine.createColliderGroup("test");
+			EntityStatic asteroid2 = new EntityStatic(camera.getLocalX(editorMousePos.x) , camera.getLocalY(editorMousePos.y));
 			CompositeFactory.addGraphicTo(asteroid2, Sprite.Stillframe.missingSprite);
 			Boundary bounds1 = new BoundaryCircular(40);
 			CompositeFactory.addAngularComposite(asteroid2);
+			CompositeFactory.addScriptTo(asteroid2, new EntityBehaviorScript.LinearFollowBehavior(asteroid2, ((TestBoard)board).player));
 		//	asteroid2.addInitialColliderTo(bounds1);
 			 
 	        CompositeFactory.addRotationalColliderTo(
@@ -3072,13 +3077,13 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	        		asteroid2.getAngularComposite()
 	        		);
 	        
-			CompositeFactory.addRigidbodyTo(asteroid2);
+			//CompositeFactory.addRigidbodyTo(asteroid2);
 			CompositeFactory.addTranslationTo(asteroid2);
 			/*Asteroid asteroid = new Asteroid( camera.getLocalX(editorMousePos.x) , camera.getLocalY(editorMousePos.y), 
 					40, (TestBoard)board, 
 					Asteroid.PRESET03);   */
-			board.getCurrentScene().addEntity(asteroid2, "Ground");
-			((TestBoard)board).addFollowerToList(asteroid2);
+			board.getCurrentScene().addEntity(asteroid2, "test");
+			//((TestBoard)board).addFollowerToList(asteroid2);
 		}
 		 /** Just an overridden method from JPopup. Ignore */
 		@Override

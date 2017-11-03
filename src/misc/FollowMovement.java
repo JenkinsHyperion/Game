@@ -10,8 +10,7 @@ import physics.Vector;
 
 public abstract class FollowMovement extends MovementBehavior{
 	
-	protected Point2D.Double target;
-	
+	protected Point target;
 	
 	public static class Linear extends FollowMovement{
 		
@@ -21,11 +20,7 @@ public abstract class FollowMovement extends MovementBehavior{
 		}
 		public Linear(EntityStatic owner, Point target){
 			this.owner = owner;
-			this.target = new Point2D.Double(target.x,target.y);
-		}
-		public Linear(EntityStatic owner, Point2D target){
-			this.owner = owner;
-			this.target = new Point2D.Double(target.getX(),target.getY());
+			this.target = target;
 		}
 		
 		@Override
@@ -63,11 +58,7 @@ public abstract class FollowMovement extends MovementBehavior{
 		}
 		public Directional(EntityStatic owner, Point target){
 			this.owner = owner;
-			this.target = new Point2D.Double(target.x,target.y);
-		}
-		public Directional(EntityStatic owner, Point2D target){
-			this.owner = owner;
-			this.target = new Point2D.Double(target.getX(),target.getY());
+			this.target = target;
 		}
 		
 		@Override
@@ -91,11 +82,7 @@ public abstract class FollowMovement extends MovementBehavior{
 		}
 		public Rational(EntityStatic owner, Point target){
 			this.owner = owner;
-			this.target = new Point2D.Double(target.x,target.y);
-		}
-		public Rational(EntityStatic owner, Point2D target){
-			this.owner = owner;
-			this.target = new Point2D.Double(target.getX(),target.getY());
+			this.target = target;
 		}
 		
 		@Override

@@ -13,8 +13,9 @@ import java.awt.*;
 
 import engine.BoardAbstract;
 import entities.EntityDynamic;
+import entityComposites.EntityStatic;
 
-public class SlidingMessagePopup extends EntityDynamic {
+public class SlidingMessagePopup extends EntityStatic {
 	private BoardAbstract currentBoard;
 	private SlidingMessageBehavior behavior;
 	private Rectangle messageRect;
@@ -46,6 +47,8 @@ public class SlidingMessagePopup extends EntityDynamic {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		this.addTranslationTo();
 
 	}
 	public boolean checkPath(String path) {
@@ -54,10 +57,10 @@ public class SlidingMessagePopup extends EntityDynamic {
     	return exists;
     }
 	public void updatePosition() {
-		super.updatePosition();
+		this.getTranslationComposite().updateEntityWithComposite(this);
 		this.behavior.updateAIPosition();
 	}
-	public void draw(Graphics g){
+	public void draw(Graphics g){ 
 		//AffineTransform transform = new AffineTransform();
 		Graphics2D g2 = (Graphics2D)g.create();
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);

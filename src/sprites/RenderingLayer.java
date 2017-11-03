@@ -56,8 +56,8 @@ public class RenderingLayer {
 			final double zoom = (ZOOM_SCALE/camera.getZoom())+1;
 
 			frameTransform.translate(
-					(-camera.getX() + comp.getOwnerEntity().getX())*camera.getZoom()*ZOOM_SCALE ,
-					(-camera.getY() + comp.getOwnerEntity().getY())*camera.getZoom()*ZOOM_SCALE  );
+					(-camera.getX() + comp.getOwnerEntity().getX()  )*camera.getZoom()*ZOOM_SCALE ,
+					(-camera.getY() + comp.getOwnerEntity().getY()  )*camera.getZoom()*ZOOM_SCALE  );
 			
 			frameTransform.translate( BoardAbstract.B_WIDTH/2 , BoardAbstract.B_HEIGHT/2  );	//centering translation
 			

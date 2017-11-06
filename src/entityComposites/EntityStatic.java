@@ -119,6 +119,13 @@ public class EntityStatic extends Entity{
 		}
 	}
 	
+	public void updateComposites(){
+		
+		for ( UpdateableComposite composite : updateablesList ){
+			composite.updateComposite();
+		}
+	}
+	
 	/*######################################################################################################################
 	 * 		COMPOSITE GET/SETTERS    
 	 * Getters are public, Setters are protected to be used by CompositeFactory

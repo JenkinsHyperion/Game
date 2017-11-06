@@ -29,6 +29,11 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 		compositeName = this.getClass().getSimpleName();
 	}
 
+	@Override
+	public void updateComposite() {
+
+		angularVelocity = angularVelocity + angularAcc;
+	}
 	
 	@Override
 	public void updateEntityWithComposite(EntityStatic entity) {
@@ -38,7 +43,6 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 		
 		angular.notifyAngleChange(angularVelocity); //FIXME Change to addAngle which automatically notifies rotateables in angular
 
-		angularVelocity = angularVelocity + angularAcc;
 	}
 	
 	public void setAngularVelocity( double angularVelocity ){

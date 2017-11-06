@@ -18,6 +18,7 @@ import testEntities.GravityMarker;
 public abstract class CollisionDispatcher< EntityTypePrimary extends EntityStatic, EntityTypeSecondary extends EntityStatic> {
 	
 	public static final CollisionDispatcher.DynamicStatic<?,?> DYNAMIC_STATIC = new DynamicStatic<>();
+	public static final CollisionDispatcher.DynamicDynamic<?,?> DYNAMIC_DYNAMIC = new DynamicDynamic<>();
 	public static final CollisionDispatcher.DynamicStaticRigidless<?,?> RIGIDLESS_DYNAMIC_STATIC = new DynamicStaticRigidless<>();
 	public static final CollisionDispatcher.CircularGravityField<?,?> CIRCULAR_GRAVITY_FIELD = new CircularGravityField<>();
 
@@ -49,7 +50,7 @@ public abstract class CollisionDispatcher< EntityTypePrimary extends EntityStati
 				private Force gravity;
 				
 				@Override
-				protected void initializeCollision() {
+				protected void internalInitializeCollision() {
 					gravity = entity1.getTranslationComposite().registerGravityForce();
 				}
 
@@ -67,7 +68,7 @@ public abstract class CollisionDispatcher< EntityTypePrimary extends EntityStati
 				}
 
 				@Override
-				public void completeCollision() {
+				public void internalCompleteCollision() {
 					entity1.getTranslationComposite().unregisterGravityForce(gravity);
 				}
 				
@@ -80,7 +81,7 @@ public abstract class CollisionDispatcher< EntityTypePrimary extends EntityStati
 
 		@Override
 		public Collision createVisualCollision ( EntityStatic entity1 , Collider collider1, EntityStatic entity2, Collider collider2, VisualCollisionCheck check, RenderingEngine engine ) {
-			return new CollisionRigidDynamicStatic( 
+			return new CollisionRigidDynamicStatic.Default( 
 					collider1 , collider2 , 
 					check.axisCollector 
 					); 
@@ -92,6 +93,21 @@ public abstract class CollisionDispatcher< EntityTypePrimary extends EntityStati
 		}
 	}
 	
+	public static class DynamicDynamic<E1 extends EntityStatic, E2 extends EntityStatic> extends CollisionDispatcher<EntityStatic, EntityStatic>{
+
+		@Override
+		public Collision createVisualCollision ( EntityStatic entity1 , Collider collider1, EntityStatic entity2, Collider collider2, VisualCollisionCheck check, RenderingEngine engine ) {
+			return new CollisionRigidDynamicDynamic( 
+					collider1 , collider2 , 
+					check.axisCollector 
+					); 
+		}
+		
+		@Override
+		public String toString() {
+			return "RIGID DYNAMIC DYNAMIC";
+		}
+	}
 	
 	
 }

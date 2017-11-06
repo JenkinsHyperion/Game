@@ -123,10 +123,10 @@ public abstract class Collision {
 	 * And since the CollisionDispatcher is a static inner class of special entity, 
 	 * all special entity's fields, including private ones, are accessible. See {@link PlantPlayer.FruitInRange}
 	 * <p>
-	 * REMEMEBR to unregister all forces in this Collision's {@link #completeCollision()} method. 
+	 * REMEMEBR to unregister all forces in this Collision's {@link #internalCompleteCollision()} method. 
 	 * 
 	 */
-	protected abstract void initializeCollision();
+	protected abstract void internalInitializeCollision();
 	
 	/**Runs any collision calculations every frame. REMEMEBER to include at least one boolean check on the Collision.isComplete field
 	 * to check for completion conditions. The most basic form of this is isComplete = CollsiionCheck.check(), where Collision check
@@ -137,7 +137,7 @@ public abstract class Collision {
 	public abstract void updateVisualCollision(MovingCamera camera, Graphics2D gOverlay);
 
 	
-	public abstract void completeCollision();
+	public abstract void internalCompleteCollision();
 	
 	public void notifyEntitiesOfCollisionCompleteion(){
 		//Remove collision from involved entities lists
@@ -235,11 +235,11 @@ public abstract class Collision {
 		public BasicCheck(Collider e1, Collider e2, VisualCollisionCheck check) {
 			super( e1 , e2 );
 			this.check = check;
-			initializeCollision();
+			internalInitializeCollision();
 		}
 		
 		@Override
-		public void initializeCollision() {
+		public void internalInitializeCollision() {
 			System.out.println("COLLISION START BASIC");
 			this.collidingPrimary.onCollisionEvent();
 			this.collidingSecondary.onCollisionEvent();
@@ -262,7 +262,7 @@ public abstract class Collision {
 		}
 
 		@Override
-		public void completeCollision() {
+		public void internalCompleteCollision() {
 			this.collidingPrimary.onLeavingCollisionEvent();
 			this.collidingSecondary.onLeavingCollisionEvent();
 		}

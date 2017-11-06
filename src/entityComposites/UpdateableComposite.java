@@ -12,7 +12,7 @@ public interface UpdateableComposite {
 	 * thread's list of updateables. Be sure that the factory methods adding a concrete updateable composite also adds it to the updater thread
 	 * BE ADVISED: CHILDREN ENTITIES SHOULD ALWAYS CALL super.updateComposite().  
 	 */
-
+	public void updateComposite();
 	
 	/**Overriding methods should call on the concrete updateable composite's Ticket.removeSelf() method to remove itself from the updater thread
 	 * 

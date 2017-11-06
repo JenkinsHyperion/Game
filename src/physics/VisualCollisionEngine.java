@@ -93,7 +93,7 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 	    		
 	    	}
 	    	else {
-	    		runningCollisionsList.get(i).completeCollision();
+	    		runningCollisionsList.get(i).internalCompleteCollision();
 	    		runningCollisionsList.get(i).notifyEntitiesOfCollisionCompleteion();
 	    		runningCollisionsList.remove(i);	
     		}	
@@ -109,7 +109,7 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 			// if not, add new collision event
 			//int index = currentBoard.getStaticEntities().size() + 1 ;
     			//System.out.println( "Collision detected" );
-    			runningCollisionsList.add(new CollisionRigidDynamicStatic( 
+    			runningCollisionsList.add(new CollisionRigidDynamicStatic.Default( 
     					collidable1 , collidable2 , 
     					((VisualCollisionCheck)checkType).getCollector()
     					)); 

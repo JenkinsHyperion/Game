@@ -3068,6 +3068,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			CompositeFactory.addGraphicTo(asteroid2, Sprite.Stillframe.missingSprite);
 			Boundary bounds1 = new BoundaryCircular(40);
 			CompositeFactory.addAngularComposite(asteroid2);
+			CompositeFactory.addTranslationTo(asteroid2);
 			CompositeFactory.addScriptTo(asteroid2, new EntityBehaviorScript.LinearFollowBehavior(asteroid2, ((TestBoard)board).player));
 		//	asteroid2.addInitialColliderTo(bounds1);
 			 
@@ -3078,11 +3079,10 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	        		);
 	        
 			//CompositeFactory.addRigidbodyTo(asteroid2);
-			CompositeFactory.addTranslationTo(asteroid2);
 			/*Asteroid asteroid = new Asteroid( camera.getLocalX(editorMousePos.x) , camera.getLocalY(editorMousePos.y), 
 					40, (TestBoard)board, 
 					Asteroid.PRESET03);   */
-			board.getCurrentScene().addEntity(asteroid2, "test");
+			board.getCurrentScene().addEntity(asteroid2, "SelfCollisionGroup");
 			//((TestBoard)board).addFollowerToList(asteroid2);
 		}
 		 /** Just an overridden method from JPopup. Ignore */

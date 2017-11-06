@@ -23,6 +23,7 @@ import misc.*;
 import physics.Boundary;
 import physics.BoundaryPolygonal;
 import physics.BoundarySide;
+import physics.Vector;
 import sprites.Sprite;
 
 public class MovingCamera extends EntityDynamic implements ReferenceFrame{
@@ -706,6 +707,11 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 			cameraAngle = -target.getAngularComposite().getAngleInRadians();
 			
 			//zoomFactor = zoom;
+		}
+		
+		@Override
+		public Vector calculateVector() {
+			return null;
 		}
 	}
 

@@ -5,6 +5,7 @@ import java.awt.geom.Point2D;
 import java.security.InvalidParameterException;
 
 import entities.EntityDynamic;
+import entityComposites.TranslationComposite.VelocityVector;
 import misc.FollowMovement;
 import misc.MovementBehavior;
 import physics.Vector;
@@ -15,11 +16,17 @@ public abstract class EntityBehaviorScript implements UpdateableComposite{
 	private int updaterIndex;
 	protected EntityStatic ownerEntity;
 	
+	
 	protected abstract void updateOwnerEntity(EntityStatic ownerEntity);
 	
 	@Override
 	public void updateEntityWithComposite(EntityStatic entity) { //renaming method for clarity when making anonymous scripts
-		updateOwnerEntity(entity);
+		
+	}
+	
+	@Override
+	public void updateComposite() {
+		updateOwnerEntity(ownerEntity);
 	}
 	
 	@Override
@@ -53,6 +60,8 @@ public abstract class EntityBehaviorScript implements UpdateableComposite{
 		
 		private Point input;
 		
+		private VelocityVector movementTranslation;
+		
 		public PatrolBetween( EntityStatic owner , EntityStatic target1, EntityStatic target2){
 			movement = new FollowMovement[2];
 			targetPositions = new Point[2];
@@ -60,6 +69,7 @@ public abstract class EntityBehaviorScript implements UpdateableComposite{
 			movement[1] = new FollowMovement.Linear(owner, target2);
 			targetPositions[0] = target1.getPositionReference();
 			targetPositions[1] = target2.getPositionReference();
+			init(owner);
 		}
 		public PatrolBetween( EntityStatic owner , EntityStatic target1, Point target2){
 			movement = new FollowMovement[2];
@@ -68,6 +78,7 @@ public abstract class EntityBehaviorScript implements UpdateableComposite{
 			movement[1] = new FollowMovement.Linear(owner, target2);
 			targetPositions[0] = target1.getPositionReference();
 			targetPositions[1] = new Point(target2.x,target2.y);
+			init(owner);
 		}
 		public PatrolBetween( EntityStatic owner, Point...targets){
 			if ( targets.length < 2 )
@@ -82,13 +93,20 @@ public abstract class EntityBehaviorScript implements UpdateableComposite{
 			for ( int i = 0 ; i < targets.length ; i++ ){
 				movement[i] =  new FollowMovement.Linear(owner,targets[i]);
 			}
+			init(owner);
 		}
 		
+		private void init(EntityStatic owner){
+			this.ownerEntity = owner;
+			movementTranslation = owner.getTranslationComposite().registerVelocityVector(new Vector(0,0));
+		}
 
 		@Override
 		protected void updateOwnerEntity(EntityStatic ownerEntity) { //TODO add flags for looping / ping/pong paths
 			
-			movement[currentIndex].updateAIPosition();
+			//movement[currentIndex].updateAIPosition();
+			
+			movementTranslation.setVector(  movement[currentIndex].calculateVector()  );
 			
 			if( ownerEntity.getSeparationVector( targetPositions[currentIndex] ).getMagnitude() < 10 ){
 				
@@ -105,16 +123,22 @@ public abstract class EntityBehaviorScript implements UpdateableComposite{
 	public static class LinearFollowBehavior extends EntityBehaviorScript{
 		
 		private EntityStatic target;
+		private FollowMovement.Linear linearMath;
+		private VelocityVector movementTranslation;
 
 		public LinearFollowBehavior(EntityStatic owner, EntityStatic target){
 			this.ownerEntity = owner;
 			this.target = target;
+			linearMath = new FollowMovement.Linear(owner, target);
+			movementTranslation = owner.getTranslationComposite().registerVelocityVector(new Vector(0,0) );
 		}
 
 		@Override
 		protected void updateOwnerEntity(EntityStatic ownerEntity) {
-			this.ownerEntity.getTranslationComposite().setDX( (float)( this.target.getX() - this.ownerEntity.getX() ) /30 );
-			this.ownerEntity.getTranslationComposite().setDY( (float)( this.target.getY() - this.ownerEntity.getY() ) /30 );
+			//this.ownerEntity.getTranslationComposite().setDX( (float)( this.target.getX() - this.ownerEntity.getX() ) /30 );
+			//this.ownerEntity.getTranslationComposite().setDY( (float)( this.target.getY() - this.ownerEntity.getY() ) /30 );
+			
+			movementTranslation.setVector(  linearMath.calculateVector()  );
 		}
 		
 	}

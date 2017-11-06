@@ -5,6 +5,7 @@ import java.awt.Point;
 import engine.BoardAbstract;
 import entities.EntityDynamic;
 import entityComposites.EntityStatic;
+import physics.Vector;
 
 public class SlidingMessageBehavior extends SlidingMessageBehaviorAbstract {
 	
@@ -22,7 +23,10 @@ public class SlidingMessageBehavior extends SlidingMessageBehaviorAbstract {
 	public void updateAIPosition() {
 		currentBehavior.updateAIPosition();
 	}
-
+	@Override
+	public Vector calculateVector() {
+		return null;
+	}
 	public void setTargetPoint(Point target) {
 		this.currentBehavior.setTargetPoint(target);
 	}
@@ -43,7 +47,7 @@ public class SlidingMessageBehavior extends SlidingMessageBehaviorAbstract {
 			this.target = targetRef;
 			startTime = System.currentTimeMillis();
 		}
-		public void activeUpdateAIPosition() {
+		public Vector activeUpdateAIPosition() {
 			currentTime = System.currentTimeMillis();
 			if (currentTime - startTime > 1500) {
 				setTargetPoint(new Point(BoardAbstract.B_WIDTH, owner.getY()));
@@ -54,17 +58,27 @@ public class SlidingMessageBehavior extends SlidingMessageBehaviorAbstract {
 				}
 			}
 			if ( Math.abs(owner.getX() - target.getX()) > 5 ) {
-				this.owner.getTranslationComposite().setDX( (float)( this.target.getX() - this.owner.getX() ) /7 );
-				this.owner.getTranslationComposite().setDY( (float)( this.target.getY() - this.owner.getY() ) /7 );
+				//this.owner.getTranslationComposite().setDX( (float)( this.target.getX() - this.owner.getX() ) /7 );
+				//this.owner.getTranslationComposite().setDY( (float)( this.target.getY() - this.owner.getY() ) /7 );
+				return new Vector(
+						( (float)( this.target.getX() - this.owner.getX() ) /7 ),
+						( (float)( this.target.getY() - this.owner.getY() ) /7 )
+						);
 			}
 			else {
-				this.owner.getTranslationComposite().setDX(0f);
-				this.owner.getTranslationComposite().setDY(0f);
+				//this.owner.getTranslationComposite().setDX(0f);
+				//this.owner.getTranslationComposite().setDY(0f);
+				return Vector.zeroVector;
 			}
+
 		}
 		@Override
 		public void updateAIPosition() {
 			activeUpdateAIPosition();
+		}
+		@Override
+		public Vector calculateVector() {
+			return null;
 		}
 		@Override
 		public void setTargetPoint(Point target) {
@@ -84,7 +98,11 @@ public class SlidingMessageBehavior extends SlidingMessageBehaviorAbstract {
 		public NullSlidingMessageBehavior() {
 		}
 		@Override
-		public void updateAIPosition() { }
+		public void updateAIPosition() {}
+		@Override
+		public Vector calculateVector() {
+			return null;
+		}
 		@Override
 		public void setTargetPoint(Point target) {
 		}

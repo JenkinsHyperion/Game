@@ -63,7 +63,7 @@ public class GravityMarker extends EntityStatic{
 				private int upperRadius;
 				
 				@Override
-				protected void initializeCollision() {
+				protected void internalInitializeCollision() {
 					gravity = entity1.getTranslationComposite().registerGravityForce();	//add new force to entity
 					this.upperRadius = gravityMarker.radius;		//store gravity markers radius for gravity fall-off purposes
 				}
@@ -92,7 +92,7 @@ public class GravityMarker extends EntityStatic{
 				}
 
 				@Override
-				public void completeCollision() {
+				public void internalCompleteCollision() {
 					entity1.getTranslationComposite().unregisterGravityForce(this.gravity);
 				}
 				

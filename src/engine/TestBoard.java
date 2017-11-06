@@ -76,6 +76,7 @@ public class TestBoard extends BoardAbstract{
     public static ColliderGroup<SeedFruit> pickableGroup;
     public static ColliderGroup<GravityMarker> gravityWellGroup;
 
+    public static ColliderGroup<EntityStatic> selfCollisionGroup;
 
     public TestBoard(int width , int height, JFrame frame ) {
     	super(width,height,frame);
@@ -219,6 +220,8 @@ public class TestBoard extends BoardAbstract{
     	gravityWellGroup = collisionEngine.<GravityMarker>createColliderGroup("Gravity");
         treeStemGroup = collisionEngine.<PlantSegment>createColliderGroup("Tree");
 
+        selfCollisionGroup = collisionEngine.<EntityStatic>createColliderGroup("SelfCollisionGroup");
+        selfCollisionGroup.allowSelfCollision( CollisionDispatcher.DYNAMIC_DYNAMIC );
         
         collisionEngine.addCustomCollisionsBetween(playerGroup, worldGeometryGroup, new PlantPlayer.GroundCollision() );
         

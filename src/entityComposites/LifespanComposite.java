@@ -23,6 +23,11 @@ public class LifespanComposite implements EntityComposite, UpdateableComposite {
 			lifespan-- ;
 		}
 	}
+	
+	@Override
+	public void updateComposite() {
+		
+	}
 
 	@Override
 	public void removeThisUpdateableComposite() {

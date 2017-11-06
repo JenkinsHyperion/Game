@@ -45,6 +45,30 @@ public abstract class FollowMovement extends MovementBehavior{
 			}
 
 		}
+		
+		@Override
+		public Vector calculateVector() {
+			
+			Vector returnVector = new Vector(0,0);
+			
+			returnVector.set(
+				( this.target.getX() - this.owner.getX() ) /30.0 ,
+				( this.target.getY() - this.owner.getY() ) /30.0 
+			);
+			
+			if ( returnVector.getMagnitude() > 2){
+				
+				returnVector = returnVector.unitVector().multiply(2) ;
+			}
+			
+			Vector separation = this.owner.getSeparationVector( new Point(0 , 600));
+			
+			if ( separation.getIntegerMagnitude() < 550 ){ //prevent follower from running into asteroid
+				
+				returnVector = returnVector.subtract(returnVector.projectedOverClamped(separation) );
+			}
+			return returnVector;
+		}
 	}
 	
 	
@@ -71,6 +95,11 @@ public abstract class FollowMovement extends MovementBehavior{
 			this.owner.getTranslationComposite().setVelocityVector(separation);
 
 		}
+		
+		@Override
+		public Vector calculateVector() {
+			return null;
+		}
 	}
 	
 	
@@ -91,6 +120,11 @@ public abstract class FollowMovement extends MovementBehavior{
 			this.owner.getTranslationComposite().setDX( 2 - ( 1/(( this.target.getX() - this.owner.getX() ) +0.5 )) );
 			this.owner.getTranslationComposite().setDY( 2 - ( 1/(( this.target.getY() - this.owner.getY() ) +0.5 )) );
 
+		}
+		
+		@Override
+		public Vector calculateVector() {
+			return null;
 		}
 
 	}

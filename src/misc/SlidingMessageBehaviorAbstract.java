@@ -2,6 +2,8 @@ package misc;
 
 import java.awt.Point;
 
+import physics.Vector;
+
 public abstract class SlidingMessageBehaviorAbstract extends MovementBehavior{
 
 	

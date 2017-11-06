@@ -48,7 +48,7 @@ public class CollisionEngine {
 		//FIXME USED TO CLEAR OLD COLLIABLES LIST, NEEDS TO DEAL WITH NEW ONE
 		
 		for (Collision collision : runningCollisionsList){
-			collision.completeCollision();
+			collision.internalCompleteCollision();
 			collision.notifyEntitiesOfCollisionCompleteion();
 		}
 		runningCollisionsList.clear();
@@ -80,7 +80,7 @@ public class CollisionEngine {
 	    		
 	    	}
 	    	else {
-	    		runningCollisionsList.get(i).completeCollision();
+	    		runningCollisionsList.get(i).internalCompleteCollision();
 	    		runningCollisionsList.get(i).notifyEntitiesOfCollisionCompleteion();
 	    		runningCollisionsList.remove(i);
     		}
@@ -179,7 +179,7 @@ public class CollisionEngine {
 						check
 						);
 				
-				newPair.addToList(activeCheckingPairs);
+				newPair.addToCheckingPairList(activeCheckingPairs);
 			}
 		}
 		return true;
@@ -214,7 +214,7 @@ public class CollisionEngine {
 							check
 							);
 					
-					newPair.addToList(activeCheckingPairs);
+					newPair.addToCheckingPairList(activeCheckingPairs);
 				}
 			}
 			
@@ -499,7 +499,7 @@ public class CollisionEngine {
 				
 			}
 			else {
-				runningCollisionsList.get(i).completeCollision();
+				runningCollisionsList.get(i).internalCompleteCollision();
 				runningCollisionsList.get(i).notifyEntitiesOfCollisionCompleteion();
 				runningCollisionsList.remove(i);
 			}	
@@ -513,7 +513,7 @@ public class CollisionEngine {
     	if (!hasActiveCollision(collider1.getOwnerEntity(),collider2.getOwnerEntity())) { 
     		Collision newCollision = factory.createVisualCollision(collider1.getOwnerEntity(), collider1, collider2.getOwnerEntity(), collider2, check, this.getBoard().renderingEngine);
 			runningCollisionsList.add( newCollision );
-			newCollision.initializeCollision();
+			newCollision.internalInitializeCollision();
 			
 
 			System.out.println(
@@ -532,7 +532,7 @@ public class CollisionEngine {
     		//FIXME GET RID OF BOOLEAN AND <AKE ACTIVE AND INACTIVE COLLISION ARRAYS INSTEAD OF THIS MESS
     		if (!hasActiveCollision(collidable1.getOwnerEntity(),collidable2.getOwnerEntity())) { 
 
-    			runningCollisionsList.add(new CollisionRigidDynamicStatic( 
+    			runningCollisionsList.add(new CollisionRigidDynamicStatic.Default( 
     					collidable1 , collidable2 , 
     					((VisualCollisionCheck)check).axisCollector
     					)); 
@@ -643,7 +643,7 @@ public class CollisionEngine {
 		
 	}
 
-	private class StaticActiveCollider extends ActiveCollider{
+	protected class StaticActiveCollider extends ActiveCollider{
 
 		public StaticActiveCollider(Collider collider ) {
 			super(collider);
@@ -702,7 +702,7 @@ public class CollisionEngine {
 		
 	}
 	
-	private class DynamicActiveCollider extends ActiveCollider{
+	protected class DynamicActiveCollider extends ActiveCollider{
 
 		public DynamicActiveCollider(Collider collider) {
 			super(collider);
@@ -765,7 +765,7 @@ public class CollisionEngine {
 		
 		protected CollisionDispatcher<EntityStatic,EntityStatic> collisionType;
 		
-		public void addToList( DoubleLinkedList<CheckingPair<?,?>> list ){
+		public void addToCheckingPairList( DoubleLinkedList<CheckingPair<?,?>> list ){
 			this.listSlot = list.add( this );
 		}
 		
@@ -894,7 +894,7 @@ public class CollisionEngine {
 	}
 	
 	
-	protected class CustomDynamicStaticPair<E1 extends EntityStatic, E2 extends EntityStatic> extends DynamicStaticPair<E1,E2>{
+	protected class CustomDynamicStaticPair<E1 extends EntityStatic, E2 extends EntityStatic> extends DynamicStaticPair<EntityStatic,EntityStatic>{
 
 		public CustomDynamicStaticPair( ActiveCollider dynamic , ActiveCollider stat , CollisionDispatcher<EntityStatic, EntityStatic> builder ,VisualCollisionCheck check ){
 			super(dynamic, stat, check);
@@ -916,6 +916,9 @@ public class CollisionEngine {
 	
 	public class ColliderGroup<E extends EntityStatic>{
 		
+		private boolean allowsSelfCollision = false;
+		private CollisionDispatcher selfCollisionDispatcher = null;
+		
 		protected DoubleLinkedList<StaticActiveCollider> staticColliders = new DoubleLinkedList<StaticActiveCollider>();
 		protected DoubleLinkedList<DynamicActiveCollider> dynamicColliders = new DoubleLinkedList<DynamicActiveCollider>();
 
@@ -927,9 +930,10 @@ public class CollisionEngine {
 		public ColliderGroup( String name ){
 			this.name = name;
 		}
-
-		public boolean willAcceptEntity(EntityStatic entity) {
-			return true;
+		
+		public void allowSelfCollision( CollisionDispatcher<E,E> dispatcher ){
+			this.selfCollisionDispatcher = dispatcher;
+			allowsSelfCollision = true;
 		}
 
 		public void addToGroupList( ArrayList<ColliderGroup> list ){
@@ -948,7 +952,10 @@ public class CollisionEngine {
 					GroupPairWrapper wrappedPair = groupPairs.get();
 					wrappedPair.notifyPairOfAddedStatic( newStatic , isActive );
 				}
-
+				
+				if ( allowsSelfCollision ){ //Create pairs within own group if flagged to self Collide
+					selfPairWithAddedStatic(newStatic,isActive);
+				}
 			
 			return staticColliders.add(newStatic);
 		}
@@ -960,8 +967,11 @@ public class CollisionEngine {
 					GroupPairWrapper wrappedPair = groupPairs.get();
 					wrappedPair.notifyPairOfAddedDynamic( dynamic , isActive );
 				}
+				
+				if ( allowsSelfCollision ){	//Create pairs within own group if flagged to self Collide
+					selfPairWithAddedDynamic(dynamic,isActive);
+				}
 
-			
 			return dynamicColliders.add(dynamic);
 		}
 		
@@ -1027,6 +1037,80 @@ public class CollisionEngine {
 			}
 		}
 		
+		
+		
+		public void selfPairWithAddedStatic( StaticActiveCollider addedStatic, boolean isActive ){
+
+			
+			while ( this.dynamicColliders.hasNext() ){				// (1 - group) is basically boolean 0/1 !int 
+				DynamicActiveCollider dynamic = this.dynamicColliders.get();
+				
+				VisualCollisionCheck check = calculateCheck( dynamic , addedStatic ); 
+				
+				System.err.println(" CREATING CHECK "+check.getAxisCollector()+"BETWEEN "+addedStatic+" and "+dynamic);
+				
+				CheckingPair newPair = new CustomDynamicStaticPair(
+						dynamic, 
+						addedStatic, 
+						this.selfCollisionDispatcher, 
+						check 
+						);
+				
+				if ( isActive ){
+					newPair.addToCheckingPairList(activeCheckingPairs);
+				}else{
+					newPair.addToCheckingPairList(inactiveCheckingPairs);
+				}
+			}
+
+		}
+		
+		
+		
+		public void selfPairWithAddedDynamic( DynamicActiveCollider addedDynamic, boolean isActive ){
+
+				
+				while ( this.dynamicColliders.hasNext() ){	
+					
+					DynamicActiveCollider dynamic = this.dynamicColliders.get();
+					
+					VisualCollisionCheck check = calculateCheck( dynamic , addedDynamic ); 
+					
+					CheckingPair newPair = new CustomDynamicStaticPair( //DYNAMIC ADDED TO GROUP 0 GOES PRIMARY
+							addedDynamic, 
+							dynamic, 
+							this.selfCollisionDispatcher, 
+							check
+							);
+					if ( isActive ){
+						newPair.addToCheckingPairList(activeCheckingPairs);
+					}else{
+						newPair.addToCheckingPairList(inactiveCheckingPairs);
+					}
+				}
+				
+			
+			while ( this.staticColliders.hasNext() ){				//AND THEN STATICS ALL GO SECONDARY
+				
+				StaticActiveCollider stat = this.staticColliders.get(); //  (1-groupIndex) is basically boolean ! not
+
+				VisualCollisionCheck check = calculateCheck( stat , addedDynamic ); 	// operation on an int between 0 and 1
+
+				CheckingPair newPair = new CustomDynamicStaticPair(
+						addedDynamic, 
+						stat, 
+						this.selfCollisionDispatcher, 
+						check 
+						);
+
+				if ( isActive ){
+					newPair.addToCheckingPairList(activeCheckingPairs);
+				}else{
+					newPair.addToCheckingPairList(inactiveCheckingPairs);
+				}
+			}
+			
+		}
 	}
 
 	
@@ -1077,9 +1161,9 @@ public class CollisionEngine {
 						);
 				
 				if ( isActive ){
-					newPair.addToList(activeCheckingPairs);
+					newPair.addToCheckingPairList(activeCheckingPairs);
 				}else{
-					newPair.addToList(inactiveCheckingPairs);
+					newPair.addToCheckingPairList(inactiveCheckingPairs);
 				}
 			}
 		}
@@ -1104,9 +1188,9 @@ public class CollisionEngine {
 							check
 							);
 					if ( isActive ){
-						newPair.addToList(activeCheckingPairs);
+						newPair.addToCheckingPairList(activeCheckingPairs);
 					}else{
-						newPair.addToList(inactiveCheckingPairs);
+						newPair.addToCheckingPairList(inactiveCheckingPairs);
 					}
 				}
 				
@@ -1129,9 +1213,9 @@ public class CollisionEngine {
 							);
 
 					if ( isActive ){
-						newPair.addToList(activeCheckingPairs);
+						newPair.addToCheckingPairList(activeCheckingPairs);
 					}else{
-						newPair.addToList(inactiveCheckingPairs);
+						newPair.addToCheckingPairList(inactiveCheckingPairs);
 					}
 				}
 
@@ -1153,9 +1237,9 @@ public class CollisionEngine {
 						);
 
 				if ( isActive ){
-					newPair.addToList(activeCheckingPairs);
+					newPair.addToCheckingPairList(activeCheckingPairs);
 				}else{
-					newPair.addToList(inactiveCheckingPairs);
+					newPair.addToCheckingPairList(inactiveCheckingPairs);
 				}
 			}
 			

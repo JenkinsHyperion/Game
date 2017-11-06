@@ -68,6 +68,10 @@ public class Vector implements Serializable{
 			}
 		}
 		
+		public void ofMagnitude( double magnitude ){
+			//TODO
+		}
+		
 		/**
 		 * Returns sign Vector with components -1 , 0 , or 1 that correspond to the input Vector's components. Vector equivalent of Math.signum()
 		 */

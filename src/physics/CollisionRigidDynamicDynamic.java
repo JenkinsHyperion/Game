@@ -10,42 +10,19 @@ import java.util.ArrayList;
 import engine.*;
 import entities.*;
 import entityComposites.*;
+import entityComposites.TranslationComposite.VelocityVector;
 import misc.DefaultCollisionEvent;
 import physics.Collision;
 import sprites.RenderingEngine;
 
-public abstract class CollisionRigidDynamicStatic extends Collision.DefaultType implements VisualCollision{
+public class CollisionRigidDynamicDynamic extends Collision.DefaultType implements VisualCollision{
 	
-	public static class Default extends CollisionRigidDynamicStatic {
-
-		public Default(Collider collidable1, Collider collidable2, SeparatingAxisCollector axisCollector) {
-			super(collidable1, collidable2, axisCollector);
-			// TODO Auto-generated constructor stub
-		}
-		
-		@Override
-		public void updateBehavior(Vector unitNormal, Vector tangentalVelocity) {
-			
-		}
-
-		@Override
-		protected void initializeCollision() {
-			
-		}
-		
-		@Override
-		protected void completeCollision() {
-			
-		}
-
-	}
-
 	private SeparatingAxisCollector axisCollector;
 	
 	private double frictionCoefficient;
 	
-	protected Force normalForce;
-	private Force frictionForce;
+	//protected Force normalForce;
+	//private Force frictionForce;
 	
 	private Resolver resolver = new ResolverSAT_1();
 	
@@ -54,7 +31,10 @@ public abstract class CollisionRigidDynamicStatic extends Collision.DefaultType 
 	private TranslationComposite transPrimary;
 	private TranslationComposite transSecondary;
 	
-	public CollisionRigidDynamicStatic(Collider collidable1, Collider collidable2 , SeparatingAxisCollector axisCollector){
+	private VelocityVector primaryCancelingVector;
+	private VelocityVector secondaryCancelingVector;
+	
+	public CollisionRigidDynamicDynamic(Collider collidable1, Collider collidable2 , SeparatingAxisCollector axisCollector){
 		
 		super( collidable1 , collidable2 );
 		
@@ -69,6 +49,9 @@ public abstract class CollisionRigidDynamicStatic extends Collision.DefaultType 
 		collidingPrimary = collidable1; // TAKE COLLIDABLE IN COSNTRUCTOR INSTEAD OF ENTITY
 		collidingSecondary = collidable2;
 		
+		primaryCancelingVector = transPrimary.registerVelocityVector( new Vector(0,0) );
+		secondaryCancelingVector = transSecondary.registerVelocityVector( new Vector(0,0) );
+		
 	}
 	
 	/**Runs initial commands when this Collision is started. Override this method to run any special commands or register 
@@ -79,76 +62,65 @@ public abstract class CollisionRigidDynamicStatic extends Collision.DefaultType 
 	public void internalInitializeCollision(){
 		
 		this.resolutionState = resolutionEvent;
-		
-		this.normalForce = transPrimary.registerNormalForce( new Vector( 0 , 0 ) );
-		//this.frictionForce = transPrimary.addForce( new Vector( 0 , 0 ) );
-		//updateCollision(); //Run math for first time OPTIMIZE, Add new code block for first time math
-		
-		// Things like bullets won't need to go any futher than the initial method
-		
-		// Later on events will go here (damage, triggering, etc)
-		
-		initializeCollision(); //call convenience facade method as seen by client overriding Collision
-		
+
 	}
-	
-	protected abstract void initializeCollision();
-	protected abstract void completeCollision();
-	
-	public abstract void updateBehavior(Vector unitNormal, Vector tangentalVelocity);
 	
 	@Override
 	protected void updateCollision(){ 
 		
 		Resolution closestResolution = getClosestResolution();
 
-		final Vector unitNormal = closestResolution.getSeparationVector().unitVector(); //FIXME MOVE THIS TO OWN ANTINORMAL FORCE
-		
-		final Vector normal = transPrimary.getNetForces().projectedOver(unitNormal);								// ON CIRCULAR GRAVITY
-		
-		final Vector tangentalVelocity = transPrimary.getVelocityVector().projectedOver( unitNormal.normalRight() );
-		
-		final double distanceA = entityPrimary.getPosition().distance(entitySecondary.getPosition()) ;
-		
-		final double centripetalForce = tangentalVelocity.getMagnitude()*tangentalVelocity.getMagnitude()/ ( distanceA -40 );
-		
-		//testing for centripetal acceleration
-		final Vector rotatingNormal = normal.add( unitNormal.multiply( centripetalForce ) );
-		
-		normalForce.setVector( rotatingNormal.inverse() );
+		final Vector unitNormal = closestResolution.getSeparationVector().unitVector(); 
 		
 		//frictionForce.setVector( tangentalVelocity.inverse().multiply(0.05) );
 		
-		updateBehavior( unitNormal, tangentalVelocity );
-		
-		if ( closestResolution.getClippingVector().getMagnitude() > 1 ) { 
+		//if ( closestResolution.getClippingVector().getMagnitude() > 1 ) { 
 			
-			//CLIPPING UPDATING
-					
-			System.out.println( "\n[ "+closestResolution.FeaturePrimary() + " on " + entityPrimary +
+			//CLIPPING UPDATING	
+			/*System.out.println( "\n[ "+closestResolution.FeaturePrimary() + " on " + entityPrimary +
 					" ] clipping with [ " + closestResolution.FeatureSecondary() + " on " + entitySecondary
-					+" ]");
+					+" ]");*/
 			
 			Vector resolution = closestResolution.getClippingVector();
 			
 			depthX = resolution.getX();
 			depthY = resolution.getY();
-
-			System.out.println("Will clip by "+ depthX +" , "+ depthY + " ... ");
+			
+			//System.out.println("Will clip by "+ depthX +" , "+ depthY + " ..."+( Math.sqrt((depthX*depthX)+(depthY*depthY)) ));
 			
 			entityPrimary.setPos(
-					transPrimary.getDeltaX(entityPrimary) + depthX,
-					transPrimary.getDeltaY(entityPrimary) + depthY
+					transPrimary.getDeltaX(entityPrimary) + (depthX/2),
+					transPrimary.getDeltaY(entityPrimary) + (depthY/2)
+					);
+			entitySecondary.setPos(
+					transSecondary.getDeltaX(entitySecondary) - (depthX/2),
+					transSecondary.getDeltaY(entitySecondary) - (depthY/2)
 					);
 			
-			//dynamicPrimary.halt();
-			transPrimary.setVelocityVector( transPrimary.getVelocityVector().projectedOver(unitNormal.normalLeft()) );
-
-		}
+			Vector primaryVelocity = transPrimary.getVelocityVector().projectedOver(unitNormal.normalLeft());
+			Vector secondaryVelocity = transSecondary.getVelocityVector().projectedOver(unitNormal.normalLeft());
+			
+			transPrimary.halt();
+			transSecondary.halt();
+			
+			transPrimary.setVelocityVector( primaryVelocity );
+			transSecondary.setVelocityVector( secondaryVelocity );
+			
+			//Vector primaryVelocity = transPrimary.getNetVelocityVector().projectedOver(resolution.inverse());
+			//Vector secondaryVelocity = transSecondary.getNetVelocityVector().projectedOver(resolution);
+			
+			//primaryCancelingVector.setVector( primaryVelocity.inverse() );
+			//secondaryCancelingVector.setVector( secondaryVelocity.inverse() );
+			
+			//System.out.println("primaryCancel "+ primaryVelocity);
+			//System.out.println("Will clip by "+ secondaryVelocity );
+			
+		//}
 		
-		else { //RESOLVED UPDATING
-			triggerResolutionEvent( closestResolution ); 
-		}
+		//else { //RESOLVED UPDATING
+		///	System.err.println("RESOLVED" );
+		//	triggerResolutionEvent( closestResolution ); 
+		//}
 		
 	}
 
@@ -156,68 +128,11 @@ public abstract class CollisionRigidDynamicStatic extends Collision.DefaultType 
 	@Override
 	public void updateVisualCollision( MovingCamera camera , Graphics2D g2){ 
 
-		Resolution closestResolution = getClosestResolution( camera , g2 );
-
-		final Vector unitNormal = closestResolution.getSeparationVector().unitVector(); //FIXME MOVE THIS TO OWN ANTINORMAL FORCE
-		
-		final Vector normal = unitNormal.multiply(-0.2);								// ON CIRCULAR GRAVITY
-		
-		final double tangentalVelocity = transPrimary.getVelocityVector().projectedOver( normal.normalRight() ).getMagnitude();
-		
-		final double distanceA = entityPrimary.getPosition().distance(entitySecondary.getPosition()) ;
-		
-		final double centripetalForce = tangentalVelocity*tangentalVelocity/ ( distanceA -40 );
-		
-		//testing for centripetal acceleration
-		final Vector rotatingNormal = normal.add( unitNormal.multiply( centripetalForce ) );
-		
-		normalForce.setVector( rotatingNormal.inverse() );
-		
-		if ( 
-				
-					 closestResolution.getClippingVector().getMagnitude() > 1
+		updateCollision();
+	}
 	
-				
-		) { //CLIPPING UPDATING
-					
-			//entityPrimary.getTranslationComposite().setColliding(false);
-			System.out.println( "\n[ "+closestResolution.FeaturePrimary() + " on " + entityPrimary +
-					" ] clipping with [ " + closestResolution.FeatureSecondary() + " on " + entitySecondary
-					+" ]");
-			
-			Vector resolution = closestResolution.getClippingVector();
-			
-			depthX = resolution.getX();
-			depthY = resolution.getY();
-
-			/*closestResolution.FeaturePrimary().getEvent().run(
-					closestResolution.FeaturePrimary(),
-					closestResolution.FeatureSecondary(),
-					closestResolution.getSeparationVector().unitVector()
-					);*/
-			
-			//TODO GET NORMAL FROM BOUDNARY FEATURE INSTEAD
-
-			System.out.println("Will clip by "+ depthX +" , "+ depthY + " ... "+closestResolution.getClippingVector());
-			
-			entityPrimary.setPos(
-					transPrimary.getDeltaX(entityPrimary) + depthX,
-					transPrimary.getDeltaY(entityPrimary) + depthY
-					);
-			
-			//dynamicPrimary.halt();
-			transPrimary.setVelocityVector( transPrimary.getVelocityVector().projectedOver(unitNormal.normalLeft()) );
-
-			//normalForce.setVector( 0,-0.2 );
-			//normalForce.setVector( new Vector(0,-0.2) );
-		}
+	public void updateBehavior(Vector unitNormal, Vector tangentalVelocity){
 		
-		else { //RESOLVED UPDATING
-			
-			triggerResolutionEvent( closestResolution ); 
-		}
-	    
-		 
 	}
 	
 	protected class ResolutionEvent extends ResolutionState{ //ONE TIME EVENT THAT TRIGGERS UPON RESOLUTION
@@ -227,21 +142,8 @@ public abstract class CollisionRigidDynamicStatic extends Collision.DefaultType 
 			
 			collisionDebugTag = "("+resolution.FeaturePrimary()+" of "+entityPrimary.name+") contacting ("+
 					resolution.FeatureSecondary()+" of "+entitySecondary.name+")";
-			
-			if ( resolution.FeatureSecondary().debugIsSide() ){ 
-				Vector slope = ((BoundarySide)resolution.FeatureSecondary()).getSlopeVector();
-				Vector normal = slope.normalRight().unitVector().scaledBy( -0.2 );
-				
-				Vector test = new Vector(0,-0.2).projectedOver( slope.normalRight() );
-				//normalForce.setVector( test );
-				//normalForce.setVector( 0,-0.2 );
-			}
-			else{
 
-				System.out.println("[ Collision Resolved, event '"+resolution.FeaturePrimary().getEvent()+ "' on "+ entityPrimary +" triggered ] "  );
-			}
-			
-			
+			/*
 			System.out.println("Triggering ["+resolution.FeaturePrimary().getEvent() + 
 								"] of ["+ resolution.FeaturePrimary() + "] on [" + entityPrimary+"]" );
 			//Trigger Boundary Collision Event on relevant side/vertex
@@ -253,7 +155,7 @@ public abstract class CollisionRigidDynamicStatic extends Collision.DefaultType 
 			
 			collidingPrimary.onCollisionEvent();
 			collidingSecondary.onCollisionEvent();
-			
+			*/
 		}
 
 	}
@@ -280,11 +182,12 @@ public abstract class CollisionRigidDynamicStatic extends Collision.DefaultType 
 		collidingPrimary.onLeavingCollisionEvent();
 		collidingSecondary.onLeavingCollisionEvent();
 		
+		transPrimary.removeVelocityVector( primaryCancelingVector );
+		transSecondary.removeVelocityVector( secondaryCancelingVector );
 		
-		transPrimary.removeNormalForce(normalForce);              //turn gravity back on
+		//transPrimary.removeNormalForce(normalForce);              //turn gravity back on
 		//transPrimary.removeForce(frictionForce.getID());     //remove friction
 
-		completeCollision();
 	}
 	
 	/* ######################
@@ -792,13 +695,10 @@ public abstract class CollisionRigidDynamicStatic extends Collision.DefaultType 
 
 	}
 	
-	
-	
 	public String toString(){
 		//return String.format("%s",collisionName);
 		return "CollisionSAT: "+collisionDebugTag;
 	}
 	
-
 
 }

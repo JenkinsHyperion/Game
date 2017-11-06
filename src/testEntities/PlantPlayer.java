@@ -288,26 +288,25 @@ public class PlantPlayer extends Player {
 			return new CollisionRigidDynamicStatic(collider1, collider2, check.getAxisCollector() ){
 
 				private Force frictionForce;
+				
 				@Override
-				public void initializeCollision() {
-					super.initializeCollision();
+				protected void initializeCollision() {
+
 					this.frictionForce = player.getTranslationComposite().addForce( new Vector( 0 , 0 ) );
 					
 					player.movingState.setNormalForce(this.normalForce);
 					player.standing.setNormalForce(this.normalForce);
 					player.changeState(player.bufferState); 
-					
 				}
 				
 				@Override
 				public void updateBehavior(Vector unitNormal, Vector tangentalVelocity) {
 					frictionForce.setVector(tangentalVelocity.inverse().multiply(0.02));
-
+					
 				}
 				
 				@Override
-				public void completeCollision() {
-					super.completeCollision();
+				protected void completeCollision() {
 					player.getTranslationComposite().unregisterForce(frictionForce);
 				}
 			};
@@ -337,7 +336,7 @@ public class PlantPlayer extends Player {
 				}
 
 				@Override
-				protected void initializeCollision() {
+				protected void internalInitializeCollision() {
 					
 					Axis[] axes = check.getAxisCollector().getSeparatingAxes(playerCollider, entityPrimary.getPosition(), playerCollider.getBoundary(), 
 							collider2, entitySecondary.getPosition(), collider2.getBoundary() );
@@ -357,7 +356,7 @@ public class PlantPlayer extends Player {
 				}
 
 				@Override
-				public void completeCollision() {
+				public void internalCompleteCollision() {
 					segmentOnPlayer.removeSelfFromList();
 				}
 
@@ -382,7 +381,7 @@ public class PlantPlayer extends Player {
 				Point readoutPosition;
 				
 				@Override
-				protected void initializeCollision() {
+				protected void internalInitializeCollision() {
 					
 					readoutPosition = new Point(300,300);
 					InteractionEvent pickup = player.new InteractionEvent(readoutPosition){
@@ -423,7 +422,7 @@ public class PlantPlayer extends Player {
 				}
 
 				@Override
-				public void completeCollision() {
+				public void internalCompleteCollision() {
 
 					player.resetContext();
 				}

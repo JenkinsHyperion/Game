@@ -106,7 +106,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener, Mouse
 	     		
 	     		time = System.nanoTime();
 
-	     		currentState.update();
+	     		currentState.update();	//Entry point to entity list
 	     		
 	     		deltaTime = System.nanoTime() ;
 	     		speed = deltaTime - time;
@@ -416,10 +416,14 @@ public abstract class BoardAbstract extends JPanel implements KeyListener, Mouse
 			isItterating = true;
 			
      		while ( updateableEntitiesList.hasNext() ){
-     			updateableEntitiesList.get().updateEntity();
+     			updateableEntitiesList.get().updateComposites();
      		}
      		
      		entityThreadRun(); 
+     		
+     		while ( updateableEntitiesList.hasNext() ){
+     			updateableEntitiesList.get().updateEntity();
+     		}
      		
      		isItterating = false;
 		}

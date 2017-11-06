@@ -52,6 +52,10 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	public Vector getVelocityVector(){
 		return new Vector( coreMath.getDX() , coreMath.getDY() );
 	}
+	
+	public Vector getNetVelocityVector(){
+		return coreMath.getNetVelocityVector();
+	}
 
 	public void setDX(double setdx) {
 		coreMath.setDX(setdx);
@@ -259,10 +263,15 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	public EntityStatic getOwnerEntity(){
 		return this.ownerEntity;
 	}
+	
+	@Override
+	public void updateComposite() {
+		coreMath.update();
+	}
+	
 	@Override
 	public void updateEntityWithComposite(EntityStatic entity) {
 		coreMath.updateEntityWithMath(entity);
-		coreMath.update();
 	}
 
 	@Override
@@ -280,18 +289,22 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 			protected double dyT=0;
 			protected double accYT=0;
 			protected double accXT=0;
-		
+
 			protected ArrayList<VelocityVector> velocityVectors = new ArrayList<>();
 			protected ArrayList<Force> forces = new ArrayList<>();
 			protected ArrayList<PointForce> pointForces = new ArrayList<>();
 			protected ArrayList<Force> normalForces = new ArrayList<>();
 			protected ArrayList<Force> gravityForces = new ArrayList<>();
+
+			protected Vector addedVectors = new Vector(0,0);
 		
 			public void update() {
 
 				dx += accX; 
 				dy += accY;
 		
+				addedVectors = this.sumOfVelocityVectors() ;
+				
 				Vector netForces = this.sumOfForces();
 				accX = netForces.getX();
 				accY = netForces.getY();
@@ -303,11 +316,9 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 			}
 
 			public void updateEntityWithMath( EntityStatic entity ) {
-				
-				Vector sumVelocities = this.sumOfVelocityVectors();
-				
-				entity.setX( entity.x + this.dx + sumVelocities.getX() ) ; 
-				entity.setY( entity.y + this.dy + sumVelocities.getY() ) ;
+
+				entity.setX( entity.x + this.dx + addedVectors.getX() ) ; 
+				entity.setY( entity.y + this.dy + addedVectors.getY() ) ;
 				
 			}  
 			
@@ -316,6 +327,8 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 				dy=0;
 				accX=0;
 				accY=0;
+				
+				addedVectors = Vector.zeroVector; //stop added vectors from adding dx and dy also
 			}
 		
 			public double getDX() {
@@ -328,6 +341,10 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		
 			public Vector getVelocityVector(){
 				return new Vector( dx , dy );
+			}
+			
+			public Vector getNetVelocityVector(){
+				return addedVectors.add(getVelocityVector());
 			}
 		
 			public void setDX(double setdx) {
@@ -354,11 +371,11 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 			}
 		
 			public double getDeltaX( EntityStatic owner ){
-				return (owner.x + dx + accX);
+				return (owner.x + dx + addedVectors.getX() + accX);
 			}
 		
 			public double getDeltaY( EntityStatic owner ){
-				return (owner.y + dy + accY);
+				return (owner.y + dy + addedVectors.getY() + accY);
 			}
 		
 			public void clipDX(double clipDX) {
@@ -854,7 +871,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 
 		@Override
 		public String toString() {
-			return this.compositeName;
+			return "Null translation";
 		}
 	
 		public Vector getVelocityVector() {
@@ -873,13 +890,21 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		public VelocityVector(Vector vector) {
 			this.vector = vector;
 		}
-		
+
 		public Vector getVector(){
 			return this.vector;
 		}
 		
 		public void setVector(Vector vector){
 			this.vector = vector;
+		}
+		
+		public void setX(double setdx) {
+			this.vector.setX(setdx);
+		}
+		
+		public void setY(double setdy) {
+			this.vector.setY(setdy);
 		}
 
 		private void decIndex(){

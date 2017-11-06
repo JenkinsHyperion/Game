@@ -112,7 +112,7 @@ public class TestBoard extends BoardAbstract{
     		public void onReleased() {  }
     	});
     	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_5, new KeyCommand(){
-    		public void onPressed() { CompositeFactory.makeChildOfParent(testAsteroid, player, TestBoard.this); }
+    		public void onPressed() { /*CompositeFactory.makeChildOfParent(testAsteroid, player, TestBoard.this);*/ }
     		public void onReleased() {  }
     	});
     	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_6, new KeyCommand(){

@@ -25,7 +25,7 @@ public class SlidingMessageBehavior extends SlidingMessageBehaviorAbstract {
 	}
 	@Override
 	public Vector calculateVector() {
-		return null;
+		return currentBehavior.calculateVector();
 	}
 	public void setTargetPoint(Point target) {
 		this.currentBehavior.setTargetPoint(target);
@@ -78,7 +78,7 @@ public class SlidingMessageBehavior extends SlidingMessageBehaviorAbstract {
 		}
 		@Override
 		public Vector calculateVector() {
-			return null;
+			return activeUpdateAIPosition();
 		}
 		@Override
 		public void setTargetPoint(Point target) {
@@ -101,7 +101,7 @@ public class SlidingMessageBehavior extends SlidingMessageBehaviorAbstract {
 		public void updateAIPosition() {}
 		@Override
 		public Vector calculateVector() {
-			return null;
+			return Vector.zeroVector;
 		}
 		@Override
 		public void setTargetPoint(Point target) {

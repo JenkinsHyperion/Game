@@ -57,8 +57,10 @@ public class SlidingMessagePopup extends EntityStatic {
     	return exists;
     }
 	public void updatePosition() {
-		this.getTranslationComposite().updateEntityWithComposite(this);
-		this.behavior.updateAIPosition();
+
+		this.getTranslationComposite().setVelocityVector( this.behavior.calculateVector() ); //set translation velocity from behavior
+		
+		this.getTranslationComposite().updateEntityWithComposite(this); // update actual entity position  with translationComposite's velocity
 	}
 	public void draw(Graphics g){ 
 		//AffineTransform transform = new AffineTransform();

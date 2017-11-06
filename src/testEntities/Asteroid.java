@@ -42,7 +42,7 @@ public class Asteroid extends EntityStatic{
 	
 	
 	public Asteroid(int x, int y, int radius, TestBoard board, int...preset) {
-		super("Asteroid "+entityCount,x, y);
+		super("Asteroid "+radius+" "+entityCount,x, y);
 		++entityCount;
 		this.board = board;
 		this.radius = radius;

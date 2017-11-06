@@ -221,10 +221,10 @@ public class CompositeFactory {
 			}
 			
 		}else{
-			System.out.println();
-			throw new RuntimeException("["+entity+"] has no children"){
+			System.err.println("["+entity+"] had no children");
+			//throw new RuntimeException("["+entity+"] has no children"){
 				
-			};
+			//};
 		}
 	}
 	

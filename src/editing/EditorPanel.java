@@ -28,6 +28,8 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -120,6 +122,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	private double mousePanDY = 0f;
 	public int clickPositionXOffset;
 	public int clickPositionYOffset;
+	
+	private static final Sprite.Stillframe bee1 = new Sprite.Stillframe("bee.png",0,2,Sprite.CENTERED, 50);
 	
 	//public int mode; 
 	public int modeBuffer; // to store most recent mode a quick-mode change happens (such as shift pressed for panning)
@@ -3039,51 +3043,84 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	private class NewEntityPopup extends JPopupMenu {
 		private EntityStatic theEntity = null;
 		private JMenu addEntityMenu = new JMenu("New Entity");
-		private JMenuItem defaultItem = new JMenuItem("Default");
+		private JMenuItem beeTest = new JMenuItem("bee");
+		private JMenuItem beeSwarm = new JMenuItem("swarm");
 		private JMenuItem deleteComposite = new JMenuItem("Delete");
 		private JPopupMenu popUp = new JPopupMenu();
 		private NewEntityPopup() {
 			super();
 			// *** Also check if "Delete" menuItem should be enabled
-			defaultItem.addActionListener(new ActionListener() {
+			beeTest.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					// add circular follower
-					createTestEntity();
+					createTestEntity(camera.getLocalX(editorMousePos.x) , camera.getLocalY(editorMousePos.y));
+				}
+			});
+			beeSwarm.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// add circular follower
+					createSwarm(20);
 				}
 			});
 			addEntityMenu.setEnabled(true);
 		/*	deleteComposite.setEnabled(false);
 			deleteComposite.addActionListener(new DeleteCompositeEvent());
 			*/
-			addEntityMenu.add(defaultItem);
+			addEntityMenu.add(beeTest);
+			addEntityMenu.add(beeSwarm);
 			popUp.add(addEntityMenu);
 			popUp.add(deleteComposite);
 			
 		}
-		public void createTestEntity() {
+		public synchronized void createTestEntity(int x, int y) {
 			//section to create custom collision group
 			board.collisionEngine.createColliderGroup("test");
-			EntityStatic asteroid2 = new EntityStatic(camera.getLocalX(editorMousePos.x) , camera.getLocalY(editorMousePos.y));
-			CompositeFactory.addGraphicTo(asteroid2, Sprite.Stillframe.missingSprite);
-			Boundary bounds1 = new BoundaryCircular(40);
-			CompositeFactory.addAngularComposite(asteroid2);
-			CompositeFactory.addTranslationTo(asteroid2);
-			CompositeFactory.addScriptTo(asteroid2, new EntityBehaviorScript.LinearFollowBehavior(asteroid2, ((TestBoard)board).player));
+//			EntityStatic asteroid2 = new EntityStatic(camera.getLocalX(editorMousePos.x) , camera.getLocalY(editorMousePos.y));
+			EntityStatic testEntity = new EntityStatic(x, y);
+			CompositeFactory.addGraphicTo(testEntity, bee1);
+			Boundary bounds1 = new BoundaryCircular(10);
+			CompositeFactory.addAngularComposite(testEntity);
+			CompositeFactory.addTranslationTo(testEntity);
+			double randSpeed = ThreadLocalRandom.current().nextDouble(1.8 , 3.5);
+			CompositeFactory.addScriptTo(testEntity, new EntityBehaviorScript.LinearFollowBehavior(testEntity, ((TestBoard)board).player, randSpeed));
 		//	asteroid2.addInitialColliderTo(bounds1);
-			 
+			
 	        CompositeFactory.addRotationalColliderTo(
-	        		asteroid2, 
+	        		testEntity, 
 	        		bounds1, 
-	        		asteroid2.getAngularComposite()
+	        		testEntity.getAngularComposite()
 	        		);
 	        
 			//CompositeFactory.addRigidbodyTo(asteroid2);
-			/*Asteroid asteroid = new Asteroid( camera.getLocalX(editorMousePos.x) , camera.getLocalY(editorMousePos.y), 
-					40, (TestBoard)board, 
-					Asteroid.PRESET03);   */
-			board.getCurrentScene().addEntity(asteroid2, "SelfCollisionGroup");
+			board.getCurrentScene().addEntity(testEntity, "SelfCollisionGroup");
+			//board.getCurrentScene().addEntity(testEntity);
 			//((TestBoard)board).addFollowerToList(asteroid2);
+		}
+		public void createSwarm(int amount) {
+			Point clickedPoint = new Point(camera.getLocalX(editorMousePos.x) , camera.getLocalY(editorMousePos.y));
+			Thread task = new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					for (int i = 0; i < amount; i++) {
+						int randomX = ThreadLocalRandom.current().nextInt(300);
+						int randomY = ThreadLocalRandom.current().nextInt(300);
+						createTestEntity(clickedPoint.x + randomX, clickedPoint.y + randomY);
+						/*try {
+							Thread.sleep(20);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}*/
+					}
+				}
+			});
+			task.start();
+			
+			
 		}
 		 /** Just an overridden method from JPopup. Ignore */
 		@Override

@@ -132,6 +132,13 @@ public abstract class EntityBehaviorScript implements UpdateableComposite{
 			linearMath = new FollowMovement.Linear(owner, target);
 			movementTranslation = owner.getTranslationComposite().registerVelocityVector(new Vector(0,0) );
 		}
+		/** Constructor for a supplied speed. */
+		public LinearFollowBehavior(EntityStatic owner, EntityStatic target, double speed){
+			this.ownerEntity = owner;
+			this.target = target;
+			linearMath = new FollowMovement.Linear(owner, target, speed);
+			movementTranslation = owner.getTranslationComposite().registerVelocityVector(new Vector(0,0) );
+		}
 
 		@Override
 		protected void updateOwnerEntity(EntityStatic ownerEntity) {

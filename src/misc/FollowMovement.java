@@ -13,28 +13,39 @@ public abstract class FollowMovement extends MovementBehavior{
 	protected Point target;
 	
 	public static class Linear extends FollowMovement{
-		
+		private double speed;
 		public Linear(EntityStatic owner, EntityStatic target){
 			this.owner = owner;
 			this.target = target.getPositionReference();
+			speed = 2;
 		}
 		public Linear(EntityStatic owner, Point target){
 			this.owner = owner;
 			this.target = target;
+			speed = 2;
 		}
-		
+		public Linear(EntityStatic owner, Point target, double speed) {
+			this.owner = owner;
+			this.target = target;
+			this.speed = speed;
+		}
+		public Linear(EntityStatic owner, EntityStatic target, double speed) {
+			this.owner = owner;
+			this.target = target.getPositionReference();
+			this.speed = speed;
+		}
 		@Override
 		public void updateAIPosition() {
 
 			TranslationComposite trans = this.owner.getTranslationComposite();
 			
-			trans.setDX( ( this.target.getX() - this.owner.getX() ) /30.0 );
-			trans.setDY( ( this.target.getY() - this.owner.getY() ) /30.0 );
+			trans.setDX( ( this.target.getX() - this.owner.getX() ) /30 );
+			trans.setDY( ( this.target.getY() - this.owner.getY() ) /30 );
 
 			Vector velocity = trans.getVelocityVector();
 			
 			if ( velocity.getMagnitude() > 2){
-				trans.setVelocityVector( velocity.unitVector().multiply(2) );
+				trans.setVelocityVector( velocity.unitVector().multiply(speed) );
 			}
 			
 			Vector separation = this.owner.getSeparationVector( new Point(0 , 600));
@@ -52,13 +63,13 @@ public abstract class FollowMovement extends MovementBehavior{
 			Vector returnVector = new Vector(0,0);
 			
 			returnVector.set(
-				( this.target.getX() - this.owner.getX() ) /30.0 ,
-				( this.target.getY() - this.owner.getY() ) /30.0 
+				( this.target.getX() - this.owner.getX() ) /30 ,
+				( this.target.getY() - this.owner.getY() ) /30
 			);
 			
 			if ( returnVector.getMagnitude() > 2){
 				
-				returnVector = returnVector.unitVector().multiply(2) ;
+				returnVector = returnVector.unitVector().multiply(speed) ;
 			}
 			
 			Vector separation = this.owner.getSeparationVector( new Point(0 , 600));

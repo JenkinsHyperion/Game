@@ -18,10 +18,13 @@ public abstract class ParentComposite implements EntityComposite {
 	 * @param x
 	 * @param y
 	 */
-	public abstract void setCompositedPosition( double x , double y);
+	public abstract void notifyPositionChange( double x , double y);
 	public abstract EntityStatic[] getChildrenEntities();
 	public abstract boolean isParent();
+	protected abstract boolean isRotateable();
 
+	public abstract void debugPrintChildren();
+	
 	public static ParentComposite nullParentComposite(){
 		return nullParent;
 	}
@@ -51,7 +54,20 @@ public abstract class ParentComposite implements EntityComposite {
 
 			return returnList;
 		}
-		
+		@Override
+		public void debugPrintChildren(){
+			
+			System.out.println("CHLDREN OF "+this.ownerParentEntity+" {");
+			
+			for (  ChildComposite.Rotateable child : rotationalChildrenList ){
+				System.out.println( child.ownerEntity + "(rotational)" );
+			}
+			for ( ChildComposite.TranslationOnly child : translationalChildrenList ){
+				System.out.println( child.ownerEntity+ "(translation only)" );
+			}
+			
+			System.out.println("}");
+		}
 		
 		protected ChildComposite.TranslationOnly createTranslationalChild( EntityStatic newChild ){
 
@@ -88,9 +104,8 @@ public abstract class ParentComposite implements EntityComposite {
 				
 					ChildComposite.Rotateable childComposite = new ChildComposite.Rotateable(newChild , this, ownerParentEntity.getRotationComposite(), rotationalChildrenList.size() , ownerParentEntity.getPosition() , angularParent.getAngleInDegrees() );
 	
-					newChild.childComposite = childComposite;
+					newChild.setChildComposite( childComposite );
 					this.rotationalChildrenList.add( childComposite );
-					
 					return childComposite;
 					
 				}else{
@@ -144,6 +159,7 @@ public abstract class ParentComposite implements EntityComposite {
 				child.ownerEntity.setCompositedPos( ownerParentEntity.x + x , ownerParentEntity.y + y ); // move children
 				
 				child.ownerEntity.getAngularComposite().setAngleInDegrees( angleRadians - child.relativeAngleDegrees); // rotate children
+			
 			}
 		}
 		
@@ -156,9 +172,28 @@ public abstract class ParentComposite implements EntityComposite {
 		public boolean isParent() {
 			return true;
 		}
+		@Override
+		public void notifyPositionChange( double x, double y){
+			for( ChildComposite.TranslationOnly child : translationalChildrenList ){
+				child.setPosition( x + child.relativePosition.x , y + child.relativePosition.y );
+			}
+			for( ChildComposite.Rotateable child : rotationalChildrenList ){
+				
+				double relativeX = child.zeroAnglePosition.getX();
+				double relativeY = child.zeroAnglePosition.getY();
+				double angleRadians = this.ownerParentEntity.getAngularComposite().getAngleInRadians();
+				
+				double sx = ( relativeX*Math.cos(angleRadians) - relativeY*Math.sin(angleRadians) );
+				double sy = ( relativeX*Math.sin(angleRadians) + relativeY*Math.cos(angleRadians) );
+
+				child.ownerEntity.setCompositedPos( x + sx , y + sy ); // move children
+				
+			}
+		}
 		
-		public void setCompositedPosition( double x, double y){
-			ownerParentEntity.setPos(  x,  y);
+		@Override
+		protected boolean isRotateable() {
+			return true;
 		}
 		
 		@Override
@@ -185,7 +220,12 @@ public abstract class ParentComposite implements EntityComposite {
 		}
 		
 		@Override
-		public void setCompositedPosition(double x, double y) {
+		public void debugPrintChildren(){
+			
+		}
+		
+		@Override
+		public void notifyPositionChange(double x, double y) {
 			//FIXME EMPTY CALLING
 			//System.err.println("Warning: Attempted to set child position from Null Parent Composite");
 		}
@@ -198,6 +238,11 @@ public abstract class ParentComposite implements EntityComposite {
 		@Override
 		public EntityStatic getOwnerEntity() {
 			throw new NullPointerException();
+		}
+		
+		@Override
+		protected boolean isRotateable() {
+			return false;
 		}
 		
 		@Override

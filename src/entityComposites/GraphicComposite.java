@@ -17,6 +17,8 @@ public abstract class GraphicComposite implements EntityComposite{
 	public abstract void setGraphicSizeFactorX( double d );
 	public abstract void setGraphicSizeFactorY( double d );
 	
+	protected abstract void notifyAngleChangeFromAngularComposite( double angle);
+
 	public abstract void setGraphicAngle( double d );
 	
 	public abstract double getGraphicsSizeX();
@@ -27,7 +29,7 @@ public abstract class GraphicComposite implements EntityComposite{
 		return nullSingleton;
 	}
 	
-	public static class Active extends GraphicComposite{
+	public static class Static extends GraphicComposite{
 		protected String compositeName;
 		EntityStatic ownerEntity;
 		protected Sprite currentSprite = Sprite.missingSprite;
@@ -37,13 +39,13 @@ public abstract class GraphicComposite implements EntityComposite{
 		private double graphicSizePercentY = 1;
 		private double graphicAngle = 0;
 		
-		protected Active( Sprite current , EntityStatic ownerEntity ){
+		protected Static( Sprite current , EntityStatic ownerEntity ){
 			this.ownerEntity = ownerEntity;
 			this.currentSprite = current;
 			this.compositeName = "Graphics"+this.getClass().getSimpleName();
 		}
 		
-		protected Active( EntityStatic ownerEntity ){
+		protected Static( EntityStatic ownerEntity ){
 			this.ownerEntity = ownerEntity;
 			this.compositeName = "Graphics"+this.getClass().getSimpleName();
 		}
@@ -88,9 +90,13 @@ public abstract class GraphicComposite implements EntityComposite{
 		public void setGraphicAngle( double angle ){
 			this.graphicAngle = angle;
 		}
+		@Override
+		protected void notifyAngleChangeFromAngularComposite( double angle){
+			//DO NOTHING
+		}
 		
 		public double getGraphicAngle(){
-			return this.graphicAngle + this.ownerEntity.getAngularComposite().getAngleInRadians(); //FIXME Make rotateable and fixed graphics composite
+			return this.graphicAngle;
 		}
 		
 		public void draw( ReferenceFrame camera ){
@@ -121,6 +127,18 @@ public abstract class GraphicComposite implements EntityComposite{
 		}
 	}
 	
+	public static class Rotateable extends Static{
+
+		protected Rotateable(EntityStatic ownerEntity) {
+			super(ownerEntity);
+		}
+		@Override
+		protected void notifyAngleChangeFromAngularComposite( double angle){
+			this.setGraphicAngle(angle);
+		}
+		
+	}
+	
 	private static class Null extends GraphicComposite{
 		protected String compositeName;
 
@@ -149,6 +167,11 @@ public abstract class GraphicComposite implements EntityComposite{
 		@Override
 		public void draw(ReferenceFrame camera) {
 			System.err.println("Attempting to draw null graphics composite");
+		}
+		
+		@Override
+		protected void notifyAngleChangeFromAngularComposite(double angle) {
+			//DO NOTHING//
 		}
 		
 		public void addCompositeToRenderer( RenderingEngine engine ){

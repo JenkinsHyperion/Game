@@ -42,13 +42,13 @@ public class EntityFactory {
 	public static EntityStatic createBackgroundSprite( String path, int x, int y ){
 		EntityStatic testEntity = new EntityStatic(x,y);
         Sprite.Stillframe sprite = new Sprite.Stillframe(path,Sprite.CENTERED);
-        CompositeFactory.addGraphicTo(testEntity, sprite);
+        CompositeFactory.addGraphicTo(testEntity, sprite, false);
         return testEntity;
 	}
 	
 	public static EntityStatic createBackgroundScroll( String path , int boardW , int boardH , float xScroll , float yScroll ){
 		EntityStatic testEntity = new EntityStatic(0,0);
-		CompositeFactory.addGraphicTo(testEntity, new Background( path , boardW, boardH, xScroll, yScroll ) );
+		CompositeFactory.addGraphicTo(testEntity, new Background( path , boardW, boardH, xScroll, yScroll ), false );
 		return testEntity;
 	}
 
@@ -157,7 +157,7 @@ public class EntityFactory {
 							anim.getTileHeight(),
 							anim.getDelay()
 							);
-					CompositeFactory.addGraphicTo( newEntity , sprite );
+					CompositeFactory.addGraphicTo( newEntity , sprite, false );
 				}
 				else if ( data.getSpriteData() instanceof GraphicData.SpriteData ){
 					SpriteData spriteData = data.getSpriteData();
@@ -167,7 +167,7 @@ public class EntityFactory {
 							spriteData.getOffsetX(),
 							spriteData.getOffsetY()
 							);
-					CompositeFactory.addGraphicTo( newEntity , sprite );
+					CompositeFactory.addGraphicTo( newEntity , sprite, false );
 				}
 				else {
 					System.out.println("     Sprite was not loaded");

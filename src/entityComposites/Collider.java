@@ -7,7 +7,6 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 import engine.MovingCamera;
-import entities.EntityRotationalDynamic;
 import misc.CollisionEvent;
 import misc.NullCollisionEvent;
 import physics.Boundary;
@@ -189,7 +188,7 @@ public class Collider implements EntityComposite{
 		this.getBoundary().debugDrawBoundary(camera, g, this.ownerEntity);
 	}
 	
-	public void applyPointMomentum( Vector momentum , Point2D point ){
+	/*public void applyPointMomentum( Vector momentum , Point2D point ){
 		
 		EntityRotationalDynamic thisEntity = (EntityRotationalDynamic)this.ownerEntity;
 		
@@ -212,7 +211,7 @@ public class Collider implements EntityComposite{
 		thisEntity.setAngularVelocity( torque * 0.1 );
 		
 	}
-	
+	*/
 	public void addColliderToGroup(String group){
 		
 		//TODO FIXME 

@@ -11,6 +11,7 @@ import editing.BrowserTreePanel;
 import editing.EditorPanel;
 import engine.BoardAbstract;
 import entityComposites.AngularComposite.Angled;
+import entityComposites.ParentComposite.Rotateable;
 import physics.Boundary;
 import physics.BoundaryPolygonal;
 import sprites.Sprite;
@@ -173,9 +174,14 @@ public class CompositeFactory {
 		entity.setRigidbody( new Rigidbody(entity) );
 	}
 	
-	public static GraphicComposite addGraphicTo( EntityStatic entity , Sprite sprite ){
+	public static GraphicComposite addGraphicTo( EntityStatic entity , Sprite sprite, boolean isRotateable ){
 		
-		GraphicComposite.Active graphicComposite = new GraphicComposite.Active( entity );
+		final GraphicComposite graphicComposite;
+		
+		if (isRotateable)
+			graphicComposite = new GraphicComposite.Rotateable( entity );	//determines if graphic should share
+		else
+			graphicComposite = new GraphicComposite.Static( entity );	//	angle of this entity's angularComposite
 		
 		graphicComposite.setSprite( sprite );
 		
@@ -195,7 +201,7 @@ public class CompositeFactory {
 	
 	public static void addGraphicFromCollider( EntityStatic entity , Collider collider){
 		
-		GraphicComposite.Active graphicComposite = new GraphicComposite.Active( entity );
+		GraphicComposite.Static graphicComposite = new GraphicComposite.Static( entity );
 		
 		graphicComposite.setSprite( new SpriteFilledShape( collider.getBoundary() , Color.WHITE ) );
 		
@@ -242,18 +248,27 @@ public class CompositeFactory {
 		//CREATE COMPOSITE DECOSNTRUCTOR TO ENSURE REMOVAL
 		System.out.println("CompositeFactory: PARENTING ["+child+"] as child of ["+parentEntity+"]");
 		
-		if ( parentEntity.hasTranslation() ){ 
+		/*if ( parentEntity.hasTranslation() ){ 
 			
 		}
 		else{ //parent has no translation, so 
 			System.err.println("|   Parent entity ["+parentEntity+"] has no Translational composite");
-		}
+		}*/
 		
-		if ( parentEntity.getRotationComposite().exists() ){
+		if ( parentEntity.getAngularComposite().exists() ){
 			
 			System.out.println("|   Setting '"+parentEntity+"' as rotateable parent");	
 			
-			ParentComposite.Rotateable parentComposite = new ParentComposite.Rotateable(parentEntity);
+			final ParentComposite.Rotateable parentComposite;
+
+			if ( parentEntity.isParent() && parentEntity.getParentComposite().isRotateable() ){ //parent is already rotateable parent
+				 
+				parentComposite = (Rotateable) parentEntity.getParentComposite();
+			}
+			else{
+				parentComposite = new ParentComposite.Rotateable(parentEntity); //otherwise make a new parent composite
+				((Angled) parentEntity.getAngularComposite()).addRotateable( parentComposite ); // and add new compsoite to rotateables
+			}
 			
 			if ( flags.length == 0 || flags[0] == ROTATIONAL_CHILD){
 				
@@ -267,16 +282,13 @@ public class CompositeFactory {
 					return;
 				}
 
-				Angled parentAngular = (Angled) parentEntity.getAngularComposite();
-				
-				parentEntity.addParentComposite( parentComposite );		//Give parent list of children
-				parentAngular.addRotateable( parentComposite );	//Add children list to rotateables
+				parentEntity.setParentComposite( parentComposite );		//Give parent list of children
 				
 				if ( !child.getAngularComposite().exists() ){
 					addAngularComposite(child);
 				}
 				
-				( ( Angled ) child.getAngularComposite() ).addRotateable( childComposite );
+				//( ( Angled ) child.getAngularComposite() ).addRotateable( childComposite );
 				
 			}
 			else if ( flags[0] == TRANSLATIONAL_CHILD ){
@@ -293,7 +305,7 @@ public class CompositeFactory {
 				
 				Angled parentAngular = (Angled) parentEntity.getAngularComposite();
 				
-				parentEntity.addParentComposite( parentComposite );		//Give parent list of children
+				parentEntity.setParentComposite( parentComposite );		//Give parent list of children
 				parentAngular.addRotateable( parentComposite );	//Add children list to rotateables
 
 				if ( !child.getTranslationComposite().exists() ){
@@ -308,7 +320,7 @@ public class CompositeFactory {
 			}
 
 		}else{ 
-			System.out.println("|   Parent isn't rotateable TODO MAKE TRANSLATION-OLNLY PARENT"); 
+			System.out.println("|   Parent isn't angular TODO MAKE TRANSLATION-OLNLY PARENT"); 
 		}
 		
 		//If child has collider, remove from and add back to collision Engine as dynamic, in case it was registered as static
@@ -330,7 +342,12 @@ public class CompositeFactory {
 		BrowserTreePanel browserTreePanel = board.getEditorPanel().getBrowserTreePanel();
 		browserTreePanel.notifyParentChildRelationshipChanged(child, parentEntity);
 	}
-	
+	/**
+	 * Adds an updateable script to an entity. The script's update method will be begin being called every frame as soon 
+	 * as the entity is added to a scene.
+	 * @param entity
+	 * @param behavior
+	 */
 	public static void addScriptTo( EntityStatic entity , EntityBehaviorScript behavior ){
 
 		entity.updateablesList.add(behavior);

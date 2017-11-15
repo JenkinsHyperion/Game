@@ -39,7 +39,7 @@ public class SpriteFilledShape extends Sprite {
 	}
 
 	@Override
-	public void draw(ReferenceFrame camera , GraphicComposite.Active composite ) {
+	public void draw(ReferenceFrame camera , GraphicComposite.Static composite ) {
 		
 		AffineTransform entityTransformation = new AffineTransform();
 
@@ -72,12 +72,12 @@ public class SpriteFilledShape extends Sprite {
 	    return image;
 	}*/
 	@Override
-	public BufferedImage getBufferedImage() {
+	public BufferedImage[][] getBufferedImage() {
 		
 		Rectangle r = this.shape.getBounds();
 		BufferedImage image = new BufferedImage(r.width, r.height, BufferedImage.TYPE_BYTE_BINARY);
 
-	    return image;
+	    return new BufferedImage[][]{{image}};
 		
 	}
 

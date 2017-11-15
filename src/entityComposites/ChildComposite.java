@@ -14,6 +14,8 @@ public abstract class ChildComposite implements EntityComposite{ //TODO split in
 	
 	public abstract void setPosition( double x, double y);
 	
+	protected abstract void notifyRawPositionChange( double dx, double dy );
+	
 	public abstract boolean isChild();
 
 	
@@ -34,6 +36,11 @@ public abstract class ChildComposite implements EntityComposite{ //TODO split in
 			this.parentComposite = parentComposite;
 
 			this.relativePosition = parentComposite.getOwnerEntity().getFullRelativePositionOf(ownerChild);
+		}
+		
+		@Override
+		protected void notifyRawPositionChange(double dx, double dy) {
+			relativePosition.setLocation(-dx,-dy);
 		}
 		
 		@Override
@@ -66,8 +73,7 @@ public abstract class ChildComposite implements EntityComposite{ //TODO split in
 
 		@Override
 		public void setPosition(double x, double y) {
-			// TODO Auto-generated method stub
-			
+			this.ownerEntity.setPos(x, y);
 		}
 
 		@Override
@@ -117,7 +123,11 @@ public abstract class ChildComposite implements EntityComposite{ //TODO split in
 		
 		@Override
 		public void setPosition(double x, double y) {
-			
+			this.ownerEntity.setPos(x, y);
+		}
+		
+		protected void notifyRawPositionChange( double dx, double dy ){
+			zeroAnglePosition.setLocation(-dx,-dy);
 		}
 		
 		@Override
@@ -171,6 +181,10 @@ public abstract class ChildComposite implements EntityComposite{ //TODO split in
 		
 		@Override
 		public void setPosition(double x, double y) {
+			
+		}
+		
+		protected void notifyRawPositionChange( double x, double y ){
 			
 		}
 		

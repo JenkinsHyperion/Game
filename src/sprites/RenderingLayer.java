@@ -10,7 +10,7 @@ import engine.BoardAbstract;
 import engine.MovingCamera;
 import entityComposites.EntityStatic;
 import entityComposites.GraphicComposite;
-import entityComposites.GraphicComposite.Active;
+import entityComposites.GraphicComposite.Static;
 
 public class RenderingLayer {
 
@@ -23,7 +23,7 @@ public class RenderingLayer {
 	private MovingCamera camera1;
 	private final ParallaxFrame parallaxFrame = new ParallaxFrame();
 	
-	protected ArrayList<GraphicComposite.Active> entitiesList = new ArrayList<>(); 
+	protected ArrayList<GraphicComposite.Static> entitiesList = new ArrayList<>(); 
 	
 	public RenderingLayer( double parallax_x , double parallax_y , double zoomScale, MovingCamera camera) {
 		PARALLAX_X = parallax_x;
@@ -33,7 +33,7 @@ public class RenderingLayer {
 	}
 	
 	public void addGraphicToLayer( EntityStatic entity ){
-		this.entitiesList.add( (Active) entity.getGraphicComposite() ); //TODO REMOVAL INDEXING
+		this.entitiesList.add( (Static) entity.getGraphicComposite() ); //TODO REMOVAL INDEXING
 	}
 
 	public void renderLayer( MovingCamera camera ){ 
@@ -44,7 +44,7 @@ public class RenderingLayer {
 				camera1.getObserver()
 				);
 		
-		for ( GraphicComposite.Active comp : entitiesList  ){ //FIXME Redo this entire class
+		for ( GraphicComposite.Static comp : entitiesList  ){ //FIXME Redo this entire class
 
 			//comp.draw(cam);		
 			AffineTransform frameTransform = new AffineTransform();

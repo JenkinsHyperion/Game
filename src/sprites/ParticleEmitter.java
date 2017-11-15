@@ -1,71 +1,249 @@
 package sprites;
 
+import java.awt.Point;
+import java.awt.geom.AffineTransform;
 import java.util.Random;
 
+import engine.ReferenceFrame;
 import entityComposites.*;
+import sprites.Sprite.Stillframe;
+import utility.Probability;
 
 public class ParticleEmitter extends EntityStatic{
 
-	private EntityStatic[] particles;
-	
-	private int counter = 0;
-	private int particleIndex = 0;
 	private int particleCount;
-	private int particleDelay;
+	private int delay;
+	private ParticleNonEntity[] particlesList;
 	
 	public ParticleEmitter(int x, int y) {
 		super(x, y);
 		this.name = "emitter";
 		
-		this.particleCount = 8;
-		this.particleDelay = 2;
+		this.particleCount = 5;
+		this.delay = 100;
 		
 		initParticles();
 	}
 	
 	private void initParticles(){
-		particles = new EntityStatic[particleCount];
-		
-		particles[0] = new EntityStatic( this.name+"_particle0" , this.getX() , this.getY() );
-		CompositeFactory.addTranslationTo(particles[0]);
-		CompositeFactory.addDynamicRotationTo(particles[0]);
-		CompositeFactory.addGraphicTo(particles[0], new Sprite.Stillframe("particle_test.png",-3,-3) ); //FLYWEIGHT SPRITES
-		//particles[0].getTranslationComposite().setDX(2);
-		particles[0].getRotationComposite().setAngularVelocity(2);
-		
-		//updateablesList.add(particles[0]);
-		
-		for ( int i = 1 ; i < particles.length ; i++ ){
 
-			particles[i] = new EntityStatic( this.name+"_particle"+i, this.getX() , this.getY());
+
+		//updateablesList.add(particles[0]);
+
+			particlesList = new ParticleNonEntity[particleCount];	
 			
-			Random rand = new Random(); 
-			int value = rand.nextInt(180); 
-			double angleRadians = (value * ((Math.PI)/180) ) ;
+			final Sprite.Stillframe glow03 = new Sprite.Stillframe("ParticleFX/glowTest_03.png",Sprite.CENTERED);
 			
-			Sprite particleSprite = new Sprite.Stillframe("particle_test.png",-3,-3);
+			for( int i = 0 ; i < particlesList.length ; ++i ){
+				
+				particlesList[i] = new ParticleNonEntity( glow03, 0.05 , 0.8f , false);
+			}
 			
-			//CompositeFactory.flyweightTranslation( particles[0] , particles[i] );
+			/*final Sprite.Stillframe glow03 = new Sprite.Stillframe("particle_test.png",Sprite.CENTERED);
 			
-			CompositeFactory.addDynamicRotationTo(particles[i]);
-			particles[i].getRotationComposite().setAngularVelocity(2);
-			//CompositeFactory.flyweightRotation( particles[0] , particles[i] );
-			particles[i].getAngularComposite().setAngleInRadians(angleRadians);
+			for( int i = 0 ; i < particlesList.length ; ++i ){
+				
+				particlesList[i] = new ParticleBug( glow03, 0.05 , 0.8f , false);
+			}*/
 			
-			CompositeFactory.addGraphicTo(particles[i], particleSprite ); 
-			//updateablesList.add(particles[i]);
+			/*
+			 * 
+			 */
+			CompositeFactory.addAnonymousGraphicTo(this, new GraphicComposite.Rotateable(this){
+				
+				@Override
+				public void draw(ReferenceFrame camera) {
+					
+					for ( ParticleNonEntity particle : particlesList ){
+						AffineTransform entityTransform = new AffineTransform();
+						
+						entityTransform.rotate(Math.toRadians(particle.getAngle()));
+						entityTransform.scale( particle.getSize(),particle.getSize()  );
+						entityTransform.translate(particle.getSprite().getOffsetX(),particle.getSprite().getOffsetY());
+						
+						camera.draw( particle.getSprite().getImage() , particle.getPosition(), entityTransform, particle.getAlpha() );
+						
+						/*camera.draw( 
+								particleSprite.getImage() , 
+								ParticleEmitter.this.getAbsolutePositionOf(particle.getPosition()), 
+								entityTransform, 
+								particle.getAlpha() 
+								);*/
+					}
+				}
+			});
+			
+			CompositeFactory.addScriptTo(this, new FadeInAndOut() );
+		
+	}
+
+	private class FadeInAndOut extends EntityBehaviorScript{
+		
+		byte counter = 0;		//general counter int
+		
+		byte indexFadeOut = 0;	// index of particle fading out, this value will technically increment through all values 
+								// of byte but after modulus will represent range from 0 to number of particles. This is just
+								// an operational alternative to checking if index < particleCount each time,
+								// at the expense of a probably unnoticable inaccuracy when value wraps around 128 to -127 
+		
+		/*unsigned*/byte duriation = 3;	// number of cycles each particle lasts
+										// Should not be any multiples of particleCount, else fade in and fade out 
+										// will clash
+		
+		@Override
+		protected void updateOwnerEntity(EntityStatic ownerEntity) {
+
+			for ( ParticleNonEntity particle : particlesList ){	//update position of all particles
+				particle.updatePosition();
+			}
+
+			if ( counter < delay ){		//counter loops from 0 to delay
+				
+				counter++;
+				
+				particlesList[(indexFadeOut+128)%particleCount].setAlpha(((float)delay-counter)/delay);
+					//decrememnt alpha on particle fading out
+				particlesList[(indexFadeOut+duriation+128)%particleCount].setAlpha((counter)/(float)delay);
+					//increment alpha on particle fading in
+			}else{
+				particlesList[(indexFadeOut+128)%particleCount].reset();
+				++indexFadeOut;
+				counter = 0;
+			}
 		}
 	}
 	
-	private void trigger(){
+	private class ParticleTrail extends EntityBehaviorScript{
+
+		byte angleCounter = 0;
+		byte angle = 0;
+		byte counter = 0;
+		byte indexFadeOut = 0;
+		byte speed = 3;
 		
-		particles[particleIndex].setPos( this.getPosition() );
-		particleIndex++;
-		if ( particleIndex >= particleCount ){
-			particleIndex=0;
+		double x = 0;
+		double y = 0;
+		
+		@Override
+		protected void updateOwnerEntity(EntityStatic entity) {
+			
+			x = (60.0*Math.cos(Math.toRadians(angle*1.406)));
+			y = (30.0*Math.sin(Math.toRadians((angle*1.406))*2));
+			
+			++angle;
+			
+			if ( counter < speed ){
+				++counter;
+				particlesList[(indexFadeOut+128)%particleCount].setAlpha((float)counter/speed);
+				
+			}
+			else{
+				ParticleNonEntity resetParticle = particlesList[(indexFadeOut+128)%particleCount];
+				resetParticle.resetSize();
+				resetParticle.setPosition(x, y);
+				++indexFadeOut;
+				counter = 0 ;
+			}
+			
 		}
+
 	}
 
+	private class ParticleNonEntity{
+		
+		final Sprite.Stillframe sprite;
+		
+		double x;
+		double y;
+		double dx;
+		double dy;
+		int angle;
+		float angularVelocity;
+		
+		double size=1.0;
+		float alpha = 1.0f;
+		
+		protected ParticleNonEntity( Sprite.Stillframe sprite , double velocity , float anglularVelocity, boolean particlesAreAttatched ){
+			
+			int velocityAngle = Probability.randomInt(0, 360);
+			
+			this.dx = Math.cos(velocityAngle)*velocity;
+			this.dy = Math.sin(velocityAngle)*velocity;
 
+			this.x =  ParticleEmitter.this.getX() ;
+			this.y =  ParticleEmitter.this.getY() ;
+			
+			this.angularVelocity = anglularVelocity; 
+			this.angle = velocityAngle;
+			
+			this.sprite = sprite;
+		}
+		
+		protected void reset(){
+			size = 1.0;
+			x = ParticleEmitter.this.getX() ;
+			y = ParticleEmitter.this.getY() ;
+		}
+		
+		protected void resetSize(){
+			size = 1.0;
+		}
+		
+		protected double getSize(){
+			return this.size;
+		}
+		
+		protected Sprite.Stillframe getSprite(){
+			return this.sprite;
+		}
+		
+		protected float getAlpha(){
+			return this.alpha;
+		}
+		
+		protected void setAlpha(float alpha){
+			this.alpha = alpha;
+		}
+		
+		protected void setSize( double size ){
+			this.size = size;
+		}
+		
+		protected int getAngle(){
+			return this.angle;
+		}
+		
+		protected void setPosition( double x, double y){
+			this.x = x;
+			this.y = y;
+		}
+		
+		protected Point getPosition(){
+			return new Point((int)x, (int)y);
+		}
+		
+		protected void updatePosition(){
+			x += dx;
+			y += dy;
+			
+			this.angle += angularVelocity;
+		}
+		
+	}
+	
+	
+	private class ParticleBug extends ParticleNonEntity{
+
+		protected ParticleBug(Stillframe sprite, double velocity, float anglularVelocity,
+				boolean particlesAreAttatched) {
+			super(sprite, velocity, anglularVelocity, particlesAreAttatched);
+		}
+		
+		@Override
+		protected void updatePosition() {
+			
+		}
+
+	}
 	
 }

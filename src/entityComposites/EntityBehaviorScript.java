@@ -17,7 +17,7 @@ public abstract class EntityBehaviorScript implements UpdateableComposite{
 	protected EntityStatic ownerEntity;
 	
 	
-	protected abstract void updateOwnerEntity(EntityStatic ownerEntity);
+	protected abstract void updateOwnerEntity(EntityStatic entity);
 	
 	@Override
 	public void updateEntityWithComposite(EntityStatic entity) { //renaming method for clarity when making anonymous scripts

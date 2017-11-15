@@ -41,7 +41,7 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 		AngularComposite angular = entity.getAngularComposite();
 		angular.setAngleInDegrees( angular.getAngleInDegrees() + angularVelocity);
 		
-		angular.notifyAngleChange(angularVelocity); //FIXME Change to addAngle which automatically notifies rotateables in angular
+		//angular.notifyAngleChange(angularVelocity); //FIXME Change to addAngle which automatically notifies rotateables in angular
 
 	}
 	
@@ -118,7 +118,7 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 		
 		@Override
 		public void updateEntityWithComposite(EntityStatic entity) {
-			
+			/*
 			AngularComposite angular = entity.getAngularComposite();
 			
 			angular.setAngleInDegrees( angular.getAngleInDegrees() + bend);
@@ -127,6 +127,7 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 			
 			double output = phaseCounter[0] / 10.0;
 			this.bend = ( (2*output)*(2*output)*(2*output)/100 - (8*output) ) / 3000 ; //Polynomial approximation of Sine function
+			 */
 		}
 	}
 	

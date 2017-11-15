@@ -108,7 +108,7 @@ public class PlayerCharacter extends Player {
         // MANUAL SPRITE COMPOSITE
         //SpriteComposite spirteComp = new SpriteComposite( IDLE_LEFT , this);
         //this.setSpriteType(spirteComp);
-        CompositeFactory.addGraphicTo( this , IDLE_LEFT);
+        CompositeFactory.addGraphicTo( this , IDLE_LEFT, false);
         
         // COLLIDER COMPOSITE
         // Making many custom events for player contexts

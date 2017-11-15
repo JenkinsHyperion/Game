@@ -31,6 +31,7 @@ import physics.*;
 import physics.CollisionEngine.ColliderGroup;
 import physics.Vector;
 import sprites.Background;
+import sprites.ParticleEmitter;
 import sprites.RenderingEngine;
 import sprites.Sprite;
 import sprites.Sprite.Stillframe;
@@ -274,13 +275,33 @@ public class TestBoard extends BoardAbstract{
         follow = new Follow(player);
         currentFollowerAI = follow;
         //player.setGravity(gravity);
+        
+        EntityStatic lampCover = new EntityStatic("LampCover",0,-218);
+        lampCover.addGraphicTo(new Sprite.Stillframe("Prototypes/lampCover01.png",Sprite.CENTERED), true );
+        lampCover.addAngularComposite();
+        this.currentScene.addEntity(lampCover);
+        
+        ParticleEmitter emitter = new ParticleEmitter(0, -212);
+        emitter.addAngularComposite();
+        this.currentScene.addEntity(emitter);
+        
+        EntityStatic lamp = new EntityStatic("Lamp",0,0);
+        lamp.addGraphicTo(new Sprite.Stillframe("Prototypes/lamp01.png",Sprite.CENTERED_BOTTOM), true );
+        lamp.addAngularComposite();
+        this.currentScene.addEntity(lamp);
 
+        CompositeFactory.makeChildOfParent(lampCover, lamp, this, CompositeFactory.ROTATIONAL_CHILD);
+        CompositeFactory.makeChildOfParent(emitter, lamp, this, CompositeFactory.ROTATIONAL_CHILD);
 
         
+        //lamp.debugListChildren();
+        asteroid.plantEntityOnSurface(lamp, -30);
+        
+        lamp.getAngularComposite().debugPrintRotateables();
         
         //Matt's follower test
         EntityStatic insect = new EntityStatic(0,0);
-        insect.addGraphicTo(new Sprite.Stillframe("box.png"));
+        insect.addGraphicTo(new Sprite.Stillframe("box.png"),false);
         insect.addTranslationTo();
         CompositeFactory.addScriptTo(insect, new EntityBehaviorScript.PatrolBetween( insect, 
         		player.getPositionReference(),
@@ -289,7 +310,9 @@ public class TestBoard extends BoardAbstract{
         		));
         addEntityToCurrentScene(insect); 
         
-         
+        
+
+        
 
 		currentScene.addBackgroundSprite(7, new Sprite.Stillframe("Prototypes/starscape.png",Sprite.CENTERED) , 0 , 0);
 		currentScene.addBackgroundSprite(4, new Sprite.Stillframe("Prototypes/starcloud03.png",Sprite.CENTERED) , 0 , 0);

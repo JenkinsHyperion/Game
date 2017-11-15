@@ -59,6 +59,15 @@ public class PlantSegment extends EntityStatic{
 		this.board = board;
 		this.maxGrowth = maxGrowth;
 		//this.organism = organism;
+		
+		CompositeFactory.addScriptTo(this, new EntityBehaviorScript(){
+
+			@Override
+			protected void updateOwnerEntity(EntityStatic entity) {		
+				PlantSegment.this.updateSegment();
+			}
+		});
+		
 	}
 
 	protected void setPreviousStem(StemSegment previous){ this.previousSegment = previous; }
@@ -70,7 +79,8 @@ public class PlantSegment extends EntityStatic{
 		}
 	}
 	
-	
+	public void updateSegment(){}
+
 	/*###################################################################################################################################
 	 * 		ACTIVATE
 	 */
@@ -552,7 +562,7 @@ public class PlantSegment extends EntityStatic{
 		
 				AngularComposite angularComposite = this.addAngularComposite();
 				
-				CompositeFactory.addAnonymousGraphicTo(this, new GraphicComposite.Active(this){
+				CompositeFactory.addAnonymousGraphicTo(this, new GraphicComposite.Rotateable(this){
 					@Override
 					public void draw(ReferenceFrame camera) {
 						//camera.getGraphics().setColor(Color.CYAN);
@@ -578,12 +588,14 @@ public class PlantSegment extends EntityStatic{
 						this.getColliderComposite().deactivateCollider();
 					}
 				}
+				
+				this.name = "stem";
 			}
 			
 			public void debugMakeWaterSource(){
 				this.currentGrowthState = new DebugSeedGrowing();
 				this.currentWaterTransportState = new DebugWaterSource();
-				this.addGraphicTo(twigSmallSprite);
+				this.addGraphicTo(twigSmallSprite,true);
 			}
 
 			public void debugSetSugarLevel( int level ){
@@ -599,8 +611,7 @@ public class PlantSegment extends EntityStatic{
 
 			
 			@Override
-			public void updateEntity() {
-				super.updateEntity();
+			public void updateSegment() {
 		
 				this.currentGrowthState.run(); 
 				
@@ -978,8 +989,10 @@ public class PlantSegment extends EntityStatic{
 							randAngle,
 							board);
 
+					newLeaf.name = "leaf";
+					
 					offshoots.add(newLeaf);
-					spawnConnectAndParentOffshoots(newLeaf);
+					spawnConnectAndParentOffshoots(newLeaf,sproutStem);
 					//
 					
 					if ( percentChance(10) && LeafStem.this.getMaxGrowth() >50  ){
@@ -1022,7 +1035,7 @@ public class PlantSegment extends EntityStatic{
 			super(x, y, maxGrowth, board);
 			this.name = "Leaf";
 			
-			CompositeFactory.addGraphicTo(this, leafSprite );
+			CompositeFactory.addGraphicTo(this, leafSprite, false );
 			this.getGraphicComposite().setGraphicSizeFactor(0);
 			
 			this.getGraphicComposite().setGraphicAngle(angleOffStem);
@@ -1032,8 +1045,7 @@ public class PlantSegment extends EntityStatic{
 		}
 		
 		@Override
-		public void updateEntity() {
-			super.updateEntity();
+		public void updateSegment() {
 			
 			this.currentGrowthState.run();
 			
@@ -1090,7 +1102,7 @@ public class PlantSegment extends EntityStatic{
 
 		private void init(){
 			
-			CompositeFactory.addAnonymousGraphicTo(this, new GraphicComposite.Active(this){
+			CompositeFactory.addAnonymousGraphicTo(this, new GraphicComposite.Rotateable(this){
 				@Override
 				public void draw(ReferenceFrame camera) {
 					//camera.getGraphics().setColor(Color.CYAN);
@@ -1122,8 +1134,7 @@ public class PlantSegment extends EntityStatic{
 		}
 		
 		@Override
-		public void updateEntity() {
-			super.updateEntity();
+		public void updateSegment() {
 	
 			this.currentGrowthState.run(); 
 		}

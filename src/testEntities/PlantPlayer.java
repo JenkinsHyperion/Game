@@ -86,7 +86,7 @@ public class PlantPlayer extends Player {
 		this.board = board;
     	controllers = new ControllerManager();
     	controllers.initSDLGamepad();
-		this.addGraphicTo( playerSprite );
+		this.addGraphicTo( playerSprite , true);
 		
 		Boundary boundary = new BoundarySingular( new Event() );
 		Boundary boundary2 = new BoundaryCircular( 40 , new Event() );

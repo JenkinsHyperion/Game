@@ -5,7 +5,6 @@ import java.awt.Point;
 import java.awt.geom.Point2D;
 
 import engine.MovingCamera;
-import entities.EntityRotationalDynamic;
 import misc.CollisionEvent;
 import physics.Boundary;
 import physics.BoundaryPolygonal;
@@ -105,11 +104,11 @@ public final class ColliderNull extends Collider{
 	public void debugDrawBoundary(MovingCamera camera , Graphics2D g){
 		System.err.println("Warning: Attempted to draw Boundary of NonCollidable ");
 	}
-
+	/*
 	@Override	
 	public void applyPointMomentum( Vector momentum , Point2D point ){
 		System.err.println("Warning: Attempted to apply Point Momentum on NonCollidable ");
-	}
+	}*/
 	@Deprecated
 	public void applyPointForce( Vector force , Point2D point ){
 		System.err.println("Warning: Attempted to apply Point Force on NonCollidable ");

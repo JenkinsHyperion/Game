@@ -31,8 +31,8 @@ public class Entity {
     protected int entityType;
     
 	public Entity(int x, int y){
-    	setX(x);
-    	setY(y);	
+    	this.x = x;
+    	this.y = y;	
     	position.setLocation(x,y);
     	
     	name = "blank entity" + count;
@@ -56,19 +56,9 @@ public class Entity {
         return (int)y;
     }
     
-    public void setX(int setx) {
-        x = setx;
-        position.setLocation(setx,position.getY());
-    }
-    
     public void setX(double setx) {
         x = setx;
         position.setLocation(setx,position.getY());
-    }
-
-    public void setY(int sety) {
-        y = sety;
-        position.setLocation(position.getX(),sety);
     }
     
     public void setY(double sety) {
@@ -86,7 +76,12 @@ public class Entity {
         position.setLocation(x,position.getY());
         position.setLocation(position.getX(),y);
     }
-    
+    public void setPos( int x, int y){
+    	this.x =  x;
+    	this.y =  y;
+        position.setLocation(x,position.getY());
+        position.setLocation(position.getX(),y);
+    }
     public void setPos( double x, double y){
     	this.x =  x;
     	this.y =  y;
@@ -189,4 +184,5 @@ public class Entity {
     public Point getPositionReference(){
     	return this.position;
     }
+
 }

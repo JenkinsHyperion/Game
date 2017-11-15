@@ -1274,8 +1274,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					// vvv from the boundary scaling. Won't work as is.
 					//   selectedVertices.scaleVertices(initClickPoint, editorMousePos, currentSelectedEntity.getPosition());
 					double tempDistance = -(camera.getRelativeX(initClickPoint.getX()) - editorMousePos.getX());
-					double width = getSingleSelectedEntity().getGraphicComposite().getSprite().getBufferedImage().getWidth();
-					double height = getSingleSelectedEntity().getGraphicComposite().getSprite().getBufferedImage().getHeight();
+					double width = getSingleSelectedEntity().getGraphicComposite().getSprite().getWidth();
+					double height = getSingleSelectedEntity().getGraphicComposite().getSprite().getHeight();
 					double hyp = Math.sqrt( (width*width/4) + (height*height/4));
 
 
@@ -1756,7 +1756,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 //			replacementSprite.setOffset(replacementSprite.getBufferedImage().getWidth() - (replacementSprite.getBufferedImage().getWidth() / 2), 
 //										replacementSprite.getBufferedImage().getHeight() - (replacementSprite.getBufferedImage().getHeight() / 2));
 			//replacementSprite.setOffset(replacementSprite.getBufferedImage().getWidth() / 2, replacementSprite.getBufferedImage().getHeight() / 2);
-			replacementSprite.setOffset(-(replacementSprite.getBufferedImage().getWidth() / 2), -(replacementSprite.getBufferedImage().getHeight() / 2));
+			replacementSprite.setOffset(-(replacementSprite.getWidth() / 2), -(replacementSprite.getHeight() / 2));
 			this.currentSelectedEntity.getGraphicComposite().setSprite(replacementSprite);
 		}
 		public void setSpritePath(String newPath) {
@@ -2149,8 +2149,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					//double tempDistance = camera.getRelativePoint(initClickPoint).distance(editorMousePos);
 					double tempDistance = -(camera.getRelativeX(initClickPoint.getX()) - editorMousePos.getX());
 					dragDistance = tempDistance; //not an important field
-					double width = getCurrentEntity().getGraphicComposite().getSprite().getBufferedImage().getWidth();
-					double height = getCurrentEntity().getGraphicComposite().getSprite().getBufferedImage().getHeight();
+					double width = getCurrentEntity().getGraphicComposite().getSprite().getWidth();
+					double height = getCurrentEntity().getGraphicComposite().getSprite().getHeight();
 					double hyp = Math.sqrt( (width*width/4) + (height*height/4));
 					
 					
@@ -3065,7 +3065,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			//section to create custom collision group
 			board.collisionEngine.createColliderGroup("test");
 			EntityStatic asteroid2 = new EntityStatic(camera.getLocalX(editorMousePos.x) , camera.getLocalY(editorMousePos.y));
-			CompositeFactory.addGraphicTo(asteroid2, Sprite.Stillframe.missingSprite);
+			CompositeFactory.addGraphicTo(asteroid2, Sprite.Stillframe.missingSprite, false);
 			Boundary bounds1 = new BoundaryCircular(40);
 			CompositeFactory.addAngularComposite(asteroid2);
 			CompositeFactory.addTranslationTo(asteroid2);

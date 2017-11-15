@@ -5,6 +5,7 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 import physics.Vector;
+import sun.awt.image.ImageWatched.Link;
 /**This composite gives an entity an angle, represented by Double: angleDegrees, and Vector: orientationVector 
  * 
  * @author Jenkins
@@ -24,14 +25,28 @@ public abstract class AngularComposite implements EntityComposite {
 
 	public abstract double getAngleInDegrees();
 	public abstract double getAngleInRadians();
+	/**
+	 * Sets angle of owner entity, and notifies its graphics composite, if any, of the angle change. 
+	 * <p>NOTE: If the graphics composite is {@link GraphicComposite.Rotateable}, this method will notify it and set the graphic angle.
+	 * If this is the case, make sure nothing is calling {@link GraphicComposite}.setAngle(angle)
+	 * @param angle
+	 */
 	public abstract void setAngleInDegrees( double angle);
+	/**
+	 * Sets angle of owner entity, and notifies its graphics composite, if any, of the angle change. 
+	 * <p>NOTE: If the graphics composite is {@link GraphicComposite.Rotateable}, this method will notify it and set the graphic angle.
+	 * If this is the case, make sure nothing is calling {@link GraphicComposite}.setAngle(angle)
+	 * @param angle
+	 */
 	public abstract void setAngleInRadians( double angle);
-	public abstract void notifyAngleChange( double angle );
+	protected abstract void notifyAngleChange( double angle );
 	public abstract Point getRotationalRelativePositionOf( Point absolutePosition);
 	public abstract Point getRotationalAbsolutePositionOf( Point relativePosition);
 	public abstract Point getRotationalAbsolutePositionOf( Point2D relativePosition);
 	public abstract Vector getOrientationVector();
 
+	public abstract void debugPrintRotateables();
+	
 	@Override
 	public String toString() {
 		return this.getClass().getSimpleName();
@@ -61,7 +76,7 @@ public abstract class AngularComposite implements EntityComposite {
 		}
 		
 		private void updateOrientationVector( double angleRadians ){
-			this.orientation = new Vector( Math.cos(angleRadians) , Math.sin(angleRadians) );
+			this.orientation.set(Math.cos(angleRadians) , Math.sin(angleRadians) );
 		}
 
 		private void setAngleOfRotateables( double angleRadians ){
@@ -81,50 +96,40 @@ public abstract class AngularComposite implements EntityComposite {
 			}
 		}
 		
-		private void setInternalAngle(double angle){ //composited method
-			double angleRadians = (angle * ((Math.PI)/180) ) ;
+		private void setInternalAngleInDegrees(double angle){ //internal set angle
 			
-			this.updateOrientationVector(angleRadians);
-			this.ownerEntity.getEntitySprite().setAngle(angle);
+			double angleRadians = Math.toRadians(angle) ;
 			
-			setAngleOfRotateables(angle);
+			this.updateOrientationVector(angleRadians); //calculates vector from this new angle
+			
+			ownerEntity.getGraphicComposite().notifyAngleChangeFromAngularComposite(angleRadians); //notify roatateable graphics of change
+			
+			this.angleDegrees = Math.toDegrees(angleRadians) ;
+			
+			setAngleOfRotateables(angle); //OPTIMIZATION make rotateable graphics implement rotateableCOmposite and put in this list
+											//instead of rapid calling do nothing functionality in notifyAngleChangeFromAngularComposite()
+		
 		}
-	
-		protected void addAngleInDegrees(double angle){
-			this.angleDegrees = (float) (this.angleDegrees + angle);
-			double angleRadians = (this.angleDegrees * ((Math.PI)/180) ) ;
-	
-			setInternalAngle( angleRadians + angle );
-		}
+
 	
 		public void addAngleInRadians(double addRadians){
 	
-			this.angleDegrees = angleDegrees + (float) (addRadians * (180/(Math.PI)) ) ;
+			this.angleDegrees = angleDegrees + Math.toDegrees(addRadians) ;
 			
-			this.setInternalAngle(angleDegrees);
+			this.setInternalAngleInDegrees(angleDegrees);
 			
 		}
 		@Override
 		public void setAngleInDegrees( double angle ){
-			this.angleDegrees = (float) angle;
-			double angleRadians = (angle * ((Math.PI)/180) ) ;
+			setInternalAngleInDegrees(angle);
 			
-			this.updateOrientationVector(angleRadians);
-			//this.owner.getEntitySprite().setAngle(angle);
-			//this.ownerEntity.getGraphicComposite().setGraphicAngle(angleRadians);
-			setAngleOfRotateables(angleDegrees);
 		}
 		@Override
 		public void setAngleInRadians( double angleRadians ){
 	
 			float angleDegrees = (float) (angleRadians * (180/(Math.PI)) ) ;
 			
-			this.angleDegrees = angleDegrees;
-			
-			this.updateOrientationVector(angleRadians);
-			//this.owner.getEntitySprite().setAngle(angleDegrees);
-			//this.ownerEntity.getGraphicComposite().setGraphicAngle(angleRadians);
-			setAngleOfRotateables(angleDegrees);
+			setInternalAngleInDegrees(angleDegrees);
 		}
 	
 		public void setAngleFromVector( Vector slope ){
@@ -211,6 +216,15 @@ public abstract class AngularComposite implements EntityComposite {
 		public String toString() {
 			return this.getClass().getSimpleName();
 		}
+		
+		@Override
+		public void debugPrintRotateables() {
+			System.out.println("ROTATEABLES OF "+this.ownerEntity+"{");
+			for ( RotateableComposite rotateable : rotateableCompositeList ){
+				System.out.println(rotateable);
+			}
+			System.out.println("}");
+		}
 	
 	}
 	
@@ -277,6 +291,11 @@ public abstract class AngularComposite implements EntityComposite {
 		@Override
 		public String toString() {
 			return this.getClass().getSimpleName();
+		}
+		
+		@Override
+		public void debugPrintRotateables() {
+			
 		}
 	}
 	

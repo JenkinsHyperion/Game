@@ -2,10 +2,12 @@ package engine;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.util.Observer;
 
@@ -33,7 +35,7 @@ public class ParallaxFrame implements ReferenceFrame{
 	public int getOriginY() { return y; }
 
 	@Override
-	public void drawOnCamera(GraphicComposite.Active sprite, AffineTransform entityTransform) {
+	public void drawOnCamera(GraphicComposite.Static sprite, AffineTransform entityTransform) {
 		
 		AffineTransform cameraTransform = new AffineTransform();
 		this.graphics.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -41,14 +43,32 @@ public class ParallaxFrame implements ReferenceFrame{
 		
 		cameraTransform.concatenate(entityTransform);
 		
-		//cameraTransform.translate(-this.x , -this.y );
+		BufferedImage[][] tiledImage= sprite.getSprite().getBufferedImage();
+		int tileSize = sprite.getSprite().getTileDimension();
+	
+		cameraTransform.translate(-tileSize, 0);
 		
-		this.graphics.drawImage(sprite.getSprite().getBufferedImage(), 
-				cameraTransform,
-				this.observer);
-		
+		for ( int i = 0 ; i < tiledImage.length ; ++i ){
+			
+			cameraTransform.translate(tileSize, 0);
+			
+			for ( int j = 0 ; j < tiledImage[i].length ; ++j ){
+
+				this.graphics.drawImage(tiledImage[i][j], 
+						cameraTransform,
+						this.observer);
+				cameraTransform.translate( 0 , tileSize);
+			}
+			
+			cameraTransform.translate( 0 , -3*tileSize);
+		}
 	}
 
+	@Override
+	public void draw(Image image, Point world_position, AffineTransform entityTransform, float alpha) {
+		//TODO
+	}
+	
 	@Override
 	public void debugDrawPolygon(Shape polygon, Color color, Point point, AffineTransform entityTransform, float alpha) {
 	}

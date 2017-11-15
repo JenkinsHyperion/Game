@@ -8,5 +8,5 @@ import entityComposites.GraphicComposite;
 
 public interface Graphic {
 
-	public void draw( ReferenceFrame camera,  GraphicComposite.Active composite);
+	public void draw( ReferenceFrame camera,  GraphicComposite.Static composite);
 }

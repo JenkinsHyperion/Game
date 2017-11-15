@@ -34,7 +34,7 @@ public class EntityStatic extends Entity{
 	private ListNodeTicket updaterSlot = nullTicket;
 	//COMPOSITE VARIABLES, LATER TO BE LIST OF COMPOSITES
 	protected TranslationComposite translationComposite = TranslationComposite.nullTranslationComposite();
-	protected DynamicRotationComposite rotationalComposite = new DynamicRotationComposite(this);
+	protected DynamicRotationComposite rotationalComposite = DynamicRotationComposite.nullSingleton();
 	protected GraphicComposite graphicsComposite = GraphicComposite.nullGraphicsComposite(); 
 	protected Collider colliderComposite = ColliderNull.nullColliderComposite();
 	protected AngularComposite angularComposite = AngularComposite.getFixedAngleSingleton();
@@ -180,7 +180,7 @@ public class EntityStatic extends Entity{
 	}
 	
 	
-	protected void addParentComposite( ParentComposite parentComposite ){
+	protected void setParentComposite( ParentComposite parentComposite ){
 		this.parentComposite = parentComposite;
 	}
 	
@@ -225,8 +225,8 @@ public class EntityStatic extends Entity{
 		return CompositeFactory.addDynamicRotationTo(this);
 	}
 	
-	public GraphicComposite addGraphicTo( Sprite sprite ){
-		return CompositeFactory.addGraphicTo(this,sprite);
+	public GraphicComposite addGraphicTo( Sprite sprite, boolean isRotateable ){
+		return CompositeFactory.addGraphicTo(this,sprite, isRotateable);
 	}
 	
 	public void addRigidbodyTo(){
@@ -283,9 +283,18 @@ public class EntityStatic extends Entity{
 	public void setCompositedPos( double x , double y ){
 		this.x = x;
 		this.y = y;
-		this.parentComposite.setCompositedPosition( x, y);
+		this.parentComposite.notifyPositionChange( x, y);
+	}
+	public void setCompositedPos( Point p ){
+		this.x = p.x;
+		this.y = p.y;
+		this.parentComposite.notifyPositionChange( x, y);
 	}
 	
+	/* #########################################################################################################################
+	 *		CONVENIENCE COMPOSITE METHODS
+	 * #########################################################################################################################
+	 */
 	
 	public double getDX(){
 		return this.translationComposite.getDX();
@@ -307,17 +316,91 @@ public class EntityStatic extends Entity{
 		);
 	}
 	
-	// ----------------
-	
-	
 	public Vector getOrientationVector(){
 		return this.angularComposite.getOrientationVector();
 	}
 	
+	/* #########################################################################################################################
+	 *		POSITION SETTING
+	 * #########################################################################################################################
+	 */
+
+    @Override
+    public void setX(double setx) {
+        x = setx;
+        position.setLocation(setx,position.getY());
+        
+        this.getParentComposite().notifyPositionChange(x, y);
+    }
+    @Override
+    public void setY(double sety) {
+        y = sety;
+        position.setLocation(position.getX(),sety);
+        
+        this.getParentComposite().notifyPositionChange(x, y);
+    }
+    @Override
+    public void setPos(Point p){
+    	x = (int) p.getX();
+    	y = (int) p.getY();
+    	position.setLocation(x,y);
+        
+        this.getParentComposite().notifyPositionChange(x, y);
+    }
+    @Override
+    public void setPos( int x, int y){
+    	this.x =  x;
+    	this.y =  y;
+    	position.setLocation(x,y);
+        
+        this.getParentComposite().notifyPositionChange(this.x, this.y);
+    }
+    @Override
+    public void setPos( double x, double y){
+    	this.x =  x;
+    	this.y =  y;
+        position.setLocation(x,y);
+        
+        this.getParentComposite().notifyPositionChange(x, y);
+    }
+    @Override
+	public void setPos(Point2D p) {
+		this.x =  p.getX();
+    	this.y =  p.getY();
+        position.setLocation(x,y);
+        
+        this.getParentComposite().notifyPositionChange(x, y);
+	}
+    
+    // BELOW ARE RAW POSITION SETTER METHODS THAT DO NOT NOTIFY CHILDREN
+    
+    /**Sets this entity's position and notifies any parent of change.
+     * @param p */
+    public void rawSetPosititon(Point p){
+    	this.x = p.getX();
+    	this.x = p.getY();
+    }
+    public void rawSetPosititon(Point2D p){
+    	this.x = p.getX();
+    	this.x = p.getY();
+    }
+    public void rawSetPosititon(double x, double y){
+    	this.x = x;
+    	this.x = y;
+    }
+    public void rawSetX(double x){ this.x = x; }
+    public void rawSetY(double y){ this.y = y; }
+    
+    
+	/* #########################################################################################################################
+	 *		GARBAGE METHODS
+	 * #########################################################################################################################
+	 */
+	
 	@Deprecated
     public void loadSprite(String path){ // needs handling if failed. Also needs to be moved out of object class into sprites
 
-		CompositeFactory.addGraphicTo( this , new Sprite.Stillframe( path ) );
+		CompositeFactory.addGraphicTo( this , new Sprite.Stillframe( path ), false );
     	
     }
 
@@ -338,37 +421,7 @@ public class EntityStatic extends Entity{
         //boundingBox = new Rectangle(x_offset, y_offset, width , height);
         //boundary = new BoundingBox(boundingBox);
     }
-    
-    //overloaded function to accept Rectangle that getBounds() will return.
-    /**
-     * 
-     * @param getBounds The rectangle that will be passed any time getBounds() is called [or maybe getBounds2D, gotta try it]
-     */
-    //public void setBoundingBox(Rectangle getBounds){
-    //	boundingBox = getBounds;
-    //	boundary = new BoundingBox(getBounds);
-    //}
-	
-	//public Rectangle getBoundingBox(){ //move position to override in dynamic entity since static doesnt need position calc.
-	//	return new Rectangle (getX() + boundingBox.x , getY() + boundingBox.y , boundingBox.width , boundingBox.height);
-	//}
 
-	//public Boundary getBoundaryLocal(){
-		
-	//	return ((Collidable)collisionType).getBoundary().atPosition((int)x,(int)y);
-	//}
-	
-	public Boundary getBoundary(){
-		
-	    return ((Collider)colliderComposite).getBoundary();
-	}
-
-	@Override
-	public void selfDestruct(){
-		setBoundingBox(0,0,0,0); // This is almost exclusively so the Collision Detector closes collisions with dead entities
-		alive = false;
-	}
-	
 	/* #################################################################################
 	 * 
 	 * 		EVENT METHODS - to be overriden in children classes
@@ -393,16 +446,8 @@ public class EntityStatic extends Entity{
 				this.getY() - entity.getY() 
 				);
 	}
-
-	public void move(Point distance) { //MAKE VECTOR LATER
-
-		x=x+(int)distance.getX();
-		y=y+(int)distance.getY();
-	}
 	
-	public boolean hasGraphics(){
-		return !( this.graphicsComposite instanceof GraphicComposite );
-	}
+	
 	
 	public void disable(){
 		System.out.println("DISABLING "+this);
@@ -426,6 +471,9 @@ public class EntityStatic extends Entity{
 	}
 	public EntityStatic[] getChildrenEntities(){
 		return this.parentComposite.getChildrenEntities();
+	}
+	public void debugListChildren(){
+		this.parentComposite.debugPrintChildren();
 	}
 	public boolean isChild(){
 		return this.childComposite.isChild();

@@ -68,6 +68,10 @@ public class Scene {
 
 		}
 		
+		if (entity.hasUpdateables()){	//if entity has any reference to miscellaneous updateables, add entity to updater
+			updateableEntity = true;
+		}
+		
 		if ( updateableEntity ){	//If any composite was updateable, add entitiy to updater thread
 			entity.addUpdateableEntityToUpdater(ownerBoard);
 		}
@@ -121,7 +125,7 @@ public class Scene {
 		
 		if ( entity.getGraphicComposite().exists() ){
 			
-			((GraphicComposite.Active) entity.getGraphicComposite()).addCompositeToRenderer( ownerBoard.renderingEngine );
+			((GraphicComposite.Static) entity.getGraphicComposite()).addCompositeToRenderer( ownerBoard.renderingEngine );
 			
 			System.out.println(I+"Graphics composite added to rendering engine");
 			
@@ -197,7 +201,7 @@ public class Scene {
 	public void addBackgroundSprite( int layer , Sprite sprite , int x, int y){ 
 		
 		EntityStatic testEntity = new EntityStatic(x,y);
-		CompositeFactory.addGraphicTo(testEntity, sprite);
+		CompositeFactory.addGraphicTo(testEntity, sprite, false);
 		EntityStatic newSpriteEntity = testEntity;
 		
 		addBackgroundSprite(layer,newSpriteEntity);

@@ -2,6 +2,7 @@ package engine;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
@@ -16,9 +17,11 @@ import sprites.Sprite;
 
 public interface ReferenceFrame {
 
-	public void drawOnCamera(GraphicComposite.Active sprite , AffineTransform entityTransform);
+	public void drawOnCamera(GraphicComposite.Static sprite , AffineTransform entityTransform);
 	public void drawString(String string , int world_x, int world_y);
 	public void debugDrawPolygon( Shape polygon, Color color, Point point , AffineTransform entityTransform, float alpha );
+	
+	public void draw(Image image , Point world_position	,AffineTransform entityTransform, float alpha );
 	
 	public int getOriginX();
 	public int getOriginY();

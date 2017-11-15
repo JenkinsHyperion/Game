@@ -25,7 +25,7 @@ public class Background extends Sprite{
 
 	private ArrayList<BufferedImage> tiles = new ArrayList<BufferedImage>();
 	
-	BufferedImage[][] tilesGrid;
+	BufferedImage[][] tiledImage;
 
     protected Image image;
     protected String filename;
@@ -47,7 +47,7 @@ public class Background extends Sprite{
 	private Background(String name){
 		super(0 , 0);
 		try {
-			splitBackground(name);
+			this.tiledImage = splitLoadImage(name);
 		} catch (IOException e) {
 			//TODO HANDLE WITH MISSING SPRITE
 			e.printStackTrace();
@@ -61,7 +61,7 @@ public class Background extends Sprite{
 		this.boardHeight = boardH;
 		
 		try {
-			splitBackground(name);
+			this.tiledImage = splitLoadImage(name);
 		} catch (IOException e) {
 			//TODO HANDLE WITH MISSING SPRITE
 			e.printStackTrace();
@@ -74,7 +74,7 @@ public class Background extends Sprite{
 		
 	}
 	@Override
-	public void draw( ReferenceFrame camera , GraphicComposite.Active composite ){ 
+	public void draw( ReferenceFrame camera , GraphicComposite.Static composite ){ 
 
 		int cameraPositionX = camera.getOriginX() + xOffset;
 		int cameraPositionY = camera.getOriginY() + yOffset;
@@ -97,7 +97,7 @@ public class Background extends Sprite{
 			
 				int indexY =  ( ( ( (cameraPositionY + (tileHeight*j) ) /tileHeight ) % 9 ) + 9 ) % 9 ;
 
-				camera.getGraphics().drawImage( tilesGrid[index][indexY], xPosition, yPosition, camera.getObserver() );
+				camera.getGraphics().drawImage( tiledImage[index][indexY], xPosition, yPosition, camera.getObserver() );
 			//change constant to variable camera halfwidth
 			// +200 is constant offset, the farthest left a tile will appear to go before modlulo shifts the indexes and it disappears  
 			// +(i*192) is the position of each consecutive tile, 192 is their width so the for loop draws them next to each other
@@ -111,11 +111,13 @@ public class Background extends Sprite{
 		xOffset = (int)(xOffset + xScroll);
 		yOffset = (int)(yOffset + yScroll);	
 	}
-	
-	private void splitBackground( String path ) throws IOException{
+	@Deprecated
+	private BufferedImage[][] splitLoadImage( String path ) throws IOException{
 		
 		System.out.print("Loading Background "+path);
 		File file = new File( System.getProperty("user.dir")+ File.separator + "Assets"+File.separator +path +" ");
+		
+		BufferedImage[][] returnGrid = new BufferedImage[9][9];;
 		
 		try {
 		
@@ -132,7 +134,6 @@ public class Background extends Sprite{
 		System.out.print(": "+horizontalTiles+" "+verticalTiles+" Tiles");
 		System.out.print(" of size "+tileWidth+" x "+tileHeight+"px ");
 		
-		tilesGrid = new BufferedImage[9][9];
 		
 			for ( int i = 0 ; i < 9 ; i++ ){
 				
@@ -153,17 +154,20 @@ public class Background extends Sprite{
 						    param.setSourceRegion(sourceRegion); // Set region
 			
 						    //tiles.add( reader.read(0, param) ); // Will read only the region specified
-						    tilesGrid[i][j] = reader.read(0, param);
+						    returnGrid[i][j] = reader.read(0, param);
 						    
 						    System.out.print(".");
 						}	
 				}		
 			}
+
 		} catch (IOException e) {
 			System.err.println("Failed to load" );
 			e.printStackTrace();
+			
 		} // File or input stream
 		System.out.println("Background Loaded");
+		return returnGrid;
 	}
 
 	@Override
@@ -173,7 +177,7 @@ public class Background extends Sprite{
 	}
 
 	@Override
-	public BufferedImage getBufferedImage() {
+	public BufferedImage[][] getBufferedImage() {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -14,6 +14,7 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import editing.worldGeom.*;
 import entities.EntityDynamic;
@@ -248,7 +249,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	 * @param entityTransform
 	 */
 	@Override
-	public void drawOnCamera(GraphicComposite.Active sprite , AffineTransform entityTransform){
+	public void drawOnCamera(GraphicComposite.Static sprite , AffineTransform entityTransform){
 		
 		AffineTransform cameraTransform = new AffineTransform();
 		this.gBoard.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -262,19 +263,31 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		cameraTransform.concatenate(entityTransform);
 		Composite compositeBuffer = this.gBoard.getComposite();
 		this.gBoard.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float)sprite.getSprite().getAlpha()));
-		this.gBoard.drawImage(sprite.getSprite().getBufferedImage(), 
-				cameraTransform,
-				this.observer);
+		
+		BufferedImage[][] tiledImage= sprite.getSprite().getBufferedImage();
+		int tileSize = sprite.getSprite().getTileDimension();
+	
+		cameraTransform.translate(-tileSize, 0);
+		
+		for ( int i = 0 ; i < tiledImage.length ; ++i ){
+			
+			cameraTransform.translate(tileSize, 0);
+			
+			for ( int j = 0 ; j < tiledImage[i].length ; ++j ){
+
+				this.gBoard.drawImage(tiledImage[i][j], 
+						cameraTransform,
+						this.observer);
+				cameraTransform.translate( 0 , tileSize);
+			}
+			
+			cameraTransform.translate( 0 , -3*tileSize);
+		}
+		
 		this.gBoard.setComposite(compositeBuffer);
 	}
 
-	public void draw(Image image , int worldX, int worldY ){
-		
-		this.gBoard.drawImage(image, 
-				getRelativeX(worldX) , 
-				getRelativeY(worldY) , 
-				this.observer);
-	}
+
 	@Override
 	public void debugDrawPolygon( Shape polygon, Color color, Point position , AffineTransform entityTransform, float alpha){ //OPTIMIZE 
 		
@@ -294,13 +307,27 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		g2Temp.dispose();
 	}
 
-	
-	public void draw(Image image , Point world_position ){
+	@Override
+	public void draw(Image image , Point world_position , AffineTransform entityTransform, float alpha ){
 		
-		this.gBoard.drawImage(image, 
-				getRelativeX(world_position.x) , 
-				getRelativeY(world_position.y) , 
+		AffineTransform cameraTransform = new AffineTransform();
+		Graphics2D g2Temp = (Graphics2D) this.gBoard.create();
+		g2Temp.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		
+		cameraTransform.translate( 
+				this.getRelativeX( world_position.x ) , 
+				this.getRelativeY( world_position.y ) );
+		
+		cameraTransform.concatenate(entityTransform);
+		
+		g2Temp.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+
+		g2Temp.drawImage(image, 
+				cameraTransform,
 				this.observer);
+
+		g2Temp.dispose();
+		
 	}
 	
 	/**

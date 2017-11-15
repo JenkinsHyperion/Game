@@ -42,7 +42,7 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
     }
 
     @Override
-    public void draw(ReferenceFrame camera , GraphicComposite.Active composite ){
+    public void draw(ReferenceFrame camera , GraphicComposite.Static composite ){
 
     	AffineTransform entityTransformation = new AffineTransform();
 
@@ -62,8 +62,8 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
     }
     
     @Override
-    public BufferedImage getBufferedImage() {
-    	return spriteAnimation.getAnimationFrame();
+    public BufferedImage[][] getBufferedImage() {
+    	return new BufferedImage[][]{{spriteAnimation.getAnimationFrame()}};
     }
 
     @Override

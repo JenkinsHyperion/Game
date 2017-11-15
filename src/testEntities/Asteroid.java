@@ -66,11 +66,11 @@ public class Asteroid extends EntityStatic{
 			grassSprite = grass01;
 		}
 
-		CompositeFactory.addGraphicTo(this, asteroidSprite );
+		CompositeFactory.addGraphicTo(this, asteroidSprite, false );
 
 		this.getGraphicComposite().setGraphicSizeFactor(0.334 * (radius/500.0));
         //CompositeFactory.addTranslationTo(asteroid);
-        CompositeFactory.addDynamicRotationTo(this);
+        //CompositeFactory.addDynamicRotationTo(this);
 
         Boundary bounds1 = new BoundaryCircular(radius);
         //CompositeFactory.addColliderTo(asteroid,  new BoundaryLinear( new Line2D.Double( 0 , 100 , 0, -100 ) ) );
@@ -120,6 +120,18 @@ public class Asteroid extends EntityStatic{
 		
 	}
 	
+	public void plantEntityOnSurface( EntityStatic entity, double angle ){
+		
+		Point position = new Point( 
+				(int)(radius*Math.cos(Math.toRadians(angle-90))) + this.getX(), 
+				(int)(radius*Math.sin(Math.toRadians(angle-90))) + this.getY()
+				);
+		
+		entity.setCompositedPos(position);
+		entity.getAngularComposite().setAngleInDegrees(angle);
+
+	}
+	
 	public void spawnPresetBush( double relativeAngle, double sizeFactor, int flag ){
 		
 		Sprite.Stillframe presetSprite;
@@ -145,7 +157,7 @@ public class Asteroid extends EntityStatic{
 		Point relativeSurface = new Point( (int)(radius*Math.cos(radians)), (int)(radius*Math.sin(radians)) );
 		
 		EntityStatic grassEntity = new EntityStatic( this.getAbsolutePositionOf(relativeSurface) );
-		grassEntity.addGraphicTo(sprite);
+		grassEntity.addGraphicTo(sprite,true);
 		
 		//grassEntity.getGraphicComposite().setGraphicAngle(radians);
 		grassEntity.addAngularComposite();

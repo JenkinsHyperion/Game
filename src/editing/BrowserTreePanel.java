@@ -205,7 +205,7 @@ public class BrowserTreePanel extends JPanel {
 	    			{
 		    			System.err.println("Success"); 		
 		    			//theEntity now has new graphicsComposite, so retreive it.
-		    			GraphicComposite newGraphicsComposite = CompositeFactory.addGraphicTo(theEntity, Sprite.missingSprite);
+		    			GraphicComposite newGraphicsComposite = CompositeFactory.addGraphicTo(theEntity, Sprite.missingSprite, false);
 		    			
 		    			BrowserTreePanel.this.board.notifyGraphicsAddition(newGraphicsComposite);
 		    			

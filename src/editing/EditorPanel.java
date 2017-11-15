@@ -1466,6 +1466,10 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		}
 		
 		public void addSelectedEntity(EntityStatic entity) {
+			if (entity == null) {
+				System.err.println("Null entity passed to this method.");
+				return;
+			}
 			selectedEntities.addSelectedEntity(entity);
 			setSelectedEntityNameLabel("Selected: " + entitySelectMode.selectedEntities.printSelectedEntitiesAsString());
 		}
@@ -3045,7 +3049,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		private JMenu addEntityMenu = new JMenu("New Entity");
 		private JMenuItem beeTest = new JMenuItem("bee");
 		private JMenuItem beeSwarm = new JMenuItem("swarm");
-		private JMenuItem deleteComposite = new JMenuItem("Delete");
+		private JMenuItem deleteEntityItem = new JMenuItem("Delete");
 		private JPopupMenu popUp = new JPopupMenu();
 		private NewEntityPopup() {
 			super();
@@ -3061,18 +3065,32 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					// add circular follower
-					createSwarm(20);
+					createSwarm(1000);
 				}
 			});
+			deleteEntityItem.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (getSelectedEntities().size() > 0)
+						deleteEntity(getSelectedEntities().get(0));
+				}
+				
+			});
 			addEntityMenu.setEnabled(true);
-		/*	deleteComposite.setEnabled(false);
-			deleteComposite.addActionListener(new DeleteCompositeEvent());
-			*/
+			checkIfDeleteShouldBeEnabled();
 			addEntityMenu.add(beeTest);
 			addEntityMenu.add(beeSwarm);
 			popUp.add(addEntityMenu);
-			popUp.add(deleteComposite);
+			popUp.add(deleteEntityItem);
 			
+		}
+		public void checkIfDeleteShouldBeEnabled() {
+			if (getSelectedEntities().size() == 1) {
+				deleteEntityItem.setEnabled(true);
+			}
+			else
+				deleteEntityItem.setEnabled(false);
 		}
 		public synchronized void createTestEntity(int x, int y) {
 			//section to create custom collision group
@@ -3084,11 +3102,10 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			Boundary bounds1 = new BoundaryCircular(10);
 			CompositeFactory.addAngularComposite(testEntity);
 			CompositeFactory.addTranslationTo(testEntity);
-			double randSpeed = ThreadLocalRandom.current().nextDouble(1.8 , 3.5);
+			double randSpeed = ThreadLocalRandom.current().nextDouble(1.5 , 5);
 			CompositeFactory.addScriptTo(testEntity, new EntityBehaviorScript.LinearFollowBehavior(testEntity, ((TestBoard)board).player, randSpeed));
 
 		//	asteroid2.addInitialColliderTo(bounds1);
-			
 	        CompositeFactory.addRotationalColliderTo(
 	        		testEntity, 
 	        		bounds1, 
@@ -3096,23 +3113,22 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	        		);
 	        
 			//CompositeFactory.addRigidbodyTo(asteroid2);
-			board.getCurrentScene().addEntity(testEntity, "SelfCollisionGroup");
-			//board.getCurrentScene().addEntity(testEntity);
+//			board.getCurrentScene().addEntity(testEntity, "SelfCollisionGroup");
+			board.getCurrentScene().addEntity(testEntity);
 			//((TestBoard)board).addFollowerToList(asteroid2);
 		}
 		public void createSwarm(int amount) {
 			Point clickedPoint = new Point(camera.getLocalX(editorMousePos.x) , camera.getLocalY(editorMousePos.y));
 			Thread task = new Thread(new Runnable() {
-				
 				@Override
 				public void run() {
 					// TODO Auto-generated method stub
-					for (int i = 0; i < amount; i++) {
-						int randomX = ThreadLocalRandom.current().nextInt(300);
-						int randomY = ThreadLocalRandom.current().nextInt(300);
+					for (int i = 0; i < amount/2; i++) {
+						int randomX = ThreadLocalRandom.current().nextInt(500);
+						int randomY = ThreadLocalRandom.current().nextInt(500);
 						createTestEntity(clickedPoint.x + randomX, clickedPoint.y + randomY);
 						/*try {
-							Thread.sleep(20);
+							Thread.sleep(5);
 						} catch (InterruptedException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -3121,8 +3137,11 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				}
 			});
 			task.start();
-			
-			
+		}
+		public void deleteEntity(EntityStatic entityToDelete) {
+			if (entityToDelete == null) { System.err.println("Cannot delete null entity"); return; 
+			}
+			entityToDelete.disable();
 		}
 		 /** Just an overridden method from JPopup. Ignore */
 		@Override

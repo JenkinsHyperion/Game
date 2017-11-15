@@ -453,12 +453,25 @@ public class EntityStatic extends Entity{
 		System.out.println("DISABLING "+this);
 		
 		this.graphicsComposite.disableComposite();
-		this.graphicsComposite = null;
 		
 		this.colliderComposite.disableComposite();
-		this.colliderComposite = null;		
 		
-		this.updaterSlot.removeSelfFromList();
+		this.translationComposite.disableComposite();
+		
+		this.colliderComposite.disableComposite();
+		
+		this.angularComposite.disableComposite(); 
+		
+		this.rigidbodyComposite.disableComposite();
+		//vvvv not sure if I should use this vvvvv
+/*		for ( EntityStatic child : this.parentComposite.getChildrenEntities() ){
+			child.nullifyTranslationComposite();
+		}*/
+		this.parentComposite.disableComposite();
+		this.childComposite.disableComposite();
+		
+		
+		removeUpdateableEntityToUpdater();
 		
 		this.ownerScene.removeEntity(this.sceneIndex);
 

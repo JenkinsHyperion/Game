@@ -223,6 +223,7 @@ public class TestBoard extends BoardAbstract{
 
         selfCollisionGroup = collisionEngine.<EntityStatic>createColliderGroup("SelfCollisionGroup");
         selfCollisionGroup.allowSelfCollision( CollisionDispatcher.DYNAMIC_DYNAMIC );
+        collisionEngine.addCustomCollisionsBetween(selfCollisionGroup, worldGeometryGroup, CollisionDispatcher.DYNAMIC_STATIC);
         
         collisionEngine.addCustomCollisionsBetween(playerGroup, worldGeometryGroup, new PlantPlayer.GroundCollision() );
         

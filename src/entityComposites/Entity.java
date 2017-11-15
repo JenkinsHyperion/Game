@@ -65,7 +65,7 @@ public class Entity {
         y = sety;
         position.setLocation(position.getX(),sety);
     }
-    
+    /** returns copy of position */
     public Point getPosition(){
     	return new Point( (int)x , (int)y );
     }

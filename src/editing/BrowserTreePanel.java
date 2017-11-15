@@ -654,18 +654,37 @@ public class BrowserTreePanel extends JPanel {
 			//this is still in raw Object format. Must be cast
 			if (currentNode == null) return;
 			Object objectInsideNode = currentNode.getUserObject();
-			if (objectInsideNode instanceof Entity) {
-				EntityStatic nodeIsEntity = (EntityStatic)objectInsideNode;
-				System.out.println("*** IS AN ENTITY ***");
-				/** TEST AREA **/
+			if (defaultModel.getRoot() == sceneRoot) {
+				if (objectInsideNode instanceof EntityStatic) {
+					EntityStatic nodeIsEntity = (EntityStatic)objectInsideNode;
+					System.out.println("*** IS AN ENTITY ***");
+					editorPanelRef.setMode(editorPanelRef.getEntitySelectMode());
+					editorPanelRef.selectSingleEntityGUIHouseKeeping();
+					//sets Board's current entity
+					editorPanelRef.getEntitySelectMode().addSelectedEntity(nodeIsEntity);
+				}
+			}
+			//else if (objectInsideNode instanceof EntityComposite) {
+			else  {//else condition: a composite root node is the active root.
+				//task: select entity, and also create composite editorpanel based on the given composite
+				EntityComposite nodeIsComposite = null;
+				EntityStatic entityFromNode = null;
+				if (objectInsideNode instanceof EntityComposite) {
+					//it's a composite: get composite's owner entity, then select it.
+					nodeIsComposite = (EntityComposite)objectInsideNode;
+					entityFromNode = nodeIsComposite.getOwnerEntity();
+				}
+				else if (objectInsideNode instanceof String) {
+					//the node that is the name of the entity is a string, I need it's first child. That will be the composite
+					DefaultMutableTreeNode nodeIwantToWorkWith = (DefaultMutableTreeNode)currentNode.getFirstChild();
+					nodeIsComposite = (EntityComposite)nodeIwantToWorkWith.getUserObject(); //will return EntityComposite type.
+					entityFromNode = nodeIsComposite.getOwnerEntity();
+				}
+				//sets Board's current entity
 				editorPanelRef.setMode(editorPanelRef.getEntitySelectMode());
 				editorPanelRef.selectSingleEntityGUIHouseKeeping();
-				//sets Board's current entity
-				editorPanelRef.getEntitySelectMode().addSelectedEntity(nodeIsEntity);
-			}
-			else if (objectInsideNode instanceof EntityComposite) {
-				EntityComposite nodeIsComposite = (EntityComposite)objectInsideNode;
-				System.out.println("*** IS A COMPOSITE ***");
+				editorPanelRef.getEntitySelectMode().addSelectedEntity(entityFromNode);
+				//set composite editor panel's composite
 				BrowserTreePanel.this.compositeEditorPanelRef.setCurrentComposite(nodeIsComposite);
 				BrowserTreePanel.this.compositeEditorPanelRef.runTemplate();
 				BrowserTreePanel.this.compositeEditorPanelRef.revalidate();

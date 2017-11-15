@@ -25,7 +25,7 @@ public class Rigidbody implements EntityComposite{
 	@Override
 	public void disableComposite() {
 		// TODO Auto-generated method stub
-		
+		System.err.println("RigidBody's disableComposite() not finished yet.");
 	}
 
 	@Override

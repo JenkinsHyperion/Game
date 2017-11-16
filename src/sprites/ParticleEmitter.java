@@ -19,8 +19,7 @@ public class ParticleEmitter extends EntityStatic{
 		super(x, y);
 		this.name = "emitter";
 		
-		this.particleCount = 5;
-		this.delay = 100;
+		this.particleCount = 4;
 		
 		initParticles();
 	}
@@ -30,10 +29,13 @@ public class ParticleEmitter extends EntityStatic{
 
 		//updateablesList.add(particles[0]);
 
+			delay = 100;
+		
 			particlesList = new ParticleNonEntity[particleCount];	
 			
 			final Sprite.Stillframe glow03 = new Sprite.Stillframe("ParticleFX/glowTest_03.png",Sprite.CENTERED);
-			
+			final Sprite.Stillframe lightray1 = new Sprite.Stillframe("ParticleFX/rayTest_01.png",Sprite.CENTERED_TOP);
+		
 			for( int i = 0 ; i < particlesList.length ; ++i ){
 				
 				particlesList[i] = new ParticleNonEntity( glow03, 0.05 , 0.8f , false);
@@ -76,7 +78,15 @@ public class ParticleEmitter extends EntityStatic{
 			CompositeFactory.addScriptTo(this, new FadeInAndOut() );
 		
 	}
-
+	
+	public void setState( boolean onOff ){ //TODO pause emitter script from clocking while off
+		if (onOff){
+			this.getGraphicComposite().activateGraphic();
+		}else{
+			this.getGraphicComposite().deactivateGraphic();
+		}
+	}
+	
 	private class FadeInAndOut extends EntityBehaviorScript{
 		
 		byte counter = 0;		//general counter int
@@ -110,6 +120,44 @@ public class ParticleEmitter extends EntityStatic{
 				++indexFadeOut;
 				counter = 0;
 			}
+		}
+	}
+	
+	private class RotatingParticles extends EntityBehaviorScript{
+		
+		short angleCounter = 0;	//   +/-  32,767
+		
+		byte indexFadeOut = 0;
+		
+		byte counter = 0;
+		
+		byte duriation = 3;
+		
+		@Override
+		protected void updateOwnerEntity(EntityStatic entity) {
+			
+			angleCounter += 20;
+			
+			for ( int i = 0 ; i < particlesList.length ; ++i){
+				short a = angleCounter;
+				a = (short)(a + (i*17000));
+				particlesList[i].angle =  Math.abs(a/300)/4f;
+			}
+			
+			if ( counter < delay ){		//counter loops from 0 to delay
+				
+				counter++;
+				
+				particlesList[(indexFadeOut+128)%particleCount].setAlpha(((float)delay-counter)/delay);
+					//decrememnt alpha on particle fading out
+				particlesList[(indexFadeOut+duriation+128)%particleCount].setAlpha((counter)/(float)delay);
+					//increment alpha on particle fading in
+			}else{
+				particlesList[(indexFadeOut+128)%particleCount].reset();
+				++indexFadeOut;
+				counter = 0;
+			}
+			
 		}
 	}
 	
@@ -157,7 +205,7 @@ public class ParticleEmitter extends EntityStatic{
 		double y;
 		double dx;
 		double dy;
-		int angle;
+		float angle;
 		float angularVelocity;
 		
 		double size=1.0;
@@ -209,7 +257,7 @@ public class ParticleEmitter extends EntityStatic{
 			this.size = size;
 		}
 		
-		protected int getAngle(){
+		protected float getAngle(){
 			return this.angle;
 		}
 		

@@ -3,6 +3,7 @@ package entityComposites;
 import engine.MovingCamera;
 import engine.ReferenceFrame;
 import sprites.*;
+import sprites.RenderingEngine.ActiveGraphic;
 import utility.ListNodeTicket;
 
 public abstract class GraphicComposite implements EntityComposite{
@@ -16,7 +17,7 @@ public abstract class GraphicComposite implements EntityComposite{
 	
 	public abstract void setGraphicSizeFactorX( double d );
 	public abstract void setGraphicSizeFactorY( double d );
-	
+
 	protected abstract void notifyAngleChangeFromAngularComposite( double angle);
 
 	public abstract void setGraphicAngle( double d );
@@ -24,6 +25,9 @@ public abstract class GraphicComposite implements EntityComposite{
 	public abstract double getGraphicsSizeX();
 	public abstract double getGraphicsSizeY();
 	public abstract double getGraphicAngle();
+	
+	public abstract void deactivateGraphic();
+	public abstract void activateGraphic();
 	
 	public static GraphicComposite.Null nullGraphicsComposite(){
 		return nullSingleton;
@@ -33,7 +37,7 @@ public abstract class GraphicComposite implements EntityComposite{
 		protected String compositeName;
 		EntityStatic ownerEntity;
 		protected Sprite currentSprite = Sprite.missingSprite;
-		private ListNodeTicket rendererSlot;
+		private RenderingEngine.ActiveGraphic rendererSlot;
 		
 		private double graphicSizePercentX = 1;
 		private double graphicSizePercentY = 1;
@@ -116,14 +120,24 @@ public abstract class GraphicComposite implements EntityComposite{
 		public void disableComposite() {
 			//more disabling 
 			System.out.println("Removing graphics from renderer");
-			rendererSlot.removeSelfFromList();
-			
+			rendererSlot.deactivateInRenderingEngine();
+			rendererSlot = null;
 			this.ownerEntity.nullifyGraphicsComposite();
 		}
 
 		@Override
 		public String toString() {
 			return this.compositeName;
+		}
+
+		@Override
+		public void deactivateGraphic() {
+			rendererSlot.deactivateInRenderingEngine();
+		}
+
+		@Override
+		public void activateGraphic() {
+			rendererSlot.activateInRenderingEngine();
 		}
 	}
 	
@@ -234,6 +248,17 @@ public abstract class GraphicComposite implements EntityComposite{
 		public String toString() {
 			//FIXME come back to later to decide if this should return the current string, or getClass().getSimpleName()
 			return this.compositeName;
+		}
+
+		@Override
+		public void deactivateGraphic() {
+			System.err.println("Warning: Attemping to deactivate null graphic composite");
+		}
+
+		@Override
+		public void activateGraphic() {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 	

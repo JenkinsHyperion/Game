@@ -287,8 +287,39 @@ public class TestBoard extends BoardAbstract{
         this.currentScene.addEntity(emitter);
         
         EntityStatic lamp = new EntityStatic("Lamp",0,0);
-        lamp.addGraphicTo(new Sprite.Stillframe("Prototypes/lamp01.png",Sprite.CENTERED_BOTTOM), true );
+        
+        Sprite.Stillframe lampOn = new Sprite.Stillframe("Prototypes/lamp01.png",Sprite.CENTERED_BOTTOM);
+        Sprite.Stillframe lampOff = new Sprite.Stillframe("Prototypes/lamp01_off.png",Sprite.CENTERED_BOTTOM);
+        
+        lamp.addGraphicTo( lampOn , true );
         lamp.addAngularComposite();
+        
+        CompositeFactory.addScriptTo(lamp, new EntityBehaviorScript(){ //TODO allow script to be added to updater after entity add
+
+			short offOnCounter = 0;
+			boolean isOn = true;
+			
+			@Override
+			protected void updateOwnerEntity(EntityStatic entity) {
+				
+				if ( offOnCounter < 200 ){
+					++offOnCounter;
+				}else{
+					if (isOn){
+						emitter.setState(false);
+						lamp.getGraphicComposite().setSprite(lampOff);
+						isOn = false;
+					}
+					else{
+						emitter.setState(true);
+						lamp.getGraphicComposite().setSprite(lampOn);
+						isOn = true;
+					}
+					offOnCounter = 0;
+				}
+			}
+		});
+        
         this.currentScene.addEntity(lamp);
 
         CompositeFactory.makeChildOfParent(lampCover, lamp, this, CompositeFactory.ROTATIONAL_CHILD);

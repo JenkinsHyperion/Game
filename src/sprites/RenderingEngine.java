@@ -25,7 +25,7 @@ public class RenderingEngine {
 
 	//private LinkedHead layer1Head;
 	
-	private DoubleLinkedList< GraphicComposite > spriteCompositeList = new DoubleLinkedList< GraphicComposite >();
+	private DoubleLinkedList< ActiveGraphic > activeSpriteCompositeList = new DoubleLinkedList< ActiveGraphic >();
 	
 	public RenderingLayer[] layersList;
 	
@@ -78,9 +78,9 @@ public class RenderingEngine {
 		
 		int spriteNumber = 0;
 		
-		while ( spriteCompositeList.hasNext() ){
-			GraphicComposite graphic = spriteCompositeList.get();
-			graphic.draw(camera);
+		while ( activeSpriteCompositeList.hasNext() ){
+			ActiveGraphic graphic = activeSpriteCompositeList.get();
+			graphic.composite.draw(camera);
 			spriteNumber++;
 		}
 		g2.setColor(Color.CYAN);
@@ -96,10 +96,12 @@ public class RenderingEngine {
 		
 	}
 	
-	public ListNodeTicket addGraphicsCompositeToRenderer( GraphicComposite sprite ){
+	public ActiveGraphic addGraphicsCompositeToRenderer( GraphicComposite sprite ){
 		
 		try{
-			return spriteCompositeList.add( sprite );
+			ActiveGraphic newActiveGraphic = new ActiveGraphic(sprite);
+			newActiveGraphic.listPosition = activeSpriteCompositeList.add(newActiveGraphic);
+			return newActiveGraphic;
 		}
 		
 		catch( ClassCastException exc ){
@@ -115,8 +117,8 @@ public class RenderingEngine {
 	
 	public void debugClearRenderer(){
 		
-		while ( spriteCompositeList.hasNext() ){
-			spriteCompositeList.remove();
+		while ( activeSpriteCompositeList.hasNext() ){
+			activeSpriteCompositeList.remove();
 		}
 		
 	}
@@ -164,5 +166,39 @@ public class RenderingEngine {
 		return graphics;
 	}
 
+	public class ActiveGraphic{
+		
+		protected GraphicComposite composite;
+		protected ListNodeTicket listPosition;
+		
+		protected ActiveGraphic( GraphicComposite composite ){
+			this.composite = composite;
+		}
+		
+		public void activateInRenderingEngine(){
+			if (listPosition == null){
+				listPosition = activeSpriteCompositeList.add(this);
+			}
+			else{	
+				System.err.println("Graphic is already active");
+			}
+		}
+		
+		public void deactivateInRenderingEngine(){
+			if (listPosition != null){
+				listPosition.removeSelfFromList();
+				listPosition = null;
+			}
+			else{
+				System.err.println("Graphic is already inactive");
+			}
+		}
+		
+		public void notifyRenderingEngineOfDisabledGraphic(){
+			composite = null;
+			listPosition.removeSelfFromList();
+			listPosition = null;
+		}
+	}
 	
 }

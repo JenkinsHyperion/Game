@@ -5,7 +5,6 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 import physics.Vector;
-import sun.awt.image.ImageWatched.Link;
 /**This composite gives an entity an angle, represented by Double: angleDegrees, and Vector: orientationVector 
  * 
  * @author Jenkins

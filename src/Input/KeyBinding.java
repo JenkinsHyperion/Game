@@ -2,27 +2,20 @@ package Input;
 
 import java.awt.event.KeyEvent;
 
-public class KeyBinding {
+public class KeyBinding extends InputBinding{
 	
-	protected int keyCode;
-
-	private int indexHeld;
-	private int indexListened;
-	
-	private Type type;
+	private KeyType type;
 	
 	private KeyCommand command;
 	
 	protected KeyBinding( int keyCode , KeyCommand command ){ 
-		
-		this.keyCode = keyCode; 
+		super(keyCode);
 		this.command = command;
 		type = new SingleKeyMatch();
 	}
 	
 	protected KeyBinding( int modCode , int keyCode , KeyCommand command ){
-		
-		this.keyCode = keyCode;
+		super(keyCode);
 		this.command = command;
 		type = new ModdedKeyMatch( modCode );
 		
@@ -41,34 +34,24 @@ public class KeyBinding {
 	}
 	
 	public int getKeyCode(){
-		return this.keyCode;
+		return this.inputCode;
 	}
 	
 	public boolean modMatch( KeyEvent e ){
 		return type.modCodeMatches( e ) ;
 	}
 
-	protected int getIndexHeld(){ return indexHeld; }
-	protected int getIndexListened(){ return indexListened; }
-	
-	protected void setIndexHeld( int i){ indexHeld = i; }
-	protected void setIndexListened( int i ){ indexListened = i; }
-	
-	protected void shiftHeldIndex(){ indexHeld-- ;}
-	protected void shiftListenedIndex(){ indexListened-- ;}
-	
-	
-	private abstract class Type{
+	protected abstract class KeyType{
 		protected abstract boolean keyCodeMatches( KeyEvent e );
 		protected abstract boolean modCodeMatches( KeyEvent e );
 		protected abstract int getModCode();
 	}
 
-	private class SingleKeyMatch extends Type{
+	private class SingleKeyMatch extends KeyType{
 		@Override
 		protected boolean keyCodeMatches( KeyEvent e ){ //class
 			
-			if ( e.getKeyCode() == keyCode )
+			if ( e.getKeyCode() == inputCode )
 				return true;
 			else
 				return false;
@@ -84,7 +67,7 @@ public class KeyBinding {
 		
 		@Override
 		public String toString() {
-			return "Key "+keyCode;
+			return "Key "+inputCode;
 		}
 		
 		@Override
@@ -94,7 +77,7 @@ public class KeyBinding {
 	
 	}
 	
-	private class ModdedKeyMatch extends Type{
+	private class ModdedKeyMatch extends KeyType{
 
 		private int modKeyCode;
 		
@@ -104,7 +87,7 @@ public class KeyBinding {
 		
 		protected boolean keyCodeMatches( KeyEvent e ){ //class
 
-				if ( e.getKeyCode() == keyCode )
+				if ( e.getKeyCode() == inputCode )
 					return true;
 				else
 					return false;
@@ -120,7 +103,7 @@ public class KeyBinding {
 		
 		@Override
 		public String toString() {
-			return modKeyCode +" + Key "+keyCode;
+			return modKeyCode +" + Key "+inputCode;
 		}
 		
 		@Override
@@ -133,6 +116,10 @@ public class KeyBinding {
 	@Override
 	public String toString() {
 		return this.type.toString();
+	}
+	
+	protected KeyCommand extractCommand(){
+		return this.command;
 	}
 	
 }

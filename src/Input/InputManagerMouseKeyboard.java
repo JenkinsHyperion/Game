@@ -2,28 +2,24 @@ package Input;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
-public class InputController implements KeyListener{
+public class InputManagerMouseKeyboard extends InputManager implements KeyListener{
 
-	private String name;
-	
 	ArrayList< KeyBinding > keysListening = new ArrayList<>();
 	ArrayList< KeyBinding > keysHeld = new ArrayList<>();
 	
 	private ArrayList< MouseBinding > mouseListening = new ArrayList<>();
 	private ArrayList< MouseBinding > mouseHeld = new ArrayList<>();
-	
-	private InputController(){
-	}
-	
+
 	/**
 	 * 
 	 */
-	public InputController( String name){
+	public InputManagerMouseKeyboard( String name){
 		this.name = name;
 	}
 	
@@ -124,7 +120,7 @@ public class InputController implements KeyListener{
 			mouseBinding = null;
 		}
 	}
-	
+
 	private void releaseKey( KeyBinding key ){
 		key.setIndexListened( keysListening.size() ); 
 		keysListening.add( key );
@@ -163,7 +159,7 @@ public class InputController implements KeyListener{
 				
 				for ( int j = 0 ; j < keysListening.size() ; j++ ){ 
 					KeyBinding listened = keysListening.get(j);
-					if ( listened.getModCode() == e.getModifiers() && listened.keyCode == held.keyCode ){
+					if ( listened.getModCode() == e.getModifiers() && listened.inputCode == held.inputCode ){
 						
 						pressKey(listened);
 						
@@ -290,7 +286,7 @@ public class InputController implements KeyListener{
 			mouseHeld.get(i).mouseDragged();
 		}
 	}
-	
+	@Override
 	public void runHeld(){
 		
 		for ( int i = 0 ; i < keysHeld.size() ; i++ ){
@@ -321,6 +317,7 @@ public class InputController implements KeyListener{
 	}
 	
 	//CORE FUNCTIONALITY
+
 	
 	private void removeFromListening( KeyBinding key ){
 		keysListening.remove( key.getIndexListened() );
@@ -357,7 +354,7 @@ public class InputController implements KeyListener{
 		}
 		
 	}
-	
+	@Override
     public void debugPrintInputList( int x, int y ,Graphics g){
     	
     	g.setColor(Color.GRAY);
@@ -391,6 +388,56 @@ public class InputController implements KeyListener{
 	public void keyTyped(KeyEvent e) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	protected KeyCommand extractKeyCommandFromKeyboardManager ( int keyCode ){
+		return extractKeyCommandFromKeyboardManager( 0 , keyCode );
+	}
+	
+	protected KeyCommand extractKeyCommandFromKeyboardManager( int modCode, int keyCode ){
+		
+		for ( KeyBinding key : keysListening ){
+			if ( key.getKeyCode() == keyCode && key.getModCode() == modCode ){
+				return key.extractCommand();
+			}
+		}
+		
+		throw new RuntimeException("InputManagerMouseKeyboard: Could not find registered binding for "+
+				KeyEvent.getKeyModifiersText(modCode) +" + "+
+				KeyEvent.getKeyText(keyCode)
+				);
+	}
+	
+	protected KeyCommand[] extractDirectionalKeyCommands(){	//Extracts and returns arrow direction events to be transferred to another input manager, namly a controller
+		
+		KeyCommand[] directionalCommands = new KeyCommand[4];	//LEFT, RIGHT, UP, DOWN
+
+		int count = 0;
+		
+		for ( KeyBinding key : keysListening ){
+			if ( key.getCode() == KeyEvent.VK_LEFT ){
+				directionalCommands[0] = key.extractCommand();
+				++count;
+			}
+			else if ( key.getCode() == KeyEvent.VK_RIGHT ){
+				directionalCommands[1] = key.extractCommand();
+				++count;
+			}
+			else if ( key.getCode() == KeyEvent.VK_UP ){
+				directionalCommands[2] = key.extractCommand();
+				++count;
+			}
+			else if ( key.getCode() == KeyEvent.VK_DOWN ){
+				directionalCommands[3] = key.extractCommand();
+				++count;
+			}
+		}
+		
+		if ( count == 4 )
+			return directionalCommands;
+		else{
+			throw new RuntimeException("InputManagerMouseAndKeyboard: Failed to extract directional commands, ensure they have all been registered");
+		}
 	}
 	
 	

@@ -15,7 +15,7 @@ import java.awt.geom.AffineTransform;
 import javax.swing.JFrame;
 import javax.swing.event.MouseInputAdapter;
 
-import Input.InputController;
+import Input.InputManagerMouseKeyboard;
 import Input.KeyBinding;
 import Input.KeyCommand;
 import Input.MouseCommand;
@@ -43,7 +43,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 	FollowerAI currentFollowerAI = followerSleep;
 	private Force gravity;
 	
-	private InputController inputController = new InputController("Main editor controller");
+	private InputManagerMouseKeyboard inputController = new InputManagerMouseKeyboard("Main editor controller");
 	
 	public BoardPhysicsTesting( int width, int height, JFrame frame) {
 		super(width,height,frame);

@@ -297,7 +297,7 @@ public class Board extends BoardAbstract {
 
 		@Override
 		public void mousePressed(MouseEvent e) {
-			player.inputController.mousePressed(e);
+			player.mouseAndKeyInputManager.mousePressed(e);
 			editorPanel.mousePressed(e);
 			// editorPanel.getWorldGeom().mousePressed(e);
 		}
@@ -316,7 +316,7 @@ public class Board extends BoardAbstract {
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			player.inputController.mouseReleased(e);
+			player.mouseAndKeyInputManager.mouseReleased(e);
 			editorPanel.mouseReleased(e);
 			// editorPanel.getWorldGeom().mouseReleased(e);
 		}
@@ -327,13 +327,13 @@ public class Board extends BoardAbstract {
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		player.inputController.keyReleased(e);
+		player.mouseAndKeyInputManager.keyReleased(e);
 		editorPanel.keyReleased(e);
 	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		player.inputController.keyPressed(e);
+		player.mouseAndKeyInputManager.keyPressed(e);
 		editorPanel.keyPressed(e);
 		int key = e.getKeyCode();
 
@@ -405,7 +405,7 @@ public class Board extends BoardAbstract {
 
 			g2.setColor(Color.CYAN);
 
-			player.inputController.debugPrintInputList(5, 105, g2);
+			player.inputManager.debugPrintInputList(5, 105, g2);
 			// collisionEngine.debugPrintCollisionList(5, 105, g2);
 
 			player.getColliderComposite().getBoundary().debugDrawBoundary(camera, g2, player);

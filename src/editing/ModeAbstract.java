@@ -9,7 +9,7 @@ import Input.*;
 import editing.worldGeom.MouseMovedKeyState;
 
 public abstract class ModeAbstract {
-	protected InputController inputController;
+	protected InputManagerMouseKeyboard inputController;
 	protected MouseMovedKeyState mouseMovedKeyState;
 	protected MouseCommand cameraPanMode;
 	protected String modeName = "unnamedMode";

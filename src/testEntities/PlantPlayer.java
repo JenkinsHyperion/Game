@@ -13,7 +13,12 @@ import javax.swing.text.ChangedCharSetException;
 import com.studiohartman.jamepad.ControllerManager;
 import com.studiohartman.jamepad.ControllerState;
 
-
+import Input.AnalogStickBinding;
+import Input.ControllerButtonBinding;
+import Input.ControllerEvent;
+import Input.InputManager;
+import Input.InputManagerController;
+import Input.InputManagerMouseKeyboard;
 import Input.KeyCommand;
 import engine.BoardAbstract;
 import engine.MovingCamera;
@@ -77,15 +82,17 @@ public class PlantPlayer extends Player {
 
 	private InventoryItem currentHeldItem = new NothingHeld();
 	
-	public ControllerManager controllers;
+	//public ControllerManager controllers;
 
 	public PlantPlayer(int x, int y, TestBoard board ) {
 		super(x, y);
 		
+		mouseAndKeyInputManager = new InputManagerMouseKeyboard("Player controller");
+		
 		this.camera = board.getCamera();
 		this.board = board;
-    	controllers = new ControllerManager();
-    	controllers.initSDLGamepad();
+    	//controllers = new ControllerManager();
+    	//controllers.initSDLGamepad();
 		this.addGraphicTo( playerSprite , true);
 		
 		Boundary boundary = new BoundarySingular( new Event() );
@@ -100,7 +107,7 @@ public class PlantPlayer extends Player {
 		this.movementForce = this.getTranslationComposite().addForce( new Vector(0,0) );
 		
 		
-		this.inputController.createKeyBinding(KeyEvent.VK_E, new KeyCommand(){	//ACTION EVENT KEY
+		mouseAndKeyInputManager.createKeyBinding(KeyEvent.VK_E, new KeyCommand(){	//ACTION EVENT KEY
 			
 			@Override
 			public void onPressed() {
@@ -108,7 +115,7 @@ public class PlantPlayer extends Player {
 			}
 		});
 		
-		this.inputController.createKeyBinding(KeyEvent.VK_LEFT, new KeyCommand(){
+		mouseAndKeyInputManager.createKeyBinding(KeyEvent.VK_LEFT, new KeyCommand(){
 			@Override
 			public void onPressed() {
 				currentState.onLeft();
@@ -126,7 +133,7 @@ public class PlantPlayer extends Player {
 			}
 		});
 		
-		this.inputController.createKeyBinding(KeyEvent.VK_RIGHT, new KeyCommand(){
+		mouseAndKeyInputManager.createKeyBinding(KeyEvent.VK_RIGHT, new KeyCommand(){
 			@Override
 			public void onPressed() {
 				currentState.onRight();
@@ -143,7 +150,7 @@ public class PlantPlayer extends Player {
 			}
 		});
 		
-		this.inputController.createKeyBinding(KeyEvent.VK_SPACE, new KeyCommand(){
+		mouseAndKeyInputManager.createKeyBinding(KeyEvent.VK_SPACE, new KeyCommand(){
 			@Override
 			public void onPressed() {
 				currentState.onJump();
@@ -158,7 +165,7 @@ public class PlantPlayer extends Player {
 			}
 		});
 		
-		this.inputController.createKeyBinding(KeyEvent.VK_UP, new KeyCommand(){
+		mouseAndKeyInputManager.createKeyBinding(KeyEvent.VK_UP, new KeyCommand(){
 			@Override
 			public void onPressed() {
 				currentState.onUp();
@@ -175,7 +182,7 @@ public class PlantPlayer extends Player {
 			}
 		});
 		
-		this.inputController.createKeyBinding(KeyEvent.VK_DOWN, new KeyCommand(){
+		mouseAndKeyInputManager.createKeyBinding(KeyEvent.VK_DOWN, new KeyCommand(){
 			@Override
 			public void onPressed() {
 				currentState.onDown();
@@ -199,7 +206,8 @@ public class PlantPlayer extends Player {
 				changeState(falling);
 			}
 		});
-		Thread testControllerThread = new Thread(new Runnable() {
+		
+		/*Thread testControllerThread = new Thread(new Runnable() {
 
 			ControllerState currState;
 			ControllerState oldState =  controllers.getState(0);
@@ -237,8 +245,25 @@ public class PlantPlayer extends Player {
     		}
 
     	});
-    	testControllerThread.start();
+    	testControllerThread.start();*/
+
+		this.controllerInputManager = new InputManagerController();
+		
+		controllerInputManager.mapKeyboardDirectionalBindingsToControllerDpad(mouseAndKeyInputManager);
+		
+		controllerInputManager.mapKeyboardBindingToControllerButton( mouseAndKeyInputManager, ControllerEvent.VC_A, KeyEvent.VK_SPACE );
+		controllerInputManager.mapKeyboardBindingToControllerButton( mouseAndKeyInputManager, ControllerEvent.VC_B, KeyEvent.VK_E );
     	
+		controllerInputManager.createLeftAnalogStickEvent( new AnalogStickBinding(){
+			@Override
+			public void onMoved(float stickAngle, float stickMagnitude) { currentState.leftStickMoved(stickAngle, stickMagnitude); }
+			@Override
+			public void onTilted(float stickAngle, float stickMagnitude) {currentState.leftStickMoved(stickAngle, stickMagnitude); }
+			@Override
+			public void onReturned() { currentState.leftStickReturned(); }
+		});
+		
+    	this.inputManager = controllerInputManager;
     	
     	givePlayerItem( new Fruit01() );
 	}
@@ -265,6 +290,8 @@ public class PlantPlayer extends Player {
 		this.currentState.debugDraw(cam, g2);
 		
 		this.currentInteractionContext.drawReadout(cam, g2);
+		
+		this.inputManager.debugPrintInputList(200, 200, g2);
 	}
 	
 	public void debugCollisions( MovingCamera cam , Graphics2D g2 ){
@@ -449,7 +476,7 @@ public class PlantPlayer extends Player {
 		this.currentState.onLeavingState();
 		this.currentState = state;
 		state.onChange();
-		this.inputController.runHeld();
+		this.inputManager.runHeld();
 	}
 	
 	private abstract class State implements Runnable{
@@ -473,9 +500,12 @@ public class PlantPlayer extends Player {
 		public void holdingJump() {}
 		public void offJump(){}
 		
+		public void leftStickMoved( float angle , float magnitude ){}
+		public void leftStickTilted( float angle , float magnitude ){}
+		public void leftStickReturned(){}
+		
 		public void debugDraw( MovingCamera cam , Graphics2D g2){
 			
-
 		}
 	}
 	
@@ -688,10 +718,18 @@ public class PlantPlayer extends Player {
 		public void onDown() { currentInteractionContext = new DropContext(); }
 		@Override
 		public void offDown() { resetContext(); }
+
+		@Override
+		public void leftStickMoved(float angle, float magnitude) {
+			
+			if ( angle > -90 && angle < 90 ){
+				onRight();
+			}
+			else{
+				onLeft();
+			}
+		}
 		
-		@Override public void offLeft(){};
-		@Override public void offRight(){};
-		@Override public void offJump(){};
 	}
 	
 	private class FallingState extends State{
@@ -801,6 +839,20 @@ public class PlantPlayer extends Player {
 			currentMovementState = accelerating;
 			hasFriction = 0;
 		};
+		
+		@Override
+		public void leftStickTilted(float angle, float magnitude) {
+			
+			
+		}
+		
+		@Override
+		public void leftStickReturned() {
+			offLeft();
+			offRight();
+			offUp();
+			offDown();
+		}
 		
 		//############# CAMERA LOOK UP AND DOWN METHODS ####################
 		@Override

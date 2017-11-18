@@ -12,7 +12,7 @@ import javax.swing.event.*;
 import com.studiohartman.jamepad.ControllerManager;
 import com.studiohartman.jamepad.ControllerState;
 
-import Input.InputController;
+import Input.InputManagerMouseKeyboard;
 import Input.KeyCommand;
 import Input.MouseCommand;
 import editing.EditorPanel;
@@ -51,8 +51,6 @@ public class TestBoard extends BoardAbstract{
 	MouseHandlerClass myMouseHandler;
 	ArrayList<EntityDynamic> followerEntityList = new ArrayList<>();
 	
-	private InputController boardInput = new InputController("Test Board Input");
-
 	private MovingCamera.FollowTargetAroundPoint cameraRotationBehavior;
 	
     public PlantPlayer player;
@@ -269,7 +267,7 @@ public class TestBoard extends BoardAbstract{
         
         player = new PlantPlayer(30,-100,this);
         CompositeFactory.addRigidbodyTo(player);
-        this.addInputController(player.inputController); //add player input controller to board
+        this.addInputController(player.inputManager); //add player input controller to board
         this.currentScene.addEntity(player,"Player");
         
 

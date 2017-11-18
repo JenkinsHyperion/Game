@@ -6,6 +6,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 
+import Input.InputManagerMouseKeyboard;
 import Input.KeyCommand;
 import Input.MouseCommand;
 
@@ -142,14 +143,16 @@ public class PlayerCharacter extends Player {
 		eventList = null;
 		
 		// PLAYER INPUT 
-		this.inputController.createKeyBinding( KeyEvent.VK_W , new UpKey() );
-		this.inputController.createKeyBinding( KeyEvent.VK_A , new LeftKey() ) ;
-		this.inputController.createKeyBinding( KeyEvent.VK_S , new DownKey() ) ;
-		this.inputController.createKeyBinding( KeyEvent.VK_D , new RightKey()) ;
-		this.inputController.createKeyBinding( KeyEvent.VK_SPACE , new JumpKey() ) ;
-		this.inputController.createKeyBinding( KeyEvent.VK_SHIFT , new ModKey() ) ;
+		mouseAndKeyInputManager = new InputManagerMouseKeyboard("playerChar mouse/keyboard");
 		
-		this.inputController.createMouseBinding(MouseEvent.ALT_MASK , MouseEvent.BUTTON1, new ClickTest() );
+		mouseAndKeyInputManager.createKeyBinding( KeyEvent.VK_W , new UpKey() );
+		mouseAndKeyInputManager.createKeyBinding( KeyEvent.VK_A , new LeftKey() ) ;
+		mouseAndKeyInputManager.createKeyBinding( KeyEvent.VK_S , new DownKey() ) ;
+		mouseAndKeyInputManager.createKeyBinding( KeyEvent.VK_D , new RightKey()) ;
+		mouseAndKeyInputManager.createKeyBinding( KeyEvent.VK_SPACE , new JumpKey() ) ;
+		mouseAndKeyInputManager.createKeyBinding( KeyEvent.VK_SHIFT , new ModKey() ) ;
+		
+		mouseAndKeyInputManager.createMouseBinding(MouseEvent.ALT_MASK , MouseEvent.BUTTON1, new ClickTest() );
 		
 		// ADD FORCES // TO BE MOVED TO EXTERNAL BOARD AND OR FEILDS
 		this.gravity = this.translation.addForce( new Vector( 0 , 0.2 ) );
@@ -182,7 +185,7 @@ public class PlayerCharacter extends Player {
 		
 		//inputController.runReleased();
 
-		inputController.runHeld();
+		inputManager.runHeld();
 		
 		playerState.onEnteringState();
   	

@@ -18,7 +18,12 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import Input.InputController;
+import com.studiohartman.jamepad.ControllerManager;
+import com.studiohartman.jamepad.ControllerState;
+
+import Input.ControllerListener;
+import Input.InputManager;
+import Input.InputManagerMouseKeyboard;
 import Input.KeyCommand;
 import editing.EditorPanel;
 import entityComposites.Collider;
@@ -200,8 +205,47 @@ public abstract class BoardAbstract extends JPanel implements KeyListener, Mouse
 		this.mainFrame = frame;
 	}
 	
-	protected void addInputController( InputController inputController ){
-		mainFrame.addKeyListener(inputController);
+	protected void addInputController( InputManager inputController ){
+		
+		if ( inputController instanceof KeyListener ){
+			mainFrame.addKeyListener((KeyListener) inputController);
+		}
+		else if ( inputController instanceof ControllerListener){	//INPUT CONTROLLER TO BE ADDED IS CONTROLLER INPUT
+			
+			Thread testControllerThread = new Thread(new Runnable() {
+	
+				ControllerListener inputManagerController = (ControllerListener) inputController;
+				
+				ControllerManager controllers;
+				
+				ControllerState currentState;
+				ControllerState oldState;
+				
+	    		@Override
+	    		public void run() {
+	    			
+					controllers = new ControllerManager();
+			    	controllers.initSDLGamepad();
+			    	
+			    	oldState =  controllers.getState(0);
+	    			
+	    			while(true) {	//CONTROLLER LOOP IN THIS THREAD
+
+	    				currentState = controllers.getState(0);
+	    				
+	    				if( !inputManagerController.controllerIsConnected(currentState) ) {
+	    					break;
+	    				}
+	    				
+	    				inputManagerController.getControllerEvents(currentState,oldState);
+
+	    				oldState = currentState;
+	    			}
+	    		}
+	
+	    	});
+			testControllerThread.start();
+		}
 	}
 
 	protected void activeRenderingDraw(){ 
@@ -212,13 +256,13 @@ public abstract class BoardAbstract extends JPanel implements KeyListener, Mouse
 		
 	}
 	
-	protected InputController getUnpausedInputController(){
+	protected InputManagerMouseKeyboard getUnpausedInputController(){
 		return this.updatingState.inputController;
 	}
-	protected InputController getPausedInputController(){
+	protected InputManagerMouseKeyboard getPausedInputController(){
 		return this.pausedState.inputController;
 	}
-	protected InputController getCurrentBoardInputController(){
+	protected InputManagerMouseKeyboard getCurrentBoardInputController(){
 		return this.currentState.inputController;
 	}
 	
@@ -371,15 +415,15 @@ public abstract class BoardAbstract extends JPanel implements KeyListener, Mouse
 	
 	private class EntityUpdater{
 		protected boolean isPaused;
-		protected InputController inputController;
+		protected InputManagerMouseKeyboard inputController;
 		
-		protected EntityUpdater( InputController inputController ){
+		protected EntityUpdater( InputManagerMouseKeyboard inputController ){
 			this.inputController = inputController;
 		}
 		
 		protected EntityUpdater(){
 			isPaused = false;
-			inputController = new InputController( "Abstract Board Updating Input Controller" ); 
+			inputController = new InputManagerMouseKeyboard( "Abstract Board Updating Input Controller" ); 
 			
 			inputController.createKeyBinding( 192 , new KeyCommand(){ // 192 is grave accent / tilde key 
 		    	
@@ -433,7 +477,7 @@ public abstract class BoardAbstract extends JPanel implements KeyListener, Mouse
 	private class InactiveEntityUpdater extends EntityUpdater{
 		
 		protected InactiveEntityUpdater(){
-			super( new InputController("Board Abstract Pauced Input Controller") );
+			super( new InputManagerMouseKeyboard("Board Abstract Pauced Input Controller") );
 			
 			inputController.createKeyBinding(KeyEvent.VK_PAUSE, new KeyCommand(){
 		    	public void onPressed(){

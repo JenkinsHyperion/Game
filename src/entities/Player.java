@@ -1,7 +1,9 @@
 package entities;
 
 
-import Input.InputController;
+import Input.InputManager;
+import Input.InputManagerController;
+import Input.InputManagerMouseKeyboard;
 
 //import javax.swing.Action;
 //import javax.swing.Timer;
@@ -11,6 +13,10 @@ import entityComposites.EntityStatic;
 
 public class Player extends EntityStatic {
 	
+    public InputManager inputManager; //TODO restrict access
+    public InputManagerMouseKeyboard mouseAndKeyInputManager;
+    public InputManagerController controllerInputManager;
+
     public Player(int x, int y) {
         super(x, y);
 
@@ -21,10 +27,6 @@ public class Player extends EntityStatic {
     private void initPlayer() {
         
     }
-
-    //INPUT CONTROL
-    
-    public InputController inputController = new InputController("Player controller");
 
     public String toString() {
 		return String.format(name);

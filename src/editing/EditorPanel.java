@@ -62,7 +62,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import Input.InputController;
+import Input.InputManagerMouseKeyboard;
 import Input.KeyCommand;
 import Input.MouseCommand;
 import editing.worldGeom.EditorVertex;
@@ -104,7 +104,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	private SpriteEditorMode spriteEditorMode;
 	private BoundaryEditorMode boundaryEditorMode;
 	private ModeAbstract editorMode;
-	private InputController inputController;
+	private InputManagerMouseKeyboard inputController;
 	/*@Deprecated
 	public static final int DEFAULT_MODE = 0;
 	public static final int ENTPLACEMENT_MODE = 1;
@@ -198,7 +198,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		this.camera = board.getCamera();
 		oldMousePanPos = new Point();
 		oldCameraPos = new Point();
-		inputController = new InputController("Main panel controller");
+		inputController = new InputManagerMouseKeyboard("Main panel controller");
 		inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new OpenNewEntityPopup());
 		inputController.createKeyBinding(KeyEvent.VK_F5, new KeyCommand() {
 			@Override
@@ -1024,7 +1024,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		public class DefaultMode extends ModeAbstract {
 			public DefaultMode() {
 				modeName = "EntitySelectMode";
-				this.inputController = new InputController("Default mode (Entity select) controller");
+				this.inputController = new InputManagerMouseKeyboard("Default mode (Entity select) controller");
 				
 				this.inputController.createMouseBinding(MouseEvent.BUTTON1, new EntitySelectLClickEvent());
 				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new TranslateEvent());
@@ -1077,7 +1077,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				this.modeName = "RotateMode";
 				this.vector = new Vector(0, 0);
 				//ctrlHeld = false;
-				this.inputController = new InputController("Rotate mode controller");	
+				this.inputController = new InputManagerMouseKeyboard("Rotate mode controller");	
 				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new RotateEvent());
 				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new DegreeLockRotateEvent());
 				this.inputController.createKeyBinding(KeyEvent.VK_D, new SetDefaultMode());
@@ -1228,7 +1228,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			public ScaleMode() {
 				modeName = "ScaleMode";
 				sizeFactorRef = 0.0;
-				this.inputController = new InputController("Scale mode controller");
+				this.inputController = new InputManagerMouseKeyboard("Scale mode controller");
 				
 				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new ScaleEvent());
 				this.inputController.createKeyBinding(KeyEvent.VK_R, new SetRotateMode());
@@ -1639,7 +1639,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	public class EntityPlaceMode extends ModeAbstract {
 		public EntityPlaceMode() {
 			modeName = "EntityPlaceMode";
-			inputController = new InputController("Entity place mode controller");
+			inputController = new InputManagerMouseKeyboard("Entity place mode controller");
 			this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());			
 		}
 		
@@ -1711,7 +1711,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			spriteRotateMode = new SpriteRotateMode();
 			spriteScaleMode = new SpriteScaleMode();
 			spriteEditorSubMode = defaultSpriteEditorMode;
-			this.inputController = new InputController("Sprite editor mode controller");
+			this.inputController = new InputManagerMouseKeyboard("Sprite editor mode controller");
 		}
 
 		@Override
@@ -1806,7 +1806,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				modeName = "DefaultSpriteEditorMode";
 				//spriteInitialPosition = new Point();
 				spriteOriginalOffset = new Point();
-				inputController = new InputController("Default sprite editor mode controller");
+				inputController = new InputManagerMouseKeyboard("Default sprite editor mode controller");
 				this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());			
 				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new TranslateOffsetEvent());
 				this.inputController.createKeyBinding(KeyEvent.VK_R, new SetRotateMode());
@@ -1929,7 +1929,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				this.modeName = "SpriteRotateMode";
 				this.vector = new Vector(0, 0);
 				//ctrlHeld = false;
-				this.inputController = new InputController("Rotate mode controller");	
+				this.inputController = new InputManagerMouseKeyboard("Rotate mode controller");	
 				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new RotateEvent());
 				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new DegreeLockRotateEvent());
 				this.inputController.createKeyBinding(KeyEvent.VK_D, new SetDefaultMode());
@@ -2094,7 +2094,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				this.modeName = "SpriteScaleMode";
 				this.vector = new Vector(0, 0);
 				//ctrlHeld = false;
-				this.inputController = new InputController("Scale mode controller");	
+				this.inputController = new InputManagerMouseKeyboard("Scale mode controller");	
 				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new ScaleEvent());
 				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new ScaleIncrementEvent());
 				this.inputController.createKeyBinding(KeyEvent.VK_D, new SetDefaultMode());
@@ -2491,7 +2491,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				selectionRectangle = new SelectionRectangle(Color.BLUE, Color.cyan, camera, initClickPoint);
 				selectionRectangleState = nullSelectionRectangle;
 				
-				inputController = new InputController("Boundary vertex select mode controller");
+				inputController = new InputManagerMouseKeyboard("Boundary vertex select mode controller");
 				
 			}
 			// Running polymorphic input commands
@@ -2606,7 +2606,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 
 				public DefaultBoundarySubMode() {
 					this.modeName = "BoundaryVertexSelectDefaultMode";
-					inputController = new InputController("Boundary vertex select mode Default controller");
+					inputController = new InputManagerMouseKeyboard("Boundary vertex select mode Default controller");
 					this.inputController.createMouseBinding(MouseEvent.BUTTON1, new VertexSelectLClickEvent());
 					this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new CtrlVertexSelectLClickEvent());
 					this.inputController.createMouseBinding(MouseEvent.BUTTON3, new TranslateEvent());
@@ -2753,7 +2753,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				
 				public ScaleBoundarySubMode() {
 					this.modeName = "Boundary Scale Mode";
-					inputController = new InputController("Boundary vertex select Scale controller");
+					inputController = new InputManagerMouseKeyboard("Boundary vertex select Scale controller");
 					this.inputController.createKeyBinding(KeyEvent.VK_D, new SetDefaultMode());
 					this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());
 					this.inputController.createMouseBinding(MouseEvent.BUTTON3, new ScaleEvent());
@@ -2983,7 +2983,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				nullTempRectBoundary = SelectionRectangleNull.getNullSelectionRectangle();
 				tempRectBoundary = new SelectionRectangle(Color.BLUE, Color.cyan, camera, initClickPoint);
 				tempRectBoundaryState = nullTempRectBoundary;
-				inputController = new InputController("Boundary vertex place mode controller");
+				inputController = new InputManagerMouseKeyboard("Boundary vertex place mode controller");
 				this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());			
 				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON1, new RectangleBoundDrawEvent());
 			}

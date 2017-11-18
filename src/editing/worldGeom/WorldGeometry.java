@@ -284,7 +284,7 @@ public class WorldGeometry extends ModeAbstract{
 			tempRectBoundary = new SelectionRectangle(Color.BLUE, Color.cyan, camera, initClickPoint);
 			tempRectBoundaryState = nullTempRectBoundary;
 			
-			inputController = new InputController("World geometry vertex place mode controller");
+			inputController = new InputManagerMouseKeyboard("World geometry vertex place mode controller");
 			mouseMovedKeyStateNull = new MouseMovedKeyStateNull();
 			mouseMovedXHeldEvent = new MouseMovedXHeldEvent();
 			mouseMovedYHeldEvent = new MouseMovedYHeldEvent();
@@ -501,7 +501,7 @@ public class WorldGeometry extends ModeAbstract{
 			selectionRectangle = new SelectionRectangle(Color.BLUE, Color.cyan, camera, initClickPoint);
 			selectionRectangleState = nullSelectionRectangle;
 
-			inputController = new InputController("World geometry vertex select mode controller");
+			inputController = new InputManagerMouseKeyboard("World geometry vertex select mode controller");
 			this.inputController.createMouseBinding(MouseEvent.BUTTON1, new VertexSelectLClickEvent());
 			this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new CtrlVertexSelectLClickEvent());
 			this.inputController.createMouseBinding(MouseEvent.BUTTON3, new TranslateEvent());

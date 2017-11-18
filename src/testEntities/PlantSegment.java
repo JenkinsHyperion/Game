@@ -905,6 +905,7 @@ public class PlantSegment extends EntityStatic{
 			super(x, y, maxGrowth, organism, board);
 
 			this.currentGrowthState = new LeafStemGrowingState() ;
+			this.name = "leafStem";
 		}
 
 		protected class LeafStemGrowingState implements Runnable{
@@ -974,7 +975,7 @@ public class PlantSegment extends EntityStatic{
 					sproutStem.getAngularComposite().setAngleInDegrees(thisSegmentAngle);
 
 					offshoots.add(sproutStem);
-					spawnConnectAndParentOffshoots(sproutStem);
+					//spawnConnectAndParentOffshoots(sproutStem);
 					
 					LeafStem.this.nextSegments = new PlantSegment[]{ sproutStem };
 					
@@ -992,7 +993,7 @@ public class PlantSegment extends EntityStatic{
 					newLeaf.name = "leaf";
 					
 					offshoots.add(newLeaf);
-					spawnConnectAndParentOffshoots(newLeaf,sproutStem);
+
 					//
 					
 					if ( percentChance(10) && LeafStem.this.getMaxGrowth() >50  ){
@@ -1011,6 +1012,8 @@ public class PlantSegment extends EntityStatic{
 					LeafStem.this.nextSegments = new PlantSegment[]{sproutStem};
 					
 					PlantSegment[] newShoots = offshoots.toArray(new PlantSegment[offshoots.size()]);
+					
+					spawnConnectAndParentOffshoots(newShoots);
 					
 					LeafStem.this.currentWaterTransportState = new ForkPushTransportState( newShoots ) ;
 					LeafStem.this.currentSugarTransportState = new StemSugarOverflowTransport( sproutStem ) ;

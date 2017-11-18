@@ -256,9 +256,9 @@ public class PlantPlayer extends Player {
     	
 		controllerInputManager.createLeftAnalogStickEvent( new AnalogStickBinding(){
 			@Override
-			public void onMoved(float stickAngle, float stickMagnitude) { currentState.leftStickMoved(stickAngle, stickMagnitude); }
+			public void onMoved(float angle, float stickX, float stickY, float stickMagnitude) { currentState.leftStickMoved(angle, stickX, stickY, stickMagnitude); }
 			@Override
-			public void onTilted(float stickAngle, float stickMagnitude) {currentState.leftStickMoved(stickAngle, stickMagnitude); }
+			public void onTilted(float angle,float stickX, float stickY, float stickMagnitude) {currentState.leftStickTilted(angle, stickX, stickY, stickMagnitude); }
 			@Override
 			public void onReturned() { currentState.leftStickReturned(); }
 		});
@@ -367,10 +367,8 @@ public class PlantPlayer extends Player {
 					
 					Axis[] axes = check.getAxisCollector().getSeparatingAxes(playerCollider, entityPrimary.getPosition(), playerCollider.getBoundary(), 
 							collider2, entitySecondary.getPosition(), collider2.getBoundary() );
-
-					clingVector = axes[0].getNearFeatureSecondary().getNormal().unitVector();
 					
-					segmentOnPlayer = player.climbing.addSegment( plantSegment , clingVector );
+					segmentOnPlayer = player.climbing.addSegment( plantSegment );
 					
 					if ( player.canStartClimb ){		
 						
@@ -500,8 +498,8 @@ public class PlantPlayer extends Player {
 		public void holdingJump() {}
 		public void offJump(){}
 		
-		public void leftStickMoved( float angle , float magnitude ){}
-		public void leftStickTilted( float angle , float magnitude ){}
+		public void leftStickMoved( float angle, float stickX, float stickY , float magnitude ){}
+		public void leftStickTilted( float angle, float stickX, float stickY, float magnitude ){}
 		public void leftStickReturned(){}
 		
 		public void debugDraw( MovingCamera cam , Graphics2D g2){
@@ -520,6 +518,8 @@ public class PlantPlayer extends Player {
 	
 	private class ClimbingState extends State{
 
+		private Vector inputVector = new Vector(0,0);
+		
 		private Force clingNormal;
 		private VelocityVector currentCling;
 		private VelocityVector climbVelocity;
@@ -536,6 +536,7 @@ public class PlantPlayer extends Player {
 		@Override
 		public void debugDraw(MovingCamera cam, Graphics2D g2) {
 			int i = 400;
+
 			/*while(stemsInRange.hasNext()){
 				PlantSegment stem = stemsInRange.get();
 				Vector absAngle = stem.getAngularComposite().getOrientationVector().normalLeft();
@@ -543,16 +544,17 @@ public class PlantPlayer extends Player {
 				g2.drawString("Stem "+ Vector.angleBetweenVectors(absAngle, gravity.toVector()) , 700, i);
 				i = i + 15;
 			}*/
-			leftStickInputVector.set( inputVectorDown.add(inputVectorLeft).add(inputVectorRight).add(inputVectorUp) );
+			//for ( PlantPlayer.this.getTranslationComposite().getVelocityVector() ){
+			//	g2.drawString("FUCKING VELOCITIES "+PlantPlayer.this.getTranslationComposite().debugNumberVelocities() , 400,400);
+			//}
+			inputVector.set( leftStickInputVector.add( inputVectorDown.add(inputVectorLeft).add(inputVectorRight).add(inputVectorUp) ) );
 			
-			g2.drawString("InputVector "+leftStickInputVector, 800, 400);
-			
-			cam.drawLineInWorld( leftStickInputVector.multiply(200).toLine( new Point(300,300) ) , g2);
+			cam.drawLineInWorld( inputVector.multiply(200).toLine( new Point(300,300) ) , g2);
 			
 			//g2.drawString(" Velocities "+getTranslationComposite().debugNumberVelocities()+" "+ currentCling.getVector().angleFromVector() , 700, 385);
 		}
 		
-		public ListNodeTicket addSegment( PlantSegment stem, Vector clingVector ){
+		public ListNodeTicket addSegment( PlantSegment stem ){
 
 			if ( stemsInRange.size() == 0 ){
 				currentStem = stem;
@@ -565,8 +567,8 @@ public class PlantPlayer extends Player {
 			
 			jumpVelocity = PlantPlayer.this.getTranslationComposite().getVelocityVector();
 			clingNormal = PlantPlayer.this.getTranslationComposite().registerNormalForce(translationComposite.getNetGravityVector().inverse());
-			currentCling = PlantPlayer.this.getTranslationComposite().registerVelocityVector( Vector.zeroVector );			
-			climbVelocity = PlantPlayer.this.getTranslationComposite().registerVelocityVector( Vector.zeroVector );
+			currentCling = PlantPlayer.this.getTranslationComposite().registerVelocityVector( new Vector(0,0) );			
+			climbVelocity = PlantPlayer.this.getTranslationComposite().registerVelocityVector( new Vector(0,0) );
 
 			PlantPlayer.this.getTranslationComposite().halt();
 		}
@@ -581,6 +583,7 @@ public class PlantPlayer extends Player {
 
 			currentCling.setVector( attachDirection.multiply(0.1) );
 			
+			climbVelocity.setVector( inputVector.multiply(2) );
 			//check to see if player has left current stem
 			
 			Point relativePlayerPosition = currentStem.getFullRelativePositionOf(PlantPlayer.this);
@@ -597,7 +600,7 @@ public class PlantPlayer extends Player {
 					if ( currentStem.nextSegments.length > 1 ){ //check for branches OPTIMIZE polymorph intoa  plantsegment method that takes playerVelocity as refernece
 						
 						//Vector absInputVector = inputVectorDown.add(inputVectorLeft).add(inputVectorRight).add(inputVectorUp);
-						Vector absInputVector = leftStickInputVector;
+						Vector absInputVector = inputVector;
 						
 						Vector forkCWDirection = currentStem.nextSegments[0].getOrientationVector().normalRight();
 						Vector forkCCWDirection = currentStem.nextSegments[1].getOrientationVector().normalRight();
@@ -628,8 +631,8 @@ public class PlantPlayer extends Player {
 		
 		@Override
 		public void onUp() {
-			climbVelocity.setVector( currentStem.getOrientationVector().normalRight().multiply(3) );
-			slidingGripPercent=100;
+			//climbVelocity.setVector( currentStem.getOrientationVector().normalRight().multiply(3) );
+			//slidingGripPercent=100;
 		}
 		@Override
 		public void holdingUp() {
@@ -637,7 +640,7 @@ public class PlantPlayer extends Player {
 		}
 		@Override
 		public void offUp() {
-			climbVelocity.setVector( Vector.zeroVector );
+			//climbVelocity.setVector( Vector.zeroVector );
 		}
 		@Override
 		public void onDown() {
@@ -674,12 +677,25 @@ public class PlantPlayer extends Player {
 		
 		@Override
 		public void onJump() {
+			
+			Vector gravity = translationComposite.getNetGravityVector();
+			
 			getTranslationComposite().addVelocity( 
-					translationComposite.getNetGravityVector().inverse().unitVector().multiply(5) .add(
-							translationComposite.getNetGravityVector().normalLeft().multiply(leftRight*10)
-							));
+					gravity.inverse().unitVector().multiply(5) .add(
+					inputVector.projectedOver(gravity.normalLeft()).multiply(2)
+					));
 			changeState(falling);
 			bufferState = movingState;
+		}
+		
+		@Override
+		public void leftStickTilted(float angle, float stickX, float stickY, float magnitude) {
+			leftStickInputVector = Vector.unitVectorFromAngle( PlantPlayer.this.getAngularComposite().getAngleInRadians() + Math.toRadians(-angle) ).multiply(magnitude);
+		}
+		
+		@Override
+		public void leftStickReturned() {
+			climbVelocity.setVector(0,0);
 		}
 
 	}
@@ -720,14 +736,33 @@ public class PlantPlayer extends Player {
 		public void offDown() { resetContext(); }
 
 		@Override
-		public void leftStickMoved(float angle, float magnitude) {
+		public void leftStickMoved(float angle, float stickX , float stickY, float magnitude) {
 			
-			if ( angle > -90 && angle < 90 ){
-				onRight();
+			if ( angle > -45 ){
+				if ( angle < 45 ){
+					onRight();
+				}
+				else if ( angle < 135 ){
+					onUp();
+				}
+				else{
+					onLeft();
+				}
 			}
 			else{
-				onLeft();
+				if ( angle > -135 ){
+					onDown();
+				}
+				else{
+					onLeft();
+				}
 			}
+		}
+		
+		@Override
+		public void leftStickReturned() {
+			offUp();
+			offDown();
 		}
 		
 	}
@@ -841,17 +876,35 @@ public class PlantPlayer extends Player {
 		};
 		
 		@Override
-		public void leftStickTilted(float angle, float magnitude) {
+		public void leftStickMoved(float angle, float stickX, float stickY, float magnitude) {
+			movementForce.setVector( new Vector(stickX, stickY).projectedOver(normal.toVector().normalLeft()));
+			currentMovementState = accelerating;
+			if ( stickX < 0 ){
+				leftRight = 1;
+			}
+			else{
+				leftRight = -1;
+			}
+		}
+		
+		@Override
+		public void leftStickTilted(float angle, float stickX, float stickY, float magnitude) {
 			
-			
+			//movementForce.setVector( new Vector(stickX, stickY).projectedOver(normal.toVector().normalLeft()));
+			//currentMovementState = accelerating;
+			if ( stickX < 0 ){
+				leftRight = 1;
+			}
+			else{
+				leftRight = -1;
+			}
 		}
 		
 		@Override
 		public void leftStickReturned() {
-			offLeft();
-			offRight();
-			offUp();
-			offDown();
+			movementForce.setVector(Vector.zeroVector);
+			currentMovementState = coasting;
+			hasFriction = 1;
 		}
 		
 		//############# CAMERA LOOK UP AND DOWN METHODS ####################

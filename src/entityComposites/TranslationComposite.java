@@ -329,6 +329,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 				accY=0;
 				
 				addedVectors = Vector.zeroVector; //stop added vectors from adding dx and dy also
+				
 			}
 		
 			public double getDX() {
@@ -897,6 +898,10 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		
 		public void setVector(Vector vector){
 			this.vector = vector;
+		}
+		
+		public void setVector(double x, double y){
+			this.vector.set(x, y);
 		}
 		
 		public void setX(double setdx) {

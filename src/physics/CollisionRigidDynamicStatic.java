@@ -281,7 +281,7 @@ public abstract class CollisionRigidDynamicStatic extends Collision.DefaultType 
 		collidingSecondary.onLeavingCollisionEvent();
 		
 		
-		transPrimary.removeNormalForce(normalForce);              //turn gravity back on
+		transPrimary.removeNormalForce(normalForce);              
 		//transPrimary.removeForce(frictionForce.getID());     //remove friction
 
 		completeCollision();

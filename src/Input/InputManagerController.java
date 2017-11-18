@@ -32,16 +32,16 @@ public class InputManagerController extends InputManager implements ControllerLi
 		
 	//ANALOG STICKS
 		//if ( currentState.leftStickMagnitude > LEFT_ANALOG_STICK_CUTOFF ){
-		
+
 		if ( leftAnalogStickListening.size() == 1 ){
 			if ( currentState.leftStickMagnitude > LEFT_ANALOG_STICK_CUTOFF ){
-				leftAnalogStickListening.get(0).onMoved(currentState.leftStickAngle, currentState.leftStickMagnitude);
+				leftAnalogStickListening.get(0).onMoved(currentState.leftStickAngle, currentState.leftStickX,currentState.leftStickY, currentState.leftStickMagnitude);
 				leftStickTilted();
 			}
 		}
 		if ( leftAnalogStickHeld.size() == 1 ){
 			leftAnalogStickHeld.get(0).updatePosition( currentState.leftStickAngle, currentState.leftStickMagnitude);
-			leftAnalogStickHeld.get(0).onTilted(currentState.leftStickAngle, currentState.leftStickMagnitude);
+			leftAnalogStickHeld.get(0).onTilted(currentState.leftStickAngle, currentState.leftStickX,currentState.leftStickY, currentState.leftStickMagnitude);
 			
 			if ( currentState.leftStickMagnitude < LEFT_ANALOG_STICK_CUTOFF ){
 				leftAnalogStickHeld.get(0).onReturned();
@@ -179,7 +179,8 @@ public class InputManagerController extends InputManager implements ControllerLi
     	
 
     	//g.drawString("Left Stick Angle: "+leftAnalogStickBinding.stickMagnitude+" "+leftAnalogStickBinding.stickAngle, x , y+15);
-    	g.drawString("Left Stick Angle: "+leftAnalogStickHeld.size(), x , y+15);
+    	if (leftAnalogStickHeld.size() == 1)
+    		g.drawString("Left Stick Angle: "+leftAnalogStickHeld.get(0).stickAngle, x , y+15);
     	
     	g.drawString("Held:                 Listening: ", x, y+15+15);
     	

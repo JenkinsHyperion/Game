@@ -14,8 +14,8 @@ public class AnalogStickBinding{
 		this.stickMagnitude = stickMagnitude;
 	}
 	
-	public void onMoved( float stickAngle, float stickMagnitude ){}
-	public void onTilted( float stickAngle, float stickMagnitude ){}
+	public void onMoved( float angle, float x, float y, float stickMagnitude ){} //Wrap into AnalogEvent with all these values
+	public void onTilted( float angle, float x, float y, float stickMagnitude ){}
 	public void onReturned(){}
 	
 	protected void cutoffToZero(){

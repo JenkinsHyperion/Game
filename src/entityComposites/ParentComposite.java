@@ -113,6 +113,7 @@ public abstract class ParentComposite implements EntityComposite {
 					return null;
 				}
 			}else{
+				System.err.println("ParentComposite: Couldn't accept "+newChild+" because it is already a child of something else");
 				return null;
 			}
 		}

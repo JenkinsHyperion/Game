@@ -315,12 +315,12 @@ public class Collider implements EntityComposite{
 		
 		System.out.println("Disabling Collider of ["+this.ownerEntity+"]");
 		
+		dropAllCollisions();
+		
 		this.engineSlot.notifyRemovedCollider();
 
 		this.engineSlot = null;
 		this.ownerEntity.nullifyColliderComposite();
-		
-		dropAllCollisions();
 		
 	}
 	

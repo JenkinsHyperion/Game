@@ -199,13 +199,14 @@ public class Scene {
 		ownerBoard.renderingEngine.layersList[layer].addGraphicToLayer(entity);
 	}
 	
-	public void addBackgroundSprite( int layer , Sprite sprite , int x, int y){ 
+	public EntityStatic createBackgroundSprite( int layer , Sprite sprite , int x, int y){ 
 		
-		EntityStatic testEntity = new EntityStatic(x,y);
-		CompositeFactory.addGraphicTo(testEntity, sprite, false);
-		EntityStatic newSpriteEntity = testEntity;
+		EntityStatic newSpriteEntity = new EntityStatic(x,y);
+		CompositeFactory.addGraphicTo(newSpriteEntity, sprite, false);
 		
 		addBackgroundSprite(layer,newSpriteEntity);
+		
+		return newSpriteEntity;
 	}
 	
 	public EntityStatic[] listEntities(){

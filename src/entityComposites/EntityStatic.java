@@ -93,7 +93,6 @@ public class EntityStatic extends Entity{
 			e.printStackTrace();
 		}
 		System.out.println("WAITED AND NOW REMOVING "+index+" size "+updateablesList.size());
-		updateablesList.remove(index);
 		for ( int i = index ; i < updateablesList.size() ; i++){
 			updateablesList.get(i).decrementIndex();
 		}
@@ -104,7 +103,7 @@ public class EntityStatic extends Entity{
 		this.updaterSlot = board.addEntityToUpdater(this);
 	}
 	
-	public void removeUpdateableEntityToUpdater(){
+	public void removeUpdateableEntityFromUpdater(){
 		this.updaterSlot.removeSelfFromList();
 		this.updaterSlot = nullTicket;
 	}
@@ -452,6 +451,8 @@ public class EntityStatic extends Entity{
 	public void disable(){
 		System.out.println("DISABLING "+this);
 		
+		removeUpdateableEntityFromUpdater();
+		
 		this.graphicsComposite.disableComposite();
 		
 		this.colliderComposite.disableComposite();
@@ -463,15 +464,20 @@ public class EntityStatic extends Entity{
 		this.angularComposite.disableComposite(); 
 		
 		this.rigidbodyComposite.disableComposite();
-		//vvvv not sure if I should use this vvvvv
-/*		for ( EntityStatic child : this.parentComposite.getChildrenEntities() ){
-			child.nullifyTranslationComposite();
-		}*/
+
+		ArrayList<UpdateableComposite> removals = new ArrayList<UpdateableComposite>();
+		
+		for ( UpdateableComposite comp : this.updateablesList){
+			removals.add(comp);
+		}
+		for ( UpdateableComposite remove : removals ){
+			remove.removeThisUpdateableComposite();
+		}
+		
 		this.parentComposite.disableComposite();
 		this.childComposite.disableComposite();
 		
-		
-		removeUpdateableEntityToUpdater();
+		this.updateablesList.clear();
 		
 		this.ownerScene.removeEntity(this.sceneIndex);
 

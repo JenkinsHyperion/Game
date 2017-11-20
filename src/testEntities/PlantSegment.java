@@ -60,7 +60,7 @@ public class PlantSegment extends EntityStatic{
 		this.maxGrowth = maxGrowth;
 		//this.organism = organism;
 		
-		CompositeFactory.addScriptTo(this, new EntityBehaviorScript(){
+		CompositeFactory.addScriptTo(this, new EntityBehaviorScript(this){
 
 			@Override
 			protected void updateOwnerEntity(EntityStatic entity) {		
@@ -1125,7 +1125,7 @@ public class PlantSegment extends EntityStatic{
 			
 			this.currentGrowthState = new FruitGrowingState( );
 
-			CompositeFactory.addScriptTo(this, new EntityBehaviorScript() {
+			CompositeFactory.addScriptTo(this, new EntityBehaviorScript(this) {
 				
 				@Override
 				protected void updateOwnerEntity(EntityStatic ownerEntity) {

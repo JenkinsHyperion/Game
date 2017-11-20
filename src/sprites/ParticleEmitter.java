@@ -75,7 +75,7 @@ public class ParticleEmitter extends EntityStatic{
 				}
 			});
 			
-			CompositeFactory.addScriptTo(this, new FadeInAndOut() );
+			CompositeFactory.addScriptTo(this, new FadeInAndOut(this) );
 		
 	}
 	
@@ -99,6 +99,10 @@ public class ParticleEmitter extends EntityStatic{
 		/*unsigned*/byte duriation = 3;	// number of cycles each particle lasts
 										// Should not be any multiples of particleCount, else fade in and fade out 
 										// will clash
+		
+		public FadeInAndOut(EntityStatic ownerEntity) {
+			super(ownerEntity);
+		}
 		
 		@Override
 		protected void updateOwnerEntity(EntityStatic ownerEntity) {
@@ -132,6 +136,10 @@ public class ParticleEmitter extends EntityStatic{
 		byte counter = 0;
 		
 		byte duriation = 3;
+		
+		public RotatingParticles(EntityStatic ownerEntity) {
+			super(ownerEntity);
+		}
 		
 		@Override
 		protected void updateOwnerEntity(EntityStatic entity) {
@@ -171,6 +179,10 @@ public class ParticleEmitter extends EntityStatic{
 		
 		double x = 0;
 		double y = 0;
+		
+		public ParticleTrail(EntityStatic ownerEntity) {
+			super(ownerEntity);
+		}
 		
 		@Override
 		protected void updateOwnerEntity(EntityStatic entity) {

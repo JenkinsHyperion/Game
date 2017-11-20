@@ -16,6 +16,9 @@ public abstract class EntityBehaviorScript implements UpdateableComposite{
 	private int updaterIndex;
 	protected EntityStatic ownerEntity;
 	
+	public EntityBehaviorScript(EntityStatic ownerEntity) {
+		this.ownerEntity = ownerEntity;
+	}
 	
 	protected abstract void updateOwnerEntity(EntityStatic entity);
 	
@@ -37,7 +40,12 @@ public abstract class EntityBehaviorScript implements UpdateableComposite{
 	
 	@Override
 	public void removeThisUpdateableComposite() {
-		ownerEntity.removeUpdateableCompositeFromEntity(updaterIndex);
+		if ( updaterIndex > -1 ){
+			ownerEntity.removeUpdateableCompositeFromEntity(updaterIndex);
+		}
+		else{
+			System.err.println("EntityBehaviorScript: Already removed");
+		}
 	}
 	
 	@Override
@@ -63,6 +71,7 @@ public abstract class EntityBehaviorScript implements UpdateableComposite{
 		private VelocityVector movementTranslation;
 		
 		public PatrolBetween( EntityStatic owner , EntityStatic target1, EntityStatic target2){
+			super(owner);
 			movement = new FollowMovement[2];
 			targetPositions = new Point[2];
 			movement[0] = new FollowMovement.Linear(owner, target1);
@@ -72,6 +81,7 @@ public abstract class EntityBehaviorScript implements UpdateableComposite{
 			init(owner);
 		}
 		public PatrolBetween( EntityStatic owner , EntityStatic target1, Point target2){
+			super(owner);
 			movement = new FollowMovement[2];
 			targetPositions = new Point[2];
 			movement[0] = new FollowMovement.Linear(owner, target1);
@@ -81,6 +91,7 @@ public abstract class EntityBehaviorScript implements UpdateableComposite{
 			init(owner);
 		}
 		public PatrolBetween( EntityStatic owner, Point...targets){
+			super(owner);
 			if ( targets.length < 2 )
 				throw new InvalidParameterException("Patrol must have more than one target Point");
 			
@@ -97,7 +108,7 @@ public abstract class EntityBehaviorScript implements UpdateableComposite{
 		}
 		
 		private void init(EntityStatic owner){
-			this.ownerEntity = owner;
+			
 			movementTranslation = owner.getTranslationComposite().registerVelocityVector(new Vector(0,0));
 		}
 
@@ -127,14 +138,14 @@ public abstract class EntityBehaviorScript implements UpdateableComposite{
 		private VelocityVector movementTranslation;
 
 		public LinearFollowBehavior(EntityStatic owner, EntityStatic target){
-			this.ownerEntity = owner;
+			super(owner);
 			this.target = target;
 			linearMath = new FollowMovement.Linear(owner, target);
 			movementTranslation = owner.getTranslationComposite().registerVelocityVector(new Vector(0,0) );
 		}
 		/** Constructor for a supplied speed. */
 		public LinearFollowBehavior(EntityStatic owner, EntityStatic target, double speed){
-			this.ownerEntity = owner;
+			super(owner);
 			this.target = target;
 			linearMath = new FollowMovement.Linear(owner, target, speed);
 			movementTranslation = owner.getTranslationComposite().registerVelocityVector(new Vector(0,0) );
@@ -155,13 +166,13 @@ public abstract class EntityBehaviorScript implements UpdateableComposite{
 		private Point targetPosition;
 
 		public QuadraticFollow(EntityStatic owner, EntityStatic target){
-			this.ownerEntity = owner;
+			super(owner);
 
 			targetPosition = target.getPositionReference();
 		}
 		
 		public QuadraticFollow(EntityStatic owner, Point target){
-			this.ownerEntity = owner;
+			super(owner);
 
 			targetPosition = new Point(target.x,target.y);
 		}

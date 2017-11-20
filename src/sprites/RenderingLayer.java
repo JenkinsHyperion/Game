@@ -62,7 +62,8 @@ public class RenderingLayer {
 			frameTransform.translate( BoardAbstract.B_WIDTH/2 , BoardAbstract.B_HEIGHT/2  );	//centering translation
 			
 			frameTransform.scale( 1/zoom , 1/zoom );
-
+			
+			frameTransform.scale( comp.getGraphicsSizeX() , comp.getGraphicsSizeY() );
 			
 			frameTransform.translate((comp.getSprite().spriteOffsetX), (comp.getSprite().spriteOffsetY));
 

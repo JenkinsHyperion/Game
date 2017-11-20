@@ -10,8 +10,8 @@ import com.studiohartman.jamepad.ControllerState;
 
 public class InputManagerController extends InputManager implements ControllerListener{
 
-	private static final float LEFT_ANALOG_STICK_CUTOFF = 0.05f; //Minimum magnitude of analog stick before counting as zero
-	private static final float RIGHT_ANALOG_STICK_CUTOFF = 0.05f;
+	private static final float LEFT_ANALOG_STICK_CUTOFF = 0.3f; //Minimum magnitude of analog stick before counting as zero
+	private static final float RIGHT_ANALOG_STICK_CUTOFF = 0.3f;
 	
 	ArrayList< ControllerButtonBinding > buttonsListening = new ArrayList<>();
 	ArrayList< ControllerButtonBinding > buttonsHeld = new ArrayList<>();

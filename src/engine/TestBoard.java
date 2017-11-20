@@ -38,7 +38,7 @@ import sprites.Sprite.Stillframe;
 import testEntities.*;
 import testEntities.PlantSegment.SeedFruit;
 import testEntities.PlantSegment.StemSegment;
-import testEntities.PlantSegment.TreeUnit;
+import testEntities.PlantSegment.MattTree;
 import misc.*;
 
 
@@ -170,6 +170,7 @@ public class TestBoard extends BoardAbstract{
       				TestBoard.this
       			);
     			sprout.name = "Seed" + PlantSegment.StemSegment.counter;
+    			sprout.createInitialTree("Tree01");
     			
     			sprout.debugMakeWaterSource();
     			sprout.debugSetSugarLevel(700);
@@ -349,6 +350,8 @@ public class TestBoard extends BoardAbstract{
 		currentScene.addBackgroundSprite(6, new Sprite.Stillframe("Prototypes/starcloud01.png",Sprite.CENTERED) , 0 , 0);
 		currentScene.addBackgroundSprite(3, new Sprite.Stillframe("Prototypes/starcloud01.png",Sprite.CENTERED) , 0 , 0);
 		currentScene.addBackgroundSprite(3, new Sprite.Stillframe("Prototypes/starcloud01.png",Sprite.CENTERED) , 0 , -2000);
+		
+
         
     	camera.createRotationalCameraBehavior( player, player.getPlayerCameraFocus() ,asteroid.getPosition(), player.getPlayerLookZoom() );
 
@@ -365,6 +368,10 @@ public class TestBoard extends BoardAbstract{
 				TestBoard.this
 			);
 		sprout.name = "Seed" + PlantSegment.StemSegment.counter;
+		
+		
+		
+		sprout.createInitialTree("Tree");
 		
 		sprout.debugMakeWaterSource();
 		sprout.debugSetSugarLevel(700);

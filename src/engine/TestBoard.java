@@ -38,7 +38,7 @@ import sprites.Sprite.Stillframe;
 import testEntities.*;
 import testEntities.PlantSegment.SeedFruit;
 import testEntities.PlantSegment.StemSegment;
-import testEntities.PlantSegment.TreeUnit;
+import testEntities.PlantSegment.MattTree;
 import misc.*;
 
 
@@ -170,6 +170,7 @@ public class TestBoard extends BoardAbstract{
       				TestBoard.this
       			);
     			sprout.name = "Seed" + PlantSegment.StemSegment.counter;
+    			sprout.createInitialTree("Tree01");
     			
     			sprout.debugMakeWaterSource();
     			sprout.debugSetSugarLevel(700);
@@ -344,12 +345,13 @@ public class TestBoard extends BoardAbstract{
 
         
 
+
 		currentScene.createBackgroundSprite(7, new Sprite.Stillframe("Prototypes/starscape.png",Sprite.CENTERED) , 0 , 0);
 		currentScene.createBackgroundSprite(4, new Sprite.Stillframe("Prototypes/starcloud03.png",Sprite.CENTERED) , 0 , 0);
 		currentScene.createBackgroundSprite(6, new Sprite.Stillframe("Prototypes/starcloud01.png",Sprite.CENTERED) , 0 , 0);
 		currentScene.createBackgroundSprite(3, new Sprite.Stillframe("Prototypes/starcloud01.png",Sprite.CENTERED) , 0 , 0);
 		currentScene.createBackgroundSprite(3, new Sprite.Stillframe("Prototypes/starcloud01.png",Sprite.CENTERED) , 0 , -2000);
-        
+
 		Sprite.Stillframe bgPlanet = new Sprite.Stillframe("asteroid.png",Sprite.CENTERED);
 		currentScene.createBackgroundSprite(4, bgPlanet , 8 , 0).getGraphicComposite().setGraphicSizeFactor(0.2);
 		
@@ -368,6 +370,10 @@ public class TestBoard extends BoardAbstract{
 				TestBoard.this
 			);
 		sprout.name = "Seed" + PlantSegment.StemSegment.counter;
+		
+		
+		
+		sprout.createInitialTree("Tree");
 		
 		sprout.debugMakeWaterSource();
 		sprout.debugSetSugarLevel(700);

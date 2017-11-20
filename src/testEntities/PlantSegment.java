@@ -22,6 +22,7 @@ import physics.BoundarySingular;
 import physics.Vector;
 import sprites.Sprite;
 import sprites.Sprite.Stillframe;
+import utility.Probability;
 //import sun.management.counter.Counter;
 import utility.Trigger;
 
@@ -48,9 +49,9 @@ public class PlantSegment extends EntityStatic{
 	protected StemSegment previousSegment;
 	protected PlantSegment[] nextSegments = emptyNext; //move to stems
 	
-	protected TreeUnit organism;
+	protected MattTree organism;
 	
-	protected Runnable currentGrowthState;
+	//protected Runnable currentGrowthState;
 	
 	protected boolean dead;
 	
@@ -72,11 +73,8 @@ public class PlantSegment extends EntityStatic{
 
 	protected void setPreviousStem(StemSegment previous){ this.previousSegment = previous; }
 	
-	protected class FullyGrownState implements Runnable{
-		@Override
-		public void run() {
-			//
-		}
+	public void createInitialTree( String name ){
+		this.organism = new MattTree(name);
 	}
 	
 	public void updateSegment(){}
@@ -164,16 +162,18 @@ public class PlantSegment extends EntityStatic{
 	
 	protected static class GrowingSegment extends PlantSegment{
 
-		
 		protected Runnable currentWaterTransportState = new InactiveWaterTransportState();
 		protected SugarTransportState currentSugarTransportState = new InactiveSugarTransportState();
 		protected int sugarLevel = 0;
 		protected TransportWaterListener waterListener = new TransportWaterListener();
 		
+		protected GrowingState currentGrowthState;
+		
+		protected GrowingState fullyGrownState = new FullyGrownState();
+		
 		public GrowingSegment(int x, int y, int maxGrowth, TestBoard board) {
 			super(x, y, maxGrowth, board);
 		}
-		
 		
 		protected class TransportWaterListener{
 			
@@ -209,8 +209,7 @@ public class PlantSegment extends EntityStatic{
 		
 		protected class GrowingState implements Runnable{
 			
-			Runnable fullyGrownState = new FullyGrownState();
-			Trigger fullyGrownEvent = new Trigger(){
+			protected Trigger fullyGrownEvent = new Trigger(){
 				@Override
 				public void activate() {
 					//DO NOTHING
@@ -220,8 +219,12 @@ public class PlantSegment extends EntityStatic{
 			protected GrowingState(){
 			}
 			
-			protected GrowingState( Trigger fullyGrownEvent, Runnable fullyGrownState ){
-				this.fullyGrownState = fullyGrownState;
+			public Trigger getFullyGrownEvent(){
+				return fullyGrownEvent;
+			}
+			
+			protected GrowingState( Trigger fullyGrownEvent ){
+
 				this.fullyGrownEvent = fullyGrownEvent;
 			}
 			
@@ -232,7 +235,7 @@ public class PlantSegment extends EntityStatic{
 					//StemSegment.this.new FullyGrown().activate();
 					//StemSegment.this.currentGrowthState = StemSegment.this.new FullyGrownState();
 					this.fullyGrownEvent.activate();
-					GrowingSegment.this.currentGrowthState = this.fullyGrownState;
+					GrowingSegment.this.currentGrowthState = GrowingSegment.this.fullyGrownState;
 				}
 				else {
 					if ( sugarLevel > 0 ){
@@ -245,6 +248,13 @@ public class PlantSegment extends EntityStatic{
 			}
 		}
 		
+		protected class FullyGrownState extends GrowingState{
+			
+			@Override
+			public void run() {
+				
+			}
+		}
 
 		protected class PullTransportState implements Runnable{
 			@Override
@@ -265,7 +275,7 @@ public class PlantSegment extends EntityStatic{
 			}
 		}
 		
-		protected class DebugWaterSource implements Runnable{
+		protected class DebugWaterSource extends GrowingState{
 			@Override
 			public void run() {
 				// Pull water from thin air
@@ -354,10 +364,10 @@ public class PlantSegment extends EntityStatic{
 		
 		protected class ForkSugarOverflowTransport implements SugarTransportState{
 			
-			protected StemSegment nextSegmentCW;
-			protected StemSegment nextSegmentCCW;
+			protected GrowingSegment nextSegmentCW;
+			protected GrowingSegment nextSegmentCCW;
 			
-			public ForkSugarOverflowTransport( StemSegment nextSegmentCW , StemSegment nextSegmentCCW ){
+			public ForkSugarOverflowTransport( GrowingSegment nextSegmentCW , GrowingSegment nextSegmentCCW ){
 				this.nextSegmentCW = nextSegmentCW;
 				this.nextSegmentCCW = nextSegmentCCW;
 			}
@@ -408,7 +418,7 @@ public class PlantSegment extends EntityStatic{
 						
 						if ( waterLevel > maxGrowth ){
 							this.fullyGrownEvent.activate();
-							GrowingSegment.this.currentGrowthState = GrowingSegment.this.new FullyGrownState();
+							GrowingSegment.this.currentGrowthState = GrowingSegment.this.currentGrowthState;
 							GrowingSegment.this.currentWaterTransportState = GrowingSegment.this.new PullTransportState();
 						}
 					}
@@ -538,24 +548,24 @@ public class PlantSegment extends EntityStatic{
 			public static int counter = 0;
 			
 			protected int numberFromLastBranch = 0;
-			protected boolean lastBranchedClockwise = false;
+			protected boolean lastBranchedClockwise = false; 
 			
-			protected StemSegment(int x, int y, int maxGrowth, TreeUnit organism, TestBoard board) {
+			protected StemSegment(int x, int y, int maxGrowth, MattTree organism, TestBoard board) {
 				super(x, y, maxGrowth, board);
 				counter++;
-				this.currentGrowthState = new GrowingState( new FullyGrownEvent() , new FullyGrownState() );
+				StemSegment.this.currentGrowthState = new GrowingState( new FullyGrownEvent() );
 				this.organism = organism;
 				init( maxGrowth );
 			}
 			
 			public StemSegment(int x, int y, int maxGrowth, TestBoard board) {
 				super(x, y, maxGrowth, board);
+				
 				counter++;
-				this.organism = new TreeUnit("Tree");
-				this.currentGrowthState = new GrowingState( new FullyGrownEvent() , new FullyGrownState() );
+				StemSegment.this.currentGrowthState = new GrowingState( new FullyGrownEvent() );
 				
 				init( maxGrowth );
-				
+
 			}
 
 			protected void init( int percentMax){
@@ -583,16 +593,14 @@ public class PlantSegment extends EntityStatic{
 							new BoundaryLinear( new Line2D.Double( 0,0 , 0, (int)(-SEGMENT_LENGTH*(maxGrowth/100.0)) ) ), 
 							angularComposite 
 							);
-					if ( !this.organism.collidersAreActive ){
-						System.err.println("###############ORGANISM IS DEACTIVATED ");
-						this.getColliderComposite().deactivateCollider();
-					}
+					
 				}
 				
 				this.name = "stem";
 			}
 			
 			public void debugMakeWaterSource(){
+				
 				this.currentGrowthState = new DebugSeedGrowing();
 				this.currentWaterTransportState = new DebugWaterSource();
 				this.addGraphicTo(twigSmallSprite,true);
@@ -640,7 +648,7 @@ public class PlantSegment extends EntityStatic{
 				}
 			}
 			
-			protected class DebugSeedGrowing implements Runnable{
+			protected class DebugSeedGrowing extends GrowingState{
 				
 				private final int GROWTH_TIME = 100;
 				private int counter = 0;
@@ -690,23 +698,24 @@ public class PlantSegment extends EntityStatic{
 				public void activate() {
 					
 					int oldRadius = (int) (getMaxGrowth() / 100.0 * SEGMENT_LENGTH );
-
-					if ( numberFromLastBranch > randomInt(0, 3) ){ //start new branch every 1-6 segments
+					
+					//if ( numberFromLastBranch > randomInt(0, 3) ){ //start new branch every 1-6 segments
+					if ( numberFromLastBranch >= 
+						Probability.randomInt( StemSegment.this.organism.BRANCH_MIN , organism.BRANCH_MAX) ){ //start new branch every 1-6 segments
 						
-						final int LEAFSTEM_FORK_ANGLE = 80; // Set to 90 or higher for some freaky shit
+						final int LEAFSTEM_FORK_ANGLE = 45; // Set to 90 or higher for some freaky shit 
 						final int STEM_FORK_ANGLE = 0;
-						final int UPWARD_WILLPOWER = 0; //-20 to 40 look normal. Set to 90 or higher for chaos
-
+						final int UPWARD_WILLPOWER = 0; //-20 to 40 look normal. Set to 90 or higher for chaos 
 						
-						int thisMaxGrowth = (int)getMaxGrowth()-1;
+						int thisMaxGrowth = (int)getMaxGrowth()-1; 
 						
 						int thisSegmentAngle =  (int) ( getAngularComposite().getAngleInDegrees() % 360) ; // constrain angle to 0-360 for convenience
 						
 						if ( thisSegmentAngle > 0){
-							if (thisSegmentAngle > 180) // Adds push towards angle of 0 ( pointing up )
+							if (thisSegmentAngle > 180) // Adds push towards angle of 0 ( pointing up ) 
 								thisSegmentAngle += UPWARD_WILLPOWER;
 							else
-								thisSegmentAngle -= UPWARD_WILLPOWER; //find better math way of doing this
+								thisSegmentAngle -= UPWARD_WILLPOWER; //find better math way of doing this 
 						}
 						else{
 							if (thisSegmentAngle < -180)
@@ -721,28 +730,22 @@ public class PlantSegment extends EntityStatic{
 						//PlantTwigSegment sprout = new PlantTwigSegment( endPointX , endPointY , thisMaxGrowth , board) ;
 						StemSegment sproutLeft = new StemSegment( relativeTip.x , relativeTip.y , thisMaxGrowth , StemSegment.this.organism, board) ;
 
-						LeafStem leafStemRight = new LeafStem(relativeTip.x, relativeTip.y, thisMaxGrowth , StemSegment.this.organism, board);
+						//LeafStem leafStemRight = new LeafStem(relativeTip.x, relativeTip.y, thisMaxGrowth , StemSegment.this.organism, board);
 
+						GrowingSegment leafStemRight = organism.createBranch( relativeTip.x, relativeTip.y, thisMaxGrowth, board );
+						
 						if ( StemSegment.this.lastBranchedClockwise ){ //check last branch direction and alternate
 							sproutLeft.getAngularComposite().setAngleInDegrees( thisSegmentAngle + STEM_FORK_ANGLE );
-							leafStemRight.getAngularComposite().setAngleInDegrees( thisSegmentAngle - LEAFSTEM_FORK_ANGLE );
+							leafStemRight.getAngularComposite().setAngleInDegrees( thisSegmentAngle - LEAFSTEM_FORK_ANGLE +90);
 							sproutLeft.lastBranchedClockwise = false;
+							leafStemRight.getGraphicComposite().setGraphicAngle( thisSegmentAngle - LEAFSTEM_FORK_ANGLE );
 						}
 						else{
-							leafStemRight.getAngularComposite().setAngleInDegrees( thisSegmentAngle + LEAFSTEM_FORK_ANGLE );
+							leafStemRight.getAngularComposite().setAngleInDegrees( thisSegmentAngle + LEAFSTEM_FORK_ANGLE +90);
 							sproutLeft.getAngularComposite().setAngleInDegrees( thisSegmentAngle - STEM_FORK_ANGLE );
 							sproutLeft.lastBranchedClockwise = true;
-							
+							leafStemRight.getGraphicComposite().setGraphicAngle( thisSegmentAngle - STEM_FORK_ANGLE );
 						}
-						
-						/*sproutLeft.setPreviousStem(StemSegment.this);
-						leafStemRight.setPreviousStem(StemSegment.this);
-						board.spawnNewSprout( sproutLeft );
-						board.spawnNewSprout( leafStemRight );
-						CompositeFactory.makeChildOfParent(sproutLeft, StemSegment.this , board);
-						CompositeFactory.makeChildOfParent(leafStemRight, StemSegment.this , board);
-						
-						StemSegment.this.nextSegments = new PlantSegment[]{sproutLeft , leafStemRight };*/
 						
 						spawnConnectAndParentOffshoots( sproutLeft,leafStemRight );
 						
@@ -901,14 +904,15 @@ public class PlantSegment extends EntityStatic{
 	 */
 	public static class LeafStem extends StemSegment{ //
 		
-		public LeafStem(int x, int y, int maxGrowth, TreeUnit organism, TestBoard board) {
+		public LeafStem(int x, int y, int maxGrowth, MattTree organism, TestBoard board) {
 			super(x, y, maxGrowth, organism, board);
 
 			this.currentGrowthState = new LeafStemGrowingState() ;
 			this.name = "leafStem";
+			this.organism = organism;
 		}
 
-		protected class LeafStemGrowingState implements Runnable{
+		protected class LeafStemGrowingState extends GrowingState{
 			
 			@Override
 			public void run() {
@@ -916,7 +920,7 @@ public class PlantSegment extends EntityStatic{
 				if ( LeafStem.this.growthLevel >= LeafStem.this.maxGrowth ){
 
 					LeafStem.this.new FullyGrownLeafStemEvent().activate();
-					LeafStem.this.currentGrowthState = LeafStem.this.new Grown() ;
+					LeafStem.this.currentGrowthState = LeafStem.this.fullyGrownState ;
 				}
 				else {
 					if ( waterLevel > 0 ){
@@ -927,11 +931,6 @@ public class PlantSegment extends EntityStatic{
 				}
 
 			}
-		}
-		
-		private class Grown implements Runnable{
-			@Override
-			public void run() {}
 		}
 		
 		private class FullyGrownLeafStemEvent implements Trigger{
@@ -988,6 +987,7 @@ public class PlantSegment extends EntityStatic{
 							relativeTip.x, relativeTip.y, 
 							thisMaxGrowth,
 							randAngle,
+							LeafStem.this.organism,
 							board);
 
 					newLeaf.name = "leaf";
@@ -1029,22 +1029,25 @@ public class PlantSegment extends EntityStatic{
 	 * 		LEAF SEGMENT
 	 */
 	
-	public static class Leaf extends PlantSegment{
+	public static class Leaf extends GrowingSegment{
 
 		private Runnable currentGeneratorState;
-		private static Sprite leafSprite = new Sprite.Stillframe("Prototypes/leaftest01.png",Sprite.CENTERED_BOTTOM);
+		private static Sprite leafSprite01 = new Sprite.Stillframe("Prototypes/leaftest01.png",Sprite.CENTERED_BOTTOM);
+		private static Sprite leafSprite02 = new Sprite.Stillframe("Prototypes/daveleaf01.png",Sprite.CENTERED_BOTTOM);
 		
-		public Leaf(int x, int y, int maxGrowth, double angleOffStem, TestBoard board) {
+		public Leaf(int x, int y, int maxGrowth, double angleOffStem, MattTree organism, TestBoard board) {
 			super(x, y, maxGrowth, board);
 			this.name = "Leaf";
 			
-			CompositeFactory.addGraphicTo(this, leafSprite, false );
+			CompositeFactory.addGraphicTo(this, leafSprite02, true );
 			this.getGraphicComposite().setGraphicSizeFactor(0);
 			
-			this.getGraphicComposite().setGraphicAngle(angleOffStem);
+			//this.getGraphicComposite().setGraphicAngle(angleOffStem);
 			
 			this.currentGrowthState = new LeafGrowingState();
 			this.currentGeneratorState = new Photosynthesis();
+			
+			this.organism = organism;
 		}
 		
 		@Override
@@ -1067,7 +1070,7 @@ public class PlantSegment extends EntityStatic{
 			}
 		}
 		
-		private class LeafGrowingState implements Runnable{
+		private class LeafGrowingState extends GrowingState{
 
 			@Override
 			public void run() {
@@ -1075,7 +1078,7 @@ public class PlantSegment extends EntityStatic{
 				if ( Leaf.this.growthLevel >= Leaf.this.maxGrowth ){
 
 					//Leaf.this.new FullyGrownLeafStemEvent().activate();
-					Leaf.this.currentGrowthState = PlantSegment.Leaf.this.new FullyGrownState() ;
+					Leaf.this.currentGrowthState = Leaf.this.fullyGrownState;
 				}
 				else {
 					if ( waterLevel > 0 ){
@@ -1142,7 +1145,7 @@ public class PlantSegment extends EntityStatic{
 			this.currentGrowthState.run(); 
 		}
 		
-		private class FruitGrowingState implements Runnable{
+		private class FruitGrowingState extends GrowingState{
 
 			@Override
 			public void run() {
@@ -1150,7 +1153,7 @@ public class PlantSegment extends EntityStatic{
 				if ( SeedFruit.this.growthLevel >= SeedFruit.this.maxGrowth ){
 
 					//Leaf.this.new FullyGrownLeafStemEvent().activate();
-					SeedFruit.this.currentGrowthState = SeedFruit.this.new FullyGrownState() ;
+					SeedFruit.this.currentGrowthState = SeedFruit.this.fullyGrownState ;
 				}
 				else {
 					if ( waterLevel > 20 ){
@@ -1166,15 +1169,35 @@ public class PlantSegment extends EntityStatic{
 		
 	}
 	
-	
-	public final class TreeUnit{
-
-		private final String treeName;
-		public boolean collidersAreActive = true;
+	public abstract class TreeGenome{
 		
-		public TreeUnit( String treeName){
+		protected final String treeName;
+		
+		public TreeGenome(String treeName) {
 			this.treeName = treeName;
 		}
+		
+		public abstract GrowingSegment createBranch( int x, int y , int maxGrowth, TestBoard board );
+	}
+	
+	public class MattTree extends TreeGenome{
+
+		public boolean collidersAreActive = true;
+		
+		protected int BRANCH_MIN = 0;
+		protected int BRANCH_MAX = 0;
+		
+		public MattTree(String treeName) {
+			super(treeName);
+		}
+
+		@Override
+		public GrowingSegment createBranch( int x, int y , int maxGrowth, TestBoard board ){
+			//return new LeafStem( x, y, maxGrowth , this, board);
+			return new Leaf(x, y, maxGrowth, 20 , this, board);
+		}
+		
+		
 	}
 
 }

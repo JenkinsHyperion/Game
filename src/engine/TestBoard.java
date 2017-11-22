@@ -268,7 +268,7 @@ public class TestBoard extends BoardAbstract{
         
         player = new PlantPlayer(30,-100,this);
         CompositeFactory.addRigidbodyTo(player);
-        this.addInputController(player.inputManager); //add player input controller to board
+        this.addInputController(player.currentInputManager); //add player input controller to board
         this.currentScene.addEntity(player,"Player");
         
 

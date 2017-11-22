@@ -106,6 +106,16 @@ public class PlantPlayer extends Player {
 		
 		this.movementForce = this.getTranslationComposite().addForce( new Vector(0,0) );
 		
+		mouseAndKeyInputManager.createKeyBinding(KeyEvent.VK_F12, new KeyCommand(){	//TEST BUTTON
+			
+			@Override
+			public void onPressed() {
+				if ( currentInputManager instanceof InputManagerMouseKeyboard )
+					currentInputManager = controllerInputManager;
+				else
+					currentInputManager = mouseAndKeyInputManager;
+			}
+		});
 		
 		mouseAndKeyInputManager.createKeyBinding(KeyEvent.VK_E, new KeyCommand(){	//ACTION EVENT KEY
 			
@@ -263,7 +273,9 @@ public class PlantPlayer extends Player {
 			public void onReturned() { currentState.leftStickReturned(); }
 		});
 		
-    	this.inputManager = controllerInputManager;
+    	//this.inputManager = controllerInputManager;
+    	
+		this.currentInputManager = mouseAndKeyInputManager;
     	
     	givePlayerItem( new Fruit01() );
 	}
@@ -291,7 +303,7 @@ public class PlantPlayer extends Player {
 		
 		this.currentInteractionContext.drawReadout(cam, g2);
 		
-		this.inputManager.debugPrintInputList(200, 200, g2);
+		this.currentInputManager.debugPrintInputList(200, 200, g2);
 	}
 	
 	public void debugCollisions( MovingCamera cam , Graphics2D g2 ){
@@ -474,7 +486,7 @@ public class PlantPlayer extends Player {
 		this.currentState.onLeavingState();
 		this.currentState = state;
 		state.onChange();
-		this.inputManager.runHeld();
+		this.currentInputManager.runHeld();
 	}
 	
 	private abstract class State implements Runnable{

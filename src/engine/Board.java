@@ -76,7 +76,7 @@ public class Board extends BoardAbstract {
 		addMouseMotionListener(myMouseHandler);
 		addKeyListener(this);
 		setFocusable(true);
-
+		
 		setBackground(Color.BLACK);
 
 		dynamicEntitiesList = new ArrayList<>();
@@ -405,7 +405,7 @@ public class Board extends BoardAbstract {
 
 			g2.setColor(Color.CYAN);
 
-			player.inputManager.debugPrintInputList(5, 105, g2);
+			player.currentInputManager.debugPrintInputList(5, 105, g2);
 			// collisionEngine.debugPrintCollisionList(5, 105, g2);
 
 			player.getColliderComposite().getBoundary().debugDrawBoundary(camera, g2, player);

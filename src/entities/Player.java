@@ -13,7 +13,7 @@ import entityComposites.EntityStatic;
 
 public class Player extends EntityStatic {
 	
-    public InputManager inputManager; //TODO restrict access
+    public InputManager currentInputManager; //TODO restrict access
     public InputManagerMouseKeyboard mouseAndKeyInputManager;
     public InputManagerController controllerInputManager;
 

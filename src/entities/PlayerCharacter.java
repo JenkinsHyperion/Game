@@ -185,7 +185,7 @@ public class PlayerCharacter extends Player {
 		
 		//inputController.runReleased();
 
-		inputManager.runHeld();
+		currentInputManager.runHeld();
 		
 		playerState.onEnteringState();
   	

@@ -28,6 +28,7 @@ public interface ReferenceFrame {
 	
 	public ImageObserver getObserver();
 	public Graphics2D getGraphics();
+	public void drawLine( Point p1 , Point p2 );
 }
 
 

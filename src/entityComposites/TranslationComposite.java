@@ -584,10 +584,12 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 				
 				int index = force.getID();
 				
-				for ( int i = index+1 ; i < gravityForces.size() ; i++) {
+				gravityForces.remove(index); 
+				
+				for ( int i = index ; i < gravityForces.size() ; i++) {
 					gravityForces.get(i).decrementIndex();
 				} 
-				gravityForces.remove(index); 
+
 		
 			}
 			

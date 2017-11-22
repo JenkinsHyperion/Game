@@ -70,6 +70,11 @@ public class ParallaxFrame implements ReferenceFrame{
 	}
 	
 	@Override
+	public void drawLine(Point p1, Point p2) {
+		
+	}
+	
+	@Override
 	public void debugDrawPolygon(Shape polygon, Color color, Point point, AffineTransform entityTransform, float alpha) {
 	}
 

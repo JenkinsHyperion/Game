@@ -286,7 +286,21 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		
 		this.gBoard.setComposite(compositeBuffer);
 	}
-
+	@Override
+	public void drawLine( Point p1, Point p2){
+		
+		Color buffer = gBoard.getColor();
+		gBoard.setColor(Color.RED);
+		
+		gBoard.drawLine( 
+				this.getRelativeX(p1.x), 
+				this.getRelativeY(p1.y), 
+				this.getRelativeX(p2.x), 
+				this.getRelativeY(p2.y)
+				);
+		
+		gBoard.setColor(buffer);
+	}
 
 	@Override
 	public void debugDrawPolygon( Shape polygon, Color color, Point position , AffineTransform entityTransform, float alpha){ //OPTIMIZE 

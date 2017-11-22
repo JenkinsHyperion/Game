@@ -238,6 +238,8 @@ public class TestBoard extends BoardAbstract{
         setFocusable(true);
         setBackground(Color.BLACK);
         
+        
+        
         asteroid = new Asteroid( 0 , 600 , 500, this, Asteroid.PRESET01);
         this.currentScene.addEntity(asteroid,"Ground");
         asteroid.spawnGrass();
@@ -271,6 +273,12 @@ public class TestBoard extends BoardAbstract{
         this.addInputController(player.currentInputManager); //add player input controller to board
         this.currentScene.addEntity(player,"Player");
         
+        EntityStatic tail = new Chainlink( "Tail" , player.getPosition());
+        
+        this.currentScene.addEntity( tail );
+
+        CompositeFactory.makeChildOfParent(tail, player, this, CompositeFactory.ROTATIONAL_CHILD);
+        
 
         follow = new Follow(player);
         currentFollowerAI = follow;
@@ -286,6 +294,8 @@ public class TestBoard extends BoardAbstract{
         this.currentScene.addEntity(emitter);
         
         EntityStatic lamp = new EntityStatic("Lamp",0,0);
+        
+        
         
         Sprite.Stillframe lampOn = new Sprite.Stillframe("Prototypes/lamp01.png",Sprite.CENTERED_BOTTOM);
         Sprite.Stillframe lampOff = new Sprite.Stillframe("Prototypes/lamp01_off.png",Sprite.CENTERED_BOTTOM);
@@ -323,7 +333,6 @@ public class TestBoard extends BoardAbstract{
 
         CompositeFactory.makeChildOfParent(lampCover, lamp, this, CompositeFactory.ROTATIONAL_CHILD);
         CompositeFactory.makeChildOfParent(emitter, lamp, this, CompositeFactory.ROTATIONAL_CHILD);
-
         
         //lamp.debugListChildren();
         asteroid.plantEntityOnSurface(lamp, -30);
@@ -342,9 +351,6 @@ public class TestBoard extends BoardAbstract{
         addEntityToCurrentScene(insect); 
         
         
-
-        
-
 
 		currentScene.createBackgroundSprite(7, new Sprite.Stillframe("Prototypes/starscape.png",Sprite.CENTERED) , 0 , 0);
 		currentScene.createBackgroundSprite(4, new Sprite.Stillframe("Prototypes/starcloud03.png",Sprite.CENTERED) , 0 , 0);

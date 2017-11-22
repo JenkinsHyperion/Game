@@ -93,6 +93,7 @@ public class EntityStatic extends Entity{
 			e.printStackTrace();
 		}
 		System.out.println("WAITED AND NOW REMOVING "+index+" size "+updateablesList.size());
+		updateablesList.remove(index);
 		for ( int i = index ; i < updateablesList.size() ; i++){
 			updateablesList.get(i).decrementIndex();
 		}
@@ -280,13 +281,11 @@ public class EntityStatic extends Entity{
 	}
 	
 	public void setCompositedPos( double x , double y ){
-		this.x = x;
-		this.y = y;
+		setInternalPosition(x,y);
 		this.parentComposite.notifyPositionChange( x, y);
 	}
 	public void setCompositedPos( Point p ){
-		this.x = p.x;
-		this.y = p.y;
+		setInternalPosition(p.getX(),p.getY());
 		this.parentComposite.notifyPositionChange( x, y);
 	}
 	
@@ -324,6 +323,11 @@ public class EntityStatic extends Entity{
 	 * #########################################################################################################################
 	 */
 
+	protected void setInternalPosition(double x, double y){
+		this.x = x;
+    	this.y = y;
+	}
+	
     @Override
     public void setX(double setx) {
         x = setx;
@@ -459,12 +463,10 @@ public class EntityStatic extends Entity{
 		
 		this.translationComposite.disableComposite();
 		
-		this.colliderComposite.disableComposite();
-		
 		this.angularComposite.disableComposite(); 
 		
 		this.rigidbodyComposite.disableComposite();
-
+		
 		ArrayList<UpdateableComposite> removals = new ArrayList<UpdateableComposite>();
 		
 		for ( UpdateableComposite comp : this.updateablesList){

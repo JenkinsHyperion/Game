@@ -52,7 +52,7 @@ public class Force {
 	}
 	
 	public void decrementIndex(){
-		this.ID--;
+		--this.ID;
 	}
 	
 	public Vector toVector(){

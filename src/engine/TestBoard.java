@@ -303,7 +303,7 @@ public class TestBoard extends BoardAbstract{
         lamp.addGraphicTo( lampOn , true );
         lamp.addAngularComposite();
         
-        CompositeFactory.addScriptTo(lamp, new EntityBehaviorScript(lamp){ //TODO allow script to be added to updater after entity add
+        CompositeFactory.addScriptTo(lamp, new EntityBehaviorScript("lampScript",lamp){ //TODO allow script to be added to updater after entity add
 
 			short offOnCounter = 0;
 			boolean isOn = true;
@@ -356,10 +356,10 @@ public class TestBoard extends BoardAbstract{
 		currentScene.createBackgroundSprite(4, new Sprite.Stillframe("Prototypes/starcloud03.png",Sprite.CENTERED) , 0 , 0);
 		currentScene.createBackgroundSprite(6, new Sprite.Stillframe("Prototypes/starcloud01.png",Sprite.CENTERED) , 0 , 0);
 		currentScene.createBackgroundSprite(3, new Sprite.Stillframe("Prototypes/starcloud01.png",Sprite.CENTERED) , 0 , 0);
-		currentScene.createBackgroundSprite(3, new Sprite.Stillframe("Prototypes/starcloud01.png",Sprite.CENTERED) , 0 , -2000);
+		currentScene.createBackgroundSprite(3, new Sprite.Stillframe("Prototypes/starcloud01.png",Sprite.CENTERED) , 0 , -1000);
 
 		Sprite.Stillframe bgPlanet = new Sprite.Stillframe("asteroid.png",Sprite.CENTERED);
-		currentScene.createBackgroundSprite(4, bgPlanet , 8 , 0).getGraphicComposite().setGraphicSizeFactor(0.2);
+		currentScene.createBackgroundSprite(6, bgPlanet , 400 , 0).getGraphicComposite().setGraphicSizeFactor(0.5);
 		
     	camera.createRotationalCameraBehavior( player, player.getPlayerCameraFocus() ,asteroid.getPosition(), player.getPlayerLookZoom() );
 

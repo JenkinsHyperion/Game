@@ -10,7 +10,7 @@ public class DavePlant extends PlantSegment.TreeGenome{
 	}
 
 	@Override
-	public GrowingSegment createBranch(int x, int y, int maxGrowth, TestBoard board) {
+	public GrowingSegment createBranch(int x, int y, int maxGrowth, int thisSegmentAngle, TestBoard board) {
 		
 		return null;
 	}

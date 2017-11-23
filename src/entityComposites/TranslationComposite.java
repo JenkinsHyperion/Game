@@ -218,12 +218,17 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		}
 	}
 	@Override
-	public void removeThisUpdateableComposite(){
+	public boolean removeThisUpdateableComposite(){
 
-		System.out.println("Removing "+TranslationComposite.this+" from ["+ownerEntity+"] updateables");
-		
-		ownerEntity.removeUpdateableCompositeFromEntity(ownerEntityIndex);
-		ownerEntityIndex = -1;
+		if(ownerEntityIndex > -1){
+			System.out.println("Removing "+TranslationComposite.this+" from ["+ownerEntity+"] updateables");
+			
+			ownerEntity.removeUpdateableCompositeFromEntity(ownerEntityIndex);
+			ownerEntityIndex = -1;
+			return true;
+		}else{
+			return false;
+		}
 	}
 	@Override
 	public boolean exists(){
@@ -233,10 +238,7 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 	@Override
 	public void disableComposite() { //DISABLING OF CONCRETE TRANSLATION COMPOSITE Consider condensing into one utility method
 
-		this.removeThisUpdateableComposite(); //Remove math calculations from updater thread
-		
-		if ( this.ownerEntityIndex != -1 )
-			this.ownerEntity.removeUpdateableCompositeFromEntity( this.ownerEntityIndex ); //Remove this composite's calculations from owner
+		System.out.print("DISABLING translationComposite of "+this.ownerEntity +": ");
 		
 		this.ownerEntity.getColliderComposite().changeColliderToStaticInEngine(); 
 		/*		This translation being removed from ownerEntity means that ownerEntity will now be static. If ownerEntity
@@ -246,7 +248,10 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 		
 		this.ownerEntity.nullifyTranslationComposite(); //Call owner entity to rereference its null translation singleton
 		
-		
+		if ( !this.removeThisUpdateableComposite() ){ //Remove math calculations from updater thread
+			System.out.println("FAILED");
+		}
+
 	}
 	@Override
 	public void decrementIndex(){
@@ -858,8 +863,9 @@ public class TranslationComposite implements EntityComposite, UpdateableComposit
 			return new Vector(0,0);
 		}
 		
-		public void removeThisUpdateableComposite(){
+		public boolean removeThisUpdateableComposite(){
 			System.err.println("Attempted to remove null Translation from updater");
+			return false;
 		}
 		
 		@Override

@@ -619,15 +619,20 @@ public class PlantPlayer extends Player {
 						
 						if ( absInputVector.dotProduct(forkCWDirection) > absInputVector.dotProduct(forkCCWDirection)){
 							
-							currentStem = currentStem.nextSegments[0];
+								currentStem = currentStem.nextSegments[0];
 						}
 						else{
-							currentStem = currentStem.nextSegments[1];
+							
+								currentStem = currentStem.nextSegments[1];
 						}
 					}
 					else{
 						currentStem = currentStem.nextSegments[0];
 					}
+				}
+				else{
+					climbVelocity.setVector(Vector.zeroVector);
+					translationComposite.halt();
 				}
 			}
 			

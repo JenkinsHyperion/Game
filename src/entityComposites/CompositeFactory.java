@@ -353,12 +353,7 @@ public class CompositeFactory {
 		entity.updateablesList.add(behavior);
 		
 	}
-	
-	public static void addLifespanTo( EntityStatic entity , int lifespanInFrames ){
-		
-		entity.updateablesList.add( new LifespanComposite(lifespanInFrames) );
-		
-	}
+
 	
 	
 }

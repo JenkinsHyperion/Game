@@ -58,10 +58,17 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 	public float getAngularAcc(){ return (float)angularAcc; }
 	
 	@Override
-	public void removeThisUpdateableComposite() {
+	public boolean removeThisUpdateableComposite() {
 		
-		this.ownerEntity.removeUpdateableCompositeFromEntity(updateableIndex);
-		this.updateableIndex = -1;
+		if(updateableIndex > -1){
+			System.out.println("Removing "+this+" from ["+ownerEntity+"] updateables");
+			
+			ownerEntity.removeUpdateableCompositeFromEntity(updateableIndex);
+			updateableIndex = -1;
+			return true;
+		}else{
+			return false;
+		}
 	}
 	
 	@Override
@@ -149,7 +156,8 @@ public class DynamicRotationComposite implements EntityComposite, UpdateableComp
 		}
 		public float getAngularVel(){ return (float)angularVelocity; }
 		public float getAngularAcc(){ return (float)angularAcc; }
-		public void removeThisUpdateableComposite() {
+		public boolean removeThisUpdateableComposite() {
+			return false;
 		}
 
 		public boolean addUpdateableCompositeTo(EntityStatic owner) {

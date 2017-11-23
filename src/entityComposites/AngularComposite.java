@@ -250,12 +250,12 @@ public abstract class AngularComposite implements EntityComposite {
 		@Override
 		public void setAngleInDegrees(double angle) {
 			System.err.println("WARNING: Attempted to set angle of fixed angle entity");
-			throw new RuntimeException();
+			//throw new RuntimeException();
 		}
 		@Override
 		public void setAngleInRadians(double angle) {
 			System.err.println("WARNING: Attempted to set angle of fixed angle entity");
-			throw new RuntimeException();
+			//throw new RuntimeException();
 		}
 		@Override
 		public void notifyAngleChange(double angle) {

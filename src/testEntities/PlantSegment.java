@@ -6,6 +6,7 @@ import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+
 import engine.ReferenceFrame;
 import engine.TestBoard;
 import entities.*;
@@ -26,7 +27,7 @@ import utility.Probability;
 //import sun.management.counter.Counter;
 import utility.Trigger;
 
-public class PlantSegment extends EntityStatic{
+public abstract class PlantSegment extends EntityStatic{
 	
 	private final static int SEGMENT_LENGTH = 86;
 	
@@ -61,7 +62,7 @@ public class PlantSegment extends EntityStatic{
 		this.maxGrowth = maxGrowth;
 		//this.organism = organism;
 		
-		CompositeFactory.addScriptTo(this, new EntityBehaviorScript(this){
+		CompositeFactory.addScriptTo(this, new EntityBehaviorScript("PlantSegmentScript",this){
 
 			@Override
 			protected void updateOwnerEntity(EntityStatic entity) {		
@@ -70,6 +71,8 @@ public class PlantSegment extends EntityStatic{
 		});
 		
 	}
+	
+	protected abstract void spawnInWorld(TestBoard board);
 
 	protected void setPreviousStem(StemSegment previous){ this.previousSegment = previous; }
 	
@@ -160,7 +163,7 @@ public class PlantSegment extends EntityStatic{
 	}
 	
 	
-	protected static class GrowingSegment extends PlantSegment{
+	protected static abstract class GrowingSegment extends PlantSegment{
 
 		protected Runnable currentWaterTransportState = new InactiveWaterTransportState();
 		protected SugarTransportState currentSugarTransportState = new InactiveSugarTransportState();
@@ -599,6 +602,11 @@ public class PlantSegment extends EntityStatic{
 				this.name = "stem";
 			}
 			
+			@Override
+			protected void spawnInWorld(TestBoard board) {
+				board.spawnNewSprout( this, "Tree" );
+			}
+			
 			public void debugMakeWaterSource(){
 				
 				this.currentGrowthState = new DebugSeedGrowing();
@@ -699,117 +707,114 @@ public class PlantSegment extends EntityStatic{
 					
 					int oldRadius = (int) (getMaxGrowth() / 100.0 * SEGMENT_LENGTH );
 					
+					int randomShrinkage = randomInt(1 , 10); // This being greater than 0 is the only
+					//thing stopping the stem from growing infinitely. Adjust chances accordingly
+					
+					int thisMaxGrowth = getMaxGrowth() - randomShrinkage; //reduce next segment's max growth so its always smaller				
+					
+					if ( StemSegment.this.getMaxGrowth() > 30) {
 					//if ( numberFromLastBranch > randomInt(0, 3) ){ //start new branch every 1-6 segments
-					if ( numberFromLastBranch >= 
-						Probability.randomInt( StemSegment.this.organism.BRANCH_MIN , organism.BRANCH_MAX) ){ //start new branch every 1-6 segments
-						
-						final int LEAFSTEM_FORK_ANGLE = 45; // Set to 90 or higher for some freaky shit 
-						final int STEM_FORK_ANGLE = 0;
-						final int UPWARD_WILLPOWER = 0; //-20 to 40 look normal. Set to 90 or higher for chaos 
-						
-						int thisMaxGrowth = (int)getMaxGrowth()-1; 
-						
-						int thisSegmentAngle =  (int) ( getAngularComposite().getAngleInDegrees() % 360) ; // constrain angle to 0-360 for convenience
-						
-						if ( thisSegmentAngle > 0){
-							if (thisSegmentAngle > 180) // Adds push towards angle of 0 ( pointing up ) 
-								thisSegmentAngle += UPWARD_WILLPOWER;
-							else
-								thisSegmentAngle -= UPWARD_WILLPOWER; //find better math way of doing this 
+						if ( numberFromLastBranch >= 
+							Probability.randomInt( StemSegment.this.organism.BRANCH_MIN , organism.BRANCH_MAX) ){ //start new branch every 1-6 segments
+							
+							final int STEM_FORK_ANGLE = 0;
+							final int UPWARD_WILLPOWER = 0; //-20 to 40 look normal. Set to 90 or higher for chaos 
+							
+							int thisSegmentAngle =  (int) ( getAngularComposite().getAngleInDegrees() % 360) ; // constrain angle to 0-360 for convenience
+							
+							if ( thisSegmentAngle > 0){
+								if (thisSegmentAngle > 180) // Adds push towards angle of 0 ( pointing up ) 
+									thisSegmentAngle += UPWARD_WILLPOWER;
+								else
+									thisSegmentAngle -= UPWARD_WILLPOWER; //find better math way of doing this 
+							}
+							else{
+								if (thisSegmentAngle < -180)
+									thisSegmentAngle -= UPWARD_WILLPOWER;
+								else
+									thisSegmentAngle += UPWARD_WILLPOWER;
+							}
+							
+							
+							Point relativeTip = StemSegment.this.getAbsolutePositionOf( new Point(0,-(int)oldRadius) );
+							//Create next segments and spawn them into board
+							//PlantTwigSegment sprout = new PlantTwigSegment( endPointX , endPointY , thisMaxGrowth , board) ;
+							StemSegment sproutLeft = new StemSegment( relativeTip.x , relativeTip.y , thisMaxGrowth , StemSegment.this.organism, board) ;
+	
+							//LeafStem leafStemRight = new LeafStem(relativeTip.x, relativeTip.y, thisMaxGrowth , StemSegment.this.organism, board);
+	
+							GrowingSegment leafStemRight = organism.createBranch( relativeTip.x, relativeTip.y, thisMaxGrowth,thisSegmentAngle, board );
+							
+							if ( StemSegment.this.lastBranchedClockwise ){ //check last branch direction and alternate
+								sproutLeft.getAngularComposite().setAngleInDegrees( thisSegmentAngle + STEM_FORK_ANGLE );
+								leafStemRight.getAngularComposite().setAngleInDegrees( thisSegmentAngle - organism.LEAF_ANGLE );
+								sproutLeft.lastBranchedClockwise = false;
+							}
+							else{
+								leafStemRight.getAngularComposite().setAngleInDegrees( thisSegmentAngle + organism.LEAF_ANGLE );
+								sproutLeft.getAngularComposite().setAngleInDegrees( thisSegmentAngle - STEM_FORK_ANGLE );
+								sproutLeft.lastBranchedClockwise = true;
+							}
+							
+							spawnConnectAndParentOffshoots( sproutLeft,leafStemRight );
+							
+							StemSegment.this.currentWaterTransportState = new ForkPushTransportState( leafStemRight, sproutLeft ) ;
+							StemSegment.this.currentSugarTransportState = new ForkSugarOverflowTransport( leafStemRight, sproutLeft ) ;
+							//StemSegment.this.currentSugarTransportState = new StemSugarOverflowTransport( leafStemRight ) ;
+							
+							new UpgradeEvent00().activate();
+							
+							StemSegment.this.waterListener = new TransportWaterListenerActive( 5000 , new UpgradeEvent01() ); 
 						}
-						else{
-							if (thisSegmentAngle < -180)
-								thisSegmentAngle -= UPWARD_WILLPOWER;
-							else
-								thisSegmentAngle += UPWARD_WILLPOWER;
+						else{ // Else segemnt didn't branch, so grown next segment if bigger than 30% grown
+							
+							final int RANDOM_BEND_RANGE = 5; // 0 is perfectly straight branch. Higher than 40 looks withered.
+							final int UPWARD_WILLPOWER = 0; // 
+	
+							
+							//PlantTwigSegment sproutStem = new PlantTwigSegment( endPointX , endPointY , thisMaxGrowth , board) ;	
+							
+							int randomBend = randomInt( -RANDOM_BEND_RANGE ,RANDOM_BEND_RANGE); // get random bend
+							
+							int thisSegmentAngle =  (int)(( getAngularComposite().getAngleInDegrees() + randomBend) % 360) ; //And add it to the next segments angle
+							
+							if ( thisSegmentAngle > 0){
+								if (thisSegmentAngle > 180) // Adds a 10 degree push towards angle of 0 ( pointing up ) same as above
+									thisSegmentAngle += UPWARD_WILLPOWER;
+								else
+									thisSegmentAngle -= UPWARD_WILLPOWER;
+							}
+							else{
+								if (thisSegmentAngle > -180)
+									thisSegmentAngle += UPWARD_WILLPOWER;
+								else
+									thisSegmentAngle -= UPWARD_WILLPOWER;
+							}
+							
+							Point relativeTip = StemSegment.this.getAbsolutePositionOf( new Point(0,-(int)oldRadius) );
+							
+							StemSegment sproutStem = new StemSegment( relativeTip.x , relativeTip.y , thisMaxGrowth, StemSegment.this.organism, board );
+							
+							sproutStem.getAngularComposite().setAngleInDegrees(thisSegmentAngle);
+							
+							//sproutStem.setPreviousStem(StemSegment.this);
+							//board.spawnNewSprout( sproutStem ); //then spawn it in
+							//CompositeFactory.makeChildOfParent(sproutStem, StemSegment.this , board);
+							//StemSegment.this.nextSegments = new PlantSegment[]{sproutStem};
+							spawnConnectAndParentOffshoots(sproutStem);
+							
+							
+							sproutStem.numberFromLastBranch = numberFromLastBranch + 1 ; //Increment next branches number in this stem
+							sproutStem.lastBranchedClockwise = StemSegment.this.lastBranchedClockwise; //didn't branch so pass same direction to next
+	//						board.spawnNewSprout( sproutStem ); //then spawn it in
+							
+							StemSegment.this.currentWaterTransportState = new StemPushTransportState( sproutStem ) ;
+							StemSegment.this.currentSugarTransportState = new StemSugarOverflowTransport( sproutStem ) ;
+							
+							new UpgradeEvent00().activate();
+							
+							StemSegment.this.waterListener = new TransportWaterListenerActive( 5000 , new UpgradeEvent01() ); 
 						}
-						
-						
-						Point relativeTip = StemSegment.this.getAbsolutePositionOf( new Point(0,-(int)oldRadius) );
-						//Create next segments and spawn them into board
-						//PlantTwigSegment sprout = new PlantTwigSegment( endPointX , endPointY , thisMaxGrowth , board) ;
-						StemSegment sproutLeft = new StemSegment( relativeTip.x , relativeTip.y , thisMaxGrowth , StemSegment.this.organism, board) ;
-
-						//LeafStem leafStemRight = new LeafStem(relativeTip.x, relativeTip.y, thisMaxGrowth , StemSegment.this.organism, board);
-
-						GrowingSegment leafStemRight = organism.createBranch( relativeTip.x, relativeTip.y, thisMaxGrowth, board );
-						
-						if ( StemSegment.this.lastBranchedClockwise ){ //check last branch direction and alternate
-							sproutLeft.getAngularComposite().setAngleInDegrees( thisSegmentAngle + STEM_FORK_ANGLE );
-							leafStemRight.getAngularComposite().setAngleInDegrees( thisSegmentAngle - LEAFSTEM_FORK_ANGLE +90);
-							sproutLeft.lastBranchedClockwise = false;
-							leafStemRight.getGraphicComposite().setGraphicAngle( thisSegmentAngle - LEAFSTEM_FORK_ANGLE );
-						}
-						else{
-							leafStemRight.getAngularComposite().setAngleInDegrees( thisSegmentAngle + LEAFSTEM_FORK_ANGLE +90);
-							sproutLeft.getAngularComposite().setAngleInDegrees( thisSegmentAngle - STEM_FORK_ANGLE );
-							sproutLeft.lastBranchedClockwise = true;
-							leafStemRight.getGraphicComposite().setGraphicAngle( thisSegmentAngle - STEM_FORK_ANGLE );
-						}
-						
-						spawnConnectAndParentOffshoots( sproutLeft,leafStemRight );
-						
-						StemSegment.this.currentWaterTransportState = new ForkPushTransportState( leafStemRight, sproutLeft ) ;
-						StemSegment.this.currentSugarTransportState = new ForkSugarOverflowTransport( leafStemRight, sproutLeft ) ;
-						//StemSegment.this.currentSugarTransportState = new StemSugarOverflowTransport( leafStemRight ) ;
-						
-						new UpgradeEvent00().activate();
-						
-						StemSegment.this.waterListener = new TransportWaterListenerActive( 5000 , new UpgradeEvent01() ); 
-					}
-					else if ( getMaxGrowth() > 30){ // Else segemnt didn't branch, so grown next segment if bigger than 30% grown
-						
-						final int RANDOM_BEND_RANGE = 5; // 0 is perfectly straight branch. Higher than 40 looks withered.
-						final int UPWARD_WILLPOWER = 0; // 
-						
-						int randomShrinkage = randomInt(1 , 10); // This being greater than 0 is the only
-						//thing stopping the stem from growing infinitely. Adjust chances accordingly
-						
-						int thisMaxGrowth = getMaxGrowth() - randomShrinkage; //reduce next segment's max growth so its always smaller
-						
-						
-						//PlantTwigSegment sproutStem = new PlantTwigSegment( endPointX , endPointY , thisMaxGrowth , board) ;	
-						
-						int randomBend = randomInt( -RANDOM_BEND_RANGE ,RANDOM_BEND_RANGE); // get random bend
-						
-						int thisSegmentAngle =  (int)(( getAngularComposite().getAngleInDegrees() + randomBend) % 360) ; //And add it to the next segments angle
-						
-						if ( thisSegmentAngle > 0){
-							if (thisSegmentAngle > 180) // Adds a 10 degree push towards angle of 0 ( pointing up ) same as above
-								thisSegmentAngle += UPWARD_WILLPOWER;
-							else
-								thisSegmentAngle -= UPWARD_WILLPOWER;
-						}
-						else{
-							if (thisSegmentAngle > -180)
-								thisSegmentAngle += UPWARD_WILLPOWER;
-							else
-								thisSegmentAngle -= UPWARD_WILLPOWER;
-						}
-						
-						Point relativeTip = StemSegment.this.getAbsolutePositionOf( new Point(0,-(int)oldRadius) );
-						
-						StemSegment sproutStem = new StemSegment( relativeTip.x , relativeTip.y , thisMaxGrowth, StemSegment.this.organism, board );
-						
-						sproutStem.getAngularComposite().setAngleInDegrees(thisSegmentAngle);
-						
-						//sproutStem.setPreviousStem(StemSegment.this);
-						//board.spawnNewSprout( sproutStem ); //then spawn it in
-						//CompositeFactory.makeChildOfParent(sproutStem, StemSegment.this , board);
-						//StemSegment.this.nextSegments = new PlantSegment[]{sproutStem};
-						spawnConnectAndParentOffshoots(sproutStem);
-						
-						
-						sproutStem.numberFromLastBranch = numberFromLastBranch + 1 ; //Increment next branches number in this stem
-						sproutStem.lastBranchedClockwise = StemSegment.this.lastBranchedClockwise; //didn't branch so pass same direction to next
-//						board.spawnNewSprout( sproutStem ); //then spawn it in
-						
-						StemSegment.this.currentWaterTransportState = new StemPushTransportState( sproutStem ) ;
-						StemSegment.this.currentSugarTransportState = new StemSugarOverflowTransport( sproutStem ) ;
-						
-						new UpgradeEvent00().activate();
-						
-						StemSegment.this.waterListener = new TransportWaterListenerActive( 5000 , new UpgradeEvent01() ); 
 					}
 				}
 				
@@ -819,7 +824,11 @@ public class PlantSegment extends EntityStatic{
 				
 				for ( PlantSegment offshoot : offshootsList){
 					offshoot.setPreviousStem(StemSegment.this);
-					board.spawnNewSprout( offshoot, "Tree" ); //then spawn it in
+					
+					//board.spawnNewSprout( offshoot, "Tree" ); //then spawn it in
+					
+					offshoot.spawnInWorld(board);
+					
 					CompositeFactory.makeChildOfParent(offshoot, StemSegment.this , board);
 				}
 				
@@ -986,7 +995,7 @@ public class PlantSegment extends EntityStatic{
 					PlantSegment.Leaf newLeaf = new PlantSegment.Leaf(
 							relativeTip.x, relativeTip.y, 
 							thisMaxGrowth,
-							randAngle,
+							LeafStem.this.getAngularComposite().getAngleInDegrees()+organism.LEAF_ANGLE,
 							LeafStem.this.organism,
 							board);
 
@@ -1039,10 +1048,10 @@ public class PlantSegment extends EntityStatic{
 			super(x, y, maxGrowth, board);
 			this.name = "Leaf";
 			
-			CompositeFactory.addGraphicTo(this, leafSprite02, true );
+			CompositeFactory.addGraphicTo(this, leafSprite02, false );
 			this.getGraphicComposite().setGraphicSizeFactor(0);
 			
-			//this.getGraphicComposite().setGraphicAngle(angleOffStem);
+			this.getGraphicComposite().setGraphicAngle(Math.toRadians(angleOffStem));
 			
 			this.currentGrowthState = new LeafGrowingState();
 			this.currentGeneratorState = new Photosynthesis();
@@ -1056,6 +1065,11 @@ public class PlantSegment extends EntityStatic{
 			this.currentGrowthState.run();
 			
 			this.currentGeneratorState.run();
+		}
+		
+		@Override
+		protected void spawnInWorld(TestBoard board) {
+			board.spawnNewSprout( this, "Tree" );
 		}
 		
 		private class Photosynthesis implements Runnable{
@@ -1128,8 +1142,8 @@ public class PlantSegment extends EntityStatic{
 			
 			this.currentGrowthState = new FruitGrowingState( );
 
-			CompositeFactory.addScriptTo(this, new EntityBehaviorScript(this) {
-				
+			CompositeFactory.addScriptTo(this, new EntityBehaviorScript("FruitRotation",this) {
+
 				@Override
 				protected void updateOwnerEntity(EntityStatic ownerEntity) {
 					Vector asteroidDistance = SeedFruit.this.getRelativeTranslationalVectorOf(asteroid).normalLeft();
@@ -1137,6 +1151,11 @@ public class PlantSegment extends EntityStatic{
 				}
 
 			});
+		}
+		
+		@Override
+		protected void spawnInWorld(TestBoard board) {
+			board.spawnNewSprout( this, "Pickable" );
 		}
 		
 		@Override
@@ -1177,7 +1196,7 @@ public class PlantSegment extends EntityStatic{
 			this.treeName = treeName;
 		}
 		
-		public abstract GrowingSegment createBranch( int x, int y , int maxGrowth, TestBoard board );
+		public abstract GrowingSegment createBranch( int x, int y , int angleOfStem, int maxGrowth, TestBoard board );
 	}
 	
 	public class MattTree extends TreeGenome{
@@ -1187,14 +1206,17 @@ public class PlantSegment extends EntityStatic{
 		protected int BRANCH_MIN = 0;
 		protected int BRANCH_MAX = 0;
 		
+		protected int LEAF_ANGLE = 40;
+		
 		public MattTree(String treeName) {
 			super(treeName);
 		}
 
 		@Override
-		public GrowingSegment createBranch( int x, int y , int maxGrowth, TestBoard board ){
+		public GrowingSegment createBranch( int x, int y , int maxGrowth, int angleOfStemDegrees, TestBoard board ){
 			//return new LeafStem( x, y, maxGrowth , this, board);
-			return new Leaf(x, y, maxGrowth, 20 , this, board);
+			return new Leaf(x, y, maxGrowth, angleOfStemDegrees, this, board);
+			//return new SeedFruit(x, y, board);
 		}
 		
 		

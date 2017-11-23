@@ -15,9 +15,10 @@ public interface UpdateableComposite {
 	public void updateComposite();
 	
 	/**Overriding methods should call on the concrete updateable composite's Ticket.removeSelf() method to remove itself from the updater thread
+	 * @return TODO
 	 * 
 	 */
-	public void removeThisUpdateableComposite();
+	public boolean removeThisUpdateableComposite();
 
 	
 	boolean addUpdateableCompositeTo(EntityStatic owner);
@@ -25,6 +26,5 @@ public interface UpdateableComposite {
 	void setUpdateablesIndex( int index );
 
 	void decrementIndex();
-
 	
 }

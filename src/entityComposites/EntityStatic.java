@@ -473,7 +473,12 @@ public class EntityStatic extends Entity{
 			removals.add(comp);
 		}
 		for ( UpdateableComposite remove : removals ){
-			remove.removeThisUpdateableComposite();
+			System.out.print("REMOVING "+remove+": ");
+			if ( !remove.removeThisUpdateableComposite() ){ //Remove math calculations from updater thread
+				System.err.println("FAILED");
+			}else{
+				System.out.println("Removed");
+			}
 		}
 		
 		this.parentComposite.disableComposite();

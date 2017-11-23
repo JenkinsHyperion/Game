@@ -151,7 +151,6 @@ public class BoardPhysicsTesting extends BoardAbstract{
 				EntityStatic explosion = new EntityStatic("boom", spaceship.getPosition() );
 				CompositeFactory.addGraphicTo(explosion, explosionSprite, false );
 				explosion.getGraphicComposite().getSprite().setSizeFactor( 20 );
-				CompositeFactory.addLifespanTo(explosion , 52 );
 				
 				explosionSprite.getAnimation().restart();
 				

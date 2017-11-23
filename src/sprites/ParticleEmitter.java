@@ -101,7 +101,7 @@ public class ParticleEmitter extends EntityStatic{
 										// will clash
 		
 		public FadeInAndOut(EntityStatic ownerEntity) {
-			super(ownerEntity);
+			super("FadeInAndOut",ownerEntity);
 		}
 		
 		@Override
@@ -138,7 +138,7 @@ public class ParticleEmitter extends EntityStatic{
 		byte duriation = 3;
 		
 		public RotatingParticles(EntityStatic ownerEntity) {
-			super(ownerEntity);
+			super("RotatingParticles",ownerEntity);
 		}
 		
 		@Override
@@ -181,7 +181,7 @@ public class ParticleEmitter extends EntityStatic{
 		double y = 0;
 		
 		public ParticleTrail(EntityStatic ownerEntity) {
-			super(ownerEntity);
+			super("ParticleTrail",ownerEntity);
 		}
 		
 		@Override

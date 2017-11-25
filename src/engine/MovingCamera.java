@@ -170,7 +170,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		this.dy = (setdy/zoomFactor);
 	}
 
-	public void quadupleZoom(){
+	public void quadupleZoom( double minZoom ){
 		if ( this.zoomDelta > this.minZoom ){
 			this.zoomDelta = this.zoomDelta/(ZOOM_INCREMENT_PERCENT/100.0);
 		}else{
@@ -178,12 +178,21 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		}
 	}
 	
-	public void quarterZoom(){
+	public void quarterZoom( double maxZoom ){
 		if ( this.zoomDelta < this.maxZoom ){
 			this.zoomDelta = this.zoomDelta*(ZOOM_INCREMENT_PERCENT/100.0);
 		}else{
 			this.zoomDelta = this.maxZoom;
 		}
+	}
+	
+	public void quadupleZoom(){
+		
+		this.zoomDelta = this.zoomDelta/(ZOOM_INCREMENT_PERCENT/100.0);
+	}
+	public void quarterZoom(){
+		
+		this.zoomDelta = this.zoomDelta*(ZOOM_INCREMENT_PERCENT/100.0);
 	}
 	
 	public void setZoomLevel( double factor ){
@@ -195,10 +204,10 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		this.zoomDelta = 1;
 	}
 	
-	public void zoomOutFull(){
+	public void zoomOutFull( double minZoom){
 		this.zoomDelta = minZoom;
 	}
-	public void zoomInFull(){
+	public void zoomInFull( double maxZoom){
 		this.zoomDelta = maxZoom;
 	}
 	
@@ -297,6 +306,21 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 				this.getRelativeY(p1.y), 
 				this.getRelativeX(p2.x), 
 				this.getRelativeY(p2.y)
+				);
+		
+		gBoard.setColor(buffer);
+	}
+	@Override
+	public void drawLine( Point2D p1, Point2D p2){
+		
+		Color buffer = gBoard.getColor();
+		gBoard.setColor(Color.RED);
+		
+		gBoard.drawLine( 
+				this.getRelativeX(p1.getX()), 
+				this.getRelativeY(p1.getY()), 
+				this.getRelativeX(p2.getX()), 
+				this.getRelativeY(p2.getY())
 				);
 		
 		gBoard.setColor(buffer);
@@ -454,8 +478,11 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		drawCross( (int)this.getRelativeX( point.getX() ) , (int)this.getRelativeY( point.getY() ) , gBoard);
 	}
 
-	public void drawCrossInWorld( Point2D point , Graphics2D g2){
-		drawCross( (int)this.getRelativeX( point.getX() ) , (int)this.getRelativeY( point.getY() ) , g2);
+	public void drawCrossInWorld( Point2D point, Color color ){
+		Color def = gBoard.getColor();
+		gBoard.setColor(color);
+		drawCross( (int)this.getRelativeX( point.getX() ) , (int)this.getRelativeY( point.getY() ) , gBoard);
+		gBoard.setColor(def);
 	}
 	
 	public void drawLineInWorld( Line2D line , Graphics2D g2 ){

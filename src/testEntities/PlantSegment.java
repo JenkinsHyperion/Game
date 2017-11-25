@@ -597,6 +597,7 @@ public abstract class PlantSegment extends EntityStatic{
 							angularComposite 
 							);
 					
+					//this.getColliderComposite().deactivateCollider();
 				}
 				
 				this.name = "stem";
@@ -704,6 +705,8 @@ public abstract class PlantSegment extends EntityStatic{
 			private class FullyGrownEvent implements Trigger{ //Event that fires when this segments growth counter reaches 100%
 				@Override
 				public void activate() {
+					
+					//StemSegment.this.getColliderComposite().activateCollider();
 					
 					int oldRadius = (int) (getMaxGrowth() / 100.0 * SEGMENT_LENGTH );
 					
@@ -1048,7 +1051,9 @@ public abstract class PlantSegment extends EntityStatic{
 			super(x, y, maxGrowth, board);
 			this.name = "Leaf";
 			
-			CompositeFactory.addGraphicTo(this, leafSprite02, false );
+			this.addAngularComposite();
+			
+			CompositeFactory.addGraphicTo(this, leafSprite02, true );
 			this.getGraphicComposite().setGraphicSizeFactor(0);
 			
 			this.getGraphicComposite().setGraphicAngle(Math.toRadians(angleOffStem));

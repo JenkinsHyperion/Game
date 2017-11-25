@@ -8,6 +8,7 @@ import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.image.ImageObserver;
 
 import entityComposites.EntityStatic;
@@ -29,6 +30,7 @@ public interface ReferenceFrame {
 	public ImageObserver getObserver();
 	public Graphics2D getGraphics();
 	public void drawLine( Point p1 , Point p2 );
+	public void drawLine( Point2D p1 , Point2D p2 );
 }
 
 

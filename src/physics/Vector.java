@@ -27,6 +27,11 @@ public class Vector implements Serializable{
 			this.y = line.getP2().getY() - line.getP1().getY();
 		}
 		
+		public Vector(Point relativePoint) {
+			this.x = relativePoint.getX();
+			this.y = relativePoint.getY();
+		}
+
 		public double getX(){ return x; }
 		public double getY(){ return y; }
 		public void setX(double newX) {
@@ -68,8 +73,9 @@ public class Vector implements Serializable{
 			}
 		}
 		
-		public void ofMagnitude( double magnitude ){
-			//TODO
+		public Vector ofMagnitude( double magnitude ){
+
+			return this.unitVector().multiply(magnitude);
 		}
 		
 		/**
@@ -315,6 +321,14 @@ public class Vector implements Serializable{
 					origin.getX()+this.x,
 					origin.getY()+this.y					
 					);
+		}
+		
+		public Point2D.Double toPointDouble(){
+			return new Point2D.Double(this.x,this.y);
+		}
+		
+		public Point toPoint(){
+			return new Point( (int) this.x, (int) this.y);
 		}
 		
 		@Override

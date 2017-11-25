@@ -87,6 +87,11 @@ public abstract class Boundary {
 		Point2D returnPoint = new Point.Double( p.getX() + shift.getX() , p.getY() + shift.getY() );
 		return returnPoint;
 	}
+	public static Point2D.Double shiftPoint( Point2D p , Point shift ){
+		
+		Point2D.Double returnPoint = new Point.Double( p.getX() + shift.getX() , p.getY() + shift.getY() );
+		return returnPoint;
+	}
 	public static Point2D dividePoint( Point2D p , double factor ){
 		
 		Point2D returnPoint = new Point.Double( p.getX() /factor , p.getY() /factor );

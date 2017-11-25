@@ -616,6 +616,7 @@ public class CollisionEngine {
 		}
 		
 		public void notifyActivatedCollider() {
+			System.out.println("CollisionEngine: Activating "+pairsList.size()+" collision pairs");
 			for ( CheckingPair<?,?> inactivePairs : pairsList ){
 				inactivePairs.activate();
 			}

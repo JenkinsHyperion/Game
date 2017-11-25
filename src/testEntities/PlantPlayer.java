@@ -54,6 +54,9 @@ public class PlantPlayer extends Player {
 	
 	private TestBoard board;
 	private MovingCamera camera;
+	
+	private double minCameraZoom = 0.5;
+	private double maxCameraZoom = 1;
 
 	private final ClimbingState climbing = new ClimbingState();
 	private final MovingState movingState = new MovingState();
@@ -744,9 +747,9 @@ public class PlantPlayer extends Player {
 			bufferState = movingState;
 		}
 		@Override
-		public void onUp() { playerCameraFocus.setLocation(0,-250); camera.zoomOutFull();}
+		public void onUp() { playerCameraFocus.setLocation(0,-250); camera.zoomOutFull(minCameraZoom);}
 		@Override
-		public void offUp() { playerCameraFocus.setLocation(0,0); camera.zoomInFull();}
+		public void offUp() { playerCameraFocus.setLocation(0,0); camera.zoomInFull(maxCameraZoom);}
 		@Override
 		public void onDown() { currentInteractionContext = new DropContext(); }
 		@Override
@@ -928,17 +931,17 @@ public class PlantPlayer extends Player {
 		@Override
 		public void onUp() { 
 			playerCameraFocus.setLocation(0,-250); 
-			camera.zoomOutFull();
+			camera.zoomOutFull(minCameraZoom);
 			}
 		@Override
-		public void offUp() { playerCameraFocus.setLocation(0,0); camera.zoomInFull();}
+		public void offUp() { playerCameraFocus.setLocation(0,0); camera.zoomInFull(maxCameraZoom);}
 		@Override
 		public void onDown() { 
 			playerCameraFocus.setLocation(0,250); 
-			camera.zoomOutFull();
+			camera.zoomOutFull(minCameraZoom);
 			}
 		@Override
-		public void offDown() { playerCameraFocus.setLocation(0,0); camera.zoomInFull();}
+		public void offDown() { playerCameraFocus.setLocation(0,0); camera.zoomInFull(maxCameraZoom);}
 		//##################################################################
 	}
 

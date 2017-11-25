@@ -273,11 +273,11 @@ public class TestBoard extends BoardAbstract{
         this.addInputController(player.currentInputManager); //add player input controller to board
         this.currentScene.addEntity(player,"Player");
         
-        EntityStatic tail = new Chainlink( "Tail" , player.getPosition());
+        EntityStatic tail = new Chainlink( "Tail" , player.getPosition() , 30 , 10 );
         
         this.currentScene.addEntity( tail );
 
-        CompositeFactory.makeChildOfParent(tail, player, this, CompositeFactory.ROTATIONAL_CHILD);
+        CompositeFactory.makeChildOfParent(tail, player, this, CompositeFactory.TRANSLATIONAL_CHILD);
         
 
         follow = new Follow(player);
@@ -359,7 +359,7 @@ public class TestBoard extends BoardAbstract{
 		currentScene.createBackgroundSprite(3, new Sprite.Stillframe("Prototypes/starcloud01.png",Sprite.CENTERED) , 0 , -1000);
 
 		Sprite.Stillframe bgPlanet = new Sprite.Stillframe("asteroid.png",Sprite.CENTERED);
-		currentScene.createBackgroundSprite(6, bgPlanet , 400 , 0).getGraphicComposite().setGraphicSizeFactor(0.5);
+		currentScene.createBackgroundSprite(6, bgPlanet , 400 , 0).getGraphicComposite().setGraphicSizeFactor(0.7);
 		
     	camera.createRotationalCameraBehavior( player, player.getPlayerCameraFocus() ,asteroid.getPosition(), player.getPlayerLookZoom() );
 

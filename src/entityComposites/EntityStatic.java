@@ -328,7 +328,7 @@ public class EntityStatic extends Entity{
     	this.y = y;
 	}
 	
-    @Override
+    /*@Override
     public void setX(double setx) {
         x = setx;
         position.setLocation(setx,position.getY());
@@ -341,35 +341,31 @@ public class EntityStatic extends Entity{
         position.setLocation(position.getX(),sety);
         
         this.getParentComposite().notifyPositionChange(x, y);
-    }
+    }*/
     @Override
     public void setPos(Point p){
-    	x = (int) p.getX();
-    	y = (int) p.getY();
+    	setInternalPosition( p.getX(), p.getY() );
     	position.setLocation(x,y);
         
         this.getParentComposite().notifyPositionChange(x, y);
     }
     @Override
     public void setPos( int x, int y){
-    	this.x =  x;
-    	this.y =  y;
+    	setInternalPosition( x, y );
     	position.setLocation(x,y);
         
         this.getParentComposite().notifyPositionChange(this.x, this.y);
     }
     @Override
     public void setPos( double x, double y){
-    	this.x =  x;
-    	this.y =  y;
+    	setInternalPosition( x, y );
         position.setLocation(x,y);
         
         this.getParentComposite().notifyPositionChange(x, y);
     }
     @Override
 	public void setPos(Point2D p) {
-		this.x =  p.getX();
-    	this.y =  p.getY();
+    	setInternalPosition( p.getX(), p.getY() );
         position.setLocation(x,y);
         
         this.getParentComposite().notifyPositionChange(x, y);
@@ -617,6 +613,18 @@ public class EntityStatic extends Entity{
 		returnPoint = this.getTranslationalAbsolutePositionOf( returnPoint );
 		
 		return returnPoint;
+	}
+	
+	public Point2D.Double getAbsoluteDoublePositionOf(Point2D relativePoint ){
+		
+		Point returnPoint = this.angularComposite.getRotationalAbsolutePositionOf(relativePoint);
+		
+		returnPoint = this.getTranslationalAbsolutePositionOf( returnPoint );
+		
+		return new Point2D.Double(
+				returnPoint.getX(),
+				returnPoint.getY()
+				);
 	}
 	
 	private static class NullTicket extends ListNodeTicket{

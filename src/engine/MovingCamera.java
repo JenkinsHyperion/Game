@@ -373,7 +373,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	 * @param line
 	 * @param g
 	 */
-	public void drawInBoard( Line2D line, Graphics2D g2 ){
+	public void drawLineInBoard( Line2D line, Graphics2D g2 ){
 		
 		gBoard.drawLine( 
 				getRelativeX(line.getX1()) ,  
@@ -413,7 +413,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		);
 		
 	}
-	
+	@Deprecated
 	public void drawShapeInWorld( Shape shape , Point worldPosition){
 		
 		AffineTransform cameraTransform = new AffineTransform();

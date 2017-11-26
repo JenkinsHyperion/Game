@@ -2247,7 +2247,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			// old drawsurfacelines vvvvvv
 			g2.setColor(Color.DARK_GRAY);
 			for (Line2D.Double lineToDraw: oldBoundaryLines) {
-				camera.drawInBoard(lineToDraw,g2);
+				camera.drawLineInBoard(lineToDraw,g2);
 			}
 			g2.setColor(Color.MAGENTA);
 			/*for (int i = 0; i < vertexList.size()-1; i++) {
@@ -2255,7 +2255,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				camera.draw(tempLine);
 			}*/
 			for (Line2D.Double lineToDraw: surfaceLines) {
-				camera.drawInBoard(lineToDraw,g2);
+				camera.drawLineInBoard(lineToDraw,g2);
 			}
 		}
 		@Override

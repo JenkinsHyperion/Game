@@ -362,6 +362,20 @@ public class Collider implements EntityComposite{
 	public Point2D absolutePositionOfRelativePoint( Point p ){
 		return this.ownerEntity.getTranslationalAbsolutePositionOf(p);
 	}
+	
+	
+	public static class Ultralight extends Collider{
+		
+		private final int radius;
+		
+		public Ultralight( EntityStatic owner, int radius ) {
+			
+			this.ownerEntity = owner;
+			this.radius = radius;
+		}
+		
+	}
+	
 
 }
 

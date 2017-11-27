@@ -1,6 +1,7 @@
 package engine;
 
 import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics;
@@ -315,7 +316,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		
 		Color buffer = gBoard.getColor();
 		gBoard.setColor(Color.RED);
-		
+		//gBoard.setStroke(new BasicStroke(10, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL));
 		gBoard.drawLine( 
 				this.getRelativeX(p1.getX()), 
 				this.getRelativeY(p1.getY()), 

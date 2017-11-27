@@ -204,6 +204,7 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 				
 				g2.drawString( group.toString() + " containing :", 35, y );
 				y = y + 15;
+				/*
 				for( String entity : entitiesInGroup ){
 					g2.drawString( "-  "+entity+" (static)", 50, y );
 					y = y + 15;
@@ -214,7 +215,7 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 				for( String entity : entitiesInGroup ){
 					g2.drawString( "-  "+entity+" (dynamic)", 50, y );
 					y = y + 15;
-				}
+				}*/
 			}
 			
 			/*for ( GroupPair pair : groupPairs ){

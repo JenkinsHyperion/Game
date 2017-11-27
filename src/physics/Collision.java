@@ -265,6 +265,7 @@ public abstract class Collision {
 		public void internalCompleteCollision() {
 			this.collidingPrimary.onLeavingCollisionEvent();
 			this.collidingSecondary.onLeavingCollisionEvent();
+			System.out.println("COLLISION START BASIC");
 		}
 
 		@Override
@@ -328,6 +329,53 @@ public abstract class Collision {
 		@Override
 		public String toString() {
 			return "Unnamed Custom Collision";
+		}
+		
+	}
+	
+	
+	public static class Ultralight extends CustomType< EntityStatic, EntityStatic >{
+
+		
+		
+		public Ultralight(EntityStatic e1, Collider collider1, EntityStatic e2, Collider collider2) {
+			super(e1, collider1, e2, collider2);
+		}
+
+		@Override
+		protected void internalInitializeCollision() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		protected void updateCollision() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void updateVisualCollision(MovingCamera camera, Graphics2D gOverlay) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void internalCompleteCollision() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public EntityStatic getEntityInvolved(boolean pairID) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public boolean isActive(EntityStatic entity1, EntityStatic entity2) {
+			// TODO Auto-generated method stub
+			return false;
 		}
 		
 	}

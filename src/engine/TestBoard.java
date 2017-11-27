@@ -76,6 +76,8 @@ public class TestBoard extends BoardAbstract{
     public static ColliderGroup<GravityMarker> gravityWellGroup;
 
     public static ColliderGroup<EntityStatic> selfCollisionGroup;
+    
+    public static ColliderGroup<EntityStatic> ultralightCollisionGroup;
 
     public TestBoard(int width , int height, JFrame frame ) {
     	super(width,height,frame);
@@ -222,6 +224,9 @@ public class TestBoard extends BoardAbstract{
 
         selfCollisionGroup = collisionEngine.<EntityStatic>createColliderGroup("SelfCollisionGroup");
         selfCollisionGroup.allowSelfCollision( CollisionDispatcher.DYNAMIC_DYNAMIC );
+        
+        ultralightCollisionGroup = collisionEngine.<EntityStatic>createColliderGroup("Grass");
+
         collisionEngine.addCustomCollisionsBetween(selfCollisionGroup, worldGeometryGroup, CollisionDispatcher.DYNAMIC_STATIC);
         
         collisionEngine.addCustomCollisionsBetween(playerGroup, worldGeometryGroup, new PlantPlayer.GroundCollision() );
@@ -232,15 +237,18 @@ public class TestBoard extends BoardAbstract{
         
         collisionEngine.addCustomCollisionsBetween( playerGroup, gravityWellGroup, new GravityMarker.CircularGravityField() );
     	
+        //collisionEngine.addCustomCollisionsBetween( playerGroup , ultralightCollisionGroup, CollisionDispatcher.ULTRALIGHT );
+        
+        collisionEngine.addCustomCollisionsBetween( playerGroup , ultralightCollisionGroup, new Asteroid.GrassBump() );
+        
     	myMouseHandler = new MouseHandlerClass();
   		this.addMouseListener(myMouseHandler);
   		this.addMouseMotionListener(myMouseHandler);
         setFocusable(true);
         setBackground(Color.BLACK);
+
         
-        
-        
-        asteroid = new Asteroid( 0 , 600 , 500, this, Asteroid.PRESET01);
+        asteroid = new Asteroid( 0 , 600 , 500, this, Asteroid.PRESET04);
         this.currentScene.addEntity(asteroid,"Ground");
         asteroid.spawnGrass();
         asteroid.spawnPresetBush(282, 0.6, 4);
@@ -273,7 +281,7 @@ public class TestBoard extends BoardAbstract{
         this.addInputController(player.currentInputManager); //add player input controller to board
         this.currentScene.addEntity(player,"Player");
         
-        EntityStatic tail = new Chainlink( "Tail" , player.getPosition() , 30 , 10 );
+        EntityStatic tail = new Chainlink( "Tail" , player.getPosition() , 50 , 10 );
         
         this.currentScene.addEntity( tail );
 
@@ -359,7 +367,7 @@ public class TestBoard extends BoardAbstract{
 		currentScene.createBackgroundSprite(3, new Sprite.Stillframe("Prototypes/starcloud01.png",Sprite.CENTERED) , 0 , -1000);
 
 		Sprite.Stillframe bgPlanet = new Sprite.Stillframe("asteroid.png",Sprite.CENTERED);
-		currentScene.createBackgroundSprite(6, bgPlanet , 400 , 0).getGraphicComposite().setGraphicSizeFactor(0.7);
+		currentScene.createBackgroundSprite(6, bgPlanet , 400 , 200).getGraphicComposite().setGraphicSizeFactor(1.5);
 		
     	camera.createRotationalCameraBehavior( player, player.getPlayerCameraFocus() ,asteroid.getPosition(), player.getPlayerLookZoom() );
 

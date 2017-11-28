@@ -331,5 +331,45 @@ public abstract class Collision {
 		}
 		
 	}
+	
+	public static class Ultralight extends Collision{
+
+		@Override
+		protected void internalInitializeCollision() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		protected void updateCollision() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void updateVisualCollision(MovingCamera camera, Graphics2D gOverlay) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void internalCompleteCollision() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public EntityStatic getEntityInvolved(boolean pairID) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public boolean isActive(EntityStatic entity1, EntityStatic entity2) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+		
+	}
 
 }

@@ -587,8 +587,6 @@ public class CollisionEngine {
 		protected ArrayList<ColliderGroup> groupsList = new ArrayList<ColliderGroup>();
 		protected ArrayList<ListNodeTicket> groupTickets = new ArrayList<ListNodeTicket>();
 		
-		private Hashtable<Integer[],Integer> linkedListTest = new Hashtable<Integer[],Integer>();
-		
 		public ActiveCollider( Collider collider ){
 			this.collider = collider;
 		}

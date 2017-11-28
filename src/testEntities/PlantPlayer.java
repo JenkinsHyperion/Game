@@ -278,7 +278,7 @@ public class PlantPlayer extends Player {
 		
     	//this.inputManager = controllerInputManager;
     	
-		this.currentInputManager = mouseAndKeyInputManager;
+		this.currentInputManager = controllerInputManager;
     	
     	givePlayerItem( new Fruit01() );
 	}
@@ -350,6 +350,7 @@ public class PlantPlayer extends Player {
 				@Override
 				protected void completeCollision() {
 					player.getTranslationComposite().unregisterForce(frictionForce);
+					player.canStartClimb = true;
 				}
 			};
 		}

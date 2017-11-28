@@ -32,7 +32,7 @@ public class Collider implements EntityComposite{
 
 	protected Boundary boundary;
 
-	private boolean isActive = true;
+	protected boolean isActive = true;
 	
 	protected ArrayList<CollidingPair> collisionInteractions = new ArrayList<CollidingPair>();
 
@@ -359,9 +359,13 @@ public class Collider implements EntityComposite{
 	public Point2D absolutePositionOfRelativePoint( Point2D p ){ 
 		return this.ownerEntity.getTranslationalAbsolutePositionOf(p);
 	}
-	public Point2D absolutePositionOfRelativePoint( Point p ){
-		return this.ownerEntity.getTranslationalAbsolutePositionOf(p);
-	}
 
+	
+	
+	
+	public static class Ultralight extends Collider{
+		
+	}
+	
 }
 

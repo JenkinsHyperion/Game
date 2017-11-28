@@ -81,9 +81,6 @@ public class ColliderRotational extends Collider implements RotateableComposite{
 	public Point2D absolutePositionOfRelativePoint( Point2D p ){ 
 		return this.ownerEntity.getAbsolutePositionOf(p);
 	}
-	@Override
-	public Point2D absolutePositionOfRelativePoint( Point p ){
-		return this.ownerEntity.getAbsolutePositionOf(p);
-	}
+
 	
 }

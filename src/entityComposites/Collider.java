@@ -361,11 +361,19 @@ public class Collider implements EntityComposite{
 	}
 
 	
-	
-	
 	public static class Ultralight extends Collider{
 		
+		private final int radius;
+		
+		public Ultralight( EntityStatic owner, int radius ) {
+			
+			this.ownerEntity = owner;
+			this.radius = radius;
+		}
+		
 	}
+	
+
 	
 }
 

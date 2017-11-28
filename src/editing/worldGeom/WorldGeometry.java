@@ -15,6 +15,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.QuadCurve2D;
 import java.awt.image.BufferedImage;
 import java.util.*;
 
@@ -127,8 +128,11 @@ public class WorldGeometry extends ModeAbstract{
 		// old drawsurfacelines vvvvvv
 		g2.setColor(Color.MAGENTA);
 		for (Line2D.Double lineToDraw: surfaceLines) {
-			camera.drawInBoard(lineToDraw,g2);
+			camera.drawLineInBoard(lineToDraw,g2);
 		}
+		/*for (QuadCurve2D test: testCurves){
+			camera.drawShapeInWorld(test, (Point)test.getP1(), g2);
+		}*/
 	}
 	@Deprecated
 	public void updateSurfaceLinesUponChange(int startingIndex) {
@@ -345,7 +349,7 @@ public class WorldGeometry extends ModeAbstract{
 				//g2.draw(new Line2D.Double(board.camera.getLocalPosition((Point) ghostLine.getP1()), ghostLine.getP2()));
 				//g2.drawLine(board.camera.getRelativeX((int)ghostLine.getX1()), board.camera.getRelativeY((int)ghostLine.getY1()),
 				//board.camera.getRelativeX((int)ghostLine.getX2()), board.camera.getRelativeY((int)ghostLine.getY2()));
-				camera.drawInBoard(ghostLine,g2);
+				camera.drawLineInBoard(ghostLine,g2);
 			}
 			defaultRender(g2);
 			tempRectBoundaryState.draw(g2, camera);

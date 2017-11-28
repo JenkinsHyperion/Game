@@ -2,9 +2,8 @@ package testEntities;
 
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-
-import com.sun.javafx.geom.transform.GeneralTransform3D;
 
 import engine.ReferenceFrame;
 import entityComposites.CompositeFactory;
@@ -22,6 +21,8 @@ public class Chainlink extends EntityStatic{
 	private final int LINK_LENGTH;
 	private final int LINK_AMOUNT;
 	
+	private final Sprite.Stillframe sprite = new Sprite.Stillframe("box.png");
+	
 	public Chainlink( int linkAmount, int linkLength ) {
 		super(0, 0);
 		LINK_LENGTH = linkLength;
@@ -37,7 +38,7 @@ public class Chainlink extends EntityStatic{
 	}
 	
 	private void init(){
-
+		
 		relativeEndpoints = new Point2D.Double[LINK_AMOUNT];
 		for ( int i = 0 ; i < relativeEndpoints.length ; ++i){
 			relativeEndpoints[i] = new Point2D.Double(LINK_LENGTH,0);
@@ -53,7 +54,9 @@ public class Chainlink extends EntityStatic{
 				
 				for ( int i = 1 ; i < relativeEndpoints.length ; ++i ){
 				
-					camera.drawLine( origin, endpoint );
+					   camera.drawLine( origin, endpoint );
+					
+					//camera.draw( sprite.getImage() , new Point( (int)endpoint.getX(), (int)endpoint.getY()), new AffineTransform(), 1 );
 					
 					origin.setLocation(endpoint); // start next draw cycle at this end-point
 					

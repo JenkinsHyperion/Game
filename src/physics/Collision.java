@@ -265,6 +265,7 @@ public abstract class Collision {
 		public void internalCompleteCollision() {
 			this.collidingPrimary.onLeavingCollisionEvent();
 			this.collidingSecondary.onLeavingCollisionEvent();
+			System.out.println("COLLISION START BASIC");
 		}
 
 		@Override
@@ -331,8 +332,16 @@ public abstract class Collision {
 		}
 		
 	}
+
 	
-	public static class Ultralight extends Collision{
+	public static class Ultralight extends CustomType< EntityStatic, EntityStatic >{
+
+		
+		
+		public Ultralight(EntityStatic e1, Collider collider1, EntityStatic e2, Collider collider2) {
+			super(e1, collider1, e2, collider2);
+		}
+
 
 		@Override
 		protected void internalInitializeCollision() {

@@ -21,6 +21,7 @@ public abstract class CollisionDispatcher< EntityTypePrimary extends EntityStati
 	public static final CollisionDispatcher.DynamicDynamic<?,?> DYNAMIC_DYNAMIC = new DynamicDynamic<>();
 	public static final CollisionDispatcher.DynamicStaticRigidless<?,?> RIGIDLESS_DYNAMIC_STATIC = new DynamicStaticRigidless<>();
 	public static final CollisionDispatcher.CircularGravityField<?,?> CIRCULAR_GRAVITY_FIELD = new CircularGravityField<>();
+	public static final CollisionDispatcher.Ultralight<?,?> ULTRALIGHT = new Ultralight<>();
 
 	public abstract Collision createVisualCollision( EntityTypePrimary entityInstance1 , Collider colliderInstance1, EntityTypeSecondary entityInstance2, Collider colliderInstance2, VisualCollisionCheck check, RenderingEngine engine);
 	
@@ -109,5 +110,17 @@ public abstract class CollisionDispatcher< EntityTypePrimary extends EntityStati
 		}
 	}
 	
+	public static class Ultralight<E1 extends EntityStatic, E2 extends EntityStatic> extends CollisionDispatcher<EntityStatic, EntityStatic>{
+
+		@Override
+		public Collision createVisualCollision(EntityStatic entityInstance1, Collider colliderInstance1,
+				EntityStatic entityInstance2, Collider colliderInstance2, VisualCollisionCheck check,
+				RenderingEngine engine) {
+			
+			return new Collision.Ultralight( entityInstance1, colliderInstance1 , entityInstance2, colliderInstance2 );
+			
+		}
+		
+	}
 	
 }

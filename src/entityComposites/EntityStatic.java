@@ -5,6 +5,7 @@ import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import animation.Animation;
 import engine.BoardAbstract;
@@ -44,6 +45,8 @@ public class EntityStatic extends Entity{
 	protected ChildComposite childComposite = ChildComposite.nullChildComposite();
 	
 	protected ArrayList<UpdateableComposite> updateablesList = new ArrayList<UpdateableComposite>();
+	protected ArrayList<Integer> modifyUpdateablesList = new ArrayList<Integer>();
+	
 
 	public EntityStatic(int x, int y) {
 
@@ -84,29 +87,34 @@ public class EntityStatic extends Entity{
 	}
 	
 	protected void removeUpdateableCompositeFromEntity( int index ){
-		try {
-			while( ownerScene.isWorking() ){
-	
-					wait();
-			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		System.out.println("WAITED AND NOW REMOVING "+index+" size "+updateablesList.size());
-		updateablesList.remove(index);
-		for ( int i = index ; i < updateablesList.size() ; i++){
-			updateablesList.get(i).decrementIndex();
-		}
+		
+//		updateablesList.remove(index);
+//		for ( int i = index ; i < updateablesList.size() ; i++){
+//			updateablesList.get(i).decrementIndex();
+//		}
+		System.out.println("REMOVE UPDATEABLES "+updateablesList.size());
+		modifyUpdateablesList.add( index );
+		
 		
 	}
 	
 	public void addUpdateableEntityToUpdater( BoardAbstract board ){
-		this.updaterSlot = board.addEntityToUpdater(this);
+		if ( this.updaterSlot.isActive() ){
+			
+			System.err.println( "EntityStatic: ["+this+"] is already in the updater list");
+		}
+		else{
+			this.updaterSlot = board.addEntityToUpdater(this);
+		}
 	}
 	
 	public void removeUpdateableEntityFromUpdater(){
 		this.updaterSlot.removeSelfFromList();
 		this.updaterSlot = nullTicket;
+	}
+	
+	public int getNumberofUpdateables(){
+		return updateablesList.size();
 	}
 	
 	/**BE ADVISED: WHEN OVERRIDING IN A SUBCLASS, ALWAYS CALL super.updateComposite() which contains core composite updater functionality.
@@ -124,6 +132,34 @@ public class EntityStatic extends Entity{
 		for ( UpdateableComposite composite : updateablesList ){
 			composite.updateComposite();
 		}
+		
+//		for ( int index : modifyUpdateablesList ){
+//			updateablesList.remove(index);
+//			for ( int i = index ; i < updateablesList.size() ; ++i ){
+//				updateablesList.get(index).decrementIndex();
+//			}
+//		}
+		
+		for( Iterator<Integer> itr = modifyUpdateablesList.iterator(); itr.hasNext(); ){
+			
+			int index = itr.next();  
+			
+			System.out.println("REMOVING "+index+" from "+updateablesList.size());
+			
+			updateablesList.remove(index);
+			System.out.println("REMOVED UPDATEABLE "+updateablesList.size());
+			//for ( int i = index ; i < updateablesList.size() ; ++i ){
+			//	updateablesList.get(i).decrementIndex();
+			//}
+			itr.remove();
+			
+			if ( updateablesList.size() == 0 ){
+				System.out.println("Updateables emptied ");
+				this.removeUpdateableEntityFromUpdater();
+			}
+
+		}
+		
 	}
 	
 	/*######################################################################################################################
@@ -215,6 +251,10 @@ public class EntityStatic extends Entity{
 	
 	public Collider addColliderTo( Boundary bounds, BoardAbstract board ){
 		return CompositeFactory.addColliderTo(this, bounds, board);
+	}
+	
+	public Collider addUltralightColliderTo( int radius, BoardAbstract board ){
+		return CompositeFactory.addUltralightColliderTo( this, radius , board);
 	}
 	
 	public Collider addRotationalColliderTo( AngularComposite angularComposite , Boundary bounds ){

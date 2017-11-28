@@ -138,6 +138,23 @@ public class CompositeFactory {
 		
 	}
 	
+	public static Collider addUltralightColliderTo( EntityStatic entity, int radius, BoardAbstract board ){
+		
+		if ( entity.getColliderComposite().exists() ){ 
+			
+			return entity.getColliderComposite();
+		}
+		else {
+			System.out.println("CompositeFactory: Adding Ultralght Collider to ["+entity+"]");
+			
+			Collider newCollider = new Collider.Ultralight( entity, radius ); //FIXME pass in collision engine instead of board?
+			entity.setCollisionComposite( newCollider );
+			
+			return newCollider;
+		}
+		
+	}
+	
 	public static Collider addRotationalColliderTo( EntityStatic entity , Boundary boundary, AngularComposite angular ){
 
 		if ( entity.getColliderComposite().exists() ){

@@ -235,7 +235,7 @@ public class BoardPhysicsTesting extends BoardAbstract{
 		
 		for ( Vector force : followerEntity.getTranslationComposite().debugForceArrows() ){
 			
-			camera.drawInBoard( force.multiply(300).toLine( followerEntity.getPosition() ) ,(Graphics2D) g);
+			camera.drawLineInBoard( force.multiply(300).toLine( followerEntity.getPosition() ) ,(Graphics2D) g);
 		}
 		
 		g.setColor(Color.CYAN);

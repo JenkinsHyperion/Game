@@ -151,7 +151,7 @@ public class DoubleLinkedList<T> {
 		protected void removeSelf(){
 			this.prevNode.setNextNode( this.nextNode );
 			this.nextNode.setPreviousNode( this.prevNode );
-			size--;
+			--size;
 		}
 		
 	}

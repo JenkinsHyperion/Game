@@ -3,6 +3,7 @@ package engine;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
@@ -369,21 +370,26 @@ public abstract class BoardAbstract extends JPanel implements KeyListener, Mouse
 	
 	protected class BoundaryOverlay implements Overlay{
 		
-		private final Color inactiveColor = new Color(255,255,255);
+		protected Font defaultFont = new Font( Font.SANS_SERIF , Font.PLAIN, 12) ;
+		protected Font contextFont = new Font( Font.SANS_SERIF , Font.PLAIN, 16) ;
 		
 		@Override
 		public void paintOverlay(Graphics2D g2 , MovingCamera cam) {
 			
+			cam.setColor(Color.CYAN);
 			g2.setColor(Color.CYAN);
+			g2.setFont(contextFont);
+			g2.drawString( "BOUNDARY OVERLAY" , 300, 30);
+			g2.setFont(defaultFont);
+
 			for ( Collider collider : collisionEngine.debugListActiveColliders() ){
 				collider.debugDrawBoundary(cam, g2);
 				cam.drawCrossInWorld(collider.getOwnerEntity().getPosition(), g2 );
 			}
-			
-			g2.drawString( "Updateable entities: "+BoardAbstract.this.updateableEntities() , 400, 20);
 
 		}
 	}
+	
 	
 	protected class DiagnosticsOverlay implements Overlay{
 		
@@ -407,6 +413,8 @@ public abstract class BoardAbstract extends JPanel implements KeyListener, Mouse
 		    		g2.setColor(Color.CYAN);
 		    		g2.drawLine(3*i + 50 , 500 - speed , 3*i + 50 , 500 - speed-(speedLog[i]/50) );
 		    }
+			
+			g2.drawString( "Updateable entities: "+BoardAbstract.this.updateableEntities() , 400, 20);
 		    
 		}
 		

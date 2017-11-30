@@ -1,5 +1,7 @@
 package physics;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.Line2D;
@@ -63,7 +65,9 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 		@Override
 		public void run() {
 			while ( activeCheckingPairs.hasNext() ){
+				
 				activeCheckingPairs.get().check();
+				
 			}
 	    	updateCollisions();    
 		}
@@ -171,17 +175,26 @@ public class VisualCollisionEngine extends CollisionEngine implements Overlay{
 	}
 	
 	public class ForcesOverlay implements Overlay{
-
+		
+		protected Font defaultFont = new Font( Font.SANS_SERIF , Font.PLAIN, 12) ;
+		protected Font contextFont = new Font( Font.SANS_SERIF , Font.PLAIN, 16) ;
+		
 		@Override
 		public void paintOverlay(Graphics2D g2, MovingCamera cam) {
 			
-			g2.drawString( " VISUAL COLLISION ENGINE OVERLAY ", 20, 20 );
-			g2.drawString( " dynamic collider ", 20, 35 );
-			g2.drawString( activeCheckingPairs.size() + " active collider pairs", 20, 50 );
+			cam.setColor(Color.YELLOW);
+			g2.setColor(Color.YELLOW);
+			g2.setFont(contextFont);
+			g2.drawString( "COLLISION ENGINE OVERLAY ", 20, 30 );
+			g2.setFont(defaultFont);
 			
-			g2.drawString( colliderGroups.size() + " groups:", 20, 65 );
+
+
+			g2.drawString( activeCheckingPairs.size() + " active collider pairs", 20, 60 );
 			
-			int y = 80;
+			g2.drawString( colliderGroups.size() + " groups:", 20, 75 );
+			
+			int y = 100;
 
 			String[] entitiesInGroup = ungrouped.debugListGroupedStatics();
 			

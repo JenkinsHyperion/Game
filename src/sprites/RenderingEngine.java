@@ -1,8 +1,10 @@
 package sprites;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Shape;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -76,25 +78,28 @@ public class RenderingEngine {
 			layersList[i].renderLayer(camera);
 		}	
 		
-		int spriteNumber = 0;
+		//int spriteNumber = 0;
 		
 		while ( activeSpriteCompositeList.hasNext() ){
+			
 			ActiveGraphic graphic = activeSpriteCompositeList.get();
+			
 			graphic.composite.draw(camera);
-			spriteNumber++;
+			//spriteNumber++;
+
 		}
-		g2.setColor(Color.CYAN);
-		g2.drawString( "Rendering Engine: Sprites: "+ spriteNumber , 20, 300);
-		
+//		g2.setColor(Color.CYAN);
+//		g2.drawString( "Rendering Engine: Sprites: "+ spriteNumber , 20, 300);
+
 		//Overlays
-		
-		g2.drawImage(image,0,0,ownerBoard );
 		
 		for ( OverlayComposite overlay : visibleOverlayList ){
 			overlay.paintOverlay(camera.getOverlayGraphics(), camera);
 		}
 		
 	}
+	
+	
 	
 	public ActiveGraphic addGraphicsCompositeToRenderer( GraphicComposite sprite ){
 		
@@ -200,5 +205,35 @@ public class RenderingEngine {
 			listPosition = null;
 		}
 	}
+	
+	
+	
+	public class SpriteOverlay implements Overlay{
+
+		protected Font defaultFont = new Font( Font.SANS_SERIF , Font.PLAIN, 12) ;
+		protected Font contextFont = new Font( Font.SANS_SERIF , Font.PLAIN, 16) ;
+		
+		@Override
+		public void paintOverlay(Graphics2D g2 , MovingCamera cam) {
+			
+			cam.setColor(Color.GREEN);
+			g2.setColor(Color.GREEN);
+			g2.setFont(contextFont);
+			g2.drawString( "SPRITE OVERLAY" , 500, 30);
+			g2.setFont(defaultFont);
+			
+			while( activeSpriteCompositeList.hasNext() ){
+				
+				ActiveGraphic graphic = activeSpriteCompositeList.get();
+				
+				Shape relativeShape = graphic.composite.getGraphicRelativeBounds(0);
+				
+				camera.drawShapeInWorld( relativeShape , graphic.composite.getOwnerEntity().getPosition());
+				
+			}
+
+		}
+	}
+	
 	
 }

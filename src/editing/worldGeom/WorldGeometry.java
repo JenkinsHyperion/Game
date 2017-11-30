@@ -334,8 +334,11 @@ public class WorldGeometry extends ModeAbstract{
 			g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
 			if (vertexList.size() > 0) {	
 				//offset by a pixel because it was always intersecting with previous line in list
+				Point worldGemoteryClickPosition = camera.getWorldPos(worldGeomMousePos);
+				
 				Line2D.Double ghostLine = new Line2D.Double(vertexList.get(vertexList.size()-1).getPoint().x +3, vertexList.get(vertexList.size()-1).getPoint().y,
-						camera.getLocalX(worldGeomMousePos.x), camera.getLocalY(worldGeomMousePos.y));
+						worldGemoteryClickPosition.x,
+						worldGemoteryClickPosition.y);
 				// if checkForIntersection(ghostLine, new Line2D.Double(vertexPoints(size()-2, vertexPoints(size()-1)
 				if (vertexList.size() > 1) { //there exists at least one line already drawn:
 					if (checkIfLinesIntersect(ghostLine))  //one of the lines are crossing
@@ -372,8 +375,11 @@ public class WorldGeometry extends ModeAbstract{
 		// #######  left click event  #######
 		public class LeftClickEvent extends MouseCommand {
 			public void mousePressed() {
+				
+				Point worldGemoteryClickPosition = camera.getWorldPos(worldGeomMousePos);
+				
 				if (vertexPlacementAllowed == true) // FIXME 
-					addVertex(camera.getLocalX(worldGeomMousePos.x), camera.getLocalY(worldGeomMousePos.y));
+					addVertex(worldGemoteryClickPosition.x,worldGemoteryClickPosition.y);
 			}
 			public void mouseDragged() {
 			}
@@ -406,13 +412,13 @@ public class WorldGeometry extends ModeAbstract{
 			@Override
 			public void mousePressed() {
 				tempRectBoundaryState = tempRectBoundary;
-				initClickPoint.setLocation(camera.getWorldTranslationalPosition(worldGeomMousePos));
+				initClickPoint.setLocation(camera.getWorldPos(worldGeomMousePos));
 				tempRectBoundaryState.setInitialRectPoint();
 			}
 
 			@Override
 			public void mouseDragged() {
-				tempRectBoundaryState.translateEndPoint(camera.getWorldTranslationalPosition(worldGeomMousePos));
+				tempRectBoundaryState.translateEndPoint(camera.getWorldPos(worldGeomMousePos));
 			}
 
 			@Override
@@ -618,7 +624,7 @@ public class WorldGeometry extends ModeAbstract{
 		// ***** inner-inner classes for mouse behavior classes specific to vertex selecting
 		public class VertexSelectLClickEvent extends MouseCommand{
 			public void mousePressed() {
-				checkForVertex(camera.getWorldTranslationalPosition(worldGeomMousePos));
+				checkForVertex(camera.getWorldPos(worldGeomMousePos));
 			}
 			public void mouseDragged() {
 				//currentSelectedVertex.translate(camera.getLocalPosition(worldGeomMousePos));
@@ -639,7 +645,7 @@ public class WorldGeometry extends ModeAbstract{
 		public class CtrlVertexSelectLClickEvent extends MouseCommand{
 
 			public void mousePressed() {
-				checkForVertexShiftClick(camera.getWorldTranslationalPosition(worldGeomMousePos));
+				checkForVertexShiftClick(camera.getWorldPos(worldGeomMousePos));
 			}
 			public void mouseDragged() {
 				//currentSelectedVertex.translate(camera.getLocalPosition(worldGeomMousePos));
@@ -651,7 +657,7 @@ public class WorldGeometry extends ModeAbstract{
 		public class TranslateEvent extends MouseCommand{
 
 			public void mousePressed() {
-				initClickPoint.setLocation(camera.getWorldTranslationalPosition(worldGeomMousePos));
+				initClickPoint.setLocation(camera.getWorldPos(worldGeomMousePos));
 				selectedVertices.updateOldVertexPositions();
 			}
 			public void mouseDragged() {
@@ -666,12 +672,12 @@ public class WorldGeometry extends ModeAbstract{
 			@Override
 			public void mousePressed() {
 				selectionRectangleState = selectionRectangle;
-				initClickPoint.setLocation(camera.getWorldTranslationalPosition(worldGeomMousePos));
+				initClickPoint.setLocation(camera.getWorldPos(worldGeomMousePos));
 				selectionRectangleState.setInitialRectPoint();
 			}
 			@Override
 			public void mouseDragged() {
-				selectionRectangleState.translateEndPoint(camera.getWorldTranslationalPosition(worldGeomMousePos));
+				selectionRectangleState.translateEndPoint(camera.getWorldPos(worldGeomMousePos));
 			}
 			@Override
 			public void mouseReleased() {

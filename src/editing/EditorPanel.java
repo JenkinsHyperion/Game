@@ -17,6 +17,7 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -1146,7 +1147,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				public void mousePressed() {
 					mouseDown = true;
 					// gonna need to create vectore from initClickPoint and current mouse pos (editorMousePos?)
-					initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
+					initClickPoint.setLocation(camera.getWorldPos(editorMousePos));
 					double deltaX = editorMousePos.getX() - 
 							camera.getRelativePoint(getCurrentEntity().getPosition()).getX();
 					double deltaY = editorMousePos.getY() - 
@@ -1191,7 +1192,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				public void mousePressed() {
 					mouseDown = true;
 					// gonna need to create vectore from initClickPoint and current mouse pos (editorMousePos?)
-					initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
+					initClickPoint.setLocation(camera.getWorldPos(editorMousePos));
 				}
 				
 				@Override
@@ -1266,7 +1267,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				@Override
 				public void mousePressed() {
 					// gonna need to create vectore from initClickPoint and current mouse pos (editorMousePos?)
-					initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
+					initClickPoint.setLocation(camera.getWorldPos(editorMousePos));
 					//if 
 					sizeFactorRef = getSingleSelectedEntity().getGraphicComposite().getSprite().getSizeFactor();
 				}
@@ -1308,12 +1309,9 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			if (selectViaSprite == true) {
 				for(EntityStatic entity: board.listCurrentSceneEntities()) {
 					if (entity.getGraphicComposite().exists()) {
-						Rectangle clickableRect = new Rectangle();
-						Sprite graphic = entity.getGraphicComposite().getSprite();
-						//clickableRect.setLocation(entity.getXRelativeTo(camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(camera) + entity.getSpriteOffsetY());
-						clickableRect.setLocation(entity.getX() + graphic.getOffsetX(), entity.getY() + graphic.getOffsetY());
-						clickableRect.setSize(graphic.getImage().getWidth(null), graphic.getImage().getHeight(null) );
-						if (clickableRect.contains(click)) {
+						Shape clickableShape = entity.getGraphicComposite().getGraphicAbsoluteBounds(entity.getPosition());
+								
+						if (clickableShape.contains(click)) {
 							if (selectedEntities.contains(entity))
 								removeSelectedEntity(entity);
 							else {
@@ -1365,12 +1363,10 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			if (selectViaSprite == true) {
 				for (EntityStatic entity: board.listCurrentSceneEntities()) {
 					if (entity.getGraphicComposite().exists()) {
-						Rectangle clickableRect = new Rectangle();
-						//clickableRect.setLocation(entity.getXRelativeTo(camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(camera) + entity.getSpriteOffsetY());
-						Sprite graphic = entity.getGraphicComposite().getSprite();
-						clickableRect.setLocation(entity.getX() + graphic.getOffsetX(), entity.getY() + graphic.getOffsetY());
-						clickableRect.setSize(graphic.getImage().getWidth(null), graphic.getImage().getHeight(null) );
-						if (clickableRect.contains(click))
+						
+						Shape clickableShape = entity.getGraphicComposite().getGraphicAbsoluteBounds(entity.getPosition());
+						
+						if (clickableShape.contains( click ))
 						{
 							if (selectedEntities.contains(entity) == false) {
 								addSelectedEntity(entity);
@@ -1422,13 +1418,9 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				
 				for (EntityStatic entity: board.listCurrentSceneEntities()) {
 					if (entity.getGraphicComposite().exists()){
-						Rectangle clickableRect = new Rectangle();
-						Sprite graphic = entity.getGraphicComposite().getSprite();
-						//clickableRect.setLocation(entity.getXRelativeTo(camera) + entity.getSpriteOffsetX(), entity.getYRelativeTo(camera) + entity.getSpriteOffsetY());
-						clickableRect.setLocation(entity.getX() + graphic.getOffsetX(), entity.getY() + graphic.getOffsetY());
-						clickableRect.setSize(graphic.getImage().getWidth(null), graphic.getImage().getHeight(null) );
-						//if(selectionRect.contains(clickableRect)) {
-						if(selectionRect.intersects(clickableRect)) {
+						Shape clickableRect = entity.getGraphicComposite().getGraphicAbsoluteBounds(entity.getPosition());
+						
+						if(selectionRect.intersects(clickableRect.getBounds())) {
 							if(selectedEntities.contains(entity) == false) {
 								addSelectedEntity(entity);
 							}
@@ -1507,7 +1499,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 
 			@Override
 			public void mousePressed() {
-				checkForEntity(camera.getWorldTranslationalPosition(editorMousePos));
+				checkForEntity(camera.getWorldPos(editorMousePos));
 				//selectedEntities.printSelectedEntities();
 			}
 
@@ -1521,7 +1513,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		public class TranslateEvent extends MouseCommand{
 
 			public void mousePressed() {
-				initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
+				initClickPoint.setLocation(camera.getWorldPos(editorMousePos));
 				selectedEntities.updateOldEntityPositions();
 			}
 			public void mouseDragged() {
@@ -1538,19 +1530,19 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			public void mouseDragged() {}
 			@Override
 			public void mouseReleased() {
-				checkForEntityCtrlClick(camera.getWorldTranslationalPosition(editorMousePos));
+				checkForEntityCtrlClick(camera.getWorldPos(editorMousePos));
 			}
 		}
 		public class SelectionRectEvent extends MouseCommand {
 			@Override
 			public void mousePressed() {
 				selectionRectangleState = selectionRectangle;
-				initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
+				initClickPoint.setLocation(camera.getWorldPos(editorMousePos));
 				selectionRectangleState.setInitialRectPoint();
 			}
 			@Override
 			public void mouseDragged() {
-				selectionRectangleState.translateEndPoint(camera.getWorldTranslationalPosition(editorMousePos));
+				selectionRectangleState.translateEndPoint(camera.getWorldPos(editorMousePos));
 			}
 			@Override
 			public void mouseReleased() {
@@ -1855,8 +1847,12 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				@Override
 				public void mouseDragged() {
 					Sprite currentSprite = currentSelectedEntity.getGraphicComposite().getSprite();
-					int mousePanDX = (camera.getLocalX(initClickPoint.x) - camera.getLocalX(editorMousePos.x));
-					int mousePanDY = (camera.getLocalY(initClickPoint.y) - camera.getLocalY(editorMousePos.y));
+					
+					Point initClickPosition = camera.getWorldPos(initClickPoint);
+					Point editorClickPosition = camera.getWorldPos(editorMousePos);
+					
+					int mousePanDX = ( initClickPosition.x - editorClickPosition.x );
+					int mousePanDY = ( initClickPosition.y - editorClickPosition.y );
 					Vector originalVector = new Vector(mousePanDX, -mousePanDY);
 					Vector newVector = currentSprite.getRelativePoint(originalVector);
 					/*currentSelectedEntity.getGraphicComposite().getSprite().setOffset(
@@ -1993,7 +1989,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				public void mousePressed() {
 					mouseDown = true;
 					// gonna need to create vectore from initClickPoint and current mouse pos (editorMousePos?)
-					initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
+					initClickPoint.setLocation(camera.getWorldPos(editorMousePos));
 					sizeFactorRef = getCurrentEntity().getGraphicComposite().getSprite().getSizeFactor();
 					double deltaX = editorMousePos.getX() - 
 							camera.getRelativePoint(getCurrentEntity().getPosition()).getX();
@@ -2041,7 +2037,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				public void mousePressed() {
 					mouseDown = true;
 					// gonna need to create vectore from initClickPoint and current mouse pos (editorMousePos?)
-					initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
+					initClickPoint.setLocation(camera.getWorldPos(editorMousePos));
 				}
 				
 				@Override
@@ -2147,7 +2143,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				public void mousePressed() {
 					mouseDown = true;
 					// gonna need to create vectore from initClickPoint and current mouse pos (editorMousePos?)
-					initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
+					initClickPoint.setLocation(camera.getWorldPos(editorMousePos));
 					sizeFactorRef = getCurrentEntity().getGraphicComposite().getSprite().getSizeFactor();
 				}
 				
@@ -2658,7 +2654,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					
 					public void mousePressed() {
 						
-						initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
+						initClickPoint.setLocation(camera.getWorldPos(editorMousePos));
 						selectedVertices.updateOldVertexPositions();
 					}
 					public void mouseDragged() {
@@ -2684,7 +2680,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				}
 				public class CtrlVertexSelectLClickEvent extends MouseCommand{
 					public void mousePressed() {
-						checkForVertexShiftClick(camera.getWorldTranslationalPosition(editorMousePos));
+						checkForVertexShiftClick(camera.getWorldPos(editorMousePos));
 					}
 					public void mouseDragged() {
 						//currentSelectedVertex.translate(camera.getLocalPosition(editorMousePos));
@@ -2713,12 +2709,12 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					@Override
 					public void mousePressed() {
 						selectionRectangleState = selectionRectangle;
-						initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
+						initClickPoint.setLocation(camera.getWorldPos(editorMousePos));
 						selectionRectangleState.setInitialRectPoint();
 					}
 					@Override
 					public void mouseDragged() {
-						selectionRectangleState.translateEndPoint(camera.getWorldTranslationalPosition(editorMousePos));
+						selectionRectangleState.translateEndPoint(camera.getWorldPos(editorMousePos));
 					}
 					@Override
 					public void mouseReleased() {
@@ -2738,7 +2734,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				public class VertexSelectLClickEvent extends MouseCommand{
 					public void mousePressed() {
 
-						checkForVertex(camera.getWorldTranslationalPosition(editorMousePos));
+						checkForVertex(camera.getWorldPos(editorMousePos));
 					}
 					public void mouseDragged() {
 						//currentSelectedVertex.translate(camera.getLocalPosition(editorMousePos));
@@ -2814,7 +2810,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			public class VertexSelectLClickEvent extends MouseCommand{
 				public void mousePressed() {
 					
-					checkForVertex(camera.getWorldTranslationalPosition(editorMousePos));
+					checkForVertex(camera.getWorldPos(editorMousePos));
 				}
 				public void mouseDragged() {
 					//currentSelectedVertex.translate(camera.getLocalPosition(editorMousePos));
@@ -2835,7 +2831,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 
 				public void mousePressed() {
 					
-					checkForVertexShiftClick(camera.getWorldTranslationalPosition(editorMousePos));
+					checkForVertexShiftClick(camera.getWorldPos(editorMousePos));
 				}
 				public void mouseDragged() {
 					
@@ -2847,7 +2843,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 
 				public void mousePressed() {
 					
-					initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
+					initClickPoint.setLocation(camera.getWorldPos(editorMousePos));
 					selectedVertices.updateOldVertexPositions();
 				}
 				public void mouseDragged() {
@@ -2884,14 +2880,14 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				public void mousePressed() {
 					
 					selectionRectangleState = selectionRectangle;
-					initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
+					initClickPoint.setLocation(camera.getWorldPos(editorMousePos));
 					selectionRectangleState.setInitialRectPoint();
 				}
 
 				@Override
 				public void mouseDragged() {
 					
-					selectionRectangleState.translateEndPoint(camera.getWorldTranslationalPosition(editorMousePos));
+					selectionRectangleState.translateEndPoint(camera.getWorldPos(editorMousePos));
 				}
 
 				@Override
@@ -3019,14 +3015,14 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				public void mousePressed() {
 					
 					tempRectBoundaryState = tempRectBoundary;
-					initClickPoint.setLocation(camera.getWorldTranslationalPosition(editorMousePos));
+					initClickPoint.setLocation(camera.getWorldPos(editorMousePos));
 					tempRectBoundaryState.setInitialRectPoint();
 				}
 
 				@Override
 				public void mouseDragged() {
 					
-					tempRectBoundaryState.translateEndPoint(camera.getWorldTranslationalPosition(editorMousePos));
+					tempRectBoundaryState.translateEndPoint(camera.getWorldPos(editorMousePos));
 				}
 
 				@Override
@@ -3058,7 +3054,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					// add circular follower
-					createTestEntity(camera.getLocalX(editorMousePos.x) , camera.getLocalY(editorMousePos.y));
+					Point editorClickPosition = camera.getWorldPos(editorMousePos);
+					createTestEntity( editorClickPosition.x , editorClickPosition.y );
 				}
 			});
 			beeSwarm.addActionListener(new ActionListener() {
@@ -3118,7 +3115,9 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			//((TestBoard)board).addFollowerToList(asteroid2);
 		}
 		public void createSwarm(int amount) {
-			Point clickedPoint = new Point(camera.getLocalX(editorMousePos.x) , camera.getLocalY(editorMousePos.y));
+
+			Point clickedPoint = camera.getWorldPos(editorMousePos);
+			
 			Thread task = new Thread(new Runnable() {
 				@Override
 				public void run() {

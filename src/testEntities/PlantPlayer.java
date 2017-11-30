@@ -278,7 +278,8 @@ public class PlantPlayer extends Player {
 		
     	//this.inputManager = controllerInputManager;
     	
-		this.currentInputManager = controllerInputManager;
+		//this.currentInputManager = controllerInputManager;
+		this.currentInputManager = mouseAndKeyInputManager;
     	
     	givePlayerItem( new Fruit01() );
 	}
@@ -563,8 +564,7 @@ public class PlantPlayer extends Player {
 			//for ( PlantPlayer.this.getTranslationComposite().getVelocityVector() ){
 			//	g2.drawString("FUCKING VELOCITIES "+PlantPlayer.this.getTranslationComposite().debugNumberVelocities() , 400,400);
 			//}
-			inputVector.set( leftStickInputVector.add( inputVectorDown.add(inputVectorLeft).add(inputVectorRight).add(inputVectorUp) ) );
-			
+
 			cam.drawLineInWorld( inputVector.multiply(200).toLine( new Point(300,300) ) , g2);
 			
 			//g2.drawString(" Velocities "+getTranslationComposite().debugNumberVelocities()+" "+ currentCling.getVector().angleFromVector() , 700, 385);
@@ -592,6 +592,8 @@ public class PlantPlayer extends Player {
 		@Override
 		public void run() {
 
+			inputVector.set( leftStickInputVector.add( inputVectorDown.add(inputVectorLeft).add(inputVectorRight).add(inputVectorUp) ) );
+			
 			clingNormal.setVector(translationComposite.getNetGravityVector().inverse().multiply( slidingGripPercent/100.0 ));
 			
 			final Vector distance = PlantPlayer.this.getRelativeTranslationalVectorOf(currentStem);

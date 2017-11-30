@@ -95,6 +95,16 @@ public class BoundarySide extends BoundaryFeature{
 	public BoundaryCorner getEndPoint(){ return endpoint; }
 	
 	public Line2D toLine(){ return line; }
+	
+	public Line2D toAbsoluteLine( Point ownerEntityPosition ){ 
+		Line2D relativeLine = this.toLine();
+		return new Line2D.Double(
+			relativeLine.getX1() + ownerEntityPosition.x,
+			relativeLine.getY1() + ownerEntityPosition.y,
+			relativeLine.getX2() + ownerEntityPosition.x,
+			relativeLine.getY2() + ownerEntityPosition.y
+		); 
+	}
 	public Vector toVector(){ return new Vector(slopeX,slopeY); }
 	
 	@Override

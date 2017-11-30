@@ -3,7 +3,9 @@ package sprites;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -20,6 +22,7 @@ import editing.MissingIcon;
 import engine.ReferenceFrame;
 import entityComposites.GraphicComposite;
 import physics.Vector;
+import utility.UtilityMath;
 
 /*
  * This is the base Sprite class. 
@@ -43,6 +46,8 @@ public abstract class Sprite implements Graphic{
     public static final byte CENTERED_BOTTOM = 1;
     public static final byte CENTERED_TOP = 2;
     
+    
+    
 	AffineTransform spriteTransform = new AffineTransform();
 
 	protected Sprite( int xOffset, int yOffset  ){
@@ -55,13 +60,13 @@ public abstract class Sprite implements Graphic{
     //can call a generalized format.
     //public abstract void draw(Camera camera);
     //public abstract void draw();
-
+	@Deprecated
 	public abstract Image getImage(); 
+	
 	public abstract BufferedImage[][] getBufferedImage();
+
 	
 	public abstract Animation getAnimation(); 
-	
-	public abstract void updateSprite();
 	
 //PUBLIC FUNCTIONS	
 	public void setSprite(Animation a){}
@@ -127,6 +132,128 @@ public abstract class Sprite implements Graphic{
 	public int getTileDimension(){
 		return tileSize;
 	}
+	
+	
+	
+	
+	public Shape getGraphicAbsoluteRotationalBounds( double graphicsSizeFactorX, double graphicsSizeFactorY, double angleRadians, Point ownerEntityPosition ){
+		
+		Rectangle box = new Rectangle();
+
+		box.setSize(
+				(int) ( this.getImage().getWidth(null)  * graphicsSizeFactorX * this.getSizeFactor()), 
+				(int) ( this.getImage().getHeight(null) * graphicsSizeFactorY* this.getSizeFactor() )
+				);
+		
+		box.setLocation( 
+				(int)( this.getOffsetX() * graphicsSizeFactorX * this.getSizeFactor()) , 
+				(int)( this.getOffsetY() * graphicsSizeFactorY * this.getSizeFactor()) 
+				);
+		
+		Point[] cornersArray = new Point[]{
+				new Point( (int)box.getMinX() , (int)box.getMinY() ),
+				new Point( (int)box.getMaxX() , (int)box.getMinY() ),
+				new Point( (int)box.getMaxX() , (int)box.getMaxY() ),
+				new Point( (int)box.getMinX() , (int)box.getMaxY() )
+			};
+		
+		int[] newCornersX = new int[cornersArray.length];
+		int[] newCornersY = new int[cornersArray.length];
+		
+		for ( int i = 0 ; i < cornersArray.length ; ++i ){
+			
+			Point rotatedCorner = UtilityMath.getRotationalAbsolutePositionOf(cornersArray[i], angleRadians);
+			newCornersX[i] = rotatedCorner.x + ownerEntityPosition.x;
+			newCornersY[i] = rotatedCorner.y + ownerEntityPosition.y;
+		}
+		
+		Shape rotatedRectangle = new Polygon( newCornersX, newCornersY, newCornersX.length );
+		
+		box.setLocation( 
+				(int)(ownerEntityPosition.getX() + box.getLocation().getX() * graphicsSizeFactorX * this.getSizeFactor()) , 
+				(int)(ownerEntityPosition.getY() + box.getLocation().getY() * graphicsSizeFactorY * this.getSizeFactor()) 
+				);
+		
+		return rotatedRectangle;
+	}
+	
+	public Shape getGraphicRelativeRotationalBounds( double graphicsSizeFactorX, double graphicsSizeFactorY, double angleRadians, int areaExtender ){
+		Rectangle box = new Rectangle();
+		
+		int scaledWidth = (int)(this.getImage().getWidth(null) * graphicsSizeFactorX * this.getSizeFactor());
+		int sclaedHeight = (int)(this.getImage().getHeight(null)* graphicsSizeFactorY * this.getSizeFactor()) ;
+		
+		box.setSize(
+				scaledWidth + areaExtender, 
+				sclaedHeight + areaExtender);
+		
+		box.setLocation( 
+				(int) ( (-areaExtender/2 + this.getOffsetX() ) * graphicsSizeFactorX * this.getSizeFactor()), 
+				(int) ( (-areaExtender/2 + this.getOffsetY() ) * graphicsSizeFactorY * this.getSizeFactor())
+			);
+		
+		Point[] cornersArray = new Point[]{
+				new Point( (int)box.getMinX() , (int)box.getMinY() ),
+				new Point( (int)box.getMaxX() , (int)box.getMinY() ),
+				new Point( (int)box.getMaxX() , (int)box.getMaxY() ),
+				new Point( (int)box.getMinX() , (int)box.getMaxY() )
+			};
+			
+			int[] newCornersX = new int[cornersArray.length];
+			int[] newCornersY = new int[cornersArray.length];
+			
+			for ( int i = 0 ; i < cornersArray.length ; ++i ){
+				
+				Point rotatedCorner = UtilityMath.getRotationalAbsolutePositionOf(cornersArray[i], angleRadians);
+				newCornersX[i] = rotatedCorner.x;
+				newCornersY[i] = rotatedCorner.y;
+			}
+			
+			Shape rotatedRectangle = new Polygon( newCornersX, newCornersY, newCornersX.length );
+			
+		
+			box.setLocation( 
+				(int) ( (-areaExtender/2 + this.getOffsetX() ) * graphicsSizeFactorX * this.getSizeFactor()), 
+				(int) ( (-areaExtender/2 + this.getOffsetY() ) * graphicsSizeFactorY * this.getSizeFactor())
+			);
+		return rotatedRectangle;
+	}
+	
+	public Shape getGraphicAbsoluteTranslationalBounds( double graphicsSizeFactorX, double graphicsSizeFactorY, Point ownerEntityPosition ){
+		
+		Rectangle box = new Rectangle();
+
+		box.setSize(
+				(int) ( this.getImage().getWidth(null)  * graphicsSizeFactorX * this.getSizeFactor()), 
+				(int) ( this.getImage().getHeight(null) * graphicsSizeFactorY* this.getSizeFactor() )
+				);
+
+		box.setLocation( 
+				(int)(ownerEntityPosition.getX() + this.getOffsetX() * graphicsSizeFactorX * this.getSizeFactor()) , 
+				(int)(ownerEntityPosition.getY() + this.getOffsetY() * graphicsSizeFactorY * this.getSizeFactor()) 
+				);
+		
+		return box;
+	}
+	
+	public Shape getGraphicRelativeTranslationalBounds( double graphicsSizeFactorX, double graphicsSizeFactorY, int areaExtender ){
+		Rectangle returnBox = new Rectangle();
+		
+		int scaledWidth = (int)(this.getImage().getWidth(null) * graphicsSizeFactorX * this.getSizeFactor());
+		int sclaedHeight = (int)(this.getImage().getHeight(null)* graphicsSizeFactorY * this.getSizeFactor()) ;
+		
+		returnBox.setSize(
+				scaledWidth + areaExtender, 
+				sclaedHeight + areaExtender);
+		returnBox.setLocation( 
+				(int) ( (-areaExtender/2 + this.getOffsetX() ) * graphicsSizeFactorX * this.getSizeFactor()), 
+				(int) ( (-areaExtender/2 + this.getOffsetY() ) * graphicsSizeFactorY * this.getSizeFactor())
+			);
+		return returnBox;
+	}
+	
+	
+	
     
     public static class Stillframe extends Sprite {  // Object with still image
 
@@ -307,7 +434,7 @@ public abstract class Sprite implements Graphic{
     		fileName = path;
     	}
     	
-
+    	
     
     }
     

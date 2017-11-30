@@ -6,6 +6,7 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
@@ -88,10 +89,41 @@ public class SpriteFilledShape extends Sprite {
 	}
 
 	@Override
-	public void updateSprite() {
-		// TODO Auto-generated method stub
+	public Shape getGraphicAbsoluteTranslationalBounds( double graphicsSizeFactorX, double graphicsSizeFactorY, Point ownerEntityPosition ){
 		
-	}
+		Polygon returnShape = new Polygon( this.shape.xpoints, this.shape.ypoints, this.shape.npoints);
 
+		//resize
+		
+		returnShape.translate( 
+				(int)(ownerEntityPosition.getX() + this.getOffsetX() * graphicsSizeFactorX * this.getSizeFactor()) , 
+				(int)(ownerEntityPosition.getY() + this.getOffsetY() * graphicsSizeFactorY * this.getSizeFactor()) 
+				);
+		
+		return returnShape;
+	}
+	@Override
+	public Shape getGraphicRelativeTranslationalBounds( double graphicsSizeFactorX, double graphicsSizeFactorY, int areaExtender ){
+		
+		Polygon returnShape = new Polygon( this.shape.xpoints, this.shape.ypoints, this.shape.npoints);
+		return returnShape;
+	}
+	
+	@Override
+	public Shape getGraphicAbsoluteRotationalBounds(double graphicsSizeFactorX, double graphicsSizeFactorY,
+			double angleRadians, Point ownerEntityPosition) {
+		
+		Polygon returnShape = new Polygon( this.shape.xpoints, this.shape.ypoints, this.shape.npoints);
+		//returnShape.translate( (int)ownerEntityPosition.getX(), (int)ownerEntityPosition.getY() );
+		return returnShape;
+	}
+	
+	@Override
+	public Shape getGraphicRelativeRotationalBounds(double graphicsSizeFactorX, double graphicsSizeFactorY,
+			double angleRadians, int areaExtender) {
+		
+		Polygon returnShape = new Polygon( this.shape.xpoints, this.shape.ypoints, this.shape.npoints);
+		return returnShape;
+	}
 
 }

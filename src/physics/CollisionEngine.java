@@ -224,6 +224,38 @@ public class CollisionEngine {
 		else{ return false; } //search failed
 	}
 
+	
+	
+	public < S1 extends E1  ,  S2 extends E2  ,  E1 extends EntityStatic  ,  E2 extends EntityStatic > 
+	boolean addUltralightCollisionsBetween( ColliderGroup<S1> group1, ColliderGroup<S2> group2, CollisionDispatcher.Ultralight<E1,E2> ultralightCollisionFactory ){
+		
+		System.out.println(" COLLISION ENGINE: CUSTOMIZING COLLISIONS BETWEEN '"+group1+"' AND '"+group2+"' COLLIDER GROUPS");
+		
+		this.groupPairs.add( new GroupPair(group1,group2,ultralightCollisionFactory) );
+		
+		
+		while( group1.dynamicColliders.hasNext() ){			//Pair all colliders between the two groups
+			while( group2.staticColliders.hasNext() ){
+				
+				DynamicActiveCollider dynamic = group1.dynamicColliders.get();
+				StaticActiveCollider stat = group2.staticColliders.get();
+				
+				VisualCollisionCheck check = VisualCollisionCheck.ultralightCheck(); 
+				
+				CheckingPair<E1,E2> newPair = new CustomDynamicStaticPair(
+						dynamic, 
+						stat, 
+						ultralightCollisionFactory, 
+						check
+						);
+				
+				newPair.addToCheckingPairList(activeCheckingPairs);
+			}
+		}
+		return true;
+
+	}
+	
 	public void addCollisionEventToGroup( String group1,  String group2 , CollisionEvent event  ){
 		
 		
@@ -476,8 +508,11 @@ public class CollisionEngine {
 			}
 		}
 		
-		System.err.println("Collision Engine: Failed to create VisualCollisionCheck between "+boundary1+" and "+boundary2);
-		return null;
+		else if( boundary1.getTypeCode() == Boundary.ULTRALIGHT ){
+			
+		}
+		throw new RuntimeException("Collision Engine: Failed to create VisualCollisionCheck between "+boundary1+" and "+boundary2);
+
 
 	}
 	

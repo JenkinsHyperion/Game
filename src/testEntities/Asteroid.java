@@ -92,6 +92,8 @@ public class Asteroid extends EntityStatic{
 			grassSpritesList[0] = grass01;
 		}
 
+		this.addAngularComposite();
+		
 		CompositeFactory.addGraphicTo(this, asteroidSprite, false );
 
 		this.getGraphicComposite().setGraphicSizeFactor(0.334 * (radius/500.0));
@@ -206,35 +208,44 @@ public class Asteroid extends EntityStatic{
 		grassEntity.getGraphicComposite().setGraphicSizeFactor( sizeFactor );
 		
 		//grassEntity.addUltralightColliderTo(10,board);
-		//grassEntity.addColliderTo( new BoundarySingular(0,0), board);
+		//grassEntity.addColliderTo( new BoundarySingular(0,-10), board);
 		grassEntity.addColliderTo( new BoundaryCircular(10), board);
+		
 		
 		board.getCurrentScene().addEntity(grassEntity,"Grass");
 		
 		CompositeFactory.makeChildOfParent(grassEntity, this, board);
 	}
 	
+	
+	public void deactivatePlanetwideColliders(){
+		
+		EntityStatic[] children = this.getChildrenEntities();
+		System.err.println("REMOVING ALL LDEWER"+children.length);
+		for ( EntityStatic child : children ){
+			child.getColliderComposite().deactivateCollider();
+		}
+	}
 
-	public static final class GrassBump extends CollisionDispatcher<EntityStatic, EntityStatic>{
+	public static final class GrassBump extends CollisionDispatcher.Ultralight<EntityStatic, EntityStatic>{
 
 		@Override
 		public Collision createVisualCollision(EntityStatic entityInstance1, Collider colliderInstance1,
-				EntityStatic entityInstance2, Collider colliderInstance2, VisualCollisionCheck check,
+				EntityStatic grassEntity, Collider grassCollider, VisualCollisionCheck check,
 				RenderingEngine engine) {
 			
-			System.out.println("gdstg");
-			
-			return new Collision.CustomType<EntityStatic, EntityStatic>( entityInstance1 , colliderInstance1 , entityInstance2, colliderInstance2 ){
+			return new Collision.Ultralight<EntityStatic, EntityStatic>( entityInstance1 , colliderInstance1 , grassEntity, grassCollider ){
 
 				@Override
 				protected void internalInitializeCollision() {
 		
-					entityInstance2.addUpdateableEntityToUpdater(board);
+					grassEntity.addUpdateableEntityToUpdater(board);
 
-					EntityBehaviorScript grassBump = new EntityBehaviorScript("Bump",entityInstance2){
+					EntityBehaviorScript grassBump = new EntityBehaviorScript("Bump",grassEntity){
 
+						final int PERIOD = 45;
 						int count = 0;
-						double originalAngle = entityInstance2.getAngularComposite().getAngleInRadians();
+						double originalAngle = grassEntity.getAngularComposite().getAngleInRadians();
 
 						@Override
 						protected void updateOwnerEntity(EntityStatic entity) {
@@ -243,8 +254,8 @@ public class Asteroid extends EntityStatic{
 							//										originalAngle + (( -( count/20.0 )*( count/20.0 ) + 1 )/2.0) 
 							//										);
 
-							entityInstance2.getGraphicComposite().setGraphicAngle(
-									originalAngle + ((Math.sin(count*Math.PI/30.0) * Math.pow(2, (-count/60.0)) )/3.0)
+							grassEntity.getGraphicComposite().setGraphicAngle(
+									originalAngle + ((Math.sin(count*Math.PI/PERIOD) * Math.pow(2, (-count/60.0)) )/3.0)
 									);
 
 							if( count < 300 ){
@@ -253,20 +264,20 @@ public class Asteroid extends EntityStatic{
 							else{
 
 								removeThisUpdateableComposite();
-								entityInstance2.getGraphicComposite().setGraphicAngle(originalAngle);
+								grassEntity.getGraphicComposite().setGraphicAngle(originalAngle);
 
 								//entityInstance2.removeUpdateableEntityFromUpdater();
 							}
 						}
 					};
 
-					CompositeFactory.addScriptTo(entityInstance2, grassBump);
+					CompositeFactory.addScriptTo(grassEntity, grassBump);
 
 				}
 
 				@Override
 				protected void updateCollision() {
-					if ( !check.check(colliderInstance1, colliderInstance2) ){
+					if ( !check.check(colliderInstance1, grassCollider) ){
 						isComplete = true;
 					}
 				}

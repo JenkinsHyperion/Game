@@ -357,7 +357,7 @@ public class InputManagerMouseKeyboard extends InputManager implements KeyListen
 	@Override
     public void debugPrintInputList( int x, int y ,Graphics g){
     	
-    	g.setColor(Color.GRAY);
+    	//g.setColor(Color.GRAY);
     	g.drawString(name, x, y);
     	
     	g.drawString("Held:                 Listening: ", x, y+15);

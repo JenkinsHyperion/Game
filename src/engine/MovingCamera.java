@@ -27,6 +27,7 @@ import physics.BoundaryPolygonal;
 import physics.BoundarySide;
 import physics.Vector;
 import sprites.Sprite;
+import utility.UtilityMath;
 
 public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	
@@ -337,6 +338,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		
 		cameraTransform.translate( this.getRelativeX( position.x) , this.getRelativeY( position.y) );
 		//cameraTransform.concatenate(entityTransform);
+		cameraTransform.scale(this.zoomFactor, this.zoomFactor);
 		
 		g2Temp.transform(cameraTransform);
 		g2Temp.draw(polygon);
@@ -414,7 +416,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		);
 		
 	}
-	@Deprecated
+
 	public void drawShapeInWorld( Shape shape , Point worldPosition){
 		
 		AffineTransform cameraTransform = new AffineTransform();
@@ -515,29 +517,17 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	public void drawCrossInFrame( Point2D point , Graphics2D g2){
 		drawCross( (int)point.getX() , (int)point.getY() , g2);
 	}
-	/**
-	 * Takes ordinate relative to the camera screen and returns the local ordinate in the world
-	 * @param x_relative_to_camera
-	 * @return the ordinate relative to the board/world 
-	 */
-	public int getLocalX( int x_relative_to_camera){
+
+	
+	private int getLocalX( int x ){
 		
-		return (int) ((x_relative_to_camera - boardHalfWidth )/zoomFactor + this.x  ) ;
-	}
-	public int getLocalX( double x_relative_to_camera){
-		return (int) ((x_relative_to_camera - boardHalfWidth )/zoomFactor + this.x  ) ;
+
+		return (int) (((x - boardHalfWidth)/zoomFactor) + this.x );
 	}
 	
-	/**
-	 * Takes ordinate relative to the camera screen and returns the local ordinate in the world
-	 * @param y_relative_to_camera
-	 * @return the ordinate relative to the board/world 
-	 */
-	public int getLocalY( int y_relative_to_camera){
-		return (int) ( (y_relative_to_camera - boardHalfHeight)/zoomFactor + this.y  );
-	}
-	public int getLocalY( double y_relative_to_camera){
-		return (int) ( (y_relative_to_camera - boardHalfHeight)/zoomFactor + this.y  );
+	private int getLocalY( int y ){
+
+		return (int) (((y - boardHalfHeight)/zoomFactor) + this.y );
 	}
 	
 	/**
@@ -545,14 +535,20 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	 * @param position_relative_to_camera
 	 * @return the coordinates relative to the board/world 
 	 */
-	public Point getWorldTranslationalPosition( Point position_relative_to_camera){
-		return new Point(
-				getLocalX( position_relative_to_camera.getX() ) ,
-				getLocalY( position_relative_to_camera.getY() )
-				);
+	public Point getWorldPos( Point position_relative_to_camera){
+//		return new Point(
+//				getLocalX( (int) position_relative_to_camera.getX() ) ,
+//				getLocalY( (int) position_relative_to_camera.getY() )
+//				);
+		return getWorldPos2(position_relative_to_camera);
 	}
 	
-	public Point getWorldPos( Point2D relativeCameraPoint ){
+	public Point getWorldPos( Point2D position_relative_to_camera){
+		
+		return getWorldPos2(position_relative_to_camera);
+	}
+	
+	public Point getWorldPos2( Point2D relativeCameraPoint ){
 
 		double returnX = (relativeCameraPoint.getX() - boardHalfWidth );
 		double returnY = (relativeCameraPoint.getY() - boardHalfHeight ); 
@@ -667,7 +663,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	}
 	
 	public void drawDebugAxis(double m, double b, Graphics2D g2) {
-		
+
 		double yInterceptRelative = getRelativeY( m*getLocalX(0) + b ) ;
 		double yEndRelative = getRelativeY( m * getLocalX(BoardAbstract.B_WIDTH) + b ) ; 
 
@@ -786,6 +782,10 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 
 	public void drawFocalPoint() {
 		this.drawCrossInWorld((int)this.x, (int)this.y);
+	}
+
+	public void setColor(Color color) {
+		gBoard.setColor(color);
 	}
 
 	

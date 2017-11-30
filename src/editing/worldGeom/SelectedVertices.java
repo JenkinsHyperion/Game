@@ -101,9 +101,17 @@ public class SelectedVertices {
 	public void translate(Point initClickPoint, Point finalClickPos) {
 		int deltaX = initClickPoint.x - finalClickPos.x;
 		int deltaY = initClickPoint.y - finalClickPos.y;
+		
 		for (int i = 0; i < selectedVertices.size(); i++) {
-			selectedVertices.get(i).translate(camera.getLocalX(oldVertexPositions.get(i).x - deltaX), 
-											 camera.getLocalY(oldVertexPositions.get(i).y - deltaY));
+			
+			Point oldVertxPosition = new Point(
+					oldVertexPositions.get(i).x - deltaX ,
+					oldVertexPositions.get(i).y - deltaY 
+					);
+			
+			Point localMousePosition = camera.getWorldPos(oldVertxPosition);
+			
+			selectedVertices.get(i).translate(localMousePosition.x,localMousePosition.y);
 		}
 	}
 	public void scaleVertices(Point initClickPos, Point finalClickPos, Point center) {

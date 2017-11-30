@@ -17,6 +17,7 @@ public abstract class Boundary {
 
 	public static final byte CIRCULAR = 0;
 	public static final byte POLYGONAL = 1;
+	public static final byte ULTRALIGHT = 8;
 	
 	public abstract <B extends Boundary> void rotateBoundaryFromTemplate( Point center, double angle , B template );
 	//public abstract Point rotateBoundaryFromTemplatePoint(Point center, double angle , Boundary template);

@@ -218,7 +218,6 @@ public class Board extends BoardAbstract {
 		for (int i = 0; i < dynamicEntitiesList.size(); i++) {
 			EntityDynamic dynamicEntity = dynamicEntitiesList.get(i);
 			dynamicEntity.updatePosition();
-			dynamicEntity.getEntitySprite().updateSprite();
 
 			// wrap objects around screen
 

@@ -3,6 +3,7 @@ package sprites;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -189,9 +190,27 @@ public class Background extends Sprite{
 	}
 
 	@Override
-	public void updateSprite() {
-		// TODO Auto-generated method stub
-		
+	public Shape getGraphicAbsoluteRotationalBounds(double graphicsSizeFactorX, double graphicsSizeFactorY,
+			double angleRadians, Point ownerEntityPosition) {
+		return new Rectangle();
+	}
+
+	@Override
+	public Shape getGraphicRelativeRotationalBounds(double graphicsSizeFactorX, double graphicsSizeFactorY,
+			double angleRadians, int areaExtender) {
+		return new Rectangle();
+	}
+
+	@Override
+	public Shape getGraphicAbsoluteTranslationalBounds(double graphicsSizeFactorX, double graphicsSizeFactorY,
+			Point ownerEntityPosition) {
+		return new Rectangle();
+	}
+
+	@Override
+	public Shape getGraphicRelativeTranslationalBounds(double graphicsSizeFactorX, double graphicsSizeFactorY,
+			int areaExtender) {
+		return new Rectangle();
 	}
 
 	

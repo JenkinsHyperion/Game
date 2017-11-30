@@ -67,7 +67,8 @@ public class TestBoard extends BoardAbstract{
     public EntityStatic currentDebugEntity;
     
     private OverlayComposite boundaryOverlay;
-    private OverlayComposite forcesOverlay;
+    private OverlayComposite collidersOverlay;
+    private OverlayComposite spriteOverlay;
     
     public static ColliderGroup<PlantPlayer> playerGroup;
     public static ColliderGroup<EntityStatic> worldGeometryGroup;
@@ -91,7 +92,10 @@ public class TestBoard extends BoardAbstract{
     	this.diagnosticsOverlay.toggle();
     	
     	this.boundaryOverlay = this.renderingEngine.addOverlay( this.new BoundaryOverlay() );
-    	//this.boundaryOverlay.toggle();
+    	this.boundaryOverlay.toggle();
+    	
+    	this.spriteOverlay = this.renderingEngine.addOverlay( renderingEngine.new SpriteOverlay() );
+    	this.spriteOverlay.toggle();
     	//TEST BUTTON
     	
     	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_F1, new KeyCommand(){
@@ -99,10 +103,10 @@ public class TestBoard extends BoardAbstract{
     		public void onReleased() {  }
     	});
     	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_F2, new KeyCommand(){
-    		public void onPressed() { ((VisualCollisionEngine) collisionEngine).toggleCalculationDisplay(); }
+    		public void onPressed() { spriteOverlay.toggle(); }
     		public void onReleased() {  }
     	});
-    	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_F3, new KeyCommand(){
+    	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_F4, new KeyCommand(){
     		public void onPressed() {
     			if (!camera.isLocked()) {
     				camera.lockAtCurrentPosition();
@@ -113,8 +117,12 @@ public class TestBoard extends BoardAbstract{
     		}
     		public void onReleased() {  }
     	});
+    	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_F3, new KeyCommand(){
+    		public void onPressed() { collidersOverlay.toggle(); }
+    		public void onReleased() {  }
+    	});
     	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_5, new KeyCommand(){
-    		public void onPressed() { /*CompositeFactory.makeChildOfParent(testAsteroid, player, TestBoard.this);*/ }
+    		public void onPressed() { asteroid.deactivatePlanetwideColliders(); }
     		public void onReleased() {  }
     	});
     	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_6, new KeyCommand(){
@@ -203,8 +211,8 @@ public class TestBoard extends BoardAbstract{
         
     	this.collisionEngine = new VisualCollisionEngine(this,renderingEngine); //Refactor to a better name
     	
-    	this.forcesOverlay = renderingEngine.addOverlay( ((VisualCollisionEngine)collisionEngine).createForcesOverlay() );
-
+    	this.collidersOverlay = renderingEngine.addOverlay( ((VisualCollisionEngine)collisionEngine).createForcesOverlay() );
+    	this.collidersOverlay.toggle();
     	
 		currentFollowerAI = sleep;
 
@@ -240,9 +248,8 @@ public class TestBoard extends BoardAbstract{
         
         collisionEngine.addCustomCollisionsBetween( playerGroup, gravityWellGroup, new GravityMarker.CircularGravityField() );
     	
-        //collisionEngine.addCustomCollisionsBetween( playerGroup , ultralightCollisionGroup, CollisionDispatcher.ULTRALIGHT );
         
-        collisionEngine.addCustomCollisionsBetween( playerGroup , ultralightCollisionTestGroup, new Asteroid.GrassBump() );
+        collisionEngine.addUltralightCollisionsBetween( playerGroup , ultralightCollisionTestGroup, new Asteroid.GrassBump() );
         
     	myMouseHandler = new MouseHandlerClass();
   		this.addMouseListener(myMouseHandler);
@@ -251,20 +258,32 @@ public class TestBoard extends BoardAbstract{
         setBackground(Color.BLACK);
 
         
-        asteroid = new Asteroid( 0 , 600 , 500, this, Asteroid.PRESET04);
+        asteroid = new Asteroid( 0 , 1100 , 1000, this, Asteroid.PRESET04);
         this.currentScene.addEntity(asteroid,"Ground");
         asteroid.spawnGrass();
         asteroid.spawnPresetBush(282, 0.6, 4);
         asteroid.spawnPresetBush(290, 1, 4);
         asteroid.spawnPresetBush(298, 0.6, 4);
         
-        GravityMarker asteroidGravityWell = new GravityMarker("GravityWell01",asteroid.getPosition(),1200);
+        GravityMarker asteroidGravityWell = new GravityMarker("GravityWell01",asteroid.getPosition(),2200);
         asteroidGravityWell.setFalloff(0.2, 500);
         this.currentScene.addEntity(asteroidGravityWell,"Gravity");
         
         testAsteroid = new Asteroid( -200 , -1000 , 200, this, Asteroid.PRESET03);
         this.currentScene.addEntity(testAsteroid,"Ground");
         testAsteroid.spawnGrass();
+        
+        
+        EntityStatic rock = new EntityStatic("Rock01",0,60);
+        Point[] bounds = new Point[]{
+        	new Point(-50,-50),
+        	new Point(50,-50),
+        	new Point(100,50),
+        	new Point(-100,50)
+        };
+        Collider polygon = rock.addColliderTo( new BoundaryPolygonal(bounds), this);
+        CompositeFactory.addGraphicFromCollider(rock, polygon);
+        this.currentScene.addEntity(rock,"Ground");
         
         asteroidGravityWell = new GravityMarker("GravityWellSmall",testAsteroid.getPosition(),700);
         asteroidGravityWell.setFalloff(0.2, 200);
@@ -352,7 +371,7 @@ public class TestBoard extends BoardAbstract{
         
         //Matt's follower test
         EntityStatic insect = new EntityStatic(0,0);
-        insect.addGraphicTo(new Sprite.Stillframe("box.png"),false);
+        insect.addGraphicTo(new Sprite.Stillframe("box.png",Sprite.CENTERED),false);
         insect.addTranslationTo();
         CompositeFactory.addScriptTo(insect, new EntityBehaviorScript.PatrolBetween( insect, 
         		player.getPositionReference(),

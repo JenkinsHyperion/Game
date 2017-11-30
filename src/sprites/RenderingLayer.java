@@ -68,8 +68,8 @@ public class RenderingLayer {
 			frameTransform.scale( comp.getGraphicsSizeX() , comp.getGraphicsSizeY() );
 			
 			frameTransform.translate(
-					( ( (comp.getOwnerEntity().getX())  ) ) ,
-					( ( (comp.getOwnerEntity().getY())  ) ) 
+					(  (comp.getOwnerEntity().getX())  ) ,
+					(  (comp.getOwnerEntity().getY())  ) 
 					);
 			
 			frameTransform.translate((comp.getSprite().spriteOffsetX), (comp.getSprite().spriteOffsetY));

@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.logging.Logger;
@@ -62,15 +63,11 @@ public class SelectedEntities {
 				//camera.debugDrawPolygon(rect, Color.CYAN, entity.getPosition(), new AffineTransform());
 			} */
 			if (entity.getGraphicComposite().exists()) {
-				int areaExtender = 30;
+				int areaExtender = 0;
 			// vvvvv Code I copied over that should be sufficient to replace the above ^^^^^ 
-				Rectangle clickableRect = new Rectangle();
-				Sprite graphic = entity.getGraphicComposite().getSprite();
-				clickableRect.setSize(graphic.getImage().getWidth(null) + areaExtender, graphic.getImage().getHeight(null) + areaExtender);
-				Point entityPoint = new Point(entity.getPosition().x - areaExtender,
-											  entity.getPosition().y - areaExtender);
-//				camera.debugDrawPolygon(clickableRect, Color.CYAN, entity.getPosition(), new AffineTransform(), .2f);
-				camera.debugDrawPolygon(clickableRect, Color.CYAN, entityPoint, new AffineTransform(), .2f);
+				Shape clickableRect = entity.getGraphicComposite().getGraphicRelativeBounds(areaExtender);
+
+				camera.debugDrawPolygon(clickableRect, Color.CYAN, entity.getPosition(), new AffineTransform(), .2f);
 			}
 			// if entity has no graphics 
 			else if (entity.getColliderComposite().exists()) {
@@ -117,8 +114,15 @@ public class SelectedEntities {
 		int deltaX = initClickPoint.x - currentClickPoint.x;
 		int deltaY = initClickPoint.y - currentClickPoint.y;
 		for (int i = 0; i < selectedEntities.size(); i++) {
-			selectedEntities.get(i).setPos(camera.getLocalX(oldEntityPositions.get(i).x - deltaX), 
-											 camera.getLocalY(oldEntityPositions.get(i).y - deltaY));
+			
+			Point oldEntityPosition = new Point(
+					oldEntityPositions.get(i).x - deltaX ,
+					oldEntityPositions.get(i).y - deltaY
+					);
+			
+			Point localMousePosition = camera.getWorldPos(oldEntityPosition);
+			
+			selectedEntities.get(i).setPos(localMousePosition.x,localMousePosition.y);
 		}
 	}
 	public void updateOldEntityPositions(){

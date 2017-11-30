@@ -47,6 +47,23 @@ public class BoundaryPolygonal extends Boundary {
 		//constructVoronoiRegions();
 	}
 	
+	public BoundaryPolygonal(Point[] bounds ) {
+		
+		sides = new BoundarySide[ bounds.length ];
+		
+		for ( int i = 0 ; i < sides.length ; i++ ){
+			sides[i] = new BoundarySide( 
+					new Line2D.Double( bounds[i] , bounds[(i+1) % bounds.length] ) , 
+					this , 
+					i , 
+					defaultCollisionEvent
+					);
+		}
+		
+		connectBoundaryMap( defaultCollisionEvent );
+		//constructVoronoiRegions();
+	}
+	
 	public BoundaryPolygonal(Line2D[] bounds) {
 		
 		sides = new BoundarySide[ bounds.length ];
@@ -606,10 +623,17 @@ public class BoundaryPolygonal extends Boundary {
 	}
 	@Override
 	public void debugDrawBoundary(MovingCamera camera, Graphics2D g2, EntityStatic ownerEntity) {
+		
 		for ( BoundarySide side : this.getSides() ){
-
-			camera.drawLineInBoard( side.toLine(), g2 );
-			camera.drawString(side.toString(), side.getX1()+(side.getX2()-side.getX1())/2 , side.getY1()+(side.getY2()-side.getY1())/2 );
+			
+			final Line2D absSide = side.toAbsoluteLine( ownerEntity.getPosition() );
+			
+			camera.drawLineInBoard( absSide, g2 );
+			
+			camera.drawString(
+					side.toString(), 
+					(int)absSide.getX1()+((int)absSide.getX2()-(int)absSide.getX1())/2 , 
+					(int)absSide.getY1()+((int)absSide.getY2()-(int)absSide.getY1())/2 );
 		}
 		//for ( BoundaryCorner corner : corners ){
 		//	camera.drawString(corner.toString() , corner.getX() , corner.getY() );

@@ -2,6 +2,8 @@ package sprites;
 
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
@@ -66,7 +68,6 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
     	return new BufferedImage[][]{{spriteAnimation.getAnimationFrame()}};
     }
 
-    @Override
     public void updateSprite(){
     	spriteAnimation.update();
     }
@@ -92,5 +93,6 @@ public class SpriteAnimated extends Sprite {  // Sprite with animation
 	public int getDelay() {
 		return this.spriteAnimation.getDelay();
 	}
+
     
 }

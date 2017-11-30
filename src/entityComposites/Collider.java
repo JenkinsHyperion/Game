@@ -2,6 +2,7 @@ package entityComposites;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import engine.MovingCamera;
 import misc.CollisionEvent;
 import misc.NullCollisionEvent;
 import physics.Boundary;
+import physics.BoundaryFeature;
 import physics.BoundaryPolygonal;
 import physics.CollidingPair;
 import physics.CollisionCheck;
@@ -17,6 +19,7 @@ import physics.CollisionEngine;
 import physics.CollisionEngine.ActiveCollider;
 import physics.Collision;
 import physics.BoundarySide;
+import physics.BoundaryVertex;
 import physics.Vector;
 import physics.VisualCollisionCheck;
 
@@ -365,10 +368,124 @@ public class Collider implements EntityComposite{
 		
 		private final int radius;
 		
+		
+		
 		public Ultralight( EntityStatic owner, int radius ) {
 			
 			this.ownerEntity = owner;
 			this.radius = radius;
+			
+			this.boundary = new Boundary(){
+
+				@Override
+				public <B extends Boundary> void rotateBoundaryFromTemplate(Point center, double angle, B template) {}
+
+				@Override
+				protected Line2D[] getSeparatingSides() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public Point getRelativeOffset() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public void debugDrawBoundary(MovingCamera cam, Graphics2D g2, EntityStatic ownerEntity) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				protected Point2D[] getOuterPointsPair(Line2D axis) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				protected Point2D farthestPointFromPoint(Point2D boundaryPoint, Line2D axis) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				protected Point2D farthestLocalPointFromPoint(Point primaryOrigin, Point2D localPoint, Line2D axis) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public BoundaryFeature[] farthestFeatureFromPoint(Point primaryOrigin, Point secondaryOrigin,
+						Point2D p2, Line2D axis) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public BoundaryVertex[] getCornersVertex() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public Point2D[] getCornersPoint() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public Point2D[] getLocalCornersPoint(Point localEntityPosition) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public <T> Boundary temporaryClone() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public void scaleBoundary(double scaleFactor) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void scaleBoundary(double scaleFactor, Point center) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void constructVoronoiRegions() {}
+
+				@Override
+				public byte getTypeCode() {
+					return Boundary.ULTRALIGHT;
+				}
+
+				@Override
+				public Polygon getLocalPolygonBounds() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				@Override
+				public Polygon getPolygonBounds(EntityStatic owner) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
+			};
+		}
+		
+		@Override
+		public Boundary getBoundary() {
+
+			return this.boundary;
 		}
 		
 	}

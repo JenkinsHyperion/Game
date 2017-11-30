@@ -46,10 +46,14 @@ public abstract class ParentComposite implements EntityComposite {
 		@Override
 		public EntityStatic[] getChildrenEntities(){
 
-			final int n = rotationalChildrenList.size();
-			EntityStatic[] returnList = new EntityStatic[ n ];
-			for ( int i = 0 ; i < n ; i++ ){
+			final int n1 = rotationalChildrenList.size();
+			final int n2 = translationalChildrenList.size();
+			EntityStatic[] returnList = new EntityStatic[ n1 + n2 ];
+			for ( int i = 0 ; i < n1 ; i++ ){
 				returnList[i] = rotationalChildrenList.get(i).ownerEntity;
+			}
+			for ( int i = n1 ; i < n1+n2 ; i++ ){
+				returnList[i] = translationalChildrenList.get(i).ownerEntity;
 			}
 
 			return returnList;

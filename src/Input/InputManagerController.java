@@ -174,7 +174,7 @@ public class InputManagerController extends InputManager implements ControllerLi
 	
 	public void debugPrintInputList( int x, int y ,Graphics g){
     	
-    	g.setColor(Color.GRAY);
+    	//g.setColor(Color.GRAY);
     	g.drawString(name, x, y);
     	
 

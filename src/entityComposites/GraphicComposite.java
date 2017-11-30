@@ -1,5 +1,9 @@
 package entityComposites;
 
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Shape;
+
 import engine.MovingCamera;
 import engine.ReferenceFrame;
 import sprites.*;
@@ -29,6 +33,9 @@ public abstract class GraphicComposite implements EntityComposite{
 	public abstract void deactivateGraphic();
 	public abstract void activateGraphic();
 	
+	public abstract Shape getGraphicAbsoluteBounds(Point ownerEntityPosition);
+	public abstract Shape getGraphicRelativeBounds( int areaExtender );
+	
 	public static GraphicComposite.Null nullGraphicsComposite(){
 		return nullSingleton;
 	}
@@ -39,9 +46,9 @@ public abstract class GraphicComposite implements EntityComposite{
 		protected Sprite currentSprite = Sprite.missingSprite;
 		private RenderingEngine.ActiveGraphic rendererSlot;
 		
-		private double graphicSizePercentX = 1;
-		private double graphicSizePercentY = 1;
-		private double graphicAngle = 0;
+		protected double graphicSizeFactorX = 1;
+		protected double graphicSizeFactorY = 1;
+		protected double graphicAngle = 0;
 		
 		protected Static( Sprite current , EntityStatic ownerEntity ){
 			this.ownerEntity = ownerEntity;
@@ -69,26 +76,28 @@ public abstract class GraphicComposite implements EntityComposite{
 		public void setSprite(Sprite sprite){
 			this.currentSprite = sprite;
 		}
+		
+		
 		@Override
 		public void setGraphicSizeFactor(double factor){
-			this.graphicSizePercentX = factor;
-			this.graphicSizePercentY = factor;
+			this.graphicSizeFactorX = factor;
+			this.graphicSizeFactorY = factor;
 		}
 		@Override
 		public void setGraphicSizeFactorX(double factorX ){
-			this.graphicSizePercentX = factorX;
+			this.graphicSizeFactorX = factorX;
 		}
 		@Override
 		public void setGraphicSizeFactorY(double factorY ){
-			this.graphicSizePercentY = factorY;
+			this.graphicSizeFactorY = factorY;
 		}
 		
 		public double getGraphicsSizeX(){
-			return this.graphicSizePercentX;
+			return this.graphicSizeFactorX;
 		}
 		
 		public double getGraphicsSizeY(){
-			return this.graphicSizePercentY;
+			return this.graphicSizeFactorY;
 		}
 		@Override
 		public void setGraphicAngle( double angle ){
@@ -109,6 +118,16 @@ public abstract class GraphicComposite implements EntityComposite{
 		
 		public void addCompositeToRenderer( RenderingEngine engine ){
 			rendererSlot = engine.addGraphicsCompositeToRenderer( this );
+		}
+		
+		public Shape getGraphicAbsoluteBounds(Point ownerEntityPosition){
+			
+			return currentSprite.getGraphicAbsoluteTranslationalBounds(graphicSizeFactorX, graphicSizeFactorY, ownerEntityPosition);
+		}
+		
+		public Shape getGraphicRelativeBounds( int areaExtender ){
+
+			return currentSprite.getGraphicRelativeTranslationalBounds(graphicSizeFactorX, graphicSizeFactorY, areaExtender);
 		}
 	
 		@Override
@@ -149,6 +168,16 @@ public abstract class GraphicComposite implements EntityComposite{
 		@Override
 		protected void notifyAngleChangeFromAngularComposite( double angle){
 			this.setGraphicAngle(angle);
+		}
+		
+		public Shape getGraphicAbsoluteBounds(Point ownerEntityPosition){
+			
+			return currentSprite.getGraphicAbsoluteRotationalBounds(graphicSizeFactorX, graphicSizeFactorY, graphicAngle, ownerEntityPosition);
+		}
+		
+		public Shape getGraphicRelativeBounds( int areaExtender ){
+
+			return currentSprite.getGraphicRelativeRotationalBounds(graphicSizeFactorX, graphicSizeFactorY, graphicAngle, areaExtender);
 		}
 		
 	}
@@ -259,6 +288,16 @@ public abstract class GraphicComposite implements EntityComposite{
 		public void activateGraphic() {
 			// TODO Auto-generated method stub
 			
+		}
+
+		@Override
+		public Shape getGraphicAbsoluteBounds(Point ownerEntityPosition) {
+			throw new RuntimeException();
+		}
+
+		@Override
+		public Shape getGraphicRelativeBounds(int areaExtender) {
+			throw new RuntimeException();
 		}
 	}
 	

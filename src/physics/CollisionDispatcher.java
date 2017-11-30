@@ -117,7 +117,7 @@ public abstract class CollisionDispatcher< EntityTypePrimary extends EntityStati
 				EntityStatic entityInstance2, Collider colliderInstance2, VisualCollisionCheck check,
 				RenderingEngine engine) {
 			
-			return new Collision.Ultralight( entityInstance1, colliderInstance1 , entityInstance2, colliderInstance2 );
+			return new Collision.Ultralight<E1,E2>( entityInstance1, colliderInstance1 , entityInstance2, colliderInstance2 );
 			
 		}
 		

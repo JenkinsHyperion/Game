@@ -19,6 +19,8 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 	public abstract boolean check( Collider c1 , Collider c2 ) ;
 	public abstract boolean check( Collider c1 , Collider c2 , MovingCamera cam , Graphics2D g2 ) ;
 	
+	private final static VisualCollisionCheck ULTRALIGHT_CHECK = new UltralightCheck();
+	
 	private VisualCollisionCheck(){
 	}
 
@@ -30,7 +32,10 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 		return this.axisCollector;
 	}
 	
-	//CHECK MATH FACTORIES
+	//CHECK MATH FACTORIES INTEAD OF NEW INSTANCES
+	
+	//FIXME RETURN STATIC SINGLETONS
+	
 	protected static VisualCollisionCheck polyPoly(){
 		VisualCollisionCheck returnCheck = new VisualCollisionCheck.VisualSAT();
 		returnCheck.setAxisCollector( SeparatingAxisCollector.polygonPolygon() );
@@ -53,6 +58,10 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 		VisualCollisionCheck returnCheck = new VisualCollisionCheck.VisualSAT();
 		returnCheck.setAxisCollector( new SeparatingAxisCollector.AxisByRawDistance(e1,e2) );
 		return returnCheck;
+	}
+	
+	protected static VisualCollisionCheck ultralightCheck(){
+		return ULTRALIGHT_CHECK;
 	}
 	
 	// CHECK CLASSES
@@ -362,5 +371,21 @@ public abstract class VisualCollisionCheck extends CollisionCheck{
 
 	public SeparatingAxisCollector getAxisCollector() {
 		return this.axisCollector;
+	}
+	
+	protected static class UltralightCheck extends VisualCollisionCheck{
+
+		@Override
+		public boolean check(Collider c1, Collider c2) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean check(Collider c1, Collider c2, MovingCamera cam, Graphics2D g2) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+		
 	}
 }

@@ -334,14 +334,12 @@ public abstract class Collision {
 	}
 
 	
-	public static class Ultralight extends CustomType< EntityStatic, EntityStatic >{
+	public static class Ultralight< E1 extends EntityStatic, E2 extends EntityStatic > extends CustomType<EntityStatic,EntityStatic>{
 
-		
-		
+
 		public Ultralight(EntityStatic e1, Collider collider1, EntityStatic e2, Collider collider2) {
 			super(e1, collider1, e2, collider2);
 		}
-
 
 		@Override
 		protected void internalInitializeCollision() {
@@ -367,17 +365,7 @@ public abstract class Collision {
 			
 		}
 
-		@Override
-		public EntityStatic getEntityInvolved(boolean pairID) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public boolean isActive(EntityStatic entity1, EntityStatic entity2) {
-			// TODO Auto-generated method stub
-			return false;
-		}
+		
 		
 	}
 

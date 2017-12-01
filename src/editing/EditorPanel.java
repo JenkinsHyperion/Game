@@ -548,15 +548,25 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	// Out of date because I need to completely rework how this class handles multiple selections
 	
 	/** Takes care of GUI events that I want to happen when an entity is clicked.*/
+	@Deprecated
 	public void selectSingleEntityGUIHouseKeeping() {
 		//TODO IMPORTANT make a "modeSwitchCleanUp()" method that is called every time a mode is switched, to avoid data leaks
 		//editorMode.modeSwitchCleanUp();   //Might not be necessary though. States can probably just be stored in the mode's instance
+		System.err.println("(In EditorPanel) Calling gui housekeeping method...");
 		setMode(getEntitySelectMode());
 		entitySelectMode.selectedEntities.clearSelectedEntities();
 		deleteEntButton.setEnabled(true);
 		spriteEditorButton.setEnabled(true);
 		boundaryVertexSelectButton.setEnabled(true);
 		boundaryVertexPlaceButton.setEnabled(true);
+		revalidate();
+	}
+	public void selectSingleEntityGUIHouseKeepingNEW() {
+		deleteEntButton.setEnabled(true);
+		spriteEditorButton.setEnabled(true);
+		boundaryVertexSelectButton.setEnabled(true);
+		boundaryVertexPlaceButton.setEnabled(true);
+		revalidate();
 	}
 	/*public class EntitiesComboBoxActionHandler implements ActionListener{
 		
@@ -897,6 +907,11 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	public EntitySelectMode getEntitySelectMode() {
 		this.entitySelectMode.setMode(entitySelectMode.getDefaultMode());
 		worldGeomButton.setEnabled(true);
+		
+		
+		return this.entitySelectMode;
+	}
+	public void GUIHouseKeepingDeselectedEntity() {
 		iconBarScrollPaneSpriteSwap.setVisible(false);
 		spriteEditorButton.setEnabled(false);
 		wgVertexSelectModeButton.setEnabled(false);
@@ -904,7 +919,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		boundaryVertexPlaceButton.setEnabled(false);
 		boundaryVertexSelectButton.setEnabled(false);
 		revalidate();
-		return this.entitySelectMode;
 	}
 	public EntityPlaceMode getEntityPlaceMode() {
 		iconBarScrollPaneSpriteSwap.setVisible(false);
@@ -967,7 +981,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		public EntitySelectMode() {
 			tempAngle = 0.0;
 			//mouseMovedKeyState = new MouseMovedKeyStateNull();
-			selectedEntities = new SelectedEntities(camera);
+			selectedEntities = new SelectedEntities(camera, EditorPanel.this);
 			defaultMode = new DefaultMode();
 			rotateMode = new RotateMode();
 			scaleMode = new ScaleMode();
@@ -1513,7 +1527,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		public class TranslateEvent extends MouseCommand{
 
 			public void mousePressed() {
-				initClickPoint.setLocation(camera.getWorldPos(editorMousePos));
+				initClickPoint.setLocation(editorMousePos);
 				selectedEntities.updateOldEntityPositions();
 			}
 			public void mouseDragged() {

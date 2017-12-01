@@ -659,9 +659,12 @@ public class BrowserTreePanel extends JPanel {
 					EntityStatic nodeIsEntity = (EntityStatic)objectInsideNode;
 					System.out.println("*** IS AN ENTITY ***");
 					editorPanelRef.setMode(editorPanelRef.getEntitySelectMode());
-					editorPanelRef.selectSingleEntityGUIHouseKeeping();
+					editorPanelRef.clearSelectedEntities();
+					editorPanelRef.selectSingleEntityGUIHouseKeepingNEW();
+
 					//sets Board's current entity
 					editorPanelRef.getEntitySelectMode().addSelectedEntity(nodeIsEntity);
+
 				}
 			}
 			//else if (objectInsideNode instanceof EntityComposite) {
@@ -682,7 +685,8 @@ public class BrowserTreePanel extends JPanel {
 				}
 				//sets Board's current entity
 				editorPanelRef.setMode(editorPanelRef.getEntitySelectMode());
-				editorPanelRef.selectSingleEntityGUIHouseKeeping();
+				editorPanelRef.clearSelectedEntities();
+				editorPanelRef.selectSingleEntityGUIHouseKeepingNEW();
 				editorPanelRef.getEntitySelectMode().addSelectedEntity(entityFromNode);
 				//set composite editor panel's composite
 				BrowserTreePanel.this.compositeEditorPanelRef.setCurrentComposite(nodeIsComposite);

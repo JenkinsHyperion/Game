@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import entityComposites.*;
 import physics.Boundary;
+import physics.Vector;
 import sprites.Sprite;
 import engine.MovingCamera;
 /**
@@ -23,11 +24,13 @@ public class SelectedEntities {
 	private ArrayList<EntityStatic> selectedEntities = new ArrayList<>();
 	private ArrayList<Point> oldEntityPositions = new ArrayList<>();
 	private MovingCamera camera;
+	private EditorPanel editorPanel;
 	/**@param camera the relative camera. Needed to determine the relative point of the selected entities.
 	 * {@ SelectedEntities#camera camera} and other text
 	 *  */
-	public SelectedEntities(MovingCamera camera) {
+	public SelectedEntities(MovingCamera camera, EditorPanel editorPanel) {
 		this.camera = camera;
+		this.editorPanel = editorPanel;
 		//this.worldGeomMousePos = worldGeomMousePosRef;
 	}
 	/** @see SelectedEntities#clearSelectedEntities()
@@ -111,8 +114,11 @@ public class SelectedEntities {
 		return finalStringOfNames;
 	}
 	public void translate(Point initClickPoint, Point currentClickPoint) {
-		int deltaX = initClickPoint.x - currentClickPoint.x;
-		int deltaY = initClickPoint.y - currentClickPoint.y;
+		//Vector distanceVector = new Vector(initClickPoint, currentClickPoint);
+		Point worldInitPoint = camera.getWorldPos(initClickPoint);
+		Point worldCurrentPoint = camera.getWorldPos(currentClickPoint);
+		int deltaX = worldInitPoint.x - worldCurrentPoint.x;
+		int deltaY = worldInitPoint.y - worldCurrentPoint.y;
 		for (int i = 0; i < selectedEntities.size(); i++) {
 			
 			Point oldEntityPosition = new Point(
@@ -120,9 +126,9 @@ public class SelectedEntities {
 					oldEntityPositions.get(i).y - deltaY
 					);
 			
-			Point localMousePosition = camera.getWorldPos(oldEntityPosition);
+//			Point localMousePosition = camera.getWorldPos(oldEntityPosition);
 			
-			selectedEntities.get(i).setPos(localMousePosition.x,localMousePosition.y);
+			selectedEntities.get(i).setPos(oldEntityPosition.x,oldEntityPosition.y);
 		}
 	}
 	public void updateOldEntityPositions(){

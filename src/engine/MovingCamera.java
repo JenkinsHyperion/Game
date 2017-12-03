@@ -38,7 +38,6 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	Graphics2D gBoard;
 	Graphics2D gOverlay;
 	ImageObserver observer;
-	
 	double zoomFactor = 1;
 	double zoomDelta = 1;
 	private double minZoom = 0.5;
@@ -220,25 +219,28 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	public double getAngle(){
 		return this.cameraAngle;
 	}
-	
+	public Color getColor() {
+		return gBoard.getColor();
+	}
 	public void resetAngle(){
 		this.cameraAngle = 0;
 	}
 	
 	public void drawVertex(EditorVertexAbstract vertex, Graphics g)
 	{
-		Graphics2D g2 = (Graphics2D)g;
-		g2.drawImage(EditorVertex.vertexPicture, 
+/*		g2.drawImage(EditorVertex.vertexPicture, 
 				getRelativeX( vertex.getPoint().x-3 ),
-				getRelativeY( vertex.getPoint().y-3 ), null);				 
+				getRelativeY( vertex.getPoint().y-3 ), null);	*/
+		draw(EditorVertex.vertexPicture,new Point(vertex.getPoint().x-3, vertex.getPoint().y-3), new AffineTransform(),1.0f);
 	}
 	public void drawVertexClickableBox(EditorVertexAbstract vertex, Graphics g)
 	{
-		Graphics2D g2 = (Graphics2D)g;
+		/*Graphics2D g2 = (Graphics2D)g;
 		g2.drawRect(vertex.getClickableZone().x - (int)this.x + boardHalfWidth,
 				vertex.getClickableZone().y - (int)this.y + boardHalfHeight, 
-				vertex.getClickableZone().width, vertex.getClickableZone().height);				 
+				vertex.getClickableZone().width, vertex.getClickableZone().height);	*/	
 	}
+	@Deprecated
 	public void drawRect(Rectangle rect, Graphics g, Color outlineColor, Color fillColor, float alpha) {
 		//Color originalColor = g.getColor();
 		Graphics2D g2 = (Graphics2D)g;

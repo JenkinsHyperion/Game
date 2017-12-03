@@ -302,6 +302,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		
 		selectViaSpriteRB = new JRadioButton("S");
 		selectViaSpriteRB.setFocusable(false);
+		selectViaSpriteRB.setSelected(true);
 		selectViaSpriteRB.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -311,7 +312,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		});
 		selectViaBoundaryRB = new JRadioButton("B");
 		selectViaBoundaryRB.setFocusable(false);
-		selectViaBoundaryRB.setSelected(true);
 		selectViaBoundaryRB.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -414,10 +414,30 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		boundaryVertexSelectButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				boundaryEditorMode.setCurrentEntity(getEntitySelectMode().getSingleSelectedEntity());
-				boundaryEditorMode.setSubMode(boundaryEditorMode.getVertexSelectMode());
-				boundaryEditorMode.getVertexSelectMode().setBoundarySubMode(boundaryEditorMode.getVertexSelectMode().getDefaultMode());
-				setMode(getBoundaryEditorMode());
+				//FIXME work in progress
+				EntityStatic tempEntity;
+				if( !(getEntitySelectMode().getSingleSelectedEntity() instanceof EntityNull) ) 
+				{
+					tempEntity = getEntitySelectMode().getSingleSelectedEntity();
+					if (tempEntity.hasCollider()) 
+					{
+						System.err.println("<editorpanel> Entity has collider");
+
+						if (tempEntity.getColliderComposite().getBoundary() instanceof BoundaryCircular ||
+								tempEntity.getColliderComposite().getBoundary() instanceof BoundarySingular) 
+						{ 
+							boundaryEditorMode.setIsPolygonal(false);
+						}
+						else {
+							boundaryEditorMode.setIsPolygonal(true);
+						}
+						boundaryEditorMode.setSubMode(boundaryEditorMode.getVertexSelectMode());
+						boundaryEditorMode.getVertexSelectMode().setBoundarySubMode(boundaryEditorMode.getVertexSelectMode().getDefaultMode());
+						boundaryEditorMode.setCurrentEntity(tempEntity);
+						setMode(getBoundaryEditorMode());
+					}
+
+				}//end of first IF 
 			}
 		});
 		boundaryVertexPlaceButton.setFocusable(false);
@@ -425,9 +445,26 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		boundaryVertexPlaceButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				boundaryEditorMode.setCurrentEntity(getEntitySelectMode().getSingleSelectedEntity());
-				boundaryEditorMode.setSubMode(boundaryEditorMode.getVertexPlaceMode());
-				setMode(getBoundaryEditorMode());
+				EntityStatic tempEntity;
+				if( !(getEntitySelectMode().getSingleSelectedEntity() instanceof EntityNull) ) 
+				{
+					tempEntity = getEntitySelectMode().getSingleSelectedEntity();
+					if (tempEntity.hasCollider()) 
+					{
+						if (tempEntity.getColliderComposite().getBoundary() instanceof BoundaryCircular ||
+								tempEntity.getColliderComposite().getBoundary() instanceof BoundarySingular) 
+						{ /* cannot enter vertex place mode unless boundary is polygonal. */
+							boundaryEditorMode.setIsPolygonal(false);
+						}
+						else {
+							boundaryEditorMode.setIsPolygonal(true);
+						}
+						boundaryEditorMode.setSubMode(boundaryEditorMode.getVertexPlaceMode());
+						boundaryEditorMode.setCurrentEntity(tempEntity);
+						setMode(getBoundaryEditorMode());
+					}
+
+				}//end of first IF 
 			}
 		});
 		// inline panel for button
@@ -443,7 +480,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
             System.err.println("Couldn't use system look and feel.");
         }*/
 		//separator.setPreferredSize(new Dimension(150,3));
-		entitySelectMode.setSelectViaSprite(false);
+		entitySelectMode.setSelectViaSprite(true);
 		
 		compositeEditorPanel = new CompositeEditorPanel();
 		JScrollPane compositeEditorScrollPane = new JScrollPane( compositeEditorPanel  );
@@ -547,27 +584,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	//Handler for the allEntitiesComboBox drop down panel
 	// Out of date because I need to completely rework how this class handles multiple selections
 	
-	/** Takes care of GUI events that I want to happen when an entity is clicked.*/
-	@Deprecated
-	public void selectSingleEntityGUIHouseKeeping() {
-		//TODO IMPORTANT make a "modeSwitchCleanUp()" method that is called every time a mode is switched, to avoid data leaks
-		//editorMode.modeSwitchCleanUp();   //Might not be necessary though. States can probably just be stored in the mode's instance
-		System.err.println("(In EditorPanel) Calling gui housekeeping method...");
-		setMode(getEntitySelectMode());
-		entitySelectMode.selectedEntities.clearSelectedEntities();
-		deleteEntButton.setEnabled(true);
-		spriteEditorButton.setEnabled(true);
-		boundaryVertexSelectButton.setEnabled(true);
-		boundaryVertexPlaceButton.setEnabled(true);
-		revalidate();
-	}
-	public void selectSingleEntityGUIHouseKeepingNEW() {
-		deleteEntButton.setEnabled(true);
-		spriteEditorButton.setEnabled(true);
-		boundaryVertexSelectButton.setEnabled(true);
-		boundaryVertexPlaceButton.setEnabled(true);
-		revalidate();
-	}
+	
 	/*public class EntitiesComboBoxActionHandler implements ActionListener{
 		
 		@Override
@@ -908,8 +925,28 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		this.entitySelectMode.setMode(entitySelectMode.getDefaultMode());
 		worldGeomButton.setEnabled(true);
 		
-		
 		return this.entitySelectMode;
+	}
+	/** Takes care of GUI events that I want to happen when an entity is clicked.*/
+	@Deprecated
+	public void selectSingleEntityGUIHouseKeeping() {
+		//TODO IMPORTANT make a "modeSwitchCleanUp()" method that is called every time a mode is switched, to avoid data leaks
+		//editorMode.modeSwitchCleanUp();   //Might not be necessary though. States can probably just be stored in the mode's instance
+		System.err.println("(In EditorPanel) Calling gui housekeeping method...");
+		setMode(getEntitySelectMode());
+		entitySelectMode.selectedEntities.clearSelectedEntities();
+		deleteEntButton.setEnabled(true);
+		spriteEditorButton.setEnabled(true);
+		boundaryVertexSelectButton.setEnabled(true);
+		boundaryVertexPlaceButton.setEnabled(true);
+		revalidate();
+	}
+	public void GUIHouseKeepingSelectEntity() {
+		deleteEntButton.setEnabled(true);
+		spriteEditorButton.setEnabled(true);
+		boundaryVertexSelectButton.setEnabled(true);
+		boundaryVertexPlaceButton.setEnabled(true);
+		revalidate();
 	}
 	public void GUIHouseKeepingDeselectedEntity() {
 		iconBarScrollPaneSpriteSwap.setVisible(false);
@@ -1094,7 +1131,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				//ctrlHeld = false;
 				this.inputController = new InputManagerMouseKeyboard("Rotate mode controller");	
 				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new RotateEvent());
-				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON3, new DegreeLockRotateEvent());
+				this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON3, new DegreeLockRotateEvent());
 				this.inputController.createKeyBinding(KeyEvent.VK_D, new SetDefaultMode());
 				this.inputController.createKeyBinding(KeyEvent.VK_S, new SetScaleMode());
 				this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());
@@ -1602,9 +1639,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			@Override
 			public void onPressed() {
 				selectedEntities.clearSelectedEntities();
-				spriteEditorButton.setEnabled(false);
-				boundaryVertexSelectButton.setEnabled(false);
-				boundaryVertexPlaceButton.setEnabled(false);
+				GUIHouseKeepingDeselectedEntity();
 			}
 			public void onReleased() {}
 			public void onHeld() {}
@@ -2196,10 +2231,13 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 ////////////////////////////////////////////////////////////////////////////////////////////////
 	@SuppressWarnings("unused")
 	public class BoundaryEditorMode extends ModeAbstract {
+		protected boolean isPolygonalBoundary;
 		protected BufferedImage ghostVertexPic;
 		private BoundaryVertexPlaceMode boundaryVertexPlaceMode;
 		private BoundaryVertexSelectMode boundaryVertexSelectMode;
 		private ModeAbstract boundarySubMode;
+		private int currentRadius;
+		private int oldRadius;
 		protected boolean isClosedShape;
 
 		protected EntityStatic currentSelectedEntity;
@@ -2248,7 +2286,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		public void render(Graphics g) {
 			this.boundarySubMode.render(g);
 		}
-		public void defaultRender(Graphics g) {
+		public void polygonalRender(Graphics g) {
 			Graphics2D g2 = (Graphics2D)g;			
 			//old drawVertexPoints vvvvvvv
 			for (EditorVertex editorVertex: vertexList) {
@@ -2268,9 +2306,55 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				camera.drawLineInBoard(lineToDraw,g2);
 			}
 		}
+		public void circularRender(Graphics g) {
+			Graphics2D g2 = (Graphics2D)g;
+			// tasks: 
+			// 		draw vertex
+			//		draw circle around vertex
+			//		 	FOUND: BoundaryCircular#debugDrawBoundary
+			for (EditorVertex editorVertex: vertexList) {  //using unnecessary for loop to handle empty list, null pointer error
+				editorVertex.draw(g2, camera);
+				((BoundaryCircular)currentSelectedEntity.getColliderComposite().getBoundary()).debugDrawCircleForEditor(
+																				camera, g2, editorVertex.getPoint(), currentRadius);
+			}
+			
+		}
+		public void tryToSetInitialRadius(EntityStatic newEntity) {
+			if (newEntity.getColliderComposite().getBoundary() instanceof BoundaryCircular) {
+				this.currentRadius = ((BoundaryCircular)newEntity.getColliderComposite().getBoundary()).getRadius();
+				setOldRadius(currentRadius);
+				return;
+			}
+			else if (newEntity.getColliderComposite().getBoundary() instanceof BoundarySingular){
+				this.currentRadius = 0;
+				setOldRadius(currentRadius);
+				return;
+			}
+			System.err.println("<editorpanel> was unable to set boundary's radius. Might be polygonal, or error.");
+		}
+		public void setOldRadius(int setRadius) {
+			this.oldRadius = setRadius;
+		}
+		public void setCurrentRadius(int setRadius) {
+			this.currentRadius = setRadius;
+		}
 		@Override
 		public String getModeName() {
 			return this.boundarySubMode.getModeName();
+		}
+		public void setIsPolygonal(boolean isPolygonal) {
+			if (isPolygonal == true) {
+				this.getVertexSelectMode().getScaleMode().getScaleEventState().setScaleEventState(
+								this.getVertexSelectMode().getScaleMode().getScaleEventState().getScaleEventPolygonal() );
+				System.err.println("<editorpanel>setting isPolygonal true...");
+			}
+			else {
+				this.getVertexSelectMode().getScaleMode().getScaleEventState().setScaleEventState(
+						this.getVertexSelectMode().getScaleMode().getScaleEventState().getScaleEventCircular() );
+				System.err.println("<editorpanel>setting isPolygonal false...");
+			}
+				
+			this.isPolygonalBoundary = isPolygonal;
 		}
 		public BoundaryVertexPlaceMode getVertexPlaceMode() {
 			return this.boundaryVertexPlaceMode;
@@ -2373,9 +2457,11 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		}
 		
 		public void setCurrentEntity(EntityStatic newEntity) {
+			System.err.println("<editorpanel> setting boundary editor's current entity to: " +newEntity.name);
 			this.currentSelectedEntity = newEntity;
 			//debugTestForVerticesPosition();
 			retrieveVertsFromBoundary(currentSelectedEntity.getColliderComposite());
+			tryToSetInitialRadius(newEntity);
 			setUpBackUpVertsForReset();
 			getBoundaryEditorMode().getVertexSelectMode().selectedVertices.clearSelectedVertices();
 		}
@@ -2401,18 +2487,29 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			//might not need either of these two lines vvvvv
 			//ArrayList<Point2D> temporaryPointsList = new ArrayList<>();
 			//Point2D[] temporarayPointsArray = sourceCollider.getBoundary().getCornersPoint();
-			for (Point2D vertexToAdd: sourceCollider.getBoundary().getCornersPoint()){
-				
-				Point2D absoluteCorner = sourceCollider.absolutePositionOfRelativePoint(vertexToAdd);
-				
-				vertexList.add(new EditorVertex( (int)vertexToAdd.getX(),(int)vertexToAdd.getY()) );
-			}
-			refreshAllSurfaceLines(surfaceLines);
-			refreshAllSurfaceLines(oldBoundaryLines);
-			closeShape(surfaceLines);
-			closeShape(oldBoundaryLines);
+			if (isPolygonalBoundary) {
+				for (Point2D vertexToAdd: sourceCollider.getBoundary().getCornersPoint()){
+					
+					Point2D absoluteCorner = sourceCollider.absolutePositionOfRelativePoint(vertexToAdd);
+					
+					vertexList.add(new EditorVertex( (int)vertexToAdd.getX(),(int)vertexToAdd.getY()) );
+				}
+				refreshAllSurfaceLines(surfaceLines);
+				refreshAllSurfaceLines(oldBoundaryLines);
+				closeShape(surfaceLines);
+				closeShape(oldBoundaryLines);
 			/*surfaceLines.get(surfaceLines.size()-1).setLine(surfaceLines.get(surfaceLines.size()-1).getP2(),
 																			 surfaceLines.get(0).getP1());*/
+			}
+			//FIXME probably won't work vvvvv 
+			else { //is circular or singular
+				Point centerOfCircle = sourceCollider.getOwnerEntity().getPosition();
+				//Point centerOfCircle = new Point(0,0);
+				//Point centerOfCircle = sourceCollider.getBoundaryCenter();
+				System.err.println("<editorpanel> testing center of boundary: "+centerOfCircle.getX()+","+centerOfCircle.getY());
+				vertexList.add(new EditorVertex( (int)centerOfCircle.getX(), (int)centerOfCircle.getY()));
+			}
+				
 		}
 		/*public void debugTestForVerticesPosition() {
 			//going to try to duplicate the coordinates of the big slope testentity
@@ -2449,7 +2546,11 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			closeShape(surfaceLines);
 			closeShape(oldBoundaryLines);
 		}
-		public void replaceAndFinalizeBoundary() {
+		public void replaceAndFinalizeCircularBoundary() {
+			BoundaryCircular newBoundary = new BoundaryCircular(currentRadius);
+			this.currentSelectedEntity.getColliderComposite().setBoundary(newBoundary);
+		}
+		public void replaceAndFinalizePolygonalBoundary() {
 			if (surfaceLines.size() > 0) {
 				refreshAllSurfaceLines(surfaceLines);
 				closeShape(surfaceLines);
@@ -2534,7 +2635,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					}
 				}
 			}
-			public void checkForVertex(Point click) {
+			protected void checkForVertex(Point click) {
 				//boolean atLeastOneVertexFound = false;
 				//since this is the regular click method, would want to make sure any selected vertices are deselected first
 				//TODO: DON'T USE THIS METHOD WITH THE SELECTION BOX PROCEDURE
@@ -2554,7 +2655,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				/*if (atLeastOneVertexFound == false)
 					selectedVertices.clearSelectedVertices();*/
 			}
-			public void checkForVertexInSelectionRect(Rectangle selectionRect) {
+			protected void checkForVertexInSelectionRect(Rectangle selectionRect) {
 				for (EditorVertex editorVertex: vertexList) {
 					if (selectionRect.intersects(editorVertex.getClickableZone())){
 						if(selectedVertices.contains(editorVertex) == false) 
@@ -2655,8 +2756,11 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				@Override
 				public void render(Graphics g) {
 					// vvvv will be inside defaultmode's render
-					Graphics2D g2 = (Graphics2D)g;	
-					defaultRender(g2);
+					Graphics2D g2 = (Graphics2D)g;
+					if (isPolygonalBoundary)
+						polygonalRender(g2);
+					else
+						circularRender(g2);
 					// section to draw selected Vertex (if one is selected)
 					g2.setColor(Color.GREEN);
 					selectedVertices.drawClickableBox(g2, camera);
@@ -2664,7 +2768,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					// vvvv section to draw selection rectangle
 					selectionRectangleState.draw(g2, camera);
 				}
-				public class TranslateEvent extends MouseCommand{
+				private class TranslateEvent extends MouseCommand{
 					
 					public void mousePressed() {
 						
@@ -2677,96 +2781,60 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 							refreshAllSurfaceLinesClosedShape(surfaceLines);
 						else
 							refreshAllSurfaceLines(surfaceLines);*/
-						refreshAllSurfaceLines(surfaceLines);
-						closeShape(surfaceLines);
+						if (isPolygonalBoundary) {
+							refreshAllSurfaceLines(surfaceLines);
+							closeShape(surfaceLines); }
 					}
 					public void mouseReleased() {
 						
 					}
 				}
-				public class AlignToXAxisEvent extends KeyCommand {
+				private class AlignToXAxisEvent extends KeyCommand {
 					@Override
 					public void onPressed() {
-						selectedVertices.alignToXAxis();
-						refreshAllSurfaceLinesClosedShape(surfaceLines);
+						if (isPolygonalBoundary) {
+							selectedVertices.alignToXAxis();
+							refreshAllSurfaceLinesClosedShape(surfaceLines); }
 					}
 					public void onReleased(){} public void onHeld() {}
 				}
-				public class CtrlVertexSelectLClickEvent extends MouseCommand{
-					public void mousePressed() {
-						checkForVertexShiftClick(camera.getWorldPos(editorMousePos));
-					}
-					public void mouseDragged() {
-						//currentSelectedVertex.translate(camera.getLocalPosition(editorMousePos));
-					}
-					public void mouseReleased() {
-					}
-				
-				} // end of ShiftVertexSelectLClickEvent inner class
-				public class AlignToYAxisEvent extends KeyCommand {
+				private class AlignToYAxisEvent extends KeyCommand {
 					@Override
 					public void onPressed() {
-						selectedVertices.alignToYAxis();
-						refreshAllSurfaceLinesClosedShape(surfaceLines);
+						if (isPolygonalBoundary) {
+							selectedVertices.alignToYAxis();
+							refreshAllSurfaceLinesClosedShape(surfaceLines); }
 					}
 					public void onReleased(){} public void onHeld() {}
 				}
-				public class DeleteVerticesEvent extends KeyCommand {
+				private class DeleteVerticesEvent extends KeyCommand {
 					@Override
 					public void onPressed() {
-						
-						removeVertex(selectedVertices);
+						if (isPolygonalBoundary)
+							removeVertex(selectedVertices);
 					}
 					public void onReleased() {} public void onHeld() {}
 				}
-				public class SelectionRectEvent extends MouseCommand {
-					@Override
-					public void mousePressed() {
-						selectionRectangleState = selectionRectangle;
-						initClickPoint.setLocation(camera.getWorldPos(editorMousePos));
-						selectionRectangleState.setInitialRectPoint();
-					}
-					@Override
-					public void mouseDragged() {
-						selectionRectangleState.translateEndPoint(camera.getWorldPos(editorMousePos));
-					}
-					@Override
-					public void mouseReleased() {
-						checkForVertexInSelectionRect(selectionRectangleState.getWrekt());
-						selectionRectangleState.resetRect();
-						selectionRectangleState = nullSelectionRectangle;
-					}
-				}
-				public class SplitLineEvent extends KeyCommand {
+				private class SplitLineEvent extends KeyCommand {
 					public void onPressed() {
-						splitLine();
+						if (isPolygonalBoundary)
+							splitLine();
 					}
 					public void onReleased() {} public void onHeld() {}
 				}
-				// ****************** inner-inner classes for mouse behavior classes specific to vertex selecting
-				// ****************** inner-inner classes for mouse behavior classes specific to vertex selecting
-				public class VertexSelectLClickEvent extends MouseCommand{
-					public void mousePressed() {
-
-						checkForVertex(camera.getWorldPos(editorMousePos));
-					}
-					public void mouseDragged() {
-						//currentSelectedVertex.translate(camera.getLocalPosition(editorMousePos));
-					}
-					public void mouseReleased() {}	
-				} // end of VertexSelectLClickEvent inner class
 			}	// end of Default Mode
 
 			// ########################  INNER SUB MODE: SCALE MODE ########################					SCALE MODE
 			public class ScaleBoundarySubMode extends ModeAbstract {
 				
-				
+				public ScaleEventState scaleEventState;
 				public ScaleBoundarySubMode() {
 					this.modeName = "Boundary Scale Mode";
+					scaleEventState = new ScaleEventState();
 					inputController = new InputManagerMouseKeyboard("Boundary vertex select Scale controller");
 					this.inputController.createKeyBinding(KeyEvent.VK_D, new SetDefaultMode());
 					this.inputController.createMouseBinding(MouseEvent.SHIFT_MASK, MouseEvent.BUTTON1, new CameraPanEvent());
-					this.inputController.createMouseBinding(MouseEvent.BUTTON3, new ScaleEvent());
+					this.inputController.createMouseBinding(MouseEvent.BUTTON3, scaleEventState);
 					this.inputController.createKeyBinding(KeyEvent.VK_ENTER, new ReplaceAndFinalizeBoundaryEvent());
 				}
 				@Override
@@ -2791,12 +2859,19 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				}	
 				@Override
 				public void render(Graphics g) {
+
 					Graphics2D g2 = (Graphics2D)g;	
-					defaultRender(g2);
+					if (isPolygonalBoundary)
+						polygonalRender(g2);
+					else
+						circularRender(g2);
 					selectedVertices.drawClickableBox(g2, camera);
 					g2.setColor(Color.BLUE);
 				}
-				
+				public ScaleEventState getScaleEventState() {
+					return this.scaleEventState;
+				}
+				@Deprecated
 				public class ScaleEvent extends MouseCommand{
 
 					public void mousePressed() {
@@ -2815,33 +2890,116 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 						selectedVertices.updateOldVertexPositions();
 					}
 				}
+				public class ScaleEventState extends MouseCommand {
+					public ScaleEventAbstract currentScaleEventState;
+					public ScaleEventNull scaleEventNull = new ScaleEventNull();
+					public ScaleEventPolygonal scaleEventPolygonal = new ScaleEventPolygonal();
+					public ScaleEventCircular scaleEventCircular = new ScaleEventCircular();
+					
+					public ScaleEventState() {
+						this.currentScaleEventState = scaleEventNull;
+					}//end of constructor
+					public  void mousePressed() {
+						this.currentScaleEventState.mousePressed();
+					};
+					public  void mouseDragged() {
+						this.currentScaleEventState.mouseDragged();
+					}
+					public  void mouseReleased() {
+						this.currentScaleEventState.mouseReleased();
+					}
+					
+					public ScaleEventPolygonal getScaleEventPolygonal() {
+						return this.scaleEventPolygonal;
+					}
+					public ScaleEventCircular getScaleEventCircular() {
+						return this.scaleEventCircular;
+					}
+					public ScaleEventAbstract getCurrentScaleEventState() {
+						return this.currentScaleEventState;
+					}
+					public void setScaleEventState(ScaleEventAbstract newState) {
+						this.currentScaleEventState = newState;
+					}
+					public class ScaleEventNull extends ScaleEventAbstract {
+						public void mousePressed() {System.err.println("<editorpanel>nullstate");} 
+						public void mouseDragged() {System.err.println("<editorpanel>nullstate");} 
+						public void mouseReleased() {System.err.println("<editorpanel>nullstate");}
+					}
+					public class ScaleEventPolygonal extends ScaleEventAbstract {
+						public void mousePressed() {
+							// update oldVertexListForScaling
+							initClickPoint.setLocation(editorMousePos);
+							selectedVertices.updateOldVertexPositions();
+						}
+						public void mouseDragged() {
+							//double tempDistance = -(camera.getRelativeX(initClickPoint.getX()) - editorMousePos.getX());
+							selectedVertices.scaleVertices(initClickPoint, editorMousePos, currentSelectedEntity.getPosition());
+
+							refreshAllSurfaceLines(surfaceLines);
+							closeShape(surfaceLines);
+						}
+						public void mouseReleased() {
+							selectedVertices.updateOldVertexPositions();
+						}
+					}
+					public class ScaleEventCircular extends ScaleEventAbstract {
+						public void mousePressed() {
+							initClickPoint.setLocation(editorMousePos);
+							setOldRadius(currentRadius);
+						}
+						public void mouseDragged() {
+							scaleCircle(initClickPoint, editorMousePos);
+						}
+						public void mouseReleased() {
+							//setOldRadius(currentRadius);
+						}
+					}
+				}
+				public abstract class ScaleEventAbstract extends MouseCommand {
+					public abstract void mousePressed();
+					public abstract void mouseDragged();
+					public abstract void mouseReleased();
+				}
+				public void scaleCircle(Point initClickPoint, Point finalClickPos) {
+					double tempDistance = -(initClickPoint.getX() - finalClickPos.getX() );
+					setCurrentRadius((int)(oldRadius + tempDistance)); 
+					
+
+				}
 			} // end of Scale mode
 			
 // ****************** inner-inner classes for mouse behavior classes specific to vertex selecting
 // ****************** inner-inner classes for mouse behavior classes specific to vertex selecting
 			
+			protected class CloseShapeEvent extends KeyCommand {
 
-			public class VertexSelectLClickEvent extends MouseCommand{
-				public void mousePressed() {
+				@Override
+				public void onPressed() {
 					
-					checkForVertex(camera.getWorldPos(editorMousePos));
+					refreshAllSurfaceLines(surfaceLines);
+					closeShape(surfaceLines);
 				}
-				public void mouseDragged() {
-					//currentSelectedVertex.translate(camera.getLocalPosition(editorMousePos));
-				}
-			} // end of VertexSelectLClickEvent inner class
-			public class VertexSelectRClickEvent extends MouseCommand{
-				public void mousePressed() {
+			}
+			public class ReplaceAndFinalizeBoundaryEvent extends KeyCommand {
+				@Override
+				public void onPressed() {
+					if (isPolygonalBoundary) 
+						replaceAndFinalizePolygonalBoundary();
+					else 
+						replaceAndFinalizeCircularBoundary();
 					
-					//checkForVertex(camera.getLocalPosition(e.getPoint()));
-					//checkForVertex(camera.getLocalPosition(editorMousePos));
+					EditorPanel.this.setMode(EditorPanel.this.getEntitySelectMode());
 				}
-				public void mouseDragged() {
-					
-					//currentSelectedVertex.translate(camera.getLocalPosition(editorMousePos));
+			}
+			public class ResetBoundaryVerticesToDefaultEvent extends KeyCommand {
+				@Override
+				public void onPressed() {
+					if (isPolygonalBoundary)
+						resetBoundaryVerticesToDefault();
 				}
-			} // end of VertexSelectRClickEvent inner class
-			public class CtrlVertexSelectLClickEvent extends MouseCommand{
+			}
+		/*	public class CtrlVertexSelectLClickEvent extends MouseCommand{
 
 				public void mousePressed() {
 					
@@ -2852,8 +3010,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					//currentSelectedVertex.translate(camera.getLocalPosition(editorMousePos));
 				}
 
-			} // end of ShiftVertexSelectLClickEvent inner class
-			public class TranslateEvent extends MouseCommand{
+			}*/ 
+	/*		public class TranslateEvent extends MouseCommand{
 
 				public void mousePressed() {
 					
@@ -2862,10 +3020,10 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				}
 				public void mouseDragged() {
 					selectedVertices.translate(initClickPoint, editorMousePos);
-					/*if (isClosedShape)
+					if (isClosedShape)
 						refreshAllSurfaceLinesClosedShape(surfaceLines);
 					else
-						refreshAllSurfaceLines(surfaceLines);*/
+						refreshAllSurfaceLines(surfaceLines);
 					refreshAllSurfaceLines(surfaceLines);
 					closeShape(surfaceLines);
 				}
@@ -2888,7 +3046,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					selectedVertices.updateOldVertexPositions();
 				}
 			}
-			public class SelectionRectEvent extends MouseCommand {
+			*/
+/*			public class SelectionRectEvent extends MouseCommand {
 
 				@Override
 				public void mousePressed() {
@@ -2912,19 +3071,22 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				}
 
 			}
-			public class EscapeEvent extends KeyCommand {
+			*/
+/*			public class EscapeEvent extends KeyCommand {
 
 				@Override
 				public void onPressed() {
 					selectedVertices.clearSelectedVertices();
 				}
 			}
-
+			*/
+/*
 			public class SplitLineEvent extends KeyCommand {
 				public void onPressed() {
 					splitLine();
 				}
 			}
+			*/
 			/*
 			public class RetrieveVertsFromBoundaryEvent extends KeyCommand {
 				@Override
@@ -2933,7 +3095,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				}
 				public void onReleased(){} public void onHeld() {}
 			}*/
-			public class AlignToXAxisEvent extends KeyCommand {
+/*			public class AlignToXAxisEvent extends KeyCommand {
 				@Override
 				public void onPressed() {
 					selectedVertices.alignToXAxis();
@@ -2953,31 +3115,172 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					
 					removeVertex(selectedVertices);
 				}
+			}*/
+			public class CtrlVertexSelectLClickEvent extends MouseCommand{
+				public void mousePressed() {
+					checkForVertexShiftClick(camera.getWorldPos(editorMousePos));
+				}
+				public void mouseDragged() {
+					//currentSelectedVertex.translate(camera.getLocalPosition(editorMousePos));
+				}
+				public void mouseReleased() {
+				}
+			
 			}
-			public class CloseShapeEvent extends KeyCommand {
-
+			public class SelectionRectEvent extends MouseCommand {
 				@Override
-				public void onPressed() {
-					
-					refreshAllSurfaceLines(surfaceLines);
-					closeShape(surfaceLines);
+				public void mousePressed() {
+					selectionRectangleState = selectionRectangle;
+					initClickPoint.setLocation(camera.getWorldPos(editorMousePos));
+					selectionRectangleState.setInitialRectPoint();
+				}
+				@Override
+				public void mouseDragged() {
+					selectionRectangleState.translateEndPoint(camera.getWorldPos(editorMousePos));
+				}
+				@Override
+				public void mouseReleased() {
+					checkForVertexInSelectionRect(selectionRectangleState.getWrekt());
+					selectionRectangleState.resetRect();
+					selectionRectangleState = nullSelectionRectangle;
 				}
 			}
-			public class ReplaceAndFinalizeBoundaryEvent extends KeyCommand {
-				@Override
-				public void onPressed() {
-					
-					replaceAndFinalizeBoundary();
+			// ****************** inner-inner classes for mouse behavior classes specific to vertex selecting
+			// ****************** inner-inner classes for mouse behavior classes specific to vertex selecting
+			public class VertexSelectLClickEvent extends MouseCommand{
+				public void mousePressed() {
+			
+					checkForVertex(camera.getWorldPos(editorMousePos));
 				}
-			}
-			public class ResetBoundaryVerticesToDefaultEvent extends KeyCommand {
-				@Override
-				public void onPressed() {
-					
-					resetBoundaryVerticesToDefault();
+				public void mouseDragged() {
+					//currentSelectedVertex.translate(camera.getLocalPosition(editorMousePos));
 				}
+				public void mouseReleased() {}	
 			}
+			
 		} // end of boundaryVertexSelectMode
+		
+		
+		//##### TEST IDEA FOR CIRCULARBOUNDARYEDITING
+		/*public class CircularBoundaryEditorMode extends ModeAbstract {
+			protected SelectedVertices selectedVertices;
+			protected ModeAbstract circularBoundaryVertexSelectSubMode;
+			protected CircularDefaultBoundarySubMode circularDefaultBoundarySubMode;
+			protected CircularScaleBoundarySubMode circularScaleBoundarySubMode;
+			protected SelectionRectangleAbstract selectionRectangle;
+			protected SelectionRectangleAbstract selectionRectangleState;
+			protected SelectionRectangleAbstract nullSelectionRectangle;
+			protected Point initClickPoint;
+			public CircularBoundaryEditorMode() {
+				modeName = "CircularBoundaryVertexSelectMode";
+				circularDefaultBoundarySubMode = new CircularDefaultBoundarySubMode;
+				circularScaleBoundarySubMode = new CircularScaleBoundarySubMode;
+				this.circularBoundaryVertexSelectSubMode = circularDefaultBoundarySubMode;
+				initClickPoint = new Point();
+				selectedVertices = new SelectedVertices(camera);
+				nullSelectionRectangle = SelectionRectangleNull.getNullSelectionRectangle();
+				selectionRectangle = new SelectionRectangle(Color.BLUE, Color.cyan, camera, initClickPoint);
+				selectionRectangleState = nullSelectionRectangle;
+			}
+			
+			 * Methods this class will need:
+			 * --translate boundary/center point
+			 * --scale boundary via dragging
+			 * --render:
+			 * -->>Render the center vertex,
+			 * -->>Render the circle itself using the same one being used for debug boundary draw
+			 
+
+			 Inner classes this class will need:
+			 * -Default(translating) state
+			 * -Scale mode
+			 * 
+			 * 
+			 
+			// Running polymorphic input commands
+			@Override
+			public void mousePressed(MouseEvent e) {
+				circularBoundaryVertexSelectSubMode.inputController.mousePressed(e); }
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				circularBoundaryVertexSelectSubMode.inputController.mouseDragged(e); }
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				circularBoundaryVertexSelectSubMode.inputController.mouseReleased(e); }
+			@Override
+			public void keyPressed(KeyEvent e) { 
+				circularBoundaryVertexSelectSubMode.inputController.keyPressed(e);	}
+			@Override
+			public void keyReleased(KeyEvent e) {
+				circularBoundaryVertexSelectSubMode.inputController.keyReleased(e); }
+			@Override
+			public void render(Graphics g) {
+				circularBoundaryVertexSelectSubMode.render(g);
+			}
+			public void checkForVertexShiftClick(Point click) {
+				for (EditorVertex editorVertex: vertexList) {
+					if (editorVertex.getClickableZone().contains(click)) {
+						if (selectedVertices.contains(editorVertex)) 
+							selectedVertices.removeSelectedVertex(editorVertex);
+						else
+							selectedVertices.addSelectedVertex(editorVertex);
+					}
+				}
+			}
+			protected void checkForVertex(Point click) {
+				if (selectedVertices.size() > 0)
+					selectedVertices.clearSelectedVertices();
+				for (EditorVertex editorVertex: vertexList) {
+					if (editorVertex.getClickableZone().contains(click)) 
+					{
+						if (selectedVertices.contains(editorVertex) == false) {
+							//atLeastOneVertexFound = true;
+							selectedVertices.addSelectedVertex(editorVertex);
+							break;
+						}
+					}
+				}
+			}
+			protected void checkForVertexInSelectionRect(Rectangle selectionRect) {
+				for (EditorVertex editorVertex: vertexList) {
+					if (selectionRect.intersects(editorVertex.getClickableZone())){
+						if(selectedVertices.contains(editorVertex) == false) 
+							selectedVertices.addSelectedVertex(editorVertex);
+					}
+				}
+			}
+			public ModeAbstract getSubMode() {
+				return this.circularBoundaryVertexSelectSubMode;
+			}
+			private CircularDefaultBoundarySubMode getDefaultMode() {
+				return this.circularDefaultBoundarySubMode;
+			}
+			private CircularScaleBoundarySubMode getScaleMode() {
+				return this.circularScaleBoundarySubMode;
+			}
+			@Override
+			public String getModeName(){
+				return this.circularBoundaryVertexSelectSubMode.getModeName();
+			}
+			public class SetDefaultMode extends KeyCommand {
+				@Override
+				public void onPressed() {
+					setBoundarySubMode(circularDefaultBoundarySubMode);
+				}
+				public void onReleased() {}
+				public void onHeld() {}
+			}
+			public class SetScaleMode extends KeyCommand {
+				@Override
+				public void onPressed() {
+					setBoundarySubMode(circularScaleBoundarySubMode);
+				}
+				public void onReleased() {}
+				public void onHeld() {}
+			}
+			// ########################  INNER SUB MODE: DEFAULT MODE ########################					DEFAULT MODE, i.e. translating mode
+		}
+		*/
 /////////   INNER CLASS BOUNDARYVERTEXPLACEMODE   //////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -3017,7 +3320,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			@Override
 			public void render(Graphics g) {
 				Graphics2D g2 = (Graphics2D)g;
-				defaultRender(g);
+				polygonalRender(g);
 				g2.setColor(Color.BLUE);
 				// vvvv section to draw selection rectangle
 				tempRectBoundaryState.draw(g2, camera);

@@ -28,6 +28,7 @@ public class EditorVertex extends EditorVertexAbstract {
 		offsetX = offsetY = 7;
 		vertexPoint = new Point(x,y);
 		clickableZone = new Rectangle(vertexPoint.x-offsetX, vertexPoint.y-offsetY, 13, 13);
+		//clickableZone = new Rectangle(0,0, 13, 13);
 		//this.camera = camera;
 	}
 	
@@ -43,12 +44,17 @@ public class EditorVertex extends EditorVertexAbstract {
 	
 	@Override
 	public void draw(Graphics g, MovingCamera camera) {
-		// TODO Auto-generated method stub
+
 		camera.drawVertex(this, g); 
-		
+
 	}
 	public void drawClickableBox(Graphics g, MovingCamera camera) {
-		camera.drawVertexClickableBox(this, g);
+		//camera.drawVertexClickableBox(this, g);
+		Color oldColor = camera.getColor();
+		camera.setColor(Color.GREEN);
+		
+		camera.drawShapeInWorld(new Rectangle(0,0,13,13), this.clickableZone.getLocation());
+		camera.setColor(oldColor);
 	}
 	@Override
 	public Point getPoint() {

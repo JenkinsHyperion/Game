@@ -56,7 +56,9 @@ public class BoundaryCircular extends Boundary{
 	public Point getRelativeOffset() {
 		return center;
 	}
-	
+	public int getRadius() {
+		return this.radius;
+	}
 	@Override
 	public void constructVoronoiRegions() {
 		this.regions = new VoronoiRegion[]{ VoronoiRegion.getUndefinedVoronoiRegion( centerVertex ) };
@@ -68,7 +70,10 @@ public class BoundaryCircular extends Boundary{
 		cam.drawCrossInWorld( ownerEntity.getPosition(), g2 );
 		cam.drawShapeInWorld( boundary , ownerEntity.getPosition(), g2 );
 	}
-
+	public void debugDrawCircleForEditor(MovingCamera cam, Graphics2D g2, Point centerPoint, int radius) {
+		Shape boundary = new Ellipse2D.Float( -radius , -radius , 2*radius, 2*radius );
+		cam.drawShapeInWorld( boundary , centerPoint, g2 );
+	}
 	@Override
 	protected Point2D farthestPointFromPoint(Point2D boundaryPoint, Line2D axis) {
 		

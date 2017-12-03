@@ -1,5 +1,6 @@
 package editing.worldGeom;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -79,6 +80,7 @@ public class SelectedVertices {
 	
 	public void drawClickableBox(Graphics g, MovingCamera camera) {
 		// should only run if there are any items inside the array
+		
 		for(EditorVertex editorVertex: selectedVertices) {
 			editorVertex.drawClickableBox(g, camera);
 		}

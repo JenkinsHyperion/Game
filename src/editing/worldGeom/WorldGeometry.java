@@ -7,9 +7,6 @@ import entityComposites.EntityStatic;
 import Input.*;
 import editing.EditorPanel;
 import editing.ModeAbstract;
-import editing.EditorPanel.CameraPanEvent;
-import editing.EditorPanel.BoundaryEditorMode.BoundaryVertexPlaceMode.RectangleBoundDrawEvent;
-import editing.EditorPanel.BoundaryEditorMode.BoundaryVertexSelectMode.CloseShapeEvent;
 
 import java.awt.*;
 import java.awt.event.*;

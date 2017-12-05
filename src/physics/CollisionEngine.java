@@ -52,6 +52,17 @@ public class CollisionEngine {
 			collision.notifyEntitiesOfCollisionCompleteion();
 		}
 		runningCollisionsList.clear();
+		
+		ArrayList<CheckingPair<?,?>> removePairs = new ArrayList<CheckingPair<?,?>>();
+		while ( activeCheckingPairs.hasNext() ){
+			
+			CheckingPair<?,?> removePair = activeCheckingPairs.get();
+			
+			removePairs.add(removePair);
+		}
+		for ( CheckingPair<?,?> removePair : removePairs){
+			removePair.removeSelf();
+		}
 		//dynamicCollidablesList.clear(); //keep player temporarily while scenes are under construction
 	}
 	

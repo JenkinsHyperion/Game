@@ -14,20 +14,20 @@ public class EntitySerializer {
 		ColliderData colliderData = null; //better way of 
 		GraphicData graphicData = null;
 		
-		if ( entity.getColliderComposite().exists() ){	
-			
-			Boundary boundary = entity.getColliderComposite().getBoundary();
-			if ( boundary instanceof BoundaryPolygonal ){
-				colliderData = new ColliderData( entity.getColliderComposite().getBoundary().getCornersVertex() );
-				System.out.println("     Saved "+boundary+ " of "+entity);
-			}//else if ( boundary instanceof BoundaryCircular ){
-				
-			//}
-			else{
-				System.err.println("     Couldn't save "+boundary+ " of "+entity);
-			}
-			
-		}
+//		if ( entity.getColliderComposite().exists() ){	
+//			
+//			Boundary boundary = entity.getColliderComposite().getBoundary();
+//			if ( boundary instanceof BoundaryPolygonal ){
+//				colliderData = new ColliderData( entity.getColliderComposite().getBoundary().getCornersVertex() );
+//				System.out.println("     Saved "+boundary+ " of "+entity);
+//			}//else if ( boundary instanceof BoundaryCircular ){
+//				
+//			//}
+//			else{
+//				System.err.println("     Couldn't save "+boundary+ " of "+entity);
+//			}
+//			
+//		}
 		
 		//GRAPHICS DATA
 		
@@ -38,12 +38,13 @@ public class EntitySerializer {
 				graphicData= GraphicData.createStillFrameData( stillframe.getPathName() , stillframe.getOffsetX() , stillframe.getOffsetY() );
 				System.out.println("     Saved "+stillframe+ " of "+entity+ " with path "+stillframe.getPathName());
 			}
-			else if ( sprite instanceof SpriteAnimated){
-				SpriteAnimated anim = (SpriteAnimated) sprite;
-				graphicData= GraphicData.createAnimationData( anim.getPathName() , anim.getOffsetX() , anim.getOffsetY(), 
-						anim.getFrameCount(), anim.getRow(), anim.getFrameWidth(), anim.getFrameHeight(), anim.getDelay() );
-				System.out.println("     Saved "+anim+ " of "+entity+ " with path "+anim.getPathName());
-			}else{
+//			else if ( sprite instanceof SpriteAnimated){
+//				SpriteAnimated anim = (SpriteAnimated) sprite;
+//				graphicData= GraphicData.createAnimationData( anim.getPathName() , anim.getOffsetX() , anim.getOffsetY(), 
+//						anim.getFrameCount(), anim.getRow(), anim.getFrameWidth(), anim.getFrameHeight(), anim.getDelay() );
+//				System.out.println("     Saved "+anim+ " of "+entity+ " with path "+anim.getPathName());
+//			}
+			else{
 				System.err.println("     Failed to save "+sprite+ " of "+entity);
 			}
 		}

@@ -368,7 +368,7 @@ public class BoundaryPolygonal extends Boundary {
 	}
 	
 	@Override
-	public Point getRelativeOffset() {
+	public Point getRelativeCenter() {
 		return new Point();
 	}
 	

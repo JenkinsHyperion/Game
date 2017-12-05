@@ -38,7 +38,7 @@ public class BoundarySingular extends Boundary{
 	}
 	
 	@Override
-	public Point getRelativeOffset() {
+	public Point getRelativeCenter() {
 		return center;
 	}
 	

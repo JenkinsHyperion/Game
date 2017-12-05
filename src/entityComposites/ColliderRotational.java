@@ -30,7 +30,7 @@ public class ColliderRotational extends Collider implements RotateableComposite{
 	
 	@Override
 	public Point getBoundaryCenter(){
-    	return this.ownerEntityAngular.getRotationalAbsolutePositionOf( boundary.getRelativeOffset() );
+    	return this.ownerEntityAngular.getRotationalAbsolutePositionOf( boundary.getRelativeCenter() );
     }
 	
 	@Override

@@ -53,7 +53,7 @@ public class BoundaryCircular extends Boundary{
 	}
 	
 	@Override
-	public Point getRelativeOffset() {
+	public Point getRelativeCenter() {
 		return center;
 	}
 	public int getRadius() {

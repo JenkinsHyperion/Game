@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -229,6 +230,8 @@ public class RenderingEngine {
 				Shape relativeShape = graphic.composite.getGraphicRelativeBounds(0);
 				
 				camera.drawShapeInWorld( relativeShape , graphic.composite.getOwnerEntity().getPosition());
+				
+				new Rectangle(3,3,3,3);
 				
 			}
 

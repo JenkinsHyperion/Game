@@ -104,7 +104,7 @@ public class Collider implements EntityComposite{
     }
     
     public Point getBoundaryCenter(){
-    	return this.boundary.getRelativeOffset();
+    	return this.boundary.getRelativeCenter();
     }
 	
 	/* #################################################################################
@@ -387,7 +387,7 @@ public class Collider implements EntityComposite{
 				}
 
 				@Override
-				public Point getRelativeOffset() {
+				public Point getRelativeCenter() {
 					// TODO Auto-generated method stub
 					return null;
 				}

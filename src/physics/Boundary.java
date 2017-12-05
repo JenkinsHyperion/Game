@@ -24,7 +24,7 @@ public abstract class Boundary {
 	
 	protected abstract Line2D[] getSeparatingSides();
 	
-	public abstract Point getRelativeOffset();
+	public abstract Point getRelativeCenter();
 	
 	public abstract void debugDrawBoundary( MovingCamera cam , Graphics2D g2, EntityStatic ownerEntity );
 

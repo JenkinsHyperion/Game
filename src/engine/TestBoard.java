@@ -122,7 +122,7 @@ public class TestBoard extends BoardAbstract{
     		public void onReleased() {  }
     	});
     	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_5, new KeyCommand(){
-    		public void onPressed() { asteroid.deactivatePlanetwideColliders(); }
+    		public void onPressed() { changeScene( new Scene(TestBoard.this) ); }
     		public void onReleased() {  }
     	});
     	this.getUnpausedInputController().createKeyBinding(KeyEvent.VK_6, new KeyCommand(){
@@ -557,6 +557,8 @@ public class TestBoard extends BoardAbstract{
 /*    	for (int i: slidingMessageQueue.keySet()) {
 			slidingMessageQueue.get(i).draw(g);
 		}*/
+    	
+    	//camera.drawOverlayGrid(100, Color.GRAY, Color.YELLOW);
     }
     
     @Override

@@ -358,8 +358,8 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		g2Temp.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 		
 		cameraTransform.translate( 
-				this.getRelativeX( world_position.x ) , 
-				this.getRelativeY( world_position.y ) );
+				this.getRelativeX( world_position.x ) + dx, 
+				this.getRelativeY( world_position.y ) + dy );
 		
 		cameraTransform.concatenate(entityTransform);
 		
@@ -371,6 +371,20 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 
 		g2Temp.dispose();
 		
+	}
+	
+
+	/** NOTE: Must create a new shape for some reason; don't pass a reference to an existing shape. Doubles the translation calculation.**/
+	public void drawShapeInWorld( Shape shape , Point worldPosition){
+		
+		AffineTransform cameraTransform = new AffineTransform();
+		Graphics2D g2Temp = (Graphics2D) this.gBoard.create();
+		
+		cameraTransform.translate( this.getRelativeX( worldPosition.x ) , this.getRelativeY( worldPosition.y ) );
+		cameraTransform.scale( zoomFactor , zoomFactor);
+		g2Temp.transform(cameraTransform);
+		g2Temp.draw( shape );
+		g2Temp.dispose();
 	}
 	
 	/**
@@ -419,17 +433,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		
 	}
 
-	/** NOTE: Must create a new shape for some reason; don't pass a reference to an existing shape. Doubles the translation calculation.**/
-	public void drawShapeInWorld( Shape shape , Point worldPosition){
-		
-		AffineTransform cameraTransform = new AffineTransform();
-		Graphics2D g2Temp = (Graphics2D) this.gBoard.create();
-		cameraTransform.translate( this.getRelativeX( worldPosition.x ) , this.getRelativeY( worldPosition.y ) );
-		cameraTransform.scale( zoomFactor , zoomFactor);
-		g2Temp.transform(cameraTransform);
-		g2Temp.draw( shape );
-		g2Temp.dispose();
-	}
+
 	/** NOTE: Must create a new shape for some reason; don't pass a reference to an existing shape. Doubles the translation calculation.**/
 	public void drawShapeInWorldSelectionRect(Shape shape, Point worldPosition, Color outlineColor, Color fillColor, float alpha, boolean isFilled) {
 		
@@ -449,6 +453,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		g2Temp.dispose();
 	}
 	/** NOTE: Must create a new shape for some reason; don't pass a reference to an existing shape. Doubles the translation calculation.**/
+
 	public void drawShapeInWorld( Shape shape , Point worldPosition, Graphics2D g2){
 		
 		AffineTransform cameraTransform = new AffineTransform();
@@ -726,17 +731,24 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		
 		Point pos = this.getPosition();
 		
-		int s = square; //square dimension
+		int mod1 = (int) ( 1 / (zoomFactor )    );
 		
+		int mod = mod1;
+		
+		int s = square; //square dimension
+
+		this.gBoard.setColor(Color.CYAN);
+		this.gBoard.drawString("CAMERA ZOOM: "+(int)(zoomFactor*100)+"  "+mod, 50, 50);
 		//X AXIS
-		for ( int i = (pos.x - boardHalfWidth+40 ) / s ; i < ( (pos.x + boardHalfWidth/2 ) / s ) ; i++ ){ //OPTIMIZE remove testing offset when done
+		
+		for ( int i = (pos.x - (int)(boardHalfWidth/zoomFactor)+200 ) / s ; i < ( (pos.x + (int)(boardHalfWidth/2/zoomFactor)-200 ) / s ) ; i++ ){ //OPTIMIZE remove testing offset when done
 			this.gBoard.setColor(grid);
 			this.gBoard.drawLine( getRelativeX(i*s) , 0, getRelativeX(i*s), MAX_Y);
 			this.gBoard.setColor(axisColor);
 			this.gBoard.drawString( ""+i*s, getRelativeX(i*s), 20);
 		}
 		//Y AXIS
-		for ( int i = (pos.y - boardHalfHeight ) / s ; i < ( (pos.y + boardHalfHeight ) / s ) ; i++ ){ //OPTIMIZE remove testing offset when done
+		for ( int i = (pos.y - (int)(boardHalfHeight/zoomFactor)+200 ) / s ; i < ( (pos.y + (int)(boardHalfHeight/2/zoomFactor) ) / s ) ; i++ ){ //OPTIMIZE remove testing offset when done
 			this.gBoard.setColor(grid);
 			this.gBoard.drawLine( 0, getRelativeY(i*s) , MAX_X, getRelativeY(i*s));
 			this.gBoard.setColor(axisColor);

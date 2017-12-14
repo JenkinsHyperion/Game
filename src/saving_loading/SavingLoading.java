@@ -95,6 +95,7 @@ public class SavingLoading {
 					Files.createDirectories(Paths.get(finalDirectory));
 					System.out.println("\nSERIALIZING ENTITIES #########################################");
 					for (int i = 0; i < staticEntities.length; i++) {
+						
 						fileOut = new FileOutputStream(finalDirectory + staticEntities[i].name + ".ser");
 						serialOut = new ObjectOutputStream(fileOut);
 						serialOut.writeObject( EntitySerializer.Serialize( staticEntities[i] ) );

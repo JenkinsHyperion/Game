@@ -347,6 +347,12 @@ public abstract class BoardAbstract extends JPanel implements KeyListener, Mouse
 	}
 	
 	public void createNewScene(Scene scene){
+		//this.currentScene = scene;
+	}
+	
+	protected void changeScene( Scene scene ){
+		this.renderingEngine.debugClearRenderer();
+		this.collisionEngine.degubClearCollidables();
 		this.currentScene = scene;
 	}
 	

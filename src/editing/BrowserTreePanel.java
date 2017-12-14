@@ -553,7 +553,7 @@ public class BrowserTreePanel extends JPanel {
 					currentEntityNode.add(createSingleEntityNodeFolder(thisChildEntity));
 				}
 			}
-			// FIXME ask Matt to make some utility functions for easily navigating parent/child relationship. */
+		*/
 	}
 	private void populateEntityFolder(DefaultMutableTreeNode newRoot, EntityStatic[] entityListRef) {
 		//DefaultMutableTreeNode entireEntityFolder = new DefaultMutableTreeNode("Entities");

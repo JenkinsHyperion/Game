@@ -19,7 +19,6 @@ public class Server extends JFrame {
 	private boolean canRun;
 	private int keyStroke;
 	public Server() {
-		// TODO Auto-generated constructor stub
 		super("Shitty Instant Messenger");
 		canRun = true;
 		userText = new JTextField();

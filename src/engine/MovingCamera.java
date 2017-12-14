@@ -419,21 +419,36 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		
 	}
 
+	/** NOTE: Must create a new shape for some reason; don't pass a reference to an existing shape. Doubles the translation calculation.**/
 	public void drawShapeInWorld( Shape shape , Point worldPosition){
 		
 		AffineTransform cameraTransform = new AffineTransform();
 		Graphics2D g2Temp = (Graphics2D) this.gBoard.create();
-		
 		cameraTransform.translate( this.getRelativeX( worldPosition.x ) , this.getRelativeY( worldPosition.y ) );
 		cameraTransform.scale( zoomFactor , zoomFactor);
-		
 		g2Temp.transform(cameraTransform);
-		
-		
 		g2Temp.draw( shape );
 		g2Temp.dispose();
 	}
-	
+	/** NOTE: Must create a new shape for some reason; don't pass a reference to an existing shape. Doubles the translation calculation.**/
+	public void drawShapeInWorldSelectionRect(Shape shape, Point worldPosition, Color outlineColor, Color fillColor, float alpha, boolean isFilled) {
+		
+		AffineTransform cameraTransform = new AffineTransform();
+		Graphics2D g2Temp = (Graphics2D) this.gBoard.create();
+		g2Temp.setColor(outlineColor);
+		g2Temp.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		cameraTransform.translate( this.getRelativeX( worldPosition.x ) , this.getRelativeY( worldPosition.y ) );
+		cameraTransform.scale( zoomFactor , zoomFactor);
+		g2Temp.transform(cameraTransform);
+		g2Temp.draw( shape );
+		if (isFilled) {
+			g2Temp.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+			g2Temp.setColor(fillColor);
+			g2Temp.fill(shape);
+		}
+		g2Temp.dispose();
+	}
+	/** NOTE: Must create a new shape for some reason; don't pass a reference to an existing shape. Doubles the translation calculation.**/
 	public void drawShapeInWorld( Shape shape , Point worldPosition, Graphics2D g2){
 		
 		AffineTransform cameraTransform = new AffineTransform();

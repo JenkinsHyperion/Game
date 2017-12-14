@@ -17,7 +17,6 @@ public class Client extends JFrame implements KeyListener {
 	private int keyStroke;
 	//constructor
 	public Client(String host) {
-		// TODO Auto-generated constructor stub
 		super("Client");
 		this.serverIP = host;
 		userText = new JTextField();

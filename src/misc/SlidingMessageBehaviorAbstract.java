@@ -10,7 +10,6 @@ public abstract class SlidingMessageBehaviorAbstract extends MovementBehavior{
 	protected Point target;
 	
 	public SlidingMessageBehaviorAbstract() {
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

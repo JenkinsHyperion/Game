@@ -545,7 +545,7 @@ public class TestBoard extends BoardAbstract{
     		++i;
     	}*/
     	
-    	camera.drawLineInWorld(dragLine, g2);
+    	//camera.drawLineInWorld(dragLine, g2);
     	try {
 	    	//david's test area for drawing sliding message popup
 	    	for (SlidingMessagePopup smp: slidingMessageQueue) {

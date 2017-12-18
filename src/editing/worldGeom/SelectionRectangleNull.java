@@ -11,7 +11,6 @@ public class SelectionRectangleNull implements SelectionRectangleAbstract {
 	private static SelectionRectangleNull selectionRectangleNull= new SelectionRectangleNull();
 
 	public SelectionRectangleNull() {
-		// TODO Auto-generated constructor stub
 	}
 	public static SelectionRectangleNull getNullSelectionRectangle() {
 		return selectionRectangleNull;

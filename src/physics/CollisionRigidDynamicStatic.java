@@ -20,7 +20,6 @@ public abstract class CollisionRigidDynamicStatic extends Collision.DefaultType 
 
 		public Default(Collider collidable1, Collider collidable2, SeparatingAxisCollector axisCollector) {
 			super(collidable1, collidable2, axisCollector);
-			// TODO Auto-generated constructor stub
 		}
 		
 		@Override

@@ -22,7 +22,6 @@ public class EditorVertex extends EditorVertexAbstract {
 	/*public Vertex(int x, int y) {
 		vertexPoint = new Point(x,y);
 		clickableVertex = new Rectangle(vertexPoint.x-5, vertexPoint.y-5, 10, 10);
-		// TODO Auto-generated constructor stub
 	}*/
 	public EditorVertex(int x, int y){
 		offsetX = offsetY = 7;

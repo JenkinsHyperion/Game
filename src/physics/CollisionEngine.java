@@ -798,7 +798,6 @@ public class CollisionEngine {
 
 		public DynamicTypedCollider(Collider collider) {
 			super(collider);
-			// TODO Auto-generated constructor stub
 		}
 		
 	}

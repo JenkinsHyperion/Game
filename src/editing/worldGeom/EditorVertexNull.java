@@ -10,7 +10,6 @@ public final class EditorVertexNull extends EditorVertexAbstract {
 	private static EditorVertexNull editorVertexNull = new EditorVertexNull();
 
 	public EditorVertexNull() {
-		// TODO Auto-generated constructor stub
 	}
 	public static EditorVertexNull getNullVertex() {
 		return editorVertexNull;

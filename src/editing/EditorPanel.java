@@ -169,6 +169,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 	protected JButton spriteEditorButton;
 	protected JButton boundaryVertexSelectButton;
 	protected JButton boundaryVertexPlaceButton;
+	protected JButton testButton;
 	
 //	Panels
 	//private JPanel entitiesComboBoxPanel;
@@ -261,6 +262,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		spriteEditorButton = new JButton("SpriteEditor");
 		boundaryVertexSelectButton = new JButton("BoundVertSelect");
 		boundaryVertexPlaceButton = new JButton("BoundVertPlace");
+		testButton = new JButton("TestButton!");
 		newEntityPath = "";
 		selectedBox = new Rectangle();
 		editorMousePos = new Point();
@@ -467,6 +469,14 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				}//end of first IF 
 			}
 		});
+		testButton.setFocusable(false);
+		testButton.setEnabled(true);
+		testButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				boundaryEditorMode.debugSetExampleCircularBoundary();
+			}
+		});
 		// inline panel for button
 		JSeparator[] separators = new JSeparator[10];
 		for (int i = 0; i < separators.length; i++) {
@@ -501,7 +511,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		buttonPanel.setBackground(Color.GRAY);
 	    buttonPanel.setBorder(BorderFactory.createTitledBorder("buttonPanelTest"));
-		buttonPanel.setPreferredSize(new Dimension(190, 340));		
+		//buttonPanel.setPreferredSize(new Dimension(190, 340));		
+		buttonPanel.setPreferredSize(new Dimension(190, 360));		
 		buttonPanel.add(deleteEntButton);
 		buttonPanel.add(separators[0]); //divider
 		buttonPanel.add(entitySelectButton);
@@ -517,6 +528,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		buttonPanel.add(separators[4]); //divider
 		buttonPanel.add(boundaryVertexSelectButton);
 		buttonPanel.add(boundaryVertexPlaceButton);
+		buttonPanel.add(testButton);
+		
 		
 
 		// ## The drop down box for the list of all entities in board ###	
@@ -1029,6 +1042,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			nullSelectionRectangle = SelectionRectangleNull.getNullSelectionRectangle();
 			selectionRectangle = new SelectionRectangle(Color.BLUE, Color.cyan, camera, initClickPoint);
 			selectionRectangleState = nullSelectionRectangle;
+			
 		}
 		@Override
 		public void mousePressed(MouseEvent e) {
@@ -2338,6 +2352,9 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			}
 			System.err.println("<editorpanel> was unable to set boundary's radius. Might be polygonal, or error.");
 		}
+		public void debugSetExampleCircularBoundary() {
+			replaceAndFinalizeCircularBoundary(50);
+		}
 		public void setOldRadius(int setRadius) {
 			this.oldRadius = setRadius;
 		}
@@ -2553,10 +2570,18 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			closeShape(oldBoundaryLines);
 		}
 		public void replaceAndFinalizeCircularBoundary() {
-			//BoundaryCircular newBoundary = new BoundaryCircular(currentRadius);
-			//this.currentSelectedEntity.getColliderComposite().setBoundary(newBoundary);
-			
-			this.currentSelectedEntity.getColliderComposite().getBoundary().scaleBoundary((double)currentRadius/(double)oldRadius);
+
+			if (this.currentSelectedEntity != null) {
+				BoundaryCircular newBoundary = new BoundaryCircular(currentRadius);
+				this.currentSelectedEntity.getColliderComposite().setBoundary(newBoundary);
+			}
+		}
+		public void replaceAndFinalizeCircularBoundary(int newRadius) {
+			if (this.currentSelectedEntity != null) {
+				BoundaryCircular newBoundary = new BoundaryCircular(newRadius);
+				this.currentSelectedEntity.getColliderComposite().setBoundary(newBoundary);
+			}
+
 		}
 		public void replaceAndFinalizePolygonalBoundary() {
 			if (surfaceLines.size() > 0) {

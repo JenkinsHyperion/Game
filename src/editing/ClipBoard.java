@@ -11,7 +11,6 @@ package editing;
 public class ClipBoard {
 
 	public ClipBoard() {
-		// TODO Auto-generated constructor stub
 	}
 
 	

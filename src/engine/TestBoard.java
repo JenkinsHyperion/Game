@@ -55,7 +55,7 @@ public class TestBoard extends BoardAbstract{
 	
     public PlantPlayer player;
     private Asteroid asteroid;
-    private Asteroid testAsteroid;
+    private Asteroid smallAsteroid;
     private final Sleep sleep = new Sleep();
     private Follow follow;
     private FollowerAI currentFollowerAI;
@@ -269,9 +269,10 @@ public class TestBoard extends BoardAbstract{
         asteroidGravityWell.setFalloff(0.2, 500);
         this.currentScene.addEntity(asteroidGravityWell,"Gravity");
         
-        testAsteroid = new Asteroid( -200 , -1000 , 200, this, Asteroid.PRESET03);
-        this.currentScene.addEntity(testAsteroid,"Ground");
-        testAsteroid.spawnGrass();
+        
+        smallAsteroid = new Asteroid( -200 , -1000 , 200, this, Asteroid.PRESET03);
+        this.currentScene.addEntity(smallAsteroid,"Ground");
+        smallAsteroid.spawnGrass();
         
         
         EntityStatic rock = new EntityStatic("Rock01",0,60);
@@ -285,15 +286,16 @@ public class TestBoard extends BoardAbstract{
         CompositeFactory.addGraphicFromCollider(rock, polygon);
         this.currentScene.addEntity(rock,"Ground");
         
-        asteroidGravityWell = new GravityMarker("GravityWellSmall",testAsteroid.getPosition(),700);
+        asteroidGravityWell = new GravityMarker("GravityWellSmall",smallAsteroid.getPosition(),700);
         asteroidGravityWell.setFalloff(0.2, 200);
         this.currentScene.addEntity(asteroidGravityWell,"Gravity");
         
-        testAsteroid = new Asteroid( -1700 , -2000 , 400, this, Asteroid.PRESET02);
-        this.currentScene.addEntity(testAsteroid,"Ground");
-        testAsteroid.spawnGrass();
+        smallAsteroid = new Asteroid( -1700 , -2000 , 400, this, Asteroid.PRESET02);
+        this.currentScene.addEntity(smallAsteroid,"Ground");
+        smallAsteroid.spawnGrass();
+
         
-        asteroidGravityWell = new GravityMarker("GravityWellBlue",testAsteroid.getPosition(),1000);
+        asteroidGravityWell = new GravityMarker("GravityWellBlue",smallAsteroid.getPosition(),1000);
         asteroidGravityWell.setFalloff(0.1, 400);
         this.currentScene.addEntity(asteroidGravityWell,"Gravity");
         

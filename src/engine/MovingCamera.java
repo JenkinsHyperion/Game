@@ -580,7 +580,7 @@ public class MovingCamera extends EntityStatic implements ReferenceFrame{
 	 * @param screenPosition
 	 * @return
 	 */
-	public Point getAbsolutePositionOfPointOnReferenceFrame( Point screenPosition ){	//Like EntityStatic.getAbsolutePosition( Point p ), but deals with camera specific issues like zoom level and relative frame 
+	public Point getAbsolutePositionOfPointOnReferenceFrame( Point2D screenPosition ){	//Like EntityStatic.getAbsolutePosition( Point p ), but deals with camera specific issues like zoom level and relative frame 
 		
 		double returnX = screenPosition.getX() / this.zoomFactor;
 		double returnY = screenPosition.getY() / this.zoomFactor; 
@@ -645,8 +645,8 @@ public class MovingCamera extends EntityStatic implements ReferenceFrame{
 	
 	public Point getWorldPos2( Point2D relativeCameraPoint ){
 
-		double returnX = (relativeCameraPoint.getX() - boardHalfWidth );
-		double returnY = (relativeCameraPoint.getY() - boardHalfHeight ); 
+		double returnX = (relativeCameraPoint.getX() - boardHalfWidth ) / zoomFactor;
+		double returnY = (relativeCameraPoint.getY() - boardHalfHeight ) / zoomFactor; 
 		
 		double cosineTheta = Math.cos( -this.getAngularComposite().getAngleInRadians() );
 		double sineTheta = Math.sin( -this.getAngularComposite().getAngleInRadians() );
@@ -657,6 +657,7 @@ public class MovingCamera extends EntityStatic implements ReferenceFrame{
 		);
 		
 		return returnPoint ;
+		
 	}
 	
 	public int getRelativeX( int x_relative_to_world){

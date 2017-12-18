@@ -562,10 +562,10 @@ public class CollisionEngine {
 			newCollision.internalInitializeCollision();
 			
 
-			System.out.println(
+			/*System.out.println(
 					"\n\n=============== COLLISION ["+factory+"] started between entities ["+collider1.getOwnerEntity() + 
 					"] and static [" + collider2.getOwnerEntity() + "] ==============="
-					);
+					);*/
 			
 		} 	
     } 

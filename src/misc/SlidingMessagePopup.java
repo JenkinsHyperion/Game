@@ -48,7 +48,7 @@ public class SlidingMessagePopup extends EntityStatic {
 			e.printStackTrace();
 		}
 		
-		this.addTranslationTo();
+		this.addTranslationComposite();
 
 	}
 	public boolean checkPath(String path) {

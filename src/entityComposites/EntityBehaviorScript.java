@@ -44,7 +44,7 @@ public abstract class EntityBehaviorScript implements UpdateableComposite{
 	@Override
 	public boolean removeThisUpdateableComposite() {
 		if(updaterIndex > -1){
-			System.out.println("Removing "+this+" from ["+ownerEntity+"] updateables");
+			//System.out.println("EntityBehaviorScript: Removing "+this+" from ["+ownerEntity+"] updateables");
 			
 			ownerEntity.removeUpdateableCompositeFromEntity(updaterIndex);
 			updaterIndex = -1;

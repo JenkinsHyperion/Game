@@ -19,6 +19,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import editing.worldGeom.*;
 import entities.EntityDynamic;
+import entityComposites.Entity;
 import entityComposites.EntityStatic;
 import entityComposites.GraphicComposite;
 import misc.*;
@@ -29,7 +30,7 @@ import physics.Vector;
 import sprites.Sprite;
 import utility.UtilityMath;
 
-public class MovingCamera extends EntityDynamic implements ReferenceFrame{
+public class MovingCamera extends EntityStatic implements ReferenceFrame{
 	
 	private final byte ZOOM_SPEED = 10;
 	private final int ZOOM_INCREMENT_PERCENT = 110;
@@ -42,9 +43,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	double zoomDelta = 1;
 	private double minZoom = 0.5;
 	private double maxZoom = 1;
-	
-	double cameraAngle = 0;
-	
+
 	final static int boardHalfWidth = BoardAbstract.B_WIDTH/2;
 	final static int boardHalfHeight = BoardAbstract.B_HEIGHT/2;
 	
@@ -68,9 +67,11 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		this.currentBoard = testBoard;
 		this.setPos(0, 0);
 		behaviorCurrent = new InactiveBehavior();
+		
+		init();
 	}
 	
-	public MovingCamera(BoardAbstract testBoard , EntityStatic targetEntity , Graphics2D g2 ,ImageObserver observer ){
+	/*public MovingCamera(BoardAbstract testBoard , EntityStatic targetEntity , Graphics2D g2 ,ImageObserver observer ){
 		super(boardHalfWidth,boardHalfHeight);
 		
 		this.gOverlay = g2;
@@ -82,13 +83,20 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		this.y = target.getY();
 		behaviorActive = new FollowMovement.Linear(this,target);
 		behaviorCurrent = behaviorActive;
+		
+		init();
+	}*/
+	
+	private void init(){
+		this.addTranslationComposite();
+		this.addAngularComposite();
 	}
 	
 	public void repaint(Graphics g){
 		this.gOverlay = (Graphics2D) g;
 		this.gBoard = (Graphics2D) g.create();
 		this.gBoard.translate(boardHalfWidth,boardHalfHeight );
-		this.gBoard.rotate(cameraAngle);
+		this.gBoard.rotate(this.getAngularComposite().getAngleInRadians());
 		this.gBoard.translate(-boardHalfWidth,-boardHalfHeight );
 	}
 	
@@ -97,7 +105,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	}
 	
 	public void updatePosition(){
-		super.updatePosition();	
+		
 		behaviorCurrent.updateAIPosition(); //CAMERA MATH	
 		zoomFactor += (zoomDelta-zoomFactor)/ZOOM_SPEED;
 	}
@@ -117,8 +125,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		this.x = (int) position.getX();
 		this.y = (int) position.getY();
 
-		this.dx=0;	//halt velocity		
-		this.dy=0;
+		this.getTranslationComposite().halt();	//halt velocity		
 	}
 	public void setFocusForEditor(double distFromOriginalX, double distFromOriginalY) {
 		this.x = (int)(distFromOriginalX);
@@ -134,8 +141,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		this.x = (int) position.getX();
 		this.y = (int) position.getY();
 
-		this.dx=0;	//halt velocity		
-		this.dy=0;
+		this.translationComposite.halt();
 		
 		behaviorPaused = behaviorCurrent;
 		behaviorCurrent = new InactiveBehavior(); //make inactive behavior static singleton later
@@ -144,8 +150,7 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	
 	public void lockAtCurrentPosition(){
 		
-		this.dx=0; //halt velocity
-		this.dy=0;
+		this.translationComposite.halt();
 		
 		resetAngle(); 
 		behaviorPaused = behaviorCurrent;
@@ -162,13 +167,12 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		lockState = false;
 	}
 
-	@Override
 	public void setDX(double setdx) {
-		this.dx = (setdx/zoomFactor);
+		this.translationComposite.setDX(setdx/zoomFactor);
 	}
-	@Override
+
 	public void setDY(double setdy) {
-		this.dy = (setdy/zoomFactor);
+		this.translationComposite.setDY(setdy/zoomFactor);
 	}
 
 	public void quadupleZoom( double minZoom ){
@@ -213,17 +217,18 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 	}
 	
 	public void setAngle( double angleRadians ){
-		this.cameraAngle = angleRadians;
+		this.angularComposite.setAngleInRadians(angleRadians);
 	}
 	
 	public double getAngle(){
-		return this.cameraAngle;
+		return this.getAngularComposite().getAngleInRadians();
 	}
 	public Color getColor() {
 		return gBoard.getColor();
 	}
 	public void resetAngle(){
-		this.cameraAngle = 0;
+
+		this.angularComposite.setAngleInRadians(0);
 	}
 	
 	public void drawVertex(EditorVertexAbstract vertex, Graphics g)
@@ -358,8 +363,8 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		g2Temp.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 		
 		cameraTransform.translate( 
-				this.getRelativeX( world_position.x ) + dx, 
-				this.getRelativeY( world_position.y ) + dy );
+				this.getRelativeX( world_position.x ) + this.translationComposite.getDX(), 
+				this.getRelativeY( world_position.y ) + this.translationComposite.getDX() );
 		
 		cameraTransform.concatenate(entityTransform);
 		
@@ -537,6 +542,74 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		return (int) (((y - boardHalfHeight)/zoomFactor) + this.y );
 	}
 	
+	
+	
+	public Polygon convertScreenPolygonToWorldPolygon( Rectangle rect ){
+		
+		Point[] absoluteBoxCorners = new Point[]{
+				this.getAbsolutePositionOfPointOnReferenceFrame( new Point(rect.x 				- boardHalfWidth , rect.y				- boardHalfHeight	)	),
+				this.getAbsolutePositionOfPointOnReferenceFrame( new Point(rect.x + rect.width 	- boardHalfWidth , rect.y				- boardHalfHeight	)	),
+				this.getAbsolutePositionOfPointOnReferenceFrame( new Point(rect.x + rect.width 	- boardHalfWidth , rect.y + rect.height - boardHalfHeight	)	),
+				this.getAbsolutePositionOfPointOnReferenceFrame( new Point(rect.x 				- boardHalfWidth , rect.y + rect.height - boardHalfHeight	) 	)
+			};
+			
+			int[] absCornersX = new int[]{ absoluteBoxCorners[0].x , absoluteBoxCorners[1].x , absoluteBoxCorners[2].x , absoluteBoxCorners[3].x };
+			int[] absCornersY = new int[]{ absoluteBoxCorners[0].y , absoluteBoxCorners[1].y , absoluteBoxCorners[2].y , absoluteBoxCorners[3].y };
+			
+			Polygon absoluteSelectionShape = new Polygon( absCornersX , absCornersY , absoluteBoxCorners.length); //x points, y points, n points
+			
+			return absoluteSelectionShape;
+	}
+	/**
+	 * 
+	 * @param screenPosition
+	 * @return
+	 */
+	public Point getAbsolutePositionOfPointOnReferenceFrame( Point screenPosition ){	//Like EntityStatic.getAbsolutePosition( Point p ), but deals with camera specific issues like zoom level and relative frame 
+		
+		double returnX = screenPosition.getX() / this.zoomFactor;
+		double returnY = screenPosition.getY() / this.zoomFactor; 
+		
+		double cosineTheta = Math.cos( -this.angularComposite.getAngleInRadians() ); 
+		double sineTheta = Math.sin( -this.angularComposite.getAngleInRadians() );
+		
+		Point returnPoint = new Point(
+				(int)( returnX*cosineTheta - returnY*sineTheta ),
+				(int)( returnX*sineTheta + returnY*cosineTheta )
+		);
+
+		returnPoint.setLocation(
+			returnPoint.x + this.getX(),
+			returnPoint.y + this.getY()
+		);
+		
+		return returnPoint;	
+	}
+	/**
+	 * BE ADVISED: Parameter positions are relative to camera ENTITY, in units of WORLD coordinates. (It ignores reference frame attributes like zoom). If you need the absolute position of 
+	 * a point relative to this REFERENCE FRAME (such as a mouse position on screen), use {@link getAbsolutePositionOfPointOnReferenceFrame}
+	 */
+	@Override @Deprecated
+	public java.awt.geom.Point2D.Double getAbsoluteDoublePositionOf(Point2D relativePoint) { return super.getAbsoluteDoublePositionOf(relativePoint); }
+	/**
+	 * BE ADVISED: Parameter positions are relative to camera ENTITY, in units of WORLD coordinates. (It ignores reference frame attributes like zoom). If you need the absolute position of 
+	 * a point relative to this REFERENCE FRAME (such as a mouse position on screen), use {@link getAbsolutePositionOfPointOnReferenceFrame}
+	 */
+	@Override @Deprecated
+	public Point getAbsolutePositionOf(Entity entity) { return super.getAbsolutePositionOf(entity); }
+	/**
+	 * BE ADVISED: Parameter positions are relative to camera ENTITY, in units of WORLD coordinates. (It ignores reference frame attributes like zoom). If you need the absolute position of 
+	 * a point relative to this REFERENCE FRAME (such as a mouse position on screen), use {@link getAbsolutePositionOfPointOnReferenceFrame}
+	 */
+	@Override @Deprecated
+	public Point getAbsolutePositionOf(Point2D relativePoint) { return super.getAbsolutePositionOf(relativePoint); }
+	/**
+	 * BE ADVISED: Parameter positions are relative to camera ENTITY, in units of WORLD coordinates. (It ignores reference frame attributes like zoom). If you need the absolute position of 
+	 * a point relative to this REFERENCE FRAME (such as a mouse position on screen), use {@link getAbsolutePositionOfPointOnReferenceFrame}
+	 */
+	@Override @Deprecated
+	public Point getAbsolutePositionOf(Point relativePoint) { return super.getAbsolutePositionOf(relativePoint); }
+	
 	/**
 	 * Takes coordinates relative to the camera screen and returns the local coordinates in the world
 	 * @param position_relative_to_camera
@@ -560,8 +633,8 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		double returnX = (relativeCameraPoint.getX() - boardHalfWidth );
 		double returnY = (relativeCameraPoint.getY() - boardHalfHeight ); 
 		
-		double cosineTheta = Math.cos( -this.cameraAngle );
-		double sineTheta = Math.sin( -this.cameraAngle );
+		double cosineTheta = Math.cos( -this.getAngularComposite().getAngleInRadians() );
+		double sineTheta = Math.sin( -this.getAngularComposite().getAngleInRadians() );
 		
 		Point returnPoint = new Point(
 				(int)( returnX*cosineTheta - returnY*sineTheta )+ this.getX(),
@@ -778,12 +851,12 @@ public class MovingCamera extends EntityDynamic implements ReferenceFrame{
 		@Override
 		public void updateAIPosition() {	//get delta x and y for rotating coordinates
 
-			Point position = target.getAbsolutePositionOf( Boundary.dividePoint(this.targetPosition , zoomFactor) );
+			Point position = target.getAbsolutePositionOf( UtilityMath.dividePoint(this.targetPosition , zoomFactor) );
 			
 			MovingCamera.this.setDX( ( position.x - MovingCamera.this.getX() ) / 30.0  );
 			MovingCamera.this.setDY( ( position.y - MovingCamera.this.getY() ) / 30.0  );
 			
-			cameraAngle = -target.getAngularComposite().getAngleInRadians();
+			getAngularComposite().setAngleInRadians( -target.getAngularComposite().getAngleInRadians() );
 			
 			//zoomFactor = zoom;
 		}

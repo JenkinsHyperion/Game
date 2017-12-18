@@ -10,6 +10,7 @@ import entityComposites.AngularComposite;
 import entityComposites.Collider;
 import entityComposites.EntityStatic;
 import entityComposites.TranslationComposite;
+import utility.UtilityMath;
 
 public abstract class SeparatingAxisCollector {
 
@@ -220,7 +221,7 @@ public abstract class SeparatingAxisCollector {
 	    			pos2, outerPointsRel[1], axisLine
 	    			);
 			
-			final Point2D nearSecondaryPoint = Boundary.shiftPoint(relative, pos2);
+			final Point2D nearSecondaryPoint = UtilityMath.shiftPoint(relative, pos2);
 			
 			return new Axis[]{ 		
 				new Axis( axisLine, nearPrimaryPoint, nearSecondaryPoint, currentRegion.getFeature() )
@@ -235,7 +236,7 @@ public abstract class SeparatingAxisCollector {
 			Point draw = polygon.getFullRelativePositionOf(nonPolygon);
 			Point pos = new Point( cam.getRelativeX(polygon.getX()) , cam.getRelativeY(polygon.getY()) );
 			
-			cam.drawCrossInFrame( Boundary.shiftPoint(draw, pos)  , g2);
+			cam.drawCrossInFrame( UtilityMath.shiftPoint(draw, pos)  , g2);
 		}
 	}
 	

@@ -3,7 +3,9 @@ package editing.worldGeom;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Rectangle;
+import java.awt.Shape;
 
 import engine.MovingCamera;
 
@@ -31,7 +33,11 @@ public class SelectionRectangle implements SelectionRectangleAbstract{
 
 	@Override
 	public void draw(Graphics g, MovingCamera camera) {
-		camera.drawRect(selectionRectangle, g, outlineColor, fillColor, .3f);
+		
+		g.drawRect(selectionRectangle.x, selectionRectangle.y, selectionRectangle.width, selectionRectangle.height);
+		
+		//Polygon shape = camera.convertScreenPolygonToWorldPolygon(selectionRectangle); //debugging making sure the math of the box is where its supposed to be
+		//camera.drawShapeInWorld( shape, new Point() );
 	}
 
 	public void setInitialRectPoint(){

@@ -372,7 +372,7 @@ public class TestBoard extends BoardAbstract{
         //Matt's follower test
         EntityStatic insect = new EntityStatic(0,0);
         insect.addGraphicTo(new Sprite.Stillframe("box.png",Sprite.CENTERED),false);
-        insect.addTranslationTo();
+        insect.addTranslationComposite();
         CompositeFactory.addScriptTo(insect, new EntityBehaviorScript.PatrolBetween( insect, 
         		player.getPositionReference(),
         		new Point(150,-300),

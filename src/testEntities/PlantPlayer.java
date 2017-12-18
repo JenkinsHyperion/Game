@@ -103,7 +103,7 @@ public class PlantPlayer extends Player {
 		Boundary boundary3 = new BoundaryPolygonal.Box( 200,200,-100,-100 );
 		
 		this.addInitialColliderTo( boundary2 );
-		this.addTranslationTo();
+		this.addTranslationComposite();
 		
 		this.addAngularComposite();
 		

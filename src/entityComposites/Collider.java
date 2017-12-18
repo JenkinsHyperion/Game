@@ -125,7 +125,7 @@ public class Collider implements EntityComposite{
 	
 	public void onLeavingAllCollisionsEvent(){
 		
-		uponLeavingCollision.run( null , null , null, null );
+		//uponLeavingCollision.run( null , null , null, null );
 	}
 	
 	public void setLeavingCollisionEvent( CollisionEvent leavingEvent ){

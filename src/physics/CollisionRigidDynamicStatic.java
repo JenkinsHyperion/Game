@@ -124,17 +124,17 @@ public abstract class CollisionRigidDynamicStatic extends Collision.DefaultType 
 		if ( closestResolution.getClippingVector().getMagnitude() > 1 ) { 
 			
 			//CLIPPING UPDATING
-					
-			System.out.println( "\n[ "+closestResolution.FeaturePrimary() + " on " + entityPrimary +
-					" ] clipping with [ " + closestResolution.FeatureSecondary() + " on " + entitySecondary
-					+" ]");
+
 			
 			Vector resolution = closestResolution.getClippingVector();
 			
 			depthX = resolution.getX();
 			depthY = resolution.getY();
 
-			System.out.println("Will clip by "+ depthX +" , "+ depthY + " ... ");
+			System.out.println( "\n[ "+closestResolution.FeaturePrimary() + " on " + entityPrimary +
+					" ] clipping with [ " + closestResolution.FeatureSecondary() + " on " + entitySecondary
+					+" ] by "+ depthX +" , "+ depthY + " ... "+closestResolution.getClippingVector());
+			
 			
 			entityPrimary.setPos(
 					transPrimary.getDeltaX(entityPrimary) + depthX,
@@ -181,9 +181,7 @@ public abstract class CollisionRigidDynamicStatic extends Collision.DefaultType 
 		) { //CLIPPING UPDATING
 					
 			//entityPrimary.getTranslationComposite().setColliding(false);
-			System.out.println( "\n[ "+closestResolution.FeaturePrimary() + " on " + entityPrimary +
-					" ] clipping with [ " + closestResolution.FeatureSecondary() + " on " + entitySecondary
-					+" ]");
+
 			
 			Vector resolution = closestResolution.getClippingVector();
 			
@@ -197,8 +195,10 @@ public abstract class CollisionRigidDynamicStatic extends Collision.DefaultType 
 					);*/
 			
 			//TODO GET NORMAL FROM BOUDNARY FEATURE INSTEAD
-
-			System.out.println("Will clip by "+ depthX +" , "+ depthY + " ... "+closestResolution.getClippingVector());
+			
+			System.out.println( "\n[ "+closestResolution.FeaturePrimary() + " on " + entityPrimary +
+					" ] clipping with [ " + closestResolution.FeatureSecondary() + " on " + entitySecondary
+					+" ] by "+ depthX +" , "+ depthY + " ... "+closestResolution.getClippingVector());
 			
 			entityPrimary.setPos(
 					transPrimary.getDeltaX(entityPrimary) + depthX,

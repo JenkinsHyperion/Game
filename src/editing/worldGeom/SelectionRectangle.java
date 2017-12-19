@@ -36,8 +36,8 @@ public class SelectionRectangle implements SelectionRectangleAbstract{
 		//camera.drawRect(selectionRectangle, g, outlineColor, fillColor, .3f);
 		//camera.debugDrawPolygon(selectionRectangle, fillColor, camera.getRelativePoint(initClickPoint), new AffineTransform(), .3f);
 		//camera.drawShapeInWorld(new Rectangle((int)selectionRectangle.getWidth(),(int)selectionRectangle.getHeight()), selectionRectangle.getLocation());
-		camera.drawShapeInWorldSelectionRect(new Rectangle((int)selectionRectangle.getWidth(),(int)selectionRectangle.getHeight()), 
-				selectionRectangle.getLocation(), outlineColor, fillColor, .3f, true);
+		/*camera.drawShapeInWorldSelectionRect(new Rectangle((int)selectionRectangle.getWidth(),(int)selectionRectangle.getHeight()), 
+				selectionRectangle.getLocation(), outlineColor, fillColor, .3f, true);*/
 /*
 		Point point = camera.getFullRelativePositionOf(initClickPoint);
 		g.drawRect( (point.x) , (point.y) ,(int)selectionRectangle.getWidth(),(int)selectionRectangle.getHeight() );

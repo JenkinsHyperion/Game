@@ -19,19 +19,28 @@ public class MultipleSelectionsPopup extends JPopupMenu {
 	//private ArrayList<JMenuItem> menuItemsList;
 	private ArrayList<EntityStatic> entitiesUnderCursor;
 	private EditorPanel editorPanelRef;
+	private ArrayList<EntityStatic> selectedEntities;
 	private boolean ctrlModifier;
 	
 	public MultipleSelectionsPopup(ArrayList<EntityStatic> entitiesUnderCursorRef, EditorPanel editorPanelRef, boolean ctrlModifier) {
 		super();
+		init(entitiesUnderCursorRef, editorPanelRef, ctrlModifier);
+	}
+	
+	public MultipleSelectionsPopup(ArrayList<EntityStatic> entitiesUnderCursorRef, EditorPanel editorPanelRef, 
+			boolean ctrlModifier, ArrayList<EntityStatic> selectedEntities) {
+		super();
+		this.selectedEntities = selectedEntities;
+		init(entitiesUnderCursorRef, editorPanelRef, ctrlModifier);
+	}
+	private void init(ArrayList<EntityStatic> entitiesUnderCursorRef, EditorPanel editorPanelRef, boolean ctrlModifier) {
 		//menuItemsList = new ArrayList<>();
 		entitiesUnderCursor = entitiesUnderCursorRef;
 		this.editorPanelRef = editorPanelRef;
 		this.ctrlModifier = ctrlModifier;
 		popUp = new JPopupMenu();
 		populateMenuItems();
-	
 	}
-	
 	public void populateMenuItems() {
 		for (EntityStatic ent : entitiesUnderCursor) {
 			//menuItemsList.add(new JMenuItem(new MyAction(currentEntity)));  will be something like this
@@ -41,7 +50,6 @@ public class MultipleSelectionsPopup extends JPopupMenu {
 			popUp.add(itemToAdd);
 		}
 	}
-	
 	 /** Just an overridden method from JPopup. Ignore */
 	@Override
 	public void show(Component invoker, int x, int y) {
@@ -56,7 +64,16 @@ public class MultipleSelectionsPopup extends JPopupMenu {
 			this.currentEntity = currentEntity;
 		}
 		public void actionPerformed(ActionEvent e) {
-			editorPanelRef.getEntitySelectMode().addSelectedEntity(currentEntity);
+			if (ctrlModifier && !selectedEntities.isEmpty()) {
+				if (selectedEntities.contains(currentEntity))
+					editorPanelRef.getEntitySelectMode().removeSelectedEntity(currentEntity);
+				else
+					editorPanelRef.getEntitySelectMode().addSelectedEntity(currentEntity);
+			} 
+			else { //no ctrl modifier; was regular left click
+				editorPanelRef.getEntitySelectMode().addSelectedEntity(currentEntity);
+				
+			}
 		}
 		
 	}

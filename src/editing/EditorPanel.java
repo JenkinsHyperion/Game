@@ -1095,6 +1095,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				this.inputController.createMouseBinding(MouseEvent.BUTTON1, new EntitySelectLClickEvent());
 				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new TranslateEvent());
 				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON1, new SelectionOrCTRLClickEvent()); 
+				this.inputController.createMouseBinding(MouseEvent.ALT_MASK, MouseEvent.BUTTON1, new SelectionRectSubtractEvent()); 
 				this.inputController.createKeyBinding( KeyEvent.VK_ESCAPE, new DeselectEntitiesEvent());
 				this.inputController.createKeyBinding(KeyEvent.VK_R, new SetRotateMode());
 				this.inputController.createKeyBinding(KeyEvent.VK_S, new SetScaleMode());
@@ -1370,52 +1371,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		public void setSelectViaSprite(boolean choice){
 			this.selectViaSprite = choice;
 		}
-		public void checkForEntityCtrlClick(Point click) {
-			if (selectViaSprite == true) {
-				for(EntityStatic entity: board.listCurrentSceneEntities()) {
-					if (entity.getGraphicComposite().exists()) {
-						Shape clickableShape = entity.getGraphicComposite().getGraphicAbsoluteBounds(entity.getPosition());
-								
-						if (clickableShape.contains(click)) {
-							if (selectedEntities.contains(entity))
-								removeSelectedEntity(entity);
-							else {
-								addSelectedEntity(entity);
-							}
-						}
-					}
-				}
-			}
-			else {
-				for(EntityStatic entity: board.listCurrentSceneEntities()) {
-					//polygonTest.
-					//if (entity.getColliderComposite() instanceof ColliderNull ){
-					if (entity.getColliderComposite().exists() ){
-						
-						Polygon polygonTest = entity.getColliderComposite().getBoundary().getPolygonBounds(entity);
-						//Polygon polygonTest = new Polygon(xpoints, ypoints, bound.getCornersPoint().length);
-						Rectangle rect = polygonTest.getBounds();
-						if (polygonTest.contains(click)) {
-							if (selectedEntities.contains(entity))
-								removeSelectedEntity(entity);
-							else
-								addSelectedEntity(entity);
-						}
-					}
-				}// end of for loop
-			} //end of else
-			if (selectedEntities.size() == 1) {
-				spriteEditorButton.setEnabled(true);
-				boundaryVertexSelectButton.setEnabled(true);
-				boundaryVertexPlaceButton.setEnabled(true);
-				
-			}
-			else {
-				spriteEditorButton.setEnabled(false);
-				boundaryVertexSelectButton.setEnabled(false);
-				boundaryVertexPlaceButton.setEnabled(false);
-			}
-		}
 		public void checkForEntity(Point click) {
 			ArrayList<EntityStatic> possibleMatches = new ArrayList<>();
 			//boolean atLeastOneVertexFound = false;
@@ -1427,27 +1382,16 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				clearSelectedEntities();
 			}
 			if (selectViaSprite == true) {
-				//FIXME DELETE THIS
-				
 				for (EntityStatic entity: board.listCurrentSceneEntities()) {
 					if (entity.getGraphicComposite().exists()) {
-						
 						Shape clickableShape = entity.getGraphicComposite().getGraphicAbsoluteBounds(entity.getPosition());
-						
 						if (clickableShape.contains( click ))
 						{
-							
 							if (selectedEntities.contains(entity) == false) {
-								//addSelectedEntity(entity); UNCOMMENT THIS TO WORK
-								/////////// TESTING AREA ///////
 								possibleMatches.add(entity);
-								
-								////////////////////////
-								//browserTreePanel.doNotifyEntitySelected(entity); UNCOMMENT THIS TO WORK
 								spriteEditorButton.setEnabled(true);
 								boundaryVertexSelectButton.setEnabled(true);
 								boundaryVertexPlaceButton.setEnabled(true);
-								//break; 	UNCOMMENT THIS TO WORK
 							}
 						}
 					}
@@ -1468,7 +1412,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 								spriteEditorButton.setEnabled(true);
 								boundaryVertexSelectButton.setEnabled(true);
 								boundaryVertexPlaceButton.setEnabled(true);
-								//break;
 							}
 						}
 					}
@@ -1479,12 +1422,72 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				if (possibleMatches.size() == 1) {
 					addSelectedEntity(possibleMatches.get(0));
 					browserTreePanel.doNotifyEntitySelected(possibleMatches.get(0));
-				}
+				} 
 				else if (possibleMatches.size() > 1) 
 					new MultipleSelectionsPopup(possibleMatches,EditorPanel.this,false).show(board, editorMousePos.x,editorMousePos.y);
 			}
 		}
-		public void checkForEntityInSelectionRect(Rectangle selectionRect) {
+		public void checkForEntityCtrlClick(Point click) {
+			ArrayList<EntityStatic> possibleMatches = new ArrayList<>();
+			if (selectViaSprite == true) {
+				for(EntityStatic entity: board.listCurrentSceneEntities()) {
+					if (entity.getGraphicComposite().exists()) {
+						Shape clickableShape = entity.getGraphicComposite().getGraphicAbsoluteBounds(entity.getPosition());
+						if (clickableShape.contains(click)) {
+							possibleMatches.add(entity);
+							/*if (selectedEntities.contains(entity))
+								removeSelectedEntity(entity);
+							else {
+								addSelectedEntity(entity);
+							}
+							*/
+						}
+					}
+				}
+			}
+			else {
+				for(EntityStatic entity: board.listCurrentSceneEntities()) {
+					//polygonTest.
+					//if (entity.getColliderComposite() instanceof ColliderNull ){
+					if (entity.getColliderComposite().exists() ){
+						
+						Polygon polygonTest = entity.getColliderComposite().getBoundary().getPolygonBounds(entity);
+						//Polygon polygonTest = new Polygon(xpoints, ypoints, bound.getCornersPoint().length);
+						Rectangle rect = polygonTest.getBounds();
+						if (polygonTest.contains(click)) {
+							possibleMatches.add(entity);
+							/*if (selectedEntities.contains(entity))
+								removeSelectedEntity(entity);
+							else
+								addSelectedEntity(entity);*/
+						}
+					}
+				}// end of for loop
+			} //end of else
+			if (selectedEntities.size() == 1) {
+				spriteEditorButton.setEnabled(true);
+				boundaryVertexSelectButton.setEnabled(true);
+				boundaryVertexPlaceButton.setEnabled(true);
+				
+			}
+			else {
+				spriteEditorButton.setEnabled(false);
+				boundaryVertexSelectButton.setEnabled(false);
+				boundaryVertexPlaceButton.setEnabled(false);
+			}
+			if ( !possibleMatches.isEmpty()) {
+				if (possibleMatches.size() == 1) {
+					if (selectedEntities.contains(possibleMatches.get(0)))
+						removeSelectedEntity(possibleMatches.get(0));
+					else
+						addSelectedEntity(possibleMatches.get(0));
+				}
+				else if (possibleMatches.size() > 1) 
+					new MultipleSelectionsPopup(possibleMatches,EditorPanel.this,true, selectedEntities.getSelectedEntities()).show(board, editorMousePos.x,editorMousePos.y);
+			}
+		}
+	
+		public void checkForEntityInSelectionRect(Rectangle selectionRect, boolean isAdditive) {
 			//Upon release, convert the box relative to the camera (screen) into the absolute shape in the world. Relative to the world, this absolute shape appears
 			// to be a rectangle rotated at the angle that the camera is at.
 			Shape absoluteSelectionShape = camera.convertScreenPolygonToWorldPolygon(selectionRect);
@@ -1495,8 +1498,13 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 						Shape clickableRect = entity.getGraphicComposite().getGraphicAbsoluteBounds(entity.getPosition());
 						
 						if(absoluteSelectionShape.intersects(clickableRect.getBounds())) {
-							if(selectedEntities.contains(entity) == false) {
-								addSelectedEntity(entity);
+							if (isAdditive) {
+								if(selectedEntities.contains(entity) == false)
+									addSelectedEntity(entity);
+							}
+							else {
+								if(selectedEntities.contains(entity) == true) 
+									removeSelectedEntity(entity);
 							}
 						}
 					}
@@ -1509,10 +1517,18 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 						Boundary bound = entity.getColliderComposite().getBoundary();
 						
 						Polygon polygonTest = bound.getPolygonBounds(entity);
+						Rectangle rect = polygonTest.getBounds();
 						
-						if (polygonTest.intersects(selectionRect)) {
-							if (selectedEntities.contains(entity) == false) {
-								addSelectedEntity(entity);
+						if (absoluteSelectionShape.intersects(rect)) {
+						//if (absoluteSelectionShape.contains(entity.getPosition())) {
+							if (isAdditive) {
+								if (selectedEntities.contains(entity) == false) {
+									addSelectedEntity(entity);
+								}
+							}
+							else {
+								if(selectedEntities.contains(entity) == true) 
+									removeSelectedEntity(entity);
 							}
 						}
 					}
@@ -1622,7 +1638,29 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			@Override
 			public void mouseReleased() {
 				//command to select vertices underneath box
-				checkForEntityInSelectionRect(selectionRectangleState.getWrekt());
+				//checkForEntityInSelectionRect(selectionRectangleState.getWrekt());
+				checkForEntityInSelectionRect(selectionRectangleState.getWrekt(), true);
+				selectionRectangleState.resetRect();
+				selectionRectangleState = nullSelectionRectangle;
+			}
+		}
+		public class SelectionRectSubtractEvent extends MouseCommand {
+			@Override
+			public void mousePressed() {
+				selectionRectangleState = selectionRectangle;
+				//initClickPoint.setLocation(camera.getWorldPos(editorMousePos));
+				initClickPoint.setLocation(editorMousePos);
+				selectionRectangleState.setInitialRectPoint();
+			}
+			@Override
+			public void mouseDragged() {
+				selectionRectangleState.translateEndPoint(editorMousePos);
+			}
+			@Override
+			public void mouseReleased() {
+				//command to select vertices underneath box
+				//checkForEntityInSelectionRect(selectionRectangleState.getWrekt());
+				checkForEntityInSelectionRect(selectionRectangleState.getWrekt(), false);
 				selectionRectangleState.resetRect();
 				selectionRectangleState = nullSelectionRectangle;
 			}

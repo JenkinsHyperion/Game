@@ -430,7 +430,7 @@ public class BrowserTreePanel extends JPanel {
 			}
 			
 		}
-	}
+	} // END OF MYPOPUP INNER CLASS
 	
 	public void initializeFilterToolBar() {
 		JComboBox<DefaultMutableTreeNode> filterComboBox = new JComboBox<DefaultMutableTreeNode>(new DefaultMutableTreeNode[]{ 

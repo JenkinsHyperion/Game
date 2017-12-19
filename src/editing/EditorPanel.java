@@ -1417,6 +1417,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			}
 		}
 		public void checkForEntity(Point click) {
+			ArrayList<EntityStatic> possibleMatches = new ArrayList<>();
 			//boolean atLeastOneVertexFound = false;
 			//since this is the regular click method, would want to make sure any selected entities are deselected first
 			if (selectedEntities.size() > 0) {
@@ -1426,6 +1427,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				clearSelectedEntities();
 			}
 			if (selectViaSprite == true) {
+				//FIXME DELETE THIS
+				
 				for (EntityStatic entity: board.listCurrentSceneEntities()) {
 					if (entity.getGraphicComposite().exists()) {
 						
@@ -1433,13 +1436,18 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 						
 						if (clickableShape.contains( click ))
 						{
+							
 							if (selectedEntities.contains(entity) == false) {
-								addSelectedEntity(entity);
-								browserTreePanel.doNotifyEntitySelected(entity);
+								//addSelectedEntity(entity); UNCOMMENT THIS TO WORK
+								/////////// TESTING AREA ///////
+								possibleMatches.add(entity);
+								
+								////////////////////////
+								//browserTreePanel.doNotifyEntitySelected(entity); UNCOMMENT THIS TO WORK
 								spriteEditorButton.setEnabled(true);
 								boundaryVertexSelectButton.setEnabled(true);
 								boundaryVertexPlaceButton.setEnabled(true);
-								break;
+								//break; 	UNCOMMENT THIS TO WORK
 							}
 						}
 					}
@@ -1450,35 +1458,34 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 					//polygonTest.
 					if (entity.getColliderComposite().exists()) {
 						Boundary bound = entity.getColliderComposite().getBoundary();
-						/*int[] xpoints;
-						int[] ypoints;
-						
-						xpoints = new int[bound.getCornersPoint().length];
-						ypoints = new int[bound.getCornersPoint().length];
-						
-						for (int i = 0; i < bound.getCornersPoint().length; i++ ) {
-							xpoints[i] = (int)bound.getCornersPoint()[i].getX();
-							ypoints[i] = (int)bound.getCornersPoint()[i].getY();
-						}*/
 						Polygon polygonTest = bound.getPolygonBounds(entity);
-						//Polygon polygonTest = new Polygon(xpoints, ypoints, bound.getCornersPoint().length);
 						
-						//Rectangle rect = polygonTest.getBounds();
 						if (polygonTest.contains(click)) {
 							if (selectedEntities.contains(entity) == false) {
-								addSelectedEntity(entity);
-								browserTreePanel.doNotifyEntitySelected(entity);
+								//addSelectedEntity(entity);
+								possibleMatches.add(entity);
+								//browserTreePanel.doNotifyEntitySelected(entity);
 								spriteEditorButton.setEnabled(true);
 								boundaryVertexSelectButton.setEnabled(true);
 								boundaryVertexPlaceButton.setEnabled(true);
-								break;
+								//break;
 							}
 						}
 					}
 				}// end of for loop
 			} // end of else
+			if ( !possibleMatches.isEmpty()) 
+			{
+				if (possibleMatches.size() == 1) {
+					addSelectedEntity(possibleMatches.get(0));
+					browserTreePanel.doNotifyEntitySelected(possibleMatches.get(0));
+				}
+				else if (possibleMatches.size() > 1) 
+					new MultipleSelectionsPopup(possibleMatches,EditorPanel.this,false).show(board, editorMousePos.x,editorMousePos.y);
+			}
 		}
 		public void checkForEntityInSelectionRect(Rectangle selectionRect) {
+			System.err.println("using checkforentinsideselectionrect");
 			if (selectViaSprite == true) {
 				
 				for (EntityStatic entity: board.listCurrentSceneEntities()) {

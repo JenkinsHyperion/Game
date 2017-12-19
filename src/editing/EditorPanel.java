@@ -1095,7 +1095,8 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				this.inputController.createMouseBinding(MouseEvent.BUTTON1, new EntitySelectLClickEvent());
 				this.inputController.createMouseBinding(MouseEvent.BUTTON3, new TranslateEvent());
 				this.inputController.createMouseBinding(MouseEvent.CTRL_MASK, MouseEvent.BUTTON1, new SelectionOrCTRLClickEvent()); 
-				this.inputController.createMouseBinding(MouseEvent.ALT_MASK, MouseEvent.BUTTON1, new SelectionRectSubtractEvent()); 
+				//this.inputController.createMouseBinding(MouseEvent.ALT_MASK, MouseEvent.BUTTON1, new AltClickEvent()); 
+				this.inputController.createMouseBinding(MouseEvent.ALT_MASK, MouseEvent.BUTTON1, new AltClickOrDragEvent()); 
 				this.inputController.createKeyBinding( KeyEvent.VK_ESCAPE, new DeselectEntitiesEvent());
 				this.inputController.createKeyBinding(KeyEvent.VK_R, new SetRotateMode());
 				this.inputController.createKeyBinding(KeyEvent.VK_S, new SetScaleMode());
@@ -1371,7 +1372,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 		public void setSelectViaSprite(boolean choice){
 			this.selectViaSprite = choice;
 		}
-		public void checkForEntity(Point click) {
+		public void checkForEntity(Point click, boolean isAdditive) {
 			ArrayList<EntityStatic> possibleMatches = new ArrayList<>();
 			//boolean atLeastOneVertexFound = false;
 			//since this is the regular click method, would want to make sure any selected entities are deselected first
@@ -1379,7 +1380,10 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				spriteEditorButton.setEnabled(false);
 				boundaryVertexSelectButton.setEnabled(false);
 				boundaryVertexPlaceButton.setEnabled(false);
-				clearSelectedEntities();
+				if (isAdditive) {
+					clearSelectedEntities();
+				}
+
 			}
 			if (selectViaSprite == true) {
 				for (EntityStatic entity: board.listCurrentSceneEntities()) {
@@ -1387,11 +1391,22 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 						Shape clickableShape = entity.getGraphicComposite().getGraphicAbsoluteBounds(entity.getPosition());
 						if (clickableShape.contains( click ))
 						{
-							if (selectedEntities.contains(entity) == false) {
-								possibleMatches.add(entity);
-								spriteEditorButton.setEnabled(true);
-								boundaryVertexSelectButton.setEnabled(true);
-								boundaryVertexPlaceButton.setEnabled(true);
+							if (isAdditive) {
+								if (selectedEntities.contains(entity) == false) {
+									possibleMatches.add(entity);
+									spriteEditorButton.setEnabled(true);
+									boundaryVertexSelectButton.setEnabled(true);
+									boundaryVertexPlaceButton.setEnabled(true);
+								}
+							}
+							else {
+								if (selectedEntities.contains(entity)) {
+									removeSelectedEntity(entity);
+									spriteEditorButton.setEnabled(false);
+									boundaryVertexSelectButton.setEnabled(false);
+									boundaryVertexPlaceButton.setEnabled(false);
+									break;
+								}
 							}
 						}
 					}
@@ -1405,13 +1420,24 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 						Polygon polygonTest = bound.getPolygonBounds(entity);
 						
 						if (polygonTest.contains(click)) {
-							if (selectedEntities.contains(entity) == false) {
-								//addSelectedEntity(entity);
-								possibleMatches.add(entity);
-								//browserTreePanel.doNotifyEntitySelected(entity);
-								spriteEditorButton.setEnabled(true);
-								boundaryVertexSelectButton.setEnabled(true);
-								boundaryVertexPlaceButton.setEnabled(true);
+							if (isAdditive) {
+								if (selectedEntities.contains(entity) == false) {
+									//addSelectedEntity(entity);
+									possibleMatches.add(entity);
+									//browserTreePanel.doNotifyEntitySelected(entity);
+									spriteEditorButton.setEnabled(true);
+									boundaryVertexSelectButton.setEnabled(true);
+									boundaryVertexPlaceButton.setEnabled(true);
+								}
+							}
+							else {
+								if (selectedEntities.contains(entity)) {
+									removeSelectedEntity(entity);
+									spriteEditorButton.setEnabled(false);
+									boundaryVertexSelectButton.setEnabled(false);
+									boundaryVertexPlaceButton.setEnabled(false);
+									break;
+								}
 							}
 						}
 					}
@@ -1421,6 +1447,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			{
 				if (possibleMatches.size() == 1) {
 					addSelectedEntity(possibleMatches.get(0));
+					//UNCOMMENT TO WORK
 					browserTreePanel.doNotifyEntitySelected(possibleMatches.get(0));
 				} 
 				else if (possibleMatches.size() > 1) 
@@ -1589,7 +1616,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 
 			@Override
 			public void mousePressed() {
-				checkForEntity(camera.getWorldPos(editorMousePos));
+				checkForEntity(camera.getWorldPos(editorMousePos), true);
 				//selectedEntities.printSelectedEntities();
 			}
 
@@ -1599,7 +1626,16 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			@Override
 			public void mouseReleased() {} 	
 		}
-		
+		public class AltClickEvent extends MouseCommand {
+			@Override
+			public void mousePressed() {
+				checkForEntity(camera.getWorldPos(editorMousePos), false);
+			}
+			@Override
+			public void mouseDragged() {}
+			@Override
+			public void mouseReleased() {} 	
+		}
 		public class TranslateEvent extends MouseCommand{
 
 			public void mousePressed() {
@@ -1644,6 +1680,70 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				selectionRectangleState = nullSelectionRectangle;
 			}
 		}
+		
+		public class SelectionOrCTRLClickEvent extends MouseCommand {
+			private MouseCommand tempState;
+			private SelectionRectEvent selectRectState;
+			private CtrlEntitySelectLClickEvent ctrlState;
+			public SelectionOrCTRLClickEvent() {
+				SelectInstanceCount++;
+				System.err.println("(editorpanel)selectRectInstanceCount: " + SelectInstanceCount);
+				selectRectState = new SelectionRectEvent();
+				ctrlState = new CtrlEntitySelectLClickEvent();
+				tempState = ctrlState; //will assume we're in ctrlclick state until a drag occurs.
+			}
+			
+			@Override
+			public void mousePressed() {
+				//actually I guess I could just run selectRectEvent's mousePressed(), it's lightweight anyway
+				selectRectState.mousePressed();
+			}
+			@Override
+			public void mouseDragged() {
+				// in this body, change tempState to select Rect State.
+				//	because if any drag at all happens, then has to be a selectionRect event
+				tempState = selectRectState;
+				tempState.mouseDragged();
+			}
+			@Override
+			public void mouseReleased() {
+				tempState.mouseReleased();
+				//will fire ctrlClick event if no drag occured. Otherwise will fire selectionRect event.
+				//then set back to default state (ctrlEntitySelectLClickEvent)
+				tempState = ctrlState;
+			}
+		}
+		// ####*** TEST ***########
+		public class AltClickOrDragEvent extends MouseCommand {
+			private MouseCommand tempState;
+			private SelectionRectSubtractEvent selectRectSubtractState;
+			private AltClickEvent leftAltClickState;
+			public AltClickOrDragEvent() {
+				selectRectSubtractState = new SelectionRectSubtractEvent();
+				leftAltClickState = new AltClickEvent();
+				tempState = leftAltClickState; //will assume we're in altclick state until a drag occurs.
+			}
+			
+			@Override
+			public void mousePressed() {
+				//actually I guess I could just run selectRectEvent's mousePressed(), it's lightweight anyway
+				selectRectSubtractState.mousePressed();
+			}
+			@Override
+			public void mouseDragged() {
+				// in this body, change tempState to select Rect State.
+				//	because if any drag at all happens, then has to be a selectionRect event
+				tempState = selectRectSubtractState;
+				tempState.mouseDragged();
+			}
+			@Override
+			public void mouseReleased() {
+				tempState.mouseReleased(); //will fire ctrlClick event if no drag occured. Otherwise will fire selectionRect event.
+				//then set back to default state (ctrlEntitySelectLClickEvent)
+				leftAltClickState.mousePressed();
+				tempState = leftAltClickState;
+			}
+		}
 		public class SelectionRectSubtractEvent extends MouseCommand {
 			@Override
 			public void mousePressed() {
@@ -1663,38 +1763,6 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				checkForEntityInSelectionRect(selectionRectangleState.getWrekt(), false);
 				selectionRectangleState.resetRect();
 				selectionRectangleState = nullSelectionRectangle;
-			}
-		}
-		public class SelectionOrCTRLClickEvent extends MouseCommand {
-			private MouseCommand tempState;
-			private SelectionRectEvent selectRectState;
-			private CtrlEntitySelectLClickEvent ctrlState;
-			public SelectionOrCTRLClickEvent() {
-				SelectInstanceCount++;
-				System.err.println("(editorpanel)selectRectInstanceCount: " + SelectInstanceCount);
-				selectRectState = new SelectionRectEvent();
-				ctrlState = new CtrlEntitySelectLClickEvent();
-				tempState = ctrlState; //will assume we're in ctrlclick state until a drag occurs.
-			}
-			
-			@Override
-			public void mousePressed() {
-				//set initial click point just in case drag happens; it'll need that data
-				//actually I guess I could just run selectRectEvent's mousePressed(), it's lightweight anyway
-				selectRectState.mousePressed();
-			}
-			@Override
-			public void mouseDragged() {
-				// in this body, change tempState to select Rect State.
-				//	because if any drag at all happens, then has to be a selectionRect event
-				tempState = selectRectState;
-				tempState.mouseDragged();
-			}
-			@Override
-			public void mouseReleased() {
-				tempState.mouseReleased(); //will fire ctrlClick event if no drag occured. Otherwise will fire selectionRect event.
-				//then set back to default state (ctrlEntitySelectLClickEvent)
-				tempState = ctrlState;
 			}
 		}
 		public class DeselectEntitiesEvent extends KeyCommand {

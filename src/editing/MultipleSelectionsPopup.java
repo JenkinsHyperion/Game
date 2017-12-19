@@ -9,6 +9,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.UIManager;
 
 import entityComposites.EntityStatic;
 
@@ -39,12 +40,16 @@ public class MultipleSelectionsPopup extends JPopupMenu {
 		this.editorPanelRef = editorPanelRef;
 		this.ctrlModifier = ctrlModifier;
 		popUp = new JPopupMenu();
-		populateMenuItems();
+		populateMenuItems(ctrlModifier);
 	}
-	public void populateMenuItems() {
+	public void populateMenuItems(boolean ctrlModifier) {
 		for (EntityStatic ent : entitiesUnderCursor) {
 			//menuItemsList.add(new JMenuItem(new MyAction(currentEntity)));  will be something like this
 			JMenuItem itemToAdd = new JMenuItem(new MenuItemActionListener(ent));
+			if (ctrlModifier) {
+				if (selectedEntities.contains(ent))
+					itemToAdd.setIcon(UIManager.getIcon("FileView.hardDriveIcon"));
+			}
 			itemToAdd.setText(ent.name);
 			//menuItemsList.add(itemToAdd);
 			popUp.add(itemToAdd);

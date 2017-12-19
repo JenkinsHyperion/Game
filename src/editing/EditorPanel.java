@@ -1485,14 +1485,16 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			}
 		}
 		public void checkForEntityInSelectionRect(Rectangle selectionRect) {
-			System.err.println("using checkforentinsideselectionrect");
+			//Upon release, convert the box relative to the camera (screen) into the absolute shape in the world. Relative to the world, this absolute shape appears
+			// to be a rectangle rotated at the angle that the camera is at.
+			Shape absoluteSelectionShape = camera.convertScreenPolygonToWorldPolygon(selectionRect);
 			if (selectViaSprite == true) {
 				
 				for (EntityStatic entity: board.listCurrentSceneEntities()) {
 					if (entity.getGraphicComposite().exists()){
 						Shape clickableRect = entity.getGraphicComposite().getGraphicAbsoluteBounds(entity.getPosition());
 						
-						if(selectionRect.intersects(clickableRect.getBounds())) {
+						if(absoluteSelectionShape.intersects(clickableRect.getBounds())) {
 							if(selectedEntities.contains(entity) == false) {
 								addSelectedEntity(entity);
 							}
@@ -1609,12 +1611,13 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			@Override
 			public void mousePressed() {
 				selectionRectangleState = selectionRectangle;
-				initClickPoint.setLocation(camera.getWorldPos(editorMousePos));
+				//initClickPoint.setLocation(camera.getWorldPos(editorMousePos));
+				initClickPoint.setLocation(editorMousePos);
 				selectionRectangleState.setInitialRectPoint();
 			}
 			@Override
 			public void mouseDragged() {
-				selectionRectangleState.translateEndPoint(camera.getWorldPos(editorMousePos));
+				selectionRectangleState.translateEndPoint(editorMousePos);
 			}
 			@Override
 			public void mouseReleased() {
@@ -2571,6 +2574,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 			closeShape(oldBoundaryLines);
 		}
 		public void replaceAndFinalizeCircularBoundary() {
+
 			if (this.currentSelectedEntity != null) {
 				BoundaryCircular newBoundary = new BoundaryCircular(currentRadius);
 				this.currentSelectedEntity.getColliderComposite().setBoundary(newBoundary);
@@ -2581,6 +2585,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				BoundaryCircular newBoundary = new BoundaryCircular(newRadius);
 				this.currentSelectedEntity.getColliderComposite().setBoundary(newBoundary);
 			}
+
 		}
 		public void replaceAndFinalizePolygonalBoundary() {
 			if (surfaceLines.size() > 0) {
@@ -3168,7 +3173,7 @@ public class EditorPanel extends JPanel implements MouseWheelListener{
 				}
 				@Override
 				public void mouseDragged() {
-					selectionRectangleState.translateEndPoint(camera.getWorldPos(editorMousePos));
+					selectionRectangleState.translateEndPoint(editorMousePos);
 				}
 				@Override
 				public void mouseReleased() {

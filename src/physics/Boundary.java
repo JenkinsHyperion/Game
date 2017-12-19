@@ -10,6 +10,7 @@ import engine.MovingCamera;
 import entityComposites.Collider;
 import entityComposites.EntityStatic;
 import misc.*;
+import utility.UtilityMath;
 
 public abstract class Boundary {
 	
@@ -82,22 +83,7 @@ public abstract class Boundary {
 		}	
 		return farthestPoints;
 	}
-	
-	public static Point2D shiftPoint( Point2D p , Point2D shift ){
 		
-		Point2D returnPoint = new Point.Double( p.getX() + shift.getX() , p.getY() + shift.getY() );
-		return returnPoint;
-	}
-	public static Point2D.Double shiftPoint( Point2D p , Point shift ){
-		
-		Point2D.Double returnPoint = new Point.Double( p.getX() + shift.getX() , p.getY() + shift.getY() );
-		return returnPoint;
-	}
-	public static Point2D dividePoint( Point2D p , double factor ){
-		
-		Point2D returnPoint = new Point.Double( p.getX() /factor , p.getY() /factor );
-		return returnPoint;
-	}
 	@Deprecated
 	/**Return is world positions
 	 * 
@@ -116,26 +102,26 @@ public abstract class Boundary {
 		final Point2D[] points1= b1.getOuterPointsPair(axis); 
 		final Point2D[] points2= b2.getOuterPointsPair(axis); 
 		
-		Point2D localPointPlayer = shiftPoint( points1[0] , primaryPosition );
-		Point2D localPointStat = shiftPoint( points2[0] , secondaryPosition );
+		Point2D localPointPlayer = UtilityMath.shiftPoint( points1[0] , primaryPosition );
+		Point2D localPointStat = UtilityMath.shiftPoint( points2[0] , secondaryPosition );
 		
 		Point2D[] farthestPoints = new Point2D[]{ localPointPlayer , localPointStat };
 		
 		for ( int i = 0 ; i < points1.length ; i++ ){
 			
-			localPointPlayer = getProjectionPoint( shiftPoint( points1[i] , primaryPosition) , axis );
+			localPointPlayer = getProjectionPoint( UtilityMath.shiftPoint( points1[i] , primaryPosition) , axis );
 			
 			for ( int j = 0 ; j < points2.length ; j++ ){ 
 				
-				localPointStat = getProjectionPoint( shiftPoint( points2[j], secondaryPosition ) , axis );
+				localPointStat = getProjectionPoint( UtilityMath.shiftPoint( points2[j], secondaryPosition ) , axis );
 				
 				if ( localPointPlayer.distance( localPointStat ) 
 						> 
 					getProjectionPoint( farthestPoints[0] , axis ).distance( getProjectionPoint( farthestPoints[1] , axis ) ) 
 				){
 					// points i and j are farther apart on axis than whats stored 
-					farthestPoints[0] = shiftPoint(points1[i] , primaryPosition );
-					farthestPoints[1] = shiftPoint(points2[j] , secondaryPosition );
+					farthestPoints[0] = UtilityMath.shiftPoint(points1[i] , primaryPosition );
+					farthestPoints[1] = UtilityMath.shiftPoint(points2[j] , secondaryPosition );
 				}
 				
 			}

@@ -226,14 +226,12 @@ public class BoundaryCircular extends Boundary{
 
 	@Override
 	public void scaleBoundary(double scaleFactor) {
-		// TODO Auto-generated method stub
-		
+		this.radius = (int)( this.radius * scaleFactor );
 	}
 
 	@Override
 	public void scaleBoundary(double scaleFactor, Point center) {
 		// TODO Auto-generated method stub
-		
 	}
 	
 	@Override

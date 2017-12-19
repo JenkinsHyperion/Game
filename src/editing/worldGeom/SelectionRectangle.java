@@ -3,8 +3,9 @@ package editing.worldGeom;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
+
 
 import engine.MovingCamera;
 
@@ -35,18 +36,16 @@ public class SelectionRectangle implements SelectionRectangleAbstract{
 		//camera.drawRect(selectionRectangle, g, outlineColor, fillColor, .3f);
 		//camera.debugDrawPolygon(selectionRectangle, fillColor, camera.getRelativePoint(initClickPoint), new AffineTransform(), .3f);
 		//camera.drawShapeInWorld(new Rectangle((int)selectionRectangle.getWidth(),(int)selectionRectangle.getHeight()), selectionRectangle.getLocation());
-		
 		camera.drawShapeInWorldSelectionRect(new Rectangle((int)selectionRectangle.getWidth(),(int)selectionRectangle.getHeight()), 
 				selectionRectangle.getLocation(), outlineColor, fillColor, .3f, true);
 /*
 		Point point = camera.getFullRelativePositionOf(initClickPoint);
-		
 		g.drawRect( (point.x) , (point.y) ,(int)selectionRectangle.getWidth(),(int)selectionRectangle.getHeight() );
-		
-		
 		*/
 		camera.drawCrossInWorld(initClickPoint);
- 
+		g.drawRect(selectionRectangle.x, selectionRectangle.y, selectionRectangle.width, selectionRectangle.height);
+		//Polygon shape = camera.convertScreenPolygonToWorldPolygon(selectionRectangle); //debugging making sure the math of the box is where its supposed to be
+		//camera.drawShapeInWorld( shape, new Point() );
 	}
 
 	public void setInitialRectPoint(){

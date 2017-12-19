@@ -36,11 +36,10 @@ public class RenderingEngine {
 	
 	private ArrayList<OverlayComposite> visibleOverlayList = new ArrayList<OverlayComposite>();
 	
-	private ArrayList<Sprite> spriteListTEMPORARY_USEAGE_ONLY = new ArrayList<Sprite>();
-	
 	public RenderingEngine( BoardAbstract board){
-		this.camera = new MovingCamera( board , this.graphics , null  ); 
+		this.camera = new MovingCamera( board , this.graphics , board  ); 
 		this.ownerBoard = board;
+		board.addEntityToUpdater(camera);
 		init();
 	}
 	

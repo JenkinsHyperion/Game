@@ -9,6 +9,7 @@ import java.awt.geom.Point2D;
 import engine.MovingCamera;
 import entityComposites.EntityStatic;
 import misc.CollisionEvent;
+import utility.UtilityMath;
 
 public class BoundarySingular extends Boundary{
 
@@ -65,7 +66,7 @@ public class BoundarySingular extends Boundary{
 	
 	@Override
 	protected Point2D farthestLocalPointFromPoint(Point primaryOrigin, Point2D localPoint, Line2D axis) {
-		return Boundary.shiftPoint(center,primaryOrigin);
+		return UtilityMath.shiftPoint(center,primaryOrigin);
 	}
 	
 	@Override

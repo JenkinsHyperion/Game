@@ -669,7 +669,7 @@ public class WorldGeometry extends ModeAbstract{
 			@Override
 			public void mousePressed() {
 				selectionRectangleState = selectionRectangle;
-				initClickPoint.setLocation(camera.getWorldPos(worldGeomMousePos));
+				initClickPoint.setLocation( worldGeomMousePos );
 				selectionRectangleState.setInitialRectPoint();
 			}
 			@Override

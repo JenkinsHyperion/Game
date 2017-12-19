@@ -92,7 +92,7 @@ public class EntityStatic extends Entity{
 //		for ( int i = index ; i < updateablesList.size() ; i++){
 //			updateablesList.get(i).decrementIndex();
 //		}
-		System.out.println("REMOVE UPDATEABLES "+updateablesList.size());
+		//System.out.println("REMOVE UPDATEABLES "+updateablesList.size());
 		modifyUpdateablesList.add( index );
 		
 		
@@ -101,7 +101,7 @@ public class EntityStatic extends Entity{
 	public void addUpdateableEntityToUpdater( BoardAbstract board ){
 		if ( this.updaterSlot.isActive() ){
 			
-			System.err.println( "EntityStatic: ["+this+"] is already in the updater list");
+			//System.err.println( "EntityStatic: ["+this+"] is already in the updater list");
 		}
 		else{
 			this.updaterSlot = board.addEntityToUpdater(this);
@@ -144,17 +144,17 @@ public class EntityStatic extends Entity{
 			
 			int index = itr.next();  
 			
-			System.out.println("REMOVING "+index+" from "+updateablesList.size());
+			//System.out.println("REMOVING "+index+" from "+updateablesList.size());
 			
 			updateablesList.remove(index);
-			System.out.println("REMOVED UPDATEABLE "+updateablesList.size());
+			//System.out.println("REMOVED UPDATEABLE "+updateablesList.size());
 			//for ( int i = index ; i < updateablesList.size() ; ++i ){
 			//	updateablesList.get(i).decrementIndex();
 			//}
 			itr.remove();
 			
 			if ( updateablesList.size() == 0 ){
-				System.out.println("Updateables emptied ");
+				//System.out.println("Updateables emptied ");
 				this.removeUpdateableEntityFromUpdater();
 			}
 
@@ -241,7 +241,7 @@ public class EntityStatic extends Entity{
 		return CompositeFactory.addAngularComposite(this);
 	}
 
-	public TranslationComposite addTranslationTo(){
+	public TranslationComposite addTranslationComposite(){
 		return CompositeFactory.addTranslationTo(this);
 	}
 	
